@@ -5,11 +5,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.util.Log
-import com.google.mediapipe.formats.proto.LandmarkProto
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.core.vision_task_running_mode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
+import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerOptions
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,15 +34,17 @@ class MediaPipePoseProcessor(private val context: Context) {
     
     private fun initialize() {
         try {
+            // Note: MediaPipe model file (pose_landmarker_lite.task) must be placed in app/src/main/assets/
+            // Download from: https://developers.google.com/mediapipe/solutions/vision/pose_landmarker
+            
             val baseOptions = BaseOptions.builder()
                 .setModelAssetPath("pose_landmarker_lite.task")
-                .setDelegate(BaseOptions.Delegate.CPU)
                 .build()
             
-            val options = com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerOptions.builder()
+            val options = PoseLandmarkerOptions.builder()
                 .setBaseOptions(baseOptions)
                 .setRunningMode(RunningMode.LIVE_STREAM)
-                .setResultListener { result, image ->
+                .setResultListener { result: PoseLandmarkerResult, image: com.google.mediapipe.tasks.vision.core.MPImage ->
                     _poseResult.value = result
                 }
                 .build()
@@ -138,13 +139,13 @@ class MediaPipePoseProcessor(private val context: Context) {
      */
     fun getKeyPoints(): List<KeyPoint>? {
         val result = _poseResult.value ?: return null
-        return result.landmarks().firstOrNull()?.landmarkList?.mapIndexed { index, landmark ->
+        return result.landmarks().firstOrNull()?.mapIndexed { index, landmark ->
             KeyPoint(
                 index = index,
-                x = landmark.x,
-                y = landmark.y,
-                z = landmark.z,
-                visibility = landmark.visibility
+                x = landmark.x(),
+                y = landmark.y(),
+                z = landmark.z(),
+                visibility = landmark.visibility()
             )
         }
     }

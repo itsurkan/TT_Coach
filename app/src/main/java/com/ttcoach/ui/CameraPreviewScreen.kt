@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.camera.view.PreviewView
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -43,8 +45,8 @@ fun CameraPreviewScreen(
     
     // Request permission if needed
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
         hasPermission = isGranted
         if (!isGranted) {
             cameraError = "Camera permission is required"
