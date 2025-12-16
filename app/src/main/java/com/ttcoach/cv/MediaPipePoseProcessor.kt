@@ -5,11 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.ImageFormat
 import android.util.Log
-import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerOptions
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+// MediaPipe imports - TODO: Fix API imports when MediaPipe model is added
+// import com.google.mediapipe.tasks.core.BaseOptions
+// import com.google.mediapipe.tasks.vision.core.RunningMode
+// import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
+// import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerOptions
+// import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +20,10 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 class MediaPipePoseProcessor(private val context: Context) {
     
-    private var poseLandmarker: PoseLandmarker? = null
-    private val _poseResult = MutableStateFlow<PoseLandmarkerResult?>(null)
-    val poseResult: StateFlow<PoseLandmarkerResult?> = _poseResult.asStateFlow()
+    // TODO: Uncomment when MediaPipe API is fixed
+    // private var poseLandmarker: PoseLandmarker? = null
+    private val _poseResult = MutableStateFlow<Any?>(null) // PoseLandmarkerResult? when fixed
+    val poseResult: StateFlow<Any?> = _poseResult.asStateFlow() // PoseLandmarkerResult? when fixed
     
     private val _isInitialized = MutableStateFlow(false)
     val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
@@ -34,24 +36,27 @@ class MediaPipePoseProcessor(private val context: Context) {
     
     private fun initialize() {
         try {
+            // TODO: Initialize MediaPipe when model file is added and API is fixed
             // Note: MediaPipe model file (pose_landmarker_lite.task) must be placed in app/src/main/assets/
             // Download from: https://developers.google.com/mediapipe/solutions/vision/pose_landmarker
             
-            val baseOptions = BaseOptions.builder()
-                .setModelAssetPath("pose_landmarker_lite.task")
-                .build()
+            // val baseOptions = BaseOptions.builder()
+            //     .setModelAssetPath("pose_landmarker_lite.task")
+            //     .build()
+            // 
+            // val options = PoseLandmarkerOptions.builder()
+            //     .setBaseOptions(baseOptions)
+            //     .setRunningMode(RunningMode.LIVE_STREAM)
+            //     .setResultListener { result: PoseLandmarkerResult, image: MPImage ->
+            //         _poseResult.value = result
+            //     }
+            //     .build()
+            // 
+            // poseLandmarker = PoseLandmarker.createFromOptions(context, options)
             
-            val options = PoseLandmarkerOptions.builder()
-                .setBaseOptions(baseOptions)
-                .setRunningMode(RunningMode.LIVE_STREAM)
-                .setResultListener { result: PoseLandmarkerResult, image: com.google.mediapipe.tasks.vision.core.MPImage ->
-                    _poseResult.value = result
-                }
-                .build()
-            
-            poseLandmarker = PoseLandmarker.createFromOptions(context, options)
-            _isInitialized.value = true
-            Log.d(TAG, "MediaPipe Pose initialized successfully")
+            // For now, mark as not initialized until MediaPipe is properly integrated
+            _isInitialized.value = false
+            Log.w(TAG, "MediaPipe Pose initialization skipped - API needs fixing and model file required")
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing MediaPipe Pose", e)
             _isInitialized.value = false
@@ -65,25 +70,11 @@ class MediaPipePoseProcessor(private val context: Context) {
      */
     fun processFrame(bitmap: Bitmap, timestamp: Long) {
         try {
-            val landmarker = poseLandmarker ?: return
-            
-            // Create MPImage from Bitmap
-            // MediaPipe Tasks Vision uses MPImage which can be created from Bitmap
-            val mpImage = com.google.mediapipe.formats.proto.LandmarkProto.NormalizedLandmarkList.getDefaultInstance()
-            // Note: Need to use proper MPImage creation - this is a placeholder
-            // The actual API may vary, but typically:
+            // TODO: Implement MediaPipe frame processing when API is fixed
+            // val landmarker = poseLandmarker ?: return
             // val mpImage = MPImage(bitmap, MPImage.ImageFormat.IMAGE_FORMAT_RGB)
-            
-            // For now, using a workaround - convert to proper format
-            // This will need to be adjusted based on actual MediaPipe Tasks Vision API
-            try {
-                // Process frame - the actual API call may differ
-                // landmarker.detectAsync(mpImage, timestamp)
-                Log.d(TAG, "Frame processed at timestamp: $timestamp")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error in detectAsync", e)
-            }
-            
+            // landmarker.detectAsync(mpImage, timestamp)
+            Log.d(TAG, "Frame processed at timestamp: $timestamp (MediaPipe processing disabled)")
         } catch (e: Exception) {
             Log.e(TAG, "Error processing frame with Bitmap", e)
         }
@@ -138,21 +129,24 @@ class MediaPipePoseProcessor(private val context: Context) {
      * Get 33 key points from the latest pose result
      */
     fun getKeyPoints(): List<KeyPoint>? {
-        val result = _poseResult.value ?: return null
-        return result.landmarks().firstOrNull()?.mapIndexed { index, landmark ->
-            KeyPoint(
-                index = index,
-                x = landmark.x(),
-                y = landmark.y(),
-                z = landmark.z(),
-                visibility = landmark.visibility()
-            )
-        }
+        // TODO: Implement when MediaPipe is properly integrated
+        // val result = _poseResult.value as? PoseLandmarkerResult ?: return null
+        // return result.landmarks().firstOrNull()?.mapIndexed { index, landmark ->
+        //     KeyPoint(
+        //         index = index,
+        //         x = landmark.x(),
+        //         y = landmark.y(),
+        //         z = landmark.z(),
+        //         visibility = landmark.visibility().orElse(0f)
+        //     )
+        // }
+        return null
     }
     
     fun release() {
-        poseLandmarker?.close()
-        poseLandmarker = null
+        // TODO: Release MediaPipe resources when implemented
+        // poseLandmarker?.close()
+        // poseLandmarker = null
         _isInitialized.value = false
         Log.d(TAG, "MediaPipe Pose released")
     }
