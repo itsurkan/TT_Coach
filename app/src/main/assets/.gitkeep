@@ -1,0 +1,4 @@
+# Place MediaPipe model files here
+# Download pose_landmarker_lite.task from:
+# https://developers.google.com/mediapipe/solutions/vision/pose_landmarker
+
