@@ -1,58 +1,41 @@
-# TT Coach - AI Table Tennis Coaching App
+# MediaPipe Tasks Pose Landmark Detection Android Demo
 
-A native Android application that provides real-time analysis of table tennis techniques, specifically focusing on the Forehand Drive (Накат справа) with instant voice feedback (<200ms latency).
+### Overview
 
-## Features
+This is a camera app that can detects landmarks on a person either from continuous camera frames seen by your device's back camera, an image, or a video from the device's gallery using a custom **task** file.
 
-- **Real-time Pose Tracking**: MediaPipe Pose estimation (33 key points)
-- **Ball Detection & Tracking**: YOLO Nano model with Kalman filter for stable tracking
-- **Instant Voice Feedback**: Native Android TTS with <200ms latency
-- **Ball Analysis**: Speed, spin estimation, trajectory analysis, and In/Out detection
-- **LLM-Powered Reports**: OpenAI integration for detailed training analysis
+The task file is downloaded by a Gradle script when you build and run the app. You don't need to do any additional steps to download task files into the project explicitly unless you wish to use your own landmark detection task. If you do use your own task file, place it into the app's *assets* directory.
 
-## Project Structure
+This application should be run on a physical Android device to take advantage of the camera.
 
-```
-app/src/main/java/com/ttcoach/
-├── MainActivity.kt
-├── camera/          # Camera2 API integration
-├── cv/              # Computer vision modules
-├── analysis/        # Analysis engine
-├── ball/            # Ball analysis module
-├── audio/           # Audio feedback
-├── llm/             # LLM integration
-├── ui/              # UI components (Jetpack Compose)
-└── data/            # Data models and storage
-```
+![Pose Landmarker Demo](pose_landmarker.png?raw=true "Pose Landmarker Demo")
+[Public domain video from Lance Foss](https://www.youtube.com/watch?v=KALIKOd1pbA)
 
-## Requirements
+## Build the demo using Android Studio
 
-- Android Studio Hedgehog (2023.1.1) or later
-- Android SDK 24+ (minimum), 34 (target)
-- Java 17
-- Gradle 8.2+
+### Prerequisites
 
-## Setup
+*   The **[Android Studio](https://developer.android.com/studio/index.html)** IDE. This sample has been tested on Android Studio Dolphin.
 
-1. Clone the repository
-2. Open in Android Studio
-3. Sync Gradle files
-4. Build and run on an Android device or emulator
+*   A physical Android device with a minimum OS version of SDK 24 (Android 7.0 -
+    Nougat) with developer mode enabled. The process of enabling developer mode
+    may vary by device.
 
-## Dependencies
+### Building
 
-- MediaPipe Tasks Vision (Pose estimation)
-- TensorFlow Lite (YOLO Nano model)
-- CameraX (Camera2 API wrapper)
-- Room Database (Local storage)
-- Retrofit (OpenAI API)
-- Jetpack Compose (UI)
+*   Open Android Studio. From the Welcome screen, select Open an existing
+    Android Studio project.
 
-## Development Status
+*   From the Open File or Project window that appears, navigate to and select
+    the mediapipe/examples/pose_landmarker/android directory. Click OK. You may
+    be asked if you trust the project. Select Trust.
 
-Currently in Week 1: Setting up project structure and implementing pose tracking.
+*   If it asks you to do a Gradle Sync, click OK.
 
-## License
+*   With your Android device connected to your computer and developer mode
+    enabled, click on the green Run arrow in Android Studio.
 
-[To be determined]
+### Models used
 
+Downloading, extraction, and placing the models into the *assets* folder is
+managed automatically by the **download.gradle** file.
