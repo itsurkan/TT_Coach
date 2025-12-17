@@ -16,6 +16,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.ttcoach.analysis.PoseAnalysisCoordinator
+import com.ttcoach.analysis.TechniqueAnalysis
+import com.ttcoach.analysis.HitDetectionResult
 import com.ttcoach.camera.CameraManager
 import com.ttcoach.cv.MediaPipePoseProcessor
 
@@ -33,6 +36,10 @@ fun CameraPreviewScreen(
     
     val cameraManager = remember { CameraManager(context) }
     val poseProcessor = remember { MediaPipePoseProcessor(context) }
+    val poseCoordinator = remember { PoseAnalysisCoordinator(poseProcessor, useRightArm = true) }
+    
+    var techniqueAnalysis by remember { mutableStateOf<TechniqueAnalysis?>(null) }
+    var hitDetection by remember { mutableStateOf<HitDetectionResult?>(null) }
     
     // Check camera permission
     LaunchedEffect(Unit) {
@@ -74,6 +81,32 @@ fun CameraPreviewScreen(
             }
         } else if (!hasPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+    
+    // Observe pose analysis results
+    LaunchedEffect(poseCoordinator) {
+        poseCoordinator.techniqueAnalysis.collect {
+            techniqueAnalysis = it
+        }
+    }
+    
+    LaunchedEffect(poseCoordinator) {
+        poseCoordinator.hitDetection.collect {
+            hitDetection = it
+        }
+    }
+    
+    // Process camera frames for pose analysis
+    LaunchedEffect(cameraManager.frameFlow) {
+        cameraManager.frameFlow.collect { imageProxy ->
+            imageProxy?.let {
+                val timestamp = System.currentTimeMillis()
+                // TODO: Convert ImageProxy to Bitmap and process with MediaPipe
+                // For now, process with pose coordinator when MediaPipe is ready
+                // poseCoordinator.processFrame(ballPosition = null, timestamp = timestamp)
+                imageProxy.close()
+            }
         }
     }
     
@@ -150,6 +183,74 @@ fun CameraPreviewScreen(
                     ) {
                         Text("FPS: ${fps.toInt()}")
                         Text("Pose: ${if (poseProcessor.isInitialized.value) "Ready" else "Initializing..."}")
+                    }
+                }
+                
+                // Technique Analysis Display
+                techniqueAnalysis?.let { analysis ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = "Technique Analysis",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            analysis.elbowAngle?.let {
+                                Text("Elbow: ${it.toInt()}° (Score: ${(analysis.elbowScore * 100).toInt()}%)")
+                            }
+                            analysis.shoulderAngle?.let {
+                                Text("Shoulder: ${it.toInt()}° (Score: ${(analysis.shoulderScore * 100).toInt()}%)")
+                            }
+                            analysis.bodyRotation?.let {
+                                Text("Body Rotation: ${it.toInt()}° (Score: ${(analysis.bodyRotationScore * 100).toInt()}%)")
+                            }
+                            Text(
+                                text = "Overall Score: ${(analysis.overallScore * 100).toInt()}%",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+                
+                // Hit Detection Display
+                hitDetection?.let { hit ->
+                    if (hit.hitDetected || hit.hitStart || hit.hitEnd) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (hit.hitDetected) 
+                                    MaterialTheme.colorScheme.primaryContainer 
+                                else 
+                                    MaterialTheme.colorScheme.surfaceVariant
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = when {
+                                        hit.hitStart -> "HIT START"
+                                        hit.hitEnd -> "HIT END"
+                                        hit.hitDetected -> "HIT!"
+                                        else -> ""
+                                    },
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = "Velocity: ${(hit.wristVelocity * 1000).toInt()}",
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
                     }
                 }
             } else {
