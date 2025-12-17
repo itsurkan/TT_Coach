@@ -28,7 +28,6 @@ fun CameraPreviewScreen(
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     
     var hasPermission by remember { mutableStateOf(false) }
     var cameraError by remember { mutableStateOf<String?>(null) }
@@ -98,7 +97,7 @@ fun CameraPreviewScreen(
     }
     
     // Process camera frames for pose analysis
-    LaunchedEffect(cameraManager.frameFlow) {
+    LaunchedEffect(cameraManager) {
         cameraManager.frameFlow.collect { imageProxy ->
             imageProxy?.let {
                 val timestamp = System.currentTimeMillis()
