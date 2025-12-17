@@ -1,6 +1,5 @@
 package com.ttcoach.cv
 
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -46,7 +45,7 @@ class MediaPipePoseProcessor(private val context: Context) {
                  .setModelAssetPath("pose_landmarker_lite.task")
                  .build()
 
-             val options = PoseLandmarkerOptions.builder()
+             val options = PoseLandmarker.PoseLandmarkerOptions.builder()
                  .setBaseOptions(baseOptions)
                  .setRunningMode(RunningMode.LIVE_STREAM)
                  .setResultListener { result: PoseLandmarkerResult, image: MPImage ->
@@ -132,18 +131,16 @@ class MediaPipePoseProcessor(private val context: Context) {
      */
     fun getKeyPoints(): List<KeyPoint>? {
         // TODO: Implement when MediaPipe is properly integrated
-         val result = _poseResult.value as? PoseLandmarkerResult ?: return null
-         return result.landmarks().firstOrNull()?.mapIndexed { index, landmark ->
-             KeyPoint(
-                 index = index,
-                 x = landmark.x(),
-                 y = landmark.y(),
-                 z = landmark.z(),
-                 visibility = landmark.visibility().orElse(0f)
-             )
-        // }
-        return null
-    }
+        val result = _poseResult.value as? PoseLandmarkerResult ?: return null
+        return result.landmarks().firstOrNull()?.mapIndexed { index, landmark ->
+            KeyPoint(
+                index = index,
+                x = landmark.x(),
+                y = landmark.y(),
+                z = landmark.z(),
+                visibility = landmark.visibility().orElse(0f)
+            )
+        }
     }
 
     fun release() {

@@ -18,7 +18,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.ttcoach.camera.CameraManager
 import com.ttcoach.cv.MediaPipePoseProcessor
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,11 +64,9 @@ fun CameraPreviewScreen(
                         cameraError = error
                     }
                     
-                    // Observe FPS
-                    scope.launch {
-                        cameraManager.fps.collect {
-                            fps = it
-                        }
+                    // Observe FPS - collect directly in LaunchedEffect so it's cancelled automatically
+                    cameraManager.fps.collect {
+                        fps = it
                     }
                 }
             } catch (e: Exception) {
