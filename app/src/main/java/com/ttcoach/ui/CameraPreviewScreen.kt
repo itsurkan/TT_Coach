@@ -16,11 +16,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.unit.dp
 import com.ttcoach.analysis.PoseAnalysisCoordinator
 import com.ttcoach.analysis.TechniqueAnalysis
 import com.ttcoach.analysis.HitDetectionResult
 import com.ttcoach.camera.CameraManager
 import com.ttcoach.cv.MediaPipePoseProcessor
+import com.ttcoach.cv.KeyPoint
+import com.ttcoach.utils.ImageUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +48,7 @@ fun CameraPreviewScreen(
     
     var techniqueAnalysis by remember { mutableStateOf<TechniqueAnalysis?>(null) }
     var hitDetection by remember { mutableStateOf<HitDetectionResult?>(null) }
+    var keyPoints by remember { mutableStateOf<List<KeyPoint>?>(null) }
     
     // Track if composable is still active
     var isActive by remember { mutableStateOf(true) }
@@ -111,14 +121,40 @@ fun CameraPreviewScreen(
     }
     
     // Process camera frames for pose analysis
-    LaunchedEffect(cameraManager) {
+    LaunchedEffect(cameraManager, poseProcessor) {
         cameraManager.frameFlow.collect { imageProxy ->
+            if (!isActive) {
+                imageProxy?.close()
+                return@collect
+            }
+            
             imageProxy?.let {
-                val timestamp = System.currentTimeMillis()
-                // TODO: Convert ImageProxy to Bitmap and process with MediaPipe
-                // For now, process with pose coordinator when MediaPipe is ready
-                // poseCoordinator.processFrame(ballPosition = null, timestamp = timestamp)
-                imageProxy.close()
+                try {
+                    val timestamp = System.currentTimeMillis()
+                    
+                    // Convert ImageProxy to Bitmap
+                    val bitmap = ImageUtils.imageProxyToBitmap(it)
+                    
+                    if (bitmap != null && poseProcessor.isInitialized.value) {
+                        // Process frame with MediaPipe
+                        poseProcessor.processFrame(bitmap, timestamp)
+                        
+                        // Get key points for visualization
+                        val points = poseProcessor.getKeyPoints()
+                        if (isActive) {
+                            keyPoints = points
+                        }
+                        
+                        // Process with pose coordinator for analysis
+                        if (points != null) {
+                            poseCoordinator.processFrame(ballPosition = null, timestamp = timestamp)
+                        }
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("CameraPreview", "Error processing frame", e)
+                } finally {
+                    imageProxy.close()
+                }
             }
         }
     }
@@ -168,22 +204,55 @@ fun CameraPreviewScreen(
             }
             
             if (hasPermission) {
-                // Camera Preview
-                AndroidView(
-                    factory = { ctx ->
-                        PreviewView(ctx).apply {
-                            layoutParams = FrameLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.MATCH_PARENT
-                            )
-                            scaleType = PreviewView.ScaleType.FILL_CENTER
-                            previewViewRef = this
+                // Camera Preview with Pose Overlay
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                ) {
+                    AndroidView(
+                        factory = { ctx ->
+                            PreviewView(ctx).apply {
+                                layoutParams = FrameLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.MATCH_PARENT
+                                )
+                                scaleType = PreviewView.ScaleType.FILL_CENTER
+                                previewViewRef = this
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    
+                    // Pose Key Points Overlay
+                    keyPoints?.let { points ->
+                        Canvas(modifier = Modifier.fillMaxSize()) {
+                            // Draw skeleton connections first (so points appear on top)
+                            drawPoseConnections(points, size.width, size.height)
+                            
+                            // Draw key points
+                            points.forEach { point ->
+                                if (point.visibility > 0.5f) {
+                                    val x = point.x * size.width
+                                    val y = point.y * size.height
+                                    
+                                    // Draw key point
+                                    drawCircle(
+                                        color = Color.Red,
+                                        radius = 6.dp.toPx(),
+                                        center = Offset(x, y)
+                                    )
+                                    
+                                    // Draw visibility indicator
+                                    drawCircle(
+                                        color = Color.Green.copy(alpha = point.visibility),
+                                        radius = 4.dp.toPx(),
+                                        center = Offset(x, y)
+                                    )
+                                }
+                            }
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                )
+                    }
+                }
                 
                 // FPS Display
                 Card(
@@ -289,6 +358,67 @@ fun CameraPreviewScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Draw pose skeleton connections
+ */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPoseConnections(
+    points: List<KeyPoint>,
+    width: Float,
+    height: Float
+) {
+    if (points.size < 33) return
+    
+    val strokeWidth = 3.dp.toPx()
+    val connectionColor = Color.Cyan.copy(alpha = 0.7f)
+    
+    // Helper function to get point if visible
+    fun getPoint(index: Int): Offset? {
+        if (index >= points.size) return null
+        val point = points[index]
+        return if (point.visibility > 0.5f) {
+            Offset(point.x * width, point.y * height)
+        } else null
+    }
+    
+    // Draw connections
+    val connections = listOf(
+        // Face
+        Pair(LEFT_EYE, RIGHT_EYE),
+        Pair(LEFT_EYE, NOSE),
+        Pair(RIGHT_EYE, NOSE),
+        Pair(LEFT_EAR, LEFT_EYE),
+        Pair(RIGHT_EAR, RIGHT_EYE),
+        // Upper body
+        Pair(LEFT_SHOULDER, RIGHT_SHOULDER),
+        Pair(LEFT_SHOULDER, LEFT_ELBOW),
+        Pair(LEFT_ELBOW, LEFT_WRIST),
+        Pair(RIGHT_SHOULDER, RIGHT_ELBOW),
+        Pair(RIGHT_ELBOW, RIGHT_WRIST),
+        Pair(LEFT_SHOULDER, LEFT_HIP),
+        Pair(RIGHT_SHOULDER, RIGHT_HIP),
+        // Torso
+        Pair(LEFT_HIP, RIGHT_HIP),
+        // Lower body
+        Pair(LEFT_HIP, LEFT_KNEE),
+        Pair(LEFT_KNEE, LEFT_ANKLE),
+        Pair(RIGHT_HIP, RIGHT_KNEE),
+        Pair(RIGHT_KNEE, RIGHT_ANKLE),
+    )
+    
+    connections.forEach { (startIdx, endIdx) ->
+        val start = getPoint(startIdx)
+        val end = getPoint(endIdx)
+        if (start != null && end != null) {
+            drawLine(
+                color = connectionColor,
+                start = start,
+                end = end,
+                strokeWidth = strokeWidth
+            )
         }
     }
 }

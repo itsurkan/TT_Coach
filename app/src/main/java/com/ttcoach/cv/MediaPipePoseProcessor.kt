@@ -55,9 +55,14 @@ class MediaPipePoseProcessor(private val context: Context) {
             //
              poseLandmarker = PoseLandmarker.createFromOptions(context, options)
 
-            // For now, mark as not initialized until MediaPipe is properly integrated
-            _isInitialized.value = false
-            Log.w(TAG, "MediaPipe Pose initialization skipped - API needs fixing and model file required")
+            // Mark as initialized if landmarker was created successfully
+            if (poseLandmarker != null) {
+                _isInitialized.value = true
+                Log.d(TAG, "MediaPipe Pose initialized successfully")
+            } else {
+                _isInitialized.value = false
+                Log.w(TAG, "MediaPipe Pose initialization failed - model file may be missing")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error initializing MediaPipe Pose", e)
             _isInitialized.value = false
@@ -71,11 +76,22 @@ class MediaPipePoseProcessor(private val context: Context) {
      */
     fun processFrame(bitmap: Bitmap, timestamp: Long) {
         try {
-            // TODO: Implement MediaPipe frame processing when API is fixed
-            // val landmarker = poseLandmarker ?: return
-            // val mpImage = MPImage(bitmap, MPImage.ImageFormat.IMAGE_FORMAT_RGB)
-            // landmarker.detectAsync(mpImage, timestamp)
-            Log.d(TAG, "Frame processed at timestamp: $timestamp (MediaPipe processing disabled)")
+            val landmarker = poseLandmarker ?: return
+            
+            // Convert Bitmap to RGB if needed
+            val rgbBitmap = if (bitmap.config == Bitmap.Config.ARGB_8888) {
+                bitmap
+            } else {
+                bitmap.copy(Bitmap.Config.ARGB_8888, false)
+            }
+            
+            // Create MPImage from Bitmap
+            val mpImage = MPImage(rgbBitmap, MPImage.ImageFormat.IMAGE_FORMAT_RGBA)
+            
+            // Process frame asynchronously
+            landmarker.detectAsync(mpImage, timestamp)
+            
+            frameTimestamp = timestamp
         } catch (e: Exception) {
             Log.e(TAG, "Error processing frame with Bitmap", e)
         }
