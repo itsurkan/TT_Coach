@@ -40,6 +40,9 @@ fun CameraPreviewScreen(
     var techniqueAnalysis by remember { mutableStateOf<TechniqueAnalysis?>(null) }
     var hitDetection by remember { mutableStateOf<HitDetectionResult?>(null) }
     
+    // Track if composable is still active
+    var isActive by remember { mutableStateOf(true) }
+    
     // Check camera permission
     LaunchedEffect(Unit) {
         hasPermission = ContextCompat.checkSelfPermission(
@@ -65,18 +68,25 @@ fun CameraPreviewScreen(
         if (hasPermission && previewViewRef != null) {
             try {
                 val activity = context as? androidx.activity.ComponentActivity
-                if (activity != null && previewViewRef != null) {
+                if (activity != null && previewViewRef != null && isActive) {
                     cameraManager.initialize(previewViewRef!!, activity) { error ->
-                        cameraError = error
+                        // Only update state if composable is still active
+                        if (isActive) {
+                            cameraError = error
+                        }
                     }
                     
                     // Observe FPS - collect directly in LaunchedEffect so it's cancelled automatically
                     cameraManager.fps.collect {
-                        fps = it
+                        if (isActive) {
+                            fps = it
+                        }
                     }
                 }
             } catch (e: Exception) {
-                cameraError = e.message
+                if (isActive) {
+                    cameraError = e.message
+                }
             }
         } else if (!hasPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
@@ -86,13 +96,17 @@ fun CameraPreviewScreen(
     // Observe pose analysis results
     LaunchedEffect(poseCoordinator) {
         poseCoordinator.techniqueAnalysis.collect {
-            techniqueAnalysis = it
+            if (isActive) {
+                techniqueAnalysis = it
+            }
         }
     }
     
     LaunchedEffect(poseCoordinator) {
         poseCoordinator.hitDetection.collect {
-            hitDetection = it
+            if (isActive) {
+                hitDetection = it
+            }
         }
     }
     
@@ -111,7 +125,9 @@ fun CameraPreviewScreen(
     
     // Cleanup on dispose
     DisposableEffect(Unit) {
+        isActive = true
         onDispose {
+            isActive = false
             cameraManager.release()
             poseProcessor.release()
         }
