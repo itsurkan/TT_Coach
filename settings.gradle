@@ -13,5 +13,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Pose Landmarker"
+rootProject.name = "TT AI Coach 1"
 include ':app'
