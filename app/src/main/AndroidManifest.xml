@@ -33,21 +33,46 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
+        <!-- Welcome Screen (Main Launcher) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".WelcomeActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
 
+        <!-- Exercise Selection Screen -->
+        <activity
+            android:name=".ExerciseSelectionActivity"
+            android:exported="false"
+            android:parentActivityName=".WelcomeActivity" />
+
+        <!-- Training Screen -->
+        <activity
+            android:name=".TrainingActivity"
+            android:exported="false"
+            android:parentActivityName=".ExerciseSelectionActivity"
+            android:screenOrientation="landscape" />
+
+        <!-- Settings Screen -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".WelcomeActivity" />
+
+        <!-- Original MainActivity (Legacy) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false">
             <!-- Declare notch support -->
             <meta-data
                 android:name="android.notch_support"
                 android:value="true" />
         </activity>
 
+        <!-- Camera Activity with MediaPipe -->
         <activity
             android:name=".CameraActivity"
             android:exported="false">
