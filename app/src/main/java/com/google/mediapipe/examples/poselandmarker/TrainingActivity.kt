@@ -10,7 +10,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
+import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
+import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
+import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
 
 class TrainingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityTrainingBinding
@@ -18,6 +23,13 @@ class TrainingActivity : AppCompatActivity() {
     private var exerciseName: String? = null
     private var isTrainingActive = false
     private val feedbackHistory = mutableListOf<String>()
+    
+    // Аналітика та параметри
+    private lateinit var exerciseParameters: ExerciseParameters
+    private lateinit var motionAnalyzer: MotionAnalyzer
+    private lateinit var feedbackGenerator: FeedbackGenerator
+    private val analysisResults = mutableListOf<AnalysisResult>()
+    private var consecutiveGoodStrokes = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +40,32 @@ class TrainingActivity : AppCompatActivity() {
         exerciseId = intent.getStringExtra("EXERCISE_ID")
         exerciseName = intent.getStringExtra("EXERCISE_NAME")
 
+        // Ініціалізація аналітики
+        initializeAnalysis()
+        
         setupUI()
+    }
+    
+    private fun initializeAnalysis() {
+        // Завантажити параметри з SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val idealWristAngle = prefs.getInt("ideal_wrist_angle", 180)
+        val minBodyRotation = prefs.getInt("min_body_rotation", 45)
+        val followThroughAngle = prefs.getInt("follow_through_angle", 120)
+        
+        exerciseParameters = when (exerciseId) {
+            "forehand_drive" -> ExerciseParameters.fromSharedPreferences(
+                exerciseId = "forehand_drive",
+                idealWristAngle = idealWristAngle,
+                minBodyRotation = minBodyRotation,
+                followThroughAngle = followThroughAngle
+            )
+            "backhand_drive" -> ExerciseParameters.backhandDrive()
+            else -> ExerciseParameters.forehandDrive()
+        }
+        
+        motionAnalyzer = MotionAnalyzer(exerciseParameters)
+        feedbackGenerator = FeedbackGenerator()
     }
 
     private fun setupUI() {
@@ -112,19 +149,30 @@ class TrainingActivity : AppCompatActivity() {
     private fun simulateFeedback() {
         if (!isTrainingActive) return
 
-        val feedbacks = listOf(
-            "✅ Чудово! Ідеальна техніка!",
-            "⚠️ Більше ротації корпусу!",
-            "⚠️ Тримай зап'ястя рівно!",
-            "✅ Гарне проведення руху!",
-            "⚠️ Контакт надто високо - опусти точку удару"
-        )
-
-        val randomFeedback = feedbacks.random()
-        val feedbackType = if (randomFeedback.startsWith("✅")) "success" else "warning"
+        // Симуляція аналізу (в реальності тут буде MediaPipe)
+        val simulatedResult = generateSimulatedAnalysisResult()
+        analysisResults.add(simulatedResult)
         
-        showFeedback(randomFeedback, feedbackType)
-        feedbackHistory.add(randomFeedback)
+        // Генерація фідбеку
+        val shortFeedback = feedbackGenerator.generateShortFeedback(simulatedResult)
+        val feedbackType = if (simulatedResult.isSuccessful()) "success" else "warning"
+        
+        showFeedback(shortFeedback, feedbackType)
+        feedbackHistory.add(shortFeedback)
+        
+        // Підрахунок успішних ударів підряд
+        if (simulatedResult.isSuccessful()) {
+            consecutiveGoodStrokes++
+            
+            // Мотиваційне повідомлення
+            feedbackGenerator.generateMotivationalMessage(consecutiveGoodStrokes)?.let { message ->
+                binding.root.postDelayed({
+                    showFeedback(message, "success")
+                }, 1000)
+            }
+        } else {
+            consecutiveGoodStrokes = 0
+        }
         
         updateFeedbackHistory()
 
@@ -132,6 +180,80 @@ class TrainingActivity : AppCompatActivity() {
         binding.root.postDelayed({
             simulateFeedback()
         }, (3000..5000).random().toLong())
+    }
+    
+    /**
+     * Генерувати симульований результат аналізу для тестування
+     * В реальності тут буде результат з MotionAnalyzer
+     */
+    private fun generateSimulatedAnalysisResult(): AnalysisResult {
+        val random = java.util.Random()
+        val score = 60f + random.nextFloat() * 40f // 60-100%
+        
+        val wristAngle = exerciseParameters.idealWristAngle + 
+            (random.nextFloat() - 0.5f) * 30f
+        val bodyRotation = analysisResults.size
+        val successfulStrokes = analysisResults.count { it.isSuccessful() }
+        val averageScore = if (totalStrokes > 0) {
+            analysisResults.map { it.overallScore }.average().toFloat()
+        } else {
+            0f
+        }
+        
+        val summaryText = feedbackGenerator.generateSessionSummary(
+            totalStrokes = totalStrokes,
+            successfulStrokes = successfulStrokes,
+            averageScore = averageScore
+        )
+        
+        // Знайти найчастішу помилку
+        val mostCommonError = analysisResults
+            .flatMap { it.errors }
+            .groupingBy { it }
+            .eachCount()
+            .maxByOrNull { it.value }
+            ?.key
+        
+        val improvementTip = feedbackGenerator.generateImprovementTip(
+            mostCommonError = mostCommonError,
+            exerciseId = exerciseId ?: ""
+        )
+
+        val fullMessage = if (improvementTip != null) {
+            "$summaryText\n\n$improvementTip"
+        } else {
+            summaryText
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Підсумок тренування")
+            .setMessage(fullMessage)
+            .setPositiveButton("Продовжити") { _, _ ->
+                // Очистити статистику для нової сесії
+                analysisResults.clear()
+                consecutiveGoodStrokes = 0
+            recommendations.add("Тримайте зап'ястя рівно")
+        }
+        if (!isRotationValid) {
+            errors.add("Недостатня ротація корпусу")
+            recommendations.add("Більше ротації для потужності")
+        }
+        if (!isFollowThroughValid) {
+            errors.add("Недостатнє проведення")
+            recommendations.add("Доведіть рух до кінця")
+        }
+        
+        return AnalysisResult(
+            wristAngle = wristAngle,
+            bodyRotation = bodyRotation,
+            followThroughAngle = followThrough,
+            isWristAngleValid = isWristValid,
+            isBodyRotationValid = isRotationValid,
+            isFollowThroughValid = isFollowThroughValid,
+            overallScore = score,
+            errors = errors,
+            recommendations = recommendations
+        )
     }
 
     private fun showFeedback(message: String, type: String) {
