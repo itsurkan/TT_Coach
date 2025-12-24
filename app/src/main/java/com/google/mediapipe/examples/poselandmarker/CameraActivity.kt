@@ -18,20 +18,26 @@ package com.google.mediapipe.examples.poselandmarker
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.content.Intent
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
+import androidx.activity.viewModels
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
+import com.google.mediapipe.examples.poselandmarker.databinding.ActivityCameraBinding
 
-class MainActivity : AppCompatActivity() {
-    private lateinit var activityMainBinding: ActivityMainBinding
+class CameraActivity : AppCompatActivity() {
+    private lateinit var activityCameraBinding: ActivityCameraBinding
+    private val viewModel : MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(activityMainBinding.root)
+        activityCameraBinding = ActivityCameraBinding.inflate(layoutInflater)
+        setContentView(activityCameraBinding.root)
 
-        activityMainBinding.startButton.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            startActivity(intent)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragment_container) as NavHostFragment
+        val navController = navHostFragment.navController
+        activityCameraBinding.navigation.setupWithNavController(navController)
+        activityCameraBinding.navigation.setOnNavigationItemReselectedListener {
+            // ignore the reselection
         }
     }
 

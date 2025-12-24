@@ -11,7 +11,7 @@ dependencyResolutionManagement {
         mavenLocal()
         google()
         mavenCentral()
-    }
+    }   
 }
 rootProject.name = "TT AI Coach 1"
 include ':app'
