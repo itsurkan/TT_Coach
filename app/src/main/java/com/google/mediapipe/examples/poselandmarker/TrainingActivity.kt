@@ -110,7 +110,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         if (useVideo) {
             // Debug mode: Load video from resources with pose detection
             binding.cameraPreviewContainer.visibility = View.GONE
-            binding.videoView.visibility = View.VISIBLE // Show immediately
+            binding.videoContainer.visibility = View.VISIBLE
+            binding.videoView.visibility = View.VISIBLE
             binding.overlay.visibility = View.VISIBLE
             
             videoPlayerManager = VideoPlayerManager(
@@ -125,6 +126,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             videoPlayerManager?.playVideoWithPoseDetection(R.raw.forehand_drive)
         } else {
             // Normal mode: Launch camera
+            binding.videoContainer.visibility = View.GONE
             binding.videoView.visibility = View.GONE
             binding.cameraPreviewContainer.visibility = View.VISIBLE
             

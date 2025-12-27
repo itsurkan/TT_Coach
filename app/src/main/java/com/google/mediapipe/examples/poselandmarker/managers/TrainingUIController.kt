@@ -69,7 +69,7 @@ class TrainingUIController(
         )
         binding.tvAverageScore.text = context.getString(
             R.string.accuracy, 
-            String.format("%.1f", stateManager.getAverageScore())
+            stateManager.getAverageScore().toInt()
         )
     }
     
