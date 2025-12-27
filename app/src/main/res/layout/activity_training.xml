@@ -27,6 +27,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- Overlay for pose landmarks -->
+    <com.google.mediapipe.examples.poselandmarker.OverlayView
+        android:id="@+id/overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/feedback_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <!-- Статус калібрування (показується тільки під час калібрування) -->
     <TextView
         android:id="@+id/tv_calibration_status"

@@ -7,6 +7,8 @@ package com.google.mediapipe.examples.poselandmarker
 
 import android.net.Uri
 import android.os.Bundle
+import android.os.SystemClock
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
@@ -14,8 +16,12 @@ import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
-class TrainingActivity : BaseActivity() {
+class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
@@ -29,6 +35,15 @@ class TrainingActivity : BaseActivity() {
     private lateinit var feedbackGenerator: FeedbackGenerator
     private val analysisResults = mutableListOf<AnalysisResult>()
     private var consecutiveGoodStrokes = 0
+    
+    // Pose detection for video
+    private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
+    private lateinit var backgroundExecutor: ScheduledExecutorService
+    
+    companion object {
+        private const val TAG = "TrainingActivity"
+        private const val VIDEO_INTERVAL_MS = 300L
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,8 +114,8 @@ class TrainingActivity : BaseActivity() {
 
     private fun startCameraPreview() {
         if (useVideo) {
-            // Debug mode: Load video from resources
-            binding.feedbackText.text = "🎬 Debug mode: Loading video from resources"
+            // Debug mode: Load video from resources with pose detection
+            binding.feedbackText.text = "🎬 Debug mode: Processing video..."
             binding.cameraPreviewContainer.visibility = View.GONE
             binding.videoView.visibility = View.VISIBLE
             
@@ -110,7 +125,6 @@ class TrainingActivity : BaseActivity() {
             
             // Set up video playback
             binding.videoView.setOnPreparedListener { mediaPlayer ->
-                mediaPlayer.isLooping = true
                 mediaPlayer.setVolume(0f, 0f) // Mute audio
                 
                 // Scale video to fill width (crop height if needed)
@@ -137,7 +151,8 @@ class TrainingActivity : BaseActivity() {
                 false
             }
             
-            binding.videoView.start()
+            // Process video with pose detection
+            processVideoWithPoseDetection(videoUri)
         } else {
             // Normal mode: Launch camera
             binding.videoView.visibility = View.GONE
@@ -362,5 +377,87 @@ class TrainingActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         // Очищення ресурсів (камера, MediaPipe тощо)
+        if (::backgroundExecutor.isInitialized) {
+            backgroundExecutor.shutdown()
+        }
+        poseLandmarkerHelper?.clearPoseLandmarker()
+    }
+    
+    // Video processing with pose detection
+    private fun processVideoWithPoseDetection(uri: Uri) {
+        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+        backgroundExecutor.execute {
+            poseLandmarkerHelper = PoseLandmarkerHelper(
+                context = this,
+                runningMode = RunningMode.VIDEO,
+                minPoseDetectionConfidence = 0.5f,
+                minPoseTrackingConfidence = 0.5f,
+                minPosePresenceConfidence = 0.5f,
+                currentDelegate = 0 // CPU
+            )
+            
+            runOnUiThread {
+                binding.feedbackText.text = "🎬 Processing video with pose detection..."
+            }
+            
+            poseLandmarkerHelper?.detectVideoFile(uri, VIDEO_INTERVAL_MS)
+                ?.let { resultBundle ->
+                    runOnUiThread { 
+                        displayVideoResult(resultBundle)
+                    }
+                }
+                ?: run { 
+                    Log.e(TAG, "Error running pose landmarker on video")
+                    runOnUiThread {
+                        binding.feedbackText.text = "❌ Failed to detect poses in video"
+                    }
+                }
+        }
+    }
+    
+    private fun displayVideoResult(result: PoseLandmarkerHelper.ResultBundle) {
+        binding.videoView.visibility = View.VISIBLE
+        binding.feedbackText.text = "✅ Video processed - ${result.results.size} frames with poses"
+        
+        binding.videoView.start()
+        val videoStartTimeMs = SystemClock.uptimeMillis()
+        
+        backgroundExecutor.scheduleAtFixedRate(
+            {
+                runOnUiThread {
+                    val videoElapsedTimeMs = SystemClock.uptimeMillis() - videoStartTimeMs
+                    val resultIndex = videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
+                    
+                    if (resultIndex >= result.results.size || binding.videoView.visibility == View.GONE) {
+                        // Video playback finished, loop it
+                        if (binding.videoView.isPlaying) {
+                            binding.videoView.seekTo(0)
+                        }
+                    } else {
+                        binding.overlay.setResults(
+                            result.results[resultIndex],
+                            result.inputImageHeight,
+                            result.inputImageWidth,
+                            RunningMode.VIDEO
+                        )
+                    }
+                }
+            },
+            0,
+            VIDEO_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        )
+    }
+    
+    // PoseLandmarkerHelper.LandmarkerListener implementation
+    override fun onError(error: String, errorCode: Int) {
+        runOnUiThread {
+            binding.feedbackText.text = "❌ Pose detection error: $error"
+            Log.e(TAG, "Pose landmarker error: $error (code: $errorCode)")
+        }
+    }
+    
+    override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
+        // This is called for LIVE_STREAM mode (camera), not used for video
     }
 }
