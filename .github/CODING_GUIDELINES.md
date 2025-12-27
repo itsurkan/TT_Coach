@@ -49,17 +49,21 @@ Group related extensions in separate files.
 
 ## Current Status
 
-### Files Exceeding Limit (Needs Refactoring)
-- ❌ `GalleryFragment.kt` - 400 lines
-- ❌ `CameraFragment.kt` - 361 lines
-- ❌ `PoseLandmarkerHelper.kt` - 342 lines
-- ❌ `SettingsActivity.kt` - 253 lines
-
-### Files Within Limit (Good)
-- ✅ `TrainingActivity.kt` - 215 lines
+### Files Within Limit (Good ✅)
+- ✅ `TrainingActivity.kt` - 215 lines (refactored)
+- ✅ `SettingsActivity.kt` - 135 lines (refactored from 281)
+- ✅ `PoseLandmarkerHelper.kt` - 165 lines (refactored from 391)
 - ✅ `VideoPlayerManager.kt` - 150 lines
 - ✅ `TrainingStateManager.kt` - 88 lines
 - ✅ `TrainingUIController.kt` - 109 lines
+- ✅ `SettingsManager.kt` - 79 lines
+- ✅ `SettingsUIController.kt` - 148 lines
+- ✅ `PoseLandmarkerConfig.kt` - 89 lines
+- ✅ `PoseLandmarkerProcessor.kt` - 139 lines
+
+### Files Exceeding Limit (Needs Refactoring ❌)
+- ❌ `GalleryFragment.kt` - 400 lines (TODO)
+- ❌ `CameraFragment.kt` - 361 lines (TODO)
 
 ## Enforcement
 
@@ -80,8 +84,19 @@ Group related extensions in separate files.
 
 ## Next Steps
 
+### Completed Refactorings
+1. ✅ `TrainingActivity.kt` - Split into TrainingActivity + 3 managers
+2. ✅ `SettingsActivity.kt` - Split into SettingsActivity + SettingsManager + SettingsUIController  
+3. ✅ `PoseLandmarkerHelper.kt` - Split into PoseLandmarkerHelper + Config + Processor
+
+### Remaining Files to Refactor
 The following files should be prioritized for refactoring:
-1. `GalleryFragment.kt` - split into GalleryFragment + GalleryVideoProcessor + GalleryUIController
-2. `CameraFragment.kt` - split into CameraFragment + CameraManager + CameraUIController  
-3. `PoseLandmarkerHelper.kt` - split into PoseLandmarkerHelper + PoseLandmarkerConfig + ResultProcessor
-4. `SettingsActivity.kt` - already close to limit, monitor for future changes
+1. `GalleryFragment.kt` (400 lines) - split into:
+   - GalleryFragment (< 250 lines) - main coordinator
+   - GalleryVideoProcessor (< 250 lines) - video processing logic
+   - GalleryUIController (< 250 lines) - UI management
+
+2. `CameraFragment.kt` (361 lines) - split into:
+   - CameraFragment (< 250 lines) - main coordinator
+   - CameraManager (< 250 lines) - camera setup and control
+   - CameraUIController (< 250 lines) - UI updates and controls
