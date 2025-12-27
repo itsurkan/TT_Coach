@@ -42,23 +42,7 @@ class VideoPlayerManager(
         // Set up video playback
         videoView.setOnPreparedListener { mediaPlayer ->
             mediaPlayer.setVolume(0f, 0f) // Mute audio
-            
-            // Scale video to fill width
-            val videoWidth = mediaPlayer.videoWidth
-            val videoHeight = mediaPlayer.videoHeight
-            val viewWidth = videoView.width
-            val viewHeight = videoView.height
-            
-            if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
-                val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
-                val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
-                
-                if (videoRatio < viewRatio) {
-                    val scale = viewWidth.toFloat() / videoWidth.toFloat()
-                    videoView.scaleX = scale
-                    videoView.scaleY = scale
-                }
-            }
+            mediaPlayer.isLooping = true // Loop the video
         }
         
         videoView.setOnErrorListener { _, what, extra ->
