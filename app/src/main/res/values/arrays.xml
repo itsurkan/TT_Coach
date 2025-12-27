@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="camera_resolutions">
-        <item>Низька (480p) - Швидко</item>
-        <item>Середня (720p) - Рекомендовано</item>
-        <item>Висока (1080p) - Точніше</item>
+        <item>Low (faster)</item>
+        <item>Medium (balanced)</item>
+        <item>High (accurate)</item>
     </string-array>
 </resources>

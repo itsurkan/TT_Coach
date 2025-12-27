@@ -127,18 +127,6 @@
     </string-array>
     
     <!-- Camera Resolution Options -->
-    <string-array name="camera_resolution_options">
-        <item>Низька (швидше)</item>
-        <item>Середня (збалансовано)</item>
-        <item>Висока (точніше)</item>
-    </string-array>
-    
-    <string-array name="camera_resolutions">
-        <item>Низька (швидше)</item>
-        <item>Середня (збалансовано)</item>
-        <item>Висока (точніше)</item>
-    </string-array>
-    
     <!-- Feedback Messages -->
     <string name="error_no_pose">Не вдалося виявити позу - перевірте освітлення та позицію камери</string>
     <string name="error_wrist_bent">Зап\'ястя зігнуте</string>

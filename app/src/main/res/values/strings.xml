@@ -150,18 +150,6 @@
     </string-array>
     
     <!-- Camera Resolution Options -->
-    <string-array name="camera_resolution_options">
-        <item>Low (faster)</item>
-        <item>Medium (balanced)</item>
-        <item>High (accurate)</item>
-    </string-array>
-    
-    <string-array name="camera_resolutions">
-        <item>Low (faster)</item>
-        <item>Medium (balanced)</item>
-        <item>High (accurate)</item>
-    </string-array>
-    
     <!-- Feedback Messages -->
     <string name="error_no_pose">Failed to detect pose - check lighting and camera position</string>
     <string name="error_wrist_bent">Wrist bent</string>
