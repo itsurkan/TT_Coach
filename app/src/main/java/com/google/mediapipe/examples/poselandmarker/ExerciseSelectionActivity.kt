@@ -13,39 +13,42 @@ import com.google.mediapipe.examples.poselandmarker.databinding.ActivityExercise
 
 class ExerciseSelectionActivity : BaseActivity() {
     private lateinit var binding: ActivityExerciseSelectionBinding
-    private val exercises = listOf(
-        Exercise(
-            id = "forehand_drive",
-            name = getString(R.string.exercise_forehand_name),
-            description = getString(R.string.exercise_forehand_desc),
-            difficulty = getString(R.string.difficulty_beginner),
-            duration = getString(R.string.duration_10_15)
-        ),
-        Exercise(
-            id = "backhand_drive",
-            name = getString(R.string.exercise_backhand_name),
-            description = getString(R.string.exercise_backhand_desc),
-            difficulty = getString(R.string.difficulty_beginner),
-            duration = getString(R.string.duration_10_15),
-            isLocked = true
-        ),
-        Exercise(
-            id = "forehand_topspin",
-            name = getString(R.string.exercise_topspin_name),
-            description = getString(R.string.exercise_topspin_desc),
-            difficulty = getString(R.string.difficulty_intermediate),
-            duration = getString(R.string.duration_10_15),
-            isLocked = true
-        ),
-        Exercise(
-            id = "service",
-            name = getString(R.string.exercise_service_name),
-            description = getString(R.string.exercise_service_desc),
-            difficulty = getString(R.string.difficulty_intermediate),
-            duration = getString(R.string.duration_10_15),
-            isLocked = true
+    
+    private val exercises by lazy {
+        listOf(
+            Exercise(
+                id = "forehand_drive",
+                name = getString(R.string.exercise_forehand_name),
+                description = getString(R.string.exercise_forehand_desc),
+                difficulty = getString(R.string.difficulty_beginner),
+                duration = getString(R.string.duration_10_15)
+            ),
+            Exercise(
+                id = "backhand_drive",
+                name = getString(R.string.exercise_backhand_name),
+                description = getString(R.string.exercise_backhand_desc),
+                difficulty = getString(R.string.difficulty_beginner),
+                duration = getString(R.string.duration_10_15),
+                isLocked = true
+            ),
+            Exercise(
+                id = "forehand_topspin",
+                name = getString(R.string.exercise_topspin_name),
+                description = getString(R.string.exercise_topspin_desc),
+                difficulty = getString(R.string.difficulty_intermediate),
+                duration = getString(R.string.duration_10_15),
+                isLocked = true
+            ),
+            Exercise(
+                id = "service",
+                name = getString(R.string.exercise_service_name),
+                description = getString(R.string.exercise_service_desc),
+                difficulty = getString(R.string.difficulty_intermediate),
+                duration = getString(R.string.duration_10_15),
+                isLocked = true
+            )
         )
-    )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
