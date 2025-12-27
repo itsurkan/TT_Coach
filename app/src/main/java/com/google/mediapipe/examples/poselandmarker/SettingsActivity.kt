@@ -5,6 +5,7 @@
 
 package com.google.mediapipe.examples.poselandmarker
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
@@ -224,8 +225,11 @@ class SettingsActivity : BaseActivity() {
             .setMessage(R.string.settings_saved_message)
             .setPositiveButton(R.string.dialog_ok) { _, _ ->
                 if (languageChanged) {
-                    // Restart activity to apply language
-                    recreate()
+                    // Restart the entire app to apply language to all activities
+                    val intent = Intent(this, WelcomeActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(intent)
+                    finish()
                 } else {
                     finish()
                 }
