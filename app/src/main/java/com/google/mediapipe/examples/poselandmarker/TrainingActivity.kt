@@ -8,14 +8,13 @@ package com.google.mediapipe.examples.poselandmarker
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
 
-class TrainingActivity : AppCompatActivity() {
+class TrainingActivity : BaseActivity() {
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
@@ -67,21 +66,21 @@ class TrainingActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Налаштування Action Bar
+        // Setup Action Bar
         supportActionBar?.apply {
-            title = exerciseName ?: "Тренування"
+            title = exerciseName ?: getString(R.string.training_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
-        // Автоматичний старт камери
+        // Auto start camera
         startCameraPreview()
 
-        // Кнопка калібрування
+        // Calibrate button
         binding.btnCalibrate.setOnClickListener {
             startCalibration()
         }
 
-        // Кнопка старт/стоп
+        // Start/stop button
         binding.btnStartStop.setOnClickListener {
             if (isTrainingActive) {
                 stopTraining()
@@ -90,9 +89,9 @@ class TrainingActivity : AppCompatActivity() {
             }
         }
 
-        // Початковий стан
+        // Initial state
         binding.btnStartStop.isEnabled = false
-        updateFeedbackText("Натисніть 'Калібрувати' для початку")
+        updateFeedbackText(getString(R.string.press_calibrate))
     }
 
     private fun startCameraPreview() {
@@ -107,26 +106,26 @@ class TrainingActivity : AppCompatActivity() {
 
     private fun startCalibration() {
         binding.tvCalibrationStatus.visibility = View.VISIBLE
-        binding.tvCalibrationStatus.text = "📍 Станьте в стартову позицію для накату справа\n\n• Ноги на ширині плечей\n• Трохи присядьте\n• Ракетка перед собою"
+        binding.tvCalibrationStatus.text = getString(R.string.calibration_prompt) + "\n\n• Ноги на ширині плечей\n• Трохи присядьте\n• Ракетка перед собою"
         binding.btnCalibrate.isEnabled = false
-        updateFeedbackText("Калібрування... Утримуйте позицію")
+        updateFeedbackText(getString(R.string.calibrating))
 
-        // Симуляція калібрування (3 сек)
+        // Simulate calibration (3 sec)
         binding.root.postDelayed({
             binding.tvCalibrationStatus.text = "✅ Калібрування завершено!"
             binding.root.postDelayed({
                 binding.tvCalibrationStatus.visibility = View.GONE
                 binding.btnStartStop.isEnabled = true
                 binding.btnCalibrate.isEnabled = true
-                updateFeedbackText("Готово! Натисніть 'Почати' для тренування")
-                android.widget.Toast.makeText(this, "Готово до тренування!", android.widget.Toast.LENGTH_SHORT).show()
+                updateFeedbackText(getString(R.string.ready_to_train))
+                android.widget.Toast.makeText(this, getString(R.string.ready_toast), android.widget.Toast.LENGTH_SHORT).show()
             }, 1000)
         }, 3000)
     }
 
     private fun startTraining() {
         isTrainingActive = true
-        binding.btnStartStop.text = "⏸ Зупинити"
+        binding.btnStartStop.text = getString(R.string.btn_pause)
         binding.btnStartStop.setBackgroundColor(getColor(android.R.color.holo_red_light))
         binding.btnCalibrate.isEnabled = false
         binding.layoutStats.visibility = View.VISIBLE
@@ -144,7 +143,7 @@ class TrainingActivity : AppCompatActivity() {
         binding.btnStartStop.setBackgroundColor(getColor(android.R.color.holo_green_light))
         binding.btnCalibrate.isEnabled = true
         binding.layoutStats.visibility = View.GONE
-        updateFeedbackText("Тренування призупинено")
+        updateFeedbackText(getString(R.string.training_paused))
         
         showSummary()
     }
@@ -162,8 +161,8 @@ class TrainingActivity : AppCompatActivity() {
             0
         }
         
-        binding.tvStrokeCount.text = "Ударів: $totalStrokes"
-        binding.tvAverageScore.text = "Точність: $accuracy%"
+        binding.tvStrokeCount.text = getString(R.string.stroke_count, totalStrokes)
+        binding.tvAverageScore.text = getString(R.string.accuracy, accuracy)
     }
 
     private fun simulateFeedback() {
@@ -230,16 +229,16 @@ class TrainingActivity : AppCompatActivity() {
         val recommendations = mutableListOf<String>()
         
         if (!isWristValid) {
-            errors.add("Зап'ястя зігнуте")
-            recommendations.add("Тримайте зап'ястя рівно")
+            errors.add(getString(R.string.error_wrist_bent))
+            recommendations.add(getString(R.string.recommendation_wrist))
         }
         if (!isRotationValid) {
-            errors.add("Недостатня ротація корпусу")
-            recommendations.add("Більше ротації для потужності")
+            errors.add(getString(R.string.error_low_rotation))
+            recommendations.add(getString(R.string.recommendation_rotation))
         }
         if (!isFollowThroughValid) {
-            errors.add("Недостатнє проведення")
-            recommendations.add("Доведіть рух до кінця")
+            errors.add(getString(R.string.error_insufficient_follow))
+            recommendations.add(getString(R.string.recommendation_follow))
         }
         
         return AnalysisResult(
@@ -298,10 +297,10 @@ class TrainingActivity : AppCompatActivity() {
             android.R.id.home -> {
                 if (isTrainingActive) {
                     androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle("Завершити тренування?")
-                        .setMessage("Ви впевнені, що хочете завершити поточне тренування?")
-                        .setPositiveButton("Так") { _, _ -> finish() }
-                        .setNegativeButton("Ні", null)
+                        .setTitle(R.string.finish_training_title)
+                        .setMessage(R.string.finish_training_message)
+                        .setPositiveButton(R.string.dialog_yes) { _, _ -> finish() }
+                        .setNegativeButton(R.string.dialog_no, null)
                         .show()
                 } else {
                     finish()

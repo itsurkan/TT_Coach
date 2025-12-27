@@ -21,7 +21,7 @@
         android:id="@+id/tv_calibration_status"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="📍 Станьте в стартову позицію для накату справа"
+        android:text="@string/calibration_prompt"
         android:textSize="18sp"
         android:textColor="@android:color/white"
         android:background="#CC000000"
@@ -51,7 +51,7 @@
             android:id="@+id/tv_stroke_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ударів: 0"
+            android:text="@string/stroke_count"
             android:textColor="@android:color/white"
             android:textSize="14sp"/>
 
@@ -59,7 +59,7 @@
             android:id="@+id/tv_average_score"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Точність: 0%"
+            android:text="@string/accuracy"
             android:textColor="@android:color/white"
             android:textSize="14sp"
             android:layout_marginTop="4dp"/>
@@ -70,7 +70,7 @@
         android:id="@+id/feedback_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Очікування калібрування..."
+        android:text="@string/waiting_calibration"
         android:textSize="16sp"
         android:textColor="@android:color/white"
         android:background="#DD000000"
@@ -98,7 +98,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="📍 Калібрувати"
+            android:text="@string/btn_calibrate"
             android:textSize="16sp"
             app:cornerRadius="12dp"
             android:layout_marginEnd="8dp"/>
@@ -109,7 +109,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="▶ Почати"
+            android:text="@string/btn_start"
             android:textSize="16sp"
             android:enabled="false"
             app:cornerRadius="12dp"

@@ -8,13 +8,15 @@ package com.google.mediapipe.examples.poselandmarker
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.SeekBar
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.Spinner
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivitySettingsBinding
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : BaseActivity() {
     private lateinit var binding: ActivitySettingsBinding
     private lateinit var prefs: SharedPreferences
+    private var languageChanged = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,27 +30,30 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Налаштування Action Bar
+        // Setup Action Bar
         supportActionBar?.apply {
-            title = "Налаштування"
+            title = getString(R.string.settings_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
-        // Налаштування параметрів вправи "Накат справа"
+        // Setup exercise parameters "Forehand Drive"
         setupForehandParameters()
 
-        // Налаштування аудіо фідбеку
+        // Setup audio feedback
         setupAudioSettings()
 
-        // Налаштування камери
+        // Setup camera
         setupCameraSettings()
+        
+        // Setup language
+        setupLanguageSettings()
 
-        // Кнопка збереження
+        // Save button
         binding.btnSave.setOnClickListener {
             saveSettings()
         }
 
-        // Кнопка скидання до дефолту
+        // Reset button
         binding.btnReset.setOnClickListener {
             resetToDefaults()
         }
@@ -160,8 +165,41 @@ class SettingsActivity : AppCompatActivity() {
         // Показувати скелет поверх відео
         binding.switchShowSkeleton.isChecked = prefs.getBoolean("show_skeleton", true)
     }
+    
+    private fun setupLanguageSettings() {
+        // Get language spinner from layout (need to add to layout first)
+        val languageSpinner = findViewById<Spinner>(R.id.spinner_language) ?: return
+        
+        // Setup language spinner
+        val languages = resources.getStringArray(R.array.language_options)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, languages)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        languageSpinner.adapter = adapter
+        
+        // Set current language
+        val currentLang = LocaleHelper.getSavedLanguage(this)
+        val languageCodes = resources.getStringArray(R.array.language_codes)
+        val currentIndex = languageCodes.indexOf(currentLang)
+        if (currentIndex >= 0) {
+            languageSpinner.setSelection(currentIndex)
+        }
+    }
 
     private fun saveSettings() {
+        // Save language first
+        val languageSpinner = findViewById<Spinner>(R.id.spinner_language)
+        if (languageSpinner != null) {
+            val selectedPosition = languageSpinner.selectedItemPosition
+            val languageCodes = resources.getStringArray(R.array.language_codes)
+            val newLanguage = languageCodes[selectedPosition]
+            val currentLanguage = LocaleHelper.getSavedLanguage(this)
+            
+            if (newLanguage != currentLanguage) {
+                LocaleHelper.setLocale(this, newLanguage)
+                languageChanged = true
+            }
+        }
+        
         prefs.edit().apply {
             // Параметри вправи
             putInt("ideal_wrist_angle", binding.seekBarWristAngle.progress)
@@ -182,29 +220,34 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Збережено")
-            .setMessage("Налаштування успішно збережено!")
-            .setPositiveButton("OK") { _, _ ->
-                finish()
+            .setTitle(R.string.settings_saved_title)
+            .setMessage(R.string.settings_saved_message)
+            .setPositiveButton(R.string.dialog_ok) { _, _ ->
+                if (languageChanged) {
+                    // Restart activity to apply language
+                    recreate()
+                } else {
+                    finish()
+                }
             }
             .show()
     }
 
     private fun resetToDefaults() {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Скинути налаштування?")
-            .setMessage("Ви впевнені, що хочете скинути всі налаштування до стандартних значень?")
-            .setPositiveButton("Так") { _, _ ->
+            .setTitle(R.string.reset_settings_title)
+            .setMessage(R.string.reset_settings_message)
+            .setPositiveButton(R.string.dialog_yes) { _, _ ->
                 prefs.edit().clear().apply()
                 loadSettings()
                 
                 androidx.appcompat.app.AlertDialog.Builder(this)
-                    .setTitle("Готово")
-                    .setMessage("Налаштування скинуто до стандартних значень")
-                    .setPositiveButton("OK", null)
+                    .setTitle(R.string.reset_done_title)
+                    .setMessage(R.string.reset_done_message)
+                    .setPositiveButton(R.string.dialog_ok, null)
                     .show()
             }
-            .setNegativeButton("Ні", null)
+            .setNegativeButton(R.string.dialog_no, null)
             .show()
     }
 

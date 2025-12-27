@@ -7,10 +7,9 @@ package com.google.mediapipe.examples.poselandmarker
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityWelcomeBinding
 
-class WelcomeActivity : AppCompatActivity() {
+class WelcomeActivity : BaseActivity() {
     private lateinit var binding: ActivityWelcomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,10 +21,10 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Налаштування заголовку
-        supportActionBar?.title = "AI Coach - Настільний Теніс"
+        // Set title
+        supportActionBar?.title = getString(R.string.welcome_title)
 
-        // Кнопка "Почати тренування"
+        // Start training button
         binding.btnStartTraining.setOnClickListener {
             val intent = Intent(this, ExerciseSelectionActivity::class.java)
             startActivity(intent)
@@ -45,28 +44,19 @@ class WelcomeActivity : AppCompatActivity() {
 
     private fun showAboutDialog() {
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Про AI Coach")
-            .setMessage("""
-                AI Coach для настільного тенісу
-                
-                Версія: 1.0.0 MVP
-                
-                Використовує MediaPipe для аналізу техніки
-                та надання миттєвого фідбеку.
-                
-                © 2025 TT Coach AI
-            """.trimIndent())
-            .setPositiveButton("OK", null)
+            .setTitle(R.string.about_title)
+            .setMessage(R.string.about_message)
+            .setPositiveButton(R.string.dialog_ok, null)
             .show()
     }
 
     override fun onBackPressed() {
-        // Підтвердження виходу з додатку
+        // Exit confirmation
         androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Вихід")
-            .setMessage("Ви впевнені, що хочете вийти?")
-            .setPositiveButton("Так") { _, _ -> finish() }
-            .setNegativeButton("Ні", null)
+            .setTitle(R.string.exit_title)
+            .setMessage(R.string.exit_message)
+            .setPositiveButton(R.string.dialog_yes) { _, _ -> finish() }
+            .setNegativeButton(R.string.dialog_no, null)
             .show()
     }
 }

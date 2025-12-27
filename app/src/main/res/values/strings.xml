@@ -56,4 +56,163 @@
         <item>Pose Landmarker Lite</item>
         <item>Pose Landmarker Heavy</item>
     </string-array>
+    
+    <!-- Welcome Activity -->
+    <string name="welcome_title">AI Coach</string>
+    <string name="welcome_subtitle">Table Tennis</string>
+    <string name="welcome_description">Improve your technique with\nartificial intelligence and instant feedback</string>
+    <string name="btn_start_training">🏓 Start Training</string>
+    <string name="btn_settings">⚙️ Settings</string>
+    <string name="btn_about">ℹ️ About</string>
+    <string name="about_title">About AI Coach</string>
+    <string name="about_message">AI Coach for Table Tennis\n\nVersion: 1.0.0 MVP\n\nUses MediaPipe for technique analysis\nand providing instant feedback.\n\n© 2025 TT Coach AI</string>
+    <string name="dialog_ok">OK</string>
+    <string name="exit_title">Exit</string>
+    <string name="exit_message">Are you sure you want to exit?</string>
+    <string name="dialog_yes">Yes</string>
+    <string name="dialog_no">No</string>
+    
+    <!-- Exercise Selection -->
+    <string name="exercise_selection_title">Select Exercise</string>
+    <string name="exercise_hint">Select an exercise to start training</string>
+    <string name="exercise_locked_title">Locked</string>
+    <string name="exercise_locked_message">This exercise will be available in future versions.</string>
+    <string name="exercise_forehand_name">Forehand Drive</string>
+    <string name="exercise_forehand_desc">Basic forehand stroke with body rotation</string>
+    <string name="exercise_backhand_name">Backhand Drive</string>
+    <string name="exercise_backhand_desc">Basic backhand stroke</string>
+    <string name="exercise_topspin_name">Forehand Topspin</string>
+    <string name="exercise_topspin_desc">Attacking stroke with strong spin</string>
+    <string name="exercise_service_name">Service</string>
+    <string name="exercise_service_desc">Ball serving technique</string>
+    <string name="difficulty_beginner">Beginner</string>
+    <string name="difficulty_intermediate">Intermediate</string>
+    <string name="difficulty_label">Difficulty: %s</string>
+    <string name="duration_label">Duration: %s</string>
+    <string name="duration_10_15">10-15 min</string>
+    <string name="lock_icon">🔒 Locked</string>
+    
+    <!-- Training Activity -->
+    <string name="training_title">Training</string>
+    <string name="calibration_prompt">📍 Stand in starting position for forehand drive</string>
+    <string name="stroke_count">Strokes: %d</string>
+    <string name="accuracy">Accuracy: %d%%</string>
+    <string name="waiting_calibration">Waiting for calibration…</string>
+    <string name="btn_calibrate">📍 Calibrate</string>
+    <string name="btn_start">▶️ Start</string>
+    <string name="btn_pause">⏸️ Pause</string>
+    <string name="btn_finish">🏁 Finish</string>
+    <string name="press_calibrate">Press \'Calibrate\' to begin</string>
+    <string name="calibrating">Calibrating… Hold position</string>
+    <string name="ready_to_train">Ready! Press \'Start\' for training</string>
+    <string name="ready_toast">Ready to train!</string>
+    <string name="training_paused">Training paused</string>
+    <string name="training_summary_title">Training Summary</string>
+    <string name="btn_complete">Finish</string>
+    <string name="btn_continue">Continue</string>
+    <string name="finish_training_title">Finish training?</string>
+    <string name="finish_training_message">Are you sure you want to finish the current training?</string>
+    
+    <!-- Settings Activity -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_header">⚙️ AI Coach Settings</string>
+    <string name="section_exercise">🏓 Forehand Drive Parameters</string>
+    <string name="wrist_angle_label">Ideal wrist angle:</string>
+    <string name="body_rotation_label">Minimum body rotation:</string>
+    <string name="follow_through_label">Follow-through angle:</string>
+    <string name="section_audio">🔊 Audio Feedback Settings</string>
+    <string name="audio_feedback_enabled">Enable audio feedback</string>
+    <string name="feedback_volume_label">Feedback volume:</string>
+    <string name="speech_rate_label">Speech rate:</string>
+    <string name="section_camera">📷 Camera Settings</string>
+    <string name="camera_resolution_label">Camera resolution (quality vs performance):</string>
+    <string name="target_fps_label">Processing FPS:</string>
+    <string name="section_language">🌐 Language Settings</string>
+    <string name="language_label">App Language:</string>
+    <string name="btn_save">💾 Save Settings</string>
+    <string name="btn_reset">🔄 Reset to Defaults</string>
+    <string name="settings_saved_title">Saved</string>
+    <string name="settings_saved_message">Settings successfully saved!</string>
+    <string name="reset_settings_title">Reset Settings?</string>
+    <string name="reset_settings_message">Are you sure you want to reset all settings to default values?</string>
+    <string name="reset_done_title">Done</string>
+    <string name="reset_done_message">Settings reset to default values</string>
+    
+    <!-- Language Options -->
+    <string-array name="language_options">
+        <item>English</item>
+        <item>Українська</item>
+    </string-array>
+    
+    <string-array name="language_codes">
+        <item>en</item>
+        <item>uk</item>
+    </string-array>
+    
+    <!-- Camera Resolution Options -->
+    <string-array name="camera_resolution_options">
+        <item>Low (faster)</item>
+        <item>Medium (balanced)</item>
+        <item>High (accurate)</item>
+    </string-array>
+    
+    <string-array name="camera_resolutions">
+        <item>Low (faster)</item>
+        <item>Medium (balanced)</item>
+        <item>High (accurate)</item>
+    </string-array>
+    
+    <!-- Feedback Messages -->
+    <string name="error_no_pose">Failed to detect pose - check lighting and camera position</string>
+    <string name="error_wrist_bent">Wrist bent</string>
+    <string name="error_low_rotation">Insufficient body rotation</string>
+    <string name="error_insufficient_follow">Insufficient follow-through</string>
+    <string name="recommendation_wrist">Keep wrist straight</string>
+    <string name="recommendation_rotation">More rotation for power</string>
+    <string name="recommendation_follow">Complete the movement</string>
+    <string name="feedback_good">Great! Keep it up!</string>
+    <string name="feedback_work_on">⚠️ %s</string>
+    <string name="feedback_work_on_technique">Work on technique</string>
+    <string name="feedback_score">Score: %d%%\n\n</string>
+    <string name="feedback_errors_title">⚠️ Errors:\n</string>
+    <string name="feedback_recommendations_title">💡 Recommendations:\n</string>
+    <string name="session_summary_title">📊 Training Summary\n\n</string>
+    <string name="session_total_strokes">Total strokes: %d\n</string>
+    <string name="session_successful">Successful: %d\n</string>
+    <string name="session_accuracy">Accuracy: %d%%\n</string>
+    <string name="session_average_score">Average score: %d%%\n\n</string>
+    <string name="session_excellent">🏆 Excellent work! You\'re making progress!</string>
+    <string name="session_good">👍 Good training! Keep working!</string>
+    <string name="session_improvement">💪 There\'s improvement! Train regularly!</string>
+    <string name="session_keep_trying">🎯 Don\'t give up! Every training makes you better!</string>
+    <string name="consecutive_5">🔥 5 good strokes in a row! Keep going!</string>
+    <string name="consecutive_10">🎯 10 excellent strokes! You\'re on fire!</string>
+    <string name="consecutive_20">⭐ 20 strokes in a row! Incredible!</string>
+    <string name="consecutive_50">🏆 50 strokes! You\'re a master!</string>
+    <string name="positive_excellent">✅ Excellent! Perfect technique!</string>
+    <string name="positive_great">✅ Great! Keep it up!</string>
+    <string name="positive_flawless">✅ Flawless! Continue!</string>
+    <string name="positive_perfect">✅ Perfect! Well done!</string>
+    <string name="positive_super">✅ Super stroke! Very good!</string>
+    <string name="tip_wrist">💡 Tip: Imagine holding a pencil - wrist should be an extension of forearm</string>
+    <string name="tip_rotation">💡 Tip: Turn waist and shoulders as one - imagine winding a spring</string>
+    <string name="tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
+    <string name="tip_follow_through">💡 Tip: Imagine brushing the ball up and forward - don\'t stop at contact</string>
+    
+    <!-- Analysis Result Constants -->
+    <string name="error_wrist_bent_full">Wrist bent - straighten it</string>
+    <string name="error_low_rotation_full">Insufficient body rotation - turn more</string>
+    <string name="error_high_contact">Contact too high - lower strike point</string>
+    <string name="error_low_contact">Contact too low - raise strike point</string>
+    <string name="error_no_follow_through">Insufficient follow-through - complete the movement</string>
+    <string name="error_elbow_far">Elbow far from body - keep it closer</string>
+    <string name="error_slow_stroke">Stroke too slow - add speed</string>
+    <string name="error_fast_stroke">Stroke too fast - control speed</string>
+    <string name="rec_straighten_wrist">Keep wrist straight during stroke</string>
+    <string name="rec_rotate_more">More body rotation for power</string>
+    <string name="rec_contact_height">Contact at table level - optimal height</string>
+    <string name="rec_complete_follow">Complete follow-through upward and forward</string>
+    <string name="rec_keep_elbow_close">Keep elbow close to body</string>
+    <string name="rec_increase_speed">Add speed for efficiency</string>
+    <string name="rec_control_speed">Reduce speed for better control</string>
 </resources>

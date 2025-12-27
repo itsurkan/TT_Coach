@@ -8,42 +8,41 @@ package com.google.mediapipe.examples.poselandmarker
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityExerciseSelectionBinding
 
-class ExerciseSelectionActivity : AppCompatActivity() {
+class ExerciseSelectionActivity : BaseActivity() {
     private lateinit var binding: ActivityExerciseSelectionBinding
     private val exercises = listOf(
         Exercise(
             id = "forehand_drive",
-            name = "Накат справа (Forehand Drive)",
-            description = "Базовий удар справа з ротацією корпусу",
-            difficulty = "Початковий",
-            duration = "10-15 хв"
+            name = getString(R.string.exercise_forehand_name),
+            description = getString(R.string.exercise_forehand_desc),
+            difficulty = getString(R.string.difficulty_beginner),
+            duration = getString(R.string.duration_10_15)
         ),
         Exercise(
             id = "backhand_drive",
-            name = "Накат зліва (Backhand Drive)",
-            description = "Базовий удар зліва",
-            difficulty = "Початковий",
-            duration = "10-15 хв",
+            name = getString(R.string.exercise_backhand_name),
+            description = getString(R.string.exercise_backhand_desc),
+            difficulty = getString(R.string.difficulty_beginner),
+            duration = getString(R.string.duration_10_15),
             isLocked = true
         ),
         Exercise(
             id = "forehand_topspin",
-            name = "Топ-спін справа",
-            description = "Атакуючий удар з сильним обертанням",
-            difficulty = "Середній",
-            duration = "15-20 хв",
+            name = getString(R.string.exercise_topspin_name),
+            description = getString(R.string.exercise_topspin_desc),
+            difficulty = getString(R.string.difficulty_intermediate),
+            duration = getString(R.string.duration_10_15),
             isLocked = true
         ),
         Exercise(
             id = "service",
-            name = "Подача",
-            description = "Техніка подачі м'яча",
-            difficulty = "Середній",
-            duration = "10-15 хв",
+            name = getString(R.string.exercise_service_name),
+            description = getString(R.string.exercise_service_desc),
+            difficulty = getString(R.string.difficulty_intermediate),
+            duration = getString(R.string.duration_10_15),
             isLocked = true
         )
     )
@@ -57,13 +56,13 @@ class ExerciseSelectionActivity : AppCompatActivity() {
     }
 
     private fun setupUI() {
-        // Налаштування Action Bar
+        // Setup Action Bar
         supportActionBar?.apply {
-            title = "Оберіть вправу"
+            title = getString(R.string.exercise_selection_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
-        // Налаштування RecyclerView
+        // Setup RecyclerView
         binding.exerciseRecyclerView.layoutManager = LinearLayoutManager(this)
         val adapter = ExerciseAdapter(exercises) { exercise ->
             onExerciseSelected(exercise)
@@ -77,9 +76,9 @@ class ExerciseSelectionActivity : AppCompatActivity() {
     private fun onExerciseSelected(exercise: Exercise) {
         if (exercise.isLocked) {
             androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Заблоковано")
-                .setMessage("Ця вправа буде доступна у наступних версіях додатку.")
-                .setPositiveButton("OK", null)
+                .setTitle(R.string.exercise_locked_title)
+                .setMessage(R.string.exercise_locked_message)
+                .setPositiveButton(R.string.dialog_ok, null)
                 .show()
             return
         }

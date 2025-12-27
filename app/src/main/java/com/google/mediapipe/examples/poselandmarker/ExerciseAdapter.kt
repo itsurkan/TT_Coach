@@ -23,12 +23,12 @@ class ExerciseAdapter(
             binding.apply {
                 tvExerciseName.text = exercise.name
                 tvExerciseDescription.text = exercise.description
-                tvDifficulty.text = "Складність: ${exercise.difficulty}"
-                tvDuration.text = "Тривалість: ${exercise.duration}"
+                tvDifficulty.text = root.context.getString(R.string.difficulty_label, exercise.difficulty)
+                tvDuration.text = root.context.getString(R.string.duration_label, exercise.duration)
 
-                // Відображення статусу блокування
+                // Lock status display
                 if (exercise.isLocked) {
-                    tvLockStatus.text = "🔒 Заблоковано"
+                    tvLockStatus.text = root.context.getString(R.string.lock_icon)
                     tvLockStatus.visibility = android.view.View.VISIBLE
                     root.alpha = 0.6f
                     ivExerciseIcon.alpha = 0.5f

@@ -16,14 +16,13 @@
 
 package com.google.mediapipe.examples.poselandmarker
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityCameraBinding
 
-class CameraActivity : AppCompatActivity() {
+class CameraActivity : BaseActivity() {
     private lateinit var activityCameraBinding: ActivityCameraBinding
     private val viewModel : MainViewModel by viewModels()
 
