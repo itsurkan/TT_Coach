@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivitySettingsBinding
 
 class SettingsActivity : AppCompatActivity() {
@@ -22,7 +21,7 @@ class SettingsActivity : AppCompatActivity() {
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs = getSharedPreferences("ai_coach_prefs", MODE_PRIVATE)
         
         setupUI()
         loadSettings()
@@ -141,11 +140,16 @@ class SettingsActivity : AppCompatActivity() {
         // FPS обробки
         binding.seekBarFps.apply {
             max = 60
-            min = 15
-            progress = prefs.getInt("target_fps", 30)
+            // min = 15 (requires API 26+, handle manually)
+            progress = prefs.getInt("target_fps", 30).coerceIn(15, 60)
             setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    binding.tvFpsValue.text = "$progress FPS"
+                    // Забезпечити мінімум 15 FPS
+                    val validProgress = progress.coerceAtLeast(15)
+                    if (progress < 15 && fromUser) {
+                        seekBar?.progress = 15
+                    }
+                    binding.tvFpsValue.text = "$validProgress FPS"
                 }
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}

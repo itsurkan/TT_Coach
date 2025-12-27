@@ -5,12 +5,10 @@
 
 package com.google.mediapipe.examples.poselandmarker
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.preference.PreferenceManager
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
@@ -48,7 +46,7 @@ class TrainingActivity : AppCompatActivity() {
     
     private fun initializeAnalysis() {
         // Завантажити параметри з SharedPreferences
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val prefs = getSharedPreferences("ai_coach_prefs", MODE_PRIVATE)
         val idealWristAngle = prefs.getInt("ideal_wrist_angle", 180)
         val minBodyRotation = prefs.getInt("min_body_rotation", 45)
         val followThroughAngle = prefs.getInt("follow_through_angle", 120)
@@ -75,9 +73,8 @@ class TrainingActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        // Інформація про вправу
-        binding.tvExerciseInfo.text = "Вправа: $exerciseName"
-        binding.tvStatus.text = "Статус: Готовий до початку"
+        // Автоматичний старт камери
+        startCameraPreview()
 
         // Кнопка калібрування
         binding.btnCalibrate.setOnClickListener {
@@ -93,36 +90,37 @@ class TrainingActivity : AppCompatActivity() {
             }
         }
 
-        // Кнопка для відкриття камери (інтеграція з існуючим CameraActivity)
-        binding.btnOpenCamera.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java).apply {
-                putExtra("EXERCISE_ID", exerciseId)
-            }
-            startActivity(intent)
-        }
-
-        // Початкова видимість
-        binding.layoutFeedback.visibility = View.GONE
+        // Початковий стан
         binding.btnStartStop.isEnabled = false
+        updateFeedbackText("Натисніть 'Калібрувати' для початку")
+    }
+
+    private fun startCameraPreview() {
+        // Запуск CameraFragment у контейнері
+        val cameraFragment = com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(binding.cameraPreviewContainer.id, cameraFragment)
+            .commit()
+        
+        binding.feedbackText.text = "📹 Камера запущена. Натисніть 'Калібрувати'"
     }
 
     private fun startCalibration() {
-        binding.tvStatus.text = "Статус: Калібрування..."
-        binding.tvCalibrationHint.visibility = View.VISIBLE
-        binding.tvCalibrationHint.text = """
-            📍 Станьте у стартову позицію:
-            • Ноги на ширині плечей
-            • Трохи присядьте
-            • Ракетка перед собою
-            • Дивіться на камеру
-        """.trimIndent()
+        binding.tvCalibrationStatus.visibility = View.VISIBLE
+        binding.tvCalibrationStatus.text = "📍 Станьте в стартову позицію для накату справа\n\n• Ноги на ширині плечей\n• Трохи присядьте\n• Ракетка перед собою"
+        binding.btnCalibrate.isEnabled = false
+        updateFeedbackText("Калібрування... Утримуйте позицію")
 
-        // Симуляція калібрування (в реальності тут буде MediaPipe)
+        // Симуляція калібрування (3 сек)
         binding.root.postDelayed({
-            binding.tvStatus.text = "Статус: ✅ Калібровано"
-            binding.tvCalibrationHint.visibility = View.GONE
-            binding.btnStartStop.isEnabled = true
-            showFeedback("Калібрування завершено! Готовий до тренування.", "success")
+            binding.tvCalibrationStatus.text = "✅ Калібрування завершено!"
+            binding.root.postDelayed({
+                binding.tvCalibrationStatus.visibility = View.GONE
+                binding.btnStartStop.isEnabled = true
+                binding.btnCalibrate.isEnabled = true
+                updateFeedbackText("Готово! Натисніть 'Почати' для тренування")
+                android.widget.Toast.makeText(this, "Готово до тренування!", android.widget.Toast.LENGTH_SHORT).show()
+            }, 1000)
         }, 3000)
     }
 
@@ -130,8 +128,11 @@ class TrainingActivity : AppCompatActivity() {
         isTrainingActive = true
         binding.btnStartStop.text = "⏸ Зупинити"
         binding.btnStartStop.setBackgroundColor(getColor(android.R.color.holo_red_light))
-        binding.tvStatus.text = "Статус: 🏓 Тренування активне"
-        binding.layoutFeedback.visibility = View.VISIBLE
+        binding.btnCalibrate.isEnabled = false
+        binding.layoutStats.visibility = View.VISIBLE
+        updateFeedbackText("🏓 Тренування активне - виконуйте удари!")
+        
+        updateStats()
 
         // Симуляція фідбеку (в реальності аналіз з MediaPipe)
         simulateFeedback()
@@ -139,25 +140,48 @@ class TrainingActivity : AppCompatActivity() {
 
     private fun stopTraining() {
         isTrainingActive = false
-        binding.btnStartStop.text = "▶ Почати тренування"
+        binding.btnStartStop.text = "▶ Почати"
         binding.btnStartStop.setBackgroundColor(getColor(android.R.color.holo_green_light))
-        binding.tvStatus.text = "Статус: Призупинено"
+        binding.btnCalibrate.isEnabled = true
+        binding.layoutStats.visibility = View.GONE
+        updateFeedbackText("Тренування призупинено")
         
         showSummary()
+    }
+
+    private fun updateFeedbackText(text: String) {
+        binding.feedbackText.text = text
+    }
+
+    private fun updateStats() {
+        val totalStrokes = analysisResults.size
+        val successfulStrokes = analysisResults.count { it.isSuccessful() }
+        val accuracy = if (totalStrokes > 0) {
+            (successfulStrokes.toFloat() / totalStrokes * 100).toInt()
+        } else {
+            0
+        }
+        
+        binding.tvStrokeCount.text = "Ударів: $totalStrokes"
+        binding.tvAverageScore.text = "Точність: $accuracy%"
     }
 
     private fun simulateFeedback() {
         if (!isTrainingActive) return
 
-        // Симуляція аналізу (в реальності тут буде MediaPipe)
         val simulatedResult = generateSimulatedAnalysisResult()
         analysisResults.add(simulatedResult)
         
-        // Генерація фідбеку
         val shortFeedback = feedbackGenerator.generateShortFeedback(simulatedResult)
-        val feedbackType = if (simulatedResult.isSuccessful()) "success" else "warning"
+        val feedbackColor = if (simulatedResult.isSuccessful()) {
+            getColor(android.R.color.holo_green_dark)
+        } else {
+            getColor(android.R.color.holo_orange_dark)
+        }
         
-        showFeedback(shortFeedback, feedbackType)
+        binding.feedbackText.text = shortFeedback
+        binding.feedbackText.setTextColor(feedbackColor)
+        
         feedbackHistory.add(shortFeedback)
         
         // Підрахунок успішних ударів підряд
@@ -167,14 +191,15 @@ class TrainingActivity : AppCompatActivity() {
             // Мотиваційне повідомлення
             feedbackGenerator.generateMotivationalMessage(consecutiveGoodStrokes)?.let { message ->
                 binding.root.postDelayed({
-                    showFeedback(message, "success")
+                    binding.feedbackText.text = message
+                    binding.feedbackText.setTextColor(getColor(android.R.color.holo_green_dark))
                 }, 1000)
             }
         } else {
             consecutiveGoodStrokes = 0
         }
         
-        updateFeedbackHistory()
+        updateStats()
 
         // Наступний фідбек через 3-5 секунд
         binding.root.postDelayed({
@@ -192,46 +217,20 @@ class TrainingActivity : AppCompatActivity() {
         
         val wristAngle = exerciseParameters.idealWristAngle + 
             (random.nextFloat() - 0.5f) * 30f
-        val bodyRotation = analysisResults.size
-        val successfulStrokes = analysisResults.count { it.isSuccessful() }
-        val averageScore = if (totalStrokes > 0) {
-            analysisResults.map { it.overallScore }.average().toFloat()
-        } else {
-            0f
-        }
+        val bodyRotation = exerciseParameters.minBodyRotation + 
+            (random.nextFloat() - 0.5f) * 20f
+        val followThrough = exerciseParameters.followThroughAngle + 
+            (random.nextFloat() - 0.5f) * 30f
         
-        val summaryText = feedbackGenerator.generateSessionSummary(
-            totalStrokes = totalStrokes,
-            successfulStrokes = successfulStrokes,
-            averageScore = averageScore
-        )
+        val isWristValid = exerciseParameters.isWristAngleValid(wristAngle)
+        val isRotationValid = exerciseParameters.isBodyRotationValid(bodyRotation)
+        val isFollowThroughValid = exerciseParameters.isFollowThroughValid(followThrough)
         
-        // Знайти найчастішу помилку
-        val mostCommonError = analysisResults
-            .flatMap { it.errors }
-            .groupingBy { it }
-            .eachCount()
-            .maxByOrNull { it.value }
-            ?.key
+        val errors = mutableListOf<String>()
+        val recommendations = mutableListOf<String>()
         
-        val improvementTip = feedbackGenerator.generateImprovementTip(
-            mostCommonError = mostCommonError,
-            exerciseId = exerciseId ?: ""
-        )
-
-        val fullMessage = if (improvementTip != null) {
-            "$summaryText\n\n$improvementTip"
-        } else {
-            summaryText
-        }
-
-        androidx.appcompat.app.AlertDialog.Builder(this)
-            .setTitle("Підсумок тренування")
-            .setMessage(fullMessage)
-            .setPositiveButton("Продовжити") { _, _ ->
-                // Очистити статистику для нової сесії
-                analysisResults.clear()
-                consecutiveGoodStrokes = 0
+        if (!isWristValid) {
+            errors.add("Зап'ястя зігнуте")
             recommendations.add("Тримайте зап'ястя рівно")
         }
         if (!isRotationValid) {
@@ -256,46 +255,41 @@ class TrainingActivity : AppCompatActivity() {
         )
     }
 
-    private fun showFeedback(message: String, type: String) {
-        binding.tvCurrentFeedback.text = message
-        binding.tvCurrentFeedback.setTextColor(
-            when (type) {
-                "success" -> getColor(android.R.color.holo_green_dark)
-                "warning" -> getColor(android.R.color.holo_orange_dark)
-                else -> getColor(android.R.color.black)
-            }
-        )
-
-        // TTS буде тут (flutter_tts або Android TextToSpeech)
-        // speakFeedback(message)
-    }
-
-    private fun updateFeedbackHistory() {
-        val lastFeedbacks = feedbackHistory.takeLast(5).reversed()
-        binding.tvFeedbackHistory.text = "Історія фідбеку:\n" + 
-            lastFeedbacks.joinToString("\n") { "• $it" }
-    }
-
     private fun showSummary() {
-        val totalStrokes = feedbackHistory.size
-        val successCount = feedbackHistory.count { it.startsWith("✅") }
-        val accuracy = if (totalStrokes > 0) (successCount * 100 / totalStrokes) else 0
-
+        val totalStrokes = analysisResults.size
+        val successfulStrokes = analysisResults.count { it.isSuccessful() }
+        val averageScore = if (totalStrokes > 0) {
+            analysisResults.map { it.overallScore }.average().toFloat()
+        } else {
+            0f
+        }
+        
+        val summaryText = feedbackGenerator.generateSessionSummary(
+            totalStrokes = totalStrokes,
+            successfulStrokes = successfulStrokes,
+            averageScore = averageScore
+        )
+        
+        // Знайти найчастішу помилку
+        val mostCommonError = analysisResults
+            .flatMap { it.errors }
+            .groupingBy { it }
+            .eachCount()
+            .maxByOrNull { it.value }
+            ?.key
+        
+        val improvementTip = feedbackGenerator.generateImprovementTip(
+            mostCommonError,
+            exerciseId ?: "forehand_drive"
+        )
+        
         androidx.appcompat.app.AlertDialog.Builder(this)
             .setTitle("Підсумок тренування")
-            .setMessage("""
-                Всього ударів: $totalStrokes
-                Успішних: $successCount
-                Точність: $accuracy%
-                
-                Продовжити тренування?
-            """.trimIndent())
-            .setPositiveButton("Продовжити") { _, _ ->
-                startTraining()
-            }
-            .setNegativeButton("Завершити") { _, _ ->
+            .setMessage("$summaryText\n\n$improvementTip")
+            .setPositiveButton("Завершити") { _, _ ->
                 finish()
             }
+            .setNegativeButton("Продовжити", null)
             .show()
     }
 

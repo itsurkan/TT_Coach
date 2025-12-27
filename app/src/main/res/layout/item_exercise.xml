@@ -13,17 +13,29 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Exercise Icon -->
+        <ImageView
+            android:id="@+id/iv_exercise_icon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:contentDescription="Exercise icon"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/ic_launcher"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <!-- Exercise Name -->
         <TextView
             android:id="@+id/tv_exercise_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:text="Накат справа"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_exercise_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- Exercise Description -->
@@ -31,12 +43,13 @@
             android:id="@+id/tv_exercise_description"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
             android:text="Базовий удар справа з ротацією корпусу"
             android:textColor="@android:color/darker_gray"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_exercise_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_exercise_name" />
 
         <!-- Difficulty -->
@@ -44,11 +57,12 @@
             android:id="@+id/tv_difficulty"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:text="Складність: Початковий"
             android:textColor="@android:color/holo_green_dark"
             android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_exercise_icon"
             app:layout_constraintTop_toBottomOf="@id/tv_exercise_description" />
 
         <!-- Duration -->
@@ -56,7 +70,8 @@
             android:id="@+id/tv_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
             android:text="Тривалість: 10-15 хв"
             android:textColor="@android:color/holo_blue_dark"
             android:textSize="12sp"

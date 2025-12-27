@@ -31,9 +31,11 @@ class ExerciseAdapter(
                     tvLockStatus.text = "🔒 Заблоковано"
                     tvLockStatus.visibility = android.view.View.VISIBLE
                     root.alpha = 0.6f
+                    ivExerciseIcon.alpha = 0.5f
                 } else {
                     tvLockStatus.visibility = android.view.View.GONE
                     root.alpha = 1.0f
+                    ivExerciseIcon.alpha = 1.0f
                 }
 
                 root.setOnClickListener {
