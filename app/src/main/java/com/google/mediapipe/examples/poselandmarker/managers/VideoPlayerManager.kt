@@ -6,9 +6,6 @@
 package com.google.mediapipe.examples.poselandmarker.managers
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
@@ -29,12 +26,10 @@ class VideoPlayerManager(
 ) {
     private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
     private var backgroundExecutor: ScheduledExecutorService? = null
-    private var videoWidth: Int = 0
-    private var videoHeight: Int = 0
     
     companion object {
         private const val TAG = "VideoPlayerManager"
-        private const val FRAME_INTERVAL_MS = 100L // Process frames every 100ms
+        private const val VIDEO_INTERVAL_MS = 300L
     }
     
     fun playVideoWithPoseDetection(videoResId: Int) {
@@ -45,23 +40,7 @@ class VideoPlayerManager(
         videoView.setOnPreparedListener { mediaPlayer ->
             mediaPlayer.setVolume(0f, 0f) // Mute audio
             mediaPlayer.isLooping = true // Loop video
-            
-            // Get video dimensions
-            videoWidth = mediaPlayer.videoWidth
-            videoHeight = mediaPlayer.videoHeight
-            
-            Log.d(TAG, "Video dimensions: ${videoWidth}x${videoHeight}")
-            
-            // Scale VideoView to fill container
-            scaleVideoViewToFill()
-            
-            // Start video immediately
-            videoView.start()
-            videoView.visibility = View.VISIBLE
-            onStatusChange("▶️ Video playing - processing poses...")
-            
-            // Initialize pose detector and start processing
-            initializePoseDetector(videoUri)
+            videoView.requestFocus()
         }
         
         videoView.setOnErrorListener { _, what, extra ->
@@ -69,102 +48,84 @@ class VideoPlayerManager(
             false
         }
         
-        onStatusChange("⏳ Loading video...")
+        onStatusChange("⏳ Processing video...")
+        processVideoWithPoseDetection(videoUri)
     }
     
-    private fun scaleVideoViewToFill() {
-        videoView.post {
-            val viewWidth = videoView.width
-            val viewHeight = videoView.height
-            
-            if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
-                val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
-                val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
-                
-                // Calculate scale to fill the view completely
-                val scale: Float = if (videoRatio > viewRatio) {
-                    // Video is wider - scale based on height
-                    viewHeight.toFloat() / videoHeight.toFloat()
-                } else {
-                    // Video is taller - scale based on width
-                    viewWidth.toFloat() / videoWidth.toFloat()
-                }
-                
-                // Apply uniform scaling to fill
-                videoView.scaleX = scale
-                videoView.scaleY = scale
-                
-                Log.d(TAG, "View: ${viewWidth}x${viewHeight}, Video: ${videoWidth}x${videoHeight}, Scale: $scale")
-            }
-        }
-    }
-    
-    private fun initializePoseDetector(videoUri: Uri) {
-        backgroundExecutor = Executors.newScheduledThreadPool(2)
+    private fun processVideoWithPoseDetection(uri: Uri) {
+        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
         
-        // Initialize PoseLandmarkerHelper in background
         backgroundExecutor?.execute {
             poseLandmarkerHelper = PoseLandmarkerHelper(
                 context = context,
-                runningMode = RunningMode.IMAGE, // Use IMAGE mode for frame-by-frame
+                runningMode = RunningMode.VIDEO,
                 minPoseDetectionConfidence = 0.5f,
                 minPoseTrackingConfidence = 0.5f,
                 minPosePresenceConfidence = 0.5f,
                 currentDelegate = 0 // CPU
             )
             
-            // Start processing frames
-            startFrameProcessing(videoUri)
+            (context as? android.app.Activity)?.runOnUiThread {
+                onStatusChange("🎬 Analyzing video frames...")
+            }
+            
+            // Process entire video first (MediaPipe standard approach)
+            poseLandmarkerHelper?.detectVideoFile(uri, VIDEO_INTERVAL_MS)
+                ?.let { resultBundle ->
+                    (context as? android.app.Activity)?.runOnUiThread { 
+                        displayVideoResult(resultBundle)
+                    }
+                }
+                ?: run { 
+                    Log.e(TAG, "Error running pose landmarker on video")
+                    (context as? android.app.Activity)?.runOnUiThread {
+                        onStatusChange("❌ Failed to detect poses in video")
+                    }
+                }
         }
     }
     
-    private fun startFrameProcessing(videoUri: Uri) {
-        val retriever = MediaMetadataRetriever()
+    private fun displayVideoResult(result: PoseLandmarkerHelper.ResultBundle) {
+        videoView.visibility = View.VISIBLE
+        onStatusChange("✅ Video processed - ${result.results.size} frames")
         
-        try {
-            retriever.setDataSource(context, videoUri)
-            
-            // Schedule frame extraction and processing
-            backgroundExecutor?.scheduleAtFixedRate(
-                {
-                    try {
-                        if (!videoView.isPlaying || videoView.visibility != View.VISIBLE) {
-                            return@scheduleAtFixedRate
-                        }
-                        
-                        val currentPositionMs = videoView.currentPosition.toLong() * 1000 // Convert to microseconds
-                        val frame = retriever.getFrameAtTime(currentPositionMs, MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
-                        
-                        frame?.let { bitmap ->
-                            // Detect pose in current frame
-                            poseLandmarkerHelper?.detectImage(bitmap)?.let { result ->
-                                (context as? android.app.Activity)?.runOnUiThread {
-                                    if (result.results.isNotEmpty()) {
-                                        overlayView.setResults(
-                                            result.results[0],
-                                            videoHeight, // Use actual video dimensions
-                                            videoWidth,
-                                            RunningMode.IMAGE
-                                        )
-                                        overlayView.invalidate()
-                                    }
-                                }
+        videoView.start()
+        val videoStartTimeMs = SystemClock.uptimeMillis()
+        
+        backgroundExecutor?.scheduleAtFixedRate(
+            {
+                (context as? android.app.Activity)?.runOnUiThread {
+                    val videoElapsedTimeMs = SystemClock.uptimeMillis() - videoStartTimeMs
+                    val resultIndex = videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
+                    
+                    if (resultIndex >= result.results.size || videoView.visibility == View.GONE) {
+                        // Video playback finished, loop will restart
+                        if (videoView.isPlaying && resultIndex >= result.results.size) {
+                            // Reset to beginning when video loops
+                            val adjustedIndex = resultIndex % result.results.size
+                            if (adjustedIndex < result.results.size) {
+                                overlayView.setResults(
+                                    result.results[adjustedIndex],
+                                    result.inputImageHeight,
+                                    result.inputImageWidth,
+                                    RunningMode.VIDEO
+                                )
                             }
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error processing frame: ${e.message}")
+                    } else {
+                        overlayView.setResults(
+                            result.results[resultIndex],
+                            result.inputImageHeight,
+                            result.inputImageWidth,
+                            RunningMode.VIDEO
+                        )
                     }
-                },
-                0,
-                FRAME_INTERVAL_MS,
-                TimeUnit.MILLISECONDS
-            )
-        } catch (e: Exception) {
-            Log.e(TAG, "Error setting up frame processing: ${e.message}")
-            (context as? android.app.Activity)?.runOnUiThread {
-                onStatusChange("❌ Failed to process video")
-            }
-        }
+                }
+            },
+            0,
+            VIDEO_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        )
     }
     
     fun release() {
