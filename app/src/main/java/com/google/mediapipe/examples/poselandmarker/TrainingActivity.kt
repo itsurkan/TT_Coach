@@ -5,6 +5,7 @@
 
 package com.google.mediapipe.examples.poselandmarker
 
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -18,6 +19,7 @@ class TrainingActivity : BaseActivity() {
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
+    private var useVideo: Boolean = false
     private var isTrainingActive = false
     private val feedbackHistory = mutableListOf<String>()
     
@@ -36,6 +38,7 @@ class TrainingActivity : BaseActivity() {
         // Отримання даних вправи
         exerciseId = intent.getStringExtra("EXERCISE_ID")
         exerciseName = intent.getStringExtra("EXERCISE_NAME")
+        useVideo = intent.getBooleanExtra("USE_VIDEO", false)
 
         // Ініціалізація аналітики
         initializeAnalysis()
@@ -95,13 +98,40 @@ class TrainingActivity : BaseActivity() {
     }
 
     private fun startCameraPreview() {
-        // Запуск CameraFragment у контейнері
-        val cameraFragment = com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment()
-        supportFragmentManager.beginTransaction()
-            .replace(binding.cameraPreviewContainer.id, cameraFragment)
-            .commit()
-        
-        binding.feedbackText.text = "📹 Камера запущена. Натисніть 'Калібрувати'"
+        if (useVideo) {
+            // Debug mode: Load video from resources
+            binding.feedbackText.text = "🎬 Debug mode: Loading video from resources"
+            binding.cameraPreviewContainer.visibility = View.GONE
+            binding.videoView.visibility = View.VISIBLE
+            
+            // Load video from raw resources
+            val videoUri = Uri.parse("android.resource://$packageName/${R.raw.forehand_drive}")
+            binding.videoView.setVideoURI(videoUri)
+            
+            // Set up video playback
+            binding.videoView.setOnPreparedListener { mediaPlayer ->
+                mediaPlayer.isLooping = true
+                mediaPlayer.setVolume(0f, 0f) // Mute audio
+            }
+            
+            binding.videoView.setOnErrorListener { _, what, extra ->
+                binding.feedbackText.text = "❌ Error loading video: $what, $extra"
+                false
+            }
+            
+            binding.videoView.start()
+        } else {
+            // Normal mode: Launch camera
+            binding.videoView.visibility = View.GONE
+            binding.cameraPreviewContainer.visibility = View.VISIBLE
+            
+            val cameraFragment = com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(binding.cameraPreviewContainer.id, cameraFragment)
+                .commit()
+            
+            binding.feedbackText.text = "📹 Камера запущена. Натисніть 'Калібрувати'"
+        }
     }
 
     private fun startCalibration() {

@@ -26,16 +26,24 @@ class ExerciseAdapter(
                 tvDifficulty.text = root.context.getString(R.string.difficulty_label, exercise.difficulty)
                 tvDuration.text = root.context.getString(R.string.duration_label, exercise.duration)
 
+                // Checkbox for debug video mode
+                cbUseVideo.isChecked = exercise.useVideo
+                cbUseVideo.setOnCheckedChangeListener { _, isChecked ->
+                    exercise.useVideo = isChecked
+                }
+
                 // Lock status display
                 if (exercise.isLocked) {
                     tvLockStatus.text = root.context.getString(R.string.lock_icon)
                     tvLockStatus.visibility = android.view.View.VISIBLE
                     root.alpha = 0.6f
                     ivExerciseIcon.alpha = 0.5f
+                    cbUseVideo.isEnabled = false
                 } else {
                     tvLockStatus.visibility = android.view.View.GONE
                     root.alpha = 1.0f
                     ivExerciseIcon.alpha = 1.0f
+                    cbUseVideo.isEnabled = true
                 }
 
                 root.setOnClickListener {

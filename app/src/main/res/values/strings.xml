@@ -16,6 +16,7 @@
 -->
 <resources>
     <string name="app_name">TT AI Coach 1</string>
+    <string name="use_video_debug">🎬 Use video (debug)</string>
 
     <string name="media_pipe">MediaPipe</string>
 
