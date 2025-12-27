@@ -138,14 +138,24 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     private fun startCalibration() {
-        uiController.showCalibrationInProgress()
-
-        // Simulate calibration (3 sec)
-        binding.root.postDelayed({
+        if (!useVideo) {
+            // For camera mode: capture reference pose
+            uiController.showCalibrationInProgress()
+            
+            // TODO: Capture actual pose from camera
+            // For now, simulate calibration
+            binding.root.postDelayed({
+                uiController.showCalibrationComplete {
+                    // Calibration complete callback
+                }
+            }, 3000)
+        } else {
+            // For video mode: skip calibration or use first frame
+            uiController.updateFeedbackText("✅ Калібрування пропущено (відео режим)")
             uiController.showCalibrationComplete {
-                // Calibration complete callback
+                // Ready to start training
             }
-        }, 3000)
+        }
     }
 
     private fun startTraining() {
