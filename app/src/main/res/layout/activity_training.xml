@@ -17,15 +17,22 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Video View for debug mode -->
-    <VideoView
-        android:id="@+id/video_view"
+    <FrameLayout
+        android:id="@+id/video_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:visibility="gone"
+        android:background="@color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/feedback_text"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <VideoView
+            android:id="@+id/video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
+    </FrameLayout>
 
     <!-- Overlay for pose landmarks -->
     <com.google.mediapipe.examples.poselandmarker.OverlayView

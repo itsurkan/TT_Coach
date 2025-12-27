@@ -52,6 +52,9 @@ class VideoPlayerManager(
             
             Log.d(TAG, "Video dimensions: ${videoWidth}x${videoHeight}")
             
+            // Scale VideoView to fill container
+            scaleVideoViewToFill()
+            
             // Start video immediately
             videoView.start()
             videoView.visibility = View.VISIBLE
@@ -67,6 +70,37 @@ class VideoPlayerManager(
         }
         
         onStatusChange("⏳ Loading video...")
+    }
+    
+    private fun scaleVideoViewToFill() {
+        videoView.post {
+            val viewWidth = videoView.width
+            val viewHeight = videoView.height
+            
+            if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
+                val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
+                val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
+                
+                val scaleX: Float
+                val scaleY: Float
+                
+                if (videoRatio > viewRatio) {
+                    // Video is wider than view - scale to fill height
+                    scaleY = viewHeight.toFloat() / videoHeight.toFloat()
+                    scaleX = scaleY
+                } else {
+                    // Video is taller than view - scale to fill width
+                    scaleX = viewWidth.toFloat() / videoWidth.toFloat()
+                    scaleY = scaleX
+                }
+                
+                // Apply scaling to fill the view
+                videoView.scaleX = scaleX * videoRatio / viewRatio
+                videoView.scaleY = scaleY * viewRatio / videoRatio
+                
+                Log.d(TAG, "View: ${viewWidth}x${viewHeight}, Scale: ${videoView.scaleX}x${videoView.scaleY}")
+            }
+        }
     }
     
     private fun initializePoseDetector(videoUri: Uri) {
