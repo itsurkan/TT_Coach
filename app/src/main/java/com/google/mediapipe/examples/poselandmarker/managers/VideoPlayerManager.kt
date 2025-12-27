@@ -81,24 +81,20 @@ class VideoPlayerManager(
                 val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
                 val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
                 
-                val scaleX: Float
-                val scaleY: Float
-                
-                if (videoRatio > viewRatio) {
-                    // Video is wider than view - scale to fill height
-                    scaleY = viewHeight.toFloat() / videoHeight.toFloat()
-                    scaleX = scaleY
+                // Calculate scale to fill the view completely
+                val scale: Float = if (videoRatio > viewRatio) {
+                    // Video is wider - scale based on height
+                    viewHeight.toFloat() / videoHeight.toFloat()
                 } else {
-                    // Video is taller than view - scale to fill width
-                    scaleX = viewWidth.toFloat() / videoWidth.toFloat()
-                    scaleY = scaleX
+                    // Video is taller - scale based on width
+                    viewWidth.toFloat() / videoWidth.toFloat()
                 }
                 
-                // Apply scaling to fill the view
-                videoView.scaleX = scaleX * videoRatio / viewRatio
-                videoView.scaleY = scaleY * viewRatio / videoRatio
+                // Apply uniform scaling to fill
+                videoView.scaleX = scale
+                videoView.scaleY = scale
                 
-                Log.d(TAG, "View: ${viewWidth}x${viewHeight}, Scale: ${videoView.scaleX}x${videoView.scaleY}")
+                Log.d(TAG, "View: ${viewWidth}x${viewHeight}, Video: ${videoWidth}x${videoHeight}, Scale: $scale")
             }
         }
     }
