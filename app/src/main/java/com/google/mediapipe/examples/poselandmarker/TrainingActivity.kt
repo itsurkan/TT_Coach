@@ -110,8 +110,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         if (useVideo) {
             // Debug mode: Load video from resources with pose detection
             binding.cameraPreviewContainer.visibility = View.GONE
-            binding.videoView.visibility = View.GONE // Will be shown after processing
-            binding.overlay.visibility = View.VISIBLE
+            binding.videoView.visibility = View.VISIBLE
             
             videoPlayerManager = VideoPlayerManager(
                 context = this,
