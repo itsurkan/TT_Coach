@@ -53,6 +53,7 @@ Group related extensions in separate files.
 - ✅ `TrainingActivity.kt` - 215 lines (refactored)
 - ✅ `SettingsActivity.kt` - 135 lines (refactored from 281)
 - ✅ `PoseLandmarkerHelper.kt` - 165 lines (refactored from 391)
+- ✅ `GalleryFragment.kt` - 241 lines (refactored from 455)
 - ✅ `VideoPlayerManager.kt` - 150 lines
 - ✅ `TrainingStateManager.kt` - 88 lines
 - ✅ `TrainingUIController.kt` - 109 lines
@@ -60,9 +61,10 @@ Group related extensions in separate files.
 - ✅ `SettingsUIController.kt` - 148 lines
 - ✅ `PoseLandmarkerConfig.kt` - 89 lines
 - ✅ `PoseLandmarkerProcessor.kt` - 139 lines
+- ✅ `GalleryUIController.kt` - 236 lines
+- ✅ `GalleryMediaProcessor.kt` - 175 lines
 
 ### Files Exceeding Limit (Needs Refactoring ❌)
-- ❌ `GalleryFragment.kt` - 400 lines (TODO)
 - ❌ `CameraFragment.kt` - 361 lines (TODO)
 
 ## Enforcement
@@ -88,15 +90,11 @@ Group related extensions in separate files.
 1. ✅ `TrainingActivity.kt` - Split into TrainingActivity + 3 managers
 2. ✅ `SettingsActivity.kt` - Split into SettingsActivity + SettingsManager + SettingsUIController  
 3. ✅ `PoseLandmarkerHelper.kt` - Split into PoseLandmarkerHelper + Config + Processor
+4. ✅ `GalleryFragment.kt` - Split into GalleryFragment + GalleryUIController + GalleryMediaProcessor
 
 ### Remaining Files to Refactor
-The following files should be prioritized for refactoring:
-1. `GalleryFragment.kt` (400 lines) - split into:
-   - GalleryFragment (< 250 lines) - main coordinator
-   - GalleryVideoProcessor (< 250 lines) - video processing logic
-   - GalleryUIController (< 250 lines) - UI management
-
-2. `CameraFragment.kt` (361 lines) - split into:
+The following file should be prioritized for refactoring:
+1. `CameraFragment.kt` (361 lines) - split into:
    - CameraFragment (< 250 lines) - main coordinator
    - CameraManager (< 250 lines) - camera setup and control
    - CameraUIController (< 250 lines) - UI updates and controls
