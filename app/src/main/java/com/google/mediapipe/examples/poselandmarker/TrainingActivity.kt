@@ -112,6 +112,24 @@ class TrainingActivity : BaseActivity() {
             binding.videoView.setOnPreparedListener { mediaPlayer ->
                 mediaPlayer.isLooping = true
                 mediaPlayer.setVolume(0f, 0f) // Mute audio
+                
+                // Scale video to fill width (crop height if needed)
+                val videoWidth = mediaPlayer.videoWidth
+                val videoHeight = mediaPlayer.videoHeight
+                val viewWidth = binding.videoView.width
+                val viewHeight = binding.videoView.height
+                
+                if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
+                    val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
+                    val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
+                    
+                    if (videoRatio < viewRatio) {
+                        // Video is narrower, scale up to fill width
+                        val scale = viewWidth.toFloat() / videoWidth.toFloat()
+                        binding.videoView.scaleX = scale
+                        binding.videoView.scaleY = scale
+                    }
+                }
             }
             
             binding.videoView.setOnErrorListener { _, what, extra ->
