@@ -33,6 +33,9 @@ class VideoPlayerManager(
     }
     
     fun playVideoWithPoseDetection(videoResId: Int) {
+        // Keep video view hidden until processing is complete
+        videoView.visibility = View.GONE
+        
         val videoUri = Uri.parse("android.resource://${context.packageName}/$videoResId")
         videoView.setVideoURI(videoUri)
         
@@ -60,10 +63,12 @@ class VideoPlayerManager(
         
         videoView.setOnErrorListener { _, what, extra ->
             onStatusChange("❌ Error loading video: $what, $extra")
+            videoView.visibility = View.VISIBLE
             false
         }
         
         // Process video with pose detection
+        onStatusChange("⏳ Loading video...")
         processVideoWithPoseDetection(videoUri)
     }
     
