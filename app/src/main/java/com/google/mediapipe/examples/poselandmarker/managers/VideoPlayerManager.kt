@@ -41,6 +41,34 @@ class VideoPlayerManager(
             mediaPlayer.setVolume(0f, 0f) // Mute audio
             mediaPlayer.isLooping = true // Loop video
             videoView.requestFocus()
+            
+            // Get video dimensions and scale to fill
+            val videoWidth = mediaPlayer.videoWidth
+            val videoHeight = mediaPlayer.videoHeight
+            
+            videoView.post {
+                val viewWidth = videoView.width
+                val viewHeight = videoView.height
+                
+                if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
+                    val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
+                    val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
+                    
+                    // Scale to fill the entire container
+                    val scale = if (videoRatio > viewRatio) {
+                        // Video is wider than view - fill height and let width overflow
+                        viewHeight.toFloat() / videoHeight.toFloat() * viewRatio / videoRatio
+                    } else {
+                        // Video is taller than view - fill width and let height overflow
+                        viewWidth.toFloat() / videoWidth.toFloat() * videoRatio / viewRatio
+                    }
+                    
+                    videoView.scaleX = scale.coerceAtLeast(1f)
+                    videoView.scaleY = scale.coerceAtLeast(1f)
+                    
+                    Log.d(TAG, "Video: ${videoWidth}x${videoHeight}, View: ${viewWidth}x${viewHeight}, Scale: $scale")
+                }
+            }
         }
         
         videoView.setOnErrorListener { _, what, extra ->
