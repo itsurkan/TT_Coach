@@ -50,10 +50,11 @@ Group related extensions in separate files.
 ## Current Status
 
 ### Files Within Limit (Good ✅)
-- ✅ `TrainingActivity.kt` - 215 lines (refactored)
+- ✅ `TrainingActivity.kt` - 215 lines (refactored from 464)
 - ✅ `SettingsActivity.kt` - 135 lines (refactored from 281)
 - ✅ `PoseLandmarkerHelper.kt` - 165 lines (refactored from 391)
 - ✅ `GalleryFragment.kt` - 241 lines (refactored from 455)
+- ✅ `CameraFragment.kt` - 232 lines (refactored from 412)
 - ✅ `VideoPlayerManager.kt` - 150 lines
 - ✅ `TrainingStateManager.kt` - 88 lines
 - ✅ `TrainingUIController.kt` - 109 lines
@@ -63,9 +64,11 @@ Group related extensions in separate files.
 - ✅ `PoseLandmarkerProcessor.kt` - 139 lines
 - ✅ `GalleryUIController.kt` - 236 lines
 - ✅ `GalleryMediaProcessor.kt` - 175 lines
+- ✅ `CameraUIController.kt` - 225 lines
+- ✅ `CameraManager.kt` - 136 lines
 
 ### Files Exceeding Limit (Needs Refactoring ❌)
-- ❌ `CameraFragment.kt` - 361 lines (TODO)
+**All files now comply with the 250-line limit! 🎉**
 
 ## Enforcement
 
@@ -87,14 +90,11 @@ Group related extensions in separate files.
 ## Next Steps
 
 ### Completed Refactorings
-1. ✅ `TrainingActivity.kt` - Split into TrainingActivity + 3 managers
-2. ✅ `SettingsActivity.kt` - Split into SettingsActivity + SettingsManager + SettingsUIController  
-3. ✅ `PoseLandmarkerHelper.kt` - Split into PoseLandmarkerHelper + Config + Processor
-4. ✅ `GalleryFragment.kt` - Split into GalleryFragment + GalleryUIController + GalleryMediaProcessor
+1. ✅ `TrainingActivity.kt` (464 → 215 lines) - Split into TrainingActivity + 3 managers
+2. ✅ `SettingsActivity.kt` (281 → 135 lines) - Split into SettingsActivity + SettingsManager + SettingsUIController  
+3. ✅ `PoseLandmarkerHelper.kt` (391 → 165 lines) - Split into PoseLandmarkerHelper + Config + Processor
+4. ✅ `GalleryFragment.kt` (455 → 241 lines) - Split into GalleryFragment + GalleryUIController + GalleryMediaProcessor
+5. ✅ `CameraFragment.kt` (412 → 232 lines) - Split into CameraFragment + CameraUIController + CameraManager
 
-### Remaining Files to Refactor
-The following file should be prioritized for refactoring:
-1. `CameraFragment.kt` (361 lines) - split into:
-   - CameraFragment (< 250 lines) - main coordinator
-   - CameraManager (< 250 lines) - camera setup and control
-   - CameraUIController (< 250 lines) - UI updates and controls
+### All Refactoring Complete! 🎉
+All Kotlin files in the project now comply with the 250-line limit. The codebase is more maintainable, testable, and follows the Single Responsibility Principle.
