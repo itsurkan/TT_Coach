@@ -23,8 +23,9 @@ class AsyncFileLogger(
     private val bufferSize: Int = 50,
     private val flushIntervalMs: Long = 5000
 ) {
-    // Use external storage for visibility in File Manager
-    private val logDir = File(context.getExternalFilesDir(null), "logs")
+    // Use internal storage (no permissions needed)
+    // For access: use ADB or export to Download folder
+    private val logDir: File = File(context.filesDir, "logs")
     
     // Non-blocking queue (thread-safe, unlimited capacity)
     private val eventQueue = Channel<LogEvent>(capacity = Channel.UNLIMITED)

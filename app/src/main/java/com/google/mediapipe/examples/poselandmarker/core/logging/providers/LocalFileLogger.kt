@@ -1,9 +1,11 @@
 package com.google.mediapipe.examples.poselandmarker.core.logging.providers
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import com.google.mediapipe.examples.poselandmarker.core.logging.*
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import java.io.File
 import java.util.UUID
 
 /**
@@ -181,6 +183,39 @@ class LocalFileLogger(context: Context) : Logger, AnalyticsProvider, CrashReport
             sizeMB = size / (1024f * 1024f),
             directory = dir.absolutePath
         )
+    }
+    
+    /**
+     * Export logs to Download folder (visible in File Manager without root).
+     * Returns the exported file path.
+     */
+    fun exportLogsToDownload(context: Context): File? {
+        return try {
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val exportDir = File(downloadsDir, "TT_Coach_Logs")
+            exportDir.mkdirs()
+            
+            val timestamp = System.currentTimeMillis()
+            val exportFile = File(exportDir, "logs_$timestamp.txt")
+            
+            val logDir = asyncLogger.getLogDirectory()
+            val allContent = StringBuilder()
+            
+            logDir.walkTopDown().forEach { file ->
+                if (file.isFile && file.extension == "jsonl") {
+                    allContent.append("=== ${file.name} ===\n")
+                    allContent.append(file.readText())
+                    allContent.append("\n\n")
+                }
+            }
+            
+            exportFile.writeText(allContent.toString())
+            Log.i(TAG, "Logs exported to: ${exportFile.absolutePath}")
+            exportFile
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to export logs", e)
+            null
+        }
     }
     
     companion object {
