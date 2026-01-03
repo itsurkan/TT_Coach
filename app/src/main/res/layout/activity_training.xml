@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Camera Preview Container (автоматично запускається) -->
+    <FrameLayout
+        android:id="@+id/camera_preview_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/feedback_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Video View for debug mode -->
+    <FrameLayout
+        android:id="@+id/video_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/feedback_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+        
+        <VideoView
+            android:id="@+id/video_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+    <!-- Overlay for pose landmarks -->
+    <com.google.mediapipe.examples.poselandmarker.OverlayView
+        android:id="@+id/overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/feedback_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Статус калібрування (показується тільки під час калібрування) -->
+    <TextView
+        android:id="@+id/tv_calibration_status"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/calibration_prompt"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:background="#CC000000"
+        android:padding="16dp"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/camera_preview_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"/>
+
+    <!-- Статистика (показується під час тренування) -->
+    <LinearLayout
+        android:id="@+id/layout_stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#CC000000"
+        android:padding="12dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/camera_preview_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp">
+
+        <TextView
+            android:id="@+id/tv_stroke_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/stroke_count"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/tv_average_score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/accuracy"
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <!-- Поточний фідбек -->
+    <TextView
+        android:id="@+id/feedback_text"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/waiting_calibration"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:background="#DD000000"
+        android:padding="12dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@id/control_panel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Панель управління (тільки 2 кнопки) -->
+    <LinearLayout
+        android:id="@+id/control_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Калібрування -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_calibrate"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/btn_calibrate"
+            android:textSize="16sp"
+            app:cornerRadius="12dp"
+            android:layout_marginEnd="8dp"/>
+
+        <!-- Почати/Зупинити тренування -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_start_stop"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="@string/btn_start"
+            android:textSize="16sp"
+            android:enabled="false"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/holo_green_light"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

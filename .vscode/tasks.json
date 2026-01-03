@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "View Logcat",
+			"type": "shell",
+			"command": "$env:LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe logcat -d | Select-String -Pattern 'AndroidRuntime|FATAL|Exception' -Context 5",
+			"problemMatcher": []
+		}
+	]
+}

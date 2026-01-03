@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="camera_resolutions">
+        <item>Низька (швидше)</item>
+        <item>Середня (збалансовано)</item>
+        <item>Висока (точніше)</item>
+    </string-array>
+</resources>
