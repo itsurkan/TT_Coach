@@ -5,9 +5,11 @@
 
 package com.google.mediapipe.examples.poselandmarker.managers
 
+import android.content.Context
+import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 
-class TrainingStateManager {
+class TrainingStateManager(private val context: Context) {
     var isTrainingActive = false
         private set
     
@@ -59,25 +61,26 @@ class TrainingStateManager {
         val totalStrokes = getStrokeCount()
         val goodStrokes = getGoodStrokesCount()
         val avgScore = getAverageScore()
+        val percentage = if (totalStrokes > 0) (goodStrokes * 100 / totalStrokes) else 0
         
         return """
-            Загальна кількість ударів: $totalStrokes
-            Успішні удари: $goodStrokes (${if (totalStrokes > 0) (goodStrokes * 100 / totalStrokes) else 0}%)
-            Середня точність: ${String.format("%.1f", avgScore)}%
+            ${context.getString(R.string.summary_total_strokes, totalStrokes)}
+            ${context.getString(R.string.summary_successful_strokes, goodStrokes, percentage)}
+            ${context.getString(R.string.summary_average_accuracy, avgScore)}
         """.trimIndent()
     }
     
     fun getImprovementTip(): String {
         if (analysisResults.isEmpty()) {
-            return "Почніть тренування, щоб отримати поради"
+            return context.getString(R.string.start_training_advice)
         }
         
         val avgScore = getAverageScore()
         return when {
-            avgScore >= 85 -> "🎯 Відмінно! Продовжуйте тренування для закріплення техніки"
-            avgScore >= 70 -> "👍 Добре! Зосередьтесь на стабільності ударів"
-            avgScore >= 50 -> "💪 Непогано! Покращуйте положення тіла та ракетки"
-            else -> "🎓 Потрібна практика. Зосередьтесь на базовій техніці"
+            avgScore >= 85 -> context.getString(R.string.tip_excellent)
+            avgScore >= 70 -> context.getString(R.string.tip_good)
+            avgScore >= 50 -> context.getString(R.string.tip_not_bad)
+            else -> context.getString(R.string.tip_needs_practice)
         }
     }
     

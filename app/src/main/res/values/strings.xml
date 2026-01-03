@@ -204,4 +204,31 @@
     <string name="rec_keep_elbow_close">Keep elbow close to body</string>
     <string name="rec_increase_speed">Add speed for efficiency</string>
     <string name="rec_control_speed">Reduce speed for better control</string>
+    
+    <!-- Training Activity Messages -->
+    <string name="camera_started">📹 Camera started. Press \'Calibrate\'</string>
+    <string name="calibration_skipped">✅ Calibration skipped (video mode)</string>
+    <string name="pose_detection_error">❌ Pose detection error: %s</string>
+    
+    <!-- Training State Messages -->
+    <string name="start_training_advice">Start training to get advice</string>
+    
+    <!-- Exercise Selection -->
+    <string name="select_exercise_hint">Select an exercise to start training</string>
+    
+    <!-- Summary Dialog -->
+    <string name="training_summary">Training Summary</string>
+    <string name="finish_button">Finish</string>
+    <string name="continue_button">Continue</string>
+    
+    <!-- Improvement Tips -->
+    <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки</string>
+    <string name="tip_good">👍 Добре! Зосередьтесь на стабільності ударів</string>
+    <string name="tip_not_bad">💪 Непогано! Покращуйте положення тіла та ракетки</string>
+    <string name="tip_needs_practice">🎓 Потрібна практика. Зосередьтесь на базовій техніці</string>
+    
+    <!-- Summary Stats -->
+    <string name="summary_total_strokes">Загальна кількість ударів: %d</string>
+    <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
+    <string name="summary_average_accuracy">Середня точність: %.1f%%</string>
 </resources>

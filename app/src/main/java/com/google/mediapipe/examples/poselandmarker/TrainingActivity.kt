@@ -52,7 +52,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
     
     private fun initializeManagers() {
-        stateManager = TrainingStateManager()
+        stateManager = TrainingStateManager(this)
         uiController = TrainingUIController(this, binding, stateManager)
     }
     
@@ -135,7 +135,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 .replace(binding.cameraPreviewContainer.id, cameraFragment)
                 .commit()
             
-            uiController.updateFeedbackText("📹 Камера запущена. Натисніть 'Калібрувати'")
+            uiController.updateFeedbackText(getString(R.string.camera_started))
         }
     }
 
@@ -153,7 +153,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             }, 3000)
         } else {
             // For video mode: skip calibration or use first frame
-            uiController.updateFeedbackText("✅ Калібрування пропущено (відео режим)")
+            uiController.updateFeedbackText(getString(R.string.calibration_skipped))
             uiController.showCalibrationComplete {
                 // Ready to start training
             }
@@ -207,7 +207,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     // PoseLandmarkerHelper.LandmarkerListener implementation
     override fun onError(error: String, errorCode: Int) {
         runOnUiThread {
-            uiController.updateFeedbackText("❌ Pose detection error: $error")
+            uiController.updateFeedbackText(getString(R.string.pose_detection_error, error))
         }
     }
     

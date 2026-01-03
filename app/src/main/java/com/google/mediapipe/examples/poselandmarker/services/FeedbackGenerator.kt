@@ -21,8 +21,8 @@ class FeedbackGenerator {
     fun generateShortFeedback(result: AnalysisResult): String {
         return when {
             result.overallScore >= 90f -> getRandomPositiveFeedback()
-            result.errors.isEmpty() -> "Гарно! Продовжуйте в тому ж дусі!"
-            else -> result.getPrimaryError() ?: "Працюйте над технікою"
+            result.errors.isEmpty() -> "Good! Keep it up!"
+            else -> result.getPrimaryError() ?: "Work on technique"
         }
     }
 
@@ -33,10 +33,10 @@ class FeedbackGenerator {
         val feedback = StringBuilder()
         
         feedback.append(result.getSummary()).append("\n\n")
-        feedback.append("Оцінка: ${result.overallScore.toInt()}%\n\n")
+        feedback.append("Score: ${result.overallScore.toInt()}%\n\n")
         
         if (result.errors.isNotEmpty()) {
-            feedback.append("⚠️ Помилки:\n")
+            feedback.append("⚠️ Errors:\n")
             result.errors.forEach { error ->
                 feedback.append("• $error\n")
             }
@@ -44,7 +44,7 @@ class FeedbackGenerator {
         }
         
         if (result.recommendations.isNotEmpty()) {
-            feedback.append("💡 Рекомендації:\n")
+            feedback.append("💡 Recommendations:\n")
             result.recommendations.forEach { recommendation ->
                 feedback.append("• $recommendation\n")
             }
@@ -62,12 +62,12 @@ class FeedbackGenerator {
         idealValue: Float,
         isValid: Boolean
     ): String {
-        if (measuredValue == null) return "❓ $parameterName: не визначено"
+        if (measuredValue == null) return "❓ $parameterName: not detected"
         
         return if (isValid) {
-            "✅ $parameterName: ${measuredValue.toInt()}° (ідеально)"
+            "✅ $parameterName: ${measuredValue.toInt()}° (perfect)"
         } else {
-            "⚠️ $parameterName: ${measuredValue.toInt()}° (очікується ${idealValue.toInt()}°)"
+            "⚠️ $parameterName: ${measuredValue.toInt()}° (expected ${idealValue.toInt()}°)"
         }
     }
 
@@ -76,11 +76,11 @@ class FeedbackGenerator {
      */
     private fun getRandomPositiveFeedback(): String {
         val positiveFeedbacks = listOf(
-            "✅ Чудово! Ідеальна техніка!",
-            "✅ Відмінно! Так тримати!",
-            "✅ Бездоганно! Продовжуйте!",
-            "✅ Ідеально! Ви молодець!",
-            "✅ Супер удар! Дуже добре!"
+            "✅ Excellent! Perfect technique!",
+            "✅ Great! Keep it up!",
+            "✅ Flawless! Continue!",
+            "✅ Perfect! Well done!",
+            "✅ Super stroke! Very good!"
         )
         return positiveFeedbacks[random.nextInt(positiveFeedbacks.size)]
     }
@@ -90,10 +90,10 @@ class FeedbackGenerator {
      */
     fun generateMotivationalMessage(consecutiveGoodStrokes: Int): String? {
         return when (consecutiveGoodStrokes) {
-            5 -> "🔥 5 гарних ударів підряд! Продовжуйте!"
-            10 -> "🎯 10 відмінних ударів! Ви в ударі!"
-            20 -> "⭐ 20 ударів поспіль! Неймовірно!"
-            50 -> "🏆 50 ударів! Ви майстер!"
+            5 -> "🔥 5 good strokes in a row! Keep going!"
+            10 -> "🎯 10 excellent strokes! You're on fire!"
+            20 -> "⭐ 20 strokes in a row! Incredible!"
+            50 -> "🏆 50 strokes! You're a master!"
             else -> null
         }
     }
@@ -113,17 +113,17 @@ class FeedbackGenerator {
         }
         
         val feedback = StringBuilder()
-        feedback.append("📊 Підсумок тренування\n\n")
-        feedback.append("Всього ударів: $totalStrokes\n")
-        feedback.append("Успішних: $successfulStrokes\n")
-        feedback.append("Точність: $accuracy%\n")
-        feedback.append("Середня оцінка: ${averageScore.toInt()}%\n\n")
+        feedback.append("📊 Training Summary\n\n")
+        feedback.append("Total strokes: $totalStrokes\n")
+        feedback.append("Successful: $successfulStrokes\n")
+        feedback.append("Accuracy: $accuracy%\n")
+        feedback.append("Average score: ${averageScore.toInt()}%\n\n")
         
         feedback.append(when {
-            accuracy >= 80 -> "🏆 Відмінна робота! Ви прогресуєте!"
-            accuracy >= 60 -> "👍 Гарне тренування! Продовжуйте працювати!"
-            accuracy >= 40 -> "💪 Є покращення! Тренуйтесь регулярно!"
-            else -> "🎯 Не здавайтесь! Кожне тренування робить вас кращим!"
+            accuracy >= 80 -> "🏆 Excellent work! You're making progress!"
+            accuracy >= 60 -> "👍 Good training! Keep working!"
+            accuracy >= 40 -> "💪 There's improvement! Train regularly!"
+            else -> "🎯 Don't give up! Every training makes you better!"
         })
         
         return feedback.toString()
@@ -139,17 +139,17 @@ class FeedbackGenerator {
         if (mostCommonError == null) return null
         
         return when {
-            mostCommonError.contains("зап'ястя", ignoreCase = true) -> 
-                "💡 Порада: Уявіть, що тримаєте олівець - зап'ястя має бути продовженням передпліччя"
+            mostCommonError.contains("wrist", ignoreCase = true) -> 
+                "💡 Tip: Imagine holding a pencil - wrist should be an extension of forearm"
             
-            mostCommonError.contains("ротація", ignoreCase = true) -> 
-                "💡 Порада: Поверніть талію та плечі як єдине ціле - уявіть, що закручуєте пружину"
+            mostCommonError.contains("rotation", ignoreCase = true) -> 
+                "💡 Tip: Turn waist and shoulders as one - imagine winding a spring"
             
-            mostCommonError.contains("контакт", ignoreCase = true) -> 
-                "💡 Порада: Оптимальна точка контакту - на висоті пояса, трохи попереду тіла"
+            mostCommonError.contains("contact", ignoreCase = true) -> 
+                "💡 Tip: Optimal contact point - waist height, slightly ahead of body"
             
-            mostCommonError.contains("проведення", ignoreCase = true) -> 
-                "💡 Порада: Продовжуйте рух після контакту - ракетка має закінчити біля протилежного плеча"
+            mostCommonError.contains("follow", ignoreCase = true) -> 
+                "💡 Tip: Continue movement after contact - racket should finish near opposite shoulder"
             
             else -> null
         }

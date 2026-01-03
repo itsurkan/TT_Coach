@@ -82,10 +82,10 @@ class TrainingUIController(
         val improvementTip = stateManager.getImprovementTip()
         
         androidx.appcompat.app.AlertDialog.Builder(context)
-            .setTitle("Підсумки тренування")
+            .setTitle(context.getString(R.string.training_summary))
             .setMessage("$summaryText\n\n$improvementTip")
-            .setPositiveButton("Завершити") { dialog, which -> onFinish() }
-            .setNegativeButton("Продовжити") { dialog, which -> onContinue() }
+            .setPositiveButton(context.getString(R.string.finish_button)) { dialog, which -> onFinish() }
+            .setNegativeButton(context.getString(R.string.continue_button)) { dialog, which -> onContinue() }
             .show()
     }
     

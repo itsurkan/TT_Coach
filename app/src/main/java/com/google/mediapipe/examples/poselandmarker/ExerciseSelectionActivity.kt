@@ -73,7 +73,7 @@ class ExerciseSelectionActivity : BaseActivity() {
         binding.exerciseRecyclerView.adapter = adapter
 
         // Текст підказки
-        binding.tvHint.text = "Оберіть вправу для початку тренування"
+        binding.tvHint.text = getString(R.string.select_exercise_hint)
     }
 
     private fun onExerciseSelected(exercise: Exercise) {
