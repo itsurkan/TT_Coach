@@ -73,10 +73,16 @@ class LogReader(context: Context) {
     }
     
     /**
-     * Export all logs to a ZIP file.
+     * Export all logs to a ZIP file in External Storage (accessible via file manager).
+     * Location: /sdcard/Android/data/[package]/files/logs_export_[timestamp].zip
      */
     suspend fun exportAllLogs(context: Context): File = withContext(Dispatchers.IO) {
-        val exportFile = File(context.getExternalFilesDir(null), "logs_export_${System.currentTimeMillis()}.zip")
+        // Ensure external files directory exists
+        val externalDir = context.getExternalFilesDir(null)
+            ?: throw IllegalStateException("External storage not available")
+        externalDir.mkdirs()
+        
+        val exportFile = File(externalDir, "logs_export_${System.currentTimeMillis()}.zip")
         
         ZipOutputStream(FileOutputStream(exportFile)).use { zip ->
             logDir.walkTopDown().forEach { file ->
@@ -91,6 +97,37 @@ class LogReader(context: Context) {
         
         Log.i(TAG, "Exported logs to: ${exportFile.absolutePath}")
         exportFile
+    }
+    
+    /**
+     * Export logs to a readable folder structure in External Storage.
+     * Copies all JSONL files to accessible location without ZIP compression.
+     * Location: /sdcard/Android/data/[package]/files/logs/
+     */
+    suspend fun exportLogsToFolder(context: Context): File = withContext(Dispatchers.IO) {
+        // Ensure external files directory exists
+        val externalDir = context.getExternalFilesDir(null)
+            ?: throw IllegalStateException("External storage not available")
+        val exportDir = File(externalDir, "logs")
+        exportDir.mkdirs()
+        
+        var fileCount = 0
+        logDir.walkTopDown().forEach { file ->
+            if (file.isFile && file.extension == "jsonl") {
+                val relativePath = file.relativeTo(logDir).path
+                val targetFile = File(exportDir, relativePath)
+                
+                // Ensure parent directory exists
+                targetFile.parentFile?.mkdirs()
+                
+                // Copy file
+                file.copyTo(targetFile, overwrite = true)
+                fileCount++
+            }
+        }
+        
+        Log.i(TAG, "Exported $fileCount log files to: ${exportDir.absolutePath}")
+        exportDir
     }
     
     /**

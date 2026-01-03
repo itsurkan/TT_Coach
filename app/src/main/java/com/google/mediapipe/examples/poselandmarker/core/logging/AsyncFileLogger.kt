@@ -47,6 +47,7 @@ class AsyncFileLogger(
         File(logDir, "performance_metrics").mkdirs()
         File(logDir, "errors").mkdirs()
         File(logDir, "events").mkdirs()
+        File(logDir, "raw_poses").mkdirs()
         
         // Start background workers
         startLogConsumer()
@@ -79,6 +80,10 @@ class AsyncFileLogger(
     
     fun logEvent(eventName: String, params: Map<String, Any>) {
         offerEvent(LogEvent.Generic(eventName, params, System.currentTimeMillis()))
+    }
+    
+    fun logRawPose(rawPoseData: RawPoseData) {
+        offerEvent(LogEvent.RawPose(rawPoseData))
     }
     
     // Non-blocking offer (returns immediately)
@@ -210,8 +215,14 @@ class AsyncFileLogger(
             is LogEvent.PerformanceMetric -> "performance_metrics/${today}_metrics.jsonl"
             is LogEvent.Error -> "errors/${today}_errors.jsonl"
             is LogEvent.Generic -> "events/${today}_events.jsonl"
+            is LogEvent.RawPose -> "raw_poses/${today}_raw_poses.jsonl"
         }
-        return File(logDir, filename)
+        val file = File(logDir, filename)
+        
+        // Ensure parent directory exists before writing
+        file.parentFile?.mkdirs()
+        
+        return file
     }
     
     fun getLogDirectory(): File = logDir

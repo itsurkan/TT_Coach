@@ -150,6 +150,23 @@ class LocalFileLogger(context: Context) : Logger, AnalyticsProvider, CrashReport
         ))
     }
     
+    fun logRawPose(
+        sessionId: String,
+        frameNumber: Int,
+        inferenceTimeMs: Long,
+        landmarks: List<LandmarkData>,
+        worldLandmarks: List<LandmarkData>? = null
+    ) {
+        asyncLogger.logRawPose(RawPoseData(
+            sessionId = sessionId,
+            timestamp = System.currentTimeMillis(),
+            frameNumber = frameNumber,
+            inferenceTimeMs = inferenceTimeMs,
+            landmarks = landmarks,
+            worldLandmarks = worldLandmarks
+        ))
+    }
+    
     // === Management ===
     
     suspend fun shutdown() {

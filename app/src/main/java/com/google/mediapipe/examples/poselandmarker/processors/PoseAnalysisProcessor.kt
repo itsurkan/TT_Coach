@@ -8,6 +8,7 @@ package com.google.mediapipe.examples.poselandmarker.processors
 import android.util.Log
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.TTCoachApplication
+import com.google.mediapipe.examples.poselandmarker.core.logging.LandmarkData
 import com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
 import com.google.mediapipe.examples.poselandmarker.managers.TrainingUIController
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
@@ -110,6 +111,10 @@ class PoseAnalysisProcessor(
             // Log stroke analysis asynchronously (zero latency impact)
             logAnalysisResults(analysisResult, inferenceTime)
             
+            // 🆕 Log raw pose landmarks (enable for data collection)
+            // Uncomment the line below to enable raw pose logging:
+            // logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
+            
             // Debug log every LOG_INTERVAL_FRAMES
             if (frameCounter % LOG_INTERVAL_FRAMES == 0) {
                 Log.d(TAG, "Frame $frameCounter: score=${analysisResult.overallScore}%, inference=${inferenceTime}ms")
@@ -129,6 +134,7 @@ class PoseAnalysisProcessor(
         currentSessionId?.let { sessionId ->
             val fileLogger = application.getFileLogger()
             
+            // Log processed stroke analysis (angles, scores, errors)
             fileLogger.logStrokeAnalysis(
                 result = analysisResult,
                 sessionId = sessionId,
@@ -140,6 +146,49 @@ class PoseAnalysisProcessor(
                 metricName = "inference_time_ms",
                 value = inferenceTime.toFloat(),
                 sessionId = sessionId
+            )
+        }
+    }
+    
+    /**
+     * Log raw pose landmarks from MediaPipe (33 keypoints)
+     * Enable this for debugging or data collection
+     */
+    private fun logRawPoseLandmarks(
+        poseLandmarkerResult: com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult,
+        inferenceTime: Long
+    ) {
+        currentSessionId?.let { sessionId ->
+            val fileLogger = application.getFileLogger()
+            
+            // Extract landmarks (normalized coordinates 0.0-1.0)
+            val landmarks = poseLandmarkerResult.landmarks().firstOrNull()?.map { landmark ->
+                LandmarkData(
+                    x = landmark.x(),
+                    y = landmark.y(),
+                    z = landmark.z(),
+                    visibility = landmark.visibility().orElse(0f),
+                    presence = landmark.presence().orElse(0f)
+                )
+            } ?: return
+            
+            // Extract world landmarks (3D coordinates in meters)
+            val worldLandmarks = poseLandmarkerResult.worldLandmarks().firstOrNull()?.map { landmark ->
+                LandmarkData(
+                    x = landmark.x(),
+                    y = landmark.y(),
+                    z = landmark.z(),
+                    visibility = landmark.visibility().orElse(0f),
+                    presence = landmark.presence().orElse(0f)
+                )
+            }
+            
+            fileLogger.logRawPose(
+                sessionId = sessionId,
+                frameNumber = frameCounter,
+                inferenceTimeMs = inferenceTime,
+                landmarks = landmarks,
+                worldLandmarks = worldLandmarks
             )
         }
     }

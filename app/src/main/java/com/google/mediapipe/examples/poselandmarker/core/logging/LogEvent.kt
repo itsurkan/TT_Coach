@@ -43,6 +43,10 @@ sealed class LogEvent {
             }.toString()
         }
     }
+    
+    data class RawPose(val data: RawPoseData) : LogEvent() {
+        override fun toJson() = data.toJson()
+    }
 }
 
 // === DATA MODELS ===
@@ -163,3 +167,67 @@ data class ErrorData(
         put("context", context)
     }.toString()
 }
+
+/**
+ * Raw pose landmarks data directly from MediaPipe (33 keypoints).
+ * Stores unprocessed 3D coordinates for each body landmark.
+ */
+data class RawPoseData(
+    val sessionId: String,
+    val timestamp: Long,
+    val frameNumber: Int,
+    val inferenceTimeMs: Long,
+    val landmarks: List<LandmarkData>,
+    val worldLandmarks: List<LandmarkData>? = null
+) {
+    fun toJson(): String = JSONObject().apply {
+        put("type", "raw_pose")
+        put("session_id", sessionId)
+        put("timestamp", timestamp)
+        put("frame_number", frameNumber)
+        put("inference_time_ms", inferenceTimeMs)
+        
+        // Serialize landmarks array
+        val landmarksArray = JSONArray()
+        landmarks.forEach { landmark ->
+            landmarksArray.put(JSONObject().apply {
+                put("x", landmark.x)
+                put("y", landmark.y)
+                put("z", landmark.z)
+                put("visibility", landmark.visibility)
+                put("presence", landmark.presence)
+            })
+        }
+        put("landmarks", landmarksArray)
+        
+        // Optionally serialize world landmarks (3D coordinates in meters)
+        worldLandmarks?.let { worldLms ->
+            val worldArray = JSONArray()
+            worldLms.forEach { landmark ->
+                worldArray.put(JSONObject().apply {
+                    put("x", landmark.x)
+                    put("y", landmark.y)
+                    put("z", landmark.z)
+                    put("visibility", landmark.visibility)
+                    put("presence", landmark.presence)
+                })
+            }
+            put("world_landmarks", worldArray)
+        }
+    }.toString()
+}
+
+/**
+ * Single landmark (keypoint) data.
+ * x, y: normalized coordinates (0.0 - 1.0)
+ * z: depth relative to hips (meters)
+ * visibility: likelihood the landmark is visible [0.0 - 1.0]
+ * presence: likelihood the landmark is present in the frame [0.0 - 1.0]
+ */
+data class LandmarkData(
+    val x: Float,
+    val y: Float,
+    val z: Float,
+    val visibility: Float,
+    val presence: Float
+)

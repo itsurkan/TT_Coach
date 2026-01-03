@@ -31,6 +31,8 @@ Training Thread                 Background Thread
 - Buffered writes (flush кожні 50 events або 5 секунд)
 - Automatic cleanup (видаляє логи старіші 7 днів)
 - JSONL format (JSON Lines - один JSON об'єкт на рядок)
+- **Auto-directory creation**: створює всі необхідні підпапки при ініціалізації
+- **Safe writes**: перевіряє існування батьківської директорії перед записом кожного файлу
 
 ### 2. LogEvent
 Sealed class з різними типами подій:
@@ -55,6 +57,8 @@ app/files/logs/
 │   ├── 2026-01-03_sessions.jsonl
 │   ├── 2026-01-03_strokes.jsonl
 │   └── 2026-01-03_rules.jsonl
+├── raw_poses/
+│   └── 2026-01-03_raw_poses.jsonl  (optional, disabled by default)
 ├── performance_metrics/
 │   └── 2026-01-03_metrics.jsonl
 ├── errors/
@@ -155,6 +159,49 @@ println("File count: ${stats.fileCount}")
 | Cleanup policy | Auto-delete after 7 days |
 | Thread safety | ✅ Channel-based |
 | Error handling | ✅ SupervisorJob |
+| Directory creation | ✅ Auto (init + before write) |
+| Safe writes | ✅ Parent dir check |
+
+## Directory Management
+
+### Initialization
+При створенні `AsyncFileLogger` автоматично створюються всі директорії:
+```kotlin
+init {
+    logDir.mkdirs()  // /data/data/[package]/files/logs/
+    File(logDir, "training_sessions").mkdirs()
+    File(logDir, "performance_metrics").mkdirs()
+    File(logDir, "errors").mkdirs()
+    File(logDir, "events").mkdirs()
+}
+```
+
+### Before Each Write
+Перед записом кожного файлу перевіряється батьківська директорія:
+```kotlin
+private fun LogEvent.getLogFile(): File {
+    val file = File(logDir, filename)
+    file.parentFile?.mkdirs()  // Ensure directory exists
+    return file
+}
+```
+
+**Це гарантує:**
+- ✅ Логи працюють навіть якщо папки були видалені вручну
+- ✅ Немає FileNotFoundException при запису
+- ✅ Надійність при concurrent доступі
+
+### Export to External Storage
+При експорті також створюються всі необхідні директорії:
+```kotlin
+val externalDir = context.getExternalFilesDir(null)
+externalDir?.mkdirs()  // /sdcard/Android/data/[package]/files/
+
+val exportDir = File(externalDir, "logs")
+exportDir.mkdirs()
+
+targetFile.parentFile?.mkdirs()  // For nested paths
+```
 
 ## Формат даних (JSONL)
 
