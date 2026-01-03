@@ -50,7 +50,8 @@ Group related extensions in separate files.
 ## Current Status
 
 ### Files Within Limit (Good ✅)
-- ✅ `TrainingActivity.kt` - 215 lines (refactored from 464)
+- ✅ `TrainingActivity.kt` - 224 lines (refactored from 309 using PoseAnalysisProcessor)
+- ✅ `PoseAnalysisProcessor.kt` - 158 lines (extracted from TrainingActivity)
 - ✅ `SettingsActivity.kt` - 135 lines (refactored from 281)
 - ✅ `PoseLandmarkerHelper.kt` - 165 lines (refactored from 391)
 - ✅ `GalleryFragment.kt` - 241 lines (refactored from 455)

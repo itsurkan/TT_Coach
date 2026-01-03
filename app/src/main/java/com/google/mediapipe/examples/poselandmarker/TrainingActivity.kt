@@ -17,6 +17,7 @@ import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
+import com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
 import android.util.Log
 
 class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
@@ -30,14 +31,11 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private lateinit var uiController: TrainingUIController
     private var videoPlayerManager: VideoPlayerManager? = null
     
-    // Training session tracking
-    private var currentSessionId: String? = null
-    private var frameCounter: Int = 0
+    // Analysis processing
+    private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
     
     // Аналітика та параметри
     private lateinit var exerciseParameters: ExerciseParameters
-    private lateinit var motionAnalyzer: MotionAnalyzer
-    private lateinit var feedbackGenerator: FeedbackGenerator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -81,8 +79,17 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             else -> ExerciseParameters.forehandDrive()
         }
         
-        motionAnalyzer = MotionAnalyzer(exerciseParameters)
-        feedbackGenerator = FeedbackGenerator(this)
+        val motionAnalyzer = MotionAnalyzer(exerciseParameters)
+        val feedbackGenerator = FeedbackGenerator(this)
+        
+        // Initialize pose analysis processor
+        poseAnalysisProcessor = PoseAnalysisProcessor(
+            application = application as TTCoachApplication,
+            motionAnalyzer = motionAnalyzer,
+            feedbackGenerator = feedbackGenerator,
+            stateManager = stateManager,
+            uiController = uiController
+        )
     }
 
     private fun setupUI() {
@@ -172,32 +179,19 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         uiController.showTrainingStarted()
         uiController.updateStats()
         
-        // Start logging session
-        val fileLogger = (application as TTCoachApplication).getFileLogger()
-        currentSessionId = fileLogger.startTrainingSession(
+        // Start analysis session
+        poseAnalysisProcessor.startSession(
             exerciseId = exerciseId ?: "unknown",
             exerciseName = exerciseName ?: "Unknown Exercise"
         )
-        frameCounter = 0
-        
-        Log.i(TAG, "Training session started: $currentSessionId")
     }
 
     private fun stopTraining() {
         stateManager.stopTraining()
         uiController.showTrainingStopped()
         
-        // End logging session
-        currentSessionId?.let { sessionId ->
-            val fileLogger = (application as TTCoachApplication).getFileLogger()
-            fileLogger.endTrainingSession(
-                totalStrokes = stateManager.getStrokeCount(),
-                goodStrokes = stateManager.getGoodStrokesCount(),
-                averageScore = stateManager.getAverageScore().toFloat()
-            )
-            Log.i(TAG, "Training session ended: $sessionId")
-        }
-        currentSessionId = null
+        // End analysis session
+        poseAnalysisProcessor.endSession()
         
         showSummary()
     }
@@ -236,70 +230,9 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
     
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
-        // Skip if training not active
-        if (!stateManager.isTrainingActive) {
-            return
-        }
-        
-        // Get pose landmarks from MediaPipe
-        val poseLandmarkerResult = resultBundle.results.firstOrNull() ?: return
-        if (poseLandmarkerResult.landmarks().isEmpty()) return
-        
-        // Track frame for logging
-        frameCounter++
-        val startTime = System.currentTimeMillis()
-        
-        try {
-            // Analyze stroke technique using MotionAnalyzer
-            val analysisResult: AnalysisResult = motionAnalyzer.analyzeStroke(
-                poseLandmarkerResult = poseLandmarkerResult,
-                phase = StrokePhase.CONTACT // TODO: Implement phase detection
-            )
-            
-            val inferenceTime = System.currentTimeMillis() - startTime
-            
-            // Generate feedback based on analysis
-            val feedback = if (analysisResult.isSuccessful()) {
-                feedbackGenerator.generateShortFeedback(analysisResult)
-            } else {
-                feedbackGenerator.generateDetailedFeedback(analysisResult)
-            }
-            
-            // Update UI on main thread
-            runOnUiThread {
-                stateManager.addAnalysisResult(analysisResult)
-                stateManager.addFeedback(feedback)
-                uiController.updateFeedbackText(feedback)
-                uiController.updateStats()
-            }
-            
-            // Log stroke analysis asynchronously (zero latency impact)
-            currentSessionId?.let { sessionId ->
-                val fileLogger = (application as TTCoachApplication).getFileLogger()
-                fileLogger.logStrokeAnalysis(
-                    result = analysisResult,
-                    sessionId = sessionId,
-                    inferenceTimeMs = inferenceTime,
-                    frameNumber = frameCounter
-                )
-                
-                // Log performance metric
-                fileLogger.logPerformanceMetric(
-                    metricName = "inference_time_ms",
-                    value = inferenceTime.toFloat(),
-                    sessionId = sessionId
-                )
-            }
-            
-            // Debug log every 30 frames (~1 second at 30 FPS)
-            if (frameCounter % 30 == 0) {
-                Log.d(TAG, "Frame $frameCounter: score=${analysisResult.overallScore}%, inference=${inferenceTime}ms")
-            }
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error analyzing pose", e)
-            val fileLogger = (application as TTCoachApplication).getFileLogger()
-            fileLogger.logError(e, "onResults - pose analysis")
+        // Process results using PoseAnalysisProcessor
+        poseAnalysisProcessor.processResults(resultBundle) {
+            // UI update callback (already runs on main thread via runOnUiThread in processor)
         }
     }
     
