@@ -5,13 +5,15 @@
 
 package com.google.mediapipe.examples.poselandmarker.services
 
+import android.content.Context
+import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import java.util.*
 
 /**
  * Генератор фідбеку на основі результатів аналізу
  */
-class FeedbackGenerator {
+class FeedbackGenerator(private val context: Context) {
     
     private val random = Random()
     
@@ -21,8 +23,8 @@ class FeedbackGenerator {
     fun generateShortFeedback(result: AnalysisResult): String {
         return when {
             result.overallScore >= 90f -> getRandomPositiveFeedback()
-            result.errors.isEmpty() -> "Good! Keep it up!"
-            else -> result.getPrimaryError() ?: "Work on technique"
+            result.errors.isEmpty() -> context.getString(R.string.feedback_good_keep_up)
+            else -> result.getPrimaryError() ?: context.getString(R.string.feedback_work_technique)
         }
     }
 
@@ -33,10 +35,10 @@ class FeedbackGenerator {
         val feedback = StringBuilder()
         
         feedback.append(result.getSummary()).append("\n\n")
-        feedback.append("Score: ${result.overallScore.toInt()}%\n\n")
+        feedback.append(context.getString(R.string.feedback_score_format, result.overallScore.toInt()))
         
         if (result.errors.isNotEmpty()) {
-            feedback.append("⚠️ Errors:\n")
+            feedback.append(context.getString(R.string.feedback_errors_header))
             result.errors.forEach { error ->
                 feedback.append("• $error\n")
             }
@@ -44,7 +46,7 @@ class FeedbackGenerator {
         }
         
         if (result.recommendations.isNotEmpty()) {
-            feedback.append("💡 Recommendations:\n")
+            feedback.append(context.getString(R.string.feedback_recommendations_header))
             result.recommendations.forEach { recommendation ->
                 feedback.append("• $recommendation\n")
             }
@@ -62,12 +64,12 @@ class FeedbackGenerator {
         idealValue: Float,
         isValid: Boolean
     ): String {
-        if (measuredValue == null) return "❓ $parameterName: not detected"
+        if (measuredValue == null) return context.getString(R.string.feedback_param_not_detected, parameterName)
         
         return if (isValid) {
-            "✅ $parameterName: ${measuredValue.toInt()}° (perfect)"
+            context.getString(R.string.feedback_param_perfect, parameterName, measuredValue.toInt())
         } else {
-            "⚠️ $parameterName: ${measuredValue.toInt()}° (expected ${idealValue.toInt()}°)"
+            context.getString(R.string.feedback_param_expected, parameterName, measuredValue.toInt(), idealValue.toInt())
         }
     }
 
@@ -76,11 +78,11 @@ class FeedbackGenerator {
      */
     private fun getRandomPositiveFeedback(): String {
         val positiveFeedbacks = listOf(
-            "✅ Excellent! Perfect technique!",
-            "✅ Great! Keep it up!",
-            "✅ Flawless! Continue!",
-            "✅ Perfect! Well done!",
-            "✅ Super stroke! Very good!"
+            context.getString(R.string.positive_feedback_1),
+            context.getString(R.string.positive_feedback_2),
+            context.getString(R.string.positive_feedback_3),
+            context.getString(R.string.positive_feedback_4),
+            context.getString(R.string.positive_feedback_5)
         )
         return positiveFeedbacks[random.nextInt(positiveFeedbacks.size)]
     }
@@ -90,10 +92,10 @@ class FeedbackGenerator {
      */
     fun generateMotivationalMessage(consecutiveGoodStrokes: Int): String? {
         return when (consecutiveGoodStrokes) {
-            5 -> "🔥 5 good strokes in a row! Keep going!"
-            10 -> "🎯 10 excellent strokes! You're on fire!"
-            20 -> "⭐ 20 strokes in a row! Incredible!"
-            50 -> "🏆 50 strokes! You're a master!"
+            5 -> context.getString(R.string.motivational_5_strokes)
+            10 -> context.getString(R.string.motivational_10_strokes)
+            20 -> context.getString(R.string.motivational_20_strokes)
+            50 -> context.getString(R.string.motivational_50_strokes)
             else -> null
         }
     }
@@ -113,17 +115,17 @@ class FeedbackGenerator {
         }
         
         val feedback = StringBuilder()
-        feedback.append("📊 Training Summary\n\n")
-        feedback.append("Total strokes: $totalStrokes\n")
-        feedback.append("Successful: $successfulStrokes\n")
-        feedback.append("Accuracy: $accuracy%\n")
-        feedback.append("Average score: ${averageScore.toInt()}%\n\n")
+        feedback.append(context.getString(R.string.session_summary_header))
+        feedback.append(context.getString(R.string.session_total_strokes_format, totalStrokes))
+        feedback.append(context.getString(R.string.session_successful_format, successfulStrokes))
+        feedback.append(context.getString(R.string.session_accuracy_format, accuracy))
+        feedback.append(context.getString(R.string.session_avg_score_format, averageScore.toInt()))
         
         feedback.append(when {
-            accuracy >= 80 -> "🏆 Excellent work! You're making progress!"
-            accuracy >= 60 -> "👍 Good training! Keep working!"
-            accuracy >= 40 -> "💪 There's improvement! Train regularly!"
-            else -> "🎯 Don't give up! Every training makes you better!"
+            accuracy >= 80 -> context.getString(R.string.session_excellent_work)
+            accuracy >= 60 -> context.getString(R.string.session_good_training)
+            accuracy >= 40 -> context.getString(R.string.session_improvement)
+            else -> context.getString(R.string.session_dont_give_up)
         })
         
         return feedback.toString()
@@ -140,16 +142,16 @@ class FeedbackGenerator {
         
         return when {
             mostCommonError.contains("wrist", ignoreCase = true) -> 
-                "💡 Tip: Imagine holding a pencil - wrist should be an extension of forearm"
+                context.getString(R.string.improvement_tip_wrist)
             
             mostCommonError.contains("rotation", ignoreCase = true) -> 
-                "💡 Tip: Turn waist and shoulders as one - imagine winding a spring"
+                context.getString(R.string.improvement_tip_rotation)
             
             mostCommonError.contains("contact", ignoreCase = true) -> 
-                "💡 Tip: Optimal contact point - waist height, slightly ahead of body"
+                context.getString(R.string.improvement_tip_contact)
             
             mostCommonError.contains("follow", ignoreCase = true) -> 
-                "💡 Tip: Continue movement after contact - racket should finish near opposite shoulder"
+                context.getString(R.string.improvement_tip_follow)
             
             else -> null
         }

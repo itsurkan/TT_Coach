@@ -75,7 +75,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         }
         
         motionAnalyzer = MotionAnalyzer(exerciseParameters)
-        feedbackGenerator = FeedbackGenerator()
+        feedbackGenerator = FeedbackGenerator(this)
     }
 
     private fun setupUI() {

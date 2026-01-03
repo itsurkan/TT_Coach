@@ -172,8 +172,6 @@
     <string name="session_average_score">Average score: %d%%\n\n</string>
     <string name="session_excellent">🏆 Excellent work! You\'re making progress!</string>
     <string name="session_good">👍 Good training! Keep working!</string>
-    <string name="session_improvement">💪 There\'s improvement! Train regularly!</string>
-    <string name="session_keep_trying">🎯 Don\'t give up! Every training makes you better!</string>
     <string name="consecutive_5">🔥 5 good strokes in a row! Keep going!</string>
     <string name="consecutive_10">🎯 10 excellent strokes! You\'re on fire!</string>
     <string name="consecutive_20">⭐ 20 strokes in a row! Incredible!</string>
@@ -231,4 +229,44 @@
     <string name="summary_total_strokes">Загальна кількість ударів: %d</string>
     <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
     <string name="summary_average_accuracy">Середня точність: %.1f%%</string>
+    
+    <!-- FeedbackGenerator Messages -->
+    <string name="feedback_good_keep_up">Гарно! Продовжуйте в тому ж дусі!</string>
+    <string name="feedback_work_technique">Працюйте над технікою</string>
+    <string name="feedback_score_format">Оцінка: %d%%\n\n</string>
+    <string name="feedback_errors_header">⚠️ Помилки:\n</string>
+    <string name="feedback_recommendations_header">💡 Рекомендації:\n</string>
+    <string name="feedback_param_not_detected">❓ %s: не визначено</string>
+    <string name="feedback_param_perfect">✅ %1$s: %2$d° (ідеально)</string>
+    <string name="feedback_param_expected">⚠️ %1$s: %2$d° (очікується %3$d°)</string>
+    
+    <!-- Positive Feedback -->
+    <string name="positive_feedback_1">✅ Чудово! Ідеальна техніка!</string>
+    <string name="positive_feedback_2">✅ Відмінно! Так тримати!</string>
+    <string name="positive_feedback_3">✅ Бездоганно! Продовжуйте!</string>
+    <string name="positive_feedback_4">✅ Ідеально! Ви молодець!</string>
+    <string name="positive_feedback_5">✅ Супер удар! Дуже добре!</string>
+    
+    <!-- Motivational Messages -->
+    <string name="motivational_5_strokes">🔥 5 гарних ударів підряд! Продовжуйте!</string>
+    <string name="motivational_10_strokes">🎯 10 відмінних ударів! Ви в ударі!</string>
+    <string name="motivational_20_strokes">⭐ 20 ударів поспіль! Неймовірно!</string>
+    <string name="motivational_50_strokes">🏆 50 ударів! Ви майстер!</string>
+    
+    <!-- Session Summary -->
+    <string name="session_summary_header">📊 Підсумок тренування\n\n</string>
+    <string name="session_total_strokes_format">Всього ударів: %d\n</string>
+    <string name="session_successful_format">Успішних: %d\n</string>
+    <string name="session_accuracy_format">Точність: %d%%\n</string>
+    <string name="session_avg_score_format">Середня оцінка: %d%%\n\n</string>
+    <string name="session_excellent_work">🏆 Відмінна робота! Ви прогресуєте!</string>
+    <string name="session_good_training">👍 Гарне тренування! Продовжуйте працювати!</string>
+    <string name="session_improvement">💪 Є покращення! Тренуйтесь регулярно!</string>
+    <string name="session_dont_give_up">🎯 Не здавайтесь! Кожне тренування робить вас кращим!</string>
+    
+    <!-- Improvement Tips -->
+    <string name="improvement_tip_wrist">💡 Порада: Уявіть, що тримаєте олівець - зап\'ястя має бути продовженням передпліччя</string>
+    <string name="improvement_tip_rotation">💡 Порада: Поверніть талію та плечі як єдине ціле - уявіть, що закручуєте пружину</string>
+    <string name="improvement_tip_contact">💡 Порада: Оптимальна точка контакту - на висоті пояса, трохи попереду тіла</string>
+    <string name="improvement_tip_follow">💡 Порада: Продовжуйте рух після контакту - ракетка має закінчити біля протилежного плеча</string>
 </resources>
