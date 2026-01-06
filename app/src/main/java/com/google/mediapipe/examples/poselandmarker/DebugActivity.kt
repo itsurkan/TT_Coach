@@ -51,6 +51,7 @@ class DebugActivity : AppCompatActivity() {
     
     private val backgroundExecutor = Executors.newSingleThreadExecutor()
     private val playbackExecutor = Executors.newSingleThreadScheduledExecutor()
+    private var playbackTask: java.util.concurrent.ScheduledFuture<*>? = null
     
     companion object {
         private const val TAG = "DebugActivity"
@@ -257,6 +258,9 @@ class DebugActivity : AppCompatActivity() {
     }
     
     private fun startPlayback() {
+        // Cancel any existing playback task
+        playbackTask?.cancel(false)
+        
         isPlaying = true
         binding.btnPlayPause.text = "⏸ Pause"
         binding.btnPlayPausePortrait.text = "⏸ Pause"
@@ -265,7 +269,7 @@ class DebugActivity : AppCompatActivity() {
         
         // Schedule frame updates
         val frameDelayMs = (1000.0 / (DEFAULT_FPS * playbackSpeed)).toLong()
-        playbackExecutor.scheduleAtFixedRate({
+        playbackTask = playbackExecutor.scheduleAtFixedRate({
             if (isPlaying) {
                 runOnUiThread {
                     val currentPosition = binding.videoView.currentPosition
@@ -289,6 +293,8 @@ class DebugActivity : AppCompatActivity() {
     
     private fun pausePlayback() {
         isPlaying = false
+        playbackTask?.cancel(false)
+        playbackTask = null
         binding.btnPlayPause.text = "▶ Play"
         binding.btnPlayPausePortrait.text = "▶ Play"
         binding.videoView.pause()
@@ -515,6 +521,7 @@ class DebugActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         pausePlayback()
+        playbackTask?.cancel(true)
         playbackExecutor.shutdown()
         backgroundExecutor.shutdown()
         backgroundExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)
