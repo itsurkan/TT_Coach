@@ -30,9 +30,21 @@ class PoseAnalysisProcessor(
     private var frameCounter: Int = 0
     private var currentSessionId: String? = null
     
+    // Stroke detection state
+    private var currentPhase: StrokePhase = StrokePhase.READY
+    private var previousWristZ: Float = 0f
+    private var wristVelocity: Float = 0f
+    private var phaseFrameCounter: Int = 0
+    private val velocityHistory = ArrayDeque<Float>(5)
+    
     companion object {
         private const val TAG = "PoseAnalysisProcessor"
         private const val LOG_INTERVAL_FRAMES = 30 // Log every 30 frames (~1 sec at 30 FPS)
+        
+        // Stroke detection thresholds
+        private const val VELOCITY_THRESHOLD = 0.02f // Threshold for forward motion
+        private const val MIN_PHASE_FRAMES = 3 // Minimum frames to stay in a phase
+        private const val BACKSWING_VELOCITY_THRESHOLD = -0.015f // Negative velocity for backswing
     }
     
     /**
@@ -45,6 +57,7 @@ class PoseAnalysisProcessor(
             exerciseName = exerciseName
         )
         frameCounter = 0
+        resetStrokeDetection()
         Log.i(TAG, "Training session started: $currentSessionId")
     }
     
@@ -84,10 +97,13 @@ class PoseAnalysisProcessor(
         val startTime = System.currentTimeMillis()
         
         try {
+            // Detect stroke phase based on wrist movement
+            val detectedPhase = detectStrokePhase(poseLandmarkerResult)
+            
             // Analyze stroke technique using MotionAnalyzer
             val analysisResult: AnalysisResult = motionAnalyzer.analyzeStroke(
                 poseLandmarkerResult = poseLandmarkerResult,
-                phase = StrokePhase.CONTACT // TODO: Implement phase detection
+                phase = detectedPhase
             )
             
             val inferenceTime = System.currentTimeMillis() - startTime
@@ -112,8 +128,8 @@ class PoseAnalysisProcessor(
             logAnalysisResults(analysisResult, inferenceTime)
             
             // 🆕 Log raw pose landmarks (enable for data collection)
-            // Uncomment the line below to enable raw pose logging:
-            // logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
+            // Raw pose logging enabled ✅
+            logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
             
             // Debug log every LOG_INTERVAL_FRAMES
             if (frameCounter % LOG_INTERVAL_FRAMES == 0) {
@@ -207,4 +223,122 @@ class PoseAnalysisProcessor(
      * Check if session is active
      */
     fun hasActiveSession(): Boolean = currentSessionId != null
+    
+    /**
+     * Detect stroke phase based on wrist movement velocity
+     * Uses Z-coordinate (forward/backward motion) to identify phases
+     */
+    private fun detectStrokePhase(
+        poseLandmarkerResult: com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+    ): StrokePhase {
+        val landmarks = poseLandmarkerResult.worldLandmarks().firstOrNull() ?: return currentPhase
+        
+        // Get right wrist position (landmark 16)
+        if (landmarks.size <= 16) return currentPhase
+        val wristZ = landmarks[16].z()
+        
+        // Calculate velocity (difference from previous frame)
+        if (previousWristZ != 0f) {
+            wristVelocity = wristZ - previousWristZ
+            velocityHistory.addLast(wristVelocity)
+            if (velocityHistory.size > 5) velocityHistory.removeFirst()
+        }
+        previousWristZ = wristZ
+        
+        // Smooth velocity using moving average
+        val avgVelocity = if (velocityHistory.isNotEmpty()) {
+            velocityHistory.average().toFloat()
+        } else {
+            wristVelocity
+        }
+        
+        // Phase transition logic with minimum frame requirements
+        phaseFrameCounter++
+        
+        val newPhase = when (currentPhase) {
+            StrokePhase.READY -> {
+                // Transition to backswing when backward motion detected
+                if (avgVelocity < BACKSWING_VELOCITY_THRESHOLD && phaseFrameCounter >= MIN_PHASE_FRAMES) {
+                    phaseFrameCounter = 0
+                    StrokePhase.BACKSWING
+                } else {
+                    StrokePhase.READY
+                }
+            }
+            
+            StrokePhase.BACKSWING -> {
+                // Transition to forward swing when motion reverses
+                if (avgVelocity > 0 && phaseFrameCounter >= MIN_PHASE_FRAMES) {
+                    phaseFrameCounter = 0
+                    StrokePhase.FORWARD_SWING
+                } else {
+                    StrokePhase.BACKSWING
+                }
+            }
+            
+            StrokePhase.FORWARD_SWING -> {
+                // Transition to contact when velocity peaks
+                if (avgVelocity > VELOCITY_THRESHOLD && phaseFrameCounter >= MIN_PHASE_FRAMES) {
+                    phaseFrameCounter = 0
+                    StrokePhase.CONTACT
+                } else {
+                    StrokePhase.FORWARD_SWING
+                }
+            }
+            
+            StrokePhase.CONTACT -> {
+                // Transition to follow-through when velocity starts decreasing
+                if (avgVelocity < VELOCITY_THRESHOLD && phaseFrameCounter >= MIN_PHASE_FRAMES) {
+                    phaseFrameCounter = 0
+                    StrokePhase.FOLLOW_THROUGH
+                } else {
+                    StrokePhase.CONTACT
+                }
+            }
+            
+            StrokePhase.FOLLOW_THROUGH -> {
+                // Transition to recovery when motion stops
+                if (Math.abs(avgVelocity) < 0.005f && phaseFrameCounter >= MIN_PHASE_FRAMES * 2) {
+                    phaseFrameCounter = 0
+                    StrokePhase.RECOVERY
+                } else {
+                    StrokePhase.FOLLOW_THROUGH
+                }
+            }
+            
+            StrokePhase.RECOVERY -> {
+                // Return to ready position
+                if (Math.abs(avgVelocity) < 0.005f && phaseFrameCounter >= MIN_PHASE_FRAMES * 2) {
+                    phaseFrameCounter = 0
+                    StrokePhase.READY
+                } else {
+                    StrokePhase.RECOVERY
+                }
+            }
+        }
+        
+        // Log phase transitions
+        if (newPhase != currentPhase) {
+            Log.d(TAG, "Phase transition: $currentPhase -> $newPhase (velocity: $avgVelocity)")
+        }
+        
+        currentPhase = newPhase
+        return currentPhase
+    }
+    
+    /**
+     * Reset stroke detection state
+     */
+    private fun resetStrokeDetection() {
+        currentPhase = StrokePhase.READY
+        previousWristZ = 0f
+        wristVelocity = 0f
+        phaseFrameCounter = 0
+        velocityHistory.clear()
+    }
+    
+    /**
+     * Get current detected phase
+     */
+    fun getCurrentPhase(): StrokePhase = currentPhase
 }

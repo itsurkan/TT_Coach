@@ -1,10 +1,12 @@
 package com.google.mediapipe.examples.poselandmarker.managers
 
+import android.content.Context
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
 
 /**
  * Unit tests for TrainingStateManager
@@ -12,10 +14,12 @@ import org.junit.Test
 class TrainingStateManagerTest {
 
     private lateinit var stateManager: TrainingStateManager
+    private lateinit var mockContext: Context
 
     @Before
     fun setup() {
-        stateManager = TrainingStateManager()
+        mockContext = mock(Context::class.java)
+        stateManager = TrainingStateManager(mockContext)
     }
 
     @Test

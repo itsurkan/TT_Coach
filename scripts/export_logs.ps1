@@ -19,7 +19,8 @@ $logDirs = @(
     "training_sessions",
     "performance_metrics", 
     "errors",
-    "events"
+    "events",
+    "raw_poses"
 )
 
 foreach ($dir in $logDirs) {

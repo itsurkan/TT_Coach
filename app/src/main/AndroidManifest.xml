@@ -22,6 +22,10 @@
 
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <application
         android:name=".TTCoachApplication"
@@ -61,6 +65,13 @@
             android:name=".SettingsActivity"
             android:exported="false"
             android:parentActivityName=".WelcomeActivity" />
+
+        <!-- Debug Activity - Video Testing -->
+        <activity
+            android:name=".DebugActivity"
+            android:exported="false"
+            android:parentActivityName=".WelcomeActivity"
+            android:screenOrientation="landscape" />
 
         <!-- Original MainActivity (Legacy) -->
         <activity

@@ -107,6 +107,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_settings" />
 
+        <!-- Button: Debug Video (Development Only) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_debug_video"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="🐛 Debug Video"
+            android:textSize="14sp"
+            app:cornerRadius="12dp"
+            app:backgroundTint="@android:color/holo_orange_dark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_about" />
+
         <!-- Footer -->
         <TextView
             android:id="@+id/tv_footer"
@@ -119,7 +133,7 @@
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_about" />
+            app:layout_constraintTop_toBottomOf="@id/btn_debug_video" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -1,6 +1,7 @@
 package com.google.mediapipe.examples.poselandmarker.core.logging
 
 import android.content.Context
+import android.os.Environment
 import android.util.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
@@ -23,9 +24,11 @@ class AsyncFileLogger(
     private val bufferSize: Int = 50,
     private val flushIntervalMs: Long = 5000
 ) {
-    // Use internal storage (no permissions needed)
-    // For access: use ADB or export to Download folder
-    private val logDir: File = File(context.filesDir, "logs")
+    // External storage (Download folder) - visible in File Manager
+    private val logDir: File = File(
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        "TT_Coach_AI/logs"
+    )
     
     // Non-blocking queue (thread-safe, unlimited capacity)
     private val eventQueue = Channel<LogEvent>(capacity = Channel.UNLIMITED)

@@ -16,6 +16,9 @@ New-Item -ItemType Directory -Path $exportDir -Force | Out-Null
 # Try to get strokes if exists
 & $adb exec-out "run-as $pkg cat /data/data/$pkg/files/logs/training_sessions/2026-01-03_strokes.jsonl" 2>$null > "$exportDir\strokes.jsonl"
 
+# Export raw poses if exists
+& $adb exec-out "run-as $pkg cat /data/data/$pkg/files/logs/raw_poses/2026-01-03_raw_poses.jsonl" 2>$null > "$exportDir\raw_poses.jsonl"
+
 Write-Host "Done! Logs exported to: $exportDir" -ForegroundColor Green
 Write-Host ""
 Get-ChildItem $exportDir | ForEach-Object {
