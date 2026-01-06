@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
+import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
@@ -340,20 +341,36 @@ class DebugActivity : AppCompatActivity() {
     }
     
     private fun updateFrameAnalysis(frameIndex: Int) {
-        val result = videoDebugProcessor.getFrameResult(frameIndex) ?: return
-        
-        // Update pose overlay with actual video dimensions
-        val poseResult = videoDebugProcessor.getFramePoseResult(frameIndex)
-        if (poseResult != null && videoHeight > 0 && videoWidth > 0) {
-            binding.overlayView.setResults(
-                poseResult,
-                videoHeight,
-                videoWidth,
-                RunningMode.VIDEO
-            )
-            binding.overlayView.invalidate()
+        // Process frame on-demand if not already processed
+        backgroundExecutor.execute {
+            videoDebugProcessor.processFrameOnDemand(frameIndex)
+            
+            runOnUiThread {
+                val result = videoDebugProcessor.getFrameResult(frameIndex)
+                if (result == null) {
+                    // Frame not ready yet, just clear overlay
+                    binding.overlayView.clear()
+                    return@runOnUiThread
+                }
+                
+                // Update pose overlay with actual video dimensions
+                val poseResult = videoDebugProcessor.getFramePoseResult(frameIndex)
+                if (poseResult != null && videoHeight > 0 && videoWidth > 0) {
+                    binding.overlayView.setResults(
+                        poseResult,
+                        videoHeight,
+                        videoWidth,
+                        RunningMode.VIDEO
+                    )
+                    binding.overlayView.invalidate()
+                }
+                
+                updateFrameAnalysisUI(frameIndex, result)
+            }
         }
-        
+    }
+    
+    private fun updateFrameAnalysisUI(frameIndex: Int, result: AnalysisResult) {
         // Update analysis text
         binding.tvFrameNumber.text = "Frame: $frameIndex / $totalFrames"
         binding.tvWristAngle.text = "Wrist Angle: %.1f°%s".format(

@@ -36,6 +36,8 @@ class VideoDebugProcessor(
     private val framePoseResults = ConcurrentHashMap<Int, PoseLandmarkerResult>()
     private var poseLandmarker: PoseLandmarker? = null
     private var sessionId: String? = null
+    private var videoUri: Uri? = null
+    private val frameRetriever = MediaMetadataRetriever()
     
     private var totalFramesProcessed = 0
     private var strokeCount = 0
@@ -49,13 +51,19 @@ class VideoDebugProcessor(
     }
     
     /**
-     * Process video file and extract analysis results for each frame
+     * Initialize video processing (no longer pre-processes all frames)
      */
     fun processVideo(videoUri: Uri, onComplete: (Map<Int, AnalysisResult>) -> Unit) {
         Thread {
             try {
+                // Store video URI for on-demand processing
+                this.videoUri = videoUri
+                
                 // Initialize MediaPipe PoseLandmarker
                 initializePoseLandmarker()
+                
+                // Setup frame retriever
+                frameRetriever.setDataSource(context, videoUri)
                 
                 // Start logging session
                 sessionId = fileLogger.startTrainingSession(
@@ -63,55 +71,39 @@ class VideoDebugProcessor(
                     exerciseName = "Video Debug Analysis"
                 )
                 
-                // Extract frames from video
-                val retriever = MediaMetadataRetriever()
-                retriever.setDataSource(context, videoUri)
-                
-                val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
-                val totalFrames = (durationMs / FRAME_EXTRACTION_INTERVAL_MS).toInt()
-                
-                Log.i(TAG, "Processing video: ${durationMs}ms, ~$totalFrames frames")
-                
-                // Process each frame
-                var frameIndex = 0
-                var currentTimeUs = 0L
-                val frameIntervalUs = FRAME_EXTRACTION_INTERVAL_MS * 1000
-                
-                while (currentTimeUs < durationMs * 1000) {
-                    val bitmap = retriever.getFrameAtTime(
-                        currentTimeUs,
-                        MediaMetadataRetriever.OPTION_CLOSEST
-                    )
-                    
-                    if (bitmap != null) {
-                        processFrame(bitmap, frameIndex)
-                        frameIndex++
-                    }
-                    
-                    currentTimeUs += frameIntervalUs
-                }
-                
-                retriever.release()
-                totalFramesProcessed = frameIndex
-                
-                // End logging session
-                sessionId?.let {
-                    fileLogger.endTrainingSession(
-                        totalStrokes = strokeCount,
-                        goodStrokes = goodStrokesCount,
-                        averageScore = if (totalFramesProcessed > 0) (totalScore / totalFramesProcessed).toFloat() else 0f
-                    )
-                }
-                
-                Log.i(TAG, "Video processing complete: $totalFramesProcessed frames analyzed")
+                Log.i(TAG, "Video initialized for on-demand processing")
                 onComplete(frameResults)
                 
             } catch (e: Exception) {
-                Log.e(TAG, "Error processing video", e)
+                Log.e(TAG, "Error initializing video", e)
                 fileLogger.logError(e, "processVideo")
                 onComplete(emptyMap())
             }
         }.start()
+    }
+    
+    /**
+     * Process frame on-demand during playback (called from UI)
+     */
+    fun processFrameOnDemand(frameIndex: Int) {
+        // Skip if already processed
+        if (framePoseResults.containsKey(frameIndex)) {
+            return
+        }
+        
+        try {
+            val timestampUs = frameIndex * FRAME_EXTRACTION_INTERVAL_MS * 1000
+            val bitmap = frameRetriever.getFrameAtTime(
+                timestampUs,
+                MediaMetadataRetriever.OPTION_CLOSEST
+            )
+            
+            if (bitmap != null) {
+                processFrame(bitmap, frameIndex)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing frame on-demand $frameIndex", e)
+        }
     }
     
     /**
@@ -240,8 +232,14 @@ class VideoDebugProcessor(
      * Clean up resources
      */
     fun close() {
+        try {
+            frameRetriever.release()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error releasing frame retriever", e)
+        }
         poseLandmarker?.close()
         poseLandmarker = null
+        videoUri = null
         reset()
     }
     
