@@ -38,15 +38,21 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
-        <!-- Welcome Screen (Main Launcher) -->
+        <!-- Debug Activity - Video Testing (Main Launcher for Development) -->
         <activity
-            android:name=".WelcomeActivity"
-            android:exported="true">
+            android:name=".DebugActivity"
+            android:exported="true"
+            android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Welcome Screen -->
+        <activity
+            android:name=".WelcomeActivity"
+            android:exported="false" />
 
         <!-- Exercise Selection Screen -->
         <activity
@@ -65,13 +71,6 @@
             android:name=".SettingsActivity"
             android:exported="false"
             android:parentActivityName=".WelcomeActivity" />
-
-        <!-- Debug Activity - Video Testing -->
-        <activity
-            android:name=".DebugActivity"
-            android:exported="false"
-            android:parentActivityName=".WelcomeActivity"
-            android:screenOrientation="landscape" />
 
         <!-- Original MainActivity (Legacy) -->
         <activity
