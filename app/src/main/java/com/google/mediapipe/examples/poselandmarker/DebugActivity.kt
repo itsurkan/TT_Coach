@@ -20,6 +20,7 @@ import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcess
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
 import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import java.util.Locale
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -341,32 +342,50 @@ class DebugActivity : AppCompatActivity() {
     }
     
     private fun updateFrameAnalysis(frameIndex: Int) {
-        // Process frame on-demand if not already processed
-        backgroundExecutor.execute {
-            videoDebugProcessor.processFrameOnDemand(frameIndex)
-            
-            runOnUiThread {
-                val result = videoDebugProcessor.getFrameResult(frameIndex)
-                if (result == null) {
-                    // Frame not ready yet, just clear overlay
-                    binding.overlayView.clear()
-                    return@runOnUiThread
-                }
+        // Check if already cached
+        var result = videoDebugProcessor.getFrameResult(frameIndex)
+        var poseResult = videoDebugProcessor.getFramePoseResult(frameIndex)
+        
+        if (result != null && poseResult != null) {
+            // Already cached, update immediately
+            updatePoseOverlay(poseResult)
+            updateFrameAnalysisUI(frameIndex, result)
+        } else {
+            // Process synchronously in background thread
+            backgroundExecutor.execute {
+                videoDebugProcessor.processFrameOnDemand(frameIndex)
                 
-                // Update pose overlay with actual video dimensions
-                val poseResult = videoDebugProcessor.getFramePoseResult(frameIndex)
-                if (poseResult != null && videoHeight > 0 && videoWidth > 0) {
-                    binding.overlayView.setResults(
-                        poseResult,
-                        videoHeight,
-                        videoWidth,
-                        RunningMode.VIDEO
-                    )
-                    binding.overlayView.invalidate()
+                runOnUiThread {
+                    result = videoDebugProcessor.getFrameResult(frameIndex)
+                    poseResult = videoDebugProcessor.getFramePoseResult(frameIndex)
+                    
+                    if (result == null || poseResult == null) {
+                        // Frame not ready yet, just clear overlay
+                        binding.overlayView.clear()
+                        return@runOnUiThread
+                    }
+                    
+                    updatePoseOverlay(poseResult!!)
+                    updateFrameAnalysisUI(frameIndex, result!!)
                 }
-                
-                updateFrameAnalysisUI(frameIndex, result)
             }
+        }
+        
+        // Pre-fetch next few frames for smoother playback
+        if (isPlaying && frameIndex % 5 == 0) {
+            videoDebugProcessor.preFetchFrames(frameIndex + 1, 10)
+        }
+    }
+    
+    private fun updatePoseOverlay(poseResult: PoseLandmarkerResult) {
+        if (videoHeight > 0 && videoWidth > 0) {
+            binding.overlayView.setResults(
+                poseResult,
+                videoHeight,
+                videoWidth,
+                RunningMode.VIDEO
+            )
+            binding.overlayView.invalidate()
         }
     }
     

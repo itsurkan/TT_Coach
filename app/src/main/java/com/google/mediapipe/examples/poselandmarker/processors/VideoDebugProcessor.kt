@@ -95,7 +95,7 @@ class VideoDebugProcessor(
             val timestampUs = frameIndex * FRAME_EXTRACTION_INTERVAL_MS * 1000
             val bitmap = frameRetriever.getFrameAtTime(
                 timestampUs,
-                MediaMetadataRetriever.OPTION_CLOSEST
+                MediaMetadataRetriever.OPTION_CLOSEST_SYNC  // Use SYNC for faster keyframe extraction
             )
             
             if (bitmap != null) {
@@ -104,6 +104,20 @@ class VideoDebugProcessor(
         } catch (e: Exception) {
             Log.e(TAG, "Error processing frame on-demand $frameIndex", e)
         }
+    }
+    
+    /**
+     * Pre-fetch frames ahead for smoother playback
+     */
+    fun preFetchFrames(startFrame: Int, count: Int) {
+        Thread {
+            for (i in 0 until count) {
+                val frameIndex = startFrame + i
+                if (!framePoseResults.containsKey(frameIndex)) {
+                    processFrameOnDemand(frameIndex)
+                }
+            }
+        }.start()
     }
     
     /**
