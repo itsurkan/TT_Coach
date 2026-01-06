@@ -80,7 +80,7 @@ class VideoDebugProcessor(
                 while (currentTimeUs < durationMs * 1000) {
                     val bitmap = retriever.getFrameAtTime(
                         currentTimeUs,
-                        MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                        MediaMetadataRetriever.OPTION_CLOSEST
                     )
                     
                     if (bitmap != null) {
