@@ -101,6 +101,54 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- Portrait Mode Top Controls (hidden by default) -->
+                <LinearLayout
+                    android:id="@+id/portraitTopControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvVideoInfoPortrait"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No video loaded"
+                        android:textColor="@android:color/black"
+                        android:textSize="11sp"
+                        android:paddingBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnLoadVideoPortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="📂 Load"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnToggleViewModePortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="🖥 Landscape"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@android:color/darker_gray"
+                        android:layout_marginVertical="8dp" />
+                </LinearLayout>
+
                 <!-- Current Frame Analysis -->
                 <TextView
                     android:layout_width="match_parent"

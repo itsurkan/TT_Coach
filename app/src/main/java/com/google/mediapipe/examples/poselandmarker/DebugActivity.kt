@@ -94,9 +94,15 @@ class DebugActivity : AppCompatActivity() {
         binding.btnLoadVideo.setOnClickListener {
             showVideoSelectionDialog()
         }
+        binding.btnLoadVideoPortrait.setOnClickListener {
+            showVideoSelectionDialog()
+        }
         
         // View mode toggle
         binding.btnToggleViewMode.setOnClickListener {
+            toggleViewMode()
+        }
+        binding.btnToggleViewModePortrait.setOnClickListener {
             toggleViewMode()
         }
         
@@ -403,12 +409,14 @@ class DebugActivity : AppCompatActivity() {
     }
     
     private fun updateVideoInfo() {
-        binding.tvVideoInfo.text = "Duration: %.1fs | Frames: %d | FPS: %d".format(
+        val infoText = "Duration: %.1fs | Frames: %d | FPS: %d".format(
             Locale.US,
             videoDurationMs / 1000.0,
             totalFrames,
             DEFAULT_FPS
         )
+        binding.tvVideoInfo.text = infoText
+        binding.tvVideoInfoPortrait.text = infoText
     }
     
     private fun toggleViewMode() {
@@ -422,15 +430,23 @@ class DebugActivity : AppCompatActivity() {
     private fun enablePortraitMode() {
         isPortraitMode = true
         binding.btnToggleViewMode.text = "🖥 Landscape Mode"
+        binding.btnToggleViewModePortrait.text = "🖥 Landscape Mode"
         
-        // Hide bottom controls panel
+        // Hide top bar and bottom controls panel
+        binding.topBar.visibility = View.GONE
         binding.controlsPanel.visibility = View.GONE
         
         // Show portrait controls in analysis panel
+        binding.portraitTopControls.visibility = View.VISIBLE
         binding.portraitControls.visibility = View.VISIBLE
+        
+        // Sync video info text
+        binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
         
         // Make video container full height
         val mainContentParams = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+        mainContentParams.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
+        mainContentParams.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
         mainContentParams.bottomToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
         mainContentParams.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
         binding.mainContent.layoutParams = mainContentParams
@@ -441,15 +457,20 @@ class DebugActivity : AppCompatActivity() {
     private fun disablePortraitMode() {
         isPortraitMode = false
         binding.btnToggleViewMode.text = "📱 Portrait Mode"
+        binding.btnToggleViewModePortrait.text = "📱 Portrait Mode"
         
-        // Show bottom controls panel
+        // Show top bar and bottom controls panel
+        binding.topBar.visibility = View.VISIBLE
         binding.controlsPanel.visibility = View.VISIBLE
         
         // Hide portrait controls in analysis panel
+        binding.portraitTopControls.visibility = View.GONE
         binding.portraitControls.visibility = View.GONE
         
         // Restore video container to split with controls
         val mainContentParams = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+        mainContentParams.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
+        mainContentParams.topToBottom = binding.topBar.id
         mainContentParams.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
         mainContentParams.bottomToTop = binding.controlsPanel.id
         binding.mainContent.layoutParams = mainContentParams
