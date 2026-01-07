@@ -38,8 +38,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var scaleFactor: Float = 1f
     private var imageWidth: Int = 1
     private var imageHeight: Int = 1
-    private var offsetX: Float = 0f
-    private var offsetY: Float = 0f
 
     init {
         initPaints()
@@ -70,18 +68,18 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
             for(landmark in poseLandmarkerResult.landmarks()) {
                 for(normalizedLandmark in landmark) {
                     canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor + offsetX,
-                        normalizedLandmark.y() * imageHeight * scaleFactor + offsetY,
+                        normalizedLandmark.x() * imageWidth * scaleFactor,
+                        normalizedLandmark.y() * imageHeight * scaleFactor,
                         pointPaint
                     )
                 }
 
                 PoseLandmarker.POSE_LANDMARKS.forEach {
                     canvas.drawLine(
-                        poseLandmarkerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor + offsetX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor + offsetY,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor + offsetX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor + offsetY,
+                        poseLandmarkerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor,
+                        poseLandmarkerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor,
+                        poseLandmarkerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor,
+                        poseLandmarkerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor,
                         linePaint)
                 }
             }
@@ -99,27 +97,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         this.imageHeight = imageHeight
         this.imageWidth = imageWidth
 
-        when (runningMode) {
+        scaleFactor = when (runningMode) {
             RunningMode.IMAGE,
             RunningMode.VIDEO -> {
-                // Calculate scale to fit video within view (letterbox/pillarbox)
-                val scaleX = width * 1f / imageWidth
-                val scaleY = height * 1f / imageHeight
-                scaleFactor = min(scaleX, scaleY)
-                
-                // Calculate offsets to center the video
-                val scaledWidth = imageWidth * scaleFactor
-                val scaledHeight = imageHeight * scaleFactor
-                offsetX = (width - scaledWidth) / 2f
-                offsetY = (height - scaledHeight) / 2f
+                min(width * 1f / imageWidth, height * 1f / imageHeight)
             }
             RunningMode.LIVE_STREAM -> {
                 // PreviewView is in FILL_START mode. So we need to scale up the
                 // landmarks to match with the size that the captured images will be
                 // displayed.
-                scaleFactor = max(width * 1f / imageWidth, height * 1f / imageHeight)
-                offsetX = 0f
-                offsetY = 0f
+                max(width * 1f / imageWidth, height * 1f / imageHeight)
             }
         }
         invalidate()

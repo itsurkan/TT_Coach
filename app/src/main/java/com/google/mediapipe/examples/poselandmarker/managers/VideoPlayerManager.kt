@@ -34,41 +34,16 @@ class VideoPlayerManager(
     
     fun playVideoWithPoseDetection(videoResId: Int) {
         val videoUri = Uri.parse("android.resource://${context.packageName}/$videoResId")
-        videoView.setVideoURI(videoUri)
         
-        // Set up video playback
-        videoView.setOnPreparedListener { mediaPlayer ->
-            mediaPlayer.setVolume(0f, 0f) // Mute audio
-            mediaPlayer.isLooping = true // Loop video
-            videoView.requestFocus()
-            
-            // Get video dimensions and scale to fill
-            val videoWidth = mediaPlayer.videoWidth
-            val videoHeight = mediaPlayer.videoHeight
-            
-            videoView.post {
-                val viewWidth = videoView.width
-                val viewHeight = videoView.height
-                
-                if (videoWidth > 0 && videoHeight > 0 && viewWidth > 0 && viewHeight > 0) {
-                    val videoRatio = videoWidth.toFloat() / videoHeight.toFloat()
-                    val viewRatio = viewWidth.toFloat() / viewHeight.toFloat()
-                    
-                    // Scale to fill the entire container
-                    val scale = if (videoRatio > viewRatio) {
-                        // Video is wider than view - fill height and let width overflow
-                        viewHeight.toFloat() / videoHeight.toFloat() * viewRatio / videoRatio
-                    } else {
-                        // Video is taller than view - fill width and let height overflow
-                        viewWidth.toFloat() / videoWidth.toFloat() * videoRatio / viewRatio
-                    }
-                    
-                    videoView.scaleX = scale.coerceAtLeast(1f)
-                    videoView.scaleY = scale.coerceAtLeast(1f)
-                    
-                    Log.d(TAG, "Video: ${videoWidth}x${videoHeight}, View: ${viewWidth}x${viewHeight}, Scale: $scale")
-                }
+        // Set up video playback (matching MediaPipe sample approach)
+        with(videoView) {
+            setVideoURI(videoUri)
+            // Mute the audio
+            setOnPreparedListener { 
+                it.setVolume(0f, 0f)
+                it.isLooping = true
             }
+            requestFocus()
         }
         
         videoView.setOnErrorListener { _, what, extra ->
@@ -123,24 +98,22 @@ class VideoPlayerManager(
         backgroundExecutor?.scheduleAtFixedRate(
             {
                 (context as? android.app.Activity)?.runOnUiThread {
+                    if (videoView.visibility == View.GONE) {
+                        // Video view is hidden, stop updating
+                        backgroundExecutor?.shutdown()
+                        return@runOnUiThread
+                    }
+                    
                     val videoElapsedTimeMs = SystemClock.uptimeMillis() - videoStartTimeMs
                     val resultIndex = videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
                     
-                    if (resultIndex >= result.results.size || videoView.visibility == View.GONE) {
-                        // Video playback finished, loop will restart
-                        if (videoView.isPlaying && resultIndex >= result.results.size) {
-                            // Reset to beginning when video loops
-                            val adjustedIndex = resultIndex % result.results.size
-                            if (adjustedIndex < result.results.size) {
-                                overlayView.setResults(
-                                    result.results[adjustedIndex],
-                                    result.inputImageHeight,
-                                    result.inputImageWidth,
-                                    RunningMode.VIDEO
-                                )
-                            }
-                        }
+                    if (resultIndex >= result.results.size) {
+                        // Reached end of results - stop updating
+                        // The video will continue looping but poses won't update
+                        // This matches MediaPipe sample behavior
+                        backgroundExecutor?.shutdown()
                     } else {
+                        // Update overlay with current frame's pose
                         overlayView.setResults(
                             result.results[resultIndex],
                             result.inputImageHeight,
