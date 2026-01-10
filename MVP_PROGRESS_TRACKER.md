@@ -61,11 +61,11 @@
 - [x] **0.3. Model System**
   - [x] ExerciseParameters з factory methods (forehandDrive, backhandDrive)
   - [x] AnalysisResult з 15+ полями
-  - [x] StrokePhase enum (5 фаз)
+  - [ ] StrokePhase enum (5 фаз) - 🟡 В процесі
   - [x] TechniqueErrors (8 типів помилок)
   - [x] TechniqueRecommendations (7 типів рекомендацій)
   - Дата виконання: 24 грудня 2025
-  - Нотатки: Повна система моделей даних.
+  - Нотатки: Повна система моделей даних. StrokePhase enum в процесі розробки.
 
 - [x] **0.4. Supporting Infrastructure**
   - [x] BaseActivity + LocaleHelper для багатомовності
