@@ -44,7 +44,7 @@ class DebugActivity : AppCompatActivity() {
     private var videoHeight = 0
     private var isPortraitMode = false
     private var isVideoReady = false
-    private var isMediaPlayerPrepared = false
+    private var lastSeekPositionMs = 0
 
     companion object {
         private const val TAG = "DebugActivity"
@@ -135,7 +135,7 @@ class DebugActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.VISIBLE
         binding.analysisPanel.visibility = View.GONE
         isVideoReady = false
-        isMediaPlayerPrepared = false
+        lastSeekPositionMs = 0
         currentVideoUri = uri
 
         // Get video metadata and setup frame retriever for seeking
@@ -160,7 +160,6 @@ class DebugActivity : AppCompatActivity() {
         binding.videoView.setVideoURI(uri)
         binding.videoView.setOnPreparedListener { mp ->
             mediaPlayer = mp
-            isMediaPlayerPrepared = true
             mp.isLooping = false
             mp.setVolume(0f, 0f)
 
@@ -235,6 +234,8 @@ class DebugActivity : AppCompatActivity() {
         binding.frameImageView.visibility = View.GONE
         binding.videoView.visibility = View.VISIBLE
 
+        // Seek to the position user navigated to, then start
+        binding.videoView.seekTo(lastSeekPositionMs)
         binding.videoView.start()
 
         // Schedule pose overlay updates synced with video position (like GalleryFragment)
@@ -292,15 +293,8 @@ class DebugActivity : AppCompatActivity() {
             Log.e(TAG, "Error extracting frame at $positionMs", e)
         }
 
-        // Also seek the video player so playback resumes from correct position
-        // Only seek if MediaPlayer is prepared (in valid state)
-        if (isMediaPlayerPrepared && !isPlaying) {
-            try {
-                mediaPlayer?.seekTo(positionMs)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error seeking MediaPlayer to $positionMs", e)
-            }
-        }
+        // Store the current seek position for when playback starts
+        lastSeekPositionMs = positionMs
 
         // Update pose overlay and analysis
         updateDisplayAtPosition(positionMs)
