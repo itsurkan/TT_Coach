@@ -44,6 +44,7 @@ class DebugActivity : AppCompatActivity() {
     private var videoHeight = 0
     private var isPortraitMode = false
     private var isVideoReady = false
+    private var isMediaPlayerPrepared = false
 
     companion object {
         private const val TAG = "DebugActivity"
@@ -134,6 +135,7 @@ class DebugActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.VISIBLE
         binding.analysisPanel.visibility = View.GONE
         isVideoReady = false
+        isMediaPlayerPrepared = false
         currentVideoUri = uri
 
         // Get video metadata and setup frame retriever for seeking
@@ -158,6 +160,7 @@ class DebugActivity : AppCompatActivity() {
         binding.videoView.setVideoURI(uri)
         binding.videoView.setOnPreparedListener { mp ->
             mediaPlayer = mp
+            isMediaPlayerPrepared = true
             mp.isLooping = false
             mp.setVolume(0f, 0f)
 
@@ -290,8 +293,8 @@ class DebugActivity : AppCompatActivity() {
         }
 
         // Also seek the video player so playback resumes from correct position
-        // Only seek if video is ready (MediaPlayer is in valid state)
-        if (isVideoReady) {
+        // Only seek if MediaPlayer is prepared (in valid state)
+        if (isMediaPlayerPrepared && !isPlaying) {
             try {
                 mediaPlayer?.seekTo(positionMs)
             } catch (e: Exception) {
