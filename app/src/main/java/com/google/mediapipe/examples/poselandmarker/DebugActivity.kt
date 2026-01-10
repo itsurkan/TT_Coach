@@ -274,13 +274,19 @@ class DebugActivity : AppCompatActivity() {
 
         // Use MediaPlayer directly for more reliable seeking
         mediaPlayer?.let { mp ->
-            mp.seekTo(positionMs)
-            // If paused, we need to start briefly to render the frame
-            if (!mp.isPlaying) {
+            // Must start playback for VideoView to render the seeked frame
+            val wasPlaying = mp.isPlaying
+            if (!wasPlaying) {
                 mp.start()
+            }
+            mp.seekTo(positionMs)
+            if (!wasPlaying) {
+                // Pause after seek completes and frame renders
                 binding.videoView.postDelayed({
-                    mp.pause()
-                }, 100)
+                    if (!isPlaying) {
+                        mp.pause()
+                    }
+                }, 150)
             }
         } ?: run {
             // Fallback if mediaPlayer not available

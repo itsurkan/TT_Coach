@@ -189,66 +189,6 @@
                     android:background="@android:color/darker_gray"
                     android:layout_marginVertical="8dp" />
 
-                <!-- Technical Parameters -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="🎯 Technical Parameters"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvWristAngle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Wrist Angle: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvBodyRotation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Body Rotation: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvFollowThrough"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Follow-Through: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvContactHeight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Contact Height: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
-
-                <TextView
-                    android:id="@+id/tvElbowDistance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Elbow Distance: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@android:color/darker_gray"
-                    android:layout_marginVertical="8dp" />
-
                 <!-- Current Feedback -->
                 <TextView
                     android:layout_width="match_parent"
@@ -461,6 +401,67 @@
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Technical Parameters (moved below playback controls) -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="8dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🎯 Technical Parameters"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvWristAngle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Wrist Angle: --"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:paddingBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvBodyRotation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Body Rotation: --"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:paddingBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvFollowThrough"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Follow-Through: --"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:paddingBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvContactHeight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contact Height: --"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:paddingBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvElbowDistance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Elbow Distance: --"
+                    android:textSize="13sp"
+                    android:fontFamily="monospace"
+                    android:paddingBottom="4dp" />
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

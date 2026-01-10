@@ -2,8 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew assembleDebug:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nrefactor: simplify DebugActivity to use batch processing like GalleryFragment\n\nReplace on-demand frame processing with batch processing approach:\n- Use PoseLandmarkerHelper.detectVideoFile\\(\\) for upfront video processing\n- Sync pose overlay with video position using 300ms intervals\n- Remove frame caching, pre-fetching, and MediaMetadataRetriever logic\n- Simplify code while retaining all UI features \\(analysis panel, speed controls\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git *)",
+      "Bash(git commit:*)"
     ]
   }
 }
