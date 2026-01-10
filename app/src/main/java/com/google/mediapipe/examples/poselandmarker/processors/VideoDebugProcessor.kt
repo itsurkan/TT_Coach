@@ -40,7 +40,7 @@ class VideoDebugProcessor(
 
     companion object {
         private const val TAG = "VideoDebugProcessor"
-        const val VIDEO_INTERVAL_MS = 300L  // Interval for pose detection frames (100ms = 10 FPS)
+        const val VIDEO_INTERVAL_MS = 100L  // Interval for pose detection frames (100ms = 10 FPS, better sync)
         private const val DISPLAY_UPDATE_INTERVAL_MS = 33L  // ~30 FPS for smooth overlay sync
     }
 
@@ -141,9 +141,11 @@ class VideoDebugProcessor(
         displayTask = backgroundExecutor?.scheduleAtFixedRate(
             {
                 val currentPositionMs = getVideoPositionMs()
-                val resultIndex = (currentPositionMs / VIDEO_INTERVAL_MS).toInt()
+                // Round to nearest frame for better sync
+                val resultIndex = ((currentPositionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
+                    .coerceIn(0, bundle.results.size - 1)
 
-                if (resultIndex >= bundle.results.size || !isVideoPlaying()) {
+                if (!isVideoPlaying()) {
                     return@scheduleAtFixedRate
                 }
 
@@ -153,7 +155,7 @@ class VideoDebugProcessor(
                 onFrameUpdate(resultIndex, poseResult, analysisResult)
             },
             0,
-            VIDEO_INTERVAL_MS,
+            DISPLAY_UPDATE_INTERVAL_MS,
             TimeUnit.MILLISECONDS
         )
     }
@@ -168,14 +170,14 @@ class VideoDebugProcessor(
 
     /**
      * Get result at specific video position
+     * Uses rounding to find closest frame instead of always rounding down
      */
     fun getResultAtPosition(positionMs: Int): Pair<PoseLandmarkerResult?, AnalysisResult?> {
         val bundle = resultBundle ?: return Pair(null, null)
-        val resultIndex = (positionMs / VIDEO_INTERVAL_MS).toInt()
-
-        if (resultIndex >= bundle.results.size) {
-            return Pair(null, null)
-        }
+        
+        // Round to nearest frame instead of truncating for better sync
+        val resultIndex = ((positionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
+            .coerceIn(0, bundle.results.size - 1)
 
         val poseResult = bundle.results[resultIndex]
         val analysisResult = analysisResults.getOrNull(resultIndex)
