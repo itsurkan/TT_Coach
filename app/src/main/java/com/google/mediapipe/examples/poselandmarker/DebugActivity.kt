@@ -290,7 +290,14 @@ class DebugActivity : AppCompatActivity() {
         }
 
         // Also seek the video player so playback resumes from correct position
-        mediaPlayer?.seekTo(positionMs)
+        // Only seek if video is ready (MediaPlayer is in valid state)
+        if (isVideoReady) {
+            try {
+                mediaPlayer?.seekTo(positionMs)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error seeking MediaPlayer to $positionMs", e)
+            }
+        }
 
         // Update pose overlay and analysis
         updateDisplayAtPosition(positionMs)
