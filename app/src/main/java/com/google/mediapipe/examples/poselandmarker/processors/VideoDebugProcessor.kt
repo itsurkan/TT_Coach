@@ -1,29 +1,29 @@
 /*
  * AI Coach for Table Tennis
- * Video Debug Processor - Extracts frames from video and processes through MediaPipe
+ * Video Debug Processor - Batch processes video through MediaPipe (like GalleryFragment)
  */
 
 package com.google.mediapipe.examples.poselandmarker.processors
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.util.Log
-import com.google.mediapipe.framework.image.BitmapImageBuilder
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
-import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.core.logging.providers.LocalFileLogger
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
-import java.util.concurrent.ConcurrentHashMap
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
+import java.util.concurrent.TimeUnit
 
 /**
- * Processes video files frame-by-frame for debugging
- * Extracts frames, runs through MediaPipe, stores results for playback
+ * Processes video files using batch processing (same approach as GalleryFragment)
+ * Processes entire video upfront, then syncs results with playback position
  */
 class VideoDebugProcessor(
     private val context: Context,
@@ -31,232 +31,222 @@ class VideoDebugProcessor(
     private val feedbackGenerator: FeedbackGenerator,
     private val fileLogger: LocalFileLogger
 ) {
-    
-    private val frameResults = ConcurrentHashMap<Int, AnalysisResult>()
-    private val framePoseResults = ConcurrentHashMap<Int, PoseLandmarkerResult>()
-    private var poseLandmarker: PoseLandmarker? = null
+    private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
+    private var resultBundle: PoseLandmarkerHelper.ResultBundle? = null
+    private var analysisResults: List<AnalysisResult> = emptyList()
     private var sessionId: String? = null
-    private var videoUri: Uri? = null
-    private val frameRetriever = MediaMetadataRetriever()
-    
-    private var totalFramesProcessed = 0
-    private var strokeCount = 0
-    private var goodStrokesCount = 0
-    private var totalScore = 0.0
-    
+    private var backgroundExecutor: ScheduledExecutorService? = null
+    private var displayTask: ScheduledFuture<*>? = null
+
     companion object {
         private const val TAG = "VideoDebugProcessor"
-        private const val DEFAULT_FPS = 30
-        private const val FRAME_EXTRACTION_INTERVAL_MS = 33L // ~30 FPS
+        const val VIDEO_INTERVAL_MS = 300L  // Same as GalleryMediaProcessor
     }
-    
+
     /**
-     * Initialize video processing (no longer pre-processes all frames)
+     * Process entire video upfront using PoseLandmarkerHelper.detectVideoFile()
+     * Same approach as GalleryMediaProcessor
      */
-    fun processVideo(videoUri: Uri, onComplete: (Map<Int, AnalysisResult>) -> Unit) {
-        Thread {
+    fun processVideo(
+        videoUri: Uri,
+        onComplete: (PoseLandmarkerHelper.ResultBundle?) -> Unit
+    ) {
+        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+
+        backgroundExecutor?.execute {
             try {
-                // Store video URI for on-demand processing
-                this.videoUri = videoUri
-                
-                // Initialize MediaPipe PoseLandmarker
-                initializePoseLandmarker()
-                
-                // Setup frame retriever
-                frameRetriever.setDataSource(context, videoUri)
-                
                 // Start logging session
                 sessionId = fileLogger.startTrainingSession(
                     exerciseId = "video_debug",
                     exerciseName = "Video Debug Analysis"
                 )
-                
-                Log.i(TAG, "Video initialized for on-demand processing")
-                onComplete(frameResults)
-                
+
+                // Create PoseLandmarkerHelper in VIDEO mode (same as GalleryMediaProcessor)
+                poseLandmarkerHelper = PoseLandmarkerHelper(
+                    context = context,
+                    runningMode = RunningMode.VIDEO,
+                    minPoseDetectionConfidence = PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE,
+                    minPoseTrackingConfidence = PoseLandmarkerHelper.DEFAULT_POSE_TRACKING_CONFIDENCE,
+                    minPosePresenceConfidence = PoseLandmarkerHelper.DEFAULT_POSE_PRESENCE_CONFIDENCE,
+                    currentDelegate = PoseLandmarkerHelper.DELEGATE_CPU
+                )
+
+                // Batch process entire video (same as GalleryMediaProcessor)
+                resultBundle = poseLandmarkerHelper?.detectVideoFile(videoUri, VIDEO_INTERVAL_MS)
+
+                resultBundle?.let { bundle ->
+                    Log.i(TAG, "Video processed: ${bundle.results.size} frames at ${VIDEO_INTERVAL_MS}ms intervals")
+                    Log.i(TAG, "Video dimensions: ${bundle.inputImageWidth}x${bundle.inputImageHeight}")
+
+                    // Analyze all frames for stroke technique
+                    analysisResults = bundle.results.mapIndexed { index, poseResult ->
+                        analyzeFrame(poseResult, index)
+                    }
+
+                    Log.i(TAG, "Analysis complete: ${analysisResults.size} frames analyzed")
+                } ?: run {
+                    Log.e(TAG, "Error: detectVideoFile returned null")
+                }
+
+                poseLandmarkerHelper?.clearPoseLandmarker()
+                onComplete(resultBundle)
+
             } catch (e: Exception) {
-                Log.e(TAG, "Error initializing video", e)
+                Log.e(TAG, "Error processing video", e)
                 fileLogger.logError(e, "processVideo")
-                onComplete(emptyMap())
+                onComplete(null)
             }
-        }.start()
-    }
-    
-    /**
-     * Process frame on-demand during playback (called from UI)
-     */
-    fun processFrameOnDemand(frameIndex: Int) {
-        // Skip if already processed
-        if (framePoseResults.containsKey(frameIndex)) {
-            return
         }
-        
-        try {
-            val timestampUs = frameIndex * FRAME_EXTRACTION_INTERVAL_MS * 1000
-            val bitmap = frameRetriever.getFrameAtTime(
-                timestampUs,
-                MediaMetadataRetriever.OPTION_CLOSEST_SYNC  // Use SYNC for faster keyframe extraction
+    }
+
+    /**
+     * Analyze a single frame for stroke technique
+     */
+    private fun analyzeFrame(poseResult: PoseLandmarkerResult, frameIndex: Int): AnalysisResult {
+        return if (poseResult.landmarks().isNotEmpty()) {
+            val result = motionAnalyzer.analyzeStroke(
+                poseLandmarkerResult = poseResult,
+                phase = StrokePhase.CONTACT
             )
-            
-            if (bitmap != null) {
-                processFrame(bitmap, frameIndex)
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing frame on-demand $frameIndex", e)
-        }
-    }
-    
-    /**
-     * Pre-fetch frames ahead for smoother playback
-     */
-    fun preFetchFrames(startFrame: Int, count: Int) {
-        Thread {
-            for (i in 0 until count) {
-                val frameIndex = startFrame + i
-                if (!framePoseResults.containsKey(frameIndex)) {
-                    processFrameOnDemand(frameIndex)
-                }
-            }
-        }.start()
-    }
-    
-    /**
-     * Process a single frame through MediaPipe and analysis pipeline
-     */
-    private fun processFrame(bitmap: Bitmap, frameIndex: Int) {
-        try {
-            val mpImage = BitmapImageBuilder(bitmap).build()
-            val timestampMs = frameIndex * FRAME_EXTRACTION_INTERVAL_MS
-            
-            // Run MediaPipe pose detection
-            val poseLandmarkerResult = poseLandmarker?.detectForVideo(mpImage, timestampMs)
-            
-            if (poseLandmarkerResult != null && poseLandmarkerResult.landmarks().isNotEmpty()) {
-                // Store pose result for visualization
-                framePoseResults[frameIndex] = poseLandmarkerResult
-                
-                // Analyze stroke technique
-                val analysisResult = motionAnalyzer.analyzeStroke(
-                    poseLandmarkerResult = poseLandmarkerResult,
-                    phase = StrokePhase.CONTACT // TODO: Implement phase detection
+
+            // Log analysis
+            sessionId?.let { sid ->
+                fileLogger.logStrokeAnalysis(
+                    result = result,
+                    sessionId = sid,
+                    inferenceTimeMs = 0L,
+                    frameNumber = frameIndex
                 )
-                
-                // Store analysis result
-                frameResults[frameIndex] = analysisResult
-                
-                // Update statistics
-                totalScore += analysisResult.overallScore
-                if (analysisResult.isSuccessful()) {
-                    goodStrokesCount++
-                }
-                
-                // Log to file (async)
-                sessionId?.let { sessionId ->
-                    fileLogger.logStrokeAnalysis(
-                        result = analysisResult,
-                        sessionId = sessionId,
-                        inferenceTimeMs = 0L, // Not measuring inference time in batch mode
-                        frameNumber = frameIndex
-                    )
-                }
-                
-                if (frameIndex % 30 == 0) {
-                    Log.d(TAG, "Frame $frameIndex: score=${analysisResult.overallScore}%")
-                }
             }
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error processing frame $frameIndex", e)
+
+            result
+        } else {
+            AnalysisResult() // Default empty result
         }
     }
-    
+
     /**
-     * Initialize MediaPipe PoseLandmarker for video processing
+     * Schedule result display synced with video playback
+     * Same approach as GalleryMediaProcessor.scheduleVideoResultDisplay()
      */
-    private fun initializePoseLandmarker() {
-        try {
-            val options = PoseLandmarker.PoseLandmarkerOptions.builder()
-                .setBaseOptions(
-                    com.google.mediapipe.tasks.core.BaseOptions.builder()
-                        .setModelAssetPath("pose_landmarker_full.task")
-                        .build()
-                )
-                .setRunningMode(com.google.mediapipe.tasks.vision.core.RunningMode.VIDEO)
-                .setMinPoseDetectionConfidence(0.5f)
-                .setMinPosePresenceConfidence(0.5f)
-                .setMinTrackingConfidence(0.5f)
-                .build()
-            
-            poseLandmarker = PoseLandmarker.createFromOptions(context, options)
-            Log.i(TAG, "PoseLandmarker initialized for VIDEO mode")
-            
-        } catch (e: Exception) {
-            Log.e(TAG, "Error initializing PoseLandmarker", e)
-            throw e
+    fun scheduleResultDisplay(
+        getVideoPositionMs: () -> Int,
+        isVideoPlaying: () -> Boolean,
+        onFrameUpdate: (Int, PoseLandmarkerResult, AnalysisResult) -> Unit
+    ) {
+        val bundle = resultBundle ?: return
+
+        displayTask?.cancel(false)
+        displayTask = backgroundExecutor?.scheduleAtFixedRate(
+            {
+                val currentPositionMs = getVideoPositionMs()
+                val resultIndex = (currentPositionMs / VIDEO_INTERVAL_MS).toInt()
+
+                if (resultIndex >= bundle.results.size || !isVideoPlaying()) {
+                    return@scheduleAtFixedRate
+                }
+
+                val poseResult = bundle.results[resultIndex]
+                val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
+
+                onFrameUpdate(resultIndex, poseResult, analysisResult)
+            },
+            0,
+            VIDEO_INTERVAL_MS,
+            TimeUnit.MILLISECONDS
+        )
+    }
+
+    /**
+     * Stop scheduled display
+     */
+    fun stopResultDisplay() {
+        displayTask?.cancel(false)
+        displayTask = null
+    }
+
+    /**
+     * Get result at specific video position
+     */
+    fun getResultAtPosition(positionMs: Int): Pair<PoseLandmarkerResult?, AnalysisResult?> {
+        val bundle = resultBundle ?: return Pair(null, null)
+        val resultIndex = (positionMs / VIDEO_INTERVAL_MS).toInt()
+
+        if (resultIndex >= bundle.results.size) {
+            return Pair(null, null)
         }
+
+        val poseResult = bundle.results[resultIndex]
+        val analysisResult = analysisResults.getOrNull(resultIndex)
+
+        return Pair(poseResult, analysisResult)
     }
-    
+
     /**
-     * Get analysis result for a specific frame
+     * Get video dimensions from result bundle
      */
-    fun getFrameResult(frameIndex: Int): AnalysisResult? {
-        return frameResults[frameIndex]
+    fun getVideoDimensions(): Pair<Int, Int> {
+        val bundle = resultBundle ?: return Pair(0, 0)
+        return Pair(bundle.inputImageWidth, bundle.inputImageHeight)
     }
-    
+
     /**
-     * Get pose landmarks for a specific frame
+     * Get total number of processed frames
      */
-    fun getFramePoseResult(frameIndex: Int): PoseLandmarkerResult? {
-        return framePoseResults[frameIndex]
+    fun getTotalFrames(): Int {
+        return resultBundle?.results?.size ?: 0
     }
-    
+
     /**
      * Get overall analysis summary
      */
     fun getAnalysisSummary(): AnalysisSummary {
         val phaseDistribution = mutableMapOf<StrokePhase, Int>()
-        
-        frameResults.values.forEach { result ->
+        var totalScore = 0.0
+        var goodStrokes = 0
+
+        analysisResults.forEach { result ->
             phaseDistribution[result.phase] = phaseDistribution.getOrDefault(result.phase, 0) + 1
+            totalScore += result.overallScore
+            if (result.isSuccessful()) {
+                goodStrokes++
+            }
         }
-        
+
+        val totalFrames = analysisResults.size
+        val averageScore = if (totalFrames > 0) totalScore / totalFrames else 0.0
+
         return AnalysisSummary(
-            totalFrames = totalFramesProcessed,
-            strokeCount = strokeCount,
-            goodStrokes = goodStrokesCount,
-            averageScore = if (totalFramesProcessed > 0) totalScore / totalFramesProcessed else 0.0,
-            successRate = if (strokeCount > 0) (goodStrokesCount * 100.0 / strokeCount) else 0.0,
+            totalFrames = totalFrames,
+            strokeCount = totalFrames,
+            goodStrokes = goodStrokes,
+            averageScore = averageScore,
+            successRate = if (totalFrames > 0) (goodStrokes * 100.0 / totalFrames) else 0.0,
             phaseDistribution = phaseDistribution
         )
     }
-    
+
     /**
      * Reset processor state
      */
     fun reset() {
-        frameResults.clear()
-        framePoseResults.clear()
-        totalFramesProcessed = 0
-        strokeCount = 0
-        goodStrokesCount = 0
-        totalScore = 0.0
+        resultBundle = null
+        analysisResults = emptyList()
+        displayTask?.cancel(false)
+        displayTask = null
     }
-    
+
     /**
      * Clean up resources
      */
     fun close() {
-        try {
-            frameRetriever.release()
-        } catch (e: Exception) {
-            Log.e(TAG, "Error releasing frame retriever", e)
-        }
-        poseLandmarker?.close()
-        poseLandmarker = null
-        videoUri = null
+        displayTask?.cancel(true)
+        backgroundExecutor?.shutdown()
+        poseLandmarkerHelper?.clearPoseLandmarker()
+        poseLandmarkerHelper = null
         reset()
     }
-    
+
     /**
      * Data class for analysis summary
      */
