@@ -258,10 +258,19 @@ class DebugActivity : AppCompatActivity() {
         binding.seekBarFrame.progress = positionMs
         binding.seekBarFramePortrait.progress = positionMs
 
+        // VideoView needs to briefly play to show the seeked frame when paused
         binding.videoView.seekTo(positionMs)
-        binding.videoView.postDelayed({
-            updateDisplayAtPosition(positionMs)
-        }, 100)
+        if (!binding.videoView.isPlaying) {
+            binding.videoView.start()
+            binding.videoView.postDelayed({
+                binding.videoView.pause()
+                updateDisplayAtPosition(positionMs)
+            }, 50)
+        } else {
+            binding.videoView.postDelayed({
+                updateDisplayAtPosition(positionMs)
+            }, 100)
+        }
     }
 
     private fun updateDisplayAtPosition(positionMs: Int) {
