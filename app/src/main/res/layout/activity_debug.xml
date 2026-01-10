@@ -40,6 +40,15 @@
                 android:layout_marginEnd="8dp" />
 
             <Button
+                android:id="@+id/btnLogPoses"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="💾 Log Poses"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:enabled="false" />
+
+            <Button
                 android:id="@+id/btnToggleViewMode"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
@@ -141,6 +150,16 @@
                             android:text="📂 Load"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnLogPosesPortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="💾 Log"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp"
+                            android:enabled="false" />
 
                         <Button
                             android:id="@+id/btnToggleViewModePortrait"

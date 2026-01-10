@@ -10,6 +10,7 @@ import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.SystemClock
+import android.util.Log
 import androidx.camera.core.ImageProxy
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
@@ -22,6 +23,9 @@ class PoseLandmarkerProcessor(
     private val poseLandmarker: PoseLandmarker?,
     private val runningMode: RunningMode
 ) {
+    companion object {
+        private const val TAG = "PoseLandmarkerProc"
+    }
     
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
         require(runningMode == RunningMode.LIVE_STREAM) {
@@ -84,15 +88,47 @@ class PoseLandmarkerProcessor(
                 timestampMs * 1000,
                 MediaMetadataRetriever.OPTION_CLOSEST
             )?.let { frame ->
-                val argb8888Frame = if (frame.config == Bitmap.Config.ARGB_8888) frame
-                else frame.copy(Bitmap.Config.ARGB_8888, false)
-
-                val mpImage = BitmapImageBuilder(argb8888Frame).build()
-                poseLandmarker?.detectForVideo(mpImage, timestampMs)?.let { detectionResult ->
-                    resultList.add(detectionResult)
-                } ?: run {
+                // Validate bitmap before processing
+                if (frame.isRecycled) {
+                    Log.e(TAG, "Frame $i is recycled at $timestampMs ms")
                     didErrorOccurred = true
-                    onError?.invoke("ResultBundle could not be returned in detectVideoFile")
+                    onError?.invoke("Frame was recycled before processing")
+                    return@let
+                }
+
+                // CRITICAL: Always create mutable copy for MediaPipe JNI safety
+                // MediaPipe's native code requires mutable ARGB_8888 bitmaps
+                val argb8888Frame = if (frame.config == Bitmap.Config.ARGB_8888 && frame.isMutable) {
+                    frame
+                } else {
+                    frame.copy(Bitmap.Config.ARGB_8888, true)  // true = mutable
+                }
+
+                // Additional validation
+                if (!argb8888Frame.isMutable || argb8888Frame.isRecycled) {
+                    Log.e(TAG, "Invalid bitmap state at frame $i: mutable=${argb8888Frame.isMutable}, recycled=${argb8888Frame.isRecycled}")
+                    didErrorOccurred = true
+                    onError?.invoke("Bitmap validation failed")
+                    return@let
+                }
+
+                try {
+                    val mpImage = BitmapImageBuilder(argb8888Frame).build()
+                    poseLandmarker?.detectForVideo(mpImage, timestampMs)?.let { detectionResult ->
+                        resultList.add(detectionResult)
+                    } ?: run {
+                        didErrorOccurred = true
+                        onError?.invoke("ResultBundle could not be returned in detectVideoFile")
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "MediaPipe processing failed at frame $i (${timestampMs}ms)", e)
+                    didErrorOccurred = true
+                    onError?.invoke("MediaPipe JNI error: ${e.message}")
+                } finally {
+                    // Free memory if we created a copy
+                    if (argb8888Frame != frame) {
+                        argb8888Frame.recycle()
+                    }
                 }
             } ?: run {
                 didErrorOccurred = true

@@ -12,6 +12,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.SeekBar
+import android.widget.Toast
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
@@ -84,6 +90,11 @@ class DebugActivity : AppCompatActivity() {
         // Video selection
         binding.btnLoadVideo.setOnClickListener { showVideoSelectionDialog() }
         binding.btnLoadVideoPortrait.setOnClickListener { showVideoSelectionDialog() }
+        
+        // Log poses to file
+        binding.btnLogPoses.setOnClickListener { exportPosesToFile() }
+        binding.btnLogPosesPortrait.setOnClickListener { exportPosesToFile() }
+        binding.btnLogPosesPortrait.setOnClickListener { exportPosesToFile() }
 
         // View mode toggle
         binding.btnToggleViewMode.setOnClickListener { toggleViewMode() }
@@ -198,6 +209,8 @@ class DebugActivity : AppCompatActivity() {
                     binding.seekBarFramePortrait.max = videoDurationMs.toInt()
 
                     binding.progressBar.visibility = View.GONE
+                    binding.btnLogPoses.isEnabled = true
+                    binding.btnLogPosesPortrait.isEnabled = true
                     binding.analysisPanel.visibility = View.VISIBLE
 
                     updateVideoInfo()
@@ -478,6 +491,80 @@ class DebugActivity : AppCompatActivity() {
         seekToPosition(0)
         videoDebugProcessor.reset()
         currentVideoUri?.let { loadVideo(it) }
+    }
+
+    private fun exportPosesToFile() {
+        if (!isVideoReady) {
+            Toast.makeText(this, "No video loaded", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            // Get all pose results from processor
+            val poses = videoDebugProcessor.getAllPoseResults()
+            if (poses.isEmpty()) {
+                Toast.makeText(this, "No poses to export", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            // Create JSON structure
+            val jsonRoot = JSONObject()
+            jsonRoot.put("videoUri", currentVideoUri.toString())
+            jsonRoot.put("intervalMs", 100)
+            jsonRoot.put("totalFrames", poses.size)
+            jsonRoot.put("videoDurationMs", videoDurationMs)
+            jsonRoot.put("videoWidth", videoWidth)
+            jsonRoot.put("videoHeight", videoHeight)
+            jsonRoot.put("exportTimestamp", System.currentTimeMillis())
+
+            val framesArray = JSONArray()
+            poses.forEachIndexed { index, poseResult ->
+                val frameObj = JSONObject()
+                frameObj.put("frameIndex", index)
+                frameObj.put("timestampMs", index * 100L)
+
+                if (poseResult.landmarks().isNotEmpty()) {
+                    val landmarks = poseResult.landmarks()[0]
+                    val landmarksArray = JSONArray()
+
+                    for (i in 0 until landmarks.size) {
+                        val landmark = landmarks[i]
+                        val landmarkObj = JSONObject()
+                        landmarkObj.put("index", i)
+                        landmarkObj.put("x", landmark.x())
+                        landmarkObj.put("y", landmark.y())
+                        landmarkObj.put("z", landmark.z())
+                        landmarkObj.put("visibility", landmark.visibility().orElse(0f))
+                        landmarkObj.put("presence", landmark.presence().orElse(0f))
+                        landmarksArray.put(landmarkObj)
+                    }
+
+                    frameObj.put("landmarks", landmarksArray)
+                } else {
+                    frameObj.put("landmarks", JSONArray())
+                }
+
+                framesArray.put(frameObj)
+            }
+
+            jsonRoot.put("frames", framesArray)
+
+            // Save to external files directory
+            val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(Date())
+            val fileName = "poses_$timestamp.json"
+            val directory = getExternalFilesDir(null)
+            val file = File(directory, fileName)
+
+            file.writeText(jsonRoot.toString(2)) // Pretty print with 2-space indent
+
+            val message = "Poses exported to:\n${file.absolutePath}\n\nFrames: ${poses.size}"
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+            Log.i(TAG, "Exported ${poses.size} poses to ${file.absolutePath}")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error exporting poses", e)
+            Toast.makeText(this, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

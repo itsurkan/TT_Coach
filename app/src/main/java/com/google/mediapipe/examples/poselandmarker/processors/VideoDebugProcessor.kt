@@ -242,6 +242,13 @@ class VideoDebugProcessor(
     }
 
     /**
+     * Get all pose results for export
+     */
+    fun getAllPoseResults(): List<PoseLandmarkerResult> {
+        return resultBundle?.results ?: emptyList()
+    }
+
+    /**
      * Reset processor state
      */
     fun reset() {
