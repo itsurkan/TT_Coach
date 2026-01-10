@@ -57,11 +57,11 @@ class VideoDebugProcessor(
 
         backgroundExecutor?.execute {
             try {
-                // Start logging session
-                sessionId = fileLogger.startTrainingSession(
-                    exerciseId = "video_debug",
-                    exerciseName = "Video Debug Analysis"
-                )
+                // Skip logging session for faster loading
+                // sessionId = fileLogger.startTrainingSession(
+                //     exerciseId = "video_debug",
+                //     exerciseName = "Video Debug Analysis"
+                // )
 
                 // Create PoseLandmarkerHelper in VIDEO mode with optimizations for speed
                 // Use LITE model + GPU for ~3x faster processing (matches 100ms interval speed to old 300ms)
