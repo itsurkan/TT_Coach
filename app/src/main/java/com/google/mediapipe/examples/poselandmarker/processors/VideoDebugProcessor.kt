@@ -40,7 +40,8 @@ class VideoDebugProcessor(
 
     companion object {
         private const val TAG = "VideoDebugProcessor"
-        const val VIDEO_INTERVAL_MS = 300L  // Same as GalleryMediaProcessor
+        const val VIDEO_INTERVAL_MS = 33L  // Interval for pose detection frames (100ms = 10 FPS)
+        private const val DISPLAY_UPDATE_INTERVAL_MS = 33L  // ~30 FPS for smooth overlay sync
     }
 
     /**

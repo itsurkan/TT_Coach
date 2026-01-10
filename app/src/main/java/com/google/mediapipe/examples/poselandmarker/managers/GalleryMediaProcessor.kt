@@ -43,7 +43,7 @@ class GalleryMediaProcessor(
 
     companion object {
         private const val TAG = "GalleryMediaProcessor"
-        const val VIDEO_INTERVAL_MS = 300L
+        const val VIDEO_INTERVAL_MS = 30L
     }
 
     /**
