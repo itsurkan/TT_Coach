@@ -17,7 +17,6 @@ package com.google.mediapipe.examples.poselandmarker.fragment
 
 import android.net.Uri
 import android.os.Bundle
-import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -188,11 +187,12 @@ class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         uiController.showProgress(false)
 
         fragmentGalleryBinding.videoView.start()
-        val videoStartTimeMs = SystemClock.uptimeMillis()
 
         mediaProcessor.scheduleVideoResultDisplay(
             result = result,
-            videoStartTimeMs = videoStartTimeMs,
+            getVideoPositionMs = {
+                fragmentGalleryBinding.videoView.currentPosition
+            },
             isVideoPlaying = {
                 fragmentGalleryBinding.videoView.visibility == View.VISIBLE
             },

@@ -20,7 +20,6 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
@@ -125,14 +124,15 @@ class GalleryMediaProcessor(
      */
     fun scheduleVideoResultDisplay(
         result: PoseLandmarkerHelper.ResultBundle,
-        videoStartTimeMs: Long,
+        getVideoPositionMs: () -> Int,
         isVideoPlaying: () -> Boolean,
         onFrameUpdate: (Int) -> Unit
     ) {
         backgroundExecutor.scheduleAtFixedRate(
             {
-                val videoElapsedTimeMs = SystemClock.uptimeMillis() - videoStartTimeMs
-                val resultIndex = videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
+                // Use actual video position for accurate sync
+                val currentPositionMs = getVideoPositionMs()
+                val resultIndex = (currentPositionMs / VIDEO_INTERVAL_MS).toInt()
 
                 if (resultIndex >= result.results.size || !isVideoPlaying()) {
                     // Video playback finished, stop drawing

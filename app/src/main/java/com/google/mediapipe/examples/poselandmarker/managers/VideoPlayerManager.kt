@@ -7,7 +7,6 @@ package com.google.mediapipe.examples.poselandmarker.managers
 
 import android.content.Context
 import android.net.Uri
-import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import android.widget.VideoView
@@ -91,10 +90,9 @@ class VideoPlayerManager(
     private fun displayVideoResult(result: PoseLandmarkerHelper.ResultBundle) {
         videoView.visibility = View.VISIBLE
         onStatusChange("✅ Video processed - ${result.results.size} frames")
-        
+
         videoView.start()
-        val videoStartTimeMs = SystemClock.uptimeMillis()
-        
+
         backgroundExecutor?.scheduleAtFixedRate(
             {
                 (context as? android.app.Activity)?.runOnUiThread {
@@ -103,9 +101,10 @@ class VideoPlayerManager(
                         backgroundExecutor?.shutdown()
                         return@runOnUiThread
                     }
-                    
-                    val videoElapsedTimeMs = SystemClock.uptimeMillis() - videoStartTimeMs
-                    val resultIndex = videoElapsedTimeMs.div(VIDEO_INTERVAL_MS).toInt()
+
+                    // Use actual video position for accurate sync
+                    val currentPositionMs = videoView.currentPosition.toLong()
+                    val resultIndex = (currentPositionMs / VIDEO_INTERVAL_MS).toInt()
                     
                     if (resultIndex >= result.results.size) {
                         // Reached end of results - stop updating
