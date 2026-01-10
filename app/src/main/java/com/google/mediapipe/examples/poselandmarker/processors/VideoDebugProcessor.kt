@@ -33,7 +33,8 @@ class VideoDebugProcessor(
 ) {
     private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
     private var resultBundle: PoseLandmarkerHelper.ResultBundle? = null
-    private var analysisResults: List<AnalysisResult> = emptyList()
+    private var analysisResults: MutableList<AnalysisResult> = mutableListOf()
+    private val analyzedFrames = mutableSetOf<Int>()  // Track which frames we've analyzed
     private var sessionId: String? = null
     private var backgroundExecutor: ScheduledExecutorService? = null
     private var displayTask: ScheduledFuture<*>? = null
@@ -81,12 +82,11 @@ class VideoDebugProcessor(
                     Log.i(TAG, "Video processed: ${bundle.results.size} frames at ${VIDEO_INTERVAL_MS}ms intervals")
                     Log.i(TAG, "Video dimensions: ${bundle.inputImageWidth}x${bundle.inputImageHeight}")
 
-                    // Analyze all frames for stroke technique
-                    analysisResults = bundle.results.mapIndexed { index, poseResult ->
-                        analyzeFrame(poseResult, index)
-                    }
+                    // Don't analyze all frames upfront - too slow!
+                    // Initialize empty list, analyze on-demand when frames are accessed
+                    analysisResults = List(bundle.results.size) { AnalysisResult() }.toMutableList()
 
-                    Log.i(TAG, "Analysis complete: ${analysisResults.size} frames analyzed")
+                    Log.i(TAG, "Video ready: analysis will be done on-demand for better performance")
                 } ?: run {
                     Log.e(TAG, "Error: detectVideoFile returned null")
                 }
@@ -104,25 +104,15 @@ class VideoDebugProcessor(
 
     /**
      * Analyze a single frame for stroke technique
+     * Note: File logging is skipped for on-demand analysis to avoid slowdowns
      */
     private fun analyzeFrame(poseResult: PoseLandmarkerResult, frameIndex: Int): AnalysisResult {
         return if (poseResult.landmarks().isNotEmpty()) {
-            val result = motionAnalyzer.analyzeStroke(
+            motionAnalyzer.analyzeStroke(
                 poseLandmarkerResult = poseResult,
                 phase = StrokePhase.CONTACT
             )
-
-            // Log analysis
-            sessionId?.let { sid ->
-                fileLogger.logStrokeAnalysis(
-                    result = result,
-                    sessionId = sid,
-                    inferenceTimeMs = 0L,
-                    frameNumber = frameIndex
-                )
-            }
-
-            result
+            // Skip file logging for on-demand analysis (too slow)
         } else {
             AnalysisResult() // Default empty result
         }
@@ -173,6 +163,7 @@ class VideoDebugProcessor(
     /**
      * Get result at specific video position
      * Uses rounding to find closest frame instead of always rounding down
+     * Analyzes frame on-demand if not yet analyzed
      */
     fun getResultAtPosition(positionMs: Int): Pair<PoseLandmarkerResult?, AnalysisResult?> {
         val bundle = resultBundle ?: return Pair(null, null)
@@ -182,6 +173,13 @@ class VideoDebugProcessor(
             .coerceIn(0, bundle.results.size - 1)
 
         val poseResult = bundle.results[resultIndex]
+        
+        // Analyze on-demand if not yet done
+        if (resultIndex !in analyzedFrames && resultIndex < analysisResults.size) {
+            analysisResults[resultIndex] = analyzeFrame(poseResult, resultIndex)
+            analyzedFrames.add(resultIndex)
+        }
+        
         val analysisResult = analysisResults.getOrNull(resultIndex)
 
         return Pair(poseResult, analysisResult)
@@ -204,8 +202,20 @@ class VideoDebugProcessor(
 
     /**
      * Get overall analysis summary
+     * Analyzes all frames if not yet done
      */
     fun getAnalysisSummary(): AnalysisSummary {
+        // Ensure all frames are analyzed for summary
+        val bundle = resultBundle
+        if (bundle != null) {
+            for (i in 0 until bundle.results.size) {
+                if (i !in analyzedFrames && i < analysisResults.size) {
+                    analysisResults[i] = analyzeFrame(bundle.results[i], i)
+                    analyzedFrames.add(i)
+                }
+            }
+        }
+        
         val phaseDistribution = mutableMapOf<StrokePhase, Int>()
         var totalScore = 0.0
         var goodStrokes = 0
@@ -236,7 +246,8 @@ class VideoDebugProcessor(
      */
     fun reset() {
         resultBundle = null
-        analysisResults = emptyList()
+        analysisResults = mutableListOf()
+        analyzedFrames.clear()
         displayTask?.cancel(false)
         displayTask = null
     }
