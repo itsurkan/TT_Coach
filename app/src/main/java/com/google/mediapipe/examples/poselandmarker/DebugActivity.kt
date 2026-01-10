@@ -36,6 +36,7 @@ class DebugActivity : AppCompatActivity() {
 
     private var currentVideoUri: Uri? = null
     private var mediaPlayer: MediaPlayer? = null
+    private var frameRetriever: MediaMetadataRetriever? = null
     private var isPlaying = false
     private var playbackSpeed = 1.0f
     private var videoDurationMs = 0L
@@ -43,7 +44,6 @@ class DebugActivity : AppCompatActivity() {
     private var videoHeight = 0
     private var isPortraitMode = false
     private var isVideoReady = false
-    private var pendingSeekPosition: Int? = null
 
     companion object {
         private const val TAG = "DebugActivity"
@@ -136,11 +136,19 @@ class DebugActivity : AppCompatActivity() {
         isVideoReady = false
         currentVideoUri = uri
 
-        // Get video metadata
+        // Get video metadata and setup frame retriever for seeking
         try {
+            // Release previous retriever if exists
+            frameRetriever?.release()
+
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(this, uri)
             videoDurationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+
+            // Keep retriever for frame extraction during seeking
+            frameRetriever = MediaMetadataRetriever()
+            frameRetriever?.setDataSource(this, uri)
+
             retriever.release()
         } catch (e: Exception) {
             Log.e(TAG, "Error getting video metadata", e)
@@ -155,14 +163,6 @@ class DebugActivity : AppCompatActivity() {
 
             videoWidth = mp.videoWidth
             videoHeight = mp.videoHeight
-
-            // Set up seek complete listener for accurate frame display
-            mp.setOnSeekCompleteListener {
-                pendingSeekPosition?.let { pos ->
-                    updateDisplayAtPosition(pos)
-                    pendingSeekPosition = null
-                }
-            }
 
             val videoAspectRatio = videoWidth.toFloat() / videoHeight.toFloat()
             val isVideoPortrait = videoAspectRatio < 1.0f
@@ -228,6 +228,10 @@ class DebugActivity : AppCompatActivity() {
         binding.btnPlayPause.text = "⏸ Pause"
         binding.btnPlayPausePortrait.text = "⏸ Pause"
 
+        // Show VideoView, hide ImageView for playback
+        binding.frameImageView.visibility = View.GONE
+        binding.videoView.visibility = View.VISIBLE
+
         binding.videoView.start()
 
         // Schedule pose overlay updates synced with video position (like GalleryFragment)
@@ -270,29 +274,26 @@ class DebugActivity : AppCompatActivity() {
         binding.seekBarFrame.progress = positionMs
         binding.seekBarFramePortrait.progress = positionMs
 
-        pendingSeekPosition = positionMs
+        // Extract frame using MediaMetadataRetriever (VideoView can't display frames when paused)
+        try {
+            val frameTimeUs = positionMs * 1000L
+            val bitmap = frameRetriever?.getFrameAtTime(frameTimeUs, MediaMetadataRetriever.OPTION_CLOSEST)
 
-        // Use MediaPlayer directly for more reliable seeking
-        mediaPlayer?.let { mp ->
-            // Must start playback for VideoView to render the seeked frame
-            val wasPlaying = mp.isPlaying
-            if (!wasPlaying) {
-                mp.start()
+            if (bitmap != null) {
+                // Show frame in ImageView, hide VideoView
+                binding.frameImageView.setImageBitmap(bitmap)
+                binding.frameImageView.visibility = View.VISIBLE
+                binding.videoView.visibility = View.INVISIBLE
             }
-            mp.seekTo(positionMs)
-            if (!wasPlaying) {
-                // Pause after seek completes and frame renders
-                binding.videoView.postDelayed({
-                    if (!isPlaying) {
-                        mp.pause()
-                    }
-                }, 150)
-            }
-        } ?: run {
-            // Fallback if mediaPlayer not available
-            binding.videoView.seekTo(positionMs)
-            updateDisplayAtPosition(positionMs)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error extracting frame at $positionMs", e)
         }
+
+        // Also seek the video player so playback resumes from correct position
+        mediaPlayer?.seekTo(positionMs)
+
+        // Update pose overlay and analysis
+        updateDisplayAtPosition(positionMs)
     }
 
     private fun updateDisplayAtPosition(positionMs: Int) {
@@ -484,5 +485,11 @@ class DebugActivity : AppCompatActivity() {
         super.onDestroy()
         pausePlayback()
         videoDebugProcessor.close()
+        try {
+            frameRetriever?.release()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error releasing frame retriever", e)
+        }
+        frameRetriever = null
     }
 }

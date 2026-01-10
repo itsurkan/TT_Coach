@@ -73,6 +73,15 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="center" />
 
+            <!-- ImageView for displaying frames when seeking (VideoView can't do this) -->
+            <ImageView
+                android:id="@+id/frameImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
             <com.google.mediapipe.examples.poselandmarker.OverlayView
                 android:id="@+id/overlayView"
                 android:layout_width="match_parent"
