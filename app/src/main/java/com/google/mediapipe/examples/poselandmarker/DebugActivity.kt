@@ -6,6 +6,7 @@
 package com.google.mediapipe.examples.poselandmarker
 
 import android.media.MediaMetadataRetriever
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -34,6 +35,7 @@ class DebugActivity : AppCompatActivity() {
     private lateinit var feedbackGenerator: FeedbackGenerator
 
     private var currentVideoUri: Uri? = null
+    private var mediaPlayer: MediaPlayer? = null
     private var isPlaying = false
     private var playbackSpeed = 1.0f
     private var videoDurationMs = 0L
@@ -41,6 +43,7 @@ class DebugActivity : AppCompatActivity() {
     private var videoHeight = 0
     private var isPortraitMode = false
     private var isVideoReady = false
+    private var pendingSeekPosition: Int? = null
 
     companion object {
         private const val TAG = "DebugActivity"
@@ -145,12 +148,21 @@ class DebugActivity : AppCompatActivity() {
 
         // Setup video view
         binding.videoView.setVideoURI(uri)
-        binding.videoView.setOnPreparedListener { mediaPlayer ->
-            mediaPlayer.isLooping = false
-            mediaPlayer.setVolume(0f, 0f)
+        binding.videoView.setOnPreparedListener { mp ->
+            mediaPlayer = mp
+            mp.isLooping = false
+            mp.setVolume(0f, 0f)
 
-            videoWidth = mediaPlayer.videoWidth
-            videoHeight = mediaPlayer.videoHeight
+            videoWidth = mp.videoWidth
+            videoHeight = mp.videoHeight
+
+            // Set up seek complete listener for accurate frame display
+            mp.setOnSeekCompleteListener {
+                pendingSeekPosition?.let { pos ->
+                    updateDisplayAtPosition(pos)
+                    pendingSeekPosition = null
+                }
+            }
 
             val videoAspectRatio = videoWidth.toFloat() / videoHeight.toFloat()
             val isVideoPortrait = videoAspectRatio < 1.0f
@@ -258,18 +270,22 @@ class DebugActivity : AppCompatActivity() {
         binding.seekBarFrame.progress = positionMs
         binding.seekBarFramePortrait.progress = positionMs
 
-        // VideoView needs to briefly play to show the seeked frame when paused
-        binding.videoView.seekTo(positionMs)
-        if (!binding.videoView.isPlaying) {
-            binding.videoView.start()
-            binding.videoView.postDelayed({
-                binding.videoView.pause()
-                updateDisplayAtPosition(positionMs)
-            }, 50)
-        } else {
-            binding.videoView.postDelayed({
-                updateDisplayAtPosition(positionMs)
-            }, 100)
+        pendingSeekPosition = positionMs
+
+        // Use MediaPlayer directly for more reliable seeking
+        mediaPlayer?.let { mp ->
+            mp.seekTo(positionMs)
+            // If paused, we need to start briefly to render the frame
+            if (!mp.isPlaying) {
+                mp.start()
+                binding.videoView.postDelayed({
+                    mp.pause()
+                }, 100)
+            }
+        } ?: run {
+            // Fallback if mediaPlayer not available
+            binding.videoView.seekTo(positionMs)
+            updateDisplayAtPosition(positionMs)
         }
     }
 
