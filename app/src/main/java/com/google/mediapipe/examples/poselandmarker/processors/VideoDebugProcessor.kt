@@ -62,14 +62,16 @@ class VideoDebugProcessor(
                     exerciseName = "Video Debug Analysis"
                 )
 
-                // Create PoseLandmarkerHelper in VIDEO mode (same as GalleryMediaProcessor)
+                // Create PoseLandmarkerHelper in VIDEO mode with optimizations for speed
+                // Use LITE model + GPU for ~3x faster processing (matches 100ms interval speed to old 300ms)
                 poseLandmarkerHelper = PoseLandmarkerHelper(
                     context = context,
                     runningMode = RunningMode.VIDEO,
                     minPoseDetectionConfidence = PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE,
                     minPoseTrackingConfidence = PoseLandmarkerHelper.DEFAULT_POSE_TRACKING_CONFIDENCE,
                     minPosePresenceConfidence = PoseLandmarkerHelper.DEFAULT_POSE_PRESENCE_CONFIDENCE,
-                    currentDelegate = PoseLandmarkerHelper.DELEGATE_CPU
+                    currentDelegate = PoseLandmarkerHelper.DELEGATE_GPU,  // GPU is faster than CPU
+                    currentModel = PoseLandmarkerHelper.MODEL_POSE_LANDMARKER_LITE  // LITE is 2-3x faster than FULL
                 )
 
                 // Batch process entire video (same as GalleryMediaProcessor)
