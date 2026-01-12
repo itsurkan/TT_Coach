@@ -68,25 +68,27 @@ class DebugVideoLoader(
         }
 
         videoDebugProcessor.processVideo(uri) { resultBundle ->
-            if (resultBundle != null) {
-                isVideoReady = true
-                val (width, height) = videoDebugProcessor.getVideoDimensions()
-                if (width > 0 && height > 0) {
-                    videoWidth = width
-                    videoHeight = height
-                    uiController.setVideoDimensions(width, height)
+            (context as? android.app.Activity)?.runOnUiThread {
+                if (resultBundle != null) {
+                    isVideoReady = true
+                    val (width, height) = videoDebugProcessor.getVideoDimensions()
+                    if (width > 0 && height > 0) {
+                        videoWidth = width
+                        videoHeight = height
+                        uiController.setVideoDimensions(width, height)
+                    }
+                    playbackManager.setVideoDuration(videoDurationMs)
+                    uiController.hideProgress()
+                    uiController.enableLogButton()
+                    uiController.updateVideoInfo()
+                    uiController.updateAnalysisInfo()
+                    playbackManager.updateDisplayAtPosition(0)
+                    onVideoReady(videoWidth, videoHeight)
+                    Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
+                } else {
+                    uiController.hideProgress()
+                    Log.e(TAG, "Video processing failed")
                 }
-                playbackManager.setVideoDuration(videoDurationMs)
-                uiController.hideProgress()
-                uiController.enableLogButton()
-                uiController.updateVideoInfo()
-                uiController.updateAnalysisInfo()
-                playbackManager.updateDisplayAtPosition(0)
-                onVideoReady(videoWidth, videoHeight)
-                Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
-            } else {
-                uiController.hideProgress()
-                Log.e(TAG, "Video processing failed")
             }
         }
     }
