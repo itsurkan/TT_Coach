@@ -44,6 +44,19 @@ class DebugVideoLoader(
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(context, uri)
             videoDurationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+            val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+            val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+            val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
+            
+            // Handle rotation (if video is rotated 90 or 270, swap width/height)
+            if (rotation == "90" || rotation == "270") {
+                 videoWidth = heightStr?.toInt() ?: 0
+                 videoHeight = widthStr?.toInt() ?: 0
+            } else {
+                 videoWidth = widthStr?.toInt() ?: 0
+                 videoHeight = heightStr?.toInt() ?: 0
+            }
+            
             retriever.release()
 
             val frameRetriever = MediaMetadataRetriever()
@@ -58,39 +71,111 @@ class DebugVideoLoader(
             playbackManager.setMediaPlayer(mp)
             mp.isLooping = false
             mp.setVolume(0f, 0f)
-            videoWidth = mp.videoWidth
-            videoHeight = mp.videoHeight
+            
+            // If we didn't get dimensions from metadata, get from player
+            if (videoWidth == 0 || videoHeight == 0) {
+                videoWidth = mp.videoWidth
+                videoHeight = mp.videoHeight
+            }
+            
             uiController.setVideoDimensions(videoWidth, videoHeight)
-            val videoAspectRatio = videoWidth.toFloat() / videoHeight.toFloat()
+            val videoAspectRatio = if (videoHeight > 0) videoWidth.toFloat() / videoHeight.toFloat() else 1.0f
             val isVideoPortrait = videoAspectRatio < 1.0f
             uiController.setToggleViewButtonVisibility(isVideoPortrait)
             Log.i(TAG, "Video prepared: ${videoWidth}x${videoHeight}, duration: ${videoDurationMs}ms")
         }
 
-        videoDebugProcessor.processVideo(uri) { resultBundle ->
-            (context as? android.app.Activity)?.runOnUiThread {
-                if (resultBundle != null) {
-                    isVideoReady = true
-                    val (width, height) = videoDebugProcessor.getVideoDimensions()
-                    if (width > 0 && height > 0) {
-                        videoWidth = width
-                        videoHeight = height
-                        uiController.setVideoDimensions(width, height)
-                    }
-                    playbackManager.setVideoDuration(videoDurationMs)
-                    uiController.hideProgress()
-                    uiController.enableLogButton()
-                    uiController.updateVideoInfo()
-                    uiController.updateAnalysisInfo()
-                    playbackManager.updateDisplayAtPosition(0)
-                    onVideoReady(videoWidth, videoHeight)
-                    Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
-                } else {
-                    uiController.hideProgress()
-                    Log.e(TAG, "Video processing failed")
+        // Check for sidecar JSON file
+        val jsonFile = getJsonFileForUri(uri)
+        if (jsonFile != null && jsonFile.exists()) {
+            Log.i(TAG, "Found JSON poses file: ${jsonFile.absolutePath}")
+            try {
+                val jsonString = jsonFile.readText()
+                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { resultBundle ->
+                    handleProcessingResult(resultBundle, videoDurationMs, onVideoReady)
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading JSON file, falling back to analysis", e)
+                processVideoNormal(uri, videoDurationMs, onVideoReady)
+            }
+        } else {
+             processVideoNormal(uri, videoDurationMs, onVideoReady)
+        }
+    }
+
+    private fun processVideoNormal(uri: Uri, durationMs: Long, onVideoReady: (Int, Int) -> Unit) {
+         videoDebugProcessor.processVideo(uri) { resultBundle ->
+            handleProcessingResult(resultBundle, durationMs, onVideoReady)
+        }
+    }
+    
+    private fun handleProcessingResult(
+        resultBundle: com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.ResultBundle?, 
+        durationMs: Long,
+        onVideoReady: (Int, Int) -> Unit
+    ) {
+        (context as? android.app.Activity)?.runOnUiThread {
+            if (resultBundle != null) {
+                isVideoReady = true
+                val (width, height) = videoDebugProcessor.getVideoDimensions()
+                
+                if (width > 0 && height > 0) {
+                    uiController.setVideoDimensions(width, height)
+                    onVideoReady(width, height)
+                } else {
+                     // If dimensions invalid, we might rely on UI controller already having them from onPrepared
+                     // OR warn. But we shouldn't call non-existent getters.
+                     // Just pass what we have; if 0, onVideoReady might need to handle it or we wait for onPrepared to trigger ready?
+                     // Actually onVideoReady callback is to signal "Analysis Ready". 
+                     // Pass 0,0 if unknown.
+                     onVideoReady(width, height)
+                }
+                
+                playbackManager.setVideoDuration(durationMs)
+                uiController.hideProgress()
+                uiController.enableLogButton()
+                uiController.updateVideoInfo()
+                uiController.updateAnalysisInfo()
+                playbackManager.updateDisplayAtPosition(0)
+                Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
+            } else {
+                uiController.hideProgress()
+                Log.e(TAG, "Video processing failed")
             }
         }
+    }
+
+    private fun getJsonFileForUri(uri: Uri): java.io.File? {
+        var filename: String? = null
+        try {
+            if (uri.scheme == android.content.ContentResolver.SCHEME_ANDROID_RESOURCE) {
+                val id = uri.lastPathSegment?.toIntOrNull()
+                if (id != null) {
+                    filename = context.resources.getResourceEntryName(id)
+                }
+            } else if (uri.scheme == android.content.ContentResolver.SCHEME_FILE) {
+                 filename = java.io.File(uri.path!!).nameWithoutExtension
+                 // Check sibling
+                 val sibling = java.io.File(java.io.File(uri.path!!).parent, "${filename}_poses.json")
+                 if (sibling.exists()) return sibling
+            }
+            
+            if (filename == null) {
+                 filename = uri.lastPathSegment
+                 if (filename?.contains(".") == true) {
+                     filename = filename.substringBeforeLast(".")
+                 }
+            }
+
+            if (filename != null) {
+                 val filesDir = context.getExternalFilesDir(null)
+                 val jsonFile = java.io.File(filesDir, "${filename}_poses.json")
+                 if (jsonFile.exists()) return jsonFile
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error resolving JSON file", e)
+        }
+        return null
     }
 
     fun reset() {

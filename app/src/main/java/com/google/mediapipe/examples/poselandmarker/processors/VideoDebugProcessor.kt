@@ -103,6 +103,110 @@ class VideoDebugProcessor(
     }
 
     /**
+     * Process video from pre-computed JSON poses
+     */
+    fun processVideoFromJson(
+        jsonString: String,
+        videoWidth: Int,
+        videoHeight: Int,
+        onComplete: (PoseLandmarkerHelper.ResultBundle?) -> Unit
+    ) {
+        backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
+
+        backgroundExecutor?.execute {
+            try {
+                Log.i(TAG, "Loading poses from JSON...")
+                val jsonRoot = org.json.JSONObject(jsonString)
+                val framesArray = jsonRoot.getJSONArray("frames")
+                
+                val results = mutableListOf<PoseLandmarkerResult>()
+                
+                for (i in 0 until framesArray.length()) {
+                    val frameObj = framesArray.getJSONObject(i)
+                    val timestampMs = frameObj.getLong("timestampMs")
+                    val landmarksArray = frameObj.getJSONArray("landmarks")
+                    
+                    if (landmarksArray.length() > 0) {
+                        // Assuming single pose for now as per export format
+                        val landmarks = mutableListOf<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>()
+                        
+                        // Check if it's a nested array (multi-pose) or flat array (single pose)
+                        // Export format: frameObj.put("landmarks", landmarksArray) where landmarksArray is JSONArray of landmarks
+                        // wait, export format:
+                        // val landmarksArray = JSONArray()
+                        // poseResult.landmarks()[0].forEach { ... }
+                        // frameObj.put("landmarks", landmarksArray)
+                        // So "landmarks" in JSON is List<Landmark>.
+                        // But PoseLandmarkerResult expects List<List<Landmark>>.
+                        
+                        val firstPoseLandmarks = landmarksArray
+                        // The JSON export is slightly ambiguous in my previous read.
+                        // "frameObj.put("landmarks", landmarksArray)"
+                        // And "landmarksArray" was filled with objects {x,y,z...}
+                        // So it's List<Landmark>.
+                        
+                        // We need to check if the export format was actually List<List<Landmark>> or List<Landmark>.
+                        // Re-reading export code:
+                        // poseResult.landmarks()[0].forEach { landmark -> landmarksArray.put(...) }
+                        // frameObj.put("landmarks", landmarksArray)
+                        // So it is List<Landmark> (Single pose).
+                        
+                        for (j in 0 until firstPoseLandmarks.length()) {
+                            val lmObj = firstPoseLandmarks.getJSONObject(j)
+                            landmarks.add(
+                                com.google.mediapipe.tasks.components.containers.NormalizedLandmark.create(
+                                    lmObj.getDouble("x").toFloat(),
+                                    lmObj.getDouble("y").toFloat(),
+                                    lmObj.getDouble("z").toFloat(),
+                                    java.util.Optional.of(lmObj.optDouble("visibility", 0.0).toFloat()),
+                                    java.util.Optional.of(lmObj.optDouble("presence", 0.0).toFloat())
+                                )
+                            )
+                        }
+                        
+                        // Create PoseLandmarkerResult with single pose
+                        val poseLandmarkerResult = PoseLandmarkerResult.create(
+                            listOf(landmarks),
+                            java.util.Optional.empty(),
+                            java.util.Optional.empty(),
+                            timestampMs
+                        )
+                        results.add(poseLandmarkerResult)
+                    } else {
+                         // Empty result
+                         val poseLandmarkerResult = PoseLandmarkerResult.create(
+                            emptyList(),
+                            java.util.Optional.empty(),
+                            java.util.Optional.empty(),
+                            timestampMs
+                        )
+                        results.add(poseLandmarkerResult)
+                    }
+                }
+                
+                // Create ResultBundle
+                val bundle = PoseLandmarkerHelper.ResultBundle(
+                    results,
+                    0, // Inference time unknown
+                    videoHeight,
+                    videoWidth
+                )
+                
+                resultBundle = bundle
+                analysisResults = List(bundle.results.size) { AnalysisResult() }.toMutableList()
+                
+                Log.i(TAG, "Loaded ${bundle.results.size} frames from JSON")
+                onComplete(bundle)
+                
+            } catch (e: Exception) {
+                Log.e(TAG, "Error processing JSON", e)
+                fileLogger.logError(e, "processVideoFromJson")
+                onComplete(null)
+            }
+        }
+    }
+
+    /**
      * Analyze a single frame for stroke technique
      * Note: File logging is skipped for on-demand analysis to avoid slowdowns
      */
