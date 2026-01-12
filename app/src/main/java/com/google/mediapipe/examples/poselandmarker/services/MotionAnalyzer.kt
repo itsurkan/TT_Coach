@@ -10,6 +10,7 @@ import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.models.TechniqueErrors
 import com.google.mediapipe.examples.poselandmarker.models.TechniqueRecommendations
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 
 /**
@@ -31,8 +32,21 @@ class MotionAnalyzer(
                 errors = listOf("Не вдалося виявити позу - перевірте освітлення та позицію камери")
             )
         }
+        return analyzeStroke(poseLandmarkerResult.landmarks()[0], phase)
+    }
 
-        val landmarks = poseLandmarkerResult.landmarks()[0]
+    /**
+     * Аналізувати техніку удару на основі raw landmarks
+     */
+    fun analyzeStroke(
+        landmarks: List<NormalizedLandmark>,
+        phase: StrokePhase = StrokePhase.CONTACT
+    ): AnalysisResult {
+        if (landmarks.isEmpty()) {
+            return AnalysisResult(
+                errors = listOf("Не вдалося виявити позу - перевірте освітлення та позицію камери")
+            )
+        }
         
         // Розрахунок кутів та параметрів
         val wristAngle = calculateWristAngle(landmarks)
