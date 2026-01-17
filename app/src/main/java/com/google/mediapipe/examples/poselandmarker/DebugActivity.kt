@@ -62,7 +62,6 @@ class DebugActivity : AppCompatActivity() {
         setupUI()
         uiController.setPortraitMode(isPortraitMode)
         uiController.updateToggleViewButton(isPortraitMode)
-        loadDefaultVideo()
     }
 
     private fun initializeManagers() {
@@ -130,11 +129,6 @@ class DebugActivity : AppCompatActivity() {
         binding.btnReset.setOnClickListener { resetAnalysis() }
     }
 
-    private fun loadDefaultVideo() {
-        val videoUri = Uri.parse("android.resource://$packageName/${R.raw.forehand_drive}")
-        videoLoader.loadVideo(videoUri) { _, _ -> }
-    }
-
     private fun toggleViewMode() {
         isPortraitMode = !isPortraitMode
         uiController.setPortraitMode(isPortraitMode)
@@ -143,18 +137,40 @@ class DebugActivity : AppCompatActivity() {
 
 
     private fun showVideoSelectionDialog() {
-        val videoOptions = arrayOf(
-            "forehand_drive.mp4 (Default)",
-            "Choose from gallery..."
-        )
+        // Dynamically discover all video resources from R.raw using reflection
+        val videoResources = mutableListOf<Pair<String, Int>>()
+
+        try {
+            val rawClass = R.raw::class.java
+            for (field in rawClass.declaredFields) {
+                val name = field.name
+                // Filter for video files (mp4, 3gp, etc.) - raw resources don't have extensions
+                // so we check by trying to get the resource and assume video naming conventions
+                if (!name.startsWith("_") && field.type == Int::class.javaPrimitiveType) {
+                    val resourceId = field.getInt(null)
+                    videoResources.add(Pair("$name.mp4", resourceId))
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error discovering raw resources", e)
+        }
+
+        if (videoResources.isEmpty()) {
+            Toast.makeText(this, "No video resources found", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Sort alphabetically
+        videoResources.sortBy { it.first }
+
+        val videoOptions = videoResources.map { it.first }.toTypedArray()
 
         AlertDialog.Builder(this)
-            .setTitle("Select Test Video")
+            .setTitle("Select Test Video (${videoResources.size} available)")
             .setItems(videoOptions) { _, which ->
-                when (which) {
-                    0 -> loadDefaultVideo()
-                    1 -> loadDefaultVideo()
-                }
+                val resourceId = videoResources[which].second
+                val videoUri = Uri.parse("android.resource://$packageName/$resourceId")
+                videoLoader.loadVideo(videoUri) { _, _ -> }
             }
             .show()
     }
