@@ -137,7 +137,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 }
             )
             
-            videoPlayerManager?.playVideoWithPoseDetection(R.raw.forehand_drive)
+            videoPlayerManager?.playVideoWithPoseDetection("Videos/forehand_drive.mp4")
         } else {
             // Normal mode: Launch camera
             binding.videoContainer.visibility = View.GONE

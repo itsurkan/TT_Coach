@@ -21,6 +21,7 @@ class DebugVideoLoader(
     private val playbackManager: DebugPlaybackManager
 ) {
     private var currentVideoUri: Uri? = null
+    private var currentAssetPath: String? = null
     private var isVideoReady = false
 
     companion object {
@@ -30,6 +31,93 @@ class DebugVideoLoader(
     fun getCurrentVideoUri(): Uri? = currentVideoUri
 
     fun isVideoReady(): Boolean = isVideoReady
+
+    /**
+     * Load video from assets folder (e.g., "Videos/forehand_drive.mp4")
+     */
+    fun loadVideoFromAssets(assetPath: String, onVideoReady: (Int, Int) -> Unit) {
+        uiController.showProgress()
+        isVideoReady = false
+        currentAssetPath = assetPath
+
+        var videoDurationMs = 0L
+        var videoWidth = 0
+        var videoHeight = 0
+
+        try {
+            // Copy asset to cache for VideoView (it can't play assets directly)
+            val cacheFile = java.io.File(context.cacheDir, assetPath.replace("/", "_"))
+            context.assets.open(assetPath).use { input ->
+                cacheFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            currentVideoUri = Uri.fromFile(cacheFile)
+
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(cacheFile.absolutePath)
+            videoDurationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
+            val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+            val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+            val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
+
+            if (rotation == "90" || rotation == "270") {
+                videoWidth = heightStr?.toInt() ?: 0
+                videoHeight = widthStr?.toInt() ?: 0
+            } else {
+                videoWidth = widthStr?.toInt() ?: 0
+                videoHeight = heightStr?.toInt() ?: 0
+            }
+            retriever.release()
+
+            val frameRetriever = MediaMetadataRetriever()
+            frameRetriever.setDataSource(cacheFile.absolutePath)
+            playbackManager.setFrameRetriever(frameRetriever)
+
+            binding.videoView.setVideoPath(cacheFile.absolutePath)
+            binding.videoView.setOnPreparedListener { mp ->
+                playbackManager.setMediaPlayer(mp)
+                mp.isLooping = false
+                mp.setVolume(0f, 0f)
+
+                if (videoWidth == 0 || videoHeight == 0) {
+                    videoWidth = mp.videoWidth
+                    videoHeight = mp.videoHeight
+                }
+
+                uiController.setVideoDimensions(videoWidth, videoHeight)
+                val videoAspectRatio = if (videoHeight > 0) videoWidth.toFloat() / videoHeight.toFloat() else 1.0f
+                uiController.setToggleViewButtonVisibility(videoAspectRatio < 1.0f)
+                Log.i(TAG, "Video prepared from assets: ${videoWidth}x${videoHeight}, duration: ${videoDurationMs}ms")
+            }
+
+            // Check for poses JSON in assets
+            val jsonString = getJsonFromAssets(assetPath)
+            if (jsonString != null) {
+                Log.i(TAG, "Found JSON poses in assets, skipping video analysis")
+                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
+                    handleProcessingComplete(success, videoDurationMs, onVideoReady)
+                }
+            } else {
+                Log.i(TAG, "No JSON poses found in assets, analyzing video...")
+                processVideoNormal(currentVideoUri!!, videoDurationMs, onVideoReady)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading video from assets: $assetPath", e)
+            uiController.hideProgress()
+        }
+    }
+
+    private fun getJsonFromAssets(videoAssetPath: String): String? {
+        // Convert video path to poses path: "Videos/forehand_drive.mp4" -> "Videos/forehand_drive_poses.json"
+        val posesPath = videoAssetPath.substringBeforeLast(".") + "_poses.json"
+        return try {
+            context.assets.open(posesPath).bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            Log.d(TAG, "No poses file found at: $posesPath")
+            null
+        }
+    }
 
     fun loadVideo(uri: Uri, onVideoReady: (Int, Int) -> Unit) {
         uiController.showProgress()
@@ -208,6 +296,10 @@ class DebugVideoLoader(
     }
 
     fun reset() {
+        currentAssetPath?.let {
+            loadVideoFromAssets(it) { _, _ -> }
+            return
+        }
         currentVideoUri?.let { loadVideo(it) { _, _ -> } }
     }
 }

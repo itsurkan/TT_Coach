@@ -215,9 +215,9 @@ class JsonStrokeDetectorTest {
      */
     private fun findJsonFile(filename: String = "forehand_drive_poses.json"): File? {
         val possiblePaths = listOf(
-            "src/main/res/raw/$filename",
-            "app/src/main/res/raw/$filename",
-            "../app/src/main/res/raw/$filename"
+            "src/main/assets/Videos/$filename",
+            "app/src/main/assets/Videos/$filename",
+            "../app/src/main/assets/Videos/$filename"
         )
 
         for (path in possiblePaths) {

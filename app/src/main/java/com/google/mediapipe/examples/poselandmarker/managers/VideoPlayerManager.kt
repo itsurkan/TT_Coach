@@ -31,27 +31,37 @@ class VideoPlayerManager(
         private const val VIDEO_INTERVAL_MS = 300L
     }
     
-    fun playVideoWithPoseDetection(videoResId: Int) {
-        val videoUri = Uri.parse("android.resource://${context.packageName}/$videoResId")
-        
-        // Set up video playback (matching MediaPipe sample approach)
-        with(videoView) {
-            setVideoURI(videoUri)
-            // Mute the audio
-            setOnPreparedListener { 
-                it.setVolume(0f, 0f)
-                it.isLooping = true
+    fun playVideoWithPoseDetection(assetPath: String) {
+        try {
+            // Copy asset to cache for VideoView
+            val cacheFile = java.io.File(context.cacheDir, assetPath.replace("/", "_"))
+            context.assets.open(assetPath).use { input ->
+                cacheFile.outputStream().use { output ->
+                    input.copyTo(output)
+                }
             }
-            requestFocus()
+            val videoUri = Uri.fromFile(cacheFile)
+
+            // Set up video playback
+            with(videoView) {
+                setVideoPath(cacheFile.absolutePath)
+                setOnPreparedListener {
+                    it.setVolume(0f, 0f)
+                    it.isLooping = true
+                }
+                requestFocus()
+            }
+
+            videoView.setOnErrorListener { _, what, extra ->
+                onStatusChange("❌ Error loading video: $what, $extra")
+                false
+            }
+
+            onStatusChange("⏳ Processing video...")
+            processVideoWithPoseDetection(videoUri)
+        } catch (e: Exception) {
+            onStatusChange("❌ Error loading video: ${e.message}")
         }
-        
-        videoView.setOnErrorListener { _, what, extra ->
-            onStatusChange("❌ Error loading video: $what, $extra")
-            false
-        }
-        
-        onStatusChange("⏳ Processing video...")
-        processVideoWithPoseDetection(videoUri)
     }
     
     private fun processVideoWithPoseDetection(uri: Uri) {

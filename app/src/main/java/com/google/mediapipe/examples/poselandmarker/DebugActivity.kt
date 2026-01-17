@@ -137,40 +137,34 @@ class DebugActivity : AppCompatActivity() {
 
 
     private fun showVideoSelectionDialog() {
-        // Dynamically discover all video resources from R.raw using reflection
-        val videoResources = mutableListOf<Pair<String, Int>>()
+        // Discover video files from assets/Videos folder
+        val videoFiles = mutableListOf<String>()
 
         try {
-            val rawClass = R.raw::class.java
-            for (field in rawClass.declaredFields) {
-                val name = field.name
-                // Filter for video files (mp4, 3gp, etc.) - raw resources don't have extensions
-                // so we check by trying to get the resource and assume video naming conventions
-                if (!name.startsWith("_") && field.type == Int::class.javaPrimitiveType) {
-                    val resourceId = field.getInt(null)
-                    videoResources.add(Pair("$name.mp4", resourceId))
+            val files = assets.list("Videos") ?: emptyArray()
+            for (file in files) {
+                // Only show video files
+                if (file.endsWith(".mp4") || file.endsWith(".3gp") || file.endsWith(".webm")) {
+                    videoFiles.add(file)
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error discovering raw resources", e)
+            Log.e(TAG, "Error listing assets", e)
         }
 
-        if (videoResources.isEmpty()) {
-            Toast.makeText(this, "No video resources found", Toast.LENGTH_SHORT).show()
+        if (videoFiles.isEmpty()) {
+            Toast.makeText(this, "No video files found in assets/Videos", Toast.LENGTH_SHORT).show()
             return
         }
 
         // Sort alphabetically
-        videoResources.sortBy { it.first }
-
-        val videoOptions = videoResources.map { it.first }.toTypedArray()
+        videoFiles.sort()
 
         AlertDialog.Builder(this)
-            .setTitle("Select Test Video (${videoResources.size} available)")
-            .setItems(videoOptions) { _, which ->
-                val resourceId = videoResources[which].second
-                val videoUri = Uri.parse("android.resource://$packageName/$resourceId")
-                videoLoader.loadVideo(videoUri) { _, _ -> }
+            .setTitle("Select Video (${videoFiles.size} available)")
+            .setItems(videoFiles.toTypedArray()) { _, which ->
+                val videoPath = "Videos/${videoFiles[which]}"
+                videoLoader.loadVideoFromAssets(videoPath) { _, _ -> }
             }
             .show()
     }
