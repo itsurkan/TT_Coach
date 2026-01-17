@@ -194,21 +194,8 @@ class JsonStrokeDetectorTest {
         println("JSON file: ${jsonFile.name}")
         println("Total frames: $totalFrames, interval: ${intervalMs}ms")
 
-        // This video has narrower motion range (wrist X: 0.45-0.54)
-        // Use adjusted thresholds for this video
-        val adjustedConfig = StrokeDetectorConfig(
-            landmarkIndex = 16,
-            backswingThreshold = 0.465f,    // Wrist goes to ~0.452
-            forwardPeakThreshold = 0.52f,   // Wrist peaks at ~0.54
-            readyPositionThreshold = 0.48f, // Lower ready position for tight motion
-            forwardVelocityThreshold = 0.02f,
-            returnVelocityThreshold = -0.02f,
-            minBackswingDepth = 0.03f,      // Smaller motion
-            minForwardExtension = 0.06f,    // Smaller forward extension
-            minStrokeFrames = 3             // Faster strokes
-        )
-        val adjustedDetector = JsonStrokeDetector(adjustedConfig)
-        val result = adjustedDetector.detectStrokes(frames, intervalMs)
+        // Use default FOREHAND config - this video has good motion range
+        val result = detector.detectStrokes(frames, intervalMs)
 
         println("Detected ${result.strokes.size} strokes:")
         result.strokes.forEachIndexed { index, stroke ->
