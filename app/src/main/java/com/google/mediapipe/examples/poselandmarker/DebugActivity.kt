@@ -79,7 +79,7 @@ class DebugActivity : AppCompatActivity() {
         )
 
         uiController = DebugUIController(this, binding, videoDebugProcessor, feedbackGenerator)
-        playbackManager = DebugPlaybackManager(this, binding, videoDebugProcessor, uiController)
+        playbackManager = DebugPlaybackManager(this, binding, videoDebugProcessor, uiController, feedbackGenerator)
         videoLoader = DebugVideoLoader(this, binding, videoDebugProcessor, uiController, playbackManager)
     }
 
@@ -127,6 +127,22 @@ class DebugActivity : AppCompatActivity() {
         binding.seekBarFrame.setOnSeekBarChangeListener(seekBarListener)
         binding.seekBarFramePortrait.setOnSeekBarChangeListener(seekBarListener)
         binding.btnReset.setOnClickListener { resetAnalysis() }
+        
+        // Audio test button
+        binding.btnTestAudio.setOnClickListener { testAudioFeedback() }
+        binding.btnTestAudioPortrait.setOnClickListener { testAudioFeedback() }
+    }
+
+    private fun testAudioFeedback() {
+        val application = application as TTCoachApplication
+        val feedbackGenerator = FeedbackGenerator(this) // Create local for test or use the one from processor
+        
+        android.util.Log.i(TAG, "Testing Audio Feedback manually...")
+        feedbackGenerator.playTic()
+        
+        binding.root.postDelayed({
+            feedbackGenerator.playTac()
+        }, 500)
     }
 
     private fun toggleViewMode() {

@@ -10,13 +10,16 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
+import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
+import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 
 class DebugPlaybackManager(
     private val activity: AppCompatActivity,
     private val binding: ActivityDebugBinding,
     private val videoDebugProcessor: VideoDebugProcessor,
-    private val uiController: DebugUIController
+    private val uiController: DebugUIController,
+    private val feedbackGenerator: FeedbackGenerator
 ) {
     private var mediaPlayer: MediaPlayer? = null
     private var frameRetriever: MediaMetadataRetriever? = null
@@ -24,6 +27,7 @@ class DebugPlaybackManager(
     private var playbackSpeed = 1.0f
     private var videoDurationMs = 0L
     private var lastSeekPositionMs = 0
+    private var previousPhase: StrokePhase = StrokePhase.READY
 
     companion object {
         private const val TAG = "DebugPlaybackManager"
@@ -67,6 +71,19 @@ class DebugPlaybackManager(
                     val currentPosition = binding.videoView.currentPosition
                     uiController.updateSeekBar(currentPosition)
                     if (currentPosition >= videoDurationMs - 100) pausePlayback()
+                    
+                    // Audio feedback on phase transitions
+                    if (videoDebugProcessor.hasStrokeDetection()) {
+                        val currentPhase = videoDebugProcessor.getStrokePhaseForFrame(resultIndex)
+                        if (currentPhase != previousPhase) {
+                            when (currentPhase) {
+                                StrokePhase.FORWARD_SWING -> feedbackGenerator.playTic()
+                                StrokePhase.CONTACT -> feedbackGenerator.playTac()
+                                else -> { /* no sound */ }
+                            }
+                            previousPhase = currentPhase
+                        }
+                    }
                 }
             }
         )

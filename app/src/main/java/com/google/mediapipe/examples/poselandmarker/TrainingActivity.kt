@@ -115,6 +115,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 startTraining()
             }
         }
+        
+        // Debug Audio Button
+        binding.btnTestAudio.setOnClickListener {
+            if (::poseAnalysisProcessor.isInitialized) {
+                poseAnalysisProcessor.testAudio()
+                uiController.updateFeedbackText("Testing Audio...")
+            }
+        }
 
         // Initial state
         uiController.setupInitialState()
