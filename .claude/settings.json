@@ -1,6 +1,7 @@
 {
   "permissions": {
     "allow": [
+      "Read(//d/**)",
       "Bash(./gradlew assembleDebug:*)",
       "Bash(git *)",
       "Bash(git commit:*)",
@@ -9,9 +10,7 @@
       "Bash(python -c:*)",
       "Bash(python3:*)",
       "Bash(powershell:*)",
-      "Bash(cmd.exe /c \"gradlew.bat assembleDebug --console=plain\")",
-      "Bash(bash -c:*)",
-      "Bash(./gradlew:*)"
-    ]
+      "Bash(cmd.exe /c \"gradlew.bat assembleDebug --console=plain\")" 
+      ]
   }
 }

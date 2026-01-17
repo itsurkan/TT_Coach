@@ -95,6 +95,7 @@ dependencies {
     testImplementation 'org.robolectric:robolectric:4.11.1'
     testImplementation 'androidx.test:core:1.5.0'
     testImplementation 'org.mockito:mockito-core:5.3.1'
+    testImplementation 'org.json:json:20231013'  // JSON library for unit tests
 
     // Instrumented testing
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

@@ -91,46 +91,46 @@ class DebugVideoLoader(
             Log.i(TAG, "Found JSON poses file: ${jsonFile.absolutePath}")
             try {
                 val jsonString = jsonFile.readText()
-                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { resultBundle ->
-                    handleProcessingResult(resultBundle, videoDurationMs, onVideoReady)
+                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
+                    handleProcessingComplete(success, videoDurationMs, onVideoReady)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error reading JSON file, falling back to analysis", e)
                 processVideoNormal(uri, videoDurationMs, onVideoReady)
             }
         } else {
-             processVideoNormal(uri, videoDurationMs, onVideoReady)
+            processVideoNormal(uri, videoDurationMs, onVideoReady)
         }
     }
 
     private fun processVideoNormal(uri: Uri, durationMs: Long, onVideoReady: (Int, Int) -> Unit) {
-         videoDebugProcessor.processVideo(uri) { resultBundle ->
-            handleProcessingResult(resultBundle, durationMs, onVideoReady)
+        videoDebugProcessor.processVideo(uri) { resultBundle ->
+            handleProcessingComplete(resultBundle != null, durationMs, onVideoReady)
         }
     }
-    
-    private fun handleProcessingResult(
-        resultBundle: com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper.ResultBundle?, 
+
+    private fun handleProcessingComplete(
+        success: Boolean,
         durationMs: Long,
         onVideoReady: (Int, Int) -> Unit
     ) {
         (context as? android.app.Activity)?.runOnUiThread {
-            if (resultBundle != null) {
+            if (success) {
                 isVideoReady = true
                 val (width, height) = videoDebugProcessor.getVideoDimensions()
-                
+
                 if (width > 0 && height > 0) {
                     uiController.setVideoDimensions(width, height)
-                    onVideoReady(width, height)
-                } else {
-                     // If dimensions invalid, we might rely on UI controller already having them from onPrepared
-                     // OR warn. But we shouldn't call non-existent getters.
-                     // Just pass what we have; if 0, onVideoReady might need to handle it or we wait for onPrepared to trigger ready?
-                     // Actually onVideoReady callback is to signal "Analysis Ready". 
-                     // Pass 0,0 if unknown.
-                     onVideoReady(width, height)
                 }
-                
+                onVideoReady(width, height)
+
+                // Run stroke detection after poses are loaded
+                val strokeResult = videoDebugProcessor.runStrokeDetection()
+                if (strokeResult != null) {
+                    Log.i(TAG, "Stroke detection: ${strokeResult.strokes.size} strokes found")
+                    uiController.setPhaseColoringEnabled(true)
+                }
+
                 playbackManager.setVideoDuration(durationMs)
                 uiController.hideProgress()
                 uiController.enableLogButton()

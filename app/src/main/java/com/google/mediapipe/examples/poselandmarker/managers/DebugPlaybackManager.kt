@@ -59,9 +59,10 @@ class DebugPlaybackManager(
         videoDebugProcessor.scheduleResultDisplay(
             getVideoPositionMs = { binding.videoView.currentPosition },
             isVideoPlaying = { isPlaying && binding.videoView.isPlaying },
-            onFrameUpdate = { resultIndex, poseResult, analysisResult ->
+            onFrameUpdate = { resultIndex, landmarks, analysisResult ->
                 activity.runOnUiThread {
-                    if (poseResult != null) uiController.updatePoseOverlay(poseResult)
+                    // Use phase-aware overlay update for stroke detection visualization
+                    uiController.updatePoseOverlayWithPhase(resultIndex, landmarks)
                     uiController.updateFrameAnalysisUI(resultIndex, analysisResult)
                     val currentPosition = binding.videoView.currentPosition
                     uiController.updateSeekBar(currentPosition)
@@ -101,9 +102,14 @@ class DebugPlaybackManager(
     }
 
     fun updateDisplayAtPosition(positionMs: Int) {
-        val (poseResult, analysisResult) = videoDebugProcessor.getResultAtPosition(positionMs)
-        if (poseResult != null) uiController.updatePoseOverlay(poseResult) else uiController.clearPoseOverlay()
+        val (landmarks, analysisResult) = videoDebugProcessor.getResultAtPosition(positionMs)
         val resultIndex = (positionMs / VideoDebugProcessor.VIDEO_INTERVAL_MS).toInt()
+        // Use phase-aware overlay update for stroke detection visualization
+        if (landmarks != null) {
+            uiController.updatePoseOverlayWithPhase(resultIndex, landmarks)
+        } else {
+            uiController.clearPoseOverlay()
+        }
         if (analysisResult != null) uiController.updateFrameAnalysisUI(resultIndex, analysisResult)
     }
 

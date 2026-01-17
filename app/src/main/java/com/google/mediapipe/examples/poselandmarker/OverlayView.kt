@@ -22,6 +22,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
@@ -32,8 +34,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
 
     private var results: PoseLandmarkerResult? = null
+    private var rawLandmarks: List<List<NormalizedLandmark>>? = null
     private var pointPaint = Paint()
     private var linePaint = Paint()
+    private var rightArmPaint = Paint()  // Separate paint for right arm highlighting
 
     private var scaleFactor: Float = 1f
     private var imageWidth: Int = 1
@@ -41,14 +45,21 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var offsetX: Float = 0f
     private var offsetY: Float = 0f
 
+    // Stroke phase for color-coding
+    private var currentPhase: StrokePhase = StrokePhase.READY
+    private var phaseColoringEnabled: Boolean = false
+
     init {
         initPaints()
     }
 
     fun clear() {
         results = null
+        rawLandmarks = null
+        currentPhase = StrokePhase.READY
         pointPaint.reset()
         linePaint.reset()
+        rightArmPaint.reset()
         invalidate()
         initPaints()
     }
@@ -62,30 +73,104 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         pointPaint.color = Color.YELLOW
         pointPaint.strokeWidth = LANDMARK_STROKE_WIDTH
         pointPaint.style = Paint.Style.FILL
+
+        rightArmPaint.color = Color.GREEN
+        rightArmPaint.strokeWidth = LANDMARK_STROKE_WIDTH * 1.5f
+        rightArmPaint.style = Paint.Style.STROKE
+    }
+
+    /**
+     * Set the current stroke phase for color-coding
+     */
+    fun setStrokePhase(phase: StrokePhase) {
+        currentPhase = phase
+        if (phaseColoringEnabled) {
+            updatePhaseColors()
+        }
+    }
+
+    /**
+     * Enable/disable phase-based coloring
+     */
+    fun setPhaseColoringEnabled(enabled: Boolean) {
+        phaseColoringEnabled = enabled
+        if (enabled) {
+            updatePhaseColors()
+        } else {
+            initPaints()
+        }
+    }
+
+    /**
+     * Update paint colors based on current stroke phase
+     */
+    private fun updatePhaseColors() {
+        val phaseColor = when (currentPhase) {
+            StrokePhase.READY -> Color.GRAY
+            StrokePhase.BACKSWING -> Color.rgb(33, 150, 243)  // Blue
+            StrokePhase.FORWARD_SWING -> Color.rgb(76, 175, 80)  // Green
+            StrokePhase.CONTACT -> Color.rgb(255, 152, 0)  // Orange
+            StrokePhase.FOLLOW_THROUGH -> Color.rgb(156, 39, 176)  // Purple
+            StrokePhase.RECOVERY -> Color.GRAY
+        }
+
+        // Right arm gets the phase color (playing arm)
+        rightArmPaint.color = phaseColor
+        rightArmPaint.strokeWidth = LANDMARK_STROKE_WIDTH * 1.5f
+
+        // Points also get phase color during active phases
+        if (currentPhase != StrokePhase.READY && currentPhase != StrokePhase.RECOVERY) {
+            pointPaint.color = phaseColor
+        } else {
+            pointPaint.color = Color.YELLOW
+        }
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
-        results?.let { poseLandmarkerResult ->
-            for(landmark in poseLandmarkerResult.landmarks()) {
-                for(normalizedLandmark in landmark) {
-                    canvas.drawPoint(
-                        normalizedLandmark.x() * imageWidth * scaleFactor + offsetX,
-                        normalizedLandmark.y() * imageHeight * scaleFactor + offsetY,
-                        pointPaint
-                    )
-                }
+        // Use rawLandmarks if available, otherwise use results
+        val landmarks = rawLandmarks ?: results?.landmarks() ?: return
 
+        for (landmark in landmarks) {
+            for (normalizedLandmark in landmark) {
+                canvas.drawPoint(
+                    normalizedLandmark.x() * imageWidth * scaleFactor + offsetX,
+                    normalizedLandmark.y() * imageHeight * scaleFactor + offsetY,
+                    pointPaint
+                )
+            }
+
+            if (landmarks.isNotEmpty() && landmarks[0].size >= 33) {
                 PoseLandmarker.POSE_LANDMARKS.forEach {
+                    val startIdx = it!!.start()
+                    val endIdx = it.end()
+
+                    // Use rightArmPaint for right arm connections when phase coloring is enabled
+                    val paint = if (phaseColoringEnabled && isRightArmConnection(startIdx, endIdx)) {
+                        rightArmPaint
+                    } else {
+                        linePaint
+                    }
+
                     canvas.drawLine(
-                        poseLandmarkerResult.landmarks().get(0).get(it!!.start()).x() * imageWidth * scaleFactor + offsetX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.start()).y() * imageHeight * scaleFactor + offsetY,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).x() * imageWidth * scaleFactor + offsetX,
-                        poseLandmarkerResult.landmarks().get(0).get(it.end()).y() * imageHeight * scaleFactor + offsetY,
-                        linePaint)
+                        landmarks[0][startIdx].x() * imageWidth * scaleFactor + offsetX,
+                        landmarks[0][startIdx].y() * imageHeight * scaleFactor + offsetY,
+                        landmarks[0][endIdx].x() * imageWidth * scaleFactor + offsetX,
+                        landmarks[0][endIdx].y() * imageHeight * scaleFactor + offsetY,
+                        paint
+                    )
                 }
             }
         }
+    }
+
+    /**
+     * Check if connection is part of the right arm (playing arm for forehand)
+     * Right arm landmarks: 12 (shoulder), 14 (elbow), 16 (wrist), 18 (pinky), 20 (index), 22 (thumb)
+     */
+    private fun isRightArmConnection(startIdx: Int, endIdx: Int): Boolean {
+        val rightArmLandmarks = setOf(12, 14, 16, 18, 20, 22)
+        return startIdx in rightArmLandmarks && endIdx in rightArmLandmarks
     }
 
     fun setResults(
@@ -95,7 +180,22 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         runningMode: RunningMode = RunningMode.IMAGE
     ) {
         results = poseLandmarkerResults
+        rawLandmarks = null
+        updateScaleAndOffset(imageHeight, imageWidth, runningMode)
+    }
 
+    fun setResults(
+        landmarks: List<List<NormalizedLandmark>>,
+        imageHeight: Int,
+        imageWidth: Int,
+        runningMode: RunningMode = RunningMode.IMAGE
+    ) {
+        results = null
+        rawLandmarks = landmarks
+        updateScaleAndOffset(imageHeight, imageWidth, runningMode)
+    }
+
+    private fun updateScaleAndOffset(imageHeight: Int, imageWidth: Int, runningMode: RunningMode) {
         this.imageHeight = imageHeight
         this.imageWidth = imageWidth
 

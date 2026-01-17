@@ -14,7 +14,11 @@ import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
-import com.google.mediapipe.framework.image.MPImage
+import com.google.mediapipe.examples.poselandmarker.services.JsonStrokeDetector
+import com.google.mediapipe.examples.poselandmarker.services.StrokeDetectorConfig
+import com.google.mediapipe.examples.poselandmarker.services.StrokeDetectionResult
+import com.google.mediapipe.examples.poselandmarker.services.DetectedStroke
+import com.google.mediapipe.examples.poselandmarker.services.JsonPoseFrame
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
@@ -28,6 +32,14 @@ import java.util.concurrent.TimeUnit
  * Processes video files using batch processing (same approach as GalleryFragment)
  * Processes entire video upfront, then syncs results with playback position
  */
+/**
+ * Holds a single frame's pose data (raw landmarks + timestamp)
+ */
+data class PoseFrame(
+    val landmarks: List<NormalizedLandmark>,
+    val timestampMs: Long
+)
+
 class VideoDebugProcessor(
     private val context: Context,
     private val motionAnalyzer: MotionAnalyzer,
@@ -36,17 +48,27 @@ class VideoDebugProcessor(
 ) {
     private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
     private var resultBundle: PoseLandmarkerHelper.ResultBundle? = null
+    private var poseFrames: List<PoseFrame>? = null  // Raw landmarks from JSON
+    private var videoWidth: Int = 0
+    private var videoHeight: Int = 0
     private var analysisResults: MutableList<AnalysisResult> = mutableListOf()
-    private val analyzedFrames = mutableSetOf<Int>()  // Track which frames we've analyzed
+    private val analyzedFrames = mutableSetOf<Int>()
     private var sessionId: String? = null
     private var backgroundExecutor: ScheduledExecutorService? = null
     private var displayTask: ScheduledFuture<*>? = null
 
+    // Stroke detection
+    private var strokeDetector: JsonStrokeDetector? = null
+    private var strokeDetectionResult: StrokeDetectionResult? = null
+
     companion object {
         private const val TAG = "VideoDebugProcessor"
-        const val VIDEO_INTERVAL_MS = 100L  // Interval for pose detection frames (100ms = 10 FPS, better sync)
-        private const val DISPLAY_UPDATE_INTERVAL_MS = 33L  // ~30 FPS for smooth overlay sync
+        const val VIDEO_INTERVAL_MS = 100L
+        private const val DISPLAY_UPDATE_INTERVAL_MS = 33L
     }
+
+    /** Check if data was loaded from JSON (raw landmarks) vs MediaPipe processing */
+    fun isFromJson(): Boolean = poseFrames != null
 
     /**
      * Process entire video upfront using PoseLandmarkerHelper.detectVideoFile()
@@ -107,13 +129,13 @@ class VideoDebugProcessor(
 
     /**
      * Process video from pre-computed JSON poses
-     * Uses reflection to access package-private PoseLandmarkerResult.create()
+     * Stores raw landmarks directly without creating PoseLandmarkerResult objects
      */
     fun processVideoFromJson(
         jsonString: String,
-        videoWidth: Int,
-        videoHeight: Int,
-        onComplete: (PoseLandmarkerHelper.ResultBundle?) -> Unit
+        width: Int,
+        height: Int,
+        onComplete: (Boolean) -> Unit
     ) {
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
 
@@ -123,126 +145,93 @@ class VideoDebugProcessor(
                 val jsonRoot = org.json.JSONObject(jsonString)
                 val framesArray = jsonRoot.getJSONArray("frames")
 
-                val results = mutableListOf<PoseLandmarkerResult>()
-
-                // Get the package-private create method via reflection
-                val createMethod = PoseLandmarkerResult::class.java.getDeclaredMethod(
-                    "create",
-                    List::class.java,  // landmarks
-                    Optional::class.java,  // worldLandmarks
-                    Optional::class.java,  // segmentationMasks
-                    Long::class.javaPrimitiveType  // timestampMs
-                )
-                createMethod.isAccessible = true
+                val frames = mutableListOf<PoseFrame>()
 
                 for (i in 0 until framesArray.length()) {
                     val frameObj = framesArray.getJSONObject(i)
                     val timestampMs = frameObj.getLong("timestampMs")
                     val landmarksArray = frameObj.getJSONArray("landmarks")
 
-                    if (landmarksArray.length() > 0) {
-                        val landmarks = mutableListOf<NormalizedLandmark>()
-
-                        for (j in 0 until landmarksArray.length()) {
-                            val lmObj = landmarksArray.getJSONObject(j)
-                            landmarks.add(
-                                NormalizedLandmark.create(
-                                    lmObj.getDouble("x").toFloat(),
-                                    lmObj.getDouble("y").toFloat(),
-                                    lmObj.getDouble("z").toFloat(),
-                                    Optional.of(lmObj.optDouble("visibility", 0.0).toFloat()),
-                                    Optional.of(lmObj.optDouble("presence", 0.0).toFloat())
-                                )
+                    val landmarks = mutableListOf<NormalizedLandmark>()
+                    for (j in 0 until landmarksArray.length()) {
+                        val lmObj = landmarksArray.getJSONObject(j)
+                        landmarks.add(
+                            NormalizedLandmark.create(
+                                lmObj.getDouble("x").toFloat(),
+                                lmObj.getDouble("y").toFloat(),
+                                lmObj.getDouble("z").toFloat(),
+                                Optional.of(lmObj.optDouble("visibility", 0.0).toFloat()),
+                                Optional.of(lmObj.optDouble("presence", 0.0).toFloat())
                             )
-                        }
-
-                        // Create PoseLandmarkerResult via reflection
-                        val poseLandmarkerResult = createMethod.invoke(
-                            null,
-                            listOf(landmarks),  // List<List<NormalizedLandmark>>
-                            Optional.empty<List<Any>>(),  // worldLandmarks
-                            Optional.empty<List<MPImage>>(),  // segmentationMasks
-                            timestampMs
-                        ) as PoseLandmarkerResult
-                        results.add(poseLandmarkerResult)
-                    } else {
-                        // Empty result
-                        val poseLandmarkerResult = createMethod.invoke(
-                            null,
-                            emptyList<List<NormalizedLandmark>>(),
-                            Optional.empty<List<Any>>(),
-                            Optional.empty<List<MPImage>>(),
-                            timestampMs
-                        ) as PoseLandmarkerResult
-                        results.add(poseLandmarkerResult)
+                        )
                     }
+                    frames.add(PoseFrame(landmarks, timestampMs))
                 }
 
-                // Create ResultBundle
-                val bundle = PoseLandmarkerHelper.ResultBundle(
-                    results,
-                    0, // Inference time unknown
-                    videoHeight,
-                    videoWidth
-                )
+                poseFrames = frames
+                videoWidth = width
+                videoHeight = height
+                resultBundle = null
+                analysisResults = MutableList(frames.size) { AnalysisResult() }
 
-                resultBundle = bundle
-                analysisResults = List(bundle.results.size) { AnalysisResult() }.toMutableList()
-
-                Log.i(TAG, "Loaded ${bundle.results.size} frames from JSON")
-                onComplete(bundle)
+                Log.i(TAG, "Loaded ${frames.size} frames from JSON")
+                onComplete(true)
 
             } catch (e: Exception) {
                 Log.e(TAG, "Error processing JSON", e)
                 fileLogger.logError(e, "processVideoFromJson")
-                onComplete(null)
+                onComplete(false)
             }
         }
     }
 
     /**
-     * Analyze a single frame for stroke technique
-     * Note: File logging is skipped for on-demand analysis to avoid slowdowns
+     * Analyze a single frame for stroke technique (from PoseLandmarkerResult)
      */
-    private fun analyzeFrame(poseResult: PoseLandmarkerResult, frameIndex: Int): AnalysisResult {
+    private fun analyzeFrame(poseResult: PoseLandmarkerResult): AnalysisResult {
         return if (poseResult.landmarks().isNotEmpty()) {
-            motionAnalyzer.analyzeStroke(
-                poseLandmarkerResult = poseResult,
-                phase = StrokePhase.CONTACT
-            )
-            // Skip file logging for on-demand analysis (too slow)
+            motionAnalyzer.analyzeStroke(poseResult.landmarks()[0], StrokePhase.CONTACT)
         } else {
-            AnalysisResult() // Default empty result
+            AnalysisResult()
+        }
+    }
+
+    /**
+     * Analyze a single frame for stroke technique (from raw landmarks)
+     */
+    private fun analyzeFrame(landmarks: List<NormalizedLandmark>): AnalysisResult {
+        return if (landmarks.isNotEmpty()) {
+            motionAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
+        } else {
+            AnalysisResult()
         }
     }
 
     /**
      * Schedule result display synced with video playback
-     * Same approach as GalleryMediaProcessor.scheduleVideoResultDisplay()
+     * Supports both MediaPipe results and raw landmarks from JSON
      */
     fun scheduleResultDisplay(
         getVideoPositionMs: () -> Int,
         isVideoPlaying: () -> Boolean,
-        onFrameUpdate: (Int, PoseLandmarkerResult, AnalysisResult) -> Unit
+        onFrameUpdate: (Int, List<NormalizedLandmark>?, AnalysisResult) -> Unit
     ) {
-        val bundle = resultBundle ?: return
+        val totalFrames = getTotalFrames()
+        if (totalFrames == 0) return
 
         displayTask?.cancel(false)
         displayTask = backgroundExecutor?.scheduleAtFixedRate(
             {
+                if (!isVideoPlaying()) return@scheduleAtFixedRate
+
                 val currentPositionMs = getVideoPositionMs()
-                // Round to nearest frame for better sync
                 val resultIndex = ((currentPositionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
-                    .coerceIn(0, bundle.results.size - 1)
+                    .coerceIn(0, totalFrames - 1)
 
-                if (!isVideoPlaying()) {
-                    return@scheduleAtFixedRate
-                }
-
-                val poseResult = bundle.results[resultIndex]
+                val landmarks = getLandmarksAtIndex(resultIndex)
                 val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
 
-                onFrameUpdate(resultIndex, poseResult, analysisResult)
+                onFrameUpdate(resultIndex, landmarks, analysisResult)
             },
             0,
             DISPLAY_UPDATE_INTERVAL_MS,
@@ -259,42 +248,61 @@ class VideoDebugProcessor(
     }
 
     /**
-     * Get result at specific video position
-     * Uses rounding to find closest frame instead of always rounding down
-     * Analyzes frame on-demand if not yet analyzed
+     * Get landmarks at a specific frame index
      */
-    fun getResultAtPosition(positionMs: Int): Pair<PoseLandmarkerResult?, AnalysisResult?> {
-        val bundle = resultBundle ?: return Pair(null, null)
-        
-        // Round to nearest frame instead of truncating for better sync
-        val resultIndex = ((positionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
-            .coerceIn(0, bundle.results.size - 1)
-
-        val poseResult = bundle.results[resultIndex]
-        
-        // Analyze on-demand if not yet done
-        if (resultIndex !in analyzedFrames && resultIndex < analysisResults.size) {
-            analysisResults[resultIndex] = analyzeFrame(poseResult, resultIndex)
-            analyzedFrames.add(resultIndex)
+    private fun getLandmarksAtIndex(index: Int): List<NormalizedLandmark>? {
+        poseFrames?.let { frames ->
+            return frames.getOrNull(index)?.landmarks
         }
-        
-        val analysisResult = analysisResults.getOrNull(resultIndex)
-
-        return Pair(poseResult, analysisResult)
+        resultBundle?.let { bundle ->
+            val result = bundle.results.getOrNull(index)
+            return if (result != null && result.landmarks().isNotEmpty()) {
+                result.landmarks()[0]
+            } else null
+        }
+        return null
     }
 
     /**
-     * Get video dimensions from result bundle
+     * Get result at specific video position
+     * Returns raw landmarks and analysis result
+     */
+    fun getResultAtPosition(positionMs: Int): Pair<List<NormalizedLandmark>?, AnalysisResult?> {
+        val totalFrames = getTotalFrames()
+        if (totalFrames == 0) return Pair(null, null)
+
+        val resultIndex = ((positionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
+            .coerceIn(0, totalFrames - 1)
+
+        val landmarks = getLandmarksAtIndex(resultIndex)
+
+        // Analyze on-demand if not yet done
+        if (resultIndex !in analyzedFrames && resultIndex < analysisResults.size && landmarks != null) {
+            analysisResults[resultIndex] = analyzeFrame(landmarks)
+            analyzedFrames.add(resultIndex)
+        }
+
+        return Pair(landmarks, analysisResults.getOrNull(resultIndex))
+    }
+
+    /**
+     * Get video dimensions
      */
     fun getVideoDimensions(): Pair<Int, Int> {
-        val bundle = resultBundle ?: return Pair(0, 0)
-        return Pair(bundle.inputImageWidth, bundle.inputImageHeight)
+        if (poseFrames != null) {
+            return Pair(videoWidth, videoHeight)
+        }
+        resultBundle?.let { bundle ->
+            return Pair(bundle.inputImageWidth, bundle.inputImageHeight)
+        }
+        return Pair(0, 0)
     }
 
     /**
      * Get total number of processed frames
      */
     fun getTotalFrames(): Int {
+        poseFrames?.let { return it.size }
         return resultBundle?.results?.size ?: 0
     }
 
@@ -303,12 +311,12 @@ class VideoDebugProcessor(
      * Analyzes all frames if not yet done
      */
     fun getAnalysisSummary(): AnalysisSummary {
-        // Ensure all frames are analyzed for summary
-        val bundle = resultBundle
-        if (bundle != null) {
-            for (i in 0 until bundle.results.size) {
-                if (i !in analyzedFrames && i < analysisResults.size) {
-                    analysisResults[i] = analyzeFrame(bundle.results[i], i)
+        val totalFrames = getTotalFrames()
+        for (i in 0 until totalFrames) {
+            if (i !in analyzedFrames && i < analysisResults.size) {
+                val landmarks = getLandmarksAtIndex(i)
+                if (landmarks != null) {
+                    analysisResults[i] = analyzeFrame(landmarks)
                     analyzedFrames.add(i)
                 }
             }
@@ -326,7 +334,6 @@ class VideoDebugProcessor(
             }
         }
 
-        val totalFrames = analysisResults.size
         val averageScore = if (totalFrames > 0) totalScore / totalFrames else 0.0
 
         return AnalysisSummary(
@@ -340,21 +347,135 @@ class VideoDebugProcessor(
     }
 
     /**
-     * Get all pose results for export
+     * Get all pose results for export (only available for MediaPipe-processed videos)
      */
     fun getAllPoseResults(): List<PoseLandmarkerResult> {
         return resultBundle?.results ?: emptyList()
     }
 
     /**
+     * Get all raw landmarks for export
+     */
+    fun getAllLandmarks(): List<List<NormalizedLandmark>> {
+        poseFrames?.let { frames ->
+            return frames.map { it.landmarks }
+        }
+        resultBundle?.let { bundle ->
+            return bundle.results.mapNotNull { result ->
+                if (result.landmarks().isNotEmpty()) result.landmarks()[0] else null
+            }
+        }
+        return emptyList()
+    }
+
+    // ==================== STROKE DETECTION ====================
+
+    /**
+     * Run stroke detection on loaded pose data
+     * Call this after processVideoFromJson() or processVideo() completes
+     */
+    fun runStrokeDetection(config: StrokeDetectorConfig = StrokeDetectorConfig.FOREHAND): StrokeDetectionResult? {
+        val frames = convertToJsonPoseFrames()
+        if (frames.isEmpty()) {
+            Log.w(TAG, "No frames available for stroke detection")
+            return null
+        }
+
+        strokeDetector = JsonStrokeDetector(config)
+        strokeDetectionResult = strokeDetector?.detectStrokes(frames, VIDEO_INTERVAL_MS)
+
+        strokeDetectionResult?.let { result ->
+            Log.i(TAG, "Stroke detection complete: ${result.strokes.size} strokes detected")
+            result.strokes.forEachIndexed { index, stroke ->
+                Log.d(TAG, "  Stroke ${index + 1}: frames ${stroke.preparationStartFrame}-${stroke.returnEndFrame}, " +
+                        "duration=${stroke.strokeDurationMs}ms")
+            }
+        }
+
+        return strokeDetectionResult
+    }
+
+    /**
+     * Convert loaded pose data to JsonPoseFrame format for stroke detection
+     */
+    private fun convertToJsonPoseFrames(): List<JsonPoseFrame> {
+        poseFrames?.let { frames ->
+            return frames.mapIndexed { index, poseFrame ->
+                JsonStrokeDetector.fromNormalizedLandmarks(
+                    landmarks = poseFrame.landmarks,
+                    frameIndex = index,
+                    timestampMs = poseFrame.timestampMs
+                )
+            }
+        }
+
+        resultBundle?.let { bundle ->
+            return bundle.results.mapIndexedNotNull { index, result ->
+                if (result.landmarks().isNotEmpty()) {
+                    JsonStrokeDetector.fromNormalizedLandmarks(
+                        landmarks = result.landmarks()[0],
+                        frameIndex = index,
+                        timestampMs = index * VIDEO_INTERVAL_MS
+                    )
+                } else null
+            }
+        }
+
+        return emptyList()
+    }
+
+    /**
+     * Get detected strokes
+     */
+    fun getDetectedStrokes(): List<DetectedStroke> {
+        return strokeDetectionResult?.strokes ?: emptyList()
+    }
+
+    /**
+     * Get stroke phase for a specific frame index
+     */
+    fun getStrokePhaseForFrame(frameIndex: Int): StrokePhase {
+        return strokeDetectionResult?.getPhaseForFrame(frameIndex) ?: StrokePhase.READY
+    }
+
+    /**
+     * Get stroke that contains a specific frame
+     */
+    fun getStrokeForFrame(frameIndex: Int): DetectedStroke? {
+        return strokeDetectionResult?.getStrokeForFrame(frameIndex)
+    }
+
+    /**
+     * Get stroke detection result
+     */
+    fun getStrokeDetectionResult(): StrokeDetectionResult? {
+        return strokeDetectionResult
+    }
+
+    /**
+     * Check if stroke detection has been run
+     */
+    fun hasStrokeDetection(): Boolean {
+        return strokeDetectionResult != null
+    }
+
+    // ==================== END STROKE DETECTION ====================
+
+    /**
      * Reset processor state
      */
     fun reset() {
         resultBundle = null
+        poseFrames = null
+        videoWidth = 0
+        videoHeight = 0
         analysisResults = mutableListOf()
         analyzedFrames.clear()
         displayTask?.cancel(false)
         displayTask = null
+        // Reset stroke detection
+        strokeDetector = null
+        strokeDetectionResult = null
     }
 
     /**
