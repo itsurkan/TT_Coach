@@ -249,26 +249,20 @@ class DebugUIController(
     fun setPortraitMode(enabled: Boolean) {
         if (enabled) {
             binding.topBar.visibility = View.GONE
-            binding.controlsPanel.visibility = View.GONE
             binding.portraitTopControls.visibility = View.VISIBLE
             binding.portraitControls.visibility = View.VISIBLE
             binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
             params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-            params.bottomToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
-            params.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
             binding.mainContent.layoutParams = params
         } else {
             binding.topBar.visibility = View.VISIBLE
-            binding.controlsPanel.visibility = View.VISIBLE
             binding.portraitTopControls.visibility = View.GONE
             binding.portraitControls.visibility = View.GONE
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
             params.topToBottom = binding.topBar.id
-            params.bottomToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
-            params.bottomToTop = binding.controlsPanel.id
             binding.mainContent.layoutParams = params
         }
     }

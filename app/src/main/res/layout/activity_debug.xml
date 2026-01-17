@@ -66,7 +66,7 @@
         android:orientation="horizontal"
         android:weightSum="2"
         app:layout_constraintTop_toBottomOf="@id/topBar"
-        app:layout_constraintBottom_toTopOf="@id/controlsPanel">
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <!-- Left Panel: Video Player with Overlay -->
         <FrameLayout
@@ -297,6 +297,130 @@
                     android:text="🔄 Reset Analysis"
                     android:layout_marginTop="8dp" />
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="8dp" />
+
+                <!-- Playback Controls (in analysis panel) -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🎮 Playback Controls"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingBottom="8dp" />
+
+                <!-- Frame Scrubber -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Frame:"
+                        android:textSize="12sp"
+                        android:paddingEnd="8dp" />
+
+                    <SeekBar
+                        android:id="@+id/seekBarFrame"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:max="100" />
+                </LinearLayout>
+
+                <!-- Play/Pause and Step Controls -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="8dp">
+
+                    <Button
+                        android:id="@+id/btnStepBack"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="⏮"
+                        android:textSize="18sp"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnPlayPause"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="2"
+                        android:text="▶ Play"
+                        android:textSize="14sp"
+                        android:layout_marginHorizontal="4dp" />
+
+                    <Button
+                        android:id="@+id/btnStepForward"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_weight="1"
+                        android:text="⏭"
+                        android:textSize="18sp"
+                        android:layout_marginStart="4dp" />
+                </LinearLayout>
+
+                <!-- Speed Controls -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="4dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Speed:"
+                        android:textSize="12sp"
+                        android:paddingEnd="8dp" />
+
+                    <Button
+                        android:id="@+id/btnSpeed025x"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="0.25x"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnSpeed05x"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="0.5x"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnSpeed1x"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="1x"
+                        android:textSize="11sp"
+                        android:layout_marginEnd="4dp" />
+
+                    <Button
+                        android:id="@+id/btnSpeed2x"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:text="2x"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
                 <!-- Portrait Mode Controls (hidden by default) -->
                 <LinearLayout
                     android:id="@+id/portraitControls"
@@ -492,124 +616,6 @@
 
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
-
-    <!-- Bottom Controls Panel -->
-    <LinearLayout
-        android:id="@+id/controlsPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:background="#EEEEEE"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <!-- Frame Scrubber -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Frame:"
-                android:textSize="12sp"
-                android:paddingEnd="8dp" />
-
-            <SeekBar
-                android:id="@+id/seekBarFrame"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:max="100" />
-        </LinearLayout>
-
-        <!-- Playback Controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="8dp">
-
-            <Button
-                android:id="@+id/btnStepBack"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="⏮"
-                android:textSize="18sp"
-                android:minWidth="60dp" />
-
-            <Button
-                android:id="@+id/btnPlayPause"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="▶ Play"
-                android:textSize="14sp"
-                android:minWidth="100dp"
-                android:layout_marginHorizontal="8dp" />
-
-            <Button
-                android:id="@+id/btnStepForward"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="⏭"
-                android:textSize="18sp"
-                android:minWidth="60dp" />
-        </LinearLayout>
-
-        <!-- Speed Controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Speed:"
-                android:textSize="12sp"
-                android:paddingEnd="8dp" />
-
-            <Button
-                android:id="@+id/btnSpeed025x"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="0.25x"
-                android:textSize="11sp"
-                android:layout_marginEnd="4dp" />
-
-            <Button
-                android:id="@+id/btnSpeed05x"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="0.5x"
-                android:textSize="11sp"
-                android:layout_marginEnd="4dp" />
-
-            <Button
-                android:id="@+id/btnSpeed1x"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="1x"
-                android:textSize="11sp"
-                android:layout_marginEnd="4dp" />
-
-            <Button
-                android:id="@+id/btnSpeed2x"
-                android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_weight="1"
-                android:text="2x"
-                android:textSize="11sp" />
-        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
