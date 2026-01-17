@@ -57,11 +57,7 @@ class JsonStrokeDetectorTest {
 
         // Verify results
         assertNotNull("Detection result should not be null", result)
-        // Accept 4-5 strokes since the last stroke may not complete before video ends
-        assertTrue(
-            "Should detect 4-5 strokes, but found ${result.strokes.size}",
-            result.strokes.size in 4..5
-        )
+        assertEquals("Should detect exactly 5 strokes", 5, result.strokes.size)
     }
 
     @Test

@@ -24,9 +24,9 @@ enum class TrackingAxis {
 data class StrokeDetectorConfig(
     val landmarkIndex: Int = 16,              // Right wrist (16) or Left wrist (15)
     val trackingAxis: TrackingAxis = TrackingAxis.X,
-    val backswingThreshold: Float = 0.42f,    // Below = backswing detected
+    val backswingThreshold: Float = 0.45f,    // Below = backswing detected
     val forwardPeakThreshold: Float = 0.60f,  // Above = peak reached
-    val readyPositionThreshold: Float = 0.50f, // Neutral position
+    val readyPositionThreshold: Float = 0.52f, // Neutral position
     val forwardVelocityThreshold: Float = 0.08f, // Per-frame velocity to detect forward
     val returnVelocityThreshold: Float = -0.05f, // Negative velocity for return
     val minBackswingDepth: Float = 0.08f,     // Minimum movement back
@@ -401,11 +401,14 @@ class JsonStrokeDetector(
             builder.forwardEndFrame = frameIndex
         }
 
-        // Detect peak reached (velocity slowing, high position)
-        if (value > config.forwardPeakThreshold && velocity < builder.peakVelocity * 0.5f) {
+        // Detect peak reached - EITHER high position with slowing velocity OR position starting to drop
+        val reachedHighPosition = value > config.forwardPeakThreshold && velocity < builder.peakVelocity * 0.5f
+        val positionDropping = value < builder.maxForwardValue - 0.03f && builder.maxForwardValue > builder.minBackswingValue + 0.10f
+        
+        if (reachedHighPosition || positionDropping) {
             currentState = DetectionState.PEAK
             recordPhase(frameIndex, StrokePhase.CONTACT, builder.strokeIndex)
-            Log.d(TAG, "Frame $frameIndex: FORWARD -> PEAK (value=$value, peakVelocity=${builder.peakVelocity})")
+            Log.d(TAG, "Frame $frameIndex: FORWARD -> PEAK (value=$value, max=${builder.maxForwardValue}, positionDropping=$positionDropping)")
         } else {
             recordPhase(frameIndex, StrokePhase.FORWARD_SWING, builder.strokeIndex)
         }
@@ -420,12 +423,15 @@ class JsonStrokeDetector(
     private fun handlePeak(frameIndex: Int, value: Float, velocity: Float, timestamp: Long) {
         val builder = currentStrokeData ?: return
 
-        // Detect return motion starting
-        if (velocity < config.returnVelocityThreshold) {
+        // Detect return motion starting - either by velocity OR by position drop from peak
+        val velocityIndicatesReturn = velocity < config.returnVelocityThreshold
+        val positionDroppedFromPeak = value < builder.maxForwardValue - 0.05f
+        
+        if (velocityIndicatesReturn || positionDroppedFromPeak) {
             builder.returnStartFrame = frameIndex
             currentState = DetectionState.RETURNING
             recordPhase(frameIndex, StrokePhase.FOLLOW_THROUGH, builder.strokeIndex)
-            Log.d(TAG, "Frame $frameIndex: PEAK -> RETURNING (velocity=$velocity)")
+            Log.d(TAG, "Frame $frameIndex: PEAK -> RETURNING (velocity=$velocity, positionDrop=$positionDroppedFromPeak)")
         } else {
             // Still at peak / follow through
             recordPhase(frameIndex, StrokePhase.CONTACT, builder.strokeIndex)
