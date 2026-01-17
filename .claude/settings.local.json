@@ -11,7 +11,13 @@
       "Bash(powershell:*)",
       "Bash(cmd.exe /c \"gradlew.bat assembleDebug --console=plain\")",
       "Bash(bash -c:*)",
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(adb shell:*)",
+      "Bash(where:*)",
+      "Bash(\"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe\" shell:*)",
+      "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\" shell \"ls -la /sdcard/Android/data/com.google.mediapipe.examples.poselandmarker/files/\")",
+      "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\" pull \"/sdcard/Android/data/com.google.mediapipe.examples.poselandmarker/files/poses_2026-01-17_19-37-40.json\" \"d:/Desktop/TT_Coach_AI/app/src/main/res/raw/\")",
+      "Bash(cmd.exe:*)"
     ]
   }
 }
