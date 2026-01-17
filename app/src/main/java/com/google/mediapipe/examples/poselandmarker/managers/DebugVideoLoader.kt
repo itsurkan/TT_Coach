@@ -85,22 +85,51 @@ class DebugVideoLoader(
             Log.i(TAG, "Video prepared: ${videoWidth}x${videoHeight}, duration: ${videoDurationMs}ms")
         }
 
-        // Check for sidecar JSON file
-        val jsonFile = getJsonFileForUri(uri)
-        if (jsonFile != null && jsonFile.exists()) {
-            Log.i(TAG, "Found JSON poses file: ${jsonFile.absolutePath}")
-            try {
-                val jsonString = jsonFile.readText()
-                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
-                    handleProcessingComplete(success, videoDurationMs, onVideoReady)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading JSON file, falling back to analysis", e)
-                processVideoNormal(uri, videoDurationMs, onVideoReady)
+        // Check for sidecar JSON - first try raw resource, then external file
+        val jsonString = getJsonForUri(uri)
+        if (jsonString != null) {
+            Log.i(TAG, "Found JSON poses data, skipping video analysis")
+            videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
+                handleProcessingComplete(success, videoDurationMs, onVideoReady)
             }
         } else {
+            Log.i(TAG, "No JSON poses found, analyzing video...")
             processVideoNormal(uri, videoDurationMs, onVideoReady)
         }
+    }
+
+    private fun getJsonForUri(uri: Uri): String? {
+        // For raw resources, check if there's a corresponding _poses raw resource
+        if (uri.scheme == android.content.ContentResolver.SCHEME_ANDROID_RESOURCE) {
+            try {
+                val id = uri.lastPathSegment?.toIntOrNull()
+                if (id != null) {
+                    val videoName = context.resources.getResourceEntryName(id)
+                    val posesResourceName = "${videoName}_poses"
+                    val posesResId = context.resources.getIdentifier(
+                        posesResourceName, "raw", context.packageName
+                    )
+                    if (posesResId != 0) {
+                        Log.i(TAG, "Found raw resource: $posesResourceName")
+                        return context.resources.openRawResource(posesResId)
+                            .bufferedReader().use { it.readText() }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading raw JSON resource", e)
+            }
+        }
+
+        // Fallback to external file
+        val jsonFile = getJsonFileForUri(uri)
+        if (jsonFile != null && jsonFile.exists()) {
+            try {
+                return jsonFile.readText()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error reading JSON file", e)
+            }
+        }
+        return null
     }
 
     private fun processVideoNormal(uri: Uri, durationMs: Long, onVideoReady: (Int, Int) -> Unit) {
