@@ -220,6 +220,9 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     override fun onDestroy() {
         super.onDestroy()
         videoPlayerManager?.release()
+        if (::poseAnalysisProcessor.isInitialized) {
+            poseAnalysisProcessor.release()
+        }
     }
     
     // PoseLandmarkerHelper.LandmarkerListener implementation

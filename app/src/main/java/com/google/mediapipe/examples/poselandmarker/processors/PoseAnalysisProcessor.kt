@@ -77,6 +77,13 @@ class PoseAnalysisProcessor(
         currentSessionId = null
         frameCounter = 0
     }
+
+    /**
+     * Release resources
+     */
+    fun release() {
+        feedbackGenerator.release()
+    }
     
     /**
      * Process pose detection results from MediaPipe
@@ -320,6 +327,13 @@ class PoseAnalysisProcessor(
         // Log phase transitions
         if (newPhase != currentPhase) {
             Log.d(TAG, "Phase transition: $currentPhase -> $newPhase (velocity: $avgVelocity)")
+            
+            // Audio feedback for rhythm
+            if (newPhase == StrokePhase.FORWARD_SWING) {
+                feedbackGenerator.playTic()
+            } else if (newPhase == StrokePhase.CONTACT) {
+                feedbackGenerator.playTac()
+            }
         }
         
         currentPhase = newPhase
