@@ -8,12 +8,14 @@ package com.google.mediapipe.examples.poselandmarker.managers
 import android.content.Context
 import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
 
 class TrainingStateManager(private val context: Context) {
     var isTrainingActive = false
         private set
     
     private val feedbackHistory = mutableListOf<String>()
+    private val feedbackItemsHistory = mutableListOf<List<FeedbackItem>>()
     private val analysisResults = mutableListOf<AnalysisResult>()
     var consecutiveGoodStrokes = 0
         private set
@@ -34,6 +36,17 @@ class TrainingStateManager(private val context: Context) {
     }
     
     fun getFeedbackHistory(): List<String> = feedbackHistory.toList()
+    
+    fun addFeedbackItems(items: List<FeedbackItem>) {
+        feedbackItemsHistory.add(items)
+        if (feedbackItemsHistory.size > 10) {
+            feedbackItemsHistory.removeAt(0)
+        }
+    }
+    
+    fun getLatestFeedbackItems(): List<FeedbackItem> {
+        return feedbackItemsHistory.lastOrNull() ?: emptyList()
+    }
     
     fun addAnalysisResult(result: AnalysisResult) {
         analysisResults.add(result)

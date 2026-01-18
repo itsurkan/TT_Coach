@@ -6,7 +6,9 @@
 package com.google.mediapipe.examples.poselandmarker.services
 
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
+import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.models.TechniqueErrors
 import com.google.mediapipe.examples.poselandmarker.models.TechniqueRecommendations
@@ -36,6 +38,17 @@ class MotionAnalyzer(
     }
 
     /**
+     * Дані з виміряними параметрами удару
+     */
+    private data class StrokeMetrics(
+        val wristAngle: Float?,
+        val bodyRotation: Float?,
+        val followThroughAngle: Float?,
+        val contactHeight: Float?,
+        val elbowBodyDistance: Float?
+    )
+
+    /**
      * Аналізувати техніку удару на основі raw landmarks
      */
     fun analyzeStroke(
@@ -47,78 +60,121 @@ class MotionAnalyzer(
                 errors = listOf("Не вдалося виявити позу - перевірте освітлення та позицію камери")
             )
         }
-        
-        // Розрахунок кутів та параметрів
-        val wristAngle = calculateWristAngle(landmarks)
-        val bodyRotation = calculateBodyRotation(landmarks)
-        val followThroughAngle = calculateFollowThroughAngle(landmarks)
-        val contactHeight = calculateContactHeight(landmarks)
-        val elbowBodyDistance = calculateElbowBodyDistance(landmarks)
-        
-        // Перевірка валідності кожного параметру
-        val isWristValid = wristAngle?.let { parameters.isWristAngleValid(it) } ?: false
-        val isRotationValid = bodyRotation?.let { parameters.isBodyRotationValid(it) } ?: false
-        val isFollowThroughValid = followThroughAngle?.let { parameters.isFollowThroughValid(it) } ?: false
-        val isHeightValid = contactHeight?.let { parameters.isContactHeightValid(it) } ?: false
-        val isElbowValid = elbowBodyDistance?.let { parameters.isElbowPositionValid(it) } ?: false
-        
-        // Збір помилок та рекомендацій
-        val errors = mutableListOf<String>()
-        val recommendations = mutableListOf<String>()
-        
-        if (!isWristValid) {
-            errors.add(TechniqueErrors.WRIST_BENT)
-            recommendations.add(TechniqueRecommendations.STRAIGHTEN_WRIST)
+
+        // 1. Calculate metrics
+        val metrics = extractMetrics(landmarks)
+
+        // 2. Validate metrics and generate feedback items
+        val validations = performValidations(metrics)
+        val feedbackItems = validations.filter { !it.isValid }.map { it.feedback }
+        val errors = feedbackItems.map { it.message }
+        val recommendations = validations.filter { !it.isValid }.map { it.recommendation }
+
+        // 3. Calculate score
+        val validCount = validations.count { it.isValid }
+        val totalChecks = validations.size
+        val overallScore = if (totalChecks > 0) (validCount.toFloat() / totalChecks) * 100f else 0f
+
+        // 4. Add positive feedback if score is high
+        val finalFeedbackItems = feedbackItems.toMutableList()
+        if (overallScore >= 90f) {
+            finalFeedbackItems.add(FeedbackItem("Чудова техніка!", CorrectionType.GENERAL, true))
         }
-        
-        if (!isRotationValid) {
-            errors.add(TechniqueErrors.LOW_ROTATION)
-            recommendations.add(TechniqueRecommendations.ROTATE_MORE)
-        }
-        
-        if (!isFollowThroughValid) {
-            errors.add(TechniqueErrors.NO_FOLLOW_THROUGH)
-            recommendations.add(TechniqueRecommendations.COMPLETE_FOLLOW_THROUGH)
-        }
-        
-        if (!isHeightValid) {
-            contactHeight?.let {
-                if (it > parameters.contactHeightMax) {
-                    errors.add(TechniqueErrors.HIGH_CONTACT)
-                } else {
-                    errors.add(TechniqueErrors.LOW_CONTACT)
-                }
-            }
-            recommendations.add(TechniqueRecommendations.ADJUST_CONTACT_HEIGHT)
-        }
-        
-        if (!isElbowValid) {
-            errors.add(TechniqueErrors.ELBOW_FAR)
-            recommendations.add(TechniqueRecommendations.KEEP_ELBOW_CLOSE)
-        }
-        
-        // Розрахунок загального скору
-        val validCount = listOf(
-            isWristValid, isRotationValid, isFollowThroughValid, 
-            isHeightValid, isElbowValid
-        ).count { it }
-        val overallScore = (validCount.toFloat() / 5f) * 100f
-        
+
         return AnalysisResult(
-            wristAngle = wristAngle,
-            bodyRotation = bodyRotation,
-            followThroughAngle = followThroughAngle,
-            contactHeight = contactHeight,
-            elbowBodyDistance = elbowBodyDistance,
-            isWristAngleValid = isWristValid,
-            isBodyRotationValid = isRotationValid,
-            isFollowThroughValid = isFollowThroughValid,
-            isContactHeightValid = isHeightValid,
-            isElbowPositionValid = isElbowValid,
+            wristAngle = metrics.wristAngle,
+            bodyRotation = metrics.bodyRotation,
+            followThroughAngle = metrics.followThroughAngle,
+            contactHeight = metrics.contactHeight,
+            elbowBodyDistance = metrics.elbowBodyDistance,
+            isWristAngleValid = validations.find { it.type == CorrectionType.WRIST }?.isValid ?: false,
+            isBodyRotationValid = validations.find { it.type == CorrectionType.BODY_ROTATION }?.isValid ?: false,
+            isFollowThroughValid = validations.find { it.type == CorrectionType.FOLLOW_THROUGH }?.isValid ?: false,
+            isContactHeightValid = validations.find { it.type == CorrectionType.CONTACT_HEIGHT }?.isValid ?: false,
+            isElbowPositionValid = validations.find { it.type == CorrectionType.ELBOW_POSITION }?.isValid ?: false,
             overallScore = overallScore,
             phase = phase,
             errors = errors,
-            recommendations = recommendations
+            recommendations = recommendations,
+            feedbackItems = finalFeedbackItems
+        )
+    }
+
+    private fun extractMetrics(landmarks: List<NormalizedLandmark>): StrokeMetrics {
+        return StrokeMetrics(
+            wristAngle = calculateWristAngle(landmarks),
+            bodyRotation = calculateBodyRotation(landmarks),
+            followThroughAngle = calculateFollowThroughAngle(landmarks),
+            contactHeight = calculateContactHeight(landmarks),
+            elbowBodyDistance = calculateElbowBodyDistance(landmarks)
+        )
+    }
+
+    private data class ValidationResult(
+        val type: CorrectionType,
+        val isValid: Boolean,
+        val feedback: FeedbackItem,
+        val recommendation: String
+    )
+
+    private fun performValidations(metrics: StrokeMetrics): List<ValidationResult> {
+        return listOfNotNull(
+            validateWrist(metrics.wristAngle),
+            validateRotation(metrics.bodyRotation),
+            validateFollowThrough(metrics.followThroughAngle),
+            validateHeight(metrics.contactHeight),
+            validateElbow(metrics.elbowBodyDistance)
+        )
+    }
+
+    private fun validateWrist(angle: Float?): ValidationResult? = angle?.let {
+        val isValid = parameters.isWristAngleValid(it)
+        ValidationResult(
+            CorrectionType.WRIST,
+            isValid,
+            FeedbackItem(TechniqueErrors.WRIST_BENT, CorrectionType.WRIST),
+            TechniqueRecommendations.STRAIGHTEN_WRIST
+        )
+    }
+
+    private fun validateRotation(rotation: Float?): ValidationResult? = rotation?.let {
+        val isValid = parameters.isBodyRotationValid(it)
+        ValidationResult(
+            CorrectionType.BODY_ROTATION,
+            isValid,
+            FeedbackItem(TechniqueErrors.LOW_ROTATION, CorrectionType.BODY_ROTATION),
+            TechniqueRecommendations.ROTATE_MORE
+        )
+    }
+
+    private fun validateFollowThrough(angle: Float?): ValidationResult? = angle?.let {
+        val isValid = parameters.isFollowThroughValid(it)
+        ValidationResult(
+            CorrectionType.FOLLOW_THROUGH,
+            isValid,
+            FeedbackItem(TechniqueErrors.NO_FOLLOW_THROUGH, CorrectionType.FOLLOW_THROUGH),
+            TechniqueRecommendations.COMPLETE_FOLLOW_THROUGH
+        )
+    }
+
+    private fun validateHeight(height: Float?): ValidationResult? = height?.let {
+        val isValid = parameters.isContactHeightValid(it)
+        val errorMsg = if (it > parameters.contactHeightMax) TechniqueErrors.HIGH_CONTACT else TechniqueErrors.LOW_CONTACT
+        ValidationResult(
+            CorrectionType.CONTACT_HEIGHT,
+            isValid,
+            FeedbackItem(errorMsg, CorrectionType.CONTACT_HEIGHT),
+            TechniqueRecommendations.ADJUST_CONTACT_HEIGHT
+        )
+    }
+
+    private fun validateElbow(distance: Float?): ValidationResult? = distance?.let {
+        val isValid = parameters.isElbowPositionValid(it)
+        ValidationResult(
+            CorrectionType.ELBOW_POSITION,
+            isValid,
+            FeedbackItem(TechniqueErrors.ELBOW_FAR, CorrectionType.ELBOW_POSITION),
+            TechniqueRecommendations.KEEP_ELBOW_CLOSE
         )
     }
 

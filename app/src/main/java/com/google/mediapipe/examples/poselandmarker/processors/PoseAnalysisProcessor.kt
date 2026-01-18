@@ -36,6 +36,7 @@ class PoseAnalysisProcessor(
     private var wristVelocity: Float = 0f
     private var phaseFrameCounter: Int = 0
     private val velocityHistory = ArrayDeque<Float>(5)
+    private val currentStrokeResults = mutableListOf<AnalysisResult>()
     
     companion object {
         private const val TAG = "PoseAnalysisProcessor"
@@ -119,6 +120,7 @@ class PoseAnalysisProcessor(
         
         try {
             // Detect stroke phase based on wrist movement
+            val previousPhase = currentPhase
             val detectedPhase = detectStrokePhase(poseLandmarkerResult)
             
             // Analyze stroke technique using MotionAnalyzer
@@ -129,20 +131,50 @@ class PoseAnalysisProcessor(
             
             val inferenceTime = System.currentTimeMillis() - startTime
             
-            // Generate feedback based on analysis
-            val feedback = if (analysisResult.isSuccessful()) {
-                feedbackGenerator.generateShortFeedback(analysisResult)
-            } else {
-                feedbackGenerator.generateDetailedFeedback(analysisResult)
+            // Update state (real-time stats if needed, but we might want to move this to finalizeStroke)
+            // For now, let's keep adding results to stateManager for real-time graphs if they exist
+            // stateManager.addAnalysisResult(analysisResult)
+            
+            // Collect results during active stroke phases
+            if (detectedPhase != StrokePhase.READY) {
+                currentStrokeResults.add(analysisResult)
             }
             
-            // Update state and UI
-            stateManager.addAnalysisResult(analysisResult)
-            stateManager.addFeedback(feedback)
-            uiController.updateFeedbackText(feedback)
-            uiController.updateStats()
+            // Check for stroke completion: transition to READY
+            if (previousPhase != StrokePhase.READY && detectedPhase == StrokePhase.READY) {
+                if (currentStrokeResults.isNotEmpty()) {
+                    // Find the best representative result for the stroke
+                    // Prefer CONTACT phase result, or highest score if multiple/none
+                    val strokeFeedbackResult = currentStrokeResults
+                        .filter { it.phase == StrokePhase.CONTACT }
+                        .maxByOrNull { it.overallScore }
+                        ?: currentStrokeResults.maxByOrNull { it.overallScore }
+                        ?: analysisResult
+
+                    // Update state and UI with the finalized stroke result
+                    stateManager.addAnalysisResult(strokeFeedbackResult)
+                    
+                    // Generate feedback in the new format (array of items)
+                    val feedbackItems = strokeFeedbackResult.feedbackItems
+                    
+                    // Also keep the old string format for backward compatibility if needed
+                    val feedbackText = if (strokeFeedbackResult.isSuccessful()) {
+                        feedbackGenerator.generateShortFeedback(strokeFeedbackResult)
+                    } else {
+                        feedbackGenerator.generateDetailedFeedback(strokeFeedbackResult)
+                    }
+                    
+                    stateManager.addFeedback(feedbackText)
+                    stateManager.addFeedbackItems(feedbackItems)
+                    uiController.updateFeedbackText(feedbackText)
+                    uiController.updateStats()
+                    
+                    // Clear for next stroke
+                    currentStrokeResults.clear()
+                }
+            }
             
-            // Trigger UI update callback
+            // Trigger UI update callback (for animations/overlays)
             onUIUpdate()
             
             // Log stroke analysis asynchronously (zero latency impact)

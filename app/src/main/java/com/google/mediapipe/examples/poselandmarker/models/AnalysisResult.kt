@@ -6,6 +6,28 @@
 package com.google.mediapipe.examples.poselandmarker.models
 
 /**
+ * Типи корекції для фідбеку
+ */
+enum class CorrectionType {
+    WRIST,
+    BODY_ROTATION,
+    FOLLOW_THROUGH,
+    CONTACT_HEIGHT,
+    ELBOW_POSITION,
+    STROKE_SPEED,
+    GENERAL
+}
+
+/**
+ * Елемент фідбеку з типом корекції
+ */
+data class FeedbackItem(
+    val message: String,
+    val type: CorrectionType,
+    val isPositive: Boolean = false
+)
+
+/**
  * Результат аналізу техніки удару
  */
 data class AnalysisResult(
@@ -35,7 +57,8 @@ data class AnalysisResult(
     
     // Помилки та рекомендації
     val errors: List<String> = emptyList(),
-    val recommendations: List<String> = emptyList()
+    val recommendations: List<String> = emptyList(),
+    val feedbackItems: List<FeedbackItem> = emptyList()
 ) {
     /**
      * Чи успішний удар (всі параметри валідні)
