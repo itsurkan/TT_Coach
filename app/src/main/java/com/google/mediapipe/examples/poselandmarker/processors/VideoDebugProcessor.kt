@@ -207,12 +207,14 @@ class VideoDebugProcessor(
     /**
      * Analyze a single frame for stroke technique (from raw landmarks)
      */
-    private fun analyzeFrame(landmarks: List<NormalizedLandmark>): AnalysisResult {
-        return if (landmarks.isNotEmpty()) {
-            motionAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
-        } else {
-            AnalysisResult()
-        }
+    private fun analyzeFrame(index: Int, landmarks: List<NormalizedLandmark>) {
+        if (analyzedFrames.contains(index)) return
+        
+        // Use pre-processed phase if available, otherwise default to CONTACT
+        val phase = strokeDetectionResult?.getPhaseForFrame(index) ?: StrokePhase.CONTACT
+        val result = motionAnalyzer.analyzeStroke(landmarks, phase)
+        analysisResults[index] = result
+        analyzedFrames.add(index)
     }
 
     /**
@@ -291,7 +293,10 @@ class VideoDebugProcessor(
                         audioPlayedForCurrentStroke = false
                     }
                     
-                    // 4. Tac sound at contact (rhythm)
+                    // 4. Rhythm sounds (Tic/Tac)
+                    if (currentPhase == StrokePhase.FORWARD_SWING && lastPhase != StrokePhase.FORWARD_SWING) {
+                        feedbackGenerator.playTic()
+                    }
                     if (currentPhase == StrokePhase.CONTACT && lastPhase != StrokePhase.CONTACT) {
                         feedbackGenerator.playTac()
                     }

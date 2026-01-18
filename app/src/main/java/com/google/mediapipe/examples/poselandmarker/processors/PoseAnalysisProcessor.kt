@@ -124,8 +124,9 @@ class PoseAnalysisProcessor(
         
         try {
             // Detect stroke phase based on wrist movement
-            val previousPhase = currentPhase
-            val detectionResult = detectStrokePhase(poseLandmarkerResult)
+            // Detect phase and run analyze
+            val previousPhase = currentPhase // Capture before detection update
+            val detectionResult = detectStrokePhase(avgVelocity)
             val detectedPhase = detectionResult.phase
             
             // Analyze stroke technique using MotionAnalyzer
