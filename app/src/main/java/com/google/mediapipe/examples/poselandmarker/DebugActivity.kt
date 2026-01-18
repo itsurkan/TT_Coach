@@ -124,6 +124,10 @@ class DebugActivity : AppCompatActivity() {
         binding.btnReset.setOnClickListener { resetAnalysis() }
         
         // Collapsible panels
+        setupCollapsiblePanel(binding.headerCurrentFrame, binding.contentCurrentFrame)
+        setupCollapsiblePanel(binding.headerFeedback, binding.contentFeedback)
+        setupCollapsiblePanel(binding.headerSessionSummary, binding.contentSessionSummary)
+        setupCollapsiblePanel(binding.headerPlayback, binding.contentPlayback)
         setupCollapsiblePanel(binding.headerTechnical, binding.contentTechnical)
         setupCollapsiblePanel(binding.headerFeedbackSettings, binding.contentFeedbackSettings)
         
