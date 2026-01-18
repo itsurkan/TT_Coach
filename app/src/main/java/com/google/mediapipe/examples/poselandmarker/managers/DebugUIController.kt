@@ -191,7 +191,6 @@ class DebugUIController(
     fun updatePlaybackButton(isPlaying: Boolean) {
         val text = if (isPlaying) "⏸ Pause" else "▶ Play"
         binding.btnPlayPause.text = text
-        binding.btnPlayPausePortrait.text = text
     }
 
     fun updateSpeedButtons(speed: Float) {
@@ -199,20 +198,14 @@ class DebugUIController(
         binding.btnSpeed05x.isSelected = (speed == 0.5f)
         binding.btnSpeed1x.isSelected = (speed == 1.0f)
         binding.btnSpeed2x.isSelected = (speed == 2.0f)
-        binding.btnSpeed025xPortrait.isSelected = (speed == 0.25f)
-        binding.btnSpeed05xPortrait.isSelected = (speed == 0.5f)
-        binding.btnSpeed1xPortrait.isSelected = (speed == 1.0f)
-        binding.btnSpeed2xPortrait.isSelected = (speed == 2.0f)
     }
 
     fun updateSeekBar(positionMs: Int) {
         binding.seekBarFrame.progress = positionMs
-        binding.seekBarFramePortrait.progress = positionMs
     }
 
     fun setupSeekBar(maxMs: Int) {
         binding.seekBarFrame.max = maxMs
-        binding.seekBarFramePortrait.max = maxMs
     }
 
     fun showProgress() {
@@ -250,7 +243,6 @@ class DebugUIController(
         if (enabled) {
             binding.topBar.visibility = View.GONE
             binding.portraitTopControls.visibility = View.VISIBLE
-            binding.portraitControls.visibility = View.VISIBLE
             binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
@@ -259,7 +251,6 @@ class DebugUIController(
         } else {
             binding.topBar.visibility = View.VISIBLE
             binding.portraitTopControls.visibility = View.GONE
-            binding.portraitControls.visibility = View.GONE
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
             params.topToBottom = binding.topBar.id

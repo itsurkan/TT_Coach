@@ -96,25 +96,16 @@ class DebugActivity : AppCompatActivity() {
 
         // Playback controls
         binding.btnPlayPause.setOnClickListener { playbackManager.togglePlayPause() }
-        binding.btnPlayPausePortrait.setOnClickListener { playbackManager.togglePlayPause() }
         binding.btnStepBack.setOnClickListener { playbackManager.stepPosition(-300) }
         binding.btnStepForward.setOnClickListener { playbackManager.stepPosition(300) }
-        binding.btnStepBackPortrait.setOnClickListener { playbackManager.stepPosition(-300) }
-        binding.btnStepForwardPortrait.setOnClickListener { playbackManager.stepPosition(300) }
 
-        // Speed control - landscape
+        // Speed control
         binding.btnSpeed025x.setOnClickListener { playbackManager.setPlaybackSpeed(0.25f) }
         binding.btnSpeed05x.setOnClickListener { playbackManager.setPlaybackSpeed(0.5f) }
         binding.btnSpeed1x.setOnClickListener { playbackManager.setPlaybackSpeed(1.0f) }
         binding.btnSpeed2x.setOnClickListener { playbackManager.setPlaybackSpeed(2.0f) }
 
-        // Speed control - portrait
-        binding.btnSpeed025xPortrait.setOnClickListener { playbackManager.setPlaybackSpeed(0.25f) }
-        binding.btnSpeed05xPortrait.setOnClickListener { playbackManager.setPlaybackSpeed(0.5f) }
-        binding.btnSpeed1xPortrait.setOnClickListener { playbackManager.setPlaybackSpeed(1.0f) }
-        binding.btnSpeed2xPortrait.setOnClickListener { playbackManager.setPlaybackSpeed(2.0f) }
-
-        // Seek bar - both modes
+        // Seek bar
         val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) playbackManager.seekToPosition(progress)
@@ -125,7 +116,6 @@ class DebugActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         }
         binding.seekBarFrame.setOnSeekBarChangeListener(seekBarListener)
-        binding.seekBarFramePortrait.setOnSeekBarChangeListener(seekBarListener)
         binding.btnReset.setOnClickListener { resetAnalysis() }
         
         // Audio test button
