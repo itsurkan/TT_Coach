@@ -36,7 +36,9 @@ class PoseAnalysisProcessor(
     private var wristVelocity: Float = 0f
     private var phaseFrameCounter: Int = 0
     private val velocityHistory = ArrayDeque<Float>(5)
+    private val velocityHistory = ArrayDeque<Float>(5)
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
+    private var audioPlayedForCurrentStroke = false
     
     companion object {
         private const val TAG = "PoseAnalysisProcessor"
@@ -121,7 +123,8 @@ class PoseAnalysisProcessor(
         try {
             // Detect stroke phase based on wrist movement
             val previousPhase = currentPhase
-            val detectedPhase = detectStrokePhase(poseLandmarkerResult)
+            val detectionResult = detectStrokePhase(poseLandmarkerResult)
+            val detectedPhase = detectionResult.phase
             
             // Analyze stroke technique using MotionAnalyzer
             val analysisResult: AnalysisResult = motionAnalyzer.analyzeStroke(
@@ -140,6 +143,27 @@ class PoseAnalysisProcessor(
                 currentStrokeResults.add(analysisResult)
             }
             
+            // Trigger UI update callback (for animations/overlays)
+            onUIUpdate()
+            
+            // -------------------------------------------------------------------------
+            // 1. INSTANT AUDIO FEEDBACK (Trigger at CONTACT)
+            // -------------------------------------------------------------------------
+            if (detectionResult.isPhaseTransition && detectedPhase == StrokePhase.CONTACT) {
+                // Use current analysis result for instant feedback
+                // Note: Follow-through hasn't happened yet, so ignore those errors
+                if (!audioPlayedForCurrentStroke) {
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        Log.i(TAG, "Audio Feedback Triggered at CONTACT")
+                        feedbackGenerator.playFeedbackAudio(analysisResult)
+                    }
+                    audioPlayedForCurrentStroke = true
+                }
+            }
+            
+            // -------------------------------------------------------------------------
+            // 2. STROKE FINALIZATION (Trigger after FOLLOW_THROUGH)
+            // -------------------------------------------------------------------------
             // Check for stroke completion: transition from FOLLOW_THROUGH to any other phase (usually RECOVERY or READY)
             // waiting for READY is too strict
             if (previousPhase == StrokePhase.FOLLOW_THROUGH && detectedPhase != StrokePhase.FOLLOW_THROUGH) {
@@ -172,8 +196,10 @@ class PoseAnalysisProcessor(
                         uiController.updateFeedbackText(feedbackText)
                         uiController.updateStats()
                         
-                        // Play audio feedback
-                        feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
+                        // If audio wasn't played yet (e.g. fast stroke skipped contact frame logic), play it now
+                        if (!audioPlayedForCurrentStroke) {
+                            feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
+                        }
                         
                         // Trigger UI update callback (for animations/overlays)
                         onUIUpdate()
@@ -181,6 +207,7 @@ class PoseAnalysisProcessor(
                     
                     // Clear for next stroke
                     currentStrokeResults.clear()
+                    audioPlayedForCurrentStroke = false
                 }
             } else {
                 // For non-finalizing frames, still trigger UI update on main thread if needed
@@ -290,16 +317,24 @@ class PoseAnalysisProcessor(
     fun hasActiveSession(): Boolean = currentSessionId != null
     
     /**
+     * Detection Result Wrapper
+     */
+    data class PhaseDetectionResult(
+        val phase: StrokePhase,
+        val isPhaseTransition: Boolean
+    )
+
+    /**
      * Detect stroke phase based on wrist movement velocity
      * Uses Z-coordinate (forward/backward motion) to identify phases
      */
     private fun detectStrokePhase(
         poseLandmarkerResult: com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-    ): StrokePhase {
-        val landmarks = poseLandmarkerResult.worldLandmarks().firstOrNull() ?: return currentPhase
+    ): PhaseDetectionResult {
+        val landmarks = poseLandmarkerResult.worldLandmarks().firstOrNull() ?: return PhaseDetectionResult(currentPhase, false)
         
         // Get right wrist position (landmark 16)
-        if (landmarks.size <= 16) return currentPhase
+        if (landmarks.size <= 16) return PhaseDetectionResult(currentPhase, false)
         val wristZ = landmarks[16].z()
         
         // Calculate velocity (difference from previous frame)
@@ -343,7 +378,8 @@ class PoseAnalysisProcessor(
             
             StrokePhase.FORWARD_SWING -> {
                 // Transition to contact when velocity peaks
-                if (avgVelocity > VELOCITY_THRESHOLD && phaseFrameCounter >= MIN_PHASE_FRAMES) {
+                // Relaxed threshold for Contact for faster detection
+                if (avgVelocity > VELOCITY_THRESHOLD && phaseFrameCounter >= 2) { // lowered from 3
                     phaseFrameCounter = 0
                     StrokePhase.CONTACT
                 } else {
@@ -352,18 +388,19 @@ class PoseAnalysisProcessor(
             }
             
             StrokePhase.CONTACT -> {
-                // Transition to follow-through when velocity starts decreasing
-                if (avgVelocity < VELOCITY_THRESHOLD && phaseFrameCounter >= MIN_PHASE_FRAMES) {
-                    phaseFrameCounter = 0
-                    StrokePhase.FOLLOW_THROUGH
+                // Transition to follow-through detection
+                // Quick transition out of Contact
+                if (phaseFrameCounter >= 2) { // just a few frames for contact
+                     phaseFrameCounter = 0
+                     StrokePhase.FOLLOW_THROUGH
                 } else {
                     StrokePhase.CONTACT
                 }
             }
             
             StrokePhase.FOLLOW_THROUGH -> {
-                // Transition to recovery when motion stops
-                if (Math.abs(avgVelocity) < 0.005f && phaseFrameCounter >= MIN_PHASE_FRAMES * 2) {
+                // Transition to recovery when motion stops OR slows down significantly
+                 if (avgVelocity < VELOCITY_THRESHOLD / 2 && phaseFrameCounter >= MIN_PHASE_FRAMES) {
                     phaseFrameCounter = 0
                     StrokePhase.RECOVERY
                 } else {
@@ -373,7 +410,7 @@ class PoseAnalysisProcessor(
             
             StrokePhase.RECOVERY -> {
                 // Return to ready position
-                if (Math.abs(avgVelocity) < 0.005f && phaseFrameCounter >= MIN_PHASE_FRAMES * 2) {
+                if (Math.abs(avgVelocity) < 0.005f && phaseFrameCounter >= MIN_PHASE_FRAMES) {
                     phaseFrameCounter = 0
                     StrokePhase.READY
                 } else {
@@ -395,7 +432,7 @@ class PoseAnalysisProcessor(
         }
         
         currentPhase = newPhase
-        return currentPhase
+        return PhaseDetectionResult(currentPhase, newPhase != currentPhase)
     }
     
     /**
@@ -407,6 +444,7 @@ class PoseAnalysisProcessor(
         wristVelocity = 0f
         phaseFrameCounter = 0
         velocityHistory.clear()
+        audioPlayedForCurrentStroke = false
     }
     
     /**
