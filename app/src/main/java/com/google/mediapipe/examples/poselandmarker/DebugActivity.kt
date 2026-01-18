@@ -140,9 +140,9 @@ class DebugActivity : AppCompatActivity() {
             // Update indicator: [-] for expanded, [+] for collapsed
             val currentText = header.text.toString()
             val newText = if (isVisible) {
-                currentText.replaceFirst("[-]", "[+]")
+                currentText.replace("[-]", "[+]")
             } else {
-                currentText.replaceFirst("[+]", "[-]")
+                currentText.replace("[+]", "[-]")
             }
             header.text = newText
         }
