@@ -295,6 +295,7 @@ class DebugUIController(
         if (enabled) {
             binding.topBar.visibility = View.GONE
             binding.portraitTopControls.visibility = View.VISIBLE
+            binding.analysisPanel.visibility = View.VISIBLE  // Make sure panel is visible in portrait mode
             binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
