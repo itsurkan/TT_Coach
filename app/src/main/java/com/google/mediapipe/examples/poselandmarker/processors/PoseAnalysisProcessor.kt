@@ -154,7 +154,21 @@ class PoseAnalysisProcessor(
                 if (!audioPlayedForCurrentStroke) {
                     android.os.Handler(android.os.Looper.getMainLooper()).post {
                         Log.i(TAG, "Audio Feedback Triggered at CONTACT")
-                        feedbackGenerator.playFeedbackAudio(analysisResult)
+                        
+                        // Filter out Follow-Through errors/recommendations as it's too early for them
+                        val instantResult = analysisResult.copy(
+                            feedbackItems = analysisResult.feedbackItems.filter { 
+                                it.type != com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH 
+                            },
+                            errors = analysisResult.errors.filter { 
+                                !it.contains("follow", ignoreCase = true) 
+                            },
+                            recommendations = analysisResult.recommendations.filter {
+                                !it.contains("follow", ignoreCase = true)
+                            }
+                        )
+                        
+                        feedbackGenerator.playFeedbackAudio(instantResult)
                     }
                     audioPlayedForCurrentStroke = true
                 }
