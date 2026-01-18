@@ -42,7 +42,7 @@ class DebugActivity : AppCompatActivity() {
     private lateinit var uiController: DebugUIController
     private lateinit var playbackManager: DebugPlaybackManager
     private lateinit var videoLoader: DebugVideoLoader
-    private var isPortraitMode = false
+    private var isPortraitMode = true
 
     companion object {
         private const val TAG = "DebugActivity"
