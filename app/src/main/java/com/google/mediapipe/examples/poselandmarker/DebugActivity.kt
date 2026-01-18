@@ -133,16 +133,19 @@ class DebugActivity : AppCompatActivity() {
     }
 
     private fun setupCollapsiblePanel(header: TextView, content: View) {
+        Log.d(TAG, "Setting up collapsible panel for header: ${header.text}")
+
         header.setOnClickListener {
-            Log.d(TAG, "Header clicked: ${header.text}, current content visibility: ${content.visibility}")
+            Log.d(TAG, "!!! CLICK DETECTED !!! Header: ${header.text}")
+            Toast.makeText(this, "Clicked: ${header.text}", Toast.LENGTH_SHORT).show()
 
             // Toggle visibility
             if (content.visibility == View.VISIBLE) {
                 content.visibility = View.GONE
-                Log.d(TAG, "Collapsed content, new visibility: GONE")
+                Log.d(TAG, "Collapsed content")
             } else {
                 content.visibility = View.VISIBLE
-                Log.d(TAG, "Expanded content, new visibility: VISIBLE")
+                Log.d(TAG, "Expanded content")
             }
         }
     }
