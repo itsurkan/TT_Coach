@@ -117,6 +117,7 @@ object TechniqueErrors {
     const val LOW_CONTACT = "Контакт надто низько - підніміть точку удару"
     const val NO_FOLLOW_THROUGH = "Недостатнє проведення - доведіть рух до кінця"
     const val ELBOW_FAR = "Лікоть далеко від тіла - тримайте його ближче"
+    const val ELBOW_CLOSE = "Лікоть притиснутий до тіла - тримайте його вільніше"
     const val SLOW_STROKE = "Занадто повільний удар - додайте швидкості"
     const val FAST_STROKE = "Занадто швидкий удар - контролюйте швидкість"
 }
@@ -130,6 +131,7 @@ object TechniqueRecommendations {
     const val ADJUST_CONTACT_HEIGHT = "Контакт на рівні столу - оптимальна висота"
     const val COMPLETE_FOLLOW_THROUGH = "Завершуйте проведення вгору-вперед"
     const val KEEP_ELBOW_CLOSE = "Тримайте лікоть близько до тіла"
+    const val MOVE_ELBOW_AWAY = "Не притискайте лікоть занадто сильно"
     const val INCREASE_SPEED = "Додайте швидкості для ефективності"
     const val CONTROL_SPEED = "Зменшіть швидкість для кращого контролю"
 }

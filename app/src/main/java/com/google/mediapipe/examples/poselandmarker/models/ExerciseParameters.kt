@@ -31,6 +31,7 @@ data class ExerciseParameters(
     
     // Параметри позиції лікоть-тіло
     val maxElbowBodyDistance: Float = 0.3f, // метри
+    val minElbowBodyDistance: Float = 0.1f,
     
     // Порогові значення для детекції руху
     val movementStartThreshold: Float = 0.5f, // м/с
@@ -58,6 +59,7 @@ data class ExerciseParameters(
                 minStrokeSpeed = 1.5f,
                 maxStrokeSpeed = 4.0f,
                 maxElbowBodyDistance = 0.25f,
+                minElbowBodyDistance = 0.12f,
                 movementStartThreshold = 0.5f,
                 movementEndThreshold = 0.3f,
                 minStrokeDuration = 400,
@@ -82,6 +84,7 @@ data class ExerciseParameters(
                 minStrokeSpeed = 1.5f,
                 maxStrokeSpeed = 4.0f,
                 maxElbowBodyDistance = 0.2f,
+                minElbowBodyDistance = 0.1f,
                 movementStartThreshold = 0.5f,
                 movementEndThreshold = 0.3f,
                 minStrokeDuration = 400,
@@ -106,6 +109,7 @@ data class ExerciseParameters(
                 minStrokeSpeed = 0.5f,
                 maxStrokeSpeed = 10.0f,
                 maxElbowBodyDistance = 0.8f, // Лікоть може бути дуже далеко
+                minElbowBodyDistance = 0.0f, // No minimum for beginner
                 movementStartThreshold = 0.3f,
                 movementEndThreshold = 0.2f,
                 minStrokeDuration = 300,
@@ -171,5 +175,12 @@ data class ExerciseParameters(
      */
     fun isElbowPositionValid(distance: Float): Boolean {
         return distance <= maxElbowBodyDistance
+    }
+
+    /**
+     * Перевірити чи лікоть не занадто близько
+     */
+    fun isElbowNotTooClose(distance: Float): Boolean {
+        return distance >= minElbowBodyDistance
     }
 }

@@ -38,7 +38,9 @@ data class StrokeDetectorConfig(
 ) {
     companion object {
         /** Default config for forehand drive */
-        val FOREHAND = StrokeDetectorConfig()
+        val FOREHAND = StrokeDetectorConfig(
+            forwardVelocityThreshold = 0.05f
+        )
 
         /** Config for backhand - inverted direction, left wrist */
         val BACKHAND = StrokeDetectorConfig(

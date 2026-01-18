@@ -34,7 +34,7 @@ object JsonTestUtils {
                 val lm = landmarksArray.getJSONObject(j)
                 frameLandmarks.add(
                     com.google.mediapipe.examples.poselandmarker.services.JsonLandmark(
-                        index = lm.getInt("index"),
+                        index = lm.optInt("index", j),
                         x = lm.getDouble("x").toFloat(),
                         y = lm.getDouble("y").toFloat(),
                         z = lm.getDouble("z").toFloat(),

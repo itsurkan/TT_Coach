@@ -169,12 +169,27 @@ class MotionAnalyzer(
     }
 
     private fun validateElbow(distance: Float?): ValidationResult? = distance?.let {
-        val isValid = parameters.isElbowPositionValid(it)
+        val tooFar = !parameters.isElbowPositionValid(it)
+        val tooClose = !parameters.isElbowNotTooClose(it)
+        val isValid = !tooFar && !tooClose
+        
+        val errorMsg = when {
+            tooFar -> TechniqueErrors.ELBOW_FAR
+            tooClose -> TechniqueErrors.ELBOW_CLOSE
+            else -> ""
+        }
+        
+        val recommendation = when {
+            tooFar -> TechniqueRecommendations.KEEP_ELBOW_CLOSE
+            tooClose -> TechniqueRecommendations.MOVE_ELBOW_AWAY
+            else -> ""
+        }
+        
         ValidationResult(
             CorrectionType.ELBOW_POSITION,
             isValid,
-            FeedbackItem(TechniqueErrors.ELBOW_FAR, CorrectionType.ELBOW_POSITION),
-            TechniqueRecommendations.KEEP_ELBOW_CLOSE
+            FeedbackItem(errorMsg, CorrectionType.ELBOW_POSITION),
+            recommendation
         )
     }
 
