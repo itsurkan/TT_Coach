@@ -206,6 +206,34 @@ class JsonStrokeDetectorTest {
         println("=== forehand_drive2_poses.json contains ${result.strokes.size} strokes ===")
     }
 
+    @Test
+    fun `detect strokes from forehand_drive_wrong_poses json - expects 5 strokes`() {
+        val filename = "forehand_drive_wrong_poses.json"
+        val jsonFile = findJsonFile(filename)
+        assertNotNull("$filename should exist", jsonFile)
+
+        val jsonString = jsonFile!!.readText()
+        val frames = parseJsonToFrames(jsonString)
+
+        val jsonRoot = JSONObject(jsonString)
+        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
+        
+        println("JSON file: ${jsonFile.name}")
+        println("Total frames: ${frames.size}, interval: ${intervalMs}ms")
+
+        val result = detector.detectStrokes(frames, intervalMs)
+
+        println("Detected ${result.strokes.size} strokes:")
+        result.strokes.forEachIndexed { index, stroke ->
+            println("  Stroke ${index + 1}: frames ${stroke.preparationStartFrame}-${stroke.returnEndFrame}, " +
+                    "duration=${stroke.strokeDurationMs}ms, " +
+                    "backswing=${String.format("%.3f", stroke.backswingMinValue)}, " +
+                    "peak=${String.format("%.3f", stroke.forwardPeakValue)}")
+        }
+
+        assertEquals("Should detect 5 strokes in wrong technique file", 5, result.strokes.size)
+    }
+
     /**
      * Find the JSON file - tries multiple paths since test working directory varies
      */
