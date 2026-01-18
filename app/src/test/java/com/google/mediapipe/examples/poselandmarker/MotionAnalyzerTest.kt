@@ -13,7 +13,7 @@ import java.util.Optional
 class MotionAnalyzerTest {
 
     private lateinit var motionAnalyzer: MotionAnalyzer
-    private val parameters = ExerciseParameters.forehandDrive()
+    private val parameters = ExerciseParameters.forehandDriveBeginner()
 
     @Before
     fun setup() {

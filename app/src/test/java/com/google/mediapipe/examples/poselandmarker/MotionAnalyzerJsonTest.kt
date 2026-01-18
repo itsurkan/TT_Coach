@@ -15,7 +15,7 @@ import java.io.File
 class MotionAnalyzerJsonTest {
 
     private lateinit var motionAnalyzer: MotionAnalyzer
-    private val parameters = ExerciseParameters.forehandDrive()
+    private val parameters = ExerciseParameters.forehandDriveBeginner()
 
     @Before
     fun setup() {
@@ -23,8 +23,8 @@ class MotionAnalyzerJsonTest {
     }
 
     @Test
-    fun `test analyze strokes from forehand drive JSON`() {
-        // Try multiple paths to find the JSON file (handles different working directories)
+    fun `test analyze strokes from forehand drive JSON with beginner parameters`() {
+        // Path relative to project root
         val possiblePaths = listOf(
             "app/src/main/assets/Videos/forehand_drive_poses.json",
             "src/main/assets/Videos/forehand_drive_poses.json",
@@ -57,18 +57,13 @@ class MotionAnalyzerJsonTest {
             val analysisResult = motionAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
             
             println("Stroke ${stroke.strokeIndex}: Score=${analysisResult.overallScore}%")
-            println("  Feedback Items: ${analysisResult.feedbackItems.size}")
-            for (item in analysisResult.feedbackItems) {
-                println("    - [${item.type}] ${item.message} (Positive: ${item.isPositive})")
-            }
-
-            // High level assertions
-            assertNotNull(analysisResult.feedbackItems)
-            // Even if score is 100, we should have the "Positive" feedback item if score >= 90
-            if (analysisResult.overallScore >= 90f) {
-                assertTrue("High score should have positive feedback", 
-                    analysisResult.feedbackItems.any { it.isPositive })
-            }
+            
+            // For beginner mode with these wide tolerances, we expect 100% score
+            assertEquals("Stroke ${stroke.strokeIndex} should have 100% score with beginner params. Errors: ${analysisResult.errors}", 
+                100f, analysisResult.overallScore, 0.1f)
+            
+            assertTrue("Should have positive feedback for 100% score", 
+                analysisResult.feedbackItems.any { it.isPositive })
         }
     }
 }

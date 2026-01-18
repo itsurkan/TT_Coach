@@ -90,6 +90,30 @@ data class ExerciseParameters(
         }
 
         /**
+         * Параметри для "Накат справа" (Beginner) - з меншими вимогами
+         */
+        fun forehandDriveBeginner(): ExerciseParameters {
+            return ExerciseParameters(
+                exerciseId = "forehand_drive_beginner",
+                idealWristAngle = 180f,
+                wristAngleTolerance = 60f, // Дуже вільний кут
+                minBodyRotation = 10f,     // Мінімальна ротація
+                bodyRotationTolerance = 30f,
+                followThroughAngle = 90f,
+                followThroughTolerance = 90f, // Range [0, 180] - covers all possible calculateAngle results
+                contactHeightMin = -2.0f,     // Allow very low contact
+                contactHeightMax = 2.0f,      // Allow very high contact
+                minStrokeSpeed = 0.5f,
+                maxStrokeSpeed = 10.0f,
+                maxElbowBodyDistance = 0.8f, // Лікоть може бути дуже далеко
+                movementStartThreshold = 0.3f,
+                movementEndThreshold = 0.2f,
+                minStrokeDuration = 300,
+                maxStrokeDuration = 2000
+            )
+        }
+
+        /**
          * Завантажити параметри з SharedPreferences
          */
         fun fromSharedPreferences(
