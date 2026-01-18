@@ -169,6 +169,9 @@ class PoseAnalysisProcessor(
                     uiController.updateFeedbackText(feedbackText)
                     uiController.updateStats()
                     
+                    // Play audio feedback
+                    feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
+                    
                     // Clear for next stroke
                     currentStrokeResults.clear()
                 }

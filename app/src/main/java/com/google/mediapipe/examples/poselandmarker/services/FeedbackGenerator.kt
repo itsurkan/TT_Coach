@@ -6,6 +6,12 @@
 package com.google.mediapipe.examples.poselandmarker.services
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.media.SoundPool
+import android.media.ToneGenerator
+import android.util.Log
 import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
@@ -21,8 +27,9 @@ class FeedbackGenerator(private val context: Context) {
     private val settingsManager = SettingsManager(context)
     
     private var loadedSounds = mutableSetOf<Int>()
-    private var toneGenerator: android.media.ToneGenerator? = null
-    private var soundPool: android.media.SoundPool? = null
+    private var toneGenerator: ToneGenerator? = null
+    private var soundPool: SoundPool? = null
+    private var mediaPlayer: MediaPlayer? = null
     private var ticSoundId: Int = 0
     private var tacSoundId: Int = 0
 
@@ -39,9 +46,9 @@ class FeedbackGenerator(private val context: Context) {
             
         // Fallback tone generator
         try {
-            toneGenerator = android.media.ToneGenerator(android.media.AudioManager.STREAM_MUSIC, 100)
+            toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
         } catch (e: Exception) {
-            android.util.Log.e("FeedbackGenerator", "Failed to create ToneGenerator", e)
+            Log.e("FeedbackGenerator", "Failed to create ToneGenerator", e)
         }
             
         soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
@@ -101,6 +108,51 @@ class FeedbackGenerator(private val context: Context) {
         soundPool = null
         toneGenerator?.release()
         toneGenerator = null
+        mediaPlayer?.release()
+        mediaPlayer = null
+    }
+
+    /**
+     * Play audio feedback based on analysis results
+     */
+    fun playFeedbackAudio(result: AnalysisResult) {
+        if (!settingsManager.isAudioFeedbackEnabled()) return
+
+        val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
+        
+        // Pick the most important feedback item (first error or recommendation)
+        val primaryItem = result.feedbackItems.firstOrNull { !it.isPositive }
+            ?: result.feedbackItems.firstOrNull()
+            
+        if (primaryItem != null) {
+            val resName = if (isShort) {
+                "short_" + primaryItem.message
+            } else {
+                primaryItem.message + "_full"
+            }
+            
+            val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+            if (resId != 0) {
+                playRawResource(resId)
+            } else {
+                Log.w("FeedbackGenerator", "No audio resource found for: $resName")
+            }
+        }
+    }
+
+    private fun playRawResource(resId: Int) {
+        try {
+            mediaPlayer?.stop()
+            mediaPlayer?.release()
+            mediaPlayer = MediaPlayer.create(context, resId)
+            mediaPlayer?.start()
+            mediaPlayer?.setOnCompletionListener { 
+                it.release()
+                if (mediaPlayer == it) mediaPlayer = null
+            }
+        } catch (e: Exception) {
+            Log.e("FeedbackGenerator", "Error playing raw resource", e)
+        }
     }
     
     /**
