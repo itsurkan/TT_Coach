@@ -119,6 +119,7 @@ class FeedbackGenerator(private val context: Context) {
         if (!settingsManager.isAudioFeedbackEnabled()) return
 
         val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
+        Log.i("FeedbackGen", "playFeedbackAudio called. Enabled=${settingsManager.isAudioFeedbackEnabled()}, Type=${if(isShort) "SHORT" else "FULL"}, Recs=${result.recommendations.size}, Errors=${result.errors.size}")
         
         // 1. Try to find audio for a recommendation (constructive)
         val recKey = result.recommendations.firstOrNull()
@@ -146,6 +147,17 @@ class FeedbackGenerator(private val context: Context) {
             } else {
                 Log.e("FeedbackGen", "Resource NOT FOUND for: $resName")
             }
+        } else {
+             // 3. Fallback: If no recommendations and no errors, it's a GOOD stroke!
+             // Play a positive sound (e.g. "good_job" or similar if we had one, or maybe just silence is intended?)
+             // User requested feedback at contact, maybe we should say "Good!"
+             
+             // We don't have dedicated "good" audio files yet, but we can verify if we should play something.
+             Log.i("FeedbackGen", "No errors or recommendations found. Clean stroke.")
+             
+             // TODO: Add positive audio files. For now, we can play a generic positive beep from ToneGenerator if urgent
+             // or just log it.
+             // If we had "good.mp3" we would play it here.
         }
         
         Log.d("FeedbackGenerator", "No audio resource found for result")
