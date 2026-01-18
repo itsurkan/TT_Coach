@@ -133,22 +133,17 @@ class DebugActivity : AppCompatActivity() {
     }
 
     private fun setupCollapsiblePanel(header: TextView, content: View) {
-        header.isClickable = true
-        header.isFocusable = true
         header.setOnClickListener {
-            Log.d(TAG, "Header clicked: ${header.text}")
-            val isVisible = content.visibility == View.VISIBLE
-            content.visibility = if (isVisible) View.GONE else View.VISIBLE
+            Log.d(TAG, "Header clicked: ${header.text}, current content visibility: ${content.visibility}")
 
-            // Update indicator: [-] for expanded, [+] for collapsed
-            val currentText = header.text.toString()
-            val newText = if (isVisible) {
-                currentText.replace("[-]", "[+]")
+            // Toggle visibility
+            if (content.visibility == View.VISIBLE) {
+                content.visibility = View.GONE
+                Log.d(TAG, "Collapsed content, new visibility: GONE")
             } else {
-                currentText.replace("[+]", "[-]")
+                content.visibility = View.VISIBLE
+                Log.d(TAG, "Expanded content, new visibility: VISIBLE")
             }
-            header.text = newText
-            Log.d(TAG, "Content visibility: ${content.visibility}, new text: $newText")
         }
     }
 
