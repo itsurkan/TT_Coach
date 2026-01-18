@@ -63,7 +63,10 @@ class VideoDebugProcessor(
 
     // Playback state for audio
     private var lastPlayedFrameIndex = -1
-    private var lastContactFrameIndex = -1
+    private var lastContactFrameIndex = -1 // Deprecated but keeping for reference if needed
+    private var audioPlayedForCurrentStroke = false
+    private var lastPhase: StrokePhase? = null
+    private val backswingIndices = mutableListOf<Int>()
 
     companion object {
         private const val TAG = "VideoDebugProcessor"
@@ -236,34 +239,59 @@ class VideoDebugProcessor(
                 val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
 
                 // Audio Feedback Trigger logic for Playback
-                // Check if we entered a CONTACT phase since the last update
                 if (resultIndex != lastPlayedFrameIndex) {
-                    if (analysisResult.phase == StrokePhase.CONTACT) {
-                        // Avoid repeating audio for the same contact event (if spanning multiple frames)
-                        // Trigger only if we weren't already playing contact audio recently, or if index jumped significantly
-                        // Simple logic: if this frame is contact, play it. 
-                        // To avoid spam, we track "lastContactFrame"
-                        if (resultIndex > lastContactFrameIndex + 2) { // minimal spacing
-                             android.util.Log.i(TAG, "Debug Playback: Triggering Audio at frame $resultIndex")
-                             feedbackGenerator.playTac()
-                             
-                             // Filter premature Follow-Through errors
-                             val instantResult = analysisResult.copy(
-                                feedbackItems = analysisResult.feedbackItems.filter { 
-                                    it.type != com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH 
-                                },
-                                errors = analysisResult.errors.filter { 
-                                    !it.contains("follow", ignoreCase = true) 
-                                },
-                                recommendations = analysisResult.recommendations.filter {
-                                    !it.contains("follow", ignoreCase = true)
-                                }
-                            )
-                             
-                             feedbackGenerator.playFeedbackAudio(instantResult)
-                             lastContactFrameIndex = resultIndex
+                    val currentPhase = analysisResult.phase
+                    
+                    // 1. Collect BACKSWING frames
+                    if (currentPhase == StrokePhase.BACKSWING) {
+                        if (lastPhase != StrokePhase.BACKSWING) {
+                            backswingIndices.clear()
+                            audioPlayedForCurrentStroke = false
+                        }
+                        backswingIndices.add(resultIndex)
+                    }
+                    
+                    // 2. Trigger at the start of FORWARD_SWING
+                    if (lastPhase == StrokePhase.BACKSWING && currentPhase == StrokePhase.FORWARD_SWING) {
+                        if (!audioPlayedForCurrentStroke && backswingIndices.isNotEmpty()) {
+                            // Find the best backswing result
+                            val bestBackswingResult = backswingIndices
+                                .mapNotNull { analysisResults.getOrNull(it) }
+                                .filter { it.recommendations.isNotEmpty() }
+                                .minByOrNull { it.overallScore }
+                                ?: backswingIndices
+                                    .mapNotNull { analysisResults.getOrNull(it) }
+                                    .minByOrNull { it.overallScore }
+                            
+                            bestBackswingResult?.let { result ->
+                                android.util.Log.i(TAG, "Debug Playback: Triggering Audio after BACKSWING at frame $resultIndex")
+                                
+                                // Pick only the first recommendation
+                                val singleRecResult = result.copy(
+                                    recommendations = if (result.recommendations.isNotEmpty()) 
+                                        listOf(result.recommendations[0]) else emptyList(),
+                                    feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                        listOf(result.feedbackItems[0]) else emptyList(),
+                                    errors = if (result.errors.isNotEmpty()) 
+                                        listOf(result.errors[0]) else emptyList()
+                                )
+                                
+                                feedbackGenerator.playFeedbackAudio(singleRecResult)
+                            }
+                            audioPlayedForCurrentStroke = true
                         }
                     }
+                    
+                    // 3. Keep Tic/Tac for rhythm (optional, but keep for now as user didn't say remove them)
+                    if (lastPhase != currentPhase) {
+                        if (currentPhase == StrokePhase.FORWARD_SWING) {
+                             // feedbackGenerator.playTic() // User commented these out in PoseAnalysisProcessor, doing same here
+                        } else if (currentPhase == StrokePhase.CONTACT) {
+                             feedbackGenerator.playTac()
+                        }
+                    }
+
+                    lastPhase = currentPhase
                     lastPlayedFrameIndex = resultIndex
                 }
 
@@ -514,6 +542,9 @@ class VideoDebugProcessor(
         strokeDetectionResult = null
         lastPlayedFrameIndex = -1
         lastContactFrameIndex = -1
+        audioPlayedForCurrentStroke = false
+        lastPhase = null
+        backswingIndices.clear()
     }
 
     /**

@@ -37,6 +37,7 @@ class PoseAnalysisProcessor(
     private var phaseFrameCounter: Int = 0
     private val velocityHistory = ArrayDeque<Float>(5)
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
+    private val backswingResults = mutableListOf<AnalysisResult>()
     private var audioPlayedForCurrentStroke = false
     
     companion object {
@@ -142,36 +143,51 @@ class PoseAnalysisProcessor(
                 currentStrokeResults.add(analysisResult)
             }
             
+            // Collect backswing results specifically
+            if (detectedPhase == StrokePhase.BACKSWING) {
+                backswingResults.add(analysisResult)
+            }
+            
             // Trigger UI update callback (for animations/overlays)
             onUIUpdate()
             
             // -------------------------------------------------------------------------
-            // 1. INSTANT AUDIO FEEDBACK (Trigger at CONTACT)
+            // 1. BACKSWING FEEDBACK (Trigger after BACKSWING completion)
             // -------------------------------------------------------------------------
-            if (detectionResult.isPhaseTransition && detectedPhase == StrokePhase.CONTACT) {
-                // Use current analysis result for instant feedback
-                // Note: Follow-through hasn't happened yet, so ignore those errors
-                if (!audioPlayedForCurrentStroke) {
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        Log.i(TAG, "Audio Feedback Triggered at CONTACT")
-                        
-                        // Filter out Follow-Through errors/recommendations as it's too early for them
-                        val instantResult = analysisResult.copy(
-                            feedbackItems = analysisResult.feedbackItems.filter { 
-                                it.type != com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH 
-                            },
-                            errors = analysisResult.errors.filter { 
-                                !it.contains("follow", ignoreCase = true) 
-                            },
-                            recommendations = analysisResult.recommendations.filter {
-                                !it.contains("follow", ignoreCase = true)
-                            }
-                        )
-                        
-                        feedbackGenerator.playFeedbackAudio(instantResult)
+            if (previousPhase == StrokePhase.BACKSWING && detectedPhase == StrokePhase.FORWARD_SWING) {
+                if (!audioPlayedForCurrentStroke && backswingResults.isNotEmpty()) {
+                    // Find the most significant result from the backswing
+                    // Prefer results with recommendations, pick the one with the lowest score
+                    val bestBackswingResult = backswingResults
+                        .filter { it.recommendations.isNotEmpty() }
+                        .minByOrNull { it.overallScore }
+                        ?: backswingResults.minByOrNull { it.overallScore }
+                    
+                    bestBackswingResult?.let { result ->
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            Log.i(TAG, "Audio Feedback Triggered after BACKSWING")
+                            
+                            // Ensure only one recommendation is played
+                            val singleRecResult = result.copy(
+                                recommendations = if (result.recommendations.isNotEmpty()) 
+                                    listOf(result.recommendations[0]) else emptyList(),
+                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                    listOf(result.feedbackItems[0]) else emptyList(),
+                                errors = if (result.errors.isNotEmpty()) 
+                                    listOf(result.errors[0]) else emptyList()
+                            )
+                            
+                            feedbackGenerator.playFeedbackAudio(singleRecResult)
+                        }
                     }
                     audioPlayedForCurrentStroke = true
                 }
+            }
+            
+            // Clear backswing results when starting a new backswing
+            if (detectionResult.isPhaseTransition && detectedPhase == StrokePhase.BACKSWING) {
+                backswingResults.clear()
+                audioPlayedForCurrentStroke = false
             }
             
             // -------------------------------------------------------------------------
@@ -453,10 +469,12 @@ class PoseAnalysisProcessor(
      */
     private fun resetStrokeDetection() {
         currentPhase = StrokePhase.READY
-        previousWristZ = 0f
-        wristVelocity = 0f
-        phaseFrameCounter = 0
+        isInsideStroke = false
+        frameIndex = 0
+        currentStrokeResults.clear()
+        backswingResults.clear()
         velocityHistory.clear()
+        phaseFrameCounter = 0
         audioPlayedForCurrentStroke = false
     }
     
