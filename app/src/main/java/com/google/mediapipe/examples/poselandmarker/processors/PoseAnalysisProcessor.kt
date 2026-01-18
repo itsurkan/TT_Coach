@@ -438,9 +438,9 @@ class PoseAnalysisProcessor(
             
             // Audio feedback for rhythm
             if (newPhase == StrokePhase.FORWARD_SWING) {
-                // feedbackGenerator.playTic()
+                feedbackGenerator.playTic()
             } else if (newPhase == StrokePhase.CONTACT) {
-                // feedbackGenerator.playTac()
+                feedbackGenerator.playTac()
             }
         }
         
