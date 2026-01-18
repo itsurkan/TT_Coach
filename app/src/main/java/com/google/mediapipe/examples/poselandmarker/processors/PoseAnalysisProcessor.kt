@@ -36,6 +36,8 @@ class PoseAnalysisProcessor(
     private var wristVelocity: Float = 0f
     private var phaseFrameCounter: Int = 0
     private val velocityHistory = ArrayDeque<Float>(5)
+    private var frameIndex: Int = 0
+    private var isInsideStroke: Boolean = false
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
     private var pendingFeedbackResult: AnalysisResult? = null
     private var audioPlayedForCurrentStroke = false
