@@ -61,6 +61,10 @@ class VideoDebugProcessor(
     private var strokeDetector: JsonStrokeDetector? = null
     private var strokeDetectionResult: StrokeDetectionResult? = null
 
+    // Playback state for audio
+    private var lastPlayedFrameIndex = -1
+    private var lastContactFrameIndex = -1
+
     companion object {
         private const val TAG = "VideoDebugProcessor"
         const val VIDEO_INTERVAL_MS = 100L
@@ -230,6 +234,38 @@ class VideoDebugProcessor(
 
                 val landmarks = getLandmarksAtIndex(resultIndex)
                 val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
+
+                // Audio Feedback Trigger logic for Playback
+                // Check if we entered a CONTACT phase since the last update
+                if (resultIndex != lastPlayedFrameIndex) {
+                    if (analysisResult.phase == StrokePhase.CONTACT) {
+                        // Avoid repeating audio for the same contact event (if spanning multiple frames)
+                        // Trigger only if we weren't already playing contact audio recently, or if index jumped significantly
+                        // Simple logic: if this frame is contact, play it. 
+                        // To avoid spam, we track "lastContactFrame"
+                        if (resultIndex > lastContactFrameIndex + 2) { // minimal spacing
+                             android.util.Log.i(TAG, "Debug Playback: Triggering Audio at frame $resultIndex")
+                             feedbackGenerator.playTac()
+                             
+                             // Filter premature Follow-Through errors
+                             val instantResult = analysisResult.copy(
+                                feedbackItems = analysisResult.feedbackItems.filter { 
+                                    it.type != com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH 
+                                },
+                                errors = analysisResult.errors.filter { 
+                                    !it.contains("follow", ignoreCase = true) 
+                                },
+                                recommendations = analysisResult.recommendations.filter {
+                                    !it.contains("follow", ignoreCase = true)
+                                }
+                            )
+                             
+                             feedbackGenerator.playFeedbackAudio(instantResult)
+                             lastContactFrameIndex = resultIndex
+                        }
+                    }
+                    lastPlayedFrameIndex = resultIndex
+                }
 
                 onFrameUpdate(resultIndex, landmarks, analysisResult)
             },
@@ -476,6 +512,8 @@ class VideoDebugProcessor(
         // Reset stroke detection
         strokeDetector = null
         strokeDetectionResult = null
+        lastPlayedFrameIndex = -1
+        lastContactFrameIndex = -1
     }
 
     /**
