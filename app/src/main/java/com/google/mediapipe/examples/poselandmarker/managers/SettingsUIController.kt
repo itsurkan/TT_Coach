@@ -90,6 +90,20 @@ class SettingsUIController(
         }
 
         binding.switchShowSkeleton.isChecked = settingsManager.isShowSkeleton()
+        
+        setupFeedbackTypeSpinner()
+    }
+
+    private fun setupFeedbackTypeSpinner() {
+        val context = binding.root.context
+        val options = arrayOf(
+            context.getString(R.string.feedback_type_short),
+            context.getString(R.string.feedback_type_standard)
+        )
+        val adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerFeedbackType.adapter = adapter
+        binding.spinnerFeedbackType.setSelection(settingsManager.getFeedbackType())
     }
     
     fun setupLanguageSpinner(languageSpinner: Spinner, context: android.content.Context) {
@@ -116,6 +130,7 @@ class SettingsUIController(
         binding.spinnerCameraResolution.setSelection(settingsManager.getCameraResolution())
         binding.seekBarFps.progress = settingsManager.getTargetFps()
         binding.switchShowSkeleton.isChecked = settingsManager.isShowSkeleton()
+        binding.spinnerFeedbackType.setSelection(settingsManager.getFeedbackType())
     }
     
     fun saveAllSettings() {
@@ -128,7 +143,8 @@ class SettingsUIController(
             speechRate = binding.seekBarSpeechRate.progress,
             cameraResolution = binding.spinnerCameraResolution.selectedItemPosition,
             fps = binding.seekBarFps.progress,
-            showSkeleton = binding.switchShowSkeleton.isChecked
+            showSkeleton = binding.switchShowSkeleton.isChecked,
+            feedbackType = binding.spinnerFeedbackType.selectedItemPosition
         )
     }
     

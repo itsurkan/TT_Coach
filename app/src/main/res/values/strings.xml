@@ -1,48 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    ~ Copyright 2023 The TensorFlow Authors. All Rights Reserved.
-    ~
-    ~ Licensed under the Apache License, Version 2.0 (the "License");
-    ~ you may not use this file except in compliance with the License.
-    ~ You may obtain a copy of the License at
-    ~
-    ~       http://www.apache.org/licenses/LICENSE-2.0
-    ~
-    ~ Unless required by applicable law or agreed to in writing, software
-    ~ distributed under the License is distributed on an "AS IS" BASIS,
-    ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    ~ See the License for the specific language governing permissions and
-    ~ limitations under the License.
--->
 <resources>
     <string name="app_name">TT AI Coach 1</string>
     <string name="use_video_debug">🎬 Use video (debug)</string>
-
     <string name="media_pipe">MediaPipe</string>
-
     <string name="alt_bottom_sheet_chevron">Bottom sheet expandable indicator</string>
-
-    <string name="alt_bottom_sheet_max_results_button_minus">Decreasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_max_results_button_plus">Increasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_threshold_button_minus">Decreasing
-        threshold of pose detect results button</string>
-    <string name="alt_bottom_sheet_threshold_button_plus">Increasing
-        threshold of pose detect results button</string>
+    <string name="alt_bottom_sheet_max_results_button_minus">Decreasing maximum pose results button</string>
+    <string name="alt_bottom_sheet_max_results_button_plus">Increasing maximum pose results button</string>
+    <string name="alt_bottom_sheet_threshold_button_minus">Decreasing threshold of pose detect results button</string>
+    <string name="alt_bottom_sheet_threshold_button_plus">Increasing threshold of pose detect results button</string>
     <string name="menu_camera">Camera</string>
     <string name="menu_gallery">Gallery</string>
-    <string name="tv_gallery_placeholder">Click + to add an image or a video
-        to begin running the pose landmarker.</string>
-
+    <string name="tv_gallery_placeholder">Click + to add an image or a video to begin running the pose landmarker.</string>
     <string name="label_inference_time">Inference Time</string>
     <string name="label_fps">Frames per Second</string>
-    <string name="label_pose_detection_confidence_threshold">Detection
-        Threshold</string>
-    <string name="label_pose_tracking_confidence_threshold">Tracking
-        Threshold</string>
-    <string name="label_pose_presence_confidence_threshold">Presence
-        Threshold</string>
+    <string name="label_pose_detection_confidence_threshold">Detection Threshold</string>
+    <string name="label_pose_tracking_confidence_threshold">Tracking Threshold</string>
+    <string name="label_pose_presence_confidence_threshold">Presence Threshold</string>
     <string name="label_num_poses">Number of Poses</string>
     <string name="label_delegate">Delegate</string>
     <string name="label_models">Model</string>
@@ -139,6 +112,52 @@
     <string name="reset_done_title">Done</string>
     <string name="reset_done_message">Settings reset to default values</string>
     
+    <!-- Feedback Style Settings -->
+    <string name="section_feedback">💬 Feedback Type</string>
+    <string name="feedback_type_label">Feedback style:</string>
+    <string name="feedback_type_short">Short (Pro)</string>
+    <string name="feedback_type_standard">Standard (Full description)</string>
+    
+    <!-- Short Feedback Messages -->
+    <string name="short_error_wrist_bent">Straighten wrist</string>
+    <string name="short_error_low_rotation">More rotation</string>
+    <string name="short_error_high_contact">Lower contact</string>
+    <string name="short_error_low_contact">Higher contact</string>
+    <string name="short_error_no_follow_through">Complete stroke</string>
+    <string name="short_error_elbow_far">Elbow closer</string>
+    <string name="short_error_elbow_close">Elbow looser</string>
+    <string name="short_error_slow_stroke">Faster</string>
+    <string name="short_error_fast_stroke">Slower</string>
+
+    <string name="short_rec_straighten_wrist">Wrist straight</string>
+    <string name="short_rec_rotate_more">Body rotation</string>
+    <string name="short_rec_contact_height">Contact height</string>
+    <string name="short_rec_complete_follow">Finish movement</string>
+    <string name="short_rec_keep_elbow_close">Elbow close</string>
+    <string name="short_rec_move_elbow_away">Release elbow</string>
+    <string name="short_rec_increase_speed">More speed</string>
+    <string name="short_rec_control_speed">Less speed</string>
+
+    <!-- Standard Feedback Messages -->
+    <string name="error_wrist_bent_full">Wrist bent - straighten it</string>
+    <string name="error_low_rotation_full">Insufficient body rotation - turn more</string>
+    <string name="error_high_contact_full">Contact too high - lower strike point</string>
+    <string name="error_low_contact_full">Contact too low - raise strike point</string>
+    <string name="error_no_follow_through_full">Insufficient follow-through - complete the movement</string>
+    <string name="error_elbow_far_full">Elbow far from body - keep it closer</string>
+    <string name="error_elbow_close_full">Elbow pressed to body - keep it looser</string>
+    <string name="error_slow_stroke_full">Stroke too slow - add speed</string>
+    <string name="error_fast_stroke_full">Stroke too fast - control speed</string>
+
+    <string name="rec_straighten_wrist_full">Keep wrist straight during stroke</string>
+    <string name="rec_rotate_more_full">More body rotation for power</string>
+    <string name="rec_contact_height_full">Contact at table level - optimal height</string>
+    <string name="rec_complete_follow_full">Complete follow-through upward and forward</string>
+    <string name="rec_keep_elbow_close_full">Keep elbow close to body</string>
+    <string name="rec_move_elbow_away_full">Don\'t press your elbow too tightly</string>
+    <string name="rec_increase_speed_full">Add speed for efficiency</string>
+    <string name="rec_control_speed_full">Reduce speed for better control</string>
+
     <!-- Language Options -->
     <string-array name="language_options">
         <item>English</item>
@@ -150,15 +169,8 @@
         <item>uk</item>
     </string-array>
     
-    <!-- Camera Resolution Options -->
-    <!-- Feedback Messages -->
+    <!-- Feedback General -->
     <string name="error_no_pose">Failed to detect pose - check lighting and camera position</string>
-    <string name="error_wrist_bent">Wrist bent</string>
-    <string name="error_low_rotation">Insufficient body rotation</string>
-    <string name="error_insufficient_follow">Insufficient follow-through</string>
-    <string name="recommendation_wrist">Keep wrist straight</string>
-    <string name="recommendation_rotation">More rotation for power</string>
-    <string name="recommendation_follow">Complete the movement</string>
     <string name="feedback_good">Great! Keep it up!</string>
     <string name="feedback_work_on">⚠️ %s</string>
     <string name="feedback_work_on_technique">Work on technique</string>
@@ -172,12 +184,20 @@
     <string name="session_average_score">Average score: %d%%\n\n</string>
     <string name="session_excellent">🏆 Excellent work! You\'re making progress!</string>
     <string name="session_good">👍 Good training! Keep working!</string>
-    <string name="consecutive_5">🔥 5 good strokes in a row! Keep going!</string>
-    <string name="consecutive_10">🎯 10 excellent strokes! You\'re on fire!</string>
-    <string name="consecutive_20">⭐ 20 strokes in a row! Incredible!</string>
-    <string name="consecutive_50">🏆 50 strokes! You\'re a master!</string>
-    <string name="positive_excellent">✅ Excellent! Perfect technique!</string>
-    <string name="positive_great">✅ Great! Keep it up!</string>
+    <string name="session_improvement">💪 Improvement! Practice regularly!</string>
+    <string name="session_keep_trying">🎯 Don\'t give up! Every practice makes you better!</string>
+    
+    <!-- Training Summary Stats -->
+    <string name="summary_total_strokes">Total Strokes: %d</string>
+    <string name="summary_successful_strokes">Successful Strokes: %d (%d%%)</string>
+    <string name="summary_average_accuracy">Average Score: %.1f%%</string>
+    
+    <!-- Improvement Tips for Session -->
+    <string name="tip_excellent">🎯 Excellent! Keep practicing to master the technique.</string>
+    <string name="tip_good">👍 Good! Focus on stroke stability.</string>
+    <string name="tip_not_bad">💪 Not bad! Improve body and racket position.</string>
+    <string name="tip_needs_practice">🎓 Needs practice. Focus on basic technique.</string>
+    
     <string name="positive_flawless">✅ Flawless! Continue!</string>
     <string name="positive_perfect">✅ Perfect! Well done!</string>
     <string name="positive_super">✅ Super stroke! Very good!</string>
@@ -185,23 +205,6 @@
     <string name="tip_rotation">💡 Tip: Turn waist and shoulders as one - imagine winding a spring</string>
     <string name="tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
     <string name="tip_follow_through">💡 Tip: Imagine brushing the ball up and forward - don\'t stop at contact</string>
-    
-    <!-- Analysis Result Constants -->
-    <string name="error_wrist_bent_full">Wrist bent - straighten it</string>
-    <string name="error_low_rotation_full">Insufficient body rotation - turn more</string>
-    <string name="error_high_contact">Contact too high - lower strike point</string>
-    <string name="error_low_contact">Contact too low - raise strike point</string>
-    <string name="error_no_follow_through">Insufficient follow-through - complete the movement</string>
-    <string name="error_elbow_far">Elbow far from body - keep it closer</string>
-    <string name="error_slow_stroke">Stroke too slow - add speed</string>
-    <string name="error_fast_stroke">Stroke too fast - control speed</string>
-    <string name="rec_straighten_wrist">Keep wrist straight during stroke</string>
-    <string name="rec_rotate_more">More body rotation for power</string>
-    <string name="rec_contact_height">Contact at table level - optimal height</string>
-    <string name="rec_complete_follow">Complete follow-through upward and forward</string>
-    <string name="rec_keep_elbow_close">Keep elbow close to body</string>
-    <string name="rec_increase_speed">Add speed for efficiency</string>
-    <string name="rec_control_speed">Reduce speed for better control</string>
     
     <!-- Training Activity Messages -->
     <string name="camera_started">📹 Camera started. Press \'Calibrate\'</string>
@@ -219,54 +222,32 @@
     <string name="finish_button">Finish</string>
     <string name="continue_button">Continue</string>
     
-    <!-- Improvement Tips -->
-    <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки</string>
-    <string name="tip_good">👍 Добре! Зосередьтесь на стабільності ударів</string>
-    <string name="tip_not_bad">💪 Непогано! Покращуйте положення тіла та ракетки</string>
-    <string name="tip_needs_practice">🎓 Потрібна практика. Зосередьтесь на базовій техніці</string>
-    
-    <!-- Summary Stats -->
-    <string name="summary_total_strokes">Загальна кількість ударів: %d</string>
-    <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
-    <string name="summary_average_accuracy">Середня точність: %.1f%%</string>
-    
     <!-- FeedbackGenerator Messages -->
-    <string name="feedback_good_keep_up">Гарно! Продовжуйте в тому ж дусі!</string>
-    <string name="feedback_work_technique">Працюйте над технікою</string>
-    <string name="feedback_score_format">Оцінка: %d%%\n\n</string>
-    <string name="feedback_errors_header">⚠️ Помилки:\n</string>
-    <string name="feedback_recommendations_header">💡 Рекомендації:\n</string>
-    <string name="feedback_param_not_detected">❓ %s: не визначено</string>
-    <string name="feedback_param_perfect">✅ %1$s: %2$d° (ідеально)</string>
-    <string name="feedback_param_expected">⚠️ %1$s: %2$d° (очікується %3$d°)</string>
+    <string name="feedback_good_keep_up">Great! Keep it up!</string>
+    <string name="feedback_work_technique">Work on technique</string>
+    <string name="feedback_score_format">Score: %d%%\n\n</string>
+    <string name="feedback_errors_header">⚠️ Errors:\n</string>
+    <string name="feedback_recommendations_header">💡 Recommendations:\n</string>
+    <string name="feedback_param_not_detected">❓ %s: not detected</string>
+    <string name="feedback_param_perfect">✅ %1$s: %2$d° (perfect)</string>
+    <string name="feedback_param_expected">⚠️ %1$s: %2$d° (expected %3$d°)</string>
     
     <!-- Positive Feedback -->
-    <string name="positive_feedback_1">✅ Чудово! Ідеальна техніка!</string>
-    <string name="positive_feedback_2">✅ Відмінно! Так тримати!</string>
-    <string name="positive_feedback_3">✅ Бездоганно! Продовжуйте!</string>
-    <string name="positive_feedback_4">✅ Ідеально! Ви молодець!</string>
-    <string name="positive_feedback_5">✅ Супер удар! Дуже добре!</string>
+    <string name="positive_feedback_1">✅ Excellent! Perfect technique!</string>
+    <string name="positive_feedback_2">✅ Great! Keep it up!</string>
+    <string name="positive_feedback_3">✅ Flawless! Continue!</string>
+    <string name="positive_feedback_4">✅ Perfect! Well done!</string>
+    <string name="positive_feedback_5">✅ Super stroke! Very good!</string>
     
     <!-- Motivational Messages -->
-    <string name="motivational_5_strokes">🔥 5 гарних ударів підряд! Продовжуйте!</string>
-    <string name="motivational_10_strokes">🎯 10 відмінних ударів! Ви в ударі!</string>
-    <string name="motivational_20_strokes">⭐ 20 ударів поспіль! Неймовірно!</string>
-    <string name="motivational_50_strokes">🏆 50 ударів! Ви майстер!</string>
-    
-    <!-- Session Summary -->
-    <string name="session_summary_header">📊 Підсумок тренування\n\n</string>
-    <string name="session_total_strokes_format">Всього ударів: %d\n</string>
-    <string name="session_successful_format">Успішних: %d\n</string>
-    <string name="session_accuracy_format">Точність: %d%%\n</string>
-    <string name="session_avg_score_format">Середня оцінка: %d%%\n\n</string>
-    <string name="session_excellent_work">🏆 Відмінна робота! Ви прогресуєте!</string>
-    <string name="session_good_training">👍 Гарне тренування! Продовжуйте працювати!</string>
-    <string name="session_improvement">💪 Є покращення! Тренуйтесь регулярно!</string>
-    <string name="session_dont_give_up">🎯 Не здавайтесь! Кожне тренування робить вас кращим!</string>
+    <string name="motivational_5_strokes">🔥 5 good strokes in a row! Keep going!</string>
+    <string name="motivational_10_strokes">🎯 10 excellent strokes! You\'re on fire!</string>
+    <string name="motivational_20_strokes">⭐ 20 strokes in a row! Incredible!</string>
+    <string name="motivational_50_strokes">🏆 50 strokes! You\'re a master!</string>
     
     <!-- Improvement Tips -->
-    <string name="improvement_tip_wrist">💡 Порада: Уявіть, що тримаєте олівець - зап\'ястя має бути продовженням передпліччя</string>
-    <string name="improvement_tip_rotation">💡 Порада: Поверніть талію та плечі як єдине ціле - уявіть, що закручуєте пружину</string>
-    <string name="improvement_tip_contact">💡 Порада: Оптимальна точка контакту - на висоті пояса, трохи попереду тіла</string>
-    <string name="improvement_tip_follow">💡 Порада: Продовжуйте рух після контакту - ракетка має закінчити біля протилежного плеча</string>
+    <string name="improvement_tip_wrist">💡 Tip: Imagine holding a pencil - wrist should be an extension of forearm</string>
+    <string name="improvement_tip_rotation">💡 Tip: Turn waist and shoulders as one - imagine winding a spring</string>
+    <string name="improvement_tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
+    <string name="improvement_tip_follow">💡 Tip: Complete stroke - racket should finish near opposite shoulder</string>
 </resources>

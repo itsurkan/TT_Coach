@@ -7,7 +7,9 @@ package com.google.mediapipe.examples.poselandmarker.services
 
 import android.content.Context
 import com.google.mediapipe.examples.poselandmarker.R
+import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
 import java.util.*
 
 /**
@@ -16,6 +18,7 @@ import java.util.*
 class FeedbackGenerator(private val context: Context) {
     
     private val random = Random()
+    private val settingsManager = SettingsManager(context)
     
     private var loadedSounds = mutableSetOf<Int>()
     private var toneGenerator: android.media.ToneGenerator? = null
@@ -107,7 +110,14 @@ class FeedbackGenerator(private val context: Context) {
         return when {
             result.overallScore >= 90f -> getRandomPositiveFeedback()
             result.errors.isEmpty() -> context.getString(R.string.feedback_good_keep_up)
-            else -> result.getPrimaryError() ?: context.getString(R.string.feedback_work_technique)
+            else -> {
+                val primaryFeedback = result.feedbackItems.firstOrNull { !it.isPositive }
+                if (primaryFeedback != null) {
+                    resolveFeedbackItem(primaryFeedback, true)
+                } else {
+                    context.getString(R.string.feedback_work_technique)
+                }
+            }
         }
     }
 
@@ -116,26 +126,64 @@ class FeedbackGenerator(private val context: Context) {
      */
     fun generateDetailedFeedback(result: AnalysisResult): String {
         val feedback = StringBuilder()
+        val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
         
-        feedback.append(result.getSummary()).append("\n\n")
+        feedback.append(getSummary(result.overallScore)).append("\n\n")
         feedback.append(context.getString(R.string.feedback_score_format, result.overallScore.toInt()))
         
-        if (result.errors.isNotEmpty()) {
+        if (result.feedbackItems.any { !it.isPositive }) {
             feedback.append(context.getString(R.string.feedback_errors_header))
-            result.errors.forEach { error ->
-                feedback.append("• $error\n")
+            result.feedbackItems.filter { !it.isPositive }.forEach { item ->
+                feedback.append("• ${resolveFeedbackItem(item, isShort)}\n")
             }
             feedback.append("\n")
         }
         
         if (result.recommendations.isNotEmpty()) {
             feedback.append(context.getString(R.string.feedback_recommendations_header))
-            result.recommendations.forEach { recommendation ->
-                feedback.append("• $recommendation\n")
+            result.recommendations.forEach { recKey ->
+                feedback.append("• ${resolveString(recKey, isShort)}\n")
             }
         }
         
         return feedback.toString()
+    }
+
+    private fun resolveFeedbackItem(item: FeedbackItem, isShort: Boolean): String {
+        return resolveString(item.message, isShort)
+    }
+
+    private fun resolveString(key: String, isShort: Boolean): String {
+        if (key.isEmpty()) return ""
+        
+        val resName = if (isShort) {
+            // "error_wrist_bent" -> "short_error_wrist_bent"
+            // "rec_rotate_more" -> "short_rec_rotate_more"
+            val prefix = if (key.startsWith("error_")) "short_" else "short_"
+            prefix + key
+        } else {
+            // "error_wrist_bent" -> "error_wrist_bent_full"
+            // "rec_rotate_more" -> "rec_rotate_more_full"
+            key + "_full"
+        }
+        
+        val resId = context.resources.getIdentifier(resName, "string", context.packageName)
+        return if (resId != 0) {
+            context.getString(resId)
+        } else {
+            // Fallback to key itself if not found
+            android.util.Log.e("FeedbackGenerator", "Resource not found: $resName")
+            key
+        }
+    }
+
+    private fun getSummary(score: Float): String {
+        return when {
+            score >= 90f -> context.getString(R.string.session_excellent)
+            score >= 80f -> context.getString(R.string.session_good)
+            score >= 70f -> context.getString(R.string.session_improvement)
+            else -> context.getString(R.string.feedback_work_on_technique)
+        }
     }
 
     /**
@@ -198,17 +246,17 @@ class FeedbackGenerator(private val context: Context) {
         }
         
         val feedback = StringBuilder()
-        feedback.append(context.getString(R.string.session_summary_header))
-        feedback.append(context.getString(R.string.session_total_strokes_format, totalStrokes))
-        feedback.append(context.getString(R.string.session_successful_format, successfulStrokes))
-        feedback.append(context.getString(R.string.session_accuracy_format, accuracy))
-        feedback.append(context.getString(R.string.session_avg_score_format, averageScore.toInt()))
+        feedback.append(context.getString(R.string.session_summary_title))
+        feedback.append(context.getString(R.string.session_total_strokes, totalStrokes))
+        feedback.append(context.getString(R.string.session_successful, successfulStrokes))
+        feedback.append(context.getString(R.string.session_accuracy, accuracy))
+        feedback.append(context.getString(R.string.session_average_score, averageScore.toInt()))
         
         feedback.append(when {
-            accuracy >= 80 -> context.getString(R.string.session_excellent_work)
-            accuracy >= 60 -> context.getString(R.string.session_good_training)
+            accuracy >= 80 -> context.getString(R.string.session_excellent)
+            accuracy >= 60 -> context.getString(R.string.session_good)
             accuracy >= 40 -> context.getString(R.string.session_improvement)
-            else -> context.getString(R.string.session_dont_give_up)
+            else -> context.getString(R.string.session_keep_trying)
         })
         
         return feedback.toString()

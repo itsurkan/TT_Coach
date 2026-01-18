@@ -31,6 +31,9 @@ class SettingsManager(context: Context) {
     fun getSpeechRate(): Int = prefs.getInt("speech_rate", 50)
     fun setSpeechRate(rate: Int) = prefs.edit().putInt("speech_rate", rate).apply()
     
+    fun getFeedbackType(): Int = prefs.getInt("feedback_type", 1) // Default: STANDARD (1)
+    fun setFeedbackType(type: Int) = prefs.edit().putInt("feedback_type", type).apply()
+    
     // Camera settings
     fun getCameraResolution(): Int = prefs.getInt("camera_resolution", 1)
     fun setCameraResolution(resolution: Int) = prefs.edit().putInt("camera_resolution", resolution).apply()
@@ -51,7 +54,8 @@ class SettingsManager(context: Context) {
         speechRate: Int,
         cameraResolution: Int,
         fps: Int,
-        showSkeleton: Boolean
+        showSkeleton: Boolean,
+        feedbackType: Int
     ) {
         prefs.edit().apply {
             putInt("ideal_wrist_angle", wristAngle)
@@ -63,6 +67,7 @@ class SettingsManager(context: Context) {
             putInt("camera_resolution", cameraResolution)
             putInt("target_fps", fps)
             putBoolean("show_skeleton", showSkeleton)
+            putInt("feedback_type", feedbackType)
             apply()
         }
     }

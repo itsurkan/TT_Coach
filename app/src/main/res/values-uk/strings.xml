@@ -116,6 +116,52 @@
     <string name="reset_done_title">Готово</string>
     <string name="reset_done_message">Налаштування скинуто до стандартних значень</string>
     
+    <!-- Feedback Style Settings -->
+    <string name="section_feedback">💬 Тип зворотного зв’язку</string>
+    <string name="feedback_type_label">Тип фідбеку:</string>
+    <string name="feedback_type_short">Короткий (для досвідчених)</string>
+    <string name="feedback_type_standard">Стандартний (з поясненням)</string>
+    
+    <!-- Short Feedback Messages (Ukrainian) -->
+    <string name="short_error_wrist_bent">Випряміть зап’ястя</string>
+    <string name="short_error_low_rotation">Більше ротації</string>
+    <string name="short_error_high_contact">Нижче контакт</string>
+    <string name="short_error_low_contact">Вище контакт</string>
+    <string name="short_error_no_follow_through">Доведіть удар</string>
+    <string name="short_error_elbow_far">Лікоть ближче</string>
+    <string name="short_error_elbow_close">Лікоть вільніше</string>
+    <string name="short_error_slow_stroke">Швидше</string>
+    <string name="short_error_fast_stroke">Повільніше</string>
+
+    <string name="short_rec_straighten_wrist">Зап’ястя рівно</string>
+    <string name="short_rec_rotate_more">Ротація корпусу</string>
+    <string name="short_rec_contact_height">Висота контакту</string>
+    <string name="short_rec_complete_follow">Завершіть рух</string>
+    <string name="short_rec_keep_elbow_close">Лікоть близько</string>
+    <string name="short_rec_move_elbow_away">Відпустіть лікоть</string>
+    <string name="short_rec_increase_speed">Більше швидкості</string>
+    <string name="short_rec_control_speed">Менше швидкості</string>
+
+    <!-- Standard Feedback Messages (Ukrainian) -->
+    <string name="error_wrist_bent_full">Зап’ястя зігнуте - випряміть його</string>
+    <string name="error_low_rotation_full">Недостатня ротація корпусу - поверніться більше</string>
+    <string name="error_high_contact_full">Контакт надто високо - опустіть точку удару</string>
+    <string name="error_low_contact_full">Контакт надто низько - підніміть точку удару</string>
+    <string name="error_no_follow_through_full">Недостатнє проведення - доведіть рух до кінця</string>
+    <string name="error_elbow_far_full">Лікоть далеко від тіла - тримайте його ближче</string>
+    <string name="error_elbow_close_full">Лікоть притиснутий до тіла - тримайте його вільніше</string>
+    <string name="error_slow_stroke_full">Занадто повільний удар - додайте швидкості</string>
+    <string name="error_fast_stroke_full">Занадто швидкий удар - контролюйте швидкість</string>
+
+    <string name="rec_straighten_wrist_full">Тримайте зап’ястя рівно під час удару</string>
+    <string name="rec_rotate_more_full">Більше ротації корпусу для потужності</string>
+    <string name="rec_contact_height_full">Контакт на рівні столу - оптимальна висота</string>
+    <string name="rec_complete_follow_full">Завершуйте проведення вгору-вперед</string>
+    <string name="rec_keep_elbow_close_full">Тримайте лікоть близько до тіла</string>
+    <string name="rec_move_elbow_away_full">Не притискайте лікоть занадто сильно</string>
+    <string name="rec_increase_speed_full">Додайте швидкості для ефективності</string>
+    <string name="rec_control_speed_full">Зменшіть швидкість для кращого контролю</string>
+
     <!-- Language Options -->
     <string-array name="language_options">
         <item>English</item>
@@ -128,14 +174,8 @@
     </string-array>
     
     <!-- Camera Resolution Options -->
-    <!-- Feedback Messages -->
+    <!-- Feedback General -->
     <string name="error_no_pose">Не вдалося виявити позу - перевірте освітлення та позицію камери</string>
-    <string name="error_wrist_bent">Зап\'ястя зігнуте</string>
-    <string name="error_low_rotation">Недостатня ротація корпусу</string>
-    <string name="error_insufficient_follow">Недостатнє проведення</string>
-    <string name="recommendation_wrist">Тримайте зап\'ястя рівно</string>
-    <string name="recommendation_rotation">Більше ротації для потужності</string>
-    <string name="recommendation_follow">Доведіть рух до кінця</string>
     <string name="feedback_good">Гарно! Продовжуйте в тому ж дусі!</string>
     <string name="feedback_work_on">⚠️ %s</string>
     <string name="feedback_work_on_technique">Працюйте над технікою</string>
@@ -151,12 +191,21 @@
     <string name="session_good">👍 Гарне тренування! Продовжуйте працювати!</string>
     <string name="session_improvement">💪 Є покращення! Тренуйтесь регулярно!</string>
     <string name="session_keep_trying">🎯 Не здавайтесь! Кожне тренування робить вас кращим!</string>
-    <string name="consecutive_5">🔥 5 гарних ударів підряд! Продовжуйте!</string>
-    <string name="consecutive_10">🎯 10 відмінних ударів! Ви в ударі!</string>
-    <string name="consecutive_20">⭐ 20 ударів поспіль! Неймовірно!</string>
-    <string name="consecutive_50">🏆 50 ударів! Ви майстер!</string>
-    <string name="positive_excellent">✅ Чудово! Ідеальна техніка!</string>
-    <string name="positive_great">✅ Відмінно! Так тримати!</string>
+    
+    <!-- Статистика підсумку тренування -->
+    <string name="summary_total_strokes">Всього ударів: %d</string>
+    <string name="summary_successful_strokes">Успішні удари: %d (%d%%)</string>
+    <string name="summary_average_accuracy">Середня точність: %.1f%%</string>
+    
+    <!-- Поради для покращення сесії -->
+    <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки.</string>
+    <string name="tip_good">👍 Добре! Зосередьтесь на стабільності ударів.</string>
+    <string name="tip_not_bad">💪 Непогано! Покращуйте положення тіла та ракетки.</string>
+    <string name="tip_needs_practice">🎓 Потрібна практика. Зосередьтесь на базовій техніці.</string>
+    <string name="motivational_5_strokes">🔥 5 гарних ударів підряд! Продовжуйте!</string>
+    <string name="motivational_10_strokes">🎯 10 відмінних ударів! Ви в ударі!</string>
+    <string name="motivational_20_strokes">⭐ 20 ударів поспіль! Неймовірно!</string>
+    <string name="motivational_50_strokes">🏆 50 ударів! Ви майстер!</string>
     <string name="positive_flawless">✅ Бездоганно! Продовжуйте!</string>
     <string name="positive_perfect">✅ Ідеально! Ви молодець!</string>
     <string name="positive_super">✅ Супер удар! Дуже добре!</string>
@@ -164,21 +213,4 @@
     <string name="tip_rotation">💡 Порада: Поверніть талію та плечі як єдине ціле - уявіть, що закручуєте пружину</string>
     <string name="tip_contact">💡 Порада: Оптимальна точка контакту - на висоті пояса, трохи попереду тіла</string>
     <string name="tip_follow_through">💡 Порада: Уявіть, що ви щіткою проводите м\'яч вгору-вперед - не зупиняйтесь на контакті</string>
-    
-    <!-- Analysis Result Constants -->
-    <string name="error_wrist_bent_full">Зап\'ястя зігнуте - випряміть його</string>
-    <string name="error_low_rotation_full">Недостатня ротація корпусу - поверніться більше</string>
-    <string name="error_high_contact">Контакт надто високо - опустіть точку удару</string>
-    <string name="error_low_contact">Контакт надто низько - підніміть точку удару</string>
-    <string name="error_no_follow_through">Недостатнє проведення - доведіть рух до кінця</string>
-    <string name="error_elbow_far">Лікоть далеко від тіла - тримайте його ближче</string>
-    <string name="error_slow_stroke">Занадто повільний удар - додайте швидкості</string>
-    <string name="error_fast_stroke">Занадто швидкий удар - контролюйте швидкість</string>
-    <string name="rec_straighten_wrist">Тримайте зап\'ястя рівно під час удару</string>
-    <string name="rec_rotate_more">Більше ротації корпусу для потужності</string>
-    <string name="rec_contact_height">Контакт на рівні столу - оптимальна висота</string>
-    <string name="rec_complete_follow">Завершуйте проведення вгору-вперед</string>
-    <string name="rec_keep_elbow_close">Тримайте лікоть близько до тіла</string>
-    <string name="rec_increase_speed">Додайте швидкості для ефективності</string>
-    <string name="rec_control_speed">Зменшіть швидкість для кращого контролю</string>
 </resources>

@@ -329,6 +329,41 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_show_skeleton_label" />
 
+        <!-- Section: Feedback Type -->
+        <TextView
+            android:id="@+id/tv_section_feedback"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/section_feedback"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_show_skeleton_label" />
+
+        <TextView
+            android:id="@+id/tv_feedback_type_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/feedback_type_label"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_section_feedback" />
+
+        <Spinner
+            android:id="@+id/spinner_feedback_type"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_feedback_type_label" />
+
         <!-- Section: Language Settings -->
         <TextView
             android:id="@+id/tv_section_language"
@@ -341,7 +376,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_show_skeleton_label" />
+            app:layout_constraintTop_toBottomOf="@id/spinner_feedback_type" />
 
         <!-- Language Selector -->
         <TextView

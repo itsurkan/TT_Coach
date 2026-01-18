@@ -159,7 +159,7 @@ class MotionAnalyzer(
 
     private fun validateHeight(height: Float?): ValidationResult? = height?.let {
         val isValid = parameters.isContactHeightValid(it)
-        val errorMsg = if (it > parameters.contactHeightMax) TechniqueErrors.HIGH_CONTACT else TechniqueErrors.LOW_CONTACT
+        val errorMsg = if (height > parameters.contactHeightMax) TechniqueErrors.HIGH_CONTACT else TechniqueErrors.LOW_CONTACT
         ValidationResult(
             CorrectionType.CONTACT_HEIGHT,
             isValid,

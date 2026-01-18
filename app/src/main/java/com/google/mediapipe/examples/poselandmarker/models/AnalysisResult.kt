@@ -110,28 +110,31 @@ enum class StrokePhase {
 /**
  * Типи помилок техніки
  */
+/**
+ * Коди помилок техніки (відповідають назвам у strings.xml)
+ */
 object TechniqueErrors {
-    const val WRIST_BENT = "Зап'ястя зігнуте - випряміть його"
-    const val LOW_ROTATION = "Недостатня ротація корпусу - поверніться більше"
-    const val HIGH_CONTACT = "Контакт надто високо - опустіть точку удару"
-    const val LOW_CONTACT = "Контакт надто низько - підніміть точку удару"
-    const val NO_FOLLOW_THROUGH = "Недостатнє проведення - доведіть рух до кінця"
-    const val ELBOW_FAR = "Лікоть далеко від тіла - тримайте його ближче"
-    const val ELBOW_CLOSE = "Лікоть притиснутий до тіла - тримайте його вільніше"
-    const val SLOW_STROKE = "Занадто повільний удар - додайте швидкості"
-    const val FAST_STROKE = "Занадто швидкий удар - контролюйте швидкість"
+    const val WRIST_BENT = "error_wrist_bent"
+    const val LOW_ROTATION = "error_low_rotation"
+    const val HIGH_CONTACT = "error_high_contact"
+    const val LOW_CONTACT = "error_low_contact"
+    const val NO_FOLLOW_THROUGH = "error_no_follow_through"
+    const val ELBOW_FAR = "error_elbow_far"
+    const val ELBOW_CLOSE = "error_elbow_close"
+    const val SLOW_STROKE = "error_slow_stroke"
+    const val FAST_STROKE = "error_fast_stroke"
 }
 
 /**
- * Типи рекомендацій
+ * Коди рекомендацій (відповідають назвам у strings.xml)
  */
 object TechniqueRecommendations {
-    const val STRAIGHTEN_WRIST = "Тримайте зап'ястя рівно під час удару"
-    const val ROTATE_MORE = "Більше ротації корпусу для потужності"
-    const val ADJUST_CONTACT_HEIGHT = "Контакт на рівні столу - оптимальна висота"
-    const val COMPLETE_FOLLOW_THROUGH = "Завершуйте проведення вгору-вперед"
-    const val KEEP_ELBOW_CLOSE = "Тримайте лікоть близько до тіла"
-    const val MOVE_ELBOW_AWAY = "Не притискайте лікоть занадто сильно"
-    const val INCREASE_SPEED = "Додайте швидкості для ефективності"
-    const val CONTROL_SPEED = "Зменшіть швидкість для кращого контролю"
+    const val STRAIGHTEN_WRIST = "rec_straighten_wrist"
+    const val ROTATE_MORE = "rec_rotate_more"
+    const val ADJUST_CONTACT_HEIGHT = "rec_contact_height"
+    const val COMPLETE_FOLLOW_THROUGH = "rec_complete_follow"
+    const val KEEP_ELBOW_CLOSE = "rec_keep_elbow_close"
+    const val MOVE_ELBOW_AWAY = "rec_move_elbow_away"
+    const val INCREASE_SPEED = "rec_increase_speed"
+    const val CONTROL_SPEED = "rec_control_speed"
 }
