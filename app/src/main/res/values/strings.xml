@@ -30,6 +30,12 @@
         <item>Pose Landmarker Lite</item>
         <item>Pose Landmarker Heavy</item>
     </string-array>
+
+    <string-array name="feedback_frequencies">
+        <item>Each 3 strokes</item>
+        <item>Each 5 strokes</item>
+        <item>Each 10 strokes</item>
+    </string-array>
     
     <!-- Welcome Activity -->
     <string name="welcome_title">AI Coach</string>

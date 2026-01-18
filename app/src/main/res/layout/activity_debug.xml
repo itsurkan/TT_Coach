@@ -560,6 +560,98 @@
                         android:paddingBottom="4dp" />
                 </LinearLayout>
 
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Feedback Settings -->
+                <TextView
+                    android:id="@+id/headerFeedbackSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="▶ ⚙️ Feedback Settings"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentFeedbackSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Frequency (every N strokes):"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerFrequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/feedback_frequencies"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Enabled Corrections:"
+                        android:textSize="13sp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="4dp" />
+
+                    <CheckBox
+                        android:id="@+id/cbWrist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Wrist Angle"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbBodyRotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Body Rotation"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbFollowThrough"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Follow-Through"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbContactHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Contact Height"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbElbowPosition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Elbow Position"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbStrokeSpeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Stroke Speed"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

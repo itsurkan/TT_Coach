@@ -26,6 +26,8 @@ class FeedbackGenerator(private val context: Context) {
     private val random = Random()
     private val settingsManager = SettingsManager(context)
     
+    fun getSettingsManager() = settingsManager
+    
     private var loadedSounds = mutableSetOf<Int>()
     private var toneGenerator: ToneGenerator? = null
     private var soundPool: SoundPool? = null
@@ -74,6 +76,7 @@ class FeedbackGenerator(private val context: Context) {
     fun playTic() {
         var played = false
         if (ticSoundId != 0 && loadedSounds.contains(ticSoundId)) {
+            Log.d("FeedbackGenerator", "Playing TIC via SoundPool")
             val streamId = soundPool?.play(ticSoundId, 1.0f, 1.0f, 1, 0, 1.0f) ?: 0
             if (streamId != 0) played = true
         }
@@ -90,6 +93,7 @@ class FeedbackGenerator(private val context: Context) {
     fun playTac() {
         var played = false
         if (tacSoundId != 0 && loadedSounds.contains(tacSoundId)) {
+            Log.d("FeedbackGenerator", "Playing TAC via SoundPool")
             val streamId = soundPool?.play(tacSoundId, 1.0f, 1.0f, 1, 0, 1.0f) ?: 0
             if (streamId != 0) played = true
         }
@@ -123,48 +127,50 @@ class FeedbackGenerator(private val context: Context) {
         }
         
         val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
-        Log.d("FeedbackGenerator", "playFeedbackAudio: Type=${if(isShort) "SHORT" else "FULL"}, Recs=${result.recommendations.size}")
         
-        // 1. Try to find audio for a recommendation (constructive)
-        val recKey = result.recommendations.firstOrNull()
-        if (recKey != null) {
-            val resName = if (isShort) "short_$recKey" else "${recKey}_full"
-            val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
-            Log.d("FeedbackGen", "Attempting playback from REC: $resName (ID: $resId)")
-            if (resId != 0) {
-                playRawResource(resId)
-                return
-            } else {
-                Log.e("FeedbackGen", "Resource NOT FOUND for: $resName")
-            }
+        // 1. Filter recommendations by enabled types
+        // Note: For now, recommendations in AnalysisResult are strings (keys), 
+        // we need to map them back to types or check if they are disabled.
+        // A better way is to filter the feedbackItems directly.
+        
+        val filteredFeedbackItems = result.feedbackItems.filter { item ->
+            settingsManager.isCorrectionTypeEnabled(item.type)
+        }
+        
+        Log.d("FeedbackGenerator", "playFeedbackAudio: Type=${if(isShort) "SHORT" else "FULL"}, Recs=${result.recommendations.size}, Filtered=${filteredFeedbackItems.size}")
+
+        if (filteredFeedbackItems.isEmpty()) {
+            Log.i("FeedbackGenerator", "All feedback items filtered out by settings or none present.")
+            return
         }
 
-        // 2. Fallback to error audio if no recommendation audio found
-        val errorItem = result.feedbackItems.firstOrNull { !it.isPositive }
-        if (errorItem != null) {
-            val resName = if (isShort) "short_${errorItem.message}" else "${errorItem.message}_full"
+        // Pick one (first one for now, as they are usually sorted by significance)
+        val bestItem = filteredFeedbackItems.firstOrNull() ?: return
+        
+        // Use recommendation if it's a recommendation item, otherwise use error
+        val key = if (bestItem.isPositive) {
+             // Find corresponding recommendation key if possible
+             // For now, let's look at result.recommendations that might match
+             result.recommendations.firstOrNull() 
+        } else {
+             bestItem.message
+        }
+
+        if (key != null) {
+            val resName = if (bestItem.isPositive) {
+                if (isShort) "short_$key" else "${key}_full"
+            } else {
+                if (isShort) "short_$key" else "${key}_full"
+            }
+            
             val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
-            Log.d("FeedbackGen", "Attempting playback from ERROR: $resName (ID: $resId)")
+            Log.d("FeedbackGenerator", "Attempting playback for: $resName (ID: $resId)")
             if (resId != 0) {
                 playRawResource(resId)
-                return
             } else {
-                Log.e("FeedbackGen", "Resource NOT FOUND for: $resName")
+                Log.e("FeedbackGenerator", "Resource NOT FOUND for: $resName")
             }
-        } else {
-             // 3. Fallback: If no recommendations and no errors, it's a GOOD stroke!
-             // Play a positive sound (e.g. "good_job" or similar if we had one, or maybe just silence is intended?)
-             // User requested feedback at contact, maybe we should say "Good!"
-             
-             // We don't have dedicated "good" audio files yet, but we can verify if we should play something.
-             Log.i("FeedbackGen", "No errors or recommendations found. Clean stroke.")
-             
-             // TODO: Add positive audio files. For now, we can play a generic positive beep from ToneGenerator if urgent
-             // or just log it.
-             // If we had "good.mp3" we would play it here.
         }
-        
-        Log.d("FeedbackGenerator", "No audio resource found for result")
     }
 
     private fun playRawResource(resId: Int) {
@@ -173,6 +179,7 @@ class FeedbackGenerator(private val context: Context) {
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer.create(context, resId)
             mediaPlayer?.let {
+                Log.d("FeedbackGenerator", "Starting MediaPlayer for resource ID: $resId")
                 it.start()
                 it.setOnCompletionListener { player ->
                     player.release()
@@ -212,18 +219,37 @@ class FeedbackGenerator(private val context: Context) {
         feedback.append(getSummary(result.overallScore)).append("\n\n")
         feedback.append(context.getString(R.string.feedback_score_format, result.overallScore.toInt()))
         
-        if (result.feedbackItems.any { !it.isPositive }) {
+        // Filter feedback items by correction type
+        val filteredFeedbackItems = result.feedbackItems.filter { item ->
+            settingsManager.isCorrectionTypeEnabled(item.type)
+        }
+
+        if (filteredFeedbackItems.any { !it.isPositive }) {
             feedback.append(context.getString(R.string.feedback_errors_header))
-            result.feedbackItems.filter { !it.isPositive }.forEach { item ->
+            filteredFeedbackItems.filter { !it.isPositive }.forEach { item ->
                 feedback.append("• ${resolveFeedbackItem(item, isShort)}\n")
             }
             feedback.append("\n")
         }
         
+        // recommendations in AnalysisResult are currently String keys. 
+        // We'd ideally need a way to map them to CorrectionType to filter, 
+        // but for now they usually accompany a FeedbackItem anyway.
+        // If we want to be strict, we can skip them or try to match by key.
         if (result.recommendations.isNotEmpty()) {
-            feedback.append(context.getString(R.string.feedback_recommendations_header))
-            result.recommendations.forEach { recKey ->
-                feedback.append("• ${resolveString(recKey, isShort)}\n")
+            val enabledRecommendations = result.recommendations.filter { recKey ->
+                // Heuristic: check if any enabled feedback item matches this recommendation
+                // or just allow it if it's general. 
+                // A better way is to ensure all recommendations have a type.
+                // For now, let's keep it as is or filter if we can link them.
+                true 
+            }
+            
+            if (enabledRecommendations.isNotEmpty()) {
+                feedback.append(context.getString(R.string.feedback_recommendations_header))
+                enabledRecommendations.forEach { recKey ->
+                    feedback.append("• ${resolveString(recKey, isShort)}\n")
+                }
             }
         }
         

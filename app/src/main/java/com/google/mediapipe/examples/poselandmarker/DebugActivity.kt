@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
 import com.google.mediapipe.examples.poselandmarker.managers.DebugPlaybackManager
+import com.google.mediapipe.examples.poselandmarker.managers.DebugSettingsController
 import com.google.mediapipe.examples.poselandmarker.managers.DebugUIController
 import com.google.mediapipe.examples.poselandmarker.managers.DebugVideoLoader
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
@@ -44,6 +45,7 @@ class DebugActivity : AppCompatActivity() {
     private lateinit var uiController: DebugUIController
     private lateinit var playbackManager: DebugPlaybackManager
     private lateinit var videoLoader: DebugVideoLoader
+    private lateinit var settingsController: DebugSettingsController
     private var isPortraitMode = true
 
     companion object {
@@ -83,6 +85,7 @@ class DebugActivity : AppCompatActivity() {
         uiController = DebugUIController(this, binding, videoDebugProcessor, feedbackGenerator)
         playbackManager = DebugPlaybackManager(this, binding, videoDebugProcessor, uiController, feedbackGenerator)
         videoLoader = DebugVideoLoader(this, binding, videoDebugProcessor, uiController, playbackManager)
+        settingsController = DebugSettingsController(binding, application.settingsManager)
     }
 
     private fun setupUI() {
@@ -120,16 +123,11 @@ class DebugActivity : AppCompatActivity() {
         binding.seekBarFrame.setOnSeekBarChangeListener(seekBarListener)
         binding.btnReset.setOnClickListener { resetAnalysis() }
         
-        // Audio test button
-        binding.btnTestAudio.setOnClickListener { testAudioFeedback() }
-        binding.btnTestAudioPortrait.setOnClickListener { testAudioFeedback() }
-
         // Collapsible panels
-        setupCollapsiblePanel(binding.headerCurrentFrame, binding.contentCurrentFrame)
-        setupCollapsiblePanel(binding.headerFeedback, binding.contentFeedback)
-        setupCollapsiblePanel(binding.headerSessionSummary, binding.contentSessionSummary)
-        setupCollapsiblePanel(binding.headerPlayback, binding.contentPlayback)
         setupCollapsiblePanel(binding.headerTechnical, binding.contentTechnical)
+        setupCollapsiblePanel(binding.headerFeedbackSettings, binding.contentFeedbackSettings)
+        
+        settingsController.setup()
     }
 
     private fun setupCollapsiblePanel(header: TextView, content: View) {

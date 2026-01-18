@@ -8,12 +8,14 @@ package com.google.mediapipe.examples.poselandmarker
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import com.google.mediapipe.examples.poselandmarker.core.logging.providers.LocalFileLogger
 import kotlinx.coroutines.runBlocking
 
 class TTCoachApplication : Application() {
     
     private lateinit var fileLogger: LocalFileLogger
+    val settingsManager: SettingsManager by lazy { SettingsManager(this) }
     
     override fun attachBaseContext(base: Context) {
         // Apply saved locale before any activity is created

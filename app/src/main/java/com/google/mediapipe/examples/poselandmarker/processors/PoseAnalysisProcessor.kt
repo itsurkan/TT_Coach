@@ -41,6 +41,7 @@ class PoseAnalysisProcessor(
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
     private var pendingFeedbackResult: AnalysisResult? = null
     private var audioPlayedForCurrentStroke = false
+    private var totalCompletedStrokes = 0 // Counter for frequency logic
     
     companion object {
         private const val TAG = "PoseAnalysisProcessor"
@@ -63,6 +64,7 @@ class PoseAnalysisProcessor(
         )
         frameCounter = 0
         resetStrokeDetection()
+        totalCompletedStrokes = 0 // Reset stroke counter for new session
         Log.i(TAG, "Training session started: $currentSessionId")
     }
 
@@ -95,6 +97,7 @@ class PoseAnalysisProcessor(
         }
         currentSessionId = null
         frameCounter = 0
+        totalCompletedStrokes = 0
     }
 
     /**
@@ -154,20 +157,23 @@ class PoseAnalysisProcessor(
             // -------------------------------------------------------------------------
             if (previousPhase == StrokePhase.BACKSWING && detectedPhase == StrokePhase.FORWARD_SWING) {
                 pendingFeedbackResult?.let { result ->
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        Log.i(TAG, "Playing DELAYED Audio Feedback from previous stroke")
-                        
-                        // Pick ONLY ONE recommendation/error as requested
-                        val singleRecResult = result.copy(
-                            recommendations = if (result.recommendations.isNotEmpty()) 
-                                listOf(result.recommendations[0]) else emptyList(),
-                            feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                listOf(result.feedbackItems[0]) else emptyList(),
-                            errors = if (result.errors.isNotEmpty()) 
-                                listOf(result.errors[0]) else emptyList()
-                        )
-                        
-                        feedbackGenerator.playFeedbackAudio(singleRecResult)
+                    val frequency = application.settingsManager.getFeedbackFrequency()
+                    if (totalCompletedStrokes > 0 && totalCompletedStrokes % frequency == 0) {
+                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                            Log.i(TAG, "Playing DELAYED Audio Feedback from previous stroke (Frequency: $frequency, Stroke: $totalCompletedStrokes)")
+                            
+                            // Pick ONLY ONE recommendation/error as requested
+                            val singleRecResult = result.copy(
+                                recommendations = if (result.recommendations.isNotEmpty()) 
+                                    listOf(result.recommendations[0]) else emptyList(),
+                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                    listOf(result.feedbackItems[0]) else emptyList(),
+                                errors = if (result.errors.isNotEmpty()) 
+                                    listOf(result.errors[0]) else emptyList()
+                            )
+                            
+                            feedbackGenerator.playFeedbackAudio(singleRecResult)
+                        }
                     }
                     pendingFeedbackResult = null // Clear after playing
                     audioPlayedForCurrentStroke = true
@@ -182,69 +188,50 @@ class PoseAnalysisProcessor(
             // -------------------------------------------------------------------------
             // 2. STROKE FINALIZATION (Trigger after FOLLOW_THROUGH)
             // -------------------------------------------------------------------------
-            // Check for stroke completion: transition from FOLLOW_THROUGH to any other phase (usually RECOVERY or READY)
-            // waiting for READY is too strict
             if (previousPhase == StrokePhase.FOLLOW_THROUGH && detectedPhase != StrokePhase.FOLLOW_THROUGH) {
                 if (currentStrokeResults.isNotEmpty()) {
+                    totalCompletedStrokes++
+                    
                     // Find the best representative result for the stroke
-                    // Prefer CONTACT phase result, or highest score if multiple/none
-                    val strokeFeedbackResult = currentStrokeResults
+                    val bestResult = currentStrokeResults
                         .filter { it.phase == StrokePhase.CONTACT }
                         .maxByOrNull { it.overallScore }
                         ?: currentStrokeResults.maxByOrNull { it.overallScore }
                         ?: analysisResult
 
                     // Update state and UI with the finalized stroke result
-                    stateManager.addAnalysisResult(strokeFeedbackResult)
+                    stateManager.addAnalysisResult(bestResult)
                     
                     // Store for playback during the NEXT stroke's backswing
-                    pendingFeedbackResult = strokeFeedbackResult
+                    pendingFeedbackResult = bestResult
                     
-                    // Generate feedback in the new format (array of items)
-                    val feedbackItems = strokeFeedbackResult.feedbackItems
-                    
-                    // Also keep the old string format for backward compatibility if needed
-                    val feedbackText = if (strokeFeedbackResult.isSuccessful()) {
-                        feedbackGenerator.generateShortFeedback(strokeFeedbackResult)
+                    // Generate and add textual feedback
+                    val isShort = application.settingsManager.getFeedbackType() == 0
+                    val feedbackText = if (isShort) {
+                        feedbackGenerator.generateShortFeedback(bestResult)
                     } else {
-                        feedbackGenerator.generateDetailedFeedback(strokeFeedbackResult)
+                        feedbackGenerator.generateDetailedFeedback(bestResult)
                     }
-                    
                     stateManager.addFeedback(feedbackText)
-                    stateManager.addFeedbackItems(feedbackItems)
+                    stateManager.addFeedbackItems(bestResult.feedbackItems)
+                    
                     // Update UI on main thread
                     android.os.Handler(android.os.Looper.getMainLooper()).post {
                         uiController.updateFeedbackText(feedbackText)
                         uiController.updateStats()
-                        
-                        // If audio wasn't played yet (e.g. fast stroke skipped contact frame logic), play it now
-                        if (!audioPlayedForCurrentStroke) {
-                            feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
-                        }
-                        
-                        // Trigger UI update callback (for animations/overlays)
-                        onUIUpdate()
                     }
                     
-                    // Clear for next stroke
                     currentStrokeResults.clear()
-                    audioPlayedForCurrentStroke = false
-                }
-            } else {
-                // For non-finalizing frames, still trigger UI update on main thread if needed
-                android.os.Handler(android.os.Looper.getMainLooper()).post {
-                    onUIUpdate()
+                    isInsideStroke = false
+                    Log.d(TAG, "Stroke finalized: $totalCompletedStrokes")
                 }
             }
             
-            // Log stroke analysis asynchronously (zero latency impact)
+            // Log stroke analysis
             logAnalysisResults(analysisResult, inferenceTime)
-            
-            // 🆕 Log raw pose landmarks (enable for data collection)
-            // Raw pose logging enabled ✅
             logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
             
-            // Debug log every LOG_INTERVAL_FRAMES
+            // Periodic debug log
             if (frameCounter % LOG_INTERVAL_FRAMES == 0) {
                 Log.d(TAG, "Frame $frameCounter: score=${analysisResult.overallScore}%, inference=${inferenceTime}ms")
             }

@@ -68,6 +68,7 @@ class VideoDebugProcessor(
     private var lastPhase: StrokePhase? = null
     private var pendingFeedbackResult: AnalysisResult? = null
     private val currentStrokeIndices = mutableListOf<Int>()
+    private var totalCompletedStrokes = 0 // Counter for frequency logic
 
     companion object {
         private const val TAG = "VideoDebugProcessor"
@@ -234,83 +235,88 @@ class VideoDebugProcessor(
         if (totalFrames == 0) return
 
         displayTask?.cancel(false)
-        displayTask = backgroundExecutor?.scheduleAtFixedRate(
+        displayTask = backgroundExecutor?.scheduleWithFixedDelay(
             {
-                if (!isVideoPlaying()) return@scheduleAtFixedRate
+                try {
+                    if (!isVideoPlaying()) return@scheduleWithFixedDelay
 
-                val currentPositionMs = getVideoPositionMs()
-                val resultIndex = ((currentPositionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
-                    .coerceIn(0, totalFrames - 1)
+                    val currentPositionMs = getVideoPositionMs()
+                    val resultIndex = ((currentPositionMs.toFloat() / VIDEO_INTERVAL_MS) + 0.5f).toInt()
+                        .coerceIn(0, totalFrames - 1)
 
-                val landmarks = getLandmarksAtIndex(resultIndex)
-                val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
+                    val landmarks = getLandmarksAtIndex(resultIndex)
+                    val analysisResult = analysisResults.getOrNull(resultIndex) ?: AnalysisResult()
 
-                // Audio Feedback Trigger logic for Playback
-                if (resultIndex != lastPlayedFrameIndex) {
-                    val currentPhase = analysisResult.phase
-                    Log.v("VideoDebugProcessor", "Frame $resultIndex: Phase=$currentPhase, lastPhase=$lastPhase")
-                    
-                    // 1. Collect indices for the current stroke
-                    if (currentPhase != StrokePhase.READY) {
-                        currentStrokeIndices.add(resultIndex)
-                    }
-                    
-                    // 2. Trigger DELAYED feedback from previous stroke at start of FORWARD_SWING
-                    if (lastPhase == StrokePhase.BACKSWING && currentPhase == StrokePhase.FORWARD_SWING) {
-                        pendingFeedbackResult?.let { result ->
-                            Log.i("VideoDebugProcessor", "Debug Playback: Playing DELAYED Audio Feedback")
-                            
-                            // Pick ONLY ONE recommendation/error
-                            val singleRecResult = result.copy(
-                                recommendations = if (result.recommendations.isNotEmpty()) 
-                                    listOf(result.recommendations[0]) else emptyList(),
-                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                    listOf(result.feedbackItems[0]) else emptyList(),
-                                errors = if (result.errors.isNotEmpty()) 
-                                    listOf(result.errors[0]) else emptyList()
-                            )
-                            
-                            feedbackGenerator.playFeedbackAudio(singleRecResult)
-                            pendingFeedbackResult = null // Clear after playing
-                            audioPlayedForCurrentStroke = true
+                    // Audio Feedback Trigger logic for Playback
+                    if (resultIndex != lastPlayedFrameIndex) {
+                        val currentPhase = analysisResult.phase
+                        
+                        // 1. Collect indices for the current stroke
+                        if (currentPhase != StrokePhase.READY) {
+                            if (!currentStrokeIndices.contains(resultIndex)) {
+                                currentStrokeIndices.add(resultIndex)
+                            }
                         }
-                    }
-                    
-                    // 3. Finalize stroke data when it ends
-                    if (lastPhase == StrokePhase.FOLLOW_THROUGH && currentPhase != StrokePhase.FOLLOW_THROUGH) {
-                        if (currentStrokeIndices.isNotEmpty()) {
-                            // Find the best result for the completed stroke
-                            pendingFeedbackResult = currentStrokeIndices
-                                .mapNotNull { analysisResults.getOrNull(it) }
-                                .filter { it.phase == StrokePhase.CONTACT }
-                                .maxByOrNull { it.overallScore }
-                                ?: currentStrokeIndices
+                        
+                        // 2. Trigger DELAYED feedback from previous stroke at start of FORWARD_SWING
+                        if (lastPhase == StrokePhase.BACKSWING && currentPhase == StrokePhase.FORWARD_SWING) {
+                            pendingFeedbackResult?.let { result ->
+                                val frequency = feedbackGenerator.getSettingsManager().getFeedbackFrequency()
+                                if (totalCompletedStrokes > 0 && totalCompletedStrokes % frequency == 0) {
+                                    Log.i(TAG, "Debug Playback: Playing DELAYED Audio Feedback (Freq: $frequency, Stroke: $totalCompletedStrokes)")
+                                    
+                                    // Pick ONLY ONE recommendation/error
+                                    val singleRecResult = result.copy(
+                                        recommendations = if (result.recommendations.isNotEmpty()) 
+                                            listOf(result.recommendations[0]) else emptyList(),
+                                        feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                            listOf(result.feedbackItems[0]) else emptyList(),
+                                        errors = if (result.errors.isNotEmpty()) 
+                                            listOf(result.errors[0]) else emptyList()
+                                    )
+                                    
+                                    feedbackGenerator.playFeedbackAudio(singleRecResult)
+                                }
+                                pendingFeedbackResult = null // Clear after playing
+                                audioPlayedForCurrentStroke = true
+                            }
+                        }
+                        
+                        // 3. Finalize stroke data when it ends
+                        if (lastPhase == StrokePhase.FOLLOW_THROUGH && currentPhase != StrokePhase.FOLLOW_THROUGH) {
+                            if (currentStrokeIndices.isNotEmpty()) {
+                                totalCompletedStrokes++ // Increment stroke counter
+                                
+                                // Find the best result for the completed stroke
+                                val bestResult = currentStrokeIndices
                                     .mapNotNull { analysisResults.getOrNull(it) }
+                                    .filter { it.phase == StrokePhase.CONTACT }
                                     .maxByOrNull { it.overallScore }
-                            
-                            currentStrokeIndices.clear()
-                            android.util.Log.d(TAG, "Debug Playback: Stroke finalized, feedback pending for next stroke.")
+                                    ?: currentStrokeIndices
+                                        .mapNotNull { analysisResults.getOrNull(it) }
+                                        .maxByOrNull { it.overallScore }
+                                
+                                pendingFeedbackResult = bestResult
+                                currentStrokeIndices.clear()
+                                Log.d(TAG, "Debug Playback: Stroke $totalCompletedStrokes finalized, feedback pending for next stroke.")
+                            }
                         }
-                    }
-                    
-                    // Reset tracking for current stroke audio
-                    if (currentPhase == StrokePhase.BACKSWING && lastPhase != StrokePhase.BACKSWING) {
-                        audioPlayedForCurrentStroke = false
-                    }
-                    
-                    // 4. Rhythm sounds (Tic/Tac)
-                    if (currentPhase == StrokePhase.FORWARD_SWING && lastPhase != StrokePhase.FORWARD_SWING) {
-                        feedbackGenerator.playTic()
-                    }
-                    if (currentPhase == StrokePhase.CONTACT && lastPhase != StrokePhase.CONTACT) {
-                        feedbackGenerator.playTac()
+                        
+                        // Reset tracking for current stroke audio
+                        if (currentPhase == StrokePhase.BACKSWING && lastPhase != StrokePhase.BACKSWING) {
+                            audioPlayedForCurrentStroke = false
+                        }
+                        
+                        // 4. Rhythm sounds (Tic/Tac) - REMOVED: handled by DebugPlaybackManager to avoid double sounds
+                        
+                        lastPhase = currentPhase
+                        lastPlayedFrameIndex = resultIndex
                     }
 
-                    lastPhase = currentPhase
-                    lastPlayedFrameIndex = resultIndex
+                    onFrameUpdate(resultIndex, landmarks, analysisResult)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error in display task", e)
                 }
-
-                onFrameUpdate(resultIndex, landmarks, analysisResult)
             },
             0,
             DISPLAY_UPDATE_INTERVAL_MS,

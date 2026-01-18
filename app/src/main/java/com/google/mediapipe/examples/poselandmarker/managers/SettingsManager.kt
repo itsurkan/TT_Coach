@@ -34,6 +34,19 @@ class SettingsManager(context: Context) {
     fun getFeedbackType(): Int = prefs.getInt("feedback_type", 0) // Default: SHORT (0)
     fun setFeedbackType(type: Int) = prefs.edit().putInt("feedback_type", type).apply()
     
+    // Frequency: every N strokes (default: 3)
+    fun getFeedbackFrequency(): Int = prefs.getInt("feedback_frequency", 3)
+    fun setFeedbackFrequency(value: Int) = prefs.edit().putInt("feedback_frequency", value).apply()
+    
+    // Correction type filtering
+    fun isCorrectionTypeEnabled(type: com.google.mediapipe.examples.poselandmarker.models.CorrectionType): Boolean {
+        return prefs.getBoolean("correction_enabled_${type.name}", true)
+    }
+    
+    fun setCorrectionTypeEnabled(type: com.google.mediapipe.examples.poselandmarker.models.CorrectionType, enabled: Boolean) {
+        prefs.edit().putBoolean("correction_enabled_${type.name}", enabled).apply()
+    }
+    
     // Camera settings
     fun getCameraResolution(): Int = prefs.getInt("camera_resolution", 1)
     fun setCameraResolution(resolution: Int) = prefs.edit().putInt("camera_resolution", resolution).apply()
