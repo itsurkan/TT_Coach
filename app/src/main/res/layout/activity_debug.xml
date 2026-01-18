@@ -206,7 +206,9 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
-                    android:background="?attr/selectableItemBackground" />
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <LinearLayout
                     android:id="@+id/contentCurrentFrame"
@@ -255,7 +257,9 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
-                    android:background="?attr/selectableItemBackground" />
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <LinearLayout
                     android:id="@+id/contentFeedback"
@@ -287,7 +291,9 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
-                    android:background="?attr/selectableItemBackground" />
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <LinearLayout
                     android:id="@+id/contentSessionSummary"
@@ -360,7 +366,9 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
-                    android:background="?attr/selectableItemBackground" />
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <LinearLayout
                     android:id="@+id/contentPlayback"
@@ -494,7 +502,9 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
-                    android:background="?attr/selectableItemBackground" />
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <LinearLayout
                     android:id="@+id/contentTechnical"
