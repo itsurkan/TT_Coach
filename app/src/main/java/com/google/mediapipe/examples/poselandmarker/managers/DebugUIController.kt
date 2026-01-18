@@ -29,6 +29,11 @@ class DebugUIController(
     private var videoHeight = 0
     private var videoDurationMs = 0L
 
+    // Feedback history for accumulated display
+    private val feedbackHistory = StringBuilder()
+    private var lastDisplayedStroke = -1
+    private var lastDisplayedPhase: StrokePhase? = null
+
     fun setVideoDimensions(width: Int, height: Int) {
         videoWidth = width
         videoHeight = height
@@ -103,11 +108,12 @@ class DebugUIController(
             result.overallScore >= 60 -> context.getColor(android.R.color.holo_orange_dark)
             else -> context.getColor(android.R.color.holo_red_dark)
         })
-        binding.tvCurrentFeedback.text = feedbackGenerator.generateShortFeedback(result)
 
-        // Update stroke info if available
+        // Update stroke info if stroke detection is available, otherwise show short feedback
         if (videoDebugProcessor.hasStrokeDetection()) {
             updateStrokeInfo(resultIndex)
+        } else {
+            binding.tvCurrentFeedback.text = feedbackGenerator.generateShortFeedback(result)
         }
     }
 
@@ -122,16 +128,62 @@ class DebugUIController(
         stroke?.let { s ->
             val strokeNum = s.strokeIndex + 1
             binding.tvStrokesDetected.text = "Stroke: $strokeNum / ${strokes.size}"
-            binding.tvCurrentFeedback.text = buildString {
-                append("Phase: ${phase.name}")
-                append(" | Duration: ${s.strokeDurationMs}ms")
-                if (phase == StrokePhase.FORWARD_SWING || phase == StrokePhase.CONTACT) {
-                    append("\nPeak velocity: %.3f".format(Locale.US, s.peakVelocity))
-                }
-            }
+
+            // Append new feedback line when stroke or phase changes
+            appendFeedbackEntry(strokeNum, phase, s.peakVelocity)
         } ?: run {
             binding.tvStrokesDetected.text = "Strokes: ${strokes.size} (between strokes)"
         }
+    }
+
+    /**
+     * Append a feedback entry to the history
+     * Format: stroke: N, phase: PhaseName, Feedback: details
+     */
+    private fun appendFeedbackEntry(strokeNum: Int, phase: StrokePhase, peakVelocity: Float) {
+        // Only add new entry when stroke or phase changes
+        if (strokeNum == lastDisplayedStroke && phase == lastDisplayedPhase) {
+            return
+        }
+
+        lastDisplayedStroke = strokeNum
+        lastDisplayedPhase = phase
+
+        // Generate feedback based on phase
+        val feedback = generatePhaseFeedback(phase, peakVelocity)
+
+        // Append new line to history
+        if (feedbackHistory.isNotEmpty()) {
+            feedbackHistory.append("\n")
+        }
+        feedbackHistory.append("stroke: $strokeNum, phase: ${phase.name}, Feedback: $feedback")
+
+        // Update the display
+        binding.tvCurrentFeedback.text = feedbackHistory.toString()
+    }
+
+    /**
+     * Generate feedback message based on phase
+     */
+    private fun generatePhaseFeedback(phase: StrokePhase, peakVelocity: Float): String {
+        return when (phase) {
+            StrokePhase.READY -> "Ready position"
+            StrokePhase.BACKSWING -> "Start rotation"
+            StrokePhase.FORWARD_SWING -> "Accelerate (v=%.3f)".format(Locale.US, peakVelocity)
+            StrokePhase.CONTACT -> "Ball contact"
+            StrokePhase.FOLLOW_THROUGH -> "Complete swing"
+            StrokePhase.RECOVERY -> "Return to ready"
+        }
+    }
+
+    /**
+     * Clear the feedback history (call when loading new video)
+     */
+    fun clearFeedbackHistory() {
+        feedbackHistory.clear()
+        lastDisplayedStroke = -1
+        lastDisplayedPhase = null
+        binding.tvCurrentFeedback.text = ""
     }
 
     /**

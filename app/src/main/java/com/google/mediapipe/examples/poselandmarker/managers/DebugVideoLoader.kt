@@ -253,6 +253,7 @@ class DebugVideoLoader(
                 uiController.enableLogButton()
                 uiController.updateVideoInfo()
                 uiController.updateAnalysisInfo()
+                uiController.clearFeedbackHistory()
                 playbackManager.updateDisplayAtPosition(0)
                 Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
             } else {

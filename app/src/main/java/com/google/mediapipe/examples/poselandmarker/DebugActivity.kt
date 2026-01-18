@@ -137,12 +137,12 @@ class DebugActivity : AppCompatActivity() {
             val isVisible = content.visibility == View.VISIBLE
             content.visibility = if (isVisible) View.GONE else View.VISIBLE
 
-            // Update arrow indicator
+            // Update indicator: [-] for expanded, [+] for collapsed
             val currentText = header.text.toString()
             val newText = if (isVisible) {
-                currentText.replaceFirst("▼", "▶")
+                currentText.replaceFirst("[-]", "[+]")
             } else {
-                currentText.replaceFirst("▶", "▼")
+                currentText.replaceFirst("[+]", "[-]")
             }
             header.text = newText
         }
