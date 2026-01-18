@@ -265,17 +265,7 @@ class VideoDebugProcessor(
                                 if (totalCompletedStrokes > 0 && totalCompletedStrokes % frequency == 0) {
                                     Log.i(TAG, "Debug Playback: Playing DELAYED Audio Feedback (Freq: $frequency, Stroke: $totalCompletedStrokes)")
                                     
-                                    // Pick ONLY ONE recommendation/error
-                                    val singleRecResult = result.copy(
-                                        recommendations = if (result.recommendations.isNotEmpty()) 
-                                            listOf(result.recommendations[0]) else emptyList(),
-                                        feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                            listOf(result.feedbackItems[0]) else emptyList(),
-                                        errors = if (result.errors.isNotEmpty()) 
-                                            listOf(result.errors[0]) else emptyList()
-                                    )
-                                    
-                                    feedbackGenerator.playFeedbackAudio(singleRecResult)
+                                    feedbackGenerator.playFeedbackAudio(result)
                                 }
                                 pendingFeedbackResult = null // Clear after playing
                                 audioPlayedForCurrentStroke = true

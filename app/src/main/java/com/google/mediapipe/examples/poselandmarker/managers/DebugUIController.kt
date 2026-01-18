@@ -6,9 +6,13 @@
 package com.google.mediapipe.examples.poselandmarker.managers
 
 import android.content.Context
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
 import com.google.mediapipe.examples.poselandmarker.services.DetectedStroke
@@ -30,9 +34,18 @@ class DebugUIController(
     private var videoDurationMs = 0L
 
     // Feedback history for accumulated display
-    private val feedbackHistory = StringBuilder()
+    private val feedbackHistory = SpannableStringBuilder()
     private var lastDisplayedStroke = -1
     private var lastDisplayedPhase: StrokePhase? = null
+
+    private val strokeColors = listOf(
+        0xFFE91E63.toInt(), // Pink
+        0xFF2196F3.toInt(), // Blue
+        0xFF4CAF50.toInt(), // Green
+        0xFFFF9800.toInt(), // Orange
+        0xFF9C27B0.toInt(), // Purple
+        0xFF00BCD4.toInt()  // Cyan
+    )
 
     fun setVideoDimensions(width: Int, height: Int) {
         videoWidth = width
@@ -151,15 +164,28 @@ class DebugUIController(
 
         // Generate feedback based on phase
         val feedback = generatePhaseFeedback(phase, peakVelocity)
+        val entryText = "stroke: $strokeNum, phase: ${phase.name}, Feedback: $feedback"
 
         // Append new line to history
         if (feedbackHistory.isNotEmpty()) {
             feedbackHistory.append("\n")
         }
-        feedbackHistory.append("stroke: $strokeNum, phase: ${phase.name}, Feedback: $feedback")
+        
+        val start = feedbackHistory.length
+        feedbackHistory.append(entryText)
+        val end = feedbackHistory.length
+        
+        // Apply color for this stroke
+        val color = strokeColors[(strokeNum - 1) % strokeColors.size]
+        feedbackHistory.setSpan(
+            ForegroundColorSpan(color),
+            start,
+            end,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
 
         // Update the display
-        binding.tvCurrentFeedback.text = feedbackHistory.toString()
+        binding.tvCurrentFeedback.text = feedbackHistory
     }
 
     /**

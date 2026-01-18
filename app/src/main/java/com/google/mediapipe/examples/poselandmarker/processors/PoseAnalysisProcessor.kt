@@ -162,17 +162,7 @@ class PoseAnalysisProcessor(
                         android.os.Handler(android.os.Looper.getMainLooper()).post {
                             Log.i(TAG, "Playing DELAYED Audio Feedback from previous stroke (Frequency: $frequency, Stroke: $totalCompletedStrokes)")
                             
-                            // Pick ONLY ONE recommendation/error as requested
-                            val singleRecResult = result.copy(
-                                recommendations = if (result.recommendations.isNotEmpty()) 
-                                    listOf(result.recommendations[0]) else emptyList(),
-                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                    listOf(result.feedbackItems[0]) else emptyList(),
-                                errors = if (result.errors.isNotEmpty()) 
-                                    listOf(result.errors[0]) else emptyList()
-                            )
-                            
-                            feedbackGenerator.playFeedbackAudio(singleRecResult)
+                            feedbackGenerator.playFeedbackAudio(result)
                         }
                     }
                     pendingFeedbackResult = null // Clear after playing
