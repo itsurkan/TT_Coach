@@ -79,8 +79,8 @@ class FeedbackGenerator(private val context: Context) {
         }
         
         if (!played) {
-            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TIC, using ToneGenerator")
-            toneGenerator?.startTone(android.media.ToneGenerator.TONE_PROP_BEEP, 100)
+            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TIC")
+            // Removed ToneGenerator fallback to avoid beeps
         }
     }
 
@@ -95,8 +95,8 @@ class FeedbackGenerator(private val context: Context) {
         }
         
         if (!played) {
-            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TAC, using ToneGenerator")
-            toneGenerator?.startTone(android.media.ToneGenerator.TONE_PROP_ACK, 100)
+            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TAC")
+            // Removed ToneGenerator fallback to avoid beeps
         }
     }
 
