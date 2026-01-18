@@ -9,7 +9,9 @@ package com.google.mediapipe.examples.poselandmarker
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -121,6 +123,29 @@ class DebugActivity : AppCompatActivity() {
         // Audio test button
         binding.btnTestAudio.setOnClickListener { testAudioFeedback() }
         binding.btnTestAudioPortrait.setOnClickListener { testAudioFeedback() }
+
+        // Collapsible panels
+        setupCollapsiblePanel(binding.headerCurrentFrame, binding.contentCurrentFrame)
+        setupCollapsiblePanel(binding.headerFeedback, binding.contentFeedback)
+        setupCollapsiblePanel(binding.headerSessionSummary, binding.contentSessionSummary)
+        setupCollapsiblePanel(binding.headerPlayback, binding.contentPlayback)
+        setupCollapsiblePanel(binding.headerTechnical, binding.contentTechnical)
+    }
+
+    private fun setupCollapsiblePanel(header: TextView, content: View) {
+        header.setOnClickListener {
+            val isVisible = content.visibility == View.VISIBLE
+            content.visibility = if (isVisible) View.GONE else View.VISIBLE
+
+            // Update arrow indicator
+            val currentText = header.text.toString()
+            val newText = if (isVisible) {
+                currentText.replaceFirst("▼", "▶")
+            } else {
+                currentText.replaceFirst("▶", "▼")
+            }
+            header.text = newText
+        }
     }
 
     private fun testAudioFeedback() {

@@ -199,307 +199,356 @@
 
                 <!-- Current Frame Analysis -->
                 <TextView
+                    android:id="@+id/headerCurrentFrame"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📊 Current Frame"
+                    android:text="▼ 📊 Current Frame"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground" />
 
-                <TextView
-                    android:id="@+id/tvFrameNumber"
+                <LinearLayout
+                    android:id="@+id/contentCurrentFrame"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Frame: 0 / 0"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp" />
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tvPhase"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Phase: READY"
-                    android:textSize="14sp"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvFrameNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Frame: 0 / 0"
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvScore"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Score: 0%"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvPhase"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phase: READY"
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvScore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Score: 0%"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
-                    android:layout_marginVertical="8dp" />
+                    android:layout_marginVertical="4dp" />
 
                 <!-- Current Feedback -->
                 <TextView
+                    android:id="@+id/headerFeedback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="💬 Feedback"
+                    android:text="▼ 💬 Feedback"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground" />
 
-                <TextView
-                    android:id="@+id/tvCurrentFeedback"
+                <LinearLayout
+                    android:id="@+id/contentFeedback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="--"
-                    android:textSize="13sp"
-                    android:paddingBottom="8dp" />
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvCurrentFeedback"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="13sp" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
-                    android:layout_marginVertical="8dp" />
+                    android:layout_marginVertical="4dp" />
 
                 <!-- Session Summary -->
                 <TextView
+                    android:id="@+id/headerSessionSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📈 Session Summary"
+                    android:text="▶ 📈 Session Summary"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground" />
 
-                <TextView
-                    android:id="@+id/tvTotalFrames"
+                <LinearLayout
+                    android:id="@+id/contentSessionSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Total Frames: 0"
-                    android:textSize="13sp"
-                    android:paddingBottom="4dp" />
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tvStrokesDetected"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Strokes Detected: 0"
-                    android:textSize="13sp"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvTotalFrames"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Total Frames: 0"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvAvgScore"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Avg Score: 0%"
-                    android:textSize="13sp"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvStrokesDetected"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Strokes Detected: 0"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvGoodStrokes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Good Strokes: 0"
-                    android:textSize="13sp"
-                    android:paddingBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvAvgScore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Avg Score: 0%"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvPhaseDistribution"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Phase Distribution:\n--"
-                    android:textSize="12sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvGoodStrokes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Good Strokes: 0"
+                        android:textSize="13sp"
+                        android:paddingBottom="8dp" />
 
-                <Button
-                    android:id="@+id/btnReset"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="🔄 Reset Analysis"
-                    android:layout_marginTop="8dp" />
+                    <TextView
+                        android:id="@+id/tvPhaseDistribution"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Phase Distribution:\n--"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/btnReset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="🔄 Reset Analysis" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
-                    android:layout_marginVertical="8dp" />
+                    android:layout_marginVertical="4dp" />
 
-                <!-- Playback Controls (in analysis panel) -->
+                <!-- Playback Controls -->
                 <TextView
+                    android:id="@+id/headerPlayback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🎮 Playback Controls"
+                    android:text="▼ 🎮 Playback Controls"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground" />
 
-                <!-- Frame Scrubber -->
                 <LinearLayout
+                    android:id="@+id/contentPlayback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Frame Scrubber -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frame:"
-                        android:textSize="12sp"
-                        android:paddingEnd="8dp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
 
-                    <SeekBar
-                        android:id="@+id/seekBarFrame"
-                        android:layout_width="0dp"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Frame:"
+                            android:textSize="12sp"
+                            android:paddingEnd="8dp" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarFrame"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:max="100" />
+                    </LinearLayout>
+
+                    <!-- Play/Pause and Step Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:max="100" />
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp">
+
+                        <Button
+                            android:id="@+id/btnStepBack"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="⏮"
+                            android:textSize="18sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnPlayPause"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="2"
+                            android:text="▶ Play"
+                            android:textSize="14sp"
+                            android:layout_marginHorizontal="4dp" />
+
+                        <Button
+                            android:id="@+id/btnStepForward"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="⏭"
+                            android:textSize="18sp"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+
+                    <!-- Speed Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Speed:"
+                            android:textSize="12sp"
+                            android:paddingEnd="8dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed025x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="0.25x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed05x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="0.5x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed1x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="1x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed2x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="2x"
+                            android:textSize="11sp" />
+                    </LinearLayout>
                 </LinearLayout>
 
-                <!-- Play/Pause and Step Controls -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="8dp">
-
-                    <Button
-                        android:id="@+id/btnStepBack"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="⏮"
-                        android:textSize="18sp"
-                        android:layout_marginEnd="4dp" />
-
-                    <Button
-                        android:id="@+id/btnPlayPause"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="2"
-                        android:text="▶ Play"
-                        android:textSize="14sp"
-                        android:layout_marginHorizontal="4dp" />
-
-                    <Button
-                        android:id="@+id/btnStepForward"
-                        android:layout_width="0dp"
-                        android:layout_height="48dp"
-                        android:layout_weight="1"
-                        android:text="⏭"
-                        android:textSize="18sp"
-                        android:layout_marginStart="4dp" />
-                </LinearLayout>
-
-                <!-- Speed Controls -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Speed:"
-                        android:textSize="12sp"
-                        android:paddingEnd="8dp" />
-
-                    <Button
-                        android:id="@+id/btnSpeed025x"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:text="0.25x"
-                        android:textSize="11sp"
-                        android:layout_marginEnd="4dp" />
-
-                    <Button
-                        android:id="@+id/btnSpeed05x"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:text="0.5x"
-                        android:textSize="11sp"
-                        android:layout_marginEnd="4dp" />
-
-                    <Button
-                        android:id="@+id/btnSpeed1x"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:text="1x"
-                        android:textSize="11sp"
-                        android:layout_marginEnd="4dp" />
-
-                    <Button
-                        android:id="@+id/btnSpeed2x"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:text="2x"
-                        android:textSize="11sp" />
-                </LinearLayout>
-
-                <!-- Technical Parameters (moved below playback controls) -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@android:color/darker_gray"
-                    android:layout_marginVertical="8dp" />
+                    android:layout_marginVertical="4dp" />
 
+                <!-- Technical Parameters -->
                 <TextView
+                    android:id="@+id/headerTechnical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="🎯 Technical Parameters"
+                    android:text="▶ 🎯 Technical Parameters"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:paddingBottom="8dp" />
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground" />
 
-                <TextView
-                    android:id="@+id/tvWristAngle"
+                <LinearLayout
+                    android:id="@+id/contentTechnical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Wrist Angle: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
 
-                <TextView
-                    android:id="@+id/tvBodyRotation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Body Rotation: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvWristAngle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Wrist Angle: --"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvFollowThrough"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Follow-Through: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvBodyRotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Body Rotation: --"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvContactHeight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Contact Height: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvFollowThrough"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Follow-Through: --"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
 
-                <TextView
-                    android:id="@+id/tvElbowDistance"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Elbow Distance: --"
-                    android:textSize="13sp"
-                    android:fontFamily="monospace"
-                    android:paddingBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvContactHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Contact Height: --"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvElbowDistance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Elbow Distance: --"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>
