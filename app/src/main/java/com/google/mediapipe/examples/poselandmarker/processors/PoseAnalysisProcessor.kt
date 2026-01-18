@@ -140,8 +140,9 @@ class PoseAnalysisProcessor(
                 currentStrokeResults.add(analysisResult)
             }
             
-            // Check for stroke completion: transition to READY
-            if (previousPhase != StrokePhase.READY && detectedPhase == StrokePhase.READY) {
+            // Check for stroke completion: transition from FOLLOW_THROUGH to any other phase (usually RECOVERY or READY)
+            // waiting for READY is too strict
+            if (previousPhase == StrokePhase.FOLLOW_THROUGH && detectedPhase != StrokePhase.FOLLOW_THROUGH) {
                 if (currentStrokeResults.isNotEmpty()) {
                     // Find the best representative result for the stroke
                     // Prefer CONTACT phase result, or highest score if multiple/none
