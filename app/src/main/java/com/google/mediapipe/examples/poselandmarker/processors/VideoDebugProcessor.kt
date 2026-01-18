@@ -66,7 +66,8 @@ class VideoDebugProcessor(
     private var lastContactFrameIndex = -1 // Deprecated but keeping for reference if needed
     private var audioPlayedForCurrentStroke = false
     private var lastPhase: StrokePhase? = null
-    private val backswingIndices = mutableListOf<Int>()
+    private var pendingFeedbackResult: AnalysisResult? = null
+    private val currentStrokeIndices = mutableListOf<Int>()
 
     companion object {
         private const val TAG = "VideoDebugProcessor"
@@ -242,53 +243,57 @@ class VideoDebugProcessor(
                 if (resultIndex != lastPlayedFrameIndex) {
                     val currentPhase = analysisResult.phase
                     
-                    // 1. Collect BACKSWING frames
-                    if (currentPhase == StrokePhase.BACKSWING) {
-                        if (lastPhase != StrokePhase.BACKSWING) {
-                            backswingIndices.clear()
-                            audioPlayedForCurrentStroke = false
-                        }
-                        backswingIndices.add(resultIndex)
+                    // 1. Collect indices for the current stroke
+                    if (currentPhase != StrokePhase.READY) {
+                        currentStrokeIndices.add(resultIndex)
                     }
                     
-                    // 2. Trigger at the start of FORWARD_SWING
+                    // 2. Trigger DELAYED feedback from previous stroke at start of FORWARD_SWING
                     if (lastPhase == StrokePhase.BACKSWING && currentPhase == StrokePhase.FORWARD_SWING) {
-                        if (!audioPlayedForCurrentStroke && backswingIndices.isNotEmpty()) {
-                            // Find the best backswing result
-                            val bestBackswingResult = backswingIndices
-                                .mapNotNull { analysisResults.getOrNull(it) }
-                                .filter { it.recommendations.isNotEmpty() }
-                                .minByOrNull { it.overallScore }
-                                ?: backswingIndices
-                                    .mapNotNull { analysisResults.getOrNull(it) }
-                                    .minByOrNull { it.overallScore }
+                        pendingFeedbackResult?.let { result ->
+                            android.util.Log.i(TAG, "Debug Playback: Playing DELAYED Audio Feedback")
                             
-                            bestBackswingResult?.let { result ->
-                                android.util.Log.i(TAG, "Debug Playback: Triggering Audio after BACKSWING at frame $resultIndex")
-                                
-                                // Pick only the first recommendation
-                                val singleRecResult = result.copy(
-                                    recommendations = if (result.recommendations.isNotEmpty()) 
-                                        listOf(result.recommendations[0]) else emptyList(),
-                                    feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                        listOf(result.feedbackItems[0]) else emptyList(),
-                                    errors = if (result.errors.isNotEmpty()) 
-                                        listOf(result.errors[0]) else emptyList()
-                                )
-                                
-                                feedbackGenerator.playFeedbackAudio(singleRecResult)
-                            }
+                            // Pick ONLY ONE recommendation/error
+                            val singleRecResult = result.copy(
+                                recommendations = if (result.recommendations.isNotEmpty()) 
+                                    listOf(result.recommendations[0]) else emptyList(),
+                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                    listOf(result.feedbackItems[0]) else emptyList(),
+                                errors = if (result.errors.isNotEmpty()) 
+                                    listOf(result.errors[0]) else emptyList()
+                            )
+                            
+                            feedbackGenerator.playFeedbackAudio(singleRecResult)
+                            pendingFeedbackResult = null // Clear after playing
                             audioPlayedForCurrentStroke = true
                         }
                     }
                     
-                    // 3. Keep Tic/Tac for rhythm (optional, but keep for now as user didn't say remove them)
-                    if (lastPhase != currentPhase) {
-                        if (currentPhase == StrokePhase.FORWARD_SWING) {
-                             // feedbackGenerator.playTic() // User commented these out in PoseAnalysisProcessor, doing same here
-                        } else if (currentPhase == StrokePhase.CONTACT) {
-                             feedbackGenerator.playTac()
+                    // 3. Finalize stroke data when it ends
+                    if (lastPhase == StrokePhase.FOLLOW_THROUGH && currentPhase != StrokePhase.FOLLOW_THROUGH) {
+                        if (currentStrokeIndices.isNotEmpty()) {
+                            // Find the best result for the completed stroke
+                            pendingFeedbackResult = currentStrokeIndices
+                                .mapNotNull { analysisResults.getOrNull(it) }
+                                .filter { it.phase == StrokePhase.CONTACT }
+                                .maxByOrNull { it.overallScore }
+                                ?: currentStrokeIndices
+                                    .mapNotNull { analysisResults.getOrNull(it) }
+                                    .maxByOrNull { it.overallScore }
+                            
+                            currentStrokeIndices.clear()
+                            android.util.Log.d(TAG, "Debug Playback: Stroke finalized, feedback pending for next stroke.")
                         }
+                    }
+                    
+                    // Reset tracking for current stroke audio
+                    if (currentPhase == StrokePhase.BACKSWING && lastPhase != StrokePhase.BACKSWING) {
+                        audioPlayedForCurrentStroke = false
+                    }
+                    
+                    // 4. Tac sound at contact (rhythm)
+                    if (currentPhase == StrokePhase.CONTACT && lastPhase != StrokePhase.CONTACT) {
+                        feedbackGenerator.playTac()
                     }
 
                     lastPhase = currentPhase
@@ -544,7 +549,8 @@ class VideoDebugProcessor(
         lastContactFrameIndex = -1
         audioPlayedForCurrentStroke = false
         lastPhase = null
-        backswingIndices.clear()
+        pendingFeedbackResult = null
+        currentStrokeIndices.clear()
     }
 
     /**

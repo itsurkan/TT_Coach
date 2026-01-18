@@ -31,7 +31,7 @@ class SettingsManager(context: Context) {
     fun getSpeechRate(): Int = prefs.getInt("speech_rate", 50)
     fun setSpeechRate(rate: Int) = prefs.edit().putInt("speech_rate", rate).apply()
     
-    fun getFeedbackType(): Int = prefs.getInt("feedback_type", 1) // Default: STANDARD (1)
+    fun getFeedbackType(): Int = prefs.getInt("feedback_type", 0) // Default: SHORT (0)
     fun setFeedbackType(type: Int) = prefs.edit().putInt("feedback_type", type).apply()
     
     // Camera settings

@@ -37,7 +37,7 @@ class PoseAnalysisProcessor(
     private var phaseFrameCounter: Int = 0
     private val velocityHistory = ArrayDeque<Float>(5)
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
-    private val backswingResults = mutableListOf<AnalysisResult>()
+    private var pendingFeedbackResult: AnalysisResult? = null
     private var audioPlayedForCurrentStroke = false
     
     companion object {
@@ -143,50 +143,36 @@ class PoseAnalysisProcessor(
                 currentStrokeResults.add(analysisResult)
             }
             
-            // Collect backswing results specifically
-            if (detectedPhase == StrokePhase.BACKSWING) {
-                backswingResults.add(analysisResult)
-            }
-            
             // Trigger UI update callback (for animations/overlays)
             onUIUpdate()
             
             // -------------------------------------------------------------------------
-            // 1. BACKSWING FEEDBACK (Trigger after BACKSWING completion)
+            // 1. DELAYED FEEDBACK (Trigger after NEXT BACKSWING completion)
             // -------------------------------------------------------------------------
             if (previousPhase == StrokePhase.BACKSWING && detectedPhase == StrokePhase.FORWARD_SWING) {
-                if (!audioPlayedForCurrentStroke && backswingResults.isNotEmpty()) {
-                    // Find the most significant result from the backswing
-                    // Prefer results with recommendations, pick the one with the lowest score
-                    val bestBackswingResult = backswingResults
-                        .filter { it.recommendations.isNotEmpty() }
-                        .minByOrNull { it.overallScore }
-                        ?: backswingResults.minByOrNull { it.overallScore }
-                    
-                    bestBackswingResult?.let { result ->
-                        android.os.Handler(android.os.Looper.getMainLooper()).post {
-                            Log.i(TAG, "Audio Feedback Triggered after BACKSWING")
-                            
-                            // Ensure only one recommendation is played
-                            val singleRecResult = result.copy(
-                                recommendations = if (result.recommendations.isNotEmpty()) 
-                                    listOf(result.recommendations[0]) else emptyList(),
-                                feedbackItems = if (result.feedbackItems.isNotEmpty()) 
-                                    listOf(result.feedbackItems[0]) else emptyList(),
-                                errors = if (result.errors.isNotEmpty()) 
-                                    listOf(result.errors[0]) else emptyList()
-                            )
-                            
-                            feedbackGenerator.playFeedbackAudio(singleRecResult)
-                        }
+                pendingFeedbackResult?.let { result ->
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        Log.i(TAG, "Playing DELAYED Audio Feedback from previous stroke")
+                        
+                        // Pick ONLY ONE recommendation/error as requested
+                        val singleRecResult = result.copy(
+                            recommendations = if (result.recommendations.isNotEmpty()) 
+                                listOf(result.recommendations[0]) else emptyList(),
+                            feedbackItems = if (result.feedbackItems.isNotEmpty()) 
+                                listOf(result.feedbackItems[0]) else emptyList(),
+                            errors = if (result.errors.isNotEmpty()) 
+                                listOf(result.errors[0]) else emptyList()
+                        )
+                        
+                        feedbackGenerator.playFeedbackAudio(singleRecResult)
                     }
+                    pendingFeedbackResult = null // Clear after playing
                     audioPlayedForCurrentStroke = true
                 }
             }
             
-            // Clear backswing results when starting a new backswing
+            // Reset for current stroke audio tracking
             if (detectionResult.isPhaseTransition && detectedPhase == StrokePhase.BACKSWING) {
-                backswingResults.clear()
                 audioPlayedForCurrentStroke = false
             }
             
@@ -207,6 +193,9 @@ class PoseAnalysisProcessor(
 
                     // Update state and UI with the finalized stroke result
                     stateManager.addAnalysisResult(strokeFeedbackResult)
+                    
+                    // Store for playback during the NEXT stroke's backswing
+                    pendingFeedbackResult = strokeFeedbackResult
                     
                     // Generate feedback in the new format (array of items)
                     val feedbackItems = strokeFeedbackResult.feedbackItems
@@ -472,7 +461,7 @@ class PoseAnalysisProcessor(
         isInsideStroke = false
         frameIndex = 0
         currentStrokeResults.clear()
-        backswingResults.clear()
+        pendingFeedbackResult = null
         velocityHistory.clear()
         phaseFrameCounter = 0
         audioPlayedForCurrentStroke = false
