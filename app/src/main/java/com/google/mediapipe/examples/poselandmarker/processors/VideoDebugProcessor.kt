@@ -248,6 +248,7 @@ class VideoDebugProcessor(
                 // Audio Feedback Trigger logic for Playback
                 if (resultIndex != lastPlayedFrameIndex) {
                     val currentPhase = analysisResult.phase
+                    android.util.Log.v(TAG, "Frame $resultIndex: Phase=$currentPhase, lastPhase=$lastPhase")
                     
                     // 1. Collect indices for the current stroke
                     if (currentPhase != StrokePhase.READY) {
