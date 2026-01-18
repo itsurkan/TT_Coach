@@ -137,14 +137,15 @@ class DebugActivity : AppCompatActivity() {
 
         header.setOnClickListener {
             Log.d(TAG, "!!! CLICK DETECTED !!! Header: ${header.text}")
-            Toast.makeText(this, "Clicked: ${header.text}", Toast.LENGTH_SHORT).show()
 
             // Toggle visibility
             if (content.visibility == View.VISIBLE) {
                 content.visibility = View.GONE
+                header.text = header.text.toString().replace("▼", "▶")
                 Log.d(TAG, "Collapsed content")
             } else {
                 content.visibility = View.VISIBLE
+                header.text = header.text.toString().replace("▶", "▼")
                 Log.d(TAG, "Expanded content")
             }
         }
