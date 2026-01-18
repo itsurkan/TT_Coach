@@ -6,35 +6,36 @@
 package com.google.mediapipe.examples.poselandmarker.managers
 
 import android.content.Context
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
+import android.graphics.Color
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
-import com.google.mediapipe.examples.poselandmarker.services.DetectedStroke
-import com.google.mediapipe.examples.poselandmarker.services.StrokeDetectionResult
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import java.util.Locale
 
+/**
+ * Controller class for managing the UI of the Debug Activity.
+ */
 class DebugUIController(
     private val context: Context,
     private val binding: ActivityDebugBinding,
     private val videoDebugProcessor: VideoDebugProcessor,
     private val feedbackGenerator: FeedbackGenerator
 ) {
+    // UI Helpers
+    private val feedbackAdapter = FeedbackLogAdapter()
+    private val feedbackEntries = mutableListOf<FeedbackLogEntry>()
+
+    // State
     private var videoWidth = 0
     private var videoHeight = 0
     private var videoDurationMs = 0L
-
-    // Feedback history for accumulated display
-    private val feedbackHistory = SpannableStringBuilder()
     private var lastDisplayedStroke = -1
     private var lastDisplayedPhase: StrokePhase? = null
 
@@ -46,6 +47,19 @@ class DebugUIController(
         0xFF9C27B0.toInt(), // Purple
         0xFF00BCD4.toInt()  // Cyan
     )
+
+    init {
+        setupRecyclerView()
+    }
+
+    private fun setupRecyclerView() {
+        binding.rvFeedbackHistory.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = feedbackAdapter
+        }
+    }
+
+    // --- Video & Overlay Management ---
 
     fun setVideoDimensions(width: Int, height: Int) {
         videoWidth = width
@@ -70,12 +84,8 @@ class DebugUIController(
         }
     }
 
-    /**
-     * Update pose overlay with phase coloring based on frame index
-     */
     fun updatePoseOverlayWithPhase(frameIndex: Int, landmarks: List<NormalizedLandmark>?) {
         if (videoHeight > 0 && videoWidth > 0 && landmarks != null) {
-            // Enable phase coloring if stroke detection is available
             if (videoDebugProcessor.hasStrokeDetection()) {
                 val phase = videoDebugProcessor.getStrokePhaseForFrame(frameIndex)
                 binding.overlayView.setPhaseColoringEnabled(true)
@@ -86,9 +96,6 @@ class DebugUIController(
         }
     }
 
-    /**
-     * Enable/disable phase coloring on overlay
-     */
     fun setPhaseColoringEnabled(enabled: Boolean) {
         binding.overlayView.setPhaseColoringEnabled(enabled)
     }
@@ -97,16 +104,20 @@ class DebugUIController(
         binding.overlayView.clear()
     }
 
+    // --- Frame Analysis UI ---
+
     fun updateFrameAnalysisUI(resultIndex: Int, result: AnalysisResult) {
         val totalFrames = videoDebugProcessor.getTotalFrames()
         binding.tvFrameNumber.text = "Frame: $resultIndex / $totalFrames"
+        
+        // Metrics
         binding.tvWristAngle.text = "Wrist Angle: %.1f°%s".format(Locale.US, result.wristAngle, if (result.isWristAngleValid) " ✓" else " ✗")
         binding.tvBodyRotation.text = "Body Rotation: %.1f°%s".format(Locale.US, result.bodyRotation, if (result.isBodyRotationValid) " ✓" else " ✗")
         binding.tvFollowThrough.text = "Follow-Through: %.1f°%s".format(Locale.US, result.followThroughAngle, if (result.isFollowThroughValid) " ✓" else " ✗")
         binding.tvContactHeight.text = "Contact Height: %.2f%s".format(Locale.US, result.contactHeight, if (result.isContactHeightValid) " ✓" else " ✗")
         binding.tvElbowDistance.text = "Elbow Distance: %.2fm%s".format(Locale.US, result.elbowBodyDistance, if (result.isElbowPositionValid) " ✓" else " ✗")
 
-        // Use stroke detection phase if available, otherwise use analysis result phase
+        // Phase Info
         val strokePhase = if (videoDebugProcessor.hasStrokeDetection()) {
             videoDebugProcessor.getStrokePhaseForFrame(resultIndex)
         } else {
@@ -115,6 +126,7 @@ class DebugUIController(
         binding.tvPhase.text = "Phase: ${strokePhase.name}"
         binding.tvPhase.setTextColor(getPhaseColor(strokePhase))
 
+        // Score
         binding.tvScore.text = "Score: ${result.overallScore}%"
         binding.tvScore.setTextColor(when {
             result.overallScore >= 80 -> context.getColor(android.R.color.holo_green_dark)
@@ -122,18 +134,15 @@ class DebugUIController(
             else -> context.getColor(android.R.color.holo_red_dark)
         })
 
-        // Update stroke info if stroke detection is available, otherwise show short feedback
+        // Feedback Logic
         if (videoDebugProcessor.hasStrokeDetection()) {
             updateStrokeInfo(resultIndex)
         } else {
-            binding.tvCurrentFeedback.text = feedbackGenerator.generateShortFeedback(result)
+            appendFeedbackEntry(0, result.phase, 0f)
         }
     }
 
-    /**
-     * Update stroke detection info display
-     */
-    fun updateStrokeInfo(frameIndex: Int) {
+    private fun updateStrokeInfo(frameIndex: Int) {
         val stroke = videoDebugProcessor.getStrokeForFrame(frameIndex)
         val strokes = videoDebugProcessor.getDetectedStrokes()
         val phase = videoDebugProcessor.getStrokePhaseForFrame(frameIndex)
@@ -141,56 +150,50 @@ class DebugUIController(
         stroke?.let { s ->
             val strokeNum = s.strokeIndex + 1
             binding.tvStrokesDetected.text = "Stroke: $strokeNum / ${strokes.size}"
-
-            // Append new feedback line when stroke or phase changes
             appendFeedbackEntry(strokeNum, phase, s.peakVelocity)
         } ?: run {
             binding.tvStrokesDetected.text = "Strokes: ${strokes.size} (between strokes)"
         }
     }
 
-    /**
-     * Append a feedback entry to the history
-     * Format: stroke: N, phase: PhaseName, Feedback: details
-     */
+    // --- Feedback Log Management ---
+
     private fun appendFeedbackEntry(strokeNum: Int, phase: StrokePhase, peakVelocity: Float) {
-        // Only add new entry when stroke or phase changes
-        if (strokeNum == lastDisplayedStroke && phase == lastDisplayedPhase) {
-            return
-        }
+        if (strokeNum == lastDisplayedStroke && phase == lastDisplayedPhase) return
 
         lastDisplayedStroke = strokeNum
         lastDisplayedPhase = phase
 
-        // Generate feedback based on phase
         val feedback = generatePhaseFeedback(phase, peakVelocity)
-        val entryText = "stroke: $strokeNum, phase: ${phase.name}, Feedback: $feedback"
+        val phaseName = formatPhaseName(phase)
+        val strokeLabel = if (strokeNum > 0) strokeNum.toString() else "RT"
+        val label = "$strokeLabel-$phaseName:"
 
-        // Append new line to history
-        if (feedbackHistory.isNotEmpty()) {
-            feedbackHistory.append("\n")
+        val color = if (strokeNum > 0) {
+            strokeColors[(strokeNum - 1) % strokeColors.size]
+        } else {
+            Color.BLACK
         }
-        
-        val start = feedbackHistory.length
-        feedbackHistory.append(entryText)
-        val end = feedbackHistory.length
-        
-        // Apply color for this stroke
-        val color = strokeColors[(strokeNum - 1) % strokeColors.size]
-        feedbackHistory.setSpan(
-            ForegroundColorSpan(color),
-            start,
-            end,
-            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
 
-        // Update the display
-        binding.tvCurrentFeedback.text = feedbackHistory
+        val entry = FeedbackLogEntry(label, feedback, color)
+        feedbackEntries.add(entry)
+        feedbackAdapter.updateList(feedbackEntries)
+        binding.rvFeedbackHistory.scrollToPosition(feedbackEntries.size - 1)
     }
 
-    /**
-     * Generate feedback message based on phase
-     */
+    fun clearFeedbackHistory() {
+        feedbackEntries.clear()
+        feedbackAdapter.updateList(feedbackEntries)
+        lastDisplayedStroke = -1
+        lastDisplayedPhase = null
+    }
+
+    private fun formatPhaseName(phase: StrokePhase): String {
+        return phase.name.split("_").joinToString("") { part ->
+            part.lowercase().replaceFirstChar { it.uppercase() }
+        }
+    }
+
     private fun generatePhaseFeedback(phase: StrokePhase, peakVelocity: Float): String {
         return when (phase) {
             StrokePhase.READY -> "Ready position"
@@ -202,19 +205,6 @@ class DebugUIController(
         }
     }
 
-    /**
-     * Clear the feedback history (call when loading new video)
-     */
-    fun clearFeedbackHistory() {
-        feedbackHistory.clear()
-        lastDisplayedStroke = -1
-        lastDisplayedPhase = null
-        binding.tvCurrentFeedback.text = ""
-    }
-
-    /**
-     * Get color for stroke phase visualization
-     */
     private fun getPhaseColor(phase: StrokePhase): Int {
         return when (phase) {
             StrokePhase.READY -> context.getColor(android.R.color.darker_gray)
@@ -226,25 +216,22 @@ class DebugUIController(
         }
     }
 
+    // --- General Info Updates ---
+
     fun updateAnalysisInfo() {
         val summary = videoDebugProcessor.getAnalysisSummary()
         binding.tvTotalFrames.text = "Total Frames: ${summary.totalFrames}"
 
-        // Use stroke detection count if available
         if (videoDebugProcessor.hasStrokeDetection()) {
             val strokes = videoDebugProcessor.getDetectedStrokes()
             binding.tvStrokesDetected.text = "Strokes Detected: ${strokes.size}"
-
-            // Calculate stroke-based phase distribution
-            val result = videoDebugProcessor.getStrokeDetectionResult()
-            if (result != null) {
+            
+            videoDebugProcessor.getStrokeDetectionResult()?.let { result ->
                 val phaseCount = result.framePhases.groupBy { it.phase }
                     .mapValues { it.value.size }
                 binding.tvPhaseDistribution.text = buildString {
                     append("Phase Distribution:\n")
-                    phaseCount.forEach { (phase, count) ->
-                        append("  ${phase.name}: $count frames\n")
-                    }
+                    phaseCount.forEach { (phase, count) -> append("  ${phase.name}: $count frames\n") }
                 }
             }
         } else {
@@ -266,9 +253,10 @@ class DebugUIController(
         binding.tvVideoInfoPortrait.text = infoText
     }
 
+    // --- Playback UI Controls ---
+
     fun updatePlaybackButton(isPlaying: Boolean) {
-        val text = if (isPlaying) "⏸ Pause" else "▶ Play"
-        binding.btnPlayPause.text = text
+        binding.btnPlayPause.text = if (isPlaying) "⏸ Pause" else "▶ Play"
     }
 
     fun updateSpeedButtons(speed: Float) {
@@ -321,7 +309,7 @@ class DebugUIController(
         if (enabled) {
             binding.topBar.visibility = View.GONE
             binding.portraitTopControls.visibility = View.VISIBLE
-            binding.analysisPanel.visibility = View.VISIBLE  // Make sure panel is visible in portrait mode
+            binding.analysisPanel.visibility = View.VISIBLE
             binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
             val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             params.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
