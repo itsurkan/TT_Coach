@@ -166,19 +166,27 @@ class PoseAnalysisProcessor(
                     
                     stateManager.addFeedback(feedbackText)
                     stateManager.addFeedbackItems(feedbackItems)
-                    uiController.updateFeedbackText(feedbackText)
-                    uiController.updateStats()
-                    
-                    // Play audio feedback
-                    feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
+                    // Update UI on main thread
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        uiController.updateFeedbackText(feedbackText)
+                        uiController.updateStats()
+                        
+                        // Play audio feedback
+                        feedbackGenerator.playFeedbackAudio(strokeFeedbackResult)
+                        
+                        // Trigger UI update callback (for animations/overlays)
+                        onUIUpdate()
+                    }
                     
                     // Clear for next stroke
                     currentStrokeResults.clear()
                 }
+            } else {
+                // For non-finalizing frames, still trigger UI update on main thread if needed
+                android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    onUIUpdate()
+                }
             }
-            
-            // Trigger UI update callback (for animations/overlays)
-            onUIUpdate()
             
             // Log stroke analysis asynchronously (zero latency impact)
             logAnalysisResults(analysisResult, inferenceTime)
