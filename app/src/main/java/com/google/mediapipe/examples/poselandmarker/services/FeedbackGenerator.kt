@@ -120,6 +120,8 @@ class FeedbackGenerator(private val context: Context) {
 
         val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
         
+        // 1. Try to find audio for a recommendation (constructive)
+        val recKey = result.recommendations.firstOrNull()
         if (recKey != null) {
             val resName = if (isShort) "short_$recKey" else "${recKey}_full"
             val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
