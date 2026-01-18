@@ -145,10 +145,12 @@ class FeedbackGenerator(private val context: Context) {
             mediaPlayer?.stop()
             mediaPlayer?.release()
             mediaPlayer = MediaPlayer.create(context, resId)
-            mediaPlayer?.start()
-            mediaPlayer?.setOnCompletionListener { 
-                it.release()
-                if (mediaPlayer == it) mediaPlayer = null
+            mediaPlayer?.let {
+                it.start()
+                it.setOnCompletionListener { player ->
+                    player.release()
+                    if (mediaPlayer == player) mediaPlayer = null
+                }
             }
         } catch (e: Exception) {
             Log.e("FeedbackGenerator", "Error playing raw resource", e)
