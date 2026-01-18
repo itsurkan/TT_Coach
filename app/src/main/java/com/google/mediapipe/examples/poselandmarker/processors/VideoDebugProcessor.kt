@@ -196,25 +196,29 @@ class VideoDebugProcessor(
     /**
      * Analyze a single frame for stroke technique (from PoseLandmarkerResult)
      */
-    private fun analyzeFrame(poseResult: PoseLandmarkerResult): AnalysisResult {
-        return if (poseResult.landmarks().isNotEmpty()) {
-            motionAnalyzer.analyzeStroke(poseResult.landmarks()[0], StrokePhase.CONTACT)
-        } else {
-            AnalysisResult()
-        }
+    private fun analyzeFrame(index: Int, poseResult: PoseLandmarkerResult): AnalysisResult {
+        val landmarks = if (poseResult.landmarks().isNotEmpty()) poseResult.landmarks()[0] else emptyList()
+        val phase = strokeDetectionResult?.getPhaseForFrame(index) ?: StrokePhase.CONTACT
+        val result = motionAnalyzer.analyzeStroke(landmarks, phase)
+        analysisResults[index] = result
+        analyzedFrames.add(index)
+        return result
     }
 
     /**
      * Analyze a single frame for stroke technique (from raw landmarks)
      */
-    private fun analyzeFrame(index: Int, landmarks: List<NormalizedLandmark>) {
-        if (analyzedFrames.contains(index)) return
+    private fun analyzeFrame(index: Int, landmarks: List<NormalizedLandmark>): AnalysisResult {
+        if (analysisResults.getOrNull(index)?.overallScore ?: 0f > 0f && analyzedFrames.contains(index)) {
+            return analysisResults[index]
+        }
         
         // Use pre-processed phase if available, otherwise default to CONTACT
         val phase = strokeDetectionResult?.getPhaseForFrame(index) ?: StrokePhase.CONTACT
         val result = motionAnalyzer.analyzeStroke(landmarks, phase)
         analysisResults[index] = result
         analyzedFrames.add(index)
+        return result
     }
 
     /**
@@ -387,13 +391,16 @@ class VideoDebugProcessor(
     fun getAnalysisSummary(): AnalysisSummary {
         val totalFrames = getTotalFrames()
         for (i in 0 until totalFrames) {
-            if (i !in analyzedFrames && i < analysisResults.size) {
+            val result = if (isFromJson()) {
                 val landmarks = getLandmarksAtIndex(i)
-                if (landmarks != null) {
-                    analysisResults[i] = analyzeFrame(landmarks)
-                    analyzedFrames.add(i)
-                }
+                if (landmarks != null) analyzeFrame(i, landmarks) else AnalysisResult()
+            } else {
+                val poseResult = resultBundle?.results?.getOrNull(i)
+                if (poseResult != null) analyzeFrame(i, poseResult) else AnalysisResult()
             }
+            
+            // The analyzeFrame calls already add to analysisResults and analyzedFrames
+            // No need to re-add here.
         }
         
         val phaseDistribution = mutableMapOf<StrokePhase, Int>()
