@@ -118,12 +118,12 @@ class FeedbackGenerator(private val context: Context) {
     fun playFeedbackAudio(result: AnalysisResult) {
         val isEnabled = settingsManager.isAudioFeedbackEnabled()
         if (!isEnabled) {
-            Log.d(TAG, "Audio feedback disabled in settings")
+            Log.d("FeedbackGenerator", "Audio feedback disabled in settings")
             return
         }
         
         val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
-        Log.d(TAG, "playFeedbackAudio: Type=${if(isShort) "SHORT" else "FULL"}, Recs=${result.recommendations.size}")
+        Log.d("FeedbackGenerator", "playFeedbackAudio: Type=${if(isShort) "SHORT" else "FULL"}, Recs=${result.recommendations.size}")
         
         // 1. Try to find audio for a recommendation (constructive)
         val recKey = result.recommendations.firstOrNull()

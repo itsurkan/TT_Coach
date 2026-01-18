@@ -248,7 +248,7 @@ class VideoDebugProcessor(
                 // Audio Feedback Trigger logic for Playback
                 if (resultIndex != lastPlayedFrameIndex) {
                     val currentPhase = analysisResult.phase
-                    Log.v(TAG, "Frame $resultIndex: Phase=$currentPhase, lastPhase=$lastPhase")
+                    Log.v("VideoDebugProcessor", "Frame $resultIndex: Phase=$currentPhase, lastPhase=$lastPhase")
                     
                     // 1. Collect indices for the current stroke
                     if (currentPhase != StrokePhase.READY) {
@@ -258,7 +258,7 @@ class VideoDebugProcessor(
                     // 2. Trigger DELAYED feedback from previous stroke at start of FORWARD_SWING
                     if (lastPhase == StrokePhase.BACKSWING && currentPhase == StrokePhase.FORWARD_SWING) {
                         pendingFeedbackResult?.let { result ->
-                            android.util.Log.i(TAG, "Debug Playback: Playing DELAYED Audio Feedback")
+                            Log.i("VideoDebugProcessor", "Debug Playback: Playing DELAYED Audio Feedback")
                             
                             // Pick ONLY ONE recommendation/error
                             val singleRecResult = result.copy(
@@ -357,7 +357,7 @@ class VideoDebugProcessor(
 
         // Analyze on-demand if not yet done
         if (resultIndex !in analyzedFrames && resultIndex < analysisResults.size && landmarks != null) {
-            analysisResults[resultIndex] = analyzeFrame(landmarks)
+            analysisResults[resultIndex] = analyzeFrame(resultIndex, landmarks)
             analyzedFrames.add(resultIndex)
         }
 
