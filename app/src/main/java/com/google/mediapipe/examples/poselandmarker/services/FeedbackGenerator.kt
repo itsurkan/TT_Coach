@@ -120,14 +120,15 @@ class FeedbackGenerator(private val context: Context) {
 
         val isShort = settingsManager.getFeedbackType() == 0 // 0 = SHORT
         
-        // 1. Try to find audio for a recommendation (constructive)
-        val recKey = result.recommendations.firstOrNull()
         if (recKey != null) {
             val resName = if (isShort) "short_$recKey" else "${recKey}_full"
             val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+            Log.d("FeedbackGen", "Attempting playback from REC: $resName (ID: $resId)")
             if (resId != 0) {
                 playRawResource(resId)
                 return
+            } else {
+                Log.e("FeedbackGen", "Resource NOT FOUND for: $resName")
             }
         }
 
@@ -136,9 +137,12 @@ class FeedbackGenerator(private val context: Context) {
         if (errorItem != null) {
             val resName = if (isShort) "short_${errorItem.message}" else "${errorItem.message}_full"
             val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+            Log.d("FeedbackGen", "Attempting playback from ERROR: $resName (ID: $resId)")
             if (resId != 0) {
                 playRawResource(resId)
                 return
+            } else {
+                Log.e("FeedbackGen", "Resource NOT FOUND for: $resName")
             }
         }
         
