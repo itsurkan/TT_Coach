@@ -368,4 +368,8 @@ class FeedbackGenerator(private val context: Context) {
             else -> null
         }
     }
+
+    companion object {
+        private const val TAG = "FeedbackGenerator"
+    }
 }
