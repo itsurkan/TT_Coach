@@ -392,7 +392,7 @@ class PoseAnalysisProcessor(
             StrokePhase.FORWARD_SWING -> {
                 // Transition to contact when velocity peaks
                 // Relaxed threshold for Contact for faster detection
-                if (avgVelocity > VELOCITY_THRESHOLD && phaseFrameCounter >= 2) { // lowered from 3
+                if (avgVelocity > 2.0f && phaseFrameCounter >= 1) { // lowered from 3.0/2
                     phaseFrameCounter = 0
                     StrokePhase.CONTACT
                 } else {
@@ -438,9 +438,9 @@ class PoseAnalysisProcessor(
             
             // Audio feedback for rhythm
             if (newPhase == StrokePhase.FORWARD_SWING) {
-                feedbackGenerator.playTic()
+                // feedbackGenerator.playTic()
             } else if (newPhase == StrokePhase.CONTACT) {
-                feedbackGenerator.playTac()
+                // feedbackGenerator.playTac()
             }
         }
         
