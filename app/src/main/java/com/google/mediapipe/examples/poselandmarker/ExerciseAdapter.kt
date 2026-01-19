@@ -11,9 +11,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.mediapipe.examples.poselandmarker.databinding.ItemExerciseBinding
 
 class ExerciseAdapter(
-    private val exercises: List<Exercise>,
+    private var exercises: List<Exercise>,
     private val onExerciseClick: (Exercise) -> Unit
 ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
+
+    fun updateList(newExercises: List<Exercise>) {
+        exercises = newExercises
+        notifyDataSetChanged()
+    }
 
     inner class ExerciseViewHolder(
         private val binding: ItemExerciseBinding
@@ -23,8 +28,8 @@ class ExerciseAdapter(
             binding.apply {
                 tvExerciseName.text = exercise.name
                 tvExerciseDescription.text = exercise.description
-                tvDifficulty.text = root.context.getString(R.string.difficulty_label, exercise.difficulty)
-                tvDuration.text = root.context.getString(R.string.duration_label, exercise.duration)
+                tvDifficulty.text = exercise.difficulty
+                tvDuration.text = exercise.duration
 
                 // Checkbox for debug video mode
                 cbUseVideo.isChecked = exercise.useVideo
@@ -32,17 +37,12 @@ class ExerciseAdapter(
                     exercise.useVideo = isChecked
                 }
 
-                // Lock status display
+                // Lock status display (using alpha and clickability)
                 if (exercise.isLocked) {
-                    tvLockStatus.text = root.context.getString(R.string.lock_icon)
-                    tvLockStatus.visibility = android.view.View.VISIBLE
-                    root.alpha = 0.6f
-                    ivExerciseIcon.alpha = 0.5f
+                    root.alpha = 0.5f
                     cbUseVideo.isEnabled = false
                 } else {
-                    tvLockStatus.visibility = android.view.View.GONE
                     root.alpha = 1.0f
-                    ivExerciseIcon.alpha = 1.0f
                     cbUseVideo.isEnabled = true
                 }
 

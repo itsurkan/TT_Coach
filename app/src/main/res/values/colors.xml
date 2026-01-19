@@ -32,4 +32,17 @@
     <!-- AI Coach colors -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <!-- Dashboard Colors -->
+    <color name="blue_600">#2563EB</color>
+    <color name="blue_700">#1D4ED8</color>
+    <color name="blue_100">#DBEAFE</color>
+    <color name="green_500">#22C55E</color>
+    <color name="green_50">#F0FDF4</color>
+    <color name="orange_500">#F97316</color>
+    <color name="orange_50">#FFF7ED</color>
+    <color name="purple_500">#A855F7</color>
+    <color name="purple_50">#FAF5FF</color>
+    <color name="amber_500">#F59E0B</color>
+    <color name="amber_50">#FFFBEB</color>
+    <color name="text_muted">#64748B</color>
 </resources>

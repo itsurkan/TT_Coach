@@ -21,6 +21,16 @@ class DashboardFragment : Fragment() {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        binding.btnBeginSession.setOnClickListener {
+            // Navigate to Drills tab
+            val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(com.google.mediapipe.examples.poselandmarker.R.id.nav_view)
+            bottomNav.selectedItemId = com.google.mediapipe.examples.poselandmarker.R.id.navigation_drills
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -1,5 +1,6 @@
 package com.google.mediapipe.examples.poselandmarker.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,15 @@ class ProfileFragment : Fragment() {
     ): View {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        binding.btnDeveloperMode.setOnClickListener {
+            val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.DebugActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onDestroyView() {
