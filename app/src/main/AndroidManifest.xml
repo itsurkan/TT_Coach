@@ -39,16 +39,11 @@
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
-        <!-- Debug Activity - Video Testing (Main Launcher for Development) -->
+        <!-- Debug Activity - Video Testing (Development Mode) -->
         <activity
             android:name=".DebugActivity"
-            android:exported="true"
-            android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="false"
+            android:screenOrientation="landscape" />
 
         <!-- Welcome Screen -->
         <activity
@@ -59,24 +54,28 @@
         <activity
             android:name=".ExerciseSelectionActivity"
             android:exported="false"
-            android:parentActivityName=".WelcomeActivity" />
+            android:parentActivityName=".MainActivity" />
 
         <!-- Training Screen -->
         <activity
             android:name=".TrainingActivity"
             android:exported="false"
-            android:parentActivityName=".ExerciseSelectionActivity" />
+            android:parentActivityName=".MainActivity" />
 
         <!-- Settings Screen -->
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:parentActivityName=".WelcomeActivity" />
+            android:parentActivityName=".MainActivity" />
 
-        <!-- Original MainActivity (Legacy) -->
+        <!-- Main Activity (New Entry Point) -->
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <!-- Declare notch support -->
             <meta-data
                 android:name="android.notch_support"

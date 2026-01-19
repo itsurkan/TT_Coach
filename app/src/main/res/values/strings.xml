@@ -195,7 +195,7 @@
     
     <!-- Training Summary Stats -->
     <string name="summary_total_strokes">Total Strokes: %d</string>
-    <string name="summary_successful_strokes">Successful Strokes: %d (%d%%)</string>
+    <string name="summary_successful_strokes">Successful Strokes: %1$d (%2$d%%)</string>
     <string name="summary_average_accuracy">Average Score: %.1f%%</string>
     
     <!-- Improvement Tips for Session -->
@@ -256,4 +256,8 @@
     <string name="improvement_tip_rotation">💡 Tip: Turn waist and shoulders as one - imagine winding a spring</string>
     <string name="improvement_tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
     <string name="improvement_tip_follow">💡 Tip: Complete stroke - racket should finish near opposite shoulder</string>
+    <string name="title_dashboard">Home</string>
+    <string name="title_progress">Progress</string>
+    <string name="title_drills">Drills</string>
+    <string name="title_profile">Profile</string>
 </resources>
