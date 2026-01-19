@@ -60,9 +60,16 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         
         // Check permissions
         if (!PermissionsFragment.hasPermissions(requireContext())) {
-            Navigation.findNavController(
-                requireActivity(), R.id.fragment_container
-            ).navigate(R.id.action_camera_to_permissions)
+            val navHostView = requireActivity().findViewById<View>(R.id.fragment_container)
+            if (navHostView != null) {
+                Navigation.findNavController(
+                    requireActivity(), R.id.fragment_container
+                ).navigate(R.id.action_camera_to_permissions)
+            } else {
+                // Determine missing permissions
+                val permissions = arrayOf(android.Manifest.permission.CAMERA)
+                requestPermissions(permissions, 0)
+            }
         }
 
         // Restart PoseLandmarkerHelper when returning to foreground
