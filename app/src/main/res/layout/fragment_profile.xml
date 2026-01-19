@@ -174,14 +174,38 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Developer Mode Button -->
-        <Button
-            android:id="@+id/btn_developer_mode"
+        <!-- Developer Mode -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Developer Mode"
-            android:backgroundTint="@color/mp_color_primary_variant"
-            android:layout_marginBottom="16dp"/>
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorControlHighlight"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:gravity="center_vertical">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@android:drawable/ic_menu_manage"
+                    app:tint="@color/text_muted"
+                    android:layout_marginEnd="16dp"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Developer Mode"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switch_developer_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <TextView
             android:layout_width="match_parent"

@@ -25,9 +25,17 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        binding.btnDeveloperMode.setOnClickListener {
-            val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.DebugActivity::class.java)
-            startActivity(intent)
+        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(requireContext())
+        
+        binding.switchDeveloperMode.isChecked = settingsManager.isDeveloperModeEnabled()
+        
+        binding.switchDeveloperMode.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setDeveloperModeEnabled(isChecked)
+            
+            // Update MainActivity bottom navigation immediately
+            val mainActivity = requireActivity() as com.google.mediapipe.examples.poselandmarker.MainActivity
+            val navView = mainActivity.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(com.google.mediapipe.examples.poselandmarker.R.id.nav_view)
+            navView.menu.findItem(com.google.mediapipe.examples.poselandmarker.R.id.navigation_developer)?.isVisible = isChecked
         }
     }
 

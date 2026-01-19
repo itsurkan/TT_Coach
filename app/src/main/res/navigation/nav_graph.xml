@@ -51,4 +51,9 @@
             app:popUpTo="@id/camera_fragment"
             app:popUpToInclusive="true" />
     </fragment>
+    <activity
+        android:id="@+id/navigation_developer"
+        android:name="com.google.mediapipe.examples.poselandmarker.DebugActivity"
+        android:label="Developer"
+        tools:layout="@layout/activity_debug" />
 </navigation>

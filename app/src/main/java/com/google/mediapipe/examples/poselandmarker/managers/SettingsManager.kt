@@ -85,6 +85,10 @@ class SettingsManager(context: Context) {
         }
     }
     
+    // Developer Mode
+    fun isDeveloperModeEnabled(): Boolean = prefs.getBoolean("developer_mode_enabled", false)
+    fun setDeveloperModeEnabled(enabled: Boolean) = prefs.edit().putBoolean("developer_mode_enabled", enabled).apply()
+    
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }

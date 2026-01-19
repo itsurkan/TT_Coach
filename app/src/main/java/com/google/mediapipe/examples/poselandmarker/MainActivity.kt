@@ -33,4 +33,11 @@ class MainActivity : BaseActivity() {
         val navController = navHostFragment.navController
         binding.navView.setupWithNavController(navController)
     }
+
+    override fun onResume() {
+        super.onResume()
+        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
+        val isDevMode = settingsManager.isDeveloperModeEnabled()
+        binding.navView.menu.findItem(R.id.navigation_developer)?.isVisible = isDevMode
+    }
 }
