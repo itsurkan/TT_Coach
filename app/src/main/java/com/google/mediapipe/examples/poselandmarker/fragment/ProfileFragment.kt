@@ -81,19 +81,48 @@ class ProfileFragment : Fragment() {
     }
     
     private fun updateThemeButtonStates(currentMode: Int) {
-        val selectedColor = requireContext().getColor(android.R.color.holo_blue_dark)
-        val normalColor = requireContext().getColor(R.color.text_muted)
+        val selectedBgColor = requireContext().getColor(android.R.color.black)
+        val normalBgColor = requireContext().getColor(android.R.color.transparent)
+        val selectedIconColor = requireContext().getColor(android.R.color.white)
+        val normalIconColor = requireContext().getColor(R.color.text_muted)
+        val borderColor = requireContext().getColor(android.R.color.darker_gray)
         
-        // Reset all buttons
-        binding.btnThemeLight.setTextColor(normalColor)
-        binding.btnThemeDark.setTextColor(normalColor)
-        binding.btnThemeSystem.setTextColor(normalColor)
+        // Reset all buttons to normal state
+        binding.btnThemeLight.setCardBackgroundColor(normalBgColor)
+        binding.btnThemeLight.strokeColor = borderColor
+        binding.ivThemeLight.setColorFilter(normalIconColor)
+        binding.tvThemeLight.setTextColor(normalIconColor)
         
-        // Highlight selected
+        binding.btnThemeDark.setCardBackgroundColor(normalBgColor)
+        binding.btnThemeDark.strokeColor = borderColor
+        binding.ivThemeDark.setColorFilter(normalIconColor)
+        binding.tvThemeDark.setTextColor(normalIconColor)
+        
+        binding.btnThemeSystem.setCardBackgroundColor(normalBgColor)
+        binding.btnThemeSystem.strokeColor = borderColor
+        binding.ivThemeSystem.setColorFilter(normalIconColor)
+        binding.tvThemeSystem.setTextColor(normalIconColor)
+        
+        // Highlight selected with dark background
         when (currentMode) {
-            AppCompatDelegate.MODE_NIGHT_NO -> binding.btnThemeLight.setTextColor(selectedColor)
-            AppCompatDelegate.MODE_NIGHT_YES -> binding.btnThemeDark.setTextColor(selectedColor)
-            else -> binding.btnThemeSystem.setTextColor(selectedColor)
+            AppCompatDelegate.MODE_NIGHT_NO -> {
+                binding.btnThemeLight.setCardBackgroundColor(selectedBgColor)
+                binding.btnThemeLight.strokeColor = selectedBgColor
+                binding.ivThemeLight.setColorFilter(selectedIconColor)
+                binding.tvThemeLight.setTextColor(selectedIconColor)
+            }
+            AppCompatDelegate.MODE_NIGHT_YES -> {
+                binding.btnThemeDark.setCardBackgroundColor(selectedBgColor)
+                binding.btnThemeDark.strokeColor = selectedBgColor
+                binding.ivThemeDark.setColorFilter(selectedIconColor)
+                binding.tvThemeDark.setTextColor(selectedIconColor)
+            }
+            else -> {
+                binding.btnThemeSystem.setCardBackgroundColor(selectedBgColor)
+                binding.btnThemeSystem.strokeColor = selectedBgColor
+                binding.ivThemeSystem.setColorFilter(selectedIconColor)
+                binding.tvThemeSystem.setTextColor(selectedIconColor)
+            }
         }
     }
 
