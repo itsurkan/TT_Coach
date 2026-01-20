@@ -59,9 +59,13 @@
     <color name="text_card_award">@color/purple_500</color>
     
     <!-- Feedback Colors -->
-    <color name="feedback_success_bg">#1922C55E</color>  <!-- Green 500 / 10% -->
-    <color name="feedback_warning_bg">#19F97316</color>  <!-- Orange 500 / 10% -->
-    <color name="feedback_info_bg">#193B82F6</color>    <!-- Blue 500 / 10% -->
-    <color name="card_background">#F5F5F5</color>
-    <color name="border_color">#E0E0E0</color>
+    <color name="feedback_success_bg">#1A22C55E</color>  <!-- Green 500 / 10% -->
+    <color name="feedback_warning_bg">#1AF97316</color>  <!-- Orange 500 / 10% -->
+    <color name="feedback_info_bg">#1A3B82F6</color>    <!-- Blue 500 / 10% -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="border_color">#1A000000</color>
+    
+    <!-- Theme Colors -->
+    <color name="colorMuted">#ECECF0</color>
+    <color name="colorMutedForeground">#717182</color>
 </resources>

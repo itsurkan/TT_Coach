@@ -1,13 +1,25 @@
 import { Card } from "@/app/components/ui/card";
 import { Progress } from "@/app/components/ui/progress";
 import { Button } from "@/app/components/ui/button";
+import { useAppSettings } from "@/app/contexts/AppSettingsContext";
 import { Activity, Target, Trophy, TrendingUp, Zap } from "lucide-react";
 
 interface DashboardProps {
   onStartTraining: () => void;
+  onNavigateToSubscribe?: () => void;
 }
 
-export function Dashboard({ onStartTraining }: DashboardProps) {
+export function Dashboard({ onStartTraining, onNavigateToSubscribe }: DashboardProps) {
+  const { isSubscribed } = useAppSettings();
+
+  const handleStartTraining = () => {
+    if (!isSubscribed && onNavigateToSubscribe) {
+      onNavigateToSubscribe();
+    } else {
+      onStartTraining();
+    }
+  };
+
   return (
     <div className="space-y-6 pb-6">
       {/* Welcome Header */}
@@ -28,7 +40,7 @@ export function Dashboard({ onStartTraining }: DashboardProps) {
           </div>
         </div>
         <Button 
-          onClick={onStartTraining}
+          onClick={handleStartTraining}
           className="w-full bg-white text-blue-700 hover:bg-blue-50"
         >
           Begin Session

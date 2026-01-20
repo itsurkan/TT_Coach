@@ -1,7 +1,7 @@
 
-  # Mobile AI Coach App
+  # Mobile app
 
-  This is a code bundle for Mobile AI Coach App. The original project is available at https://www.figma.com/design/xObiF1aW5uMnAzABvWnFvS/Mobile-AI-Coach-App.
+  This is a code bundle for Mobile app. The original project is available at https://www.figma.com/design/xObiF1aW5uMnAzABvWnFvS/Mobile-app.
 
   ## Running the code
 

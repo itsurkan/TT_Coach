@@ -1,5 +1,6 @@
 import { Card } from "@/app/components/ui/card";
 import { Badge } from "@/app/components/ui/badge";
+import { useAppSettings } from "@/app/contexts/AppSettingsContext";
 import { Target, Zap, Users, Timer, ChevronRight } from "lucide-react";
 
 const drills = [
@@ -72,7 +73,22 @@ const difficultyColors = {
   "All Levels": "bg-blue-500/10 text-blue-500 border-blue-500/20",
 };
 
-export function DrillsView() {
+interface DrillsViewProps {
+  onNavigateToSubscribe?: () => void;
+}
+
+export function DrillsView({ onNavigateToSubscribe }: DrillsViewProps) {
+  const { isSubscribed } = useAppSettings();
+
+  const handleDrillClick = (drillId: number) => {
+    if (!isSubscribed && onNavigateToSubscribe) {
+      onNavigateToSubscribe();
+    } else {
+      // Start the drill
+      console.log("Starting drill:", drillId);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-6">
       <div>
@@ -135,6 +151,7 @@ export function DrillsView() {
             <Card
               key={drill.id}
               className="p-4 hover:bg-accent/50 transition-colors cursor-pointer"
+              onClick={() => handleDrillClick(drill.id)}
             >
               <div className="flex items-start gap-4">
                 <div className={`w-12 h-12 rounded-xl bg-${drill.color}-500/10 flex items-center justify-center flex-shrink-0`}>
