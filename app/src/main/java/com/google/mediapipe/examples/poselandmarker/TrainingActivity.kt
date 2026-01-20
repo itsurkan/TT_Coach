@@ -28,12 +28,17 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     // Managers
     private lateinit var stateManager: TrainingStateManager
     private var videoPlayerManager: VideoPlayerManager? = null
+    private lateinit var feedbackAdapter: com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter
     
     // Analysis processing
     private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
     
     // Аналітика та параметри
     private lateinit var exerciseParameters: ExerciseParameters
+
+    companion object {
+        private const val TAG = "TrainingActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,6 +132,13 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // End Session button
         binding.btnEndSession.setOnClickListener {
             stopTraining()
+        }
+
+        // Setup Feedback RecyclerView
+        feedbackAdapter = com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter()
+        binding.rvFeedbackList.apply {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@TrainingActivity)
+            adapter = feedbackAdapter
         }
 
         // Initial state - start training automatically
@@ -225,6 +237,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         val progress = if (strokeCount > 0) (strokeCount * 100 / 20).coerceAtMost(100) else 0
         binding.progressDrill.progress = progress
         binding.tvDrillProgress.text = "$strokeCount/20 successful hits"
+        
+        // Update feedback list
+        val feedbackItems = stateManager.getLatestFeedbackItems()
+        feedbackAdapter.updateFeedback(feedbackItems)
     }
 
     private fun showSummary() {
@@ -284,9 +300,5 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         poseAnalysisProcessor.processResults(resultBundle) {
             // UI update callback (already runs on main thread via runOnUiThread in processor)
         }
-    }
-    
-    companion object {
-        private const val TAG = "TrainingActivity"
     }
 }
