@@ -10,7 +10,7 @@ import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
 
-class TrainingStateManager(private val context: Context) {
+class TrainingStateManager private constructor(private val context: Context) {
     var isTrainingActive = false
         private set
     
@@ -20,8 +20,27 @@ class TrainingStateManager(private val context: Context) {
     var consecutiveGoodStrokes = 0
         private set
     
+    // Timer logic
+    private var startTime: Long = 0
+    private var pausedTime: Long = 0
+    private var totalPausedDuration: Long = 0
+    
+    companion object {
+        @Volatile
+        private var instance: TrainingStateManager? = null
+        
+        fun getInstance(context: Context): TrainingStateManager {
+            return instance ?: synchronized(this) {
+                instance ?: TrainingStateManager(context.applicationContext).also { instance = it }
+            }
+        }
+    }
+    
     fun startTraining() {
         isTrainingActive = true
+        startTime = System.currentTimeMillis()
+        totalPausedDuration = 0
+        pausedTime = 0
     }
     
     fun stopTraining() {
@@ -29,11 +48,31 @@ class TrainingStateManager(private val context: Context) {
     }
     
     fun pauseTraining() {
-        isTrainingActive = false
+        if (isTrainingActive) {
+            isTrainingActive = false
+            pausedTime = System.currentTimeMillis()
+        }
     }
     
     fun resumeTraining() {
-        isTrainingActive = true
+        if (!isTrainingActive) {
+            isTrainingActive = true
+            if (pausedTime > 0) {
+                totalPausedDuration += System.currentTimeMillis() - pausedTime
+                pausedTime = 0
+            }
+        }
+    }
+    
+    fun getSessionTimeFormatted(): String {
+        if (startTime == 0L) return "00:00"
+        
+        val currentTime = if (isTrainingActive) System.currentTimeMillis() else (if (pausedTime > 0L) pausedTime else System.currentTimeMillis())
+        val durationMs = currentTime - startTime - totalPausedDuration
+        val durationSec = (durationMs / 1000).toInt()
+        val minutes = durationSec / 60
+        val seconds = durationSec % 60
+        return String.format("%02d:%02d", minutes, seconds)
     }
     
     fun addFeedback(feedback: String) {
@@ -69,13 +108,16 @@ class TrainingStateManager(private val context: Context) {
     
     fun getAnalysisResults(): List<AnalysisResult> = analysisResults.toList()
     
+    // Helper methods for UI
+    fun getTotalHits(): Int = analysisResults.size
+    fun getSuccessfulHits(): Int = analysisResults.count { it.overallScore >= 70 } // Threshold for "successful"
+    
     fun getAverageScore(): Double {
         if (analysisResults.isEmpty()) return 0.0
         return analysisResults.map { it.overallScore }.average()
     }
     
     fun getStrokeCount(): Int = analysisResults.size
-    
     fun getGoodStrokesCount(): Int = analysisResults.count { it.overallScore >= 80 }
     
     fun getSummaryText(): String {
@@ -110,5 +152,8 @@ class TrainingStateManager(private val context: Context) {
         feedbackHistory.clear()
         analysisResults.clear()
         consecutiveGoodStrokes = 0
+        startTime = 0
+        pausedTime = 0
+        totalPausedDuration = 0
     }
 }

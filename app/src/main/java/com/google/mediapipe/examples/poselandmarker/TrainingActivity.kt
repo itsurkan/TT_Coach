@@ -60,7 +60,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
     
     private fun initializeManagers() {
-        stateManager = TrainingStateManager(this)
+        stateManager = com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager.getInstance(this)
     }
     
     private fun initializeAnalysis() {
@@ -86,16 +86,15 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         
         // Initialize pose analysis processor
         poseAnalysisProcessor = PoseAnalysisProcessor(
-            application = application as TTCoachApplication,
-            motionAnalyzer = motionAnalyzer,
-            feedbackGenerator = feedbackGenerator,
-            stateManager = stateManager,
-            onUIUpdate = { updateStats() }
+            application as TTCoachApplication,
+            motionAnalyzer,
+            feedbackGenerator,
+            stateManager,
+            { updateStats() }
         )
     }
 
     private fun setupUI() {
-        // Setup Action Bar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.apply {
             title = exerciseName ?: getString(R.string.training_title)
@@ -108,43 +107,57 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // Setup bottom sheet behavior
         val bottomSheet = binding.bottomSheet
         val bottomSheetBehavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.peekHeight = 120
+        bottomSheetBehavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
         bottomSheetBehavior.isHideable = false
 
-        // Pause/Resume button in drawer
-        binding.btnPauseResume.setOnClickListener {
-            if (stateManager.isTrainingActive) {
-                pauseTraining()
-            } else {
-                resumeTraining()
-            }
+        // Drawer buttons
+        binding.drillMenu.btnPauseResume.setOnClickListener {
+            toggleTraining()
         }
 
-        // FAB Pause/Play button (center)
-        binding.fabPausePlay.setOnClickListener {
-            if (stateManager.isTrainingActive) {
-                pauseTraining()
-            } else {
-                resumeTraining()
-            }
-        }
-
-        // End Session button
-        binding.btnEndSession.setOnClickListener {
+        binding.drillMenu.btnEndSession.setOnClickListener {
             stopTraining()
+        }
+
+        // Overlay buttons
+        binding.root.findViewById<View>(R.id.fab_pause_play)?.setOnClickListener {
+            toggleTraining()
         }
 
         // Setup Feedback RecyclerView
         feedbackAdapter = com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter()
-        binding.rvFeedbackList.apply {
+        binding.drillMenu.rvFeedbackList.apply {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@TrainingActivity)
             adapter = feedbackAdapter
         }
+
+        // Start timer update loop
+        startTimerLoop()
 
         // Initial state - start training automatically
         binding.root.postDelayed({
             startTraining()
         }, 500)
+    }
+
+    private fun toggleTraining() {
+        if (stateManager.isTrainingActive) {
+            pauseTraining()
+        } else {
+            resumeTraining()
+        }
+    }
+
+    private fun startTimerLoop() {
+        val timerView = binding.root.findViewById<android.widget.TextView>(R.id.tv_timer)
+        binding.root.post(object : Runnable {
+            override fun run() {
+                if (!isFinishing) {
+                    timerView?.text = stateManager.getSessionTimeFormatted()
+                    binding.root.postDelayed(this, 1000)
+                }
+            }
+        })
     }
 
     private fun startCameraPreview() {
@@ -184,8 +197,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         
         // Start analysis session
         poseAnalysisProcessor.startSession(
-            exerciseId = exerciseId ?: "unknown",
-            exerciseName = exerciseName ?: "Unknown Exercise"
+            exerciseId ?: "forehand_drive",
+            exerciseName ?: "Forehand Drive"
         )
     }
 
@@ -201,6 +214,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     private fun stopTraining() {
         stateManager.stopTraining()
+        updateUIForTrainingState(false)
         
         // End analysis session
         poseAnalysisProcessor.endSession()
@@ -209,36 +223,36 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     private fun updateUIForTrainingState(isActive: Boolean) {
-        if (isActive) {
-            binding.btnPauseResume.text = "Pause"
-            binding.btnPauseResume.setIconResource(android.R.drawable.ic_media_pause)
-            binding.fabPausePlay.setImageResource(android.R.drawable.ic_media_pause)
-        } else {
-            binding.btnPauseResume.text = "Resume"
-            binding.btnPauseResume.setIconResource(android.R.drawable.ic_media_play)
-            binding.fabPausePlay.setImageResource(android.R.drawable.ic_media_play)
-        }
-        updateStats()
+        val icon = if (isActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+        val text = if (isActive) "Pause" else "Resume"
+        
+        binding.root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)?.setImageResource(icon)
+        binding.drillMenu.btnPauseResume.text = text
+        binding.drillMenu.btnPauseResume.setIconResource(icon)
     }
 
     private fun updateStats() {
-        val strokeCount = stateManager.getStrokeCount()
-        val avgScore = stateManager.getAverageScore().toInt()
-        
-        // Update overlay stats
-        binding.tvHitsCount.text = strokeCount.toString()
-        binding.tvAccuracyPercent.text = "$avgScore%"
+        // Update stats on screen
+        val totalHits = stateManager.getTotalHits()
+        val accuracy = if (totalHits > 0) {
+            (stateManager.getSuccessfulHits().toFloat() / totalHits * 100).toInt()
+        } else 0
+
+        // Overlay stats
+        binding.root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
+        binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = "$accuracy%"
         
         // Update drawer stats
-        binding.tvTotalHits.text = strokeCount.toString()
-        binding.tvAccuracy.text = "$avgScore%"
+        binding.drillMenu.tvTotalHits.text = totalHits.toString()
+        binding.drillMenu.tvAccuracy.text = "$accuracy%"
         
         // Update drill progress
-        val progress = if (strokeCount > 0) (strokeCount * 100 / 20).coerceAtMost(100) else 0
-        binding.progressDrill.progress = progress
-        binding.tvDrillProgress.text = "$strokeCount/20 successful hits"
-        
-        // Update feedback list
+        val successfulHits = stateManager.getSuccessfulHits()
+        val targetHits = 20 // Dummy target for now
+        binding.drillMenu.progressDrill.progress = (successfulHits.toFloat() / targetHits * 100).toInt()
+        binding.drillMenu.tvDrillProgress.text = "$successfulHits/$targetHits successful hits"
+
+        // Update feedback adapter
         val feedbackItems = stateManager.getLatestFeedbackItems()
         feedbackAdapter.updateFeedback(feedbackItems)
     }
@@ -296,9 +310,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
     
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
-        // Process results using PoseAnalysisProcessor
-        poseAnalysisProcessor.processResults(resultBundle) {
-            // UI update callback (already runs on main thread via runOnUiThread in processor)
-        }
+        poseAnalysisProcessor.processResults(resultBundle)
     }
 }

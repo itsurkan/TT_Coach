@@ -52,6 +52,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var cameraManager: CameraManager
     private lateinit var uiController: CameraUIController
 
+    private lateinit var feedbackAdapter: com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter
+    private lateinit var stateManager: com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
+    private lateinit var poseAnalysisProcessor: com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
+
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
 
@@ -124,6 +128,12 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         // Initialize background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
+        // Initialize Training State
+        stateManager = com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager.getInstance(requireContext())
+        
+        // Initialize feedback list
+        setupFeedbackUI()
+
         // Initialize managers
         cameraManager = CameraManager(
             context = requireContext(),
@@ -137,6 +147,21 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             getPoseLandmarkerHelper = { 
                 if (::poseLandmarkerHelper.isInitialized) poseLandmarkerHelper else null 
             }
+        )
+
+        // Initialize analysis processor for standalone mode
+        val params = com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters(
+            exerciseId = "forehand_drive"
+        )
+        val motionAnalyzer = com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer(params)
+        val feedbackGenerator = com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator(requireContext())
+        
+        poseAnalysisProcessor = com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor(
+            application = requireActivity().application as com.google.mediapipe.examples.poselandmarker.TTCoachApplication,
+            motionAnalyzer = motionAnalyzer,
+            feedbackGenerator = feedbackGenerator,
+            stateManager = stateManager,
+            onUIUpdate = { updateStats() }
         )
 
         // Setup UI after view is laid out
@@ -169,6 +194,122 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             currentModel = viewModel.currentModel,
             onControlsChanged = { updateControlsUi() }
         )
+
+        // Setup BottomSheetBehavior
+        val bottomSheet = fragmentCameraBinding.bottomSheet
+        val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
+        behavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
+        behavior.isHideable = false
+        behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+
+        // Initialize UI controls for drill menu (bottom sheet)
+        setupDrillMenu()
+        
+        // Auto-start training after a short delay (standalone mode)
+        fragmentCameraBinding.root.postDelayed({
+            if (activity !is com.google.mediapipe.examples.poselandmarker.TrainingActivity) {
+                stateManager.startTraining()
+                updateTrainingUIState()
+            }
+        }, 500)
+    }
+
+    private fun setupFeedbackUI() {
+        feedbackAdapter = com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter()
+        fragmentCameraBinding.root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rv_feedback_list)?.apply {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
+            adapter = feedbackAdapter
+        }
+    }
+
+    private fun setupDrillMenu() {
+        val root = fragmentCameraBinding.root
+        
+        // Pause/Resume in drawer
+        root.findViewById<View>(R.id.btn_pause_resume)?.setOnClickListener {
+            toggleTraining()
+        }
+        
+        // FAB Pause/Play in overlay
+        root.findViewById<View>(R.id.fab_pause_play)?.setOnClickListener {
+            toggleTraining()
+        }
+        
+        // End Session
+        root.findViewById<View>(R.id.btn_end_session)?.setOnClickListener {
+            stateManager.stopTraining()
+            Toast.makeText(requireContext(), "Session Summary Coming Soon", Toast.LENGTH_LONG).show()
+        }
+        
+        // Start timer update loop
+        startTimerLoop()
+        
+        updateStats()
+    }
+
+    private fun toggleTraining() {
+        if (stateManager.isTrainingActive) {
+            stateManager.pauseTraining()
+        } else {
+            stateManager.resumeTraining()
+        }
+        updateTrainingUIState()
+    }
+
+    private fun updateTrainingUIState() {
+        val root = fragmentCameraBinding.root
+        val isActive = stateManager.isTrainingActive
+        val icon = if (isActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+        val text = if (isActive) "Pause" else "Resume"
+        
+        // Update drawer button
+        root.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pause_resume)?.apply {
+            this.text = text
+            setIconResource(icon)
+        }
+        
+        // Update FAB
+        root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)?.setImageResource(icon)
+    }
+
+    private fun startTimerLoop() {
+        val root = fragmentCameraBinding.root
+        val timerView = root.findViewById<android.widget.TextView>(R.id.tv_timer)
+        
+        root.post(object : Runnable {
+            override fun run() {
+                if (_fragmentCameraBinding != null) {
+                    timerView?.text = stateManager.getSessionTimeFormatted()
+                    root.postDelayed(this, 1000)
+                }
+            }
+        })
+    }
+
+    private fun updateStats() {
+        activity?.runOnUiThread {
+            if (_fragmentCameraBinding == null) return@runOnUiThread
+            val root = fragmentCameraBinding.root
+            
+            val totalHits = stateManager.getTotalHits()
+            val accuracy = if (totalHits > 0) {
+                (stateManager.getSuccessfulHits().toFloat() / totalHits * 100).toInt()
+            } else 0
+            
+            // Drawer stats
+            root.findViewById<android.widget.TextView>(R.id.tv_total_hits)?.text = totalHits.toString()
+            root.findViewById<android.widget.TextView>(R.id.tv_accuracy)?.text = "$accuracy%"
+            
+            // Overlay stats
+            root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
+            root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = "$accuracy%"
+            
+            // Update feedback list
+            val latestFeedback = stateManager.getLatestFeedbackItems()
+            feedbackAdapter.updateFeedback(latestFeedback)
+            
+            updateTrainingUIState()
+        }
     }
 
     /**
@@ -214,25 +355,38 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
+        // Standalone processing if not in TrainingActivity
+        if (activity !is com.google.mediapipe.examples.poselandmarker.TrainingActivity) {
+            poseAnalysisProcessor.processResults(resultBundle)
+        }
+
+        // Propagate to activity if it's a listener
+        (activity as? PoseLandmarkerHelper.LandmarkerListener)?.onResults(resultBundle)
+
         activity?.runOnUiThread {
             if (_fragmentCameraBinding != null) {
                 uiController.updateInferenceTime(resultBundle.inferenceTime)
 
                 // Pass results to OverlayView for drawing
-                fragmentCameraBinding.overlay.setResults(
-                    resultBundle.results.first(),
-                    resultBundle.inputImageHeight,
-                    resultBundle.inputImageWidth,
-                    RunningMode.LIVE_STREAM
-                )
+                if (resultBundle.results.isNotEmpty()) {
+                    fragmentCameraBinding.overlay.setResults(
+                        resultBundle.results.first(),
+                        resultBundle.inputImageHeight,
+                        resultBundle.inputImageWidth,
+                        com.google.mediapipe.tasks.vision.core.RunningMode.LIVE_STREAM
+                    )
 
-                // Force redraw
-                fragmentCameraBinding.overlay.invalidate()
+                    // Force redraw
+                    fragmentCameraBinding.overlay.invalidate()
+                }
             }
         }
     }
 
     override fun onError(error: String, errorCode: Int) {
+        // Propagate to activity
+        (activity as? PoseLandmarkerHelper.LandmarkerListener)?.onError(error, errorCode)
+
         activity?.runOnUiThread {
             Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
             if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {

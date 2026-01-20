@@ -110,7 +110,7 @@ class PoseAnalysisProcessor(
      * Process pose detection results from MediaPipe
      * This is the main pipeline: MediaPipe → Analyzer → Generator → UI → Logger
      */
-    fun processResults(resultBundle: PoseLandmarkerHelper.ResultBundle, onUIUpdate: () -> Unit) {
+    fun processResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
         // Skip if training not active
         if (!stateManager.isTrainingActive) {
             return

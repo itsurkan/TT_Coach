@@ -31,7 +31,27 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Training Overlays (Timer, Hits, Accuracy, Pause/Play) -->
     <include
-        android:id="@+id/bottom_sheet_layout"
-        layout="@layout/info_bottom_sheet" />
+        android:id="@+id/training_overlays"
+        layout="@layout/layout_training_overlays"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Drill Menu Bottom Sheet -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottom_sheet"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:behavior_peekHeight="120dp"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+        <include
+            android:id="@+id/drill_menu"
+            layout="@layout/layout_drill_menu_content" />
+    </com.google.android.material.card.MaterialCardView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
