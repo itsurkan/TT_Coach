@@ -34,6 +34,7 @@
     <color name="black">#000000</color>
     <!-- Dashboard Colors -->
     <color name="blue_600">#2563EB</color>
+    <color name="blue_500">#3B82F6</color>
     <color name="blue_700">#1D4ED8</color>
     <color name="blue_100">#DBEAFE</color>
     <color name="green_500">#22C55E</color>
@@ -45,4 +46,15 @@
     <color name="amber_500">#F59E0B</color>
     <color name="amber_50">#FFFBEB</color>
     <color name="text_muted">#64748B</color>
+
+    <!-- Progress UI Colors -->
+    <color name="chart_bar_color">@color/mp_color_primary</color>
+    <color name="chart_line_color">@color/mp_color_secondary</color>
+    <color name="chart_grid_color">@color/toolbar_background</color>
+    <color name="bg_card_calendar">#192563EB</color> <!-- Blue 500 / 10% -->
+    <color name="bg_card_target">#1922C55E</color>   <!-- Green 500 / 10% -->
+    <color name="bg_card_award">#19A855F7</color>    <!-- Purple 500 / 10% -->
+    <color name="text_card_calendar">@color/blue_600</color>
+    <color name="text_card_target">@color/green_500</color>
+    <color name="text_card_award">@color/purple_500</color>
 </resources>

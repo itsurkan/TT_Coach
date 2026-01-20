@@ -260,4 +260,25 @@
     <string name="title_progress">Progress</string>
     <string name="title_drills">Drills</string>
     <string name="title_profile">Profile</string>
+
+    <!-- Progress Fragment -->
+    <string name="progress_title">Progress</string>
+    <string name="progress_subtitle">Track your improvement</string>
+    <string name="stats_days_streak">Days Streak</string>
+    <string name="stats_total_hours">Total Hours</string>
+    <string name="stats_achievements">Achievements</string>
+    <string name="tab_training_time">Training Time</string>
+    <string name="tab_accuracy">Accuracy</string>
+    <string name="chart_training_title">Weekly Training</string>
+    <string name="chart_training_subtitle">Minutes per day</string>
+    <string name="chart_accuracy_title">Weekly Accuracy</string>
+    <string name="chart_accuracy_subtitle">Percentage trend</string>
+    <string name="skill_levels_title">Skill Levels</string>
+    <string name="milestones_title">Recent Milestones</string>
+    <string name="milestone_100_hits">100 Consecutive Hits</string>
+    <string name="milestone_30_days">30-Day Streak</string>
+    <string name="milestone_master_server">Master Server</string>
+    <string name="time_ago_2_days">2 days ago</string>
+    <string name="time_ago_5_days">5 days ago</string>
+    <string name="time_ago_1_week">1 week ago</string>
 </resources>

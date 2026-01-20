@@ -94,6 +94,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     private fun setupUI() {
         // Setup Action Bar
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.apply {
             title = exerciseName ?: getString(R.string.training_title)
             setDisplayHomeAsUpEnabled(true)
@@ -113,14 +114,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 stopTraining()
             } else {
                 startTraining()
-            }
-        }
-        
-        // Debug Audio Button
-        binding.btnTestAudio.setOnClickListener {
-            if (::poseAnalysisProcessor.isInitialized) {
-                poseAnalysisProcessor.testAudio()
-                uiController.updateFeedbackText("Testing Audio...")
             }
         }
 
