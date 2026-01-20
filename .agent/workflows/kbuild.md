@@ -1,0 +1,5 @@
+---
+description: compileDebugKotlin
+---
+
+.\gradlew compileDebugKotlin

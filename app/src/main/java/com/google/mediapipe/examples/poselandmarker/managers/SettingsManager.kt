@@ -89,6 +89,10 @@ class SettingsManager(context: Context) {
     fun isDeveloperModeEnabled(): Boolean = prefs.getBoolean("developer_mode_enabled", false)
     fun setDeveloperModeEnabled(enabled: Boolean) = prefs.edit().putBoolean("developer_mode_enabled", enabled).apply()
     
+    // Subscription Simulation (for testing)
+    fun isSubscriptionActive(): Boolean = prefs.getBoolean("subscription_active", false)
+    fun setSubscriptionActive(active: Boolean) = prefs.edit().putBoolean("subscription_active", active).apply()
+    
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }
