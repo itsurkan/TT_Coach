@@ -10,7 +10,6 @@ import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
 import com.google.mediapipe.examples.poselandmarker.TTCoachApplication
 import com.google.mediapipe.examples.poselandmarker.core.logging.LandmarkData
 import com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
-import com.google.mediapipe.examples.poselandmarker.managers.TrainingUIController
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
 import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
@@ -25,7 +24,7 @@ class PoseAnalysisProcessor(
     private val motionAnalyzer: MotionAnalyzer,
     private val feedbackGenerator: FeedbackGenerator,
     private val stateManager: TrainingStateManager,
-    private val uiController: TrainingUIController
+    private val onUIUpdate: () -> Unit
 ) {
     private var frameCounter: Int = 0
     private var currentSessionId: String? = null
@@ -207,8 +206,7 @@ class PoseAnalysisProcessor(
                     
                     // Update UI on main thread
                     android.os.Handler(android.os.Looper.getMainLooper()).post {
-                        uiController.updateFeedbackText(feedbackText)
-                        uiController.updateStats()
+                        onUIUpdate()
                     }
                     
                     currentStrokeResults.clear()

@@ -28,6 +28,14 @@ class TrainingStateManager(private val context: Context) {
         isTrainingActive = false
     }
     
+    fun pauseTraining() {
+        isTrainingActive = false
+    }
+    
+    fun resumeTraining() {
+        isTrainingActive = true
+    }
+    
     fun addFeedback(feedback: String) {
         feedbackHistory.add(feedback)
         if (feedbackHistory.size > 10) {

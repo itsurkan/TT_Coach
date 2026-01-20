@@ -10,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
 import com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
-import com.google.mediapipe.examples.poselandmarker.managers.TrainingUIController
 import com.google.mediapipe.examples.poselandmarker.managers.VideoPlayerManager
 import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
@@ -28,7 +27,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     
     // Managers
     private lateinit var stateManager: TrainingStateManager
-    private lateinit var uiController: TrainingUIController
     private var videoPlayerManager: VideoPlayerManager? = null
     
     // Analysis processing
@@ -58,7 +56,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     
     private fun initializeManagers() {
         stateManager = TrainingStateManager(this)
-        uiController = TrainingUIController(this, binding, stateManager)
     }
     
     private fun initializeAnalysis() {
@@ -88,7 +85,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             motionAnalyzer = motionAnalyzer,
             feedbackGenerator = feedbackGenerator,
             stateManager = stateManager,
-            uiController = uiController
+            onUIUpdate = { updateStats() }
         )
     }
 
@@ -103,22 +100,39 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // Auto start camera or video
         startCameraPreview()
 
-        // Calibrate button
-        binding.btnCalibrate.setOnClickListener {
-            startCalibration()
-        }
+        // Setup bottom sheet behavior
+        val bottomSheet = binding.bottomSheet
+        val bottomSheetBehavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior.peekHeight = 120
+        bottomSheetBehavior.isHideable = false
 
-        // Start/stop button
-        binding.btnStartStop.setOnClickListener {
+        // Pause/Resume button in drawer
+        binding.btnPauseResume.setOnClickListener {
             if (stateManager.isTrainingActive) {
-                stopTraining()
+                pauseTraining()
             } else {
-                startTraining()
+                resumeTraining()
             }
         }
 
-        // Initial state
-        uiController.setupInitialState()
+        // FAB Pause/Play button (center)
+        binding.fabPausePlay.setOnClickListener {
+            if (stateManager.isTrainingActive) {
+                pauseTraining()
+            } else {
+                resumeTraining()
+            }
+        }
+
+        // End Session button
+        binding.btnEndSession.setOnClickListener {
+            stopTraining()
+        }
+
+        // Initial state - start training automatically
+        binding.root.postDelayed({
+            startTraining()
+        }, 500)
     }
 
     private fun startCameraPreview() {
@@ -134,7 +148,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 videoView = binding.videoView,
                 overlayView = binding.overlay,
                 onStatusChange = { status ->
-                    uiController.updateFeedbackText(status)
+                    // Status updates handled by UI
                 }
             )
             
@@ -149,36 +163,12 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             supportFragmentManager.beginTransaction()
                 .replace(binding.cameraPreviewContainer.id, cameraFragment)
                 .commit()
-            
-            uiController.updateFeedbackText(getString(R.string.camera_started))
-        }
-    }
-
-    private fun startCalibration() {
-        if (!useVideo) {
-            // For camera mode: capture reference pose
-            uiController.showCalibrationInProgress()
-            
-            // TODO: Capture actual pose from camera
-            // For now, simulate calibration
-            binding.root.postDelayed({
-                uiController.showCalibrationComplete {
-                    // Calibration complete callback
-                }
-            }, 3000)
-        } else {
-            // For video mode: skip calibration or use first frame
-            uiController.updateFeedbackText(getString(R.string.calibration_skipped))
-            uiController.showCalibrationComplete {
-                // Ready to start training
-            }
         }
     }
 
     private fun startTraining() {
         stateManager.startTraining()
-        uiController.showTrainingStarted()
-        uiController.updateStats()
+        updateUIForTrainingState(true)
         
         // Start analysis session
         poseAnalysisProcessor.startSession(
@@ -187,9 +177,18 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         )
     }
 
+    private fun pauseTraining() {
+        stateManager.pauseTraining()
+        updateUIForTrainingState(false)
+    }
+
+    private fun resumeTraining() {
+        stateManager.resumeTraining()
+        updateUIForTrainingState(true)
+    }
+
     private fun stopTraining() {
         stateManager.stopTraining()
-        uiController.showTrainingStopped()
         
         // End analysis session
         poseAnalysisProcessor.endSession()
@@ -197,18 +196,65 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         showSummary()
     }
 
+    private fun updateUIForTrainingState(isActive: Boolean) {
+        if (isActive) {
+            binding.btnPauseResume.text = "Pause"
+            binding.btnPauseResume.setIconResource(android.R.drawable.ic_media_pause)
+            binding.fabPausePlay.setImageResource(android.R.drawable.ic_media_pause)
+        } else {
+            binding.btnPauseResume.text = "Resume"
+            binding.btnPauseResume.setIconResource(android.R.drawable.ic_media_play)
+            binding.fabPausePlay.setImageResource(android.R.drawable.ic_media_play)
+        }
+        updateStats()
+    }
+
+    private fun updateStats() {
+        val strokeCount = stateManager.getStrokeCount()
+        val avgScore = stateManager.getAverageScore().toInt()
+        
+        // Update overlay stats
+        binding.tvHitsCount.text = strokeCount.toString()
+        binding.tvAccuracyPercent.text = "$avgScore%"
+        
+        // Update drawer stats
+        binding.tvTotalHits.text = strokeCount.toString()
+        binding.tvAccuracy.text = "$avgScore%"
+        
+        // Update drill progress
+        val progress = if (strokeCount > 0) (strokeCount * 100 / 20).coerceAtMost(100) else 0
+        binding.progressDrill.progress = progress
+        binding.tvDrillProgress.text = "$strokeCount/20 successful hits"
+    }
+
     private fun showSummary() {
-        uiController.showSummaryDialog(
-            onFinish = { finish() },
-            onContinue = { /* Continue training */ }
-        )
+        val summary = stateManager.getSummaryText()
+        val tip = stateManager.getImprovementTip()
+        
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.training_summary_title))
+            .setMessage("$summary\n\n$tip")
+            .setPositiveButton(getString(R.string.btn_complete)) { _, _ ->
+                finish()
+            }
+            .setNegativeButton(getString(R.string.btn_continue)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
                 if (stateManager.isTrainingActive) {
-                    uiController.showFinishTrainingDialog { finish() }
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.finish_training_title))
+                        .setMessage(getString(R.string.finish_training_message))
+                        .setPositiveButton(getString(R.string.dialog_yes)) { _, _ ->
+                            finish()
+                        }
+                        .setNegativeButton(getString(R.string.dialog_no), null)
+                        .show()
                 } else {
                     finish()
                 }
@@ -229,7 +275,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     // PoseLandmarkerHelper.LandmarkerListener implementation
     override fun onError(error: String, errorCode: Int) {
         runOnUiThread {
-            uiController.updateFeedbackText(getString(R.string.pose_detection_error, error))
+            Log.e(TAG, "Pose detection error: $error (code: $errorCode)")
         }
     }
     
