@@ -64,16 +64,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         
         // Check permissions
         if (!PermissionsFragment.hasPermissions(requireContext())) {
-            val navHostView = requireActivity().findViewById<View>(R.id.fragment_container)
-            if (navHostView != null) {
-                Navigation.findNavController(
-                    requireActivity(), R.id.fragment_container
-                ).navigate(R.id.action_camera_to_permissions)
-            } else {
-                // Determine missing permissions
-                val permissions = arrayOf(android.Manifest.permission.CAMERA)
-                requestPermissions(permissions, 0)
-            }
+            // Request permissions directly since we are now embedded in TrainingActivity
+            val permissions = arrayOf(android.Manifest.permission.CAMERA)
+            requestPermissions(permissions, 0)
         }
 
         // Restart PoseLandmarkerHelper when returning to foreground
@@ -195,23 +188,20 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             onControlsChanged = { updateControlsUi() }
         )
 
-        // Setup BottomSheetBehavior
-        val bottomSheet = fragmentCameraBinding.bottomSheet
-        val behavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
-        behavior.peekHeight = resources.getDimensionPixelSize(R.dimen.bottom_sheet_peek_height)
-        behavior.isHideable = false
-        behavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+        // BottomSheet removed - specific logic moved to TrainingActivity
 
         // Initialize UI controls for drill menu (bottom sheet)
-        setupDrillMenu()
+        // setupDrillMenu() - Removed: Drill menu is now managed by TrainingActivity
         
-        // Auto-start training after a short delay (standalone mode)
+        // Auto-start training - Removed: Handled by TrainingActivity
+        /*
         fragmentCameraBinding.root.postDelayed({
             if (activity !is com.google.mediapipe.examples.poselandmarker.TrainingActivity) {
                 stateManager.startTraining()
                 updateTrainingUIState()
             }
         }, 500)
+        */
     }
 
     private fun setupFeedbackUI() {
@@ -276,10 +266,13 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         val root = fragmentCameraBinding.root
         val timerView = root.findViewById<android.widget.TextView>(R.id.tv_timer)
         
+        // Timer is now managed by TrainingActivity, but keeping loop for basic overlay if used standalone
         root.post(object : Runnable {
             override fun run() {
                 if (_fragmentCameraBinding != null) {
-                    timerView?.text = stateManager.getSessionTimeFormatted()
+                    if (stateManager.isTrainingActive) {
+                        timerView?.text = stateManager.getSessionTimeFormatted()
+                    }
                     root.postDelayed(this, 1000)
                 }
             }

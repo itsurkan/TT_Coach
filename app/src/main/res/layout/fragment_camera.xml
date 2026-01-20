@@ -24,12 +24,13 @@
         android:id="@+id/view_finder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:scaleType="fillStart" />
+        app:scaleType="fillStart" >
 
-    <com.google.mediapipe.examples.poselandmarker.OverlayView
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        <com.google.mediapipe.examples.poselandmarker.OverlayView
+            android:id="@+id/overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.camera.view.PreviewView>
 
     <!-- Training Overlays (Timer, Hits, Accuracy, Pause/Play) -->
     <include
@@ -38,20 +39,5 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Drill Menu Bottom Sheet -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottom_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        app:behavior_peekHeight="120dp"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-
-        <include
-            android:id="@+id/drill_menu"
-            layout="@layout/layout_drill_menu_content" />
-    </com.google.android.material.card.MaterialCardView>
-
+    <!-- Drill Menu moved to TrainingActivity -->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

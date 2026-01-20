@@ -40,17 +40,13 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <fragment
+    <activity
         android:id="@+id/camera_fragment"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment"
+        android:name="com.google.mediapipe.examples.poselandmarker.TrainingActivity"
         android:label="@string/menu_camera"
-        tools:layout="@layout/fragment_camera">
-        <action
-            android:id="@+id/action_camera_to_permissions"
-            app:destination="@id/permissions_fragment"
-            app:popUpTo="@id/camera_fragment"
-            app:popUpToInclusive="true" />
-    </fragment>
+        tools:layout="@layout/activity_training">
+
+    </activity>
     <activity
         android:id="@+id/navigation_developer"
         android:name="com.google.mediapipe.examples.poselandmarker.DebugActivity"
