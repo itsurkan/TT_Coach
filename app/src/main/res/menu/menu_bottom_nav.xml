@@ -16,11 +16,6 @@
         android:title="@string/title_drills" />
 
     <item
-        android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/title_settings" />
-
-    <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_person"
         android:title="@string/title_profile" />
@@ -31,3 +26,4 @@
         android:title="Developer"
         android:visible="false" />
 </menu>
+
