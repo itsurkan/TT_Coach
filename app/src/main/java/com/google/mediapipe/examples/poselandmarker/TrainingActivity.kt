@@ -135,6 +135,27 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             adapter = feedbackAdapter
         }
 
+        // Add Mock Items for UI testing
+        val mockItems = listOf(
+            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+                message = "Good Wrist Position!",
+                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.WRIST,
+                isPositive = true
+            ),
+            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+                message = "Rotate your Body more",
+                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.BODY_ROTATION,
+                isPositive = false
+            ),
+            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+                message = "Excellent Follow Through",
+                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH,
+                isPositive = true
+            )
+        )
+        feedbackAdapter.updateFeedback(mockItems)
+        stateManager.addFeedbackItems(mockItems)
+
         // Start timer update loop
         startTimerLoop()
 

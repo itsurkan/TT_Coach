@@ -75,6 +75,17 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
             binding.layoutFeedbackDetails.visibility = if (isExpanded) View.VISIBLE else View.GONE
             binding.ivExpandIcon.rotation = if (isExpanded) 180f else 0f
 
+            // Handle Pose Visualizer
+            if (isExpanded) {
+                // Generate and play mock animation
+                // In a real app, successful strokes would have their landmarks saved in the FeedbackItem
+                val mockFrames = MockPoseGenerator.generateMockStroke(item.type)
+                binding.poseVisualizer.setFrames(mockFrames)
+                binding.poseVisualizer.playAnimation()
+            } else {
+                binding.poseVisualizer.stopAnimation()
+            }
+
             // Click listener
             binding.layoutFeedbackHeader.setOnClickListener {
                 val newPosition = adapterPosition
@@ -102,5 +113,48 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
             rotate.fillAfter = true
             view.startAnimation(rotate)
         }
+    }
+}
+
+object MockPoseGenerator {
+    fun generateMockStroke(type: com.google.mediapipe.examples.poselandmarker.models.CorrectionType): List<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>> {
+        val frames = mutableListOf<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>>()
+        val numFrames = 30
+        
+        // Base pose (standing)
+        // We need 33 landmarks. We'll just mock the main ones and leave others at 0,0
+        // Landmarks: 11/12 shoulders, 13/14 elbows, 15/16 wrists
+        
+        for (i in 0 until numFrames) {
+            val t = i.toFloat() / numFrames
+            // Simple swing animation for right arm (12, 14, 16)
+            
+            val landmarks = ArrayList<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>()
+            for (j in 0 until 33) {
+                var x = 0.5f
+                var y = 0.5f
+                
+                when (j) {
+                    11 -> { x = 0.4f; y = 0.3f } // Left Shoulder
+                    12 -> { x = 0.6f; y = 0.3f } // Right Shoulder
+                    13 -> { x = 0.3f; y = 0.5f } // Left Elbow
+                    14 -> { // Right Elbow - moves
+                        x = 0.65f + 0.1f * kotlin.math.sin(t * Math.PI).toFloat()
+                        y = 0.5f
+                    } 
+                    15 -> { x = 0.3f; y = 0.7f } // Left Wrist
+                    16 -> { // Right Wrist - moves more
+                        x = 0.7f + 0.2f * kotlin.math.sin(t * Math.PI).toFloat()
+                        y = 0.7f - 0.2f * kotlin.math.sin(t * Math.PI).toFloat()
+                    } 
+                    23 -> { x = 0.45f; y = 0.7f } // Left Hip
+                    24 -> { x = 0.55f; y = 0.7f } // Right Hip
+                }
+                
+                landmarks.add(com.google.mediapipe.tasks.components.containers.NormalizedLandmark.create(x, y, 0f))
+            }
+            frames.add(landmarks)
+        }
+        return frames
     }
 }

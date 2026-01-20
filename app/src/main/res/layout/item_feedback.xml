@@ -20,8 +20,6 @@
             android:orientation="horizontal"
             android:padding="12dp"
             android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true"
             android:background="?attr/selectableItemBackground">
 
             <!-- Icon -->
@@ -106,21 +104,11 @@
                         android:layout_marginBottom="12dp"/>
 
                     <!-- Pose Replay View Placeholder -->
-                    <FrameLayout
-                        android:id="@+id/frame_pose_visualization"
+                    <com.google.mediapipe.examples.poselandmarker.views.PoseVisualizer
+                        android:id="@+id/pose_visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:background="#F5F5F5">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="Pose Animation\n(Coming Soon)"
-                            android:textAlignment="center"
-                            android:textColor="@color/text_muted"
-                            android:textSize="12sp"/>
-                    </FrameLayout>
+                        android:background="#F5F5F5"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
