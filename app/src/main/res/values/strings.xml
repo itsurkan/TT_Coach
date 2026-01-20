@@ -260,6 +260,7 @@
     <string name="title_progress">Progress</string>
     <string name="title_drills">Drills</string>
     <string name="title_profile">Profile</string>
+    <string name="title_settings">Settings</string>
 
     <!-- Progress Fragment -->
     <string name="progress_title">Progress</string>
@@ -285,4 +286,69 @@
     <!-- Activity Settings -->
     <string name="activity_settings_title">Activity Settings</string>
     <string name="btn_activity_settings">Activity Settings</string>
+
+    <!-- Training Settings Fragment -->
+    <string name="training_settings_title">Training Settings</string>
+    <string name="training_settings_subtitle">Configure your training session preferences</string>
+    <string name="audio_feedback_section">Audio Feedback</string>
+    <string name="audio_feedback_desc">Receive audio cues during training</string>
+    <string name="volume_label">Volume</string>
+    <string name="volume_desc">Adjust the volume of voice feedback and sound effects</string>
+    <string name="camera_settings_section">Camera Settings</string>
+    <string name="video_quality_label">Video Quality</string>
+    <string name="video_quality_desc">Higher quality improves pose detection accuracy</string>
+    <string name="frame_rate_label">Frame Rate (FPS)</string>
+    <string name="frame_rate_desc">Higher frame rates capture faster movements</string>
+    <string name="show_pose_skeleton_label">Show Pose Skeleton</string>
+    <string name="show_pose_skeleton_desc">Overlay skeleton visualization during training</string>
+    <string name="settings_pro_tip_title">💡 Pro Tip</string>
+    <string name="settings_pro_tip">For best results, use 720p at 30 FPS with pose skeleton enabled. This balance provides accurate feedback without draining your battery.</string>
+    
+    <!-- App Settings Activity -->
+    <string name="app_settings_title">App Settings</string>
+    <string name="app_settings_subtitle">Configure application-wide settings</string>
+    <string name="developer_options">Developer Options</string>
+    <string name="debug_mode">Debug Mode</string>
+    <string name="debug_mode_desc">Show debug activity in navigation for testing</string>
+    <string name="debug_mode_active_title">Debug Mode Active</string>
+    <string name="debug_mode_active_info">A new \"Debug\" tab will appear in the bottom navigation. Use it to test features and view diagnostic information.</string>
+    <string name="subscription_management">Subscription Management</string>
+    <string name="subscription_active">Subscription Active</string>
+    <string name="subscription_simulate_desc">Simulate premium subscription status</string>
+    <string name="premium_active">Premium Active</string>
+    <string name="free_plan">Free Plan</string>
+    <string name="subscription_active_info">Your premium subscription is active until %s.</string>
+    <string name="subscription_inactive_info">You\'re on the free plan. Upgrade to unlock all features.</string>
+    <string name="subscription_how_works_title">ℹ️ How it works</string>
+    <string name="subscription_how_works_active">• When subscription is active: Full access to training and drills</string>
+    <string name="subscription_how_works_inactive">• When subscription is inactive: Starting training or drills will redirect to subscription page</string>
+    <string name="subscription_how_works_profile">• This setting affects the subscription status shown in your Profile</string>
+    
+    <!-- Profile Updates -->
+    <string name="subscription_section">Subscription</string>
+    <string name="premium_active_badge">Active</string>
+    <string name="premium_active_title">Premium Active</string>
+    <string name="premium_enjoy_desc">Enjoy unlimited AI coaching and all premium features</string>
+    <string name="premium_renews_on">Renews on %s</string>
+    <string name="upgrade_to_premium">Upgrade to Premium</string>
+    <string name="upgrade_unlock_desc">Unlock unlimited AI coaching, advanced pose analysis, and personalized training plans</string>
+    <string name="view_plans">View Plans</string>
+    <string name="training_goals_section">Training Goals</string>
+    <string name="weekly_sessions">Weekly Sessions</string>
+    <string name="weekly_sessions_desc">Train 7 days/week</string>
+    <string name="skill_target">Skill Target</string>
+    <string name="skill_target_desc">Reach 90 score</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="push_notifications">Push Notifications</string>
+    <string name="daily_reminders">Daily Reminders</string>
+    <string name="achievement_alerts">Achievement Alerts</string>
+    <string name="more_section">More</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="app_settings">App Settings</string>
+    <string name="help_support">Help \u0026 Support</string>
+    <string name="log_out">Log Out</string>
+    <string name="version_format">Version %s</string>
 </resources>

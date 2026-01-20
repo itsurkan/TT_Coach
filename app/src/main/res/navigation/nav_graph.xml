@@ -30,6 +30,12 @@
         tools:layout="@layout/fragment_profile" />
 
     <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.google.mediapipe.examples.poselandmarker.fragment.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
         android:id="@+id/permissions_fragment"
         android:name="com.google.mediapipe.examples.poselandmarker.fragment.PermissionsFragment"
         android:label="Permissions">
