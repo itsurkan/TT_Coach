@@ -52,7 +52,13 @@ class ProfileFragment : Fragment() {
         
         // Upgrade card click - navigate to subscribe
         binding.cardSubscriptionUpgrade.setOnClickListener {
-            // TODO: Navigate to subscription page when implemented
+            android.widget.Toast.makeText(
+                requireContext(),
+                "Subscribe page coming soon!",
+                android.widget.Toast.LENGTH_SHORT
+            ).show()
+            // TODO: Navigate to SubscribeActivity when implemented
+            // startActivity(Intent(requireContext(), SubscribeActivity::class.java))
         }
     }
 
