@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dark theme colors
+-->
+<resources>
+    <color name="mp_color_primary">#00A0B0</color>
+    <color name="mp_color_primary_variant">#12B5CB</color>
+    <color name="mp_color_primary_dark">#007F8B</color>
+    <color name="mp_color_secondary">#FBBC04</color>
+    <color name="mp_color_secondary_variant">#F9AB00</color>
+    <color name="mp_color_error">#CF6679</color>
+    <color name="toolbar_background">#1E1E1E</color>
+    <color name="ic_launcher_background">#121212</color>
+    <color name="bottom_sheet_background">#1E1E1E</color>
+    <color name="bottom_sheet_text_color">@android:color/white</color>
+    <color name="icActive">#FFFFFFFF</color>
+    <color name="icFocused">#DDFFFFFF</color>
+    <color name="icPressed">#AAFFFFFF</color>
+    
+    <!-- AI Coach colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <!-- Dashboard Colors -->
+    <color name="blue_600">#60A5FA</color>
+    <color name="blue_500">#3B82F6</color>
+    <color name="blue_700">#2563EB</color>
+    <color name="blue_100">#1E3A5F</color>
+    <color name="green_500">#34D399</color>
+    <color name="green_50">#064E3B</color>
+    <color name="orange_500">#FB923C</color>
+    <color name="orange_50">#7C2D12</color>
+    <color name="purple_500">#C084FC</color>
+    <color name="purple_50">#3B0764</color>
+    <color name="amber_500">#FBBF24</color>
+    <color name="amber_50">#78350F</color>
+    <color name="text_muted">#9CA3AF</color>
+
+    <!-- Progress UI Colors -->
+    <color name="chart_bar_color">@color/mp_color_primary</color>
+    <color name="chart_line_color">@color/mp_color_secondary</color>
+    <color name="chart_grid_color">#2A2A2A</color>
+    <color name="bg_card_calendar">#1A60A5FA</color>
+    <color name="bg_card_target">#1A34D399</color>
+    <color name="bg_card_award">#1AC084FC</color>
+    <color name="text_card_calendar">@color/blue_600</color>
+    <color name="text_card_target">@color/green_500</color>
+    <color name="text_card_award">@color/purple_500</color>
+    
+    <!-- Feedback Colors -->
+    <color name="feedback_success_bg">#1A34D399</color>
+    <color name="feedback_warning_bg">#1AFB923C</color>
+    <color name="feedback_info_bg">#1A3B82F6</color>
+    <color name="card_background">#1E1E1E</color>
+    <color name="border_color">#33FFFFFF</color>
+    
+    <!-- Theme Colors -->
+    <color name="colorMuted">#2A2A2A</color>
+    <color name="colorMutedForeground">#9CA3AF</color>
+</resources>
