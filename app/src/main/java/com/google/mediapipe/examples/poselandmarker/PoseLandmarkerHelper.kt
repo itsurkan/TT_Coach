@@ -43,6 +43,7 @@ class PoseLandmarkerHelper(
     }
 
     fun clearPoseLandmarker() {
+        processor?.cancel()
         poseLandmarker?.close()
         poseLandmarker = null
         processor = null

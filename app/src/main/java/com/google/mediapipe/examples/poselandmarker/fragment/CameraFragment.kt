@@ -381,9 +381,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         (activity as? PoseLandmarkerHelper.LandmarkerListener)?.onError(error, errorCode)
 
         activity?.runOnUiThread {
-            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-            if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
-                uiController.setDelegateToCpu()
+            context?.let {
+                Toast.makeText(it, error, Toast.LENGTH_SHORT).show()
+                if (errorCode == PoseLandmarkerHelper.GPU_ERROR) {
+                    uiController.setDelegateToCpu()
+                }
             }
         }
     }

@@ -26,6 +26,13 @@ class PoseLandmarkerProcessor(
     companion object {
         private const val TAG = "PoseLandmarkerProc"
     }
+
+    @Volatile
+    private var isCancelled = false
+
+    fun cancel() {
+        isCancelled = true
+    }
     
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
         require(runningMode == RunningMode.LIVE_STREAM) {
@@ -82,6 +89,11 @@ class PoseLandmarkerProcessor(
         val numberOfFrameToRead = videoLengthMs.div(inferenceIntervalMs)
 
         for (i in 0..numberOfFrameToRead) {
+            if (isCancelled) {
+                retriever.release()
+                return null
+            }
+
             val timestampMs = i * inferenceIntervalMs
 
             retriever.getFrameAtTime(

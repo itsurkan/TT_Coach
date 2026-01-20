@@ -139,7 +139,8 @@ class VideoPlayerManager(
     }
     
     fun release() {
-        backgroundExecutor?.shutdown()
+        backgroundExecutor?.shutdownNow()
         poseLandmarkerHelper?.clearPoseLandmarker()
+        videoView.stopPlayback()
     }
 }
