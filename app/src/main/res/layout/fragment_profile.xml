@@ -340,8 +340,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        android:rotation="45"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"/>
                 </LinearLayout>
 
@@ -385,8 +384,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        android:rotation="45"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"/>
                 </LinearLayout>
             </LinearLayout>
@@ -431,7 +429,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@android:drawable/ic_menu_day"
+                            android:src="@drawable/ic_sun"
                             app:tint="@color/text_muted"
                             android:layout_marginEnd="12dp"/>
                         <TextView
@@ -453,7 +451,7 @@
                             android:layout_weight="1"
                             android:text="@string/theme_light"
                             android:layout_marginEnd="8dp"
-                            app:icon="@android:drawable/ic_menu_day"
+                            app:icon="@drawable/ic_sun"
                             app:iconGravity="top"
                             app:strokeWidth="1dp"/>
 
@@ -465,7 +463,7 @@
                             android:layout_weight="1"
                             android:text="@string/theme_dark"
                             android:layout_marginHorizontal="4dp"
-                            app:icon="@android:drawable/ic_menu_camera"
+                            app:icon="@drawable/ic_moon"
                             app:iconGravity="top"
                             app:strokeWidth="1dp"/>
 
@@ -477,7 +475,7 @@
                             android:layout_weight="1"
                             android:text="@string/theme_system"
                             android:layout_marginStart="8dp"
-                            app:icon="@android:drawable/ic_menu_preferences"
+                            app:icon="@drawable/ic_monitor"
                             app:iconGravity="top"
                             app:strokeWidth="1dp"/>
                     </LinearLayout>
@@ -492,7 +490,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_target"
+                        android:src="@drawable/ic_bell"
                         app:tint="@color/text_muted"
                         android:layout_marginEnd="12dp"/>
                     <TextView
@@ -604,8 +602,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        android:rotation="45"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"/>
                 </LinearLayout>
 
@@ -633,8 +630,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        android:rotation="45"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"/>
                 </LinearLayout>
 
@@ -651,7 +647,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_info"
+                        android:src="@drawable/ic_help_circle"
                         app:tint="@color/text_muted"
                         android:layout_marginEnd="12dp"/>
                     <TextView
@@ -662,8 +658,7 @@
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        android:rotation="45"
+                        android:src="@drawable/ic_chevron_right"
                         app:tint="@color/text_muted"/>
                 </LinearLayout>
             </LinearLayout>
@@ -677,7 +672,7 @@
             android:layout_height="wrap_content"
             android:text="@string/log_out"
             android:textColor="#EF4444"
-            app:icon="@android:drawable/ic_menu_close_clear_cancel"
+            app:icon="@drawable/ic_log_out"
             app:iconTint="#EF4444"
             app:strokeColor="#EF4444"
             android:layout_marginBottom="16dp"/>
