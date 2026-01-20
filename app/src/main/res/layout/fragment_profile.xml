@@ -474,6 +474,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/theme_light"
+                                    android:textAllCaps="true"
                                     android:textSize="12sp"/>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -509,6 +510,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/theme_dark"
+                                    android:textAllCaps="true"
                                     android:textSize="12sp"/>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -544,6 +546,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/theme_system"
+                                    android:textAllCaps="true"
                                     android:textSize="12sp"/>
                             </LinearLayout>
                         </com.google.android.material.card.MaterialCardView>
@@ -569,6 +572,7 @@
                         android:text="@string/push_notifications"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_push_notifications"
+                        style="@style/CustomSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"/>
@@ -593,6 +597,7 @@
                         android:text="@string/daily_reminders"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_daily_reminders"
+                        style="@style/CustomSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"/>
@@ -617,6 +622,7 @@
                         android:text="@string/achievement_alerts"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_achievement_alerts"
+                        style="@style/CustomSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>

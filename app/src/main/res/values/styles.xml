@@ -38,4 +38,10 @@
     <style name="AppThemeProgressStyle">
         <item name="colorAccent">@color/mp_color_primary_variant</item>
     </style>
+
+    <!-- Custom Switch Style matching mockup design -->
+    <style name="CustomSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
+        <item name="trackTint">@color/switch_track_selector</item>
+        <item name="thumbTint">@color/switch_thumb_selector</item>
+    </style>
 </resources>

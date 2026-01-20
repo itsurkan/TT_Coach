@@ -22,12 +22,12 @@
             <FrameLayout
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:background="@drawable/bg_card_blue_gradient"
+                android:background="@drawable/bg_circle_orange"
                 android:layout_marginBottom="16dp">
                 <ImageView
                     android:layout_width="32dp"
                     android:layout_height="32dp"
-                    android:src="@drawable/ic_award"
+                    android:src="@drawable/ic_crown"
                     app:tint="@color/white"
                     android:layout_gravity="center"/>
             </FrameLayout>
@@ -101,8 +101,9 @@
                     android:id="@+id/check_monthly"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check_circle_2"
-                    android:visibility="invisible"/>
+                    android:src="@drawable/ic_radio_unchecked"
+                    app:tint="@color/text_muted"
+                    android:visibility="visible"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -153,7 +154,7 @@
                             android:text="@string/badge_popular"
                             android:textSize="10sp"
                             android:textColor="@color/white"
-                            android:background="@drawable/bg_card_blue_gradient"
+                            android:background="@drawable/bg_badge_blue"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
                             android:layout_marginStart="8dp"/>
@@ -205,8 +206,8 @@
                     android:id="@+id/check_quarterly"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check_circle_2"
-                    app:tint="#2196F3"/>
+                    android:src="@drawable/ic_radio_unchecked"
+                    app:tint="@color/text_muted"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -256,7 +257,7 @@
                             android:text="@string/badge_best_value"
                             android:textSize="10sp"
                             android:textColor="@color/white"
-                            android:background="@drawable/bg_upgrade_gradient"
+                            android:background="@drawable/bg_badge_orange"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
                             android:layout_marginStart="8dp"/>
@@ -308,8 +309,9 @@
                     android:id="@+id/check_yearly"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:src="@drawable/ic_check_circle_2"
-                    android:visibility="invisible"/>
+                    android:src="@drawable/ic_radio_unchecked"
+                    app:tint="@color/text_muted"
+                    android:visibility="visible"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -339,7 +341,7 @@
 
                 <!-- Feature 1 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_unlimited_coaching" android:textSize="14sp" android:layout_marginStart="12dp"/>
@@ -347,7 +349,7 @@
 
                 <!-- Feature 2 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_pose_analysis" android:textSize="14sp" android:layout_marginStart="12dp"/>
@@ -355,7 +357,7 @@
 
                 <!-- Feature 3 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_progress_analytics" android:textSize="14sp" android:layout_marginStart="12dp"/>
@@ -363,7 +365,7 @@
 
                 <!-- Feature 4 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_training_plans" android:textSize="14sp" android:layout_marginStart="12dp"/>
@@ -371,7 +373,7 @@
 
                 <!-- Feature 5 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_realtime_feedback" android:textSize="14sp" android:layout_marginStart="12dp"/>
@@ -379,7 +381,7 @@
 
                 <!-- Feature 6 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
                         <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
                     </FrameLayout>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_premium_drills" android:textSize="14sp" android:layout_marginStart="12dp"/>

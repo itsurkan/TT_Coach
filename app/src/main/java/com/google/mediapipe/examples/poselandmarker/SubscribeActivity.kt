@@ -44,36 +44,49 @@ class SubscribeActivity : AppCompatActivity() {
     }
 
     private fun updatePlanSelection() {
-        // Reset all
-        binding.checkMonthly.visibility = View.INVISIBLE
-        binding.checkQuarterly.visibility = View.INVISIBLE
-        binding.checkYearly.visibility = View.INVISIBLE
+        val activeColor = getColor(R.color.blue_600)
+        val mutedColor = getColor(R.color.text_muted)
+        val activeBg = 0x1A2196F3.toInt()
+        val inactiveBg = getColor(android.R.color.transparent)
+        val borderColor = getColor(android.R.color.darker_gray)
+
+        // Reset all to unselected state
+        binding.checkMonthly.setImageResource(R.drawable.ic_radio_unchecked)
+        binding.checkMonthly.setColorFilter(mutedColor)
+        binding.cardMonthly.strokeColor = borderColor
+        binding.cardMonthly.setCardBackgroundColor(inactiveBg)
         
-        binding.cardMonthly.strokeColor = getColor(android.R.color.darker_gray)
-        binding.cardMonthly.setCardBackgroundColor(getColor(android.R.color.transparent))
-        binding.cardQuarterly.strokeColor = getColor(android.R.color.darker_gray)
-        binding.cardQuarterly.setCardBackgroundColor(getColor(android.R.color.transparent))
-        binding.cardYearly.strokeColor = getColor(android.R.color.darker_gray)
-        binding.cardYearly.setCardBackgroundColor(getColor(android.R.color.transparent))
+        binding.checkQuarterly.setImageResource(R.drawable.ic_radio_unchecked)
+        binding.checkQuarterly.setColorFilter(mutedColor)
+        binding.cardQuarterly.strokeColor = borderColor
+        binding.cardQuarterly.setCardBackgroundColor(inactiveBg)
+        
+        binding.checkYearly.setImageResource(R.drawable.ic_radio_unchecked)
+        binding.checkYearly.setColorFilter(mutedColor)
+        binding.cardYearly.strokeColor = borderColor
+        binding.cardYearly.setCardBackgroundColor(inactiveBg)
         
         // Highlight selected
         when (selectedPlan) {
             Plan.MONTHLY -> {
-                binding.checkMonthly.visibility = View.VISIBLE
-                binding.cardMonthly.strokeColor = getColor(android.R.color.holo_blue_dark)
-                binding.cardMonthly.setCardBackgroundColor(0x1A2196F3.toInt())
+                binding.checkMonthly.setImageResource(R.drawable.ic_radio_checked)
+                binding.checkMonthly.setColorFilter(activeColor)
+                binding.cardMonthly.strokeColor = activeColor
+                binding.cardMonthly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_monthly_plan)
             }
             Plan.QUARTERLY -> {
-                binding.checkQuarterly.visibility = View.VISIBLE
-                binding.cardQuarterly.strokeColor = getColor(android.R.color.holo_blue_dark)
-                binding.cardQuarterly.setCardBackgroundColor(0x1A2196F3.toInt())
+                binding.checkQuarterly.setImageResource(R.drawable.ic_radio_checked)
+                binding.checkQuarterly.setColorFilter(activeColor)
+                binding.cardQuarterly.strokeColor = activeColor
+                binding.cardQuarterly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_quarterly_plan)
             }
             Plan.YEARLY -> {
-                binding.checkYearly.visibility = View.VISIBLE
-                binding.cardYearly.strokeColor = getColor(android.R.color.holo_blue_dark)
-                binding.cardYearly.setCardBackgroundColor(0x1A2196F3.toInt())
+                binding.checkYearly.setImageResource(R.drawable.ic_radio_checked)
+                binding.checkYearly.setColorFilter(activeColor)
+                binding.cardYearly.strokeColor = activeColor
+                binding.cardYearly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_yearly_plan)
             }
         }
