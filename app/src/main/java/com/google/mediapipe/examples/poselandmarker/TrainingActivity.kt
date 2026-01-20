@@ -107,6 +107,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // Setup bottom sheet behavior
         val bottomSheet = binding.bottomSheet
         val bottomSheetBehavior = com.google.android.material.bottomsheet.BottomSheetBehavior.from(bottomSheet)
+        
+        // Use the peek height defined in XML (120dp)
+        // bottomSheetBehavior.peekHeight is automatically read from XML
+        
         bottomSheetBehavior.state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.isHideable = false
 
