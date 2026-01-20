@@ -121,6 +121,35 @@
                 android:divider="?android:attr/listDivider"
                 android:showDividers="middle">
 
+                <!-- Activity Settings -->
+                <LinearLayout
+                    android:id="@+id/layout_activity_settings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_camera"
+                        app:tint="@color/text_muted"
+                        android:layout_marginEnd="16dp"/>
+                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/btn_activity_settings"/>
+                     <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_baseline_add_24"
+                        android:rotation="45"
+                        app:tint="@color/text_muted"/>
+                </LinearLayout>
+
                 <!-- Notifications -->
                 <LinearLayout
                     android:layout_width="match_parent"

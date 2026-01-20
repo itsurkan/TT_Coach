@@ -27,6 +27,12 @@ class ProfileFragment : Fragment() {
         
         val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(requireContext())
         
+        // Activity Settings button
+        binding.layoutActivitySettings.setOnClickListener {
+            val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.ActivitySettingsActivity::class.java)
+            startActivity(intent)
+        }
+        
         binding.switchDeveloperMode.isChecked = settingsManager.isDeveloperModeEnabled()
         
         binding.switchDeveloperMode.setOnCheckedChangeListener { _, isChecked ->

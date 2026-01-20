@@ -68,6 +68,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Activity Settings Screen -->
+        <activity
+            android:name=".ActivitySettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Main Activity (New Entry Point) -->
         <activity
             android:name=".MainActivity"
