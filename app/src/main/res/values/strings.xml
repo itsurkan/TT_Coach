@@ -351,4 +351,37 @@
     <string name="help_support">Help \u0026 Support</string>
     <string name="log_out">Log Out</string>
     <string name="version_format">Version %s</string>
+
+    <!-- Subscribe Page -->
+    <string name="subscribe_title">Unlock Premium Features</string>
+    <string name="subscribe_subtitle">Get unlimited access to AI coaching and advanced training tools</string>
+    <string name="plan_monthly">Monthly</string>
+    <string name="plan_monthly_duration">1 month</string>
+    <string name="plan_monthly_price">$9.99</string>
+    <string name="plan_quarterly">Quarterly</string>
+    <string name="plan_quarterly_duration">3 months</string>
+    <string name="plan_quarterly_price">$24.99</string>
+    <string name="plan_quarterly_per_month">($8.33/month)</string>
+    <string name="plan_quarterly_save">Save 17%</string>
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_yearly_duration">12 months</string>
+    <string name="plan_yearly_price">$79.99</string>
+    <string name="plan_yearly_per_month">($6.67/month)</string>
+    <string name="plan_yearly_save">Save 33%</string>
+    <string name="badge_popular">Popular</string>
+    <string name="badge_best_value">Best Value</string>
+    <string name="whats_included">What\'s Included</string>
+    <string name="feature_unlimited_coaching">Unlimited AI coaching sessions</string>
+    <string name="feature_pose_analysis">Advanced pose analysis</string>
+    <string name="feature_progress_analytics">Detailed progress analytics</string>
+    <string name="feature_training_plans">Personalized training plans</string>
+    <string name="feature_realtime_feedback">Real-time feedback</string>
+    <string name="feature_premium_drills">Access to all premium drills</string>
+    <string name="start_plan">Start Quarterly Plan</string>
+    <string name="start_monthly_plan">Start Monthly Plan</string>
+    <string name="start_quarterly_plan">Start Quarterly Plan</string>
+    <string name="start_yearly_plan">Start Yearly Plan</string>
+    <string name="maybe_later">Maybe Later</string>
+    <string name="subscribe_auto_renew">Auto-renews. Cancel anytime.</string>
+    <string name="subscribe_guarantee">30-day money-back guarantee</string>
 </resources>

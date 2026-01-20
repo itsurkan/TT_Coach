@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginBottom="24dp">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/bg_card_blue_gradient"
+                android:layout_marginBottom="16dp">
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_award"
+                    app:tint="@color/white"
+                    android:layout_gravity="center"/>
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscribe_title"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscribe_subtitle"
+                android:textColor="@color/text_muted"
+                android:gravity="center"/>
+        </LinearLayout>
+
+        <!-- Monthly Plan -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_monthly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="?attr/colorControlHighlight"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_monthly"
+                        android:textStyle="bold"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_monthly_duration"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_monthly_price"
+                        android:textStyle="bold"
+                        android:textSize="22sp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/check_monthly"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_check_circle_2"
+                    android:visibility="invisible"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Quarterly Plan (Popular) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_quarterly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="#2196F3"
+            app:cardBackgroundColor="#1A2196F3"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_quarterly"
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/badge_popular"
+                            android:textSize="10sp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/bg_card_blue_gradient"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_quarterly_duration"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_quarterly_price"
+                            android:textStyle="bold"
+                            android:textSize="22sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_quarterly_per_month"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_quarterly_save"
+                        android:textSize="11sp"
+                        android:textColor="#22C55E"
+                        android:background="#1A22C55E"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/check_quarterly"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_check_circle_2"
+                    app:tint="#2196F3"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Yearly Plan (Best Value) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_yearly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="?attr/colorControlHighlight"
+            android:layout_marginBottom="24dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_yearly"
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/badge_best_value"
+                            android:textSize="10sp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/bg_upgrade_gradient"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_yearly_duration"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="8dp"/>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_yearly_price"
+                            android:textStyle="bold"
+                            android:textSize="22sp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/plan_yearly_per_month"
+                            android:textColor="@color/text_muted"
+                            android:textSize="12sp"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plan_yearly_save"
+                        android:textSize="11sp"
+                        android:textColor="#22C55E"
+                        android:background="#1A22C55E"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:layout_marginTop="8dp"/>
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/check_yearly"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_check_circle_2"
+                    android:visibility="invisible"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Features Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorControlHighlight"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/whats_included"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Feature 1 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_unlimited_coaching" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Feature 2 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_pose_analysis" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Feature 3 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_progress_analytics" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Feature 4 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_training_plans" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Feature 5 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_realtime_feedback" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+
+                <!-- Feature 6 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="#1A2196F3">
+                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
+                    </FrameLayout>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_premium_drills" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- CTA Buttons -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_subscribe"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="@string/start_plan"
+            android:textSize="16sp"
+            app:icon="@drawable/ic_award"
+            app:iconGravity="textStart"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_maybe_later"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/maybe_later"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Footer -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscribe_auto_renew"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscribe_guarantee"
+                android:textColor="@color/text_muted"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

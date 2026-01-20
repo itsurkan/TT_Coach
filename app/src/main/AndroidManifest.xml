@@ -80,6 +80,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Subscribe Screen -->
+        <activity
+            android:name=".SubscribeActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Main Activity (New Entry Point) -->
         <activity
             android:name=".MainActivity"

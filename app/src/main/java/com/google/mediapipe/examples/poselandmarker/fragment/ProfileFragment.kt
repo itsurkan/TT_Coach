@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.google.mediapipe.examples.poselandmarker.AppSettingsActivity
 import com.google.mediapipe.examples.poselandmarker.R
+import com.google.mediapipe.examples.poselandmarker.SubscribeActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileBinding
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 
@@ -52,13 +53,8 @@ class ProfileFragment : Fragment() {
         
         // Upgrade card click - navigate to subscribe
         binding.cardSubscriptionUpgrade.setOnClickListener {
-            android.widget.Toast.makeText(
-                requireContext(),
-                "Subscribe page coming soon!",
-                android.widget.Toast.LENGTH_SHORT
-            ).show()
-            // TODO: Navigate to SubscribeActivity when implemented
-            // startActivity(Intent(requireContext(), SubscribeActivity::class.java))
+            val intent = Intent(requireContext(), SubscribeActivity::class.java)
+            startActivity(intent)
         }
     }
 
