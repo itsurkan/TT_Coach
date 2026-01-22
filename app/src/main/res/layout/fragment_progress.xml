@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+
     android:fillViewport="true">
 
     <LinearLayout
@@ -19,7 +19,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/progress_title"
-            android:textColor="@color/black"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="28sp"
             android:textStyle="bold" />
 
@@ -78,7 +78,7 @@
                         android:text="24"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -128,7 +128,7 @@
                         android:text="186"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -178,7 +178,7 @@
                         android:text="12"
                         android:textSize="24sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textColor="?attr/colorOnSurface"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -209,10 +209,16 @@
                     android:id="@+id/chart_tabs"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    app:tabIndicatorColor="@color/black"
-                    app:tabSelectedTextColor="@color/black"
-                    app:tabTextColor="@color/text_muted">
+                    android:layout_marginBottom="24dp"
+                    android:background="@drawable/bg_tab_track"
+                    app:tabIndicator="@drawable/bg_tab_indicator"
+                    app:tabIndicatorGravity="stretch"
+                    app:tabIndicatorColor="@null"
+                    app:tabIndicatorAnimationMode="linear"
+                    app:tabSelectedTextColor="@color/white"
+                    app:tabTextColor="@color/text_muted"
+                    app:tabRippleColor="@null"
+                    app:tabAllCaps="false">
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
@@ -232,7 +238,7 @@
                     android:text="@string/chart_training_title"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/black"/>
+                    android:textColor="?attr/colorOnSurface"/>
 
                 <TextView
                     android:id="@+id/tv_chart_subtitle"
@@ -294,7 +300,7 @@
                         android:text="@string/skill_levels_title"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black"/>
+                        android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
                 <!-- Skills Container (Populated dynamically) -->
@@ -326,7 +332,7 @@
                     android:text="@string/milestones_title"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/black"
+                    android:textColor="?attr/colorOnSurface"
                     android:layout_marginBottom="16dp"/>
 
                 <!-- Milestones Container (Populated dynamically) -->

@@ -10,7 +10,7 @@ import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
 import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
 
-class TrainingStateManager private constructor(private val context: Context) {
+class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false
         private set
     

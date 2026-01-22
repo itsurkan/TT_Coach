@@ -3,12 +3,12 @@
     android:shape="rectangle">
     
     <!-- White/light background similar to card backgrounds in mockup -->
-    <solid android:color="#FFFFFF" />
+    <solid android:color="@color/card_background" />
     
     <!-- Subtle border to make it stand out -->
     <stroke
         android:width="1dp"
-        android:color="#D1D5DB" />
+        android:color="@color/border_color" />
     
     <!-- Rounded corners matching card style -->
     <corners android:radius="12dp" />

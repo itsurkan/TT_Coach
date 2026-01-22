@@ -3,14 +3,14 @@
     Dark theme colors
 -->
 <resources>
-    <color name="mp_color_primary">#00A0B0</color>
+    <color name="mp_color_primary">#3B82F6</color>
     <color name="mp_color_primary_variant">#12B5CB</color>
     <color name="mp_color_primary_dark">#007F8B</color>
     <color name="mp_color_secondary">#FBBC04</color>
     <color name="mp_color_secondary_variant">#F9AB00</color>
     <color name="mp_color_error">#CF6679</color>
-    <color name="toolbar_background">#1E1E1E</color>
-    <color name="ic_launcher_background">#121212</color>
+    <color name="toolbar_background">#000000</color>
+    <color name="ic_launcher_background">#000000</color>
     <color name="bottom_sheet_background">#1E1E1E</color>
     <color name="bottom_sheet_text_color">@android:color/white</color>
     <color name="icActive">#FFFFFFFF</color>
@@ -50,7 +50,7 @@
     <color name="feedback_success_bg">#1A34D399</color>
     <color name="feedback_warning_bg">#1AFB923C</color>
     <color name="feedback_info_bg">#1A3B82F6</color>
-    <color name="card_background">#1E1E1E</color>
+    <color name="card_background">#1C1C1E</color>
     <color name="border_color">#33FFFFFF</color>
     
     <!-- Theme Colors -->
