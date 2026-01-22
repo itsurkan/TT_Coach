@@ -74,6 +74,7 @@ class SubscribeActivity : AppCompatActivity() {
                 binding.cardMonthly.strokeColor = activeColor
                 binding.cardMonthly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_monthly_plan)
+                binding.btnSubscribe.setBackgroundResource(R.drawable.bg_button_gradient_cyan)
             }
             Plan.QUARTERLY -> {
                 binding.checkQuarterly.setImageResource(R.drawable.ic_radio_checked)
@@ -81,6 +82,7 @@ class SubscribeActivity : AppCompatActivity() {
                 binding.cardQuarterly.strokeColor = activeColor
                 binding.cardQuarterly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_quarterly_plan)
+                binding.btnSubscribe.setBackgroundResource(R.drawable.bg_button_gradient_purple)
             }
             Plan.YEARLY -> {
                 binding.checkYearly.setImageResource(R.drawable.ic_radio_checked)
@@ -88,6 +90,7 @@ class SubscribeActivity : AppCompatActivity() {
                 binding.cardYearly.strokeColor = activeColor
                 binding.cardYearly.setCardBackgroundColor(activeBg)
                 binding.btnSubscribe.text = getString(R.string.start_yearly_plan)
+                binding.btnSubscribe.setBackgroundResource(R.drawable.bg_button_gradient_cyan)
             }
         }
     }

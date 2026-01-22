@@ -395,9 +395,14 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="@string/start_plan"
-            android:textSize="16sp"
+            android:textSize="15sp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:background="@drawable/bg_button_gradient_purple"
             app:icon="@drawable/ic_award"
             app:iconGravity="textStart"
+            app:iconTint="@color/white"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.button.MaterialButton
@@ -406,6 +411,11 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/maybe_later"
+            android:textColor="@color/mp_color_primary"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            app:strokeColor="@color/border_color"
+            app:strokeWidth="1dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Footer -->
