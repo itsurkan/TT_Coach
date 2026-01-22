@@ -112,26 +112,27 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#1A2196F3"
+            app:cardBackgroundColor="@android:color/transparent"
+            android:background="@drawable/bg_card_premium_light"
             app:strokeWidth="1dp"
-            app:strokeColor="#332196F3"
+            app:strokeColor="#1A2196F3"
             android:layout_marginBottom="24dp"
             android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
+                android:padding="20dp"
                 android:orientation="horizontal">
 
                 <FrameLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_card_blue_gradient">
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_circle_gradient_orange">
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_award"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_crown"
                         app:tint="@color/white"
                         android:layout_gravity="center"/>
                 </FrameLayout>
@@ -141,7 +142,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:layout_marginStart="12dp">
+                    android:layout_marginStart="16dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -153,16 +154,18 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_title"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_badge"
-                            android:textSize="10sp"
-                            android:textColor="#22C55E"
-                            android:background="#1A22C55E"
-                            android:paddingHorizontal="8dp"
-                            android:paddingVertical="2dp"
+                            android:textSize="11sp"
+                            android:textColor="#15803d"
+                            android:textStyle="bold"
+                            android:background="@drawable/bg_badge_active"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -170,8 +173,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/premium_enjoy_desc"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp"
+                        android:textColor="@color/black"
+                        android:textSize="13sp"
+                        android:alpha="0.7"
                         android:layout_marginBottom="12dp"/>
 
                     <TextView
@@ -180,7 +184,7 @@
                         android:layout_height="wrap_content"
                         android:text="Renews on March 15, 2026"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"/>
+                        android:textSize="12sp"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -304,18 +308,18 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:gravity="center_vertical">
 
                     <FrameLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="#1A2196F3">
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rounded_blue_light">
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:src="@drawable/ic_target"
-                            app:tint="#2196F3"
+                            app:tint="#3B82F6"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -324,11 +328,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginStart="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/weekly_sessions"/>
+                            android:text="@string/weekly_sessions"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -348,18 +354,18 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
+                    android:padding="20dp"
                     android:gravity="center_vertical">
 
                     <FrameLayout
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:background="#1A22C55E">
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/bg_rounded_green_light">
                         <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:src="@drawable/ic_award"
-                            app:tint="#22C55E"
+                            app:tint="#10B981"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -368,11 +374,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
-                        android:layout_marginStart="12dp">
+                        android:layout_marginStart="16dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/skill_target"/>
+                            android:text="@string/skill_target"
+                            android:textStyle="bold"
+                            android:textSize="15sp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -744,12 +752,15 @@
             android:id="@+id/btn_log_out"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="@string/log_out"
             android:textColor="#EF4444"
+            android:textStyle="bold"
+            app:cornerRadius="12dp"
             app:icon="@drawable/ic_log_out"
             app:iconTint="#EF4444"
             app:strokeColor="#EF4444"
+            app:strokeWidth="1dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- App Version -->
