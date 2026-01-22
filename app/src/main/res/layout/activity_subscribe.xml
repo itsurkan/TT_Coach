@@ -22,7 +22,7 @@
             <FrameLayout
                 android:layout_width="64dp"
                 android:layout_height="64dp"
-                android:background="@drawable/bg_circle_orange"
+                android:background="@drawable/bg_circle_gradient_orange"
                 android:layout_marginBottom="16dp">
                 <ImageView
                     android:layout_width="32dp"
@@ -154,7 +154,7 @@
                             android:text="@string/badge_popular"
                             android:textSize="10sp"
                             android:textColor="@color/white"
-                            android:background="@drawable/bg_badge_blue"
+                            android:background="@drawable/bg_badge_gradient_blue"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
                             android:layout_marginStart="8dp"/>
@@ -257,7 +257,7 @@
                             android:text="@string/badge_best_value"
                             android:textSize="10sp"
                             android:textColor="@color/white"
-                            android:background="@drawable/bg_badge_orange"
+                            android:background="@drawable/bg_badge_gradient_orange"
                             android:paddingHorizontal="8dp"
                             android:paddingVertical="2dp"
                             android:layout_marginStart="8dp"/>
