@@ -38,31 +38,6 @@ class MainActivity : BaseActivity() {
         super.onResume()
         val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
         val isDevMode = settingsManager.isDeveloperModeEnabled()
-        
-        val menu = binding.navView.menu
-        
-        if (isDevMode) {
-            // Debug Mode: Show Developer, Hide Settings
-            if (menu.findItem(R.id.navigation_settings) != null) {
-                menu.removeItem(R.id.navigation_settings)
-            }
-            if (menu.findItem(R.id.navigation_developer) == null) {
-                // Add Developer item at the position of Settings (index 3)
-                // Note: Order is important for BottomNavigationView. 
-                // We use order 300 to place it after Drills (Drills is usually 3rd item)
-                // Assuming standard order: Home(0), Progress(1), Drills(2), [Target], Profile(4)
-                menu.add(0, R.id.navigation_developer, 3, "Debug")
-                    .setIcon(R.drawable.ic_settings) // Reuse settings icon for now
-            }
-        } else {
-            // Standard Mode: Show Settings, Hide Developer
-            if (menu.findItem(R.id.navigation_developer) != null) {
-                menu.removeItem(R.id.navigation_developer)
-            }
-            if (menu.findItem(R.id.navigation_settings) == null) {
-                menu.add(0, R.id.navigation_settings, 3, R.string.title_settings)
-                    .setIcon(R.drawable.ic_settings)
-            }
-        }
+        binding.navView.menu.findItem(R.id.navigation_developer)?.isVisible = isDevMode
     }
 }

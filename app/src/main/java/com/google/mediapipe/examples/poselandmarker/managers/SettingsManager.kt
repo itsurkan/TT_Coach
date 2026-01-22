@@ -102,11 +102,7 @@ class SettingsManager(context: Context) {
     fun setCoachingStyle(style: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
         prefs.edit().putInt("coaching_style", style.ordinal).apply()
     }
-
-    // Login State
-    fun isLoggedIn(): Boolean = prefs.getBoolean("is_logged_in", false)
-    fun setLoggedIn(loggedIn: Boolean) = prefs.edit().putBoolean("is_logged_in", loggedIn).apply()
-        
+    
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }
