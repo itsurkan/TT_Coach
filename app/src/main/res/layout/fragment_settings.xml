@@ -94,7 +94,9 @@
                         android:id="@+id/spinner_coach_style"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:background="@drawable/bg_spinner"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
                 </LinearLayout>
 
                 <!-- Coach Info Card -->
@@ -344,7 +346,9 @@
                         android:id="@+id/spinner_video_quality"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:background="@drawable/bg_spinner"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
                 </LinearLayout>
 
                 <!-- Frame Rate -->
@@ -373,7 +377,9 @@
                         android:id="@+id/spinner_fps"
                         android:layout_width="match_parent"
                         android:layout_height="48dp"
-                        android:background="?attr/selectableItemBackground"/>
+                        android:background="@drawable/bg_spinner"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"/>
                 </LinearLayout>
 
                 <!-- Pose Skeleton -->
