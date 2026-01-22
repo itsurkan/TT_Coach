@@ -207,6 +207,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             // Normal mode: Launch camera
             binding.videoContainer.visibility = View.GONE
             binding.videoView.visibility = View.GONE
+            binding.overlay.visibility = View.GONE  // Fix: Hide overlay in camera mode as fragment handles it
             binding.cameraPreviewContainer.visibility = View.VISIBLE
             
             val cameraFragment = com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment()

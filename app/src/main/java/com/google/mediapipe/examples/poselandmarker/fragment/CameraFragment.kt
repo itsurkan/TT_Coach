@@ -56,6 +56,8 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var stateManager: com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
     private lateinit var poseAnalysisProcessor: com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
 
+    private var hasShownDetectionToast = false
+
     /** Blocking ML operations are performed using this executor */
     private lateinit var backgroundExecutor: ExecutorService
 
@@ -362,6 +364,12 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
                 // Pass results to OverlayView for drawing
                 if (resultBundle.results.isNotEmpty()) {
+                    // Show confirmation once when first pose is detected
+                    if (!hasShownDetectionToast && resultBundle.results.first().landmarks().isNotEmpty()) {
+                        hasShownDetectionToast = true
+                        Toast.makeText(requireContext(), "Pose detected!", Toast.LENGTH_SHORT).show()
+                    }
+                    
                     fragmentCameraBinding.overlay.setResults(
                         resultBundle.results.first(),
                         resultBundle.inputImageHeight,
