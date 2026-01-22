@@ -72,4 +72,7 @@
     <!-- Theme Colors -->
     <color name="colorMuted">#ECECF0</color>
     <color name="colorMutedForeground">#717182</color>
+    <color name="tab_track_color">#D1D5DB</color>
+    <color name="tab_indicator_color">#374151</color>
+    <color name="tab_selected_text_color">#FFFFFF</color>
 </resources>

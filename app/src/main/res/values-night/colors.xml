@@ -56,4 +56,7 @@
     <!-- Theme Colors -->
     <color name="colorMuted">#2A2A2A</color>
     <color name="colorMutedForeground">#9CA3AF</color>
+    <color name="tab_track_color">#2C2C2E</color>
+    <color name="tab_indicator_color">#3A3A3C</color>
+    <color name="tab_selected_text_color">#FFFFFF</color>
 </resources>

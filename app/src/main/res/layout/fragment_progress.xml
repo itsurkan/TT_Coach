@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -104,7 +104,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -154,7 +154,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <FrameLayout
                         android:layout_width="40dp"
@@ -215,9 +215,10 @@
                     app:tabIndicatorGravity="stretch"
                     app:tabIndicatorColor="@null"
                     app:tabIndicatorAnimationMode="linear"
-                    app:tabSelectedTextColor="@color/white"
+                    app:tabSelectedTextColor="@color/tab_selected_text_color"
                     app:tabTextColor="@color/text_muted"
-                    app:tabRippleColor="@null">
+                    app:tabRippleColor="@null"
+                    app:tabTextAppearance="@style/TabTextAppearance">
 
                     <com.google.android.material.tabs.TabItem
                         android:layout_width="wrap_content"
