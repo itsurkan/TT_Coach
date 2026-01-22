@@ -196,7 +196,7 @@
     <!-- Training Summary Stats -->
     <string name="summary_total_strokes">Total Strokes: %d</string>
     <string name="summary_successful_strokes">Successful Strokes: %1$d (%2$d%%)</string>
-    <string name="summary_average_accuracy">Average Score: %.1f%%</string>
+    <string name="summary_average_accuracy">Average Score: %1$.1f%%</string>
     
     <!-- Improvement Tips for Session -->
     <string name="tip_excellent">🎯 Excellent! Keep practicing to master the technique.</string>

@@ -39,9 +39,13 @@
         <item name="colorAccent">@color/mp_color_primary_variant</item>
     </style>
 
-    <!-- Custom Switch Style matching mockup design -->
     <style name="CustomSwitch" parent="Widget.MaterialComponents.CompoundButton.Switch">
         <item name="trackTint">@color/switch_track_selector</item>
         <item name="thumbTint">@color/switch_thumb_selector</item>
+    </style>
+
+    <style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">14sp</item>
     </style>
 </resources>

@@ -12,6 +12,8 @@ import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import com.google.mediapipe.examples.poselandmarker.core.logging.providers.LocalFileLogger
 import kotlinx.coroutines.runBlocking
 
+import androidx.appcompat.app.AppCompatDelegate
+
 class TTCoachApplication : Application() {
     
     private lateinit var fileLogger: LocalFileLogger
@@ -24,6 +26,9 @@ class TTCoachApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
+
+        // Set default theme to Light as per user request
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         
         // Initialize async file logger (zero latency impact)
         fileLogger = LocalFileLogger(this)

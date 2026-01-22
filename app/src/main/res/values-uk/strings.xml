@@ -194,8 +194,8 @@
     
     <!-- Статистика підсумку тренування -->
     <string name="summary_total_strokes">Всього ударів: %d</string>
-    <string name="summary_successful_strokes">Успішні удари: %d (%d%%)</string>
-    <string name="summary_average_accuracy">Середня точність: %.1f%%</string>
+    <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
+    <string name="summary_average_accuracy">Середня точність: %1$.1f%%</string>
     
     <!-- Поради для покращення сесії -->
     <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки.</string>
