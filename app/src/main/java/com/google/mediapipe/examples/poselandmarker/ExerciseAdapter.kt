@@ -32,6 +32,29 @@ class ExerciseAdapter(
                 tvDuration.text = exercise.duration
                 tvCategory.text = exercise.category
 
+                // Set icon background based on exercise ID/category
+                val iconBackground = when (exercise.id) {
+                    "forehand_drive" -> R.drawable.bg_icon_container_blue
+                    "backhand_drive" -> R.drawable.bg_icon_container_green
+                    "forehand_topspin" -> R.drawable.bg_icon_container_purple
+                    "service" -> R.drawable.bg_icon_container_orange
+                    else -> R.drawable.bg_icon_container_blue
+                }
+                flIconContainer.setBackgroundResource(iconBackground)
+
+                // Set difficulty badge background based on difficulty level
+                val (badgeBackground, badgeColor) = when {
+                    exercise.difficulty.contains("Beginner", ignoreCase = true) || 
+                    exercise.difficulty.contains("Початковий", ignoreCase = true) -> 
+                        Pair(R.drawable.bg_badge_bordered_green, R.color.green_500)
+                    exercise.difficulty.contains("Intermediate", ignoreCase = true) || 
+                    exercise.difficulty.contains("Середній", ignoreCase = true) -> 
+                        Pair(R.drawable.bg_badge_bordered_orange, R.color.orange_500)
+                    else -> Pair(R.drawable.bg_badge_bordered_green, R.color.green_500)
+                }
+                tvDifficulty.setBackgroundResource(badgeBackground)
+                tvDifficulty.setTextColor(root.context.getColor(badgeColor))
+
                 // Lock status display (using alpha and clickability)
                 if (exercise.isLocked) {
                     root.alpha = 0.5f

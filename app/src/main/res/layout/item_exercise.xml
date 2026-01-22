@@ -6,7 +6,8 @@
     android:layout_marginBottom="12dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
-    app:strokeWidth="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/border_color"
     app:cardBackgroundColor="@color/card_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -19,8 +20,7 @@
             android:id="@+id/fl_icon_container"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:background="@drawable/bg_card_rounded"
-            android:backgroundTint="@color/colorMuted"
+            android:background="@drawable/bg_icon_container_blue"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -79,8 +79,7 @@
                     android:text="Beginner"
                     android:textSize="11sp"
                     android:textColor="@color/green_500"
-                    android:background="@drawable/bg_card_rounded"
-                    android:backgroundTint="@color/green_50"
+                    android:background="@drawable/bg_badge_bordered_green"
                     android:paddingHorizontal="10dp"
                     android:paddingVertical="4dp"
                     android:layout_marginEnd="8dp"/>
