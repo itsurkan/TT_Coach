@@ -18,8 +18,49 @@ class AppSettingsActivity : AppCompatActivity() {
 
         settingsManager = SettingsManager(this)
 
+        setupAccount() // Login/Account Logic
         setupDebugMode()
         setupSubscription()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh state in case we returned from LoginActivity
+        updateAccountStatus()
+    }
+
+    private fun setupAccount() {
+        binding.switchLoggedIn.setOnClickListener {
+            val isChecked = binding.switchLoggedIn.isChecked
+            if (isChecked) {
+                // User wants to login -> Go to LoginActivity
+                // We don't set isLoggedIn=true here, LoginActivity does that on success.
+                // Reset switch to false for now, it will be true if we return logged in.
+                binding.switchLoggedIn.isChecked = false 
+                val intent = android.content.Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            } else {
+                // User wants to logout
+                settingsManager.setLoggedIn(false)
+                updateAccountStatus()
+            }
+        }
+        
+        // Initial state update
+        updateAccountStatus()
+    }
+
+    private fun updateAccountStatus() {
+        val isLoggedIn = settingsManager.isLoggedIn()
+        // Avoid triggering listener loops if we used OnCheckedChangeListener (used OnClickListener above to avoid this mostly)
+        // But better safe:
+        binding.switchLoggedIn.isChecked = isLoggedIn
+        
+        if (isLoggedIn) {
+            binding.tvLoginStatusDesc.text = "Logged in as User"
+        } else {
+            binding.tvLoginStatusDesc.text = "Not logged in"
+        }
     }
 
     private fun setupDebugMode() {
