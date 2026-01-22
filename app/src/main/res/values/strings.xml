@@ -304,6 +304,14 @@
     <string name="settings_pro_tip_title">💡 Pro Tip</string>
     <string name="settings_pro_tip">For best results, use 720p at 30 FPS with pose skeleton enabled. This balance provides accurate feedback without draining your battery.</string>
     
+    <!-- AI Trainer Settings -->
+    <string name="ai_trainer_section">AI Trainer</string>
+    <string name="select_coach_label">Select Your Coach</string>
+    <string name="select_coach_desc">Choose a coaching style that matches your learning preference</string>
+    <string name="coach_vadym_name">Vadym</string>
+    <string name="coach_vadym_style">Motivational &amp; Energetic</string>
+    <string name="coach_vadym_desc">High-energy coaching with lots of encouragement and positive reinforcement</string>
+    
     <!-- App Settings Activity -->
     <string name="app_settings_title">App Settings</string>
     <string name="app_settings_subtitle">Configure application-wide settings</string>

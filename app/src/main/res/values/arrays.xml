@@ -5,4 +5,8 @@
         <item>Medium (balanced)</item>
         <item>High (accurate)</item>
     </string-array>
+    
+    <string-array name="coaching_styles">
+        <item>Vadym - Motivational &amp; Energetic</item>
+    </string-array>
 </resources>

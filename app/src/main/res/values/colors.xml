@@ -46,6 +46,7 @@
     <color name="amber_500">#F59E0B</color>
     <color name="amber_50">#FFFBEB</color>
     <color name="text_muted">#64748B</color>
+    <color name="coach_accent_green">#22C55E</color>
 
     <!-- Progress UI Colors -->
     <color name="chart_bar_color">@color/mp_color_primary</color>

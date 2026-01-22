@@ -30,8 +30,40 @@ class SettingsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         settingsManager = SettingsManager(requireContext())
+        setupAITrainerSettings()
         setupAudioSettings()
         setupCameraSettings()
+    }
+
+    private fun setupAITrainerSettings() {
+        // Coach style spinner
+        val coachingStyles = resources.getStringArray(R.array.coaching_styles)
+        val coachAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, coachingStyles)
+        coachAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerCoachStyle.adapter = coachAdapter
+
+        val currentCoachStyle = settingsManager.getCoachingStyle()
+        binding.spinnerCoachStyle.setSelection(currentCoachStyle.ordinal)
+
+        // Update coach info card
+        updateCoachInfoCard(currentCoachStyle)
+
+        binding.spinnerCoachStyle.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedStyle = com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.fromOrdinal(position)
+                settingsManager.setCoachingStyle(selectedStyle)
+                updateCoachInfoCard(selectedStyle)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun updateCoachInfoCard(coachStyle: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
+        binding.tvCoachAvatar.text = coachStyle.avatarInitial
+        binding.tvCoachName.text = coachStyle.displayName
+        binding.tvCoachStyle.text = coachStyle.subtitle
+        binding.tvCoachDesc.text = coachStyle.description
     }
 
     private fun setupAudioSettings() {

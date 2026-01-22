@@ -93,6 +93,16 @@ class SettingsManager(context: Context) {
     fun isSubscriptionActive(): Boolean = prefs.getBoolean("subscription_active", false)
     fun setSubscriptionActive(active: Boolean) = prefs.edit().putBoolean("subscription_active", active).apply()
     
+    // Coaching Style
+    fun getCoachingStyle(): com.google.mediapipe.examples.poselandmarker.models.CoachingStyle {
+        val ordinal = prefs.getInt("coaching_style", 0)
+        return com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.fromOrdinal(ordinal)
+    }
+    
+    fun setCoachingStyle(style: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
+        prefs.edit().putInt("coaching_style", style.ordinal).apply()
+    }
+    
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }
