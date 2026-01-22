@@ -81,11 +81,11 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
-        android:layout_height="900dp"
+        android:layout_height="match_parent"
         android:layout_gravity="bottom"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
-        app:behavior_peekHeight="120dp"
+        app:behavior_peekHeight="100dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <include
