@@ -45,6 +45,11 @@
             android:exported="false"
             android:screenOrientation="landscape" />
 
+        <!-- Login Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
         <!-- Welcome Screen -->
         <activity
             android:name=".WelcomeActivity"
