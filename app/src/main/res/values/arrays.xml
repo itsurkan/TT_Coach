@@ -8,5 +8,7 @@
     
     <string-array name="coaching_styles">
         <item>Vadym - Motivational &amp; Energetic</item>
+        <item>Ivan - Precise and sticky to technique</item>
+        <item>Andriy - Short and soft</item>
     </string-array>
 </resources>

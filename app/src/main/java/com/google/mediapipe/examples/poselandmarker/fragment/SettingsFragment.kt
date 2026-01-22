@@ -64,6 +64,10 @@ class SettingsFragment : Fragment() {
         binding.tvCoachName.text = coachStyle.displayName
         binding.tvCoachStyle.text = coachStyle.subtitle
         binding.tvCoachDesc.text = coachStyle.description
+        
+        // Set avatar background color dynamically
+        binding.tvCoachAvatar.backgroundTintList = 
+            requireContext().getColorStateList(coachStyle.avatarColor)
     }
 
     private fun setupAudioSettings() {

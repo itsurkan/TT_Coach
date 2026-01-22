@@ -24,11 +24,5 @@
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_person"
         android:title="@string/title_profile" />
-
-    <item
-        android:id="@+id/navigation_developer"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:title="Developer"
-        android:visible="false" />
 </menu>
 
