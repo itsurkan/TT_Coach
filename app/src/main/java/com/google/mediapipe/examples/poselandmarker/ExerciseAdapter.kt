@@ -30,20 +30,13 @@ class ExerciseAdapter(
                 tvExerciseDescription.text = exercise.description
                 tvDifficulty.text = exercise.difficulty
                 tvDuration.text = exercise.duration
-
-                // Checkbox for debug video mode
-                cbUseVideo.isChecked = exercise.useVideo
-                cbUseVideo.setOnCheckedChangeListener { _, isChecked ->
-                    exercise.useVideo = isChecked
-                }
+                tvCategory.text = exercise.category
 
                 // Lock status display (using alpha and clickability)
                 if (exercise.isLocked) {
                     root.alpha = 0.5f
-                    cbUseVideo.isEnabled = false
                 } else {
                     root.alpha = 1.0f
-                    cbUseVideo.isEnabled = true
                 }
 
                 root.setOnClickListener {

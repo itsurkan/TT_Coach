@@ -45,7 +45,8 @@ class DrillsFragment : Fragment() {
                 name = getString(R.string.exercise_forehand_name),
                 description = getString(R.string.exercise_forehand_desc),
                 difficulty = getString(R.string.difficulty_beginner),
-                duration = getString(R.string.duration_10_15)
+                duration = getString(R.string.duration_10_15),
+                category = "Technique"
             ),
             Exercise(
                 id = "backhand_drive",
@@ -53,6 +54,7 @@ class DrillsFragment : Fragment() {
                 description = getString(R.string.exercise_backhand_desc),
                 difficulty = getString(R.string.difficulty_beginner),
                 duration = getString(R.string.duration_10_15),
+                category = "Technique",
                 isLocked = true
             ),
             Exercise(
@@ -61,6 +63,7 @@ class DrillsFragment : Fragment() {
                 description = getString(R.string.exercise_topspin_desc),
                 difficulty = getString(R.string.difficulty_intermediate),
                 duration = getString(R.string.duration_10_15),
+                category = "Spin Control",
                 isLocked = true
             ),
             Exercise(
@@ -69,6 +72,7 @@ class DrillsFragment : Fragment() {
                 description = getString(R.string.exercise_service_desc),
                 difficulty = getString(R.string.difficulty_intermediate),
                 duration = getString(R.string.duration_10_15),
+                category = "Serving",
                 isLocked = true
             )
         )

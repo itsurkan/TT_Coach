@@ -113,6 +113,7 @@ data class Exercise(
     val description: String,
     val difficulty: String,
     val duration: String,
+    val category: String = "Technique",
     val isLocked: Boolean = false,
     var useVideo: Boolean = false
 )
