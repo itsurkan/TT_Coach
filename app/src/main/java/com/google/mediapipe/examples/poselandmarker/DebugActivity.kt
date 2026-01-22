@@ -153,18 +153,6 @@ class DebugActivity : AppCompatActivity() {
         }
     }
 
-    private fun testAudioFeedback() {
-        val application = application as TTCoachApplication
-        val feedbackGenerator = FeedbackGenerator(this) // Create local for test or use the one from processor
-        
-        android.util.Log.i(TAG, "Testing Audio Feedback manually...")
-        feedbackGenerator.playTic()
-        
-        binding.root.postDelayed({
-            feedbackGenerator.playTac()
-        }, 500)
-    }
-
     private fun toggleViewMode() {
         isPortraitMode = !isPortraitMode
         uiController.setPortraitMode(isPortraitMode)

@@ -68,20 +68,6 @@ class PoseAnalysisProcessor(
     }
 
     /**
-     * Test audio feedback manually
-     */
-    fun testAudio() {
-        Log.i(TAG, "Testing audio: Playing TIC")
-        feedbackGenerator.playTic()
-        
-        // Schedule TAC to play after 500ms
-        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-            Log.i(TAG, "Testing audio: Playing TAC")
-            feedbackGenerator.playTac()
-        }, 500)
-    }
-    
-    /**
      * End current training session
      */
     fun endSession() {

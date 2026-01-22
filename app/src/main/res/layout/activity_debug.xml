@@ -57,14 +57,6 @@
                 android:text="📱 Portrait Mode"
                 android:textSize="12sp"
                 android:visibility="gone" />
-
-            <Button
-                android:id="@+id/btnTestAudio"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:text="🔊 Test Audio"
-                android:textSize="12sp"
-                android:backgroundTint="#FF5722" />
         </LinearLayout>
     </LinearLayout>
 
@@ -178,16 +170,6 @@
                             android:layout_weight="1"
                             android:text="🖥 Landscape"
                             android:textSize="11sp" />
-
-                        <Button
-                            android:id="@+id/btnTestAudioPortrait"
-                            android:layout_width="0dp"
-                            android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:text="🔊 Test"
-                            android:textSize="11sp"
-                            android:backgroundTint="#FF5722"
-                            android:layout_marginStart="4dp" />
                     </LinearLayout>
 
                     <View
