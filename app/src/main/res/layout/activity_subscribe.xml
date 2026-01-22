@@ -341,50 +341,38 @@
 
                 <!-- Feature 1 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_unlimited_coaching" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_unlimited_coaching" android:textSize="14sp"/>
                 </LinearLayout>
 
                 <!-- Feature 2 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_pose_analysis" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_pose_analysis" android:textSize="14sp"/>
                 </LinearLayout>
 
                 <!-- Feature 3 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_progress_analytics" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_progress_analytics" android:textSize="14sp"/>
                 </LinearLayout>
 
                 <!-- Feature 4 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_training_plans" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_training_plans" android:textSize="14sp"/>
                 </LinearLayout>
 
                 <!-- Feature 5 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="12dp">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_realtime_feedback" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_realtime_feedback" android:textSize="14sp"/>
                 </LinearLayout>
 
                 <!-- Feature 6 -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <FrameLayout android:layout_width="32dp" android:layout_height="32dp" android:background="@drawable/bg_rounded_blue_light">
-                        <ImageView android:layout_width="16dp" android:layout_height="16dp" android:src="@drawable/ic_check_circle_2" app:tint="#2196F3" android:layout_gravity="center"/>
-                    </FrameLayout>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_premium_drills" android:textSize="14sp" android:layout_marginStart="12dp"/>
+                    <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_check_circle_2" app:tint="@color/blue_500" android:layout_marginEnd="12dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/feature_premium_drills" android:textSize="14sp"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
