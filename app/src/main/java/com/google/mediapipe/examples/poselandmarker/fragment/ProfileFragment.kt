@@ -103,7 +103,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun restartApp() {
-        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.WelcomeActivity::class.java)
+        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         requireActivity().finish()

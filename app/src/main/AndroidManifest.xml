@@ -50,11 +50,6 @@
             android:name=".LoginActivity"
             android:exported="false" />
 
-        <!-- Welcome Screen -->
-        <activity
-            android:name=".WelcomeActivity"
-            android:exported="false" />
-
         <!-- Exercise Selection Screen -->
         <activity
             android:name=".ExerciseSelectionActivity"
@@ -64,12 +59,6 @@
         <!-- Training Screen -->
         <activity
             android:name=".TrainingActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Settings Screen -->
-        <activity
-            android:name=".SettingsActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 

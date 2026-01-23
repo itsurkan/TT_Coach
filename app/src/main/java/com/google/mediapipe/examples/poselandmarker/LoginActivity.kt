@@ -42,8 +42,8 @@ class LoginActivity : AppCompatActivity() {
         
         settingsManager.setLoggedIn(true)
         
-        // Navigate to Main Screen (WelcomeActivity) and clear back stack so user can't go back to Login
-        val intent = Intent(this, WelcomeActivity::class.java)
+        // Navigate to Main Screen (MainActivity) and clear back stack so user can't go back to Login
+        val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         finish()
