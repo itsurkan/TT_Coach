@@ -134,7 +134,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="20dp">
                         
                         <ImageView
                             android:layout_width="32dp"
@@ -156,7 +156,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_minutes"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -197,7 +197,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_accuracy"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -238,7 +238,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_rallies"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -279,7 +279,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_vs_yesterday"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

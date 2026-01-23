@@ -637,9 +637,9 @@
     <string name="feedback_good_simple">✓ Good</string>
     <string name="feedback_needs_improvement">⚠ Needs improvement</string>
     <string name="format_video_info">Duration: %1$.1fs | Frames: %2$d | Interval: %3$dms</string>
-    <string name="fps_24">24 FPS - Standard</string>
-    <string name="fps_30">30 FPS - Recommended</string>
-    <string name="fps_60">60 FPS - Smooth</string>
+    <string name="fps_24">24</string>
+    <string name="fps_30">30</string>
+    <string name="fps_60">60</string>
     <string name="btn_landscape_mode">🖥 Landscape Mode</string>
     <string name="btn_pause_text">⏸ Pause</string>
     <string name="btn_play_text">▶ Play</string>

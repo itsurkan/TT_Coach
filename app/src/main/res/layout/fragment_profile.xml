@@ -213,9 +213,9 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#1AEF4444"
+            app:cardBackgroundColor="#1A2563EB"
             app:strokeWidth="1dp"
-            app:strokeColor="#33EF4444"
+            app:strokeColor="#332563EB"
             android:layout_marginBottom="24dp"
             android:clickable="true"
             android:focusable="true"
@@ -230,11 +230,11 @@
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_upgrade_gradient">
+                    android:background="@drawable/bg_circle_gradient_orange">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_alert_circle"
+                        android:src="@drawable/ic_crown"
                         app:tint="@color/white"
                         android:layout_gravity="center"/>
                 </FrameLayout>
@@ -284,13 +284,12 @@
                             android:layout_height="wrap_content"
                             android:text="@string/view_plans"
                             android:textStyle="bold"
-                            android:textColor="#EF4444"/>
+                            android:textColor="#F97316"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
-                            android:src="@drawable/ic_baseline_add_24"
-                            android:rotation="45"
-                            app:tint="#EF4444"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="#F97316"
                             android:layout_marginStart="4dp"/>
                     </LinearLayout>
                 </LinearLayout>

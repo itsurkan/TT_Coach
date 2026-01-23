@@ -51,17 +51,17 @@ class ExerciseAdapter(
                 val (badgeBackground, badgeColor) = when {
                     exercise.difficulty.contains("Beginner", ignoreCase = true) || 
                     exercise.difficulty.contains("Початковий", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_bordered_green, R.color.green_500)
+                        Pair(R.drawable.bg_badge_filled_green, R.color.badge_text_green)
                     exercise.difficulty.contains("Intermediate", ignoreCase = true) || 
                     exercise.difficulty.contains("Середній", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_bordered_orange, R.color.orange_500)
+                        Pair(R.drawable.bg_badge_filled_orange, R.color.badge_text_orange)
                     exercise.difficulty.contains("Advanced", ignoreCase = true) || 
                     exercise.difficulty.contains("Просунутий", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_bordered_red, R.color.red_500)
+                        Pair(R.drawable.bg_badge_filled_red, R.color.badge_text_red)
                     exercise.difficulty.contains("All Level", ignoreCase = true) || 
                     exercise.difficulty.contains("Всі рівні", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_bordered_blue, R.color.blue_500)
-                    else -> Pair(R.drawable.bg_badge_bordered_green, R.color.green_500)
+                        Pair(R.drawable.bg_badge_filled_blue, R.color.badge_text_blue)
+                    else -> Pair(R.drawable.bg_badge_filled_green, R.color.badge_text_green)
                 }
                 tvDifficulty.setBackgroundResource(badgeBackground)
                 tvDifficulty.setTextColor(root.context.getColor(badgeColor))

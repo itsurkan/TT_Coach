@@ -386,9 +386,9 @@
     <string name="feedback_good_simple">✓ Добре</string>
     <string name="feedback_needs_improvement">⚠ Потребує покращення</string>
     <string name="format_video_info">Трв: %1$.1fs | Кдр: %2$d | Інт: %3$dms</string>
-    <string name="fps_24">24 FPS - Стандарт</string>
-    <string name="fps_30">30 FPS - Рекомендовано</string>
-    <string name="fps_60">60 FPS - Плавно</string>
+    <string name="fps_24">24</string>
+    <string name="fps_30">30</string>
+    <string name="fps_60">60</string>
     <string name="coach_ivan_name">Іван</string>
     <string name="coach_ivan_style">Мотиваційний та Енергійний</string>
     <string name="coach_ivan_desc">Енергійне тренування з великою кількістю заохочень та позитивного підкріплення</string>
@@ -403,4 +403,85 @@
     <string name="btn_landscape_mode">🖥 Ландшафтний режим</string>
     <string name="btn_pause_text">⏸ Пауза</string>
     <string name="btn_play_text">▶ Грати</string>
+    
+    <!-- Navigation -->
+    <string name="title_dashboard">Головна</string>
+    <string name="title_progress">Прогрес</string>
+    <string name="title_drills">Вправи</string>
+    <string name="title_profile">Профіль</string>
+    <string name="title_settings">Налаштування</string>
+    
+    <!-- Profile Section -->
+    <string name="subscription_section">Підписка</string>
+    <string name="premium_active_badge">Активно</string>
+    <string name="premium_active_title">Premium Активний</string>
+    <string name="premium_enjoy_desc">Насолоджуйтесь необмеженим AI-коучингом та всіма преміум функціями</string>
+    <string name="premium_renews_on">Оновлюється %s</string>
+    <string name="upgrade_to_premium">Оновити до Premium</string>
+    <string name="upgrade_unlock_desc">Розблокуйте необмежений AI-коучинг, розширений аналіз пози та персоналізовані плани тренувань</string>
+    <string name="view_plans">Переглянути плани</string>
+    <string name="training_goals_section">Тренувальні цілі</string>
+    <string name="weekly_sessions">Тижневі сесії</string>
+    <string name="weekly_sessions_desc">Тренуватись 7 днів/тиждень</string>
+    <string name="skill_target">Ціль навички</string>
+    <string name="skill_target_desc">Досягти 90 балів</string>
+    <string name="theme_title">Тема</string>
+    <string name="theme_light">Світла</string>
+    <string name="theme_dark">Темна</string>
+    <string name="theme_system">Системна</string>
+    <string name="language_section">Мова</string>
+    <string name="language_title">Мова інтерфейсу</string>
+    <string name="language_desc">Оберіть бажану мову для додатка</string>
+    <string name="push_notifications">Push-сповіщення</string>
+    <string name="daily_reminders">Щоденні нагадування</string>
+    <string name="achievement_alerts">Сповіщення про досягнення</string>
+    <string name="more_section">Більше</string>
+    <string name="edit_profile">Редагувати профіль</string>
+    <string name="app_settings">Налаштування додатка</string>
+    <string name="help_support">Допомога та підтримка</string>
+    <string name="log_out">Вийти</string>
+    <string name="logout_title">Вихід</string>
+    <string name="logout_message">Ви впевнені, що хочете вийти?</string>
+    
+    <!-- Training Settings -->
+    <string name="training_settings_title">Налаштування тренування</string>
+    <string name="training_settings_subtitle">Налаштуйте параметри тренувальної сесії</string>
+    <string name="audio_feedback_section">Аудіо фідбек</string>
+    <string name="audio_feedback_desc">Отримуйте звукові підказки під час тренування</string>
+    <string name="volume_label">Гучність</string>
+    <string name="volume_desc">Налаштуйте гучність голосового фідбеку та звукових ефектів</string>
+    <string name="camera_settings_section">Налаштування камери</string>
+    <string name="video_quality_label">Якість відео</string>
+    <string name="video_quality_desc">Вища якість покращує точність виявлення пози</string>
+    <string name="frame_rate_label">Частота кадрів (FPS)</string>
+    <string name="frame_rate_desc">Вища частота кадрів фіксує швидші рухи</string>
+    <string name="show_pose_skeleton_label">Показувати скелет пози</string>
+    <string name="show_pose_skeleton_desc">Накладання візуалізації скелету під час тренування</string>
+    <string name="settings_pro_tip_title">💡 Порада</string>
+    <string name="settings_pro_tip">Для найкращих результатів використовуйте 720p при 30 FPS з увімкненим скелетом пози. Цей баланс забезпечує точний фідбек без розрядження батареї.</string>
+    <string name="distance_mode_label">Режим на відстані</string>
+    <string name="distance_mode_desc">Збільште розмір тексту для кращої видимості при тренуванні далі від камери</string>
+    <string name="ai_trainer_section">AI Тренер</string>
+    
+    <!-- App Settings Activity -->
+    <string name="app_settings_title">Налаштування додатка</string>
+    <string name="app_settings_subtitle">Налаштуйте загальні параметри додатка</string>
+    <string name="developer_options">Опції розробника</string>
+    <string name="debug_mode">Режим налагодження</string>
+    <string name="debug_mode_desc">Показувати debug activity у навігації для тестування</string>
+    <string name="debug_mode_active_title">Режим налагодження активний</string>
+    <string name="debug_mode_active_info">Нова вкладка \"Debug\" з\'явиться у нижній навігації. Використовуйте її для тестування функцій та перегляду діагностичної інформації.</string>
+    <string name="subscription_management">Управління підпискою</string>
+    <string name="subscription_active">Підписка активна</string>
+    <string name="subscription_simulate_desc">Симулювати статус преміум підписки</string>
+    <string name="premium_active">Premium Активний</string>
+    <string name="free_plan">Безкоштовний план</string>
+    <string name="subscription_active_info">Ваша преміум підписка активна до %s.</string>
+    <string name="subscription_inactive_info">Ви на безкоштовному плані. Оновіться, щоб розблокувати всі функції.</string>
+    <string name="subscription_how_works_title">ℹ️ Як це працює</string>
+    <string name="subscription_how_works_active">• Коли підписка активна: Повний доступ до тренувань та вправ</string>
+    <string name="subscription_how_works_inactive">• Коли підписка неактивна: Початок тренування перенаправить на сторінку підписки</string>
+    <string name="subscription_how_works_profile">• Це налаштування впливає на статус підписки у вашому Профілі</string>
+    <string name="activity_settings_title">Налаштування активності</string>
+    <string name="difficulty_all_levels">Всі рівні</string>
 </resources>
