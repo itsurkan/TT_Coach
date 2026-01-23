@@ -26,10 +26,10 @@
     <color name="colorSecondaryContainer">#E0E1F9</color>
     <color name="colorOnSecondaryContainer">#181A2C</color>
 
-    <color name="colorTertiary">#76546E</color>
-    <color name="colorOnTertiary">#FFFFFF</color>
-    <color name="colorTertiaryContainer">#FFD7F3</color>
-    <color name="colorOnTertiaryContainer">#2D1228</color>
+    <color name="colorTertiary">#F59E0B</color>
+    <color name="colorOnTertiary">#000000</color>
+    <color name="colorTertiaryContainer">#FFD78F</color>
+    <color name="colorOnTertiaryContainer">#281900</color>
 
     <color name="colorError">#BA1A1A</color>
     <color name="colorOnError">#FFFFFF</color>

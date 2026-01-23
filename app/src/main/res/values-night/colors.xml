@@ -14,10 +14,10 @@
     <color name="colorSecondaryContainer">#414659</color>
     <color name="colorOnSecondaryContainer">#E0E1F9</color>
 
-    <color name="colorTertiary">#E0BBDD</color>
-    <color name="colorOnTertiary">#422742</color>
-    <color name="colorTertiaryContainer">#5A3D59</color>
-    <color name="colorOnTertiaryContainer">#FFD7F3</color>
+    <color name="colorTertiary">#FFB951</color>
+    <color name="colorOnTertiary">#452B00</color>
+    <color name="colorTertiaryContainer">#633F00</color>
+    <color name="colorOnTertiaryContainer">#FFDDB3</color>
 
     <color name="colorError">#FFB4AB</color>
     <color name="colorOnError">#690005</color>
