@@ -2,7 +2,7 @@
 # Simple one-liner to export all logs
 
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-$pkg = "com.google.mediapipe.examples.poselandmarker"
+$pkg = "com.ttcoachai"
 $exportDir = "d:\Desktop\TT_Coach_AI\logs_export"
 
 Write-Host "Exporting logs..." -ForegroundColor Cyan

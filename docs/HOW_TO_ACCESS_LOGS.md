@@ -6,7 +6,7 @@
 
 ### Технічні деталі:
 ```
-/data/data/com.google.mediapipe.examples.poselandmarker/files/logs/
+/data/data/com.ttcoachai/files/logs/
      └─── ця папка НЕДОСТУПНА через звичайний файловий менеджер
 ```
 
@@ -48,7 +48,7 @@ cd d:\Desktop\TT_Coach_AI
 
 Буде кнопка в **Settings → Debug → Export Logs** яка створить файл:
 ```
-/sdcard/Android/data/com.google.mediapipe.examples.poselandmarker/files/logs_export.zip
+/sdcard/Android/data/com.ttcoachai/files/logs_export.zip
 ```
 
 Цю папку **МОЖНА** відкрити в будь-якому файловому менеджері! 📂
@@ -63,7 +63,7 @@ cd d:\Desktop\TT_Coach_AI
 1. Відкрити Settings → Debug
 2. Натиснути "Export Logs"
 3. Відкрити файловий менеджер на телефоні
-4. Перейти: `Внутрішнє сховище → Android → data → com.google.mediapipe.examples.poselandmarker → files`
+4. Перейти: `Внутрішнє сховище → Android → data → com.ttcoachai → files`
 5. Знайти `logs_export_[timestamp].zip` або папку `logs/`
 6. Поділитись через Email/Drive/Telegram
 
@@ -75,13 +75,13 @@ cd d:\Desktop\TT_Coach_AI
 
 ```powershell
 # 1. Подивитись список файлів
-adb shell "run-as com.google.mediapipe.examples.poselandmarker ls /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/training_sessions/"
+adb shell "run-as com.ttcoachai ls /data/data/com.ttcoachai/files/logs/training_sessions/"
 
 # 2. Витягнути конкретний файл
-adb exec-out "run-as com.google.mediapipe.examples.poselandmarker cat /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/training_sessions/2026-01-03_sessions.jsonl" > sessions.json
+adb exec-out "run-as com.ttcoachai cat /data/data/com.ttcoachai/files/logs/training_sessions/2026-01-03_sessions.jsonl" > sessions.json
 
 # 3. Переглянути вміст
-adb shell "run-as com.google.mediapipe.examples.poselandmarker cat /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/training_sessions/2026-01-03_sessions.jsonl"
+adb shell "run-as com.ttcoachai cat /data/data/com.ttcoachai/files/logs/training_sessions/2026-01-03_sessions.jsonl"
 ```
 
 ---
@@ -132,7 +132,7 @@ adb logcat -s PoseAnalysisProcessor:* AsyncFileLogger:* TrainingActivity:*
 
 **Android Studio Device File Explorer:**
 1. View → Tool Windows → Device File Explorer
-2. Навігація: `/data/data/com.google.mediapipe.examples.poselandmarker/files/logs/`
+2. Навігація: `/data/data/com.ttcoachai/files/logs/`
 3. Right-click → Save As... (експортувати файл)
 
 ---

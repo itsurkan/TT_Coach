@@ -150,7 +150,7 @@ AsyncFileLoggerDirectoryTest
 .\gradlew installDebug
 
 # 2. Delete logs directory via ADB
-adb shell "run-as com.google.mediapipe.examples.poselandmarker rm -rf /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/"
+adb shell "run-as com.ttcoachai rm -rf /data/data/com.ttcoachai/files/logs/"
 
 # 3. Run training in app
 # Expected: Logs directory recreated automatically

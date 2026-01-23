@@ -85,7 +85,7 @@ adb logcat -s PoseAnalysisProcessor:* AsyncFileLogger:*
 ### After Training:
 ```powershell
 # Check file sizes
-adb shell "run-as com.google.mediapipe.examples.poselandmarker ls -lh /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/training_sessions/"
+adb shell "run-as com.ttcoachai ls -lh /data/data/com.ttcoachai/files/logs/training_sessions/"
 
 # strokes.jsonl should be MUCH LARGER than sessions.jsonl
 # Example:

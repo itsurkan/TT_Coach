@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-    namespace 'com.google.mediapipe.examples.poselandmarker'
+    namespace 'com.ttcoachai'
     compileSdk 34
 
     defaultConfig {

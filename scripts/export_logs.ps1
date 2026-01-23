@@ -4,7 +4,7 @@
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $exportDir = "d:\Desktop\TT_Coach_AI\logs_export_$timestamp"
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-$packageName = "com.google.mediapipe.examples.poselandmarker"
+$packageName = "com.ttcoachai"
 $logPath = "/data/data/$packageName/files/logs"
 
 Write-Host "=== AI Coach - Export Logs ===" -ForegroundColor Cyan

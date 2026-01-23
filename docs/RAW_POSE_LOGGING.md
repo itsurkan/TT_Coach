@@ -232,7 +232,7 @@ Raw poses are deleted after **7 days** automatically.
 ### Manual cleanup
 ```powershell
 # Delete all raw_poses logs
-adb shell "run-as com.google.mediapipe.examples.poselandmarker rm -rf /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/raw_poses/*"
+adb shell "run-as com.ttcoachai rm -rf /data/data/com.ttcoachai/files/logs/raw_poses/*"
 ```
 
 ---

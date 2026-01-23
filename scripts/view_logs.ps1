@@ -2,7 +2,7 @@
 # Швидкий перегляд логів без експорту
 
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-$packageName = "com.google.mediapipe.examples.poselandmarker"
+$packageName = "com.ttcoachai"
 $logPath = "/data/data/$packageName/files/logs"
 
 Write-Host "=== AI Coach - View Logs ===" -ForegroundColor Cyan
