@@ -115,8 +115,8 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
             app:strokeWidth="2dp"
-            app:strokeColor="#2196F3"
-            app:cardBackgroundColor="#1A2196F3"
+            app:strokeColor="@color/blue_500"
+            app:cardBackgroundColor="@color/card_stroke_blue_10"
             android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true">

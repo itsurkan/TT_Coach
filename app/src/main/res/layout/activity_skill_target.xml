@@ -420,7 +420,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#FEF3C7"
+                app:cardBackgroundColor="@color/card_bg_amber_light"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
