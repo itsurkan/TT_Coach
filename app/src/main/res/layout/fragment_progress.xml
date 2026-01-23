@@ -223,39 +223,38 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <com.google.android.material.tabs.TabLayout
-                        android:id="@+id/chart_tabs"
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggle_group_chart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
-                        android:background="@drawable/bg_tab_track"
-                        app:tabIndicator="@drawable/bg_tab_indicator"
-                        app:tabIndicatorGravity="stretch"
-                        app:tabIndicatorColor="@null"
-                        app:tabIndicatorAnimationMode="linear"
-                        app:tabSelectedTextColor="@color/tab_selected_text_color"
-                        app:tabTextColor="@color/text_muted"
-                        app:tabRippleColor="@null"
-                        app:tabTextAppearance="@style/TabTextAppearance">
+                        app:singleSelection="true"
+                        app:checkedButton="@id/btn_training_time"
+                        app:selectionRequired="true">
 
-                        <com.google.android.material.tabs.TabItem
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_training_time"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:text="@string/tab_training_time" />
 
-                        <com.google.android.material.tabs.TabItem
-                            android:layout_width="wrap_content"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_accuracy"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:text="@string/tab_accuracy" />
-                    </com.google.android.material.tabs.TabLayout>
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
 
                     <TextView
                         android:id="@+id/tv_chart_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/chart_training_title"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
                         android:textColor="?attr/colorOnSurface"/>
 
                     <TextView

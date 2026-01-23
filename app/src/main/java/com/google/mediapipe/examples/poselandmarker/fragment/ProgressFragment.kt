@@ -42,7 +42,7 @@ class ProgressFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupCharts()
-        setupTabs()
+        setupSegmentedButtons()
         loadDummyData()
     }
 
@@ -102,18 +102,18 @@ class ProgressFragment : Fragment() {
         }
     }
 
-    private fun setupTabs() {
-        binding.chartTabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                when (tab?.position) {
-                    0 -> {
+    private fun setupSegmentedButtons() {
+        binding.toggleGroupChart.addOnButtonCheckedListener { group, checkedId, isChecked ->
+            if (isChecked) {
+                when (checkedId) {
+                    R.id.btn_training_time -> {
                         binding.trainingBarChart.visibility = View.VISIBLE
                         binding.accuracyLineChart.visibility = View.GONE
                         binding.tvChartTitle.text = getString(R.string.chart_training_title)
                         binding.tvChartSubtitle.text = getString(R.string.chart_training_subtitle)
                         binding.trainingBarChart.animateY(1000)
                     }
-                    1 -> {
+                    R.id.btn_accuracy -> {
                         binding.trainingBarChart.visibility = View.GONE
                         binding.accuracyLineChart.visibility = View.VISIBLE
                         binding.tvChartTitle.text = getString(R.string.chart_accuracy_title)
@@ -122,10 +122,7 @@ class ProgressFragment : Fragment() {
                     }
                 }
             }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
-        })
+        }
     }
 
     private fun loadDummyData() {
@@ -141,7 +138,7 @@ class ProgressFragment : Fragment() {
         )
         
         val barDataSet = BarDataSet(barEntries, "Training Time").apply {
-            color = ContextCompat.getColor(requireContext(), R.color.chart_bar_color)
+            color = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
             setDrawValues(false)
         }
         
@@ -153,24 +150,17 @@ class ProgressFragment : Fragment() {
         val lineEntries = listOf(
             Entry(0f, 82f),
             Entry(1f, 85f),
-            Entry(2f, 0f), // Maybe skip 0 or show gap? Mockup shows connected lines usually, but 0 is odd for accuracy.
-            // Mockup: Mon 82, Tue 85, Wed 0, Thu 88...
-            // If Wed is 0 it will dip effectively. Let's follow mockup data.
-            // Wait, mockup has Wed: 0 mins, 0 acc? The chart might just skip it or show 0.
-            // Let's assume no data point for Wed if 0 mins? or just 0. use 0 for now.
+            Entry(2f, 0f), 
             Entry(3f, 88f),
             Entry(4f, 87f),
             Entry(5f, 91f),
             Entry(6f, 87f)
         )
-        // Adjusting data to remove the 0 for accuracy if it ruins the chart look, 
-        // but mockup has it. Let's filter out 0s for line chart to make it look better if intended.
-        // Actually, let's keep it as is from mockup data.
         
         val lineDataSet = LineDataSet(lineEntries, "Accuracy").apply {
-            color = ContextCompat.getColor(requireContext(), R.color.chart_line_color)
+            color = ContextCompat.getColor(requireContext(), R.color.colorTertiary)
             lineWidth = 3f
-            setCircleColor(ContextCompat.getColor(requireContext(), R.color.chart_line_color))
+            setCircleColor(ContextCompat.getColor(requireContext(), R.color.colorTertiary))
             circleRadius = 4f
             setDrawValues(false)
             mode = LineDataSet.Mode.CUBIC_BEZIER
