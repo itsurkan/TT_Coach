@@ -47,33 +47,44 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateBottomNavigation()
+    }
+
+    private fun updateBottomNavigation() {
         val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
-        val isDevMode = settingsManager.isDeveloperModeEnabled()
-        
         val menu = binding.navView.menu
-        
-        if (isDevMode) {
-            // Debug Mode: Show Developer, Hide Settings
-            if (menu.findItem(R.id.navigation_settings) != null) {
-                menu.removeItem(R.id.navigation_settings)
-            }
+        val isDebugMode = settingsManager.isDeveloperModeEnabled()
+
+        if (isDebugMode) {
+            // Show Developer item instead of Settings
             if (menu.findItem(R.id.navigation_developer) == null) {
-                // Add Developer item at the position of Settings (index 3)
-                // Note: Order is important for BottomNavigationView. 
-                // We use order 300 to place it after Drills (Drills is usually 3rd item)
-                // Assuming standard order: Home(0), Progress(1), Drills(2), [Target], Profile(4)
-                menu.add(0, R.id.navigation_developer, 3, "Debug")
-                    .setIcon(R.drawable.ic_settings) // Reuse settings icon for now
+                // Remove Settings if present
+                menu.removeItem(R.id.navigation_settings)
+                
+                // Add Developer item at correct position (order 40)
+                // Use a bug icon or generic settings icon if bug not available
+                menu.add(android.view.Menu.NONE, R.id.navigation_developer, 40, "Debug").apply {
+                    setIcon(android.R.drawable.ic_menu_manage) // Using system icon for now
+                }
             }
         } else {
-            // Standard Mode: Show Settings, Hide Developer
-            if (menu.findItem(R.id.navigation_developer) != null) {
-                menu.removeItem(R.id.navigation_developer)
-            }
+            // Show Settings item instead of Developer
             if (menu.findItem(R.id.navigation_settings) == null) {
-                menu.add(0, R.id.navigation_settings, 3, R.string.title_settings)
-                    .setIcon(R.drawable.ic_settings)
+                // Remove Developer if present
+                menu.removeItem(R.id.navigation_developer)
+                
+                // Restore Settings item
+                menu.add(android.view.Menu.NONE, R.id.navigation_settings, 40, getString(R.string.title_settings)).apply {
+                    setIcon(R.drawable.ic_settings)
+                }
             }
         }
     }
+    
+    // Explicitly re-setup navigation when menu changes to ensure listeners are correct
+    // However, setupWithNavController sets the listener once. 
+    // If we add items with IDs that match the graph, the existing listener *should* handle them,
+    // provided the listener logic is "find destination by menuItem.itemId".
+    // NavigationUI uses onNavDestinationSelected(item, navController).
+    // So it should work dynamically.
 }

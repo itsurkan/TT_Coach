@@ -3,26 +3,31 @@
     <item
         android:id="@+id/navigation_dashboard"
         android:icon="@drawable/ic_home"
-        android:title="@string/title_dashboard" />
+        android:title="@string/title_dashboard"
+        android:orderInCategory="10" />
 
     <item
         android:id="@+id/navigation_progress"
         android:icon="@drawable/ic_trending_up"
-        android:title="@string/title_progress" />
+        android:title="@string/title_progress"
+        android:orderInCategory="20" />
 
     <item
         android:id="@+id/navigation_drills"
         android:icon="@drawable/ic_target"
-        android:title="@string/title_drills" />
+        android:title="@string/title_drills"
+        android:orderInCategory="30" />
 
     <item
         android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_settings"
-        android:title="@string/title_settings" />
+        android:title="@string/title_settings"
+        android:orderInCategory="40" />
 
     <item
         android:id="@+id/navigation_profile"
         android:icon="@drawable/ic_person"
-        android:title="@string/title_profile" />
+        android:title="@string/title_profile"
+        android:orderInCategory="50" />
 </menu>
 

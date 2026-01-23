@@ -12,6 +12,7 @@ import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.SubscribeActivity
 import com.google.mediapipe.examples.poselandmarker.WeeklySessionsActivity
 import com.google.mediapipe.examples.poselandmarker.SkillTargetActivity
+import com.google.mediapipe.examples.poselandmarker.DebugActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileBinding
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import android.widget.ArrayAdapter
@@ -238,6 +239,19 @@ class ProfileFragment : Fragment() {
         super.onResume()
         // Refresh subscription status when returning
         setupSubscriptionSection()
+        setupDebugMode()
+    }
+
+    private fun setupDebugMode() {
+        if (settingsManager.isDeveloperModeEnabled()) {
+            binding.layoutDebugMode.visibility = View.VISIBLE
+            binding.layoutDebugMode.setOnClickListener {
+                val intent = Intent(requireContext(), DebugActivity::class.java)
+                startActivity(intent)
+            }
+        } else {
+            binding.layoutDebugMode.visibility = View.GONE
+        }
     }
 
     override fun onDestroyView() {
