@@ -26,7 +26,7 @@ class AsyncFileLogger(
 ) {
     // External storage (Download folder) - visible in File Manager
     private val logDir: File = File(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+        context.getExternalFilesDir(null),
         "TT_Coach_AI/logs"
     )
     
@@ -157,7 +157,8 @@ class AsyncFileLogger(
         try {
             file.parentFile?.mkdirs()
             
-            file.bufferedWriter(charset = Charsets.UTF_8).use { writer ->
+            // Use FileOutputStream with append=true
+            java.io.FileOutputStream(file, true).bufferedWriter(charset = Charsets.UTF_8).use { writer ->
                 events.forEach { event ->
                     writer.write(event.toJson())
                     writer.newLine()
