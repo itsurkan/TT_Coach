@@ -18,6 +18,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'de.undercouch.download'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -112,4 +113,12 @@ dependencies {
 
     // MPAndroidChart
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:33.7.0')
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
+
+    // Image Loading (Coil)
+    implementation 'io.coil-kt:coil:2.5.0'
 }

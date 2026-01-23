@@ -109,13 +109,37 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
-                        <Spinner
-                            android:id="@+id/spinner_coach_style"
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_coach_style"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_spinner"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"/>
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+                            
+                            <Button
+                                android:id="@+id/btn_coach_vadym"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/coach_vadym_name" />
+                                
+                            <Button
+                                android:id="@+id/btn_coach_Ivan"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/coach_ivan_name" />
+                                
+                            <Button
+                                android:id="@+id/btn_coach_Andriy"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/coach_andriy_name" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
                     </LinearLayout>
 
                     <!-- Coach Info Card -->
@@ -359,13 +383,19 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
-                        <Spinner
-                            android:id="@+id/spinner_video_quality"
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_spinner"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"/>
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp">
+
+                            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                                android:id="@+id/auto_complete_video_quality"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:padding="12dp" />
+                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <!-- Frame Rate -->
@@ -390,13 +420,37 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
-                        <Spinner
-                            android:id="@+id/spinner_fps"
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_fps"
                             android:layout_width="match_parent"
-                            android:layout_height="48dp"
-                            android:background="@drawable/bg_spinner"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"/>
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+                            
+                            <Button
+                                android:id="@+id/btn_fps_24"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/fps_24" />
+                                
+                            <Button
+                                android:id="@+id/btn_fps_30"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/fps_30" />
+                                
+                            <Button
+                                android:id="@+id/btn_fps_60"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/fps_60" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
                     </LinearLayout>
 
                     <!-- Pose Skeleton -->

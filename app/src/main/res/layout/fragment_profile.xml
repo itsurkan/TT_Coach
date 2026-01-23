@@ -480,15 +480,19 @@
                         android:textSize="12sp"
                         android:layout_marginBottom="12dp"/>
 
-                    <Spinner
-                        android:id="@+id/spinner_language"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_spinner"
-                        android:minHeight="48dp"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:spinnerMode="dropdown"/>
+                        android:layout_marginBottom="12dp">
+
+                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                            android:id="@+id/auto_complete_language"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:padding="12dp" />
+                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -541,119 +545,41 @@
                             android:text="@string/theme_title"/>
                     </LinearLayout>
 
-                    <LinearLayout
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggle_group_theme"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_marginTop="8dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
 
-                        <!-- Light Theme Button -->
-                        <com.google.android.material.card.MaterialCardView
+                        <Button
                             android:id="@+id/btn_theme_light"
+                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="?attr/colorControlHighlight"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground">
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center"
-                                android:paddingVertical="12dp">
-                                <ImageView
-                                    android:id="@+id/iv_theme_light"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/ic_sun"
-                                    android:layout_marginBottom="4dp"/>
-                                <TextView
-                                    android:id="@+id/tv_theme_light"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/theme_light"
-                                    android:textAllCaps="true"
-                                    android:textSize="12sp"/>
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/theme_light"
+                            app:icon="@drawable/ic_sun" />
 
-                        <!-- Dark Theme Button -->
-                        <com.google.android.material.card.MaterialCardView
+                        <Button
                             android:id="@+id/btn_theme_dark"
+                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginHorizontal="6dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="?attr/colorControlHighlight"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground">
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center"
-                                android:paddingVertical="12dp">
-                                <ImageView
-                                    android:id="@+id/iv_theme_dark"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/ic_moon"
-                                    android:layout_marginBottom="4dp"/>
-                                <TextView
-                                    android:id="@+id/tv_theme_dark"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/theme_dark"
-                                    android:textAllCaps="true"
-                                    android:textSize="12sp"/>
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
+                            android:text="@string/theme_dark"
+                            app:icon="@drawable/ic_moon" />
 
-                        <!-- System Theme Button -->
-                        <com.google.android.material.card.MaterialCardView
+                        <Button
                             android:id="@+id/btn_theme_system"
+                            style="?attr/materialButtonOutlinedStyle"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:layout_marginStart="6dp"
-                            app:cardCornerRadius="12dp"
-                            app:cardElevation="0dp"
-                            app:strokeWidth="1dp"
-                            app:strokeColor="?attr/colorControlHighlight"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:foreground="?attr/selectableItemBackground">
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:gravity="center"
-                                android:paddingVertical="12dp">
-                                <ImageView
-                                    android:id="@+id/iv_theme_system"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/ic_monitor"
-                                    android:layout_marginBottom="4dp"/>
-                                <TextView
-                                    android:id="@+id/tv_theme_system"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="@string/theme_system"
-                                    android:textAllCaps="true"
-                                    android:textSize="12sp"/>
-                            </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
-                    </LinearLayout>
+                            android:text="@string/theme_system"
+                            app:icon="@drawable/ic_monitor" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
 
                 <!-- Push Notifications -->

@@ -36,26 +36,28 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupAITrainerSettings() {
-        // Coach style spinner
-        val coachingStyles = resources.getStringArray(R.array.coaching_styles)
-        val coachAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, coachingStyles)
-        coachAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerCoachStyle.adapter = coachAdapter
-
         val currentCoachStyle = settingsManager.getCoachingStyle()
-        binding.spinnerCoachStyle.setSelection(currentCoachStyle.ordinal)
-
-        // Update coach info card
+        
+        // Check corresponding button
+        when (currentCoachStyle) {
+            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.GENTLE_SUPPORTIVE -> binding.toggleCoachStyle.check(R.id.btn_coach_vadym)
+            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.toggleCoachStyle.check(R.id.btn_coach_Ivan)
+            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.PRECISE_TECHNICAL -> binding.toggleCoachStyle.check(R.id.btn_coach_Andriy)
+        }
+        
+        // Update coach info card initially
         updateCoachInfoCard(currentCoachStyle)
-
-        binding.spinnerCoachStyle.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedStyle = com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.fromOrdinal(position)
+        
+        binding.toggleCoachStyle.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val selectedStyle = when (checkedId) {
+                    R.id.btn_coach_vadym -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.GENTLE_SUPPORTIVE
+                    R.id.btn_coach_Ivan -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.MOTIVATIONAL_ENERGETIC
+                    else -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.PRECISE_TECHNICAL
+                }
                 settingsManager.setCoachingStyle(selectedStyle)
                 updateCoachInfoCard(selectedStyle)
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
@@ -100,48 +102,37 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupCameraSettings() {
-        // Video quality spinner (uses index)
+        // Video quality exposed dropdown
         val resolutions = resources.getStringArray(R.array.camera_resolutions)
-        val qualityAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, resolutions)
-        qualityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerVideoQuality.adapter = qualityAdapter
+        val qualityAdapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, resolutions)
+        binding.autoCompleteVideoQuality.setAdapter(qualityAdapter)
 
         val currentResolutionIndex = settingsManager.getCameraResolution()
         if (currentResolutionIndex in resolutions.indices) {
-            binding.spinnerVideoQuality.setSelection(currentResolutionIndex)
+            binding.autoCompleteVideoQuality.setText(resolutions[currentResolutionIndex], false)
         }
 
-        binding.spinnerVideoQuality.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                settingsManager.setCameraResolution(position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        binding.autoCompleteVideoQuality.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            settingsManager.setCameraResolution(position)
         }
 
-        // FPS spinner
-        val fpsOptions = arrayOf(
-            getString(R.string.fps_24),
-            getString(R.string.fps_30),
-            getString(R.string.fps_60)
-        )
-        val fpsValues = intArrayOf(24, 30, 60)
-        val fpsAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, fpsOptions)
-        fpsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerFps.adapter = fpsAdapter
-
+        // FPS Toggle Group
         val currentFps = settingsManager.getTargetFps()
-        val fpsIndex = fpsValues.indexOf(currentFps)
-        if (fpsIndex >= 0) {
-            binding.spinnerFps.setSelection(fpsIndex)
+        when (currentFps) {
+            24 -> binding.toggleFps.check(R.id.btn_fps_24)
+            30 -> binding.toggleFps.check(R.id.btn_fps_30)
+            60 -> binding.toggleFps.check(R.id.btn_fps_60)
         }
-
-        binding.spinnerFps.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                settingsManager.setTargetFps(fpsValues[position])
+        
+        binding.toggleFps.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val fps = when (checkedId) {
+                    R.id.btn_fps_24 -> 24
+                    R.id.btn_fps_30 -> 30
+                    else -> 60
+                }
+                settingsManager.setTargetFps(fps)
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // Pose skeleton switch

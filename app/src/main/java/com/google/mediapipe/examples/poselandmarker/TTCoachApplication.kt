@@ -18,6 +18,9 @@ class TTCoachApplication : Application() {
     
     private lateinit var fileLogger: LocalFileLogger
     val settingsManager: SettingsManager by lazy { SettingsManager(this) }
+    val authRepository: com.google.mediapipe.examples.poselandmarker.repository.AuthRepository by lazy { 
+        com.google.mediapipe.examples.poselandmarker.repository.AuthRepository(this) 
+    }
     
     override fun attachBaseContext(base: Context) {
         // Apply saved locale before any activity is created

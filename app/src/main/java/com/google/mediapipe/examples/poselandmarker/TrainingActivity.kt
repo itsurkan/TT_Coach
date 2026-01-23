@@ -179,8 +179,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             val accuracyView = binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)
             
             // Labels
-            val hitsLabel = binding.root.findViewById<android.widget.TextView>(R.id.layout_hits_stat)?.getChildAt(0) as? android.widget.TextView
-            val accuracyLabel = binding.root.findViewById<android.widget.TextView>(R.id.layout_accuracy_stat)?.getChildAt(0) as? android.widget.TextView
+            val hitsLabel = (binding.root.findViewById<android.view.View>(R.id.layout_hits_stat) as? android.view.ViewGroup)?.getChildAt(0) as? android.widget.TextView
+            val accuracyLabel = (binding.root.findViewById<android.view.View>(R.id.layout_accuracy_stat) as? android.view.ViewGroup)?.getChildAt(0) as? android.widget.TextView
 
             // Scale factor 1.5x
             timerView?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 28f)

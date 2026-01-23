@@ -16,12 +16,18 @@ import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileB
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel
+import coil.load
+import kotlinx.coroutines.flow.collect
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private lateinit var settingsManager: SettingsManager
+    private lateinit var viewModel: AuthViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,16 +43,56 @@ class ProfileFragment : Fragment() {
         
         settingsManager = SettingsManager(requireContext())
         
+        // Initialize ViewModel
+        val app = requireActivity().application as com.google.mediapipe.examples.poselandmarker.TTCoachApplication
+        val factory = com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel.Factory(app.authRepository)
+        viewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel::class.java]
+
         setupSubscriptionSection()
         setupLanguageSection()
         setupThemeButtons()
         setupMenuItems()
+        observeViewModel()
         
         // Restore scroll position
         if (savedInstanceState != null) {
             val scrollPosition = savedInstanceState.getInt("SCROLL_POSITION", 0)
             binding.profileScrollView.post {
                 binding.profileScrollView.scrollY = scrollPosition
+            }
+        }
+    }
+
+    private fun observeViewModel() {
+        // Since we are in a Fragment, we should use viewLifecycleOwner
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                if (state is com.google.mediapipe.examples.poselandmarker.viewmodels.AuthUiState.Success) {
+                    val user = state.user
+                    binding.tvProfileName.text = user.displayName ?: getString(R.string.placeholder_user_name)
+                    binding.tvProfileEmail.text = user.email
+                    
+                    user.photoUrl?.let { uri ->
+                        binding.ivProfileImage.visibility = View.VISIBLE
+                        binding.tvProfileInitials.visibility = View.GONE
+                        
+                        binding.ivProfileImage.load(uri) {
+                           transformations(coil.transform.CircleCropTransformation())
+                           crossfade(true)
+                        }
+                    } ?: run {
+                        binding.ivProfileImage.visibility = View.GONE
+                        binding.tvProfileInitials.visibility = View.VISIBLE
+                        // Quick initials logic
+                        val name = user.displayName ?: "User"
+                        val initials = name.split(" ")
+                            .mapNotNull { it.firstOrNull()?.toString() }
+                            .take(2)
+                            .joinToString("")
+                            .uppercase()
+                        binding.tvProfileInitials.text = if (initials.isNotEmpty()) initials else "U"
+                    }
+                }
             }
         }
     }
@@ -80,27 +126,22 @@ class ProfileFragment : Fragment() {
 
     private fun setupLanguageSection() {
         val languages = arrayOf("English", "Українська")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languages)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.spinnerLanguage.adapter = adapter
+        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, languages)
+        binding.autoCompleteLanguage.setAdapter(adapter)
 
         // Set current selection based on saved language
         val currentLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
         val selectionIndex = if (currentLanguage == "uk") 1 else 0
-        binding.spinnerLanguage.setSelection(selectionIndex, false)
+        binding.autoCompleteLanguage.setText(languages[selectionIndex], false)
 
-        binding.spinnerLanguage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val newLanguage = if (position == 1) "uk" else "en"
-                val savedLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
-                
-                if (newLanguage != savedLanguage) {
-                    com.google.mediapipe.examples.poselandmarker.LocaleHelper.setLocale(requireContext(), newLanguage)
-                    restartApp()
-                }
+        binding.autoCompleteLanguage.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val newLanguage = if (position == 1) "uk" else "en"
+            val savedLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
+            
+            if (newLanguage != savedLanguage) {
+                com.google.mediapipe.examples.poselandmarker.LocaleHelper.setLocale(requireContext(), newLanguage)
+                restartApp()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
@@ -115,66 +156,21 @@ class ProfileFragment : Fragment() {
         // Get current theme
         val currentMode = AppCompatDelegate.getDefaultNightMode()
         
-        updateThemeButtonStates(currentMode)
-        
-        binding.btnThemeLight.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-            updateThemeButtonStates(AppCompatDelegate.MODE_NIGHT_NO)
-        }
-        
-        binding.btnThemeDark.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            updateThemeButtonStates(AppCompatDelegate.MODE_NIGHT_YES)
-        }
-        
-        binding.btnThemeSystem.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-            updateThemeButtonStates(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        }
-    }
-    
-    private fun updateThemeButtonStates(currentMode: Int) {
-        val selectedBgColor = requireContext().getColor(android.R.color.black)
-        val normalBgColor = requireContext().getColor(android.R.color.transparent)
-        val selectedIconColor = requireContext().getColor(android.R.color.white)
-        val normalIconColor = requireContext().getColor(R.color.text_muted)
-        val borderColor = requireContext().getColor(android.R.color.darker_gray)
-        
-        // Reset all buttons to normal state
-        binding.btnThemeLight.setCardBackgroundColor(normalBgColor)
-        binding.btnThemeLight.strokeColor = borderColor
-        binding.ivThemeLight.setColorFilter(normalIconColor)
-        binding.tvThemeLight.setTextColor(normalIconColor)
-        
-        binding.btnThemeDark.setCardBackgroundColor(normalBgColor)
-        binding.btnThemeDark.strokeColor = borderColor
-        binding.ivThemeDark.setColorFilter(normalIconColor)
-        binding.tvThemeDark.setTextColor(normalIconColor)
-        
-        binding.btnThemeSystem.setCardBackgroundColor(normalBgColor)
-        binding.btnThemeSystem.strokeColor = borderColor
-        binding.ivThemeSystem.setColorFilter(normalIconColor)
-        binding.tvThemeSystem.setTextColor(normalIconColor)
-        
-        // Highlight selected with dark background
+        // Check corresponding button
         when (currentMode) {
-            AppCompatDelegate.MODE_NIGHT_NO -> {
-                binding.btnThemeLight.setCardBackgroundColor(selectedBgColor)
-                binding.btnThemeLight.strokeColor = selectedBgColor
-                binding.ivThemeLight.setColorFilter(selectedIconColor)
-                binding.tvThemeLight.setTextColor(selectedIconColor)
-            }
-            AppCompatDelegate.MODE_NIGHT_YES -> {
-                binding.btnThemeDark.setCardBackgroundColor(selectedBgColor)
-                binding.btnThemeDark.strokeColor = selectedBgColor
-                binding.ivThemeDark.setColorFilter(selectedIconColor)
-                binding.tvThemeDark.setTextColor(selectedIconColor)
-            }
-            else -> {
-                binding.btnThemeSystem.setCardBackgroundColor(selectedBgColor)
-                binding.btnThemeSystem.strokeColor = selectedBgColor
-                binding.ivThemeSystem.setColorFilter(selectedIconColor)
-                binding.tvThemeSystem.setTextColor(selectedIconColor)
+            AppCompatDelegate.MODE_NIGHT_NO -> binding.toggleGroupTheme.check(R.id.btn_theme_light)
+            AppCompatDelegate.MODE_NIGHT_YES -> binding.toggleGroupTheme.check(R.id.btn_theme_dark)
+            else -> binding.toggleGroupTheme.check(R.id.btn_theme_system)
+        }
+        
+        binding.toggleGroupTheme.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val newMode = when (checkedId) {
+                    R.id.btn_theme_light -> AppCompatDelegate.MODE_NIGHT_NO
+                    R.id.btn_theme_dark -> AppCompatDelegate.MODE_NIGHT_YES
+                    else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+                }
+                AppCompatDelegate.setDefaultNightMode(newMode)
             }
         }
     }
@@ -226,6 +222,9 @@ class ProfileFragment : Fragment() {
     }
 
     private fun performLogout() {
+        // Sign out from Firebase and Google
+        viewModel.signOut()
+        
         settingsManager.setLoggedIn(false)
         settingsManager.setSubscriptionActive(false)
         
