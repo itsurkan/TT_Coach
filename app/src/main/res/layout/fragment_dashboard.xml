@@ -14,7 +14,9 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="?attr/colorSurface"
+            app:expandedTitleTextColor="?attr/colorOnSurface"
+            app:collapsedTitleTextColor="?attr/colorOnSurface"
             app:expandedTitleMarginBottom="28dp"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
@@ -24,7 +26,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:title="@string/welcome_back" />
+                app:title="@string/welcome_back"
+                app:titleTextColor="?attr/colorOnSurface" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
@@ -71,7 +74,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/btn_start_training_dashboard"
-                        android:textColor="@color/white"
+                        android:textColor="?attr/colorOnPrimary"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +85,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/desc_ai_session"
-                        android:textColor="@color/blue_100"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:alpha="0.8"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tv_start_title" />
@@ -92,6 +96,7 @@
                         android:layout_width="48dp"
                         android:layout_height="48dp"
                         android:src="@drawable/ic_camera"
+                        app:tint="?attr/colorOnPrimary"
                         android:background="@drawable/bg_rounded_white_20"
                         android:padding="12dp"
                         app:layout_constraintEnd_toEndOf="parent"

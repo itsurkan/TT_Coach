@@ -18,6 +18,7 @@
             android:text="@string/app_settings_title"
             android:textSize="24sp"
             android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
             android:layout_marginBottom="4dp"/>
 
         <TextView

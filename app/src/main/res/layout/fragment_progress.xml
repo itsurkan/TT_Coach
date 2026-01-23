@@ -14,7 +14,9 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            app:contentScrim="?attr/colorPrimary"
+            app:contentScrim="?attr/colorSurface"
+            app:expandedTitleTextColor="?attr/colorOnSurface"
+            app:collapsedTitleTextColor="?attr/colorOnSurface"
             app:expandedTitleMarginBottom="28dp"
             app:expandedTitleMarginStart="16dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap">
@@ -24,7 +26,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
-                app:title="@string/progress_title" />
+                app:title="@string/progress_title"
+                app:titleTextColor="?attr/colorOnSurface" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
