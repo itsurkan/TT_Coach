@@ -154,8 +154,8 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupThemeButtons() {
-        // Get current theme
-        val currentMode = AppCompatDelegate.getDefaultNightMode()
+        // Get current theme from settings
+        val currentMode = settingsManager.getNightMode()
         
         // Check corresponding button
         when (currentMode) {
@@ -171,6 +171,7 @@ class ProfileFragment : Fragment() {
                     R.id.btn_theme_dark -> AppCompatDelegate.MODE_NIGHT_YES
                     else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 }
+                settingsManager.setNightMode(newMode)
                 AppCompatDelegate.setDefaultNightMode(newMode)
             }
         }

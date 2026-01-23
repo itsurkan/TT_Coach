@@ -15,29 +15,36 @@
     ~ limitations under the License.
 -->
 <resources>
-    <!-- M3 Tonal Palette -->
+    <!-- Material 3 Standard Tonal Palette -->
     <color name="colorPrimary">#2563EB</color>
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorPrimaryContainer">#D6E2FF</color>
     <color name="colorOnPrimaryContainer">#001A43</color>
     
-    <color name="colorSecondary">#5B5D72</color> <!-- Derived/Placeholder until specified -->
+    <color name="colorSecondary">#5B5D72</color>
     <color name="colorOnSecondary">#FFFFFF</color>
     <color name="colorSecondaryContainer">#E0E1F9</color>
     <color name="colorOnSecondaryContainer">#181A2C</color>
 
-    <color name="colorTertiary">#76546E</color> <!-- Derived/Placeholder -->
+    <color name="colorTertiary">#76546E</color>
     <color name="colorOnTertiary">#FFFFFF</color>
     <color name="colorTertiaryContainer">#FFD7F3</color>
     <color name="colorOnTertiaryContainer">#2D1228</color>
+
+    <color name="colorError">#BA1A1A</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#FFDAD6</color>
+    <color name="colorOnErrorContainer">#410002</color>
 
     <color name="colorSurface">#F8F9FF</color>
     <color name="colorOnSurface">#191C1E</color>
     <color name="colorSurfaceVariant">#E1E2EC</color>
     <color name="colorOnSurfaceVariant">#44474F</color>
     
-    <color name="colorSurfaceContainer">#EEF0F8</color>
     <color name="colorOutline">#74777F</color>
+    <color name="colorSurfaceInverse">#2E3032</color>
+    <color name="colorOnSurfaceInverse">#F0F0F3</color>
+    <color name="colorPrimaryInverse">#ADC6FF</color>
 
     <color name="mp_color_primary">#007F8B</color>
     <color name="mp_color_primary_variant">#12B5CB</color>

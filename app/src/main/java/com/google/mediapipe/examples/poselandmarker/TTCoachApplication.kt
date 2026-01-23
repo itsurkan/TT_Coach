@@ -29,9 +29,12 @@ class TTCoachApplication : Application() {
     
     override fun onCreate() {
         super.onCreate()
+        
+        // Enable Material 3 Dynamic Colors
+        com.google.android.material.color.DynamicColors.applyToActivitiesIfAvailable(this)
 
-        // Set default theme to Light as per user request
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        // Set theme mode from settings
+        AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
         
         // Initialize async file logger (zero latency impact)
         fileLogger = LocalFileLogger(this)

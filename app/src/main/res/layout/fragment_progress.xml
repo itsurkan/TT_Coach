@@ -64,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle"
+                    style="@style/Widget.Material3.CardView.Filled"
                     app:cardCornerRadius="16dp">
 
                     <LinearLayout
@@ -103,8 +103,8 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_days_streak"
-                            android:textColor="@color/text_muted"
-                            android:textSize="10sp" />
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textAppearance="?attr/textAppearanceLabelSmall" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -263,8 +263,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/chart_training_subtitle"
-                        android:textColor="@color/text_muted"
-                        android:textSize="14sp"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
                         android:layout_marginBottom="16dp"/>
 
                     <FrameLayout

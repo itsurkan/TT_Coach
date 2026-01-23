@@ -51,12 +51,10 @@
         <!-- Monthly Plan -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_monthly"
+            style="@style/Widget.Material3.CardView.Outlined"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="2dp"
-            app:strokeColor="?attr/colorControlHighlight"
             android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -380,30 +378,18 @@
         <!-- CTA Buttons -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_subscribe"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="@string/start_plan"
-            android:textSize="15sp"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:background="@drawable/bg_button_gradient_purple"
-            app:icon="@drawable/ic_award"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_maybe_later"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/maybe_later"
-            android:textColor="@color/mp_color_primary"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            app:strokeColor="@color/border_color"
-            app:strokeWidth="1dp"
             android:layout_marginBottom="16dp"/>
 
         <!-- Footer -->

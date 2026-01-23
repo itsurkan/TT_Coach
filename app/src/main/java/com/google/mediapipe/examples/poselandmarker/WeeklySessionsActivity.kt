@@ -20,8 +20,8 @@ class WeeklySessionsActivity : BaseActivity() {
 
         settingsManager = SettingsManager(this)
 
-        // Setup back button
-        binding.btnBack.setOnClickListener {
+        // Setup toolbar navigation
+        binding.toolbarWeekly.setNavigationOnClickListener {
             finish()
         }
 

@@ -47,40 +47,7 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
-        updateBottomNavigation()
     }
-
-    private fun updateBottomNavigation() {
-        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
-        val menu = binding.navView.menu
-        val isDebugMode = settingsManager.isDeveloperModeEnabled()
-
-        if (isDebugMode) {
-            // Show Developer item instead of Settings
-            if (menu.findItem(R.id.navigation_developer) == null) {
-                // Remove Settings if present
-                menu.removeItem(R.id.navigation_settings)
-                
-                // Add Developer item at correct position (order 40)
-                // Use a bug icon or generic settings icon if bug not available
-                menu.add(android.view.Menu.NONE, R.id.navigation_developer, 40, "Debug").apply {
-                    setIcon(android.R.drawable.ic_menu_manage) // Using system icon for now
-                }
-            }
-        } else {
-            // Show Settings item instead of Developer
-            if (menu.findItem(R.id.navigation_settings) == null) {
-                // Remove Developer if present
-                menu.removeItem(R.id.navigation_developer)
-                
-                // Restore Settings item
-                menu.add(android.view.Menu.NONE, R.id.navigation_settings, 40, getString(R.string.title_settings)).apply {
-                    setIcon(R.drawable.ic_settings)
-                }
-            }
-        }
-    }
-    
     // Explicitly re-setup navigation when menu changes to ensure listeners are correct
     // However, setupWithNavController sets the listener once. 
     // If we add items with IDs that match the graph, the existing listener *should* handle them,
