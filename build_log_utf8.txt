@@ -53,54 +53,9 @@ FAILURE: Build failed with an exception.
 Execution failed for task ':app:processDebugResources'.
 > A failure occurred while executing com.android.build.gradle.internal.res.LinkApplicationAndroidResourcesTask$TaskAction
    > Android resource linking failed
-     com.google.mediapipe.examples.poselandmarker.app-main-66:/drawable/bg_tab_indicator.xml:3: error: resource color/tab
-_indicator_color (aka com.google.mediapipe.examples.poselandmarker:color/tab_indicator_color) not found.
-     com.google.mediapipe.examples.poselandmarker.app-main-66:/drawable/bg_tab_track.xml:3: error: resource color/tab_tra
-ck_color (aka com.google.mediapipe.examples.poselandmarker:color/tab_track_color) not found.
-     com.google.mediapipe.examples.poselandmarker.app-main-66:/drawable/circle_background.xml:4: error: resource color/co
-ach_accent_green (aka com.google.mediapipe.examples.poselandmarker:color/coach_accent_green) not found.
-     com.google.mediapipe.examples.poselandmarker.app-main-66:/drawable-night/bg_spinner.xml:6: error: resource color/spi
-nner_bg (aka com.google.mediapipe.examples.poselandmarker:color/spinner_bg) not found.
-     com.google.mediapipe.examples.poselandmarker.app-main-66:/drawable-night/bg_spinner.xml:11: error: resource color/sp
-inner_border (aka com.google.mediapipe.examples.poselandmarker:color/spinner_border) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_app_settings.xml:176: error
-: resource color/card_stroke_orange_20 (aka com.google.mediapipe.examples.poselandmarker:color/card_stroke_orange_20) not
- found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_app_settings.xml:176: error
-: resource color/card_bg_orange_10 (aka com.google.mediapipe.examples.poselandmarker:color/card_bg_orange_10) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_app_settings.xml:338: error
-: resource color/card_stroke_blue_20 (aka com.google.mediapipe.examples.poselandmarker:color/card_stroke_blue_20) not fou
-nd.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_app_settings.xml:338: error
-: resource color/card_stroke_blue_10 (aka com.google.mediapipe.examples.poselandmarker:color/card_stroke_blue_10) not fou
-nd.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_camera.xml:46: error: resou
-rce color/toolbar_background (aka com.google.mediapipe.examples.poselandmarker:color/toolbar_background) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_debug.xml:117: error: resou
-rce color/background_surface_alt (aka com.google.mediapipe.examples.poselandmarker:color/background_surface_alt) not foun
-d.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/activity_skill_target.xml:392: error
-: resource color/card_bg_amber_light (aka com.google.mediapipe.examples.poselandmarker:color/card_bg_amber_light) not fou
-nd.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/fragment_drills.xml:94: error: resou
-rce color/blue_100_70 (aka com.google.mediapipe.examples.poselandmarker:color/blue_100_70) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/fragment_settings.xml:48: error: res
-ource color/coach_accent_green (aka com.google.mediapipe.examples.poselandmarker:color/coach_accent_green) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/fragment_settings.xml:148: error: re
-source color/coach_accent_green (aka com.google.mediapipe.examples.poselandmarker:color/coach_accent_green) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/fragment_settings.xml:164: error: re
-source color/coach_accent_green (aka com.google.mediapipe.examples.poselandmarker:color/coach_accent_green) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/fragment_settings.xml:173: error: re
-source color/coach_accent_green (aka com.google.mediapipe.examples.poselandmarker:color/coach_accent_green) not found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/info_bottom_sheet.xml:28: error: res
-ource color/bottom_sheet_background (aka com.google.mediapipe.examples.poselandmarker:color/bottom_sheet_background) not 
-found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/info_bottom_sheet.xml:63: error: res
-ource color/bottom_sheet_text_color (aka com.google.mediapipe.examples.poselandmarker:color/bottom_sheet_text_color) not 
-found.
-     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-63:/layout/info_bottom_sheet.xml:73: error: res
-ource color/bottom_sheet_text_color (aka com.google.mediapipe.examples.poselandmarker:color/bottom_sheet_text_color) not 
-found.
+     com.google.mediapipe.examples.poselandmarker.app-mergeDebugResources-62:/values/values.xml:2938: error: style attrib
+ute 'attr/colorSurfaceTint (aka com.google.mediapipe.examples.poselandmarker:attr/colorSurfaceTint)' not found.
+     error: failed linking references.
 
 
 * Try:
@@ -115,5 +70,5 @@ You can use '--warning-mode all' to show the individual deprecation warnings and
 
 For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
 
-BUILD FAILED in 2s
+BUILD FAILED in 1s
 35 actionable tasks: 1 executed, 34 up-to-date

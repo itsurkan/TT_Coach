@@ -10,15 +10,17 @@
     <FrameLayout
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:background="@color/bg_card_selected">
+        android:background="@drawable/bg_card_rounded"
+        android:backgroundTint="?attr/colorSecondaryContainer">
         <ImageView
             android:id="@+id/iv_feature_icon"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:src="@drawable/ic_check_circle_2"
-            app:tint="@color/phase_backswing"
+            app:tint="?attr/colorSecondary"
             android:layout_gravity="center"/>
     </FrameLayout>
+
 
     <TextView
         android:id="@+id/tv_feature_text"

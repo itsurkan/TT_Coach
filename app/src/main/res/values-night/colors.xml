@@ -86,4 +86,45 @@
     <color name="switch_track_unchecked">#4B5563</color>
     <color name="overlay_scrim">#CC000000</color>
     <color name="text_secondary_contrast">#94A3B8</color>
+
+    <!-- Additional missing colors for legacy compatibility (Night) -->
+    <color name="tab_indicator_color">#ADC6FF</color>
+    <color name="tab_track_color">#44474F</color>
+    <color name="coach_accent_green">#34D399</color>
+    <color name="spinner_bg">#1E293B</color>
+    <color name="spinner_border">#334155</color>
+    <color name="card_stroke_orange_20">#4DFB923C</color>
+    <color name="card_bg_orange_10">#26FB923C</color>
+    <color name="card_stroke_blue_20">#4D60A5FA</color>
+    <color name="card_stroke_blue_10">#2660A5FA</color>
+    <color name="toolbar_background">#111318</color>
+    <color name="background_surface_alt">#1A1C1E</color>
+    <color name="card_bg_amber_light">#2D2310</color>
+    <color name="blue_100_70">#B31E3A8A</color>
+    <color name="bottom_sheet_background">#1A1C1E</color>
+    <color name="bottom_sheet_text_color">#E2E2E9</color>
+    <color name="bg_card_selected">#1E293B</color>
+    <color name="phase_backswing">#60A5FA</color>
+    <color name="phase_ready">#64748B</color>
+    <color name="phase_forward_swing">#FBBF24</color>
+    <color name="phase_contact">#F87171</color>
+    <color name="phase_follow_through">#A78BFA</color>
+    <color name="phase_recovery">#94A3B8</color>
+    <color name="gray_light">#374151</color>
+    <color name="badge_text_green">#BBF7D0</color>
+    <color name="badge_text_orange">#FED7AA</color>
+    <color name="badge_text_red">#FECACA</color>
+    <color name="badge_text_blue">#DBEAFE</color>
+    <color name="coach_avatar_green">#059669</color>
+    <color name="coach_avatar_blue">#2563EB</color>
+    <color name="coach_avatar_purple">#7C3AED</color>
+    <color name="success_green">#34D399</color>
+    <color name="primary_blue">#60A5FA</color>
+    <color name="text_primary">#E2E2E9</color>
+    <color name="bg_card_target">#2D2310</color>
+    <color name="text_card_target">#FDBA74</color>
+    <color name="bg_card_calendar">#064E3B</color>
+    <color name="text_card_calendar">#86EFAC</color>
+    <color name="bg_card_award">#312E81</color>
+    <color name="text_card_award">#C7D2FE</color>
 </resources>

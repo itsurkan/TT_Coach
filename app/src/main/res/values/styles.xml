@@ -48,8 +48,7 @@
         <item name="colorSurfaceInverse">@color/colorSurfaceInverse</item>
         <item name="colorOnSurfaceInverse">@color/colorOnSurfaceInverse</item>
         <item name="colorOutline">@color/colorOutline</item>
-        <!-- <item name="colorOutlineVariant">@color/colorOutlineVariant</item> -->
-        <!-- <item name="colorSurfaceTint">@color/colorSurfaceTint</item> -->
+
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorSurface</item>
