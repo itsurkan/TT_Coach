@@ -198,10 +198,6 @@ class ProfileFragment : Fragment() {
             startActivity(intent)
         }
         
-        // Edit Profile - placeholder
-        binding.layoutEditProfile.setOnClickListener {
-            // TODO: Implement edit profile
-        }
         
         // Help & Support - placeholder
         binding.layoutHelpSupport.setOnClickListener {

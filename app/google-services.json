@@ -12,7 +12,12 @@
                     "package_name": "com.ttcoachai"
                 }
             },
-            "oauth_client": [],
+            "oauth_client": [
+                {
+                    "client_id": "558931815872-rpq3aq16vnlfm7uk5cq8i5rh862ovjqe.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
             "api_key": [
                 {
                     "current_key": "AIzaSyDEkJjnL22Uh3dk7HY6K7I3prGv3adMljc"
@@ -20,7 +25,12 @@
             ],
             "services": {
                 "appinvite_service": {
-                    "other_platform_oauth_client": []
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "558931815872-rpq3aq16vnlfm7uk5cq8i5rh862ovjqe.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
                 }
             }
         }
