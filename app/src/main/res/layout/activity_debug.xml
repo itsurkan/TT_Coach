@@ -112,7 +112,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="#F5F5F5"
+            android:background="@color/background_surface_alt"
             android:padding="12dp"
             android:visibility="gone">
 

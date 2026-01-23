@@ -46,7 +46,7 @@ class SubscribeActivity : AppCompatActivity() {
     private fun updatePlanSelection() {
         val activeColor = getColor(R.color.blue_600)
         val mutedColor = getColor(R.color.text_muted)
-        val activeBg = 0x1A2196F3.toInt()
+        val activeBg = getColor(R.color.bg_card_selected)
         val inactiveBg = getColor(android.R.color.transparent)
         val borderColor = getColor(android.R.color.darker_gray)
 

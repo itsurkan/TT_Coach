@@ -308,15 +308,15 @@
     <string name="ai_trainer_section">AI Trainer</string>
     <string name="select_coach_label">Select Your Coach</string>
     <string name="select_coach_desc">Choose a coaching style that matches your learning preference</string>
-    <string name="coach_vadym_name">Vadym</string>
-    <string name="coach_vadym_style">Motivational &amp; Energetic</string>
-    <string name="coach_vadym_desc">High-energy coaching with lots of encouragement and positive reinforcement</string>
     <string name="coach_ivan_name">Ivan</string>
-    <string name="coach_ivan_style">Precise and sticky to technique</string>
-    <string name="coach_ivan_desc">Detail-oriented coaching focused on perfect form. Ideal for players who want to master technical precision.</string>
+    <string name="coach_ivan_style">Motivational &amp; Energetic</string>
+    <string name="coach_ivan_desc">High-energy coaching with lots of encouragement and positive reinforcement</string>
     <string name="coach_andriy_name">Andriy</string>
-    <string name="coach_andriy_style">Short and soft</string>
-    <string name="coach_andriy_desc">Gentle encouragement with concise feedback. Perfect for beginners who prefer a supportive approach.</string>
+    <string name="coach_andriy_style">Precise and sticky to technique</string>
+    <string name="coach_andriy_desc">Detail-oriented coaching focused on perfect form. Ideal for players who want to master technical precision.</string>
+    <string name="coach_vadym_name">Vadym</string>
+    <string name="coach_vadym_style">Short and soft</string>
+    <string name="coach_vadym_desc">Gentle encouragement with concise feedback. Perfect for beginners who prefer a supportive approach.</string>
     
     <!-- App Settings Activity -->
     <string name="app_settings_title">App Settings</string>

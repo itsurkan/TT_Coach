@@ -106,12 +106,12 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
      */
     private fun updatePhaseColors() {
         val phaseColor = when (currentPhase) {
-            StrokePhase.READY -> Color.GRAY
-            StrokePhase.BACKSWING -> Color.rgb(33, 150, 243)  // Blue
-            StrokePhase.FORWARD_SWING -> Color.rgb(76, 175, 80)  // Green
-            StrokePhase.CONTACT -> Color.rgb(255, 152, 0)  // Orange
-            StrokePhase.FOLLOW_THROUGH -> Color.rgb(156, 39, 176)  // Purple
-            StrokePhase.RECOVERY -> Color.GRAY
+            StrokePhase.READY -> ContextCompat.getColor(context, R.color.phase_ready)
+            StrokePhase.BACKSWING -> ContextCompat.getColor(context, R.color.phase_backswing)
+            StrokePhase.FORWARD_SWING -> ContextCompat.getColor(context, R.color.phase_forward_swing)
+            StrokePhase.CONTACT -> ContextCompat.getColor(context, R.color.phase_contact)
+            StrokePhase.FOLLOW_THROUGH -> ContextCompat.getColor(context, R.color.phase_follow_through)
+            StrokePhase.RECOVERY -> ContextCompat.getColor(context, R.color.phase_recovery)
         }
 
         // Right arm gets the phase color (playing arm)
