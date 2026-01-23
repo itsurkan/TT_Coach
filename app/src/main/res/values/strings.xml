@@ -356,6 +356,14 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
+    
+    <!-- Language Settings -->
+    <string name="language_section">Language</string>
+    <string name="language_title">Interface Language</string>
+    <string name="language_desc">Choose your preferred language for the app</string>
+    <string name="language_en">English</string>
+    <string name="language_uk">Ukrainian</string>
+
     <string name="push_notifications">Push Notifications</string>
     <string name="daily_reminders">Daily Reminders</string>
     <string name="achievement_alerts">Achievement Alerts</string>
@@ -364,6 +372,8 @@
     <string name="app_settings">App Settings</string>
     <string name="help_support">Help \u0026 Support</string>
     <string name="log_out">Log Out</string>
+    <string name="logout_title">Log Out</string>
+    <string name="logout_message">Are you sure you want to log out?</string>
     <string name="version_format">Version %s</string>
 
     <!-- Subscribe Page -->

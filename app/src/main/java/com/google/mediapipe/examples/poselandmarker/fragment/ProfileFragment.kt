@@ -12,6 +12,8 @@ import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.SubscribeActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileBinding
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
 
 class ProfileFragment : Fragment() {
 
@@ -34,6 +36,7 @@ class ProfileFragment : Fragment() {
         settingsManager = SettingsManager(requireContext())
         
         setupSubscriptionSection()
+        setupLanguageSection()
         setupThemeButtons()
         setupMenuItems()
     }
@@ -56,6 +59,39 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireContext(), SubscribeActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun setupLanguageSection() {
+        val languages = arrayOf("English", "Українська")
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, languages)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerLanguage.adapter = adapter
+
+        // Set current selection based on saved language
+        val currentLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
+        val selectionIndex = if (currentLanguage == "uk") 1 else 0
+        binding.spinnerLanguage.setSelection(selectionIndex, false)
+
+        binding.spinnerLanguage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val newLanguage = if (position == 1) "uk" else "en"
+                val savedLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
+                
+                if (newLanguage != savedLanguage) {
+                    com.google.mediapipe.examples.poselandmarker.LocaleHelper.setLocale(requireContext(), newLanguage)
+                    restartApp()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun restartApp() {
+        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.WelcomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     private fun setupThemeButtons() {
@@ -145,8 +181,29 @@ class ProfileFragment : Fragment() {
         
         // Log Out
         binding.btnLogOut.setOnClickListener {
-            // TODO: Implement log out
+            showLogoutConfirmationDialog()
         }
+    }
+
+    private fun showLogoutConfirmationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(R.string.logout_title)
+            .setMessage(R.string.logout_message)
+            .setPositiveButton(R.string.dialog_yes) { _, _ ->
+                performLogout()
+            }
+            .setNegativeButton(R.string.dialog_no, null)
+            .show()
+    }
+
+    private fun performLogout() {
+        settingsManager.setLoggedIn(false)
+        settingsManager.setSubscriptionActive(false)
+        
+        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
     }
 
     override fun onResume() {
