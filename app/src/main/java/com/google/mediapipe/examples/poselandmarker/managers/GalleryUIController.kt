@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.view.View
 import android.widget.AdapterView
-import com.google.mediapipe.examples.poselandmarker.MainViewModel
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentGalleryBinding
-import com.google.mediapipe.examples.poselandmarker.fragment.GalleryFragment
+import com.ttcoachai.MainViewModel
+import com.ttcoachai.databinding.FragmentGalleryBinding
+import com.ttcoachai.fragment.GalleryFragment
 import java.util.*
 
 /**

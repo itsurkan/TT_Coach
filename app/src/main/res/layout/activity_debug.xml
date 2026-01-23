@@ -93,7 +93,7 @@
                 android:scaleType="fitCenter"
                 android:visibility="gone" />
 
-            <com.google.mediapipe.examples.poselandmarker.OverlayView
+            <com.ttcoachai.OverlayView
                 android:id="@+id/overlayView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

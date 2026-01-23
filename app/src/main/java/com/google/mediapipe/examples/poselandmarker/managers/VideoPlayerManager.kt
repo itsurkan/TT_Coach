@@ -3,15 +3,15 @@
  * Video Player Manager - Handles video playback and pose detection
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.VideoView
-import com.google.mediapipe.examples.poselandmarker.OverlayView
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
+import com.ttcoachai.OverlayView
+import com.ttcoachai.PoseLandmarkerHelper
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService

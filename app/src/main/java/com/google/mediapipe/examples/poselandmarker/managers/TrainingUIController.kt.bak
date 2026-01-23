@@ -3,13 +3,13 @@
  * Training UI Controller - Manages UI updates and user interactions
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.view.View
 import android.widget.Toast
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
+import com.ttcoachai.R
+import com.ttcoachai.databinding.ActivityTrainingBinding
 
 class TrainingUIController(
     private val context: Context,

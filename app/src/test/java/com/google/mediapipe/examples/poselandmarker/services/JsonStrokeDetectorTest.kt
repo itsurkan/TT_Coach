@@ -1,6 +1,6 @@
-package com.google.mediapipe.examples.poselandmarker.services
+package com.ttcoachai.services
 
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
+import com.ttcoachai.models.StrokePhase
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Before

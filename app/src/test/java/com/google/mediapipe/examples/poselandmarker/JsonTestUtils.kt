@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import org.json.JSONObject
@@ -13,7 +13,7 @@ object JsonTestUtils {
     /**
      * Loads frames from a JSON file.
      */
-    fun loadFramesFromJson(filePath: String): List<com.google.mediapipe.examples.poselandmarker.services.JsonPoseFrame> {
+    fun loadFramesFromJson(filePath: String): List<com.ttcoachai.services.JsonPoseFrame> {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalArgumentException("File not found: $filePath")
@@ -23,17 +23,17 @@ object JsonTestUtils {
         val jsonObject = JSONObject(jsonString)
         val framesArray = jsonObject.getJSONArray("frames")
         
-        val result = mutableListOf<com.google.mediapipe.examples.poselandmarker.services.JsonPoseFrame>()
+        val result = mutableListOf<com.ttcoachai.services.JsonPoseFrame>()
         
         for (i in 0 until framesArray.length()) {
             val frameObject = framesArray.getJSONObject(i)
             val landmarksArray = frameObject.getJSONArray("landmarks")
-            val frameLandmarks = mutableListOf<com.google.mediapipe.examples.poselandmarker.services.JsonLandmark>()
+            val frameLandmarks = mutableListOf<com.ttcoachai.services.JsonLandmark>()
             
             for (j in 0 until landmarksArray.length()) {
                 val lm = landmarksArray.getJSONObject(j)
                 frameLandmarks.add(
-                    com.google.mediapipe.examples.poselandmarker.services.JsonLandmark(
+                    com.ttcoachai.services.JsonLandmark(
                         index = lm.optInt("index", j),
                         x = lm.getDouble("x").toFloat(),
                         y = lm.getDouble("y").toFloat(),
@@ -44,7 +44,7 @@ object JsonTestUtils {
                 )
             }
             result.add(
-                com.google.mediapipe.examples.poselandmarker.services.JsonPoseFrame(
+                com.ttcoachai.services.JsonPoseFrame(
                     frameIndex = frameObject.getInt("frameIndex"),
                     timestampMs = frameObject.getLong("timestampMs"),
                     landmarks = frameLandmarks
@@ -58,7 +58,7 @@ object JsonTestUtils {
     /**
      * Converts JsonLandmark to NormalizedLandmark
      */
-    fun toNormalizedLandmarks(jsonLandmarks: List<com.google.mediapipe.examples.poselandmarker.services.JsonLandmark>): List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark> {
+    fun toNormalizedLandmarks(jsonLandmarks: List<com.ttcoachai.services.JsonLandmark>): List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark> {
         return jsonLandmarks.map { lm ->
             NormalizedLandmark.create(
                 lm.x, lm.y, lm.z, 

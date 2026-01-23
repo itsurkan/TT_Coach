@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.core.logging
+package com.ttcoachai.core.logging
 
 /**
  * Base logging interface.

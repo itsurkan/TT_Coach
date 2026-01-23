@@ -240,10 +240,10 @@ runBlocking {
 
 ```kotlin
 // View logs in Android Studio
-// Device File Explorer → data/data/com.google.mediapipe.examples.poselandmarker/files/logs/
+// Device File Explorer → data/data/com.ttcoachai/files/logs/
 
 // Or pull via adb
-adb pull /data/data/com.google.mediapipe.examples.poselandmarker/files/logs/ ./logs/
+adb pull /data/data/com.ttcoachai/files/logs/ ./logs/
 ```
 
 ## Best Practices

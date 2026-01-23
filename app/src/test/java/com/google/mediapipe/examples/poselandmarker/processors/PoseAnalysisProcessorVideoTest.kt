@@ -1,6 +1,6 @@
-package com.google.mediapipe.examples.poselandmarker.processors
+package com.ttcoachai.processors
 
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
+import com.ttcoachai.models.StrokePhase
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*

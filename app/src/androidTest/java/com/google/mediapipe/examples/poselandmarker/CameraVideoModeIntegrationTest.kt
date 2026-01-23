@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
@@ -8,7 +8,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import com.google.mediapipe.examples.poselandmarker.data.Exercise
+import com.ttcoachai.data.Exercise
 import org.junit.Test
 import org.junit.runner.RunWith
 

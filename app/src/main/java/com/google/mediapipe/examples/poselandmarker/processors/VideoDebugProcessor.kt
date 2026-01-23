@@ -3,22 +3,22 @@
  * Video Debug Processor - Batch processes video through MediaPipe (like GalleryFragment)
  */
 
-package com.google.mediapipe.examples.poselandmarker.processors
+package com.ttcoachai.processors
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
-import com.google.mediapipe.examples.poselandmarker.core.logging.providers.LocalFileLogger
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
-import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
-import com.google.mediapipe.examples.poselandmarker.services.JsonStrokeDetector
-import com.google.mediapipe.examples.poselandmarker.services.StrokeDetectorConfig
-import com.google.mediapipe.examples.poselandmarker.services.StrokeDetectionResult
-import com.google.mediapipe.examples.poselandmarker.services.DetectedStroke
-import com.google.mediapipe.examples.poselandmarker.services.JsonPoseFrame
+import com.ttcoachai.PoseLandmarkerHelper
+import com.ttcoachai.core.logging.providers.LocalFileLogger
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.services.FeedbackGenerator
+import com.ttcoachai.services.MotionAnalyzer
+import com.ttcoachai.services.JsonStrokeDetector
+import com.ttcoachai.services.StrokeDetectorConfig
+import com.ttcoachai.services.StrokeDetectionResult
+import com.ttcoachai.services.DetectedStroke
+import com.ttcoachai.services.JsonPoseFrame
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult

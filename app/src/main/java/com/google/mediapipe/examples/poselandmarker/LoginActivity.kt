@@ -1,12 +1,12 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityLoginBinding
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
-import com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel
+import com.ttcoachai.databinding.ActivityLoginBinding
+import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.viewmodels.AuthViewModel
 import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
@@ -75,14 +75,14 @@ class LoginActivity : BaseActivity() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
-                    is com.google.mediapipe.examples.poselandmarker.viewmodels.AuthUiState.Loading -> {
+                    is com.ttcoachai.viewmodels.AuthUiState.Loading -> {
                         // TODO: Show loading indicator
                     }
-                    is com.google.mediapipe.examples.poselandmarker.viewmodels.AuthUiState.Success -> {
+                    is com.ttcoachai.viewmodels.AuthUiState.Success -> {
                         settingsManager.setLoggedIn(true)
                         navigateToMain()
                     }
-                    is com.google.mediapipe.examples.poselandmarker.viewmodels.AuthUiState.Error -> {
+                    is com.ttcoachai.viewmodels.AuthUiState.Error -> {
                         Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
                     }
                     else -> {}

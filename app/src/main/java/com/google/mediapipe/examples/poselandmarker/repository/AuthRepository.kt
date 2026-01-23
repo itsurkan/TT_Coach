@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.repository
+package com.ttcoachai.repository
 
 import android.content.Context
 import android.content.Intent

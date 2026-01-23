@@ -7,37 +7,37 @@
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.DashboardFragment"
+        android:name="com.ttcoachai.fragment.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
         android:id="@+id/navigation_progress"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.ProgressFragment"
+        android:name="com.ttcoachai.fragment.ProgressFragment"
         android:label="@string/title_progress"
         tools:layout="@layout/fragment_progress" />
 
     <fragment
         android:id="@+id/navigation_drills"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.DrillsFragment"
+        android:name="com.ttcoachai.fragment.DrillsFragment"
         android:label="@string/title_drills"
         tools:layout="@layout/fragment_drills" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.ProfileFragment"
+        android:name="com.ttcoachai.fragment.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/navigation_settings"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.SettingsFragment"
+        android:name="com.ttcoachai.fragment.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/permissions_fragment"
-        android:name="com.google.mediapipe.examples.poselandmarker.fragment.PermissionsFragment"
+        android:name="com.ttcoachai.fragment.PermissionsFragment"
         android:label="Permissions">
         <action
             android:id="@+id/action_permissions_to_camera"
@@ -48,14 +48,14 @@
 
     <activity
         android:id="@+id/camera_fragment"
-        android:name="com.google.mediapipe.examples.poselandmarker.TrainingActivity"
+        android:name="com.ttcoachai.TrainingActivity"
         android:label="@string/menu_camera"
         tools:layout="@layout/activity_training">
 
     </activity>
     <activity
         android:id="@+id/navigation_developer"
-        android:name="com.google.mediapipe.examples.poselandmarker.DebugActivity"
+        android:name="com.ttcoachai.DebugActivity"
         android:label="Developer"
         tools:layout="@layout/activity_debug" />
 </navigation>

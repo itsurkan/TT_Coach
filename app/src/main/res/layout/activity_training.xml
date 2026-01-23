@@ -52,7 +52,7 @@
         </FrameLayout>
 
         <!-- Overlay for pose landmarks -->
-        <com.google.mediapipe.examples.poselandmarker.OverlayView
+        <com.ttcoachai.OverlayView
             android:id="@+id/overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"

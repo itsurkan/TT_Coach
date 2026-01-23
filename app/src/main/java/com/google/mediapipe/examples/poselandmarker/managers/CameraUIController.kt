@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentCameraBinding
+import com.ttcoachai.PoseLandmarkerHelper
+import com.ttcoachai.databinding.FragmentCameraBinding
 import java.util.*
 
 /**
@@ -39,7 +39,7 @@ class CameraUIController(
         // Since we are using data binding, we can check if the field exists via reflection 
         // or just rely on the fact that if we removed it from XML, we shouldn't call it.
         // For a more robust way in this specific task, we'll check the root view for the ID.
-        return binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) != null
+        return binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) != null
     }
 
     /**
@@ -68,12 +68,12 @@ class CameraUIController(
         val helper = getPoseLandmarkerHelper() ?: return
 
         try {
-            val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout)
+            val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout)
             if (bottomSheet != null) {
                 // We use findViewById directly because the binding field might be missing in some versions of the layout
-                val detectionValue = bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.detection_threshold_value)
-                val trackingValue = bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.tracking_threshold_value)
-                val presenceValue = bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.presence_threshold_value)
+                val detectionValue = bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.detection_threshold_value)
+                val trackingValue = bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.tracking_threshold_value)
+                val presenceValue = bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.presence_threshold_value)
                 
                 detectionValue?.text = String.format(Locale.US, "%.2f", helper.minPoseDetectionConfidence)
                 trackingValue?.text = String.format(Locale.US, "%.2f", helper.minPoseTrackingConfidence)
@@ -95,13 +95,13 @@ class CameraUIController(
         if (!hasBottomSheet()) return
         
         try {
-            val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout)
+            val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout)
             if (bottomSheet != null) {
-                bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.detection_threshold_value)?.text =
+                bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.detection_threshold_value)?.text =
                     String.format(Locale.US, "%.2f", detectionConfidence)
-                bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.tracking_threshold_value)?.text =
+                bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.tracking_threshold_value)?.text =
                     String.format(Locale.US, "%.2f", trackingConfidence)
-                bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.presence_threshold_value)?.text =
+                bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.presence_threshold_value)?.text =
                     String.format(Locale.US, "%.2f", presenceConfidence)
             }
         } catch (e: Exception) {
@@ -113,9 +113,9 @@ class CameraUIController(
      * Setup detection threshold controls (plus/minus buttons)
      */
     private fun setupDetectionThresholdControls(onControlsChanged: () -> Unit) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
         
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.detection_threshold_minus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.detection_threshold_minus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPoseDetectionConfidence >= 0.2) {
                 helper.minPoseDetectionConfidence -= 0.1f
@@ -123,7 +123,7 @@ class CameraUIController(
             }
         }
 
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.detection_threshold_plus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.detection_threshold_plus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPoseDetectionConfidence <= 0.8) {
                 helper.minPoseDetectionConfidence += 0.1f
@@ -136,9 +136,9 @@ class CameraUIController(
      * Setup tracking threshold controls (plus/minus buttons)
      */
     private fun setupTrackingThresholdControls(onControlsChanged: () -> Unit) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
 
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.tracking_threshold_minus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.tracking_threshold_minus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPoseTrackingConfidence >= 0.2) {
                 helper.minPoseTrackingConfidence -= 0.1f
@@ -146,7 +146,7 @@ class CameraUIController(
             }
         }
 
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.tracking_threshold_plus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.tracking_threshold_plus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPoseTrackingConfidence <= 0.8) {
                 helper.minPoseTrackingConfidence += 0.1f
@@ -159,9 +159,9 @@ class CameraUIController(
      * Setup presence threshold controls (plus/minus buttons)
      */
     private fun setupPresenceThresholdControls(onControlsChanged: () -> Unit) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
 
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.presence_threshold_minus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.presence_threshold_minus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPosePresenceConfidence >= 0.2) {
                 helper.minPosePresenceConfidence -= 0.1f
@@ -169,7 +169,7 @@ class CameraUIController(
             }
         }
 
-        bottomSheet.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.presence_threshold_plus)?.setOnClickListener {
+        bottomSheet.findViewById<View>(com.ttcoachai.R.id.presence_threshold_plus)?.setOnClickListener {
             val helper = getPoseLandmarkerHelper() ?: return@setOnClickListener
             if (helper.minPosePresenceConfidence <= 0.8) {
                 helper.minPosePresenceConfidence += 0.1f
@@ -182,8 +182,8 @@ class CameraUIController(
      * Setup delegate spinner (CPU/GPU selection)
      */
     private fun setupDelegateSpinner(currentDelegate: Int, onControlsChanged: () -> Unit) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
-        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.google.mediapipe.examples.poselandmarker.R.id.spinner_delegate) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
+        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.ttcoachai.R.id.spinner_delegate) ?: return
 
         spinner.setSelection(currentDelegate, false)
         spinner.onItemSelectedListener =
@@ -215,8 +215,8 @@ class CameraUIController(
      * Setup model spinner (model selection)
      */
     private fun setupModelSpinner(currentModel: Int, onControlsChanged: () -> Unit) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
-        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.google.mediapipe.examples.poselandmarker.R.id.spinner_model) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
+        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.ttcoachai.R.id.spinner_model) ?: return
 
         spinner.setSelection(currentModel, false)
         spinner.onItemSelectedListener =
@@ -248,7 +248,7 @@ class CameraUIController(
         // Overlay visibility might change if we use it differently, but for now just clear
         try {
             // Find overlay by ID if not in binding (though it should be)
-            val overlay = binding.root.findViewById<com.google.mediapipe.examples.poselandmarker.OverlayView>(com.google.mediapipe.examples.poselandmarker.R.id.overlay)
+            val overlay = binding.root.findViewById<com.ttcoachai.OverlayView>(com.ttcoachai.R.id.overlay)
             overlay?.clear()
         } catch (e: Exception) {
             // fallback
@@ -260,8 +260,8 @@ class CameraUIController(
      * Update inference time display
      */
     fun updateInferenceTime(timeMs: Long) {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
-        bottomSheet.findViewById<android.widget.TextView>(com.google.mediapipe.examples.poselandmarker.R.id.inference_time_val)?.text = 
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
+        bottomSheet.findViewById<android.widget.TextView>(com.ttcoachai.R.id.inference_time_val)?.text = 
             String.format("%d ms", timeMs)
     }
 
@@ -269,8 +269,8 @@ class CameraUIController(
      * Update delegate spinner to CPU (used on GPU error)
      */
     fun setDelegateToCpu() {
-        val bottomSheet = binding.root.findViewById<View>(com.google.mediapipe.examples.poselandmarker.R.id.bottom_sheet_layout) ?: return
-        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.google.mediapipe.examples.poselandmarker.R.id.spinner_delegate) ?: return
+        val bottomSheet = binding.root.findViewById<View>(com.ttcoachai.R.id.bottom_sheet_layout) ?: return
+        val spinner = bottomSheet.findViewById<android.widget.Spinner>(com.ttcoachai.R.id.spinner_delegate) ?: return
         
         spinner.setSelection(
             PoseLandmarkerHelper.DELEGATE_CPU,

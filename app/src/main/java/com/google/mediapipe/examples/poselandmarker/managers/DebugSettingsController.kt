@@ -3,14 +3,14 @@
  * Debug Settings Controller - Manages feedback settings UI in DebugActivity
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.view.View
 import android.widget.AdapterView
 import android.widget.CheckBox
 import android.widget.Toast
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
-import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
+import com.ttcoachai.databinding.ActivityDebugBinding
+import com.ttcoachai.models.CorrectionType
 
 class DebugSettingsController(
     private val binding: ActivityDebugBinding,

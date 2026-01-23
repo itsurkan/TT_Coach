@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import org.junit.Test
 import org.junit.Assert.*

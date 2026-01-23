@@ -104,7 +104,7 @@
                         android:layout_marginBottom="12dp"/>
 
                     <!-- Pose Replay View Placeholder -->
-                    <com.google.mediapipe.examples.poselandmarker.views.PoseVisualizer
+                    <com.ttcoachai.views.PoseVisualizer
                         android:id="@+id/pose_visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"

@@ -3,15 +3,15 @@
  * Motion Analyzer - Rule-based техніки аналізу
  */
 
-package com.google.mediapipe.examples.poselandmarker.services
+package com.ttcoachai.services
 
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
-import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
-import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.models.TechniqueErrors
-import com.google.mediapipe.examples.poselandmarker.models.TechniqueRecommendations
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.CorrectionType
+import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.models.FeedbackItem
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.models.TechniqueErrors
+import com.ttcoachai.models.TechniqueRecommendations
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 

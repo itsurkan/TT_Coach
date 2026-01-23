@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -26,12 +26,12 @@ import androidx.camera.core.ImageProxy
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.Navigation
-import com.google.mediapipe.examples.poselandmarker.MainViewModel
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentCameraBinding
-import com.google.mediapipe.examples.poselandmarker.managers.CameraManager
-import com.google.mediapipe.examples.poselandmarker.managers.CameraUIController
+import com.ttcoachai.MainViewModel
+import com.ttcoachai.PoseLandmarkerHelper
+import com.ttcoachai.R
+import com.ttcoachai.databinding.FragmentCameraBinding
+import com.ttcoachai.managers.CameraManager
+import com.ttcoachai.managers.CameraUIController
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -52,9 +52,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var cameraManager: CameraManager
     private lateinit var uiController: CameraUIController
 
-    private lateinit var feedbackAdapter: com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter
-    private lateinit var stateManager: com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
-    private lateinit var poseAnalysisProcessor: com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
+    private lateinit var feedbackAdapter: com.ttcoachai.adapters.FeedbackListAdapter
+    private lateinit var stateManager: com.ttcoachai.managers.TrainingStateManager
+    private lateinit var poseAnalysisProcessor: com.ttcoachai.processors.PoseAnalysisProcessor
 
     private var hasShownDetectionToast = false
 
@@ -124,7 +124,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
         // Initialize Training State
-        stateManager = com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager.getInstance(requireContext())
+        stateManager = com.ttcoachai.managers.TrainingStateManager.getInstance(requireContext())
         
         // Initialize feedback list
         setupFeedbackUI()
@@ -145,14 +145,14 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         )
 
         // Initialize analysis processor for standalone mode
-        val params = com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters(
+        val params = com.ttcoachai.models.ExerciseParameters(
             exerciseId = "forehand_drive"
         )
-        val motionAnalyzer = com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer(params)
-        val feedbackGenerator = com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator(requireContext())
+        val motionAnalyzer = com.ttcoachai.services.MotionAnalyzer(params)
+        val feedbackGenerator = com.ttcoachai.services.FeedbackGenerator(requireContext())
         
-        poseAnalysisProcessor = com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor(
-            application = requireActivity().application as com.google.mediapipe.examples.poselandmarker.TTCoachApplication,
+        poseAnalysisProcessor = com.ttcoachai.processors.PoseAnalysisProcessor(
+            application = requireActivity().application as com.ttcoachai.TTCoachApplication,
             motionAnalyzer = motionAnalyzer,
             feedbackGenerator = feedbackGenerator,
             stateManager = stateManager,
@@ -198,7 +198,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         // Auto-start training - Removed: Handled by TrainingActivity
         /*
         fragmentCameraBinding.root.postDelayed({
-            if (activity !is com.google.mediapipe.examples.poselandmarker.TrainingActivity) {
+            if (activity !is com.ttcoachai.TrainingActivity) {
                 stateManager.startTraining()
                 updateTrainingUIState()
             }
@@ -207,7 +207,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     }
 
     private fun setupFeedbackUI() {
-        feedbackAdapter = com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter()
+        feedbackAdapter = com.ttcoachai.adapters.FeedbackListAdapter()
         fragmentCameraBinding.root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rv_feedback_list)?.apply {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(requireContext())
             adapter = feedbackAdapter
@@ -351,7 +351,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
         // Standalone processing if not in TrainingActivity
-        if (activity !is com.google.mediapipe.examples.poselandmarker.TrainingActivity) {
+        if (activity !is com.ttcoachai.TrainingActivity) {
             poseAnalysisProcessor.processResults(resultBundle)
         }
 

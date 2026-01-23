@@ -3,13 +3,13 @@
  * Application Class - Handles app-wide initialization including locale
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
-import com.google.mediapipe.examples.poselandmarker.core.logging.providers.LocalFileLogger
+import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.core.logging.providers.LocalFileLogger
 import kotlinx.coroutines.runBlocking
 
 import androidx.appcompat.app.AppCompatDelegate
@@ -18,8 +18,8 @@ class TTCoachApplication : Application() {
     
     private lateinit var fileLogger: LocalFileLogger
     val settingsManager: SettingsManager by lazy { SettingsManager(this) }
-    val authRepository: com.google.mediapipe.examples.poselandmarker.repository.AuthRepository by lazy { 
-        com.google.mediapipe.examples.poselandmarker.repository.AuthRepository(this) 
+    val authRepository: com.ttcoachai.repository.AuthRepository by lazy { 
+        com.ttcoachai.repository.AuthRepository(this) 
     }
     
     override fun attachBaseContext(base: Context) {

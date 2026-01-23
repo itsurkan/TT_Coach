@@ -3,21 +3,21 @@
  * Debug UI Controller - Manages UI updates for debug activity
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.graphics.Color
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
+import com.ttcoachai.databinding.ActivityDebugBinding
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.processors.VideoDebugProcessor
+import com.ttcoachai.services.FeedbackGenerator
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import com.google.mediapipe.examples.poselandmarker.R
+import com.ttcoachai.R
 import java.util.Locale
 
 /**

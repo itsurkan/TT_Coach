@@ -3,7 +3,7 @@
  * Base Activity - Handles locale for all activities
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Context
 import android.os.Bundle

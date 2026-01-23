@@ -1,10 +1,10 @@
-package com.google.mediapipe.examples.poselandmarker.core.logging.providers
+package com.ttcoachai.core.logging.providers
 
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.core.logging.*
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
+import com.ttcoachai.core.logging.*
+import com.ttcoachai.models.AnalysisResult
 import java.io.File
 import java.util.UUID
 

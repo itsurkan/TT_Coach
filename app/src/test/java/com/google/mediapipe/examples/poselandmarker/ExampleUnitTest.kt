@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import org.junit.Test
 

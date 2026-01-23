@@ -3,13 +3,13 @@
  * Exercise Selection Screen
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityExerciseSelectionBinding
+import com.ttcoachai.databinding.ActivityExerciseSelectionBinding
 
 class ExerciseSelectionActivity : BaseActivity() {
     private lateinit var binding: ActivityExerciseSelectionBinding

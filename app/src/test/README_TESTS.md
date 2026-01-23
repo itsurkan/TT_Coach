@@ -54,7 +54,7 @@ Integration tests run on an Android device or emulator and test the full app flo
 
 ### Run Specific Integration Test
 ```bash
-./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.google.mediapipe.examples.poselandmarker.CameraVideoModeIntegrationTest
+./gradlew connectedAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.ttcoachai.CameraVideoModeIntegrationTest
 ```
 
 ### Run Tests from Android Studio

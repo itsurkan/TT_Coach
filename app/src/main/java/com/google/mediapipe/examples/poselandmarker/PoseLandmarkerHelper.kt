@@ -2,7 +2,7 @@
  * Copyright 2023 The TensorFlow Authors. All Rights Reserved.
  * PoseLandmarker Helper - Main interface
  */
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -11,8 +11,8 @@ import android.os.SystemClock
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.ImageProxy
 import com.google.mediapipe.framework.image.MPImage
-import com.google.mediapipe.examples.poselandmarker.helpers.PoseLandmarkerConfig
-import com.google.mediapipe.examples.poselandmarker.helpers.PoseLandmarkerProcessor
+import com.ttcoachai.helpers.PoseLandmarkerConfig
+import com.ttcoachai.helpers.PoseLandmarkerProcessor
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult

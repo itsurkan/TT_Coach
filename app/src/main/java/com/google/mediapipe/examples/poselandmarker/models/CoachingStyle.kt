@@ -3,9 +3,9 @@
  * Coaching Style Model
  */
 
-package com.google.mediapipe.examples.poselandmarker.models
+package com.ttcoachai.models
 
-import com.google.mediapipe.examples.poselandmarker.R
+import com.ttcoachai.R
 
 enum class CoachingStyle(
     val displayNameResId: Int,

@@ -4,7 +4,7 @@
  * Refactored to use Manager Pattern for separation of concerns
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.net.Uri
 import android.os.Bundle
@@ -16,15 +16,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
-import com.google.mediapipe.examples.poselandmarker.managers.DebugPlaybackManager
-import com.google.mediapipe.examples.poselandmarker.managers.DebugSettingsController
-import com.google.mediapipe.examples.poselandmarker.managers.DebugUIController
-import com.google.mediapipe.examples.poselandmarker.managers.DebugVideoLoader
-import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
-import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
-import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
+import com.ttcoachai.databinding.ActivityDebugBinding
+import com.ttcoachai.managers.DebugPlaybackManager
+import com.ttcoachai.managers.DebugSettingsController
+import com.ttcoachai.managers.DebugUIController
+import com.ttcoachai.managers.DebugVideoLoader
+import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.processors.VideoDebugProcessor
+import com.ttcoachai.services.FeedbackGenerator
+import com.ttcoachai.services.MotionAnalyzer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

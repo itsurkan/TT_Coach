@@ -1,9 +1,9 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
-import com.google.mediapipe.examples.poselandmarker.models.CorrectionType
-import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
+import com.ttcoachai.models.CorrectionType
+import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.services.MotionAnalyzer
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import org.junit.Assert.*
 import org.junit.Before

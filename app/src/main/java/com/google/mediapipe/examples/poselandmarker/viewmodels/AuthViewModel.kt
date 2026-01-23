@@ -1,10 +1,10 @@
-package com.google.mediapipe.examples.poselandmarker.viewmodels
+package com.ttcoachai.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
-import com.google.mediapipe.examples.poselandmarker.repository.AuthRepository
+import com.ttcoachai.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

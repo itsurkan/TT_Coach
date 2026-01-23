@@ -1,11 +1,11 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentDashboardBinding
+import com.ttcoachai.databinding.FragmentDashboardBinding
 
 class DashboardFragment : Fragment() {
 
@@ -25,8 +25,8 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         
         val navigateToDrills = {
-            val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(com.google.mediapipe.examples.poselandmarker.R.id.nav_view)
-            bottomNav.selectedItemId = com.google.mediapipe.examples.poselandmarker.R.id.navigation_drills
+            val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(com.ttcoachai.R.id.nav_view)
+            bottomNav.selectedItemId = com.ttcoachai.R.id.navigation_drills
         }
 
         binding.btnBeginSession.setOnClickListener { navigateToDrills() }

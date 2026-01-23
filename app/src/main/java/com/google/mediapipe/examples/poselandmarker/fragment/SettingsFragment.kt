@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,9 +8,9 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentSettingsBinding
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
+import com.ttcoachai.R
+import com.ttcoachai.databinding.FragmentSettingsBinding
+import com.ttcoachai.managers.SettingsManager
 
 class SettingsFragment : Fragment() {
 
@@ -40,9 +40,9 @@ class SettingsFragment : Fragment() {
         
         // Check corresponding button
         when (currentCoachStyle) {
-            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.GENTLE_SUPPORTIVE -> binding.toggleCoachStyle.check(R.id.btn_coach_vadym)
-            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.toggleCoachStyle.check(R.id.btn_coach_Ivan)
-            com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.PRECISE_TECHNICAL -> binding.toggleCoachStyle.check(R.id.btn_coach_Andriy)
+            com.ttcoachai.models.CoachingStyle.GENTLE_SUPPORTIVE -> binding.toggleCoachStyle.check(R.id.btn_coach_vadym)
+            com.ttcoachai.models.CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.toggleCoachStyle.check(R.id.btn_coach_Ivan)
+            com.ttcoachai.models.CoachingStyle.PRECISE_TECHNICAL -> binding.toggleCoachStyle.check(R.id.btn_coach_Andriy)
         }
         
         // Update coach info card initially
@@ -51,9 +51,9 @@ class SettingsFragment : Fragment() {
         binding.toggleCoachStyle.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 val selectedStyle = when (checkedId) {
-                    R.id.btn_coach_vadym -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.GENTLE_SUPPORTIVE
-                    R.id.btn_coach_Ivan -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.MOTIVATIONAL_ENERGETIC
-                    else -> com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.PRECISE_TECHNICAL
+                    R.id.btn_coach_vadym -> com.ttcoachai.models.CoachingStyle.GENTLE_SUPPORTIVE
+                    R.id.btn_coach_Ivan -> com.ttcoachai.models.CoachingStyle.MOTIVATIONAL_ENERGETIC
+                    else -> com.ttcoachai.models.CoachingStyle.PRECISE_TECHNICAL
                 }
                 settingsManager.setCoachingStyle(selectedStyle)
                 updateCoachInfoCard(selectedStyle)
@@ -61,7 +61,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun updateCoachInfoCard(coachStyle: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
+    private fun updateCoachInfoCard(coachStyle: com.ttcoachai.models.CoachingStyle) {
         binding.tvCoachAvatar.text = coachStyle.avatarInitial
         binding.tvCoachName.text = getString(coachStyle.displayNameResId)
         binding.tvCoachStyle.text = getString(coachStyle.subtitleResId)

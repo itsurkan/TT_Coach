@@ -3,17 +3,17 @@
  * Pose Analysis Processor - Handles real-time pose analysis and feedback generation
  */
 
-package com.google.mediapipe.examples.poselandmarker.processors
+package com.ttcoachai.processors
 
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
-import com.google.mediapipe.examples.poselandmarker.TTCoachApplication
-import com.google.mediapipe.examples.poselandmarker.core.logging.LandmarkData
-import com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
-import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
+import com.ttcoachai.PoseLandmarkerHelper
+import com.ttcoachai.TTCoachApplication
+import com.ttcoachai.core.logging.LandmarkData
+import com.ttcoachai.managers.TrainingStateManager
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.services.FeedbackGenerator
+import com.ttcoachai.services.MotionAnalyzer
 
 /**
  * Processes pose analysis results in real-time

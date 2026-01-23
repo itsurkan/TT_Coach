@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityMainBinding
+import com.ttcoachai.databinding.ActivityMainBinding
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -28,7 +28,7 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         
         // Check Authentication Status
-        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
+        val settingsManager = com.ttcoachai.managers.SettingsManager(this)
         if (!settingsManager.isLoggedIn()) {
             val intent = android.content.Intent(this, LoginActivity::class.java)
             intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.net.Uri
 import android.os.Bundle
@@ -24,11 +24,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.google.mediapipe.examples.poselandmarker.MainViewModel
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentGalleryBinding
-import com.google.mediapipe.examples.poselandmarker.managers.GalleryMediaProcessor
-import com.google.mediapipe.examples.poselandmarker.managers.GalleryUIController
+import com.ttcoachai.MainViewModel
+import com.ttcoachai.PoseLandmarkerHelper
+import com.ttcoachai.databinding.FragmentGalleryBinding
+import com.ttcoachai.managers.GalleryMediaProcessor
+import com.ttcoachai.managers.GalleryUIController
 import com.google.mediapipe.tasks.vision.core.RunningMode
 
 class GalleryFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {

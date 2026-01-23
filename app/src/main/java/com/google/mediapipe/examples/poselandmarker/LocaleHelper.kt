@@ -3,7 +3,7 @@
  * Locale Helper - Manages app language/locale
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.content.Context
 import android.content.res.Configuration

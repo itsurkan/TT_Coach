@@ -1,10 +1,10 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityAppSettingsBinding
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
+import com.ttcoachai.databinding.ActivityAppSettingsBinding
+import com.ttcoachai.managers.SettingsManager
 
 class AppSettingsActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.view.View
 import org.junit.Test

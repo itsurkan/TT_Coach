@@ -1,10 +1,10 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivitySkillTargetBinding
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
+import com.ttcoachai.databinding.ActivitySkillTargetBinding
+import com.ttcoachai.managers.SettingsManager
 
 class SkillTargetActivity : BaseActivity() {
 

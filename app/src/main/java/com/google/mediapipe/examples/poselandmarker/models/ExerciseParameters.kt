@@ -3,7 +3,7 @@
  * Exercise Parameters Model
  */
 
-package com.google.mediapipe.examples.poselandmarker.models
+package com.ttcoachai.models
 
 /**
  * Параметри техніки для конкретної вправи

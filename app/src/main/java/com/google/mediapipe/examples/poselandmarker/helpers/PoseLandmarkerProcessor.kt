@@ -2,7 +2,7 @@
  * Copyright 2023 The TensorFlow Authors. All Rights Reserved.
  * PoseLandmarker Detection Processors
  */
-package com.google.mediapipe.examples.poselandmarker.helpers
+package com.ttcoachai.helpers
 
 import android.content.Context
 import android.graphics.Bitmap

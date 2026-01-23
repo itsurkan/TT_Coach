@@ -1,9 +1,9 @@
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.mediapipe.examples.poselandmarker.databinding.ItemFeedbackLogBinding
+import com.ttcoachai.databinding.ItemFeedbackLogBinding
 
 /**
  * Data model for a single entry in the feedback log.

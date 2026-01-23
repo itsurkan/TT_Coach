@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.views
+package com.ttcoachai.views
 
 import android.animation.ValueAnimator
 import android.content.Context
@@ -24,7 +24,7 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.animation.LinearInterpolator
 import androidx.core.content.ContextCompat
-import com.google.mediapipe.examples.poselandmarker.R
+import com.ttcoachai.R
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import kotlin.math.max

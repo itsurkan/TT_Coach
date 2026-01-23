@@ -1,9 +1,9 @@
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.AdapterView
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityActivitySettingsBinding
+import com.ttcoachai.databinding.ActivityActivitySettingsBinding
 
 class ActivitySettingsActivity : BaseActivity() {
     

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityCameraBinding
+import com.ttcoachai.databinding.ActivityCameraBinding
 
 class CameraActivity : BaseActivity() {
     private lateinit var activityCameraBinding: ActivityCameraBinding

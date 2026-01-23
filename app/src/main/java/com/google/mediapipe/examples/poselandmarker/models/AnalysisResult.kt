@@ -3,7 +3,7 @@
  * Analysis Result Model
  */
 
-package com.google.mediapipe.examples.poselandmarker.models
+package com.ttcoachai.models
 
 /**
  * Типи корекції для фідбеку

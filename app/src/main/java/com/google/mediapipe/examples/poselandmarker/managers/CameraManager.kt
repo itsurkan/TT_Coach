@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -22,7 +22,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
+import com.ttcoachai.PoseLandmarkerHelper
 import java.util.concurrent.ExecutorService
 
 /**

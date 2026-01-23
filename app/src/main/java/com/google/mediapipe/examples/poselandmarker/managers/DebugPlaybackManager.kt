@@ -3,16 +3,16 @@
  * Debug Playback Manager - Manages video playback, seeking, and speed control
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
+import com.ttcoachai.databinding.ActivityDebugBinding
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.processors.VideoDebugProcessor
+import com.ttcoachai.services.FeedbackGenerator
 
 class DebugPlaybackManager(
     private val activity: AppCompatActivity,

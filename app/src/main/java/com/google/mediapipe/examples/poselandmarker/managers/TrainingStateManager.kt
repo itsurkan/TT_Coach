@@ -3,12 +3,12 @@
  * Training State Manager - Manages training session state and statistics
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
+import com.ttcoachai.R
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.FeedbackItem
 
 class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false

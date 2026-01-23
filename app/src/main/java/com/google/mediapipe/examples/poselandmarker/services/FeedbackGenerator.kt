@@ -3,7 +3,7 @@
  * Feedback Generator - Генерація фідбеку для користувача
  */
 
-package com.google.mediapipe.examples.poselandmarker.services
+package com.ttcoachai.services
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -12,10 +12,10 @@ import android.media.MediaPlayer
 import android.media.SoundPool
 import android.media.ToneGenerator
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.FeedbackItem
+import com.ttcoachai.R
+import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.FeedbackItem
 import java.util.*
 
 /**

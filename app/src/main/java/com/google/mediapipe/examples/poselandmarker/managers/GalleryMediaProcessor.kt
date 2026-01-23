@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -22,7 +22,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.PoseLandmarkerHelper
+import com.ttcoachai.PoseLandmarkerHelper
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService

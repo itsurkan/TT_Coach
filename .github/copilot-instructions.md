@@ -89,7 +89,7 @@ binding.someButton.setOnClickListener { ... }
 
 ### Package Organization
 ```
-com.google.mediapipe.examples.poselandmarker/
+com.ttcoachai/
 ├── [Activities]      # WelcomeActivity, TrainingActivity, etc.
 ├── managers/         # State, UI, Settings managers
 ├── services/         # MotionAnalyzer, FeedbackGenerator

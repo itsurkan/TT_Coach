@@ -3,7 +3,7 @@
  * Stroke Detector - Segments video frames into individual strokes
  */
 
-package com.google.mediapipe.examples.poselandmarker.services
+package com.ttcoachai.services
 
 import android.util.Log
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult

@@ -5,7 +5,6 @@
       "Bash(:*)",
       "Bash(gradlew.bat clean assembleDebug:*)",
       "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\":*)",
-      "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\" shell am start -n com.google.mediapipe.examples.poselandmarker/.DebugActivity)",
       "Bash(powershell.exe :*)",
       "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\" logcat)",
       "Bash(\"/c/Users/Ivan/AppData/Local/Android/Sdk/platform-tools/adb.exe\" shell dumpsys activity activities)",

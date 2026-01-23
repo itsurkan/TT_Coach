@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,11 +8,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.mediapipe.examples.poselandmarker.Exercise
-import com.google.mediapipe.examples.poselandmarker.ExerciseAdapter
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.TrainingActivity
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentDrillsBinding
+import com.ttcoachai.Exercise
+import com.ttcoachai.ExerciseAdapter
+import com.ttcoachai.R
+import com.ttcoachai.TrainingActivity
+import com.ttcoachai.databinding.FragmentDrillsBinding
 
 class DrillsFragment : Fragment() {
 

@@ -3,12 +3,12 @@
  * RecyclerView Adapter for Exercise List
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.mediapipe.examples.poselandmarker.databinding.ItemExerciseBinding
+import com.ttcoachai.databinding.ItemExerciseBinding
 
 class ExerciseAdapter(
     private var exercises: List<Exercise>,

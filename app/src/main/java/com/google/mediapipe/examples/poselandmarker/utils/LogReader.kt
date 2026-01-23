@@ -1,8 +1,8 @@
-package com.google.mediapipe.examples.poselandmarker.utils
+package com.ttcoachai.utils
 
 import android.content.Context
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.core.logging.TrainingSessionData
+import com.ttcoachai.core.logging.TrainingSessionData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject

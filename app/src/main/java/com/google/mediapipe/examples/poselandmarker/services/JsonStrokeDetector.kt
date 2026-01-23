@@ -3,10 +3,10 @@
  * Generic Stroke Detector for JSON Pose Data
  */
 
-package com.google.mediapipe.examples.poselandmarker.services
+package com.ttcoachai.services
 
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
+import com.ttcoachai.models.StrokePhase
 import kotlin.math.abs
 
 /**

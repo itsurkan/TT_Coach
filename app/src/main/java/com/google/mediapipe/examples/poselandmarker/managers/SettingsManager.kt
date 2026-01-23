@@ -3,7 +3,7 @@
  * Settings Manager - Handles SharedPreferences operations
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -39,11 +39,11 @@ class SettingsManager(context: Context) {
     fun setFeedbackFrequency(value: Int) = prefs.edit().putInt("feedback_frequency", value).apply()
     
     // Correction type filtering
-    fun isCorrectionTypeEnabled(type: com.google.mediapipe.examples.poselandmarker.models.CorrectionType): Boolean {
+    fun isCorrectionTypeEnabled(type: com.ttcoachai.models.CorrectionType): Boolean {
         return prefs.getBoolean("correction_enabled_${type.name}", true)
     }
     
-    fun setCorrectionTypeEnabled(type: com.google.mediapipe.examples.poselandmarker.models.CorrectionType, enabled: Boolean) {
+    fun setCorrectionTypeEnabled(type: com.ttcoachai.models.CorrectionType, enabled: Boolean) {
         prefs.edit().putBoolean("correction_enabled_${type.name}", enabled).apply()
     }
     
@@ -94,12 +94,12 @@ class SettingsManager(context: Context) {
     fun setSubscriptionActive(active: Boolean) = prefs.edit().putBoolean("subscription_active", active).apply()
     
     // Coaching Style
-    fun getCoachingStyle(): com.google.mediapipe.examples.poselandmarker.models.CoachingStyle {
+    fun getCoachingStyle(): com.ttcoachai.models.CoachingStyle {
         val ordinal = prefs.getInt("coaching_style", 0)
-        return com.google.mediapipe.examples.poselandmarker.models.CoachingStyle.fromOrdinal(ordinal)
+        return com.ttcoachai.models.CoachingStyle.fromOrdinal(ordinal)
     }
     
-    fun setCoachingStyle(style: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
+    fun setCoachingStyle(style: com.ttcoachai.models.CoachingStyle) {
         prefs.edit().putInt("coaching_style", style.ordinal).apply()
     }
 

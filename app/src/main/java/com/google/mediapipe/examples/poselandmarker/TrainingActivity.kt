@@ -3,20 +3,20 @@
  * Training Screen with Camera and Analysis
  */
 
-package com.google.mediapipe.examples.poselandmarker
+package com.ttcoachai
 
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityTrainingBinding
-import com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager
-import com.google.mediapipe.examples.poselandmarker.managers.VideoPlayerManager
-import com.google.mediapipe.examples.poselandmarker.models.ExerciseParameters
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
-import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
-import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
-import com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
+import com.ttcoachai.databinding.ActivityTrainingBinding
+import com.ttcoachai.managers.TrainingStateManager
+import com.ttcoachai.managers.VideoPlayerManager
+import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.services.FeedbackGenerator
+import com.ttcoachai.services.MotionAnalyzer
+import com.ttcoachai.processors.PoseAnalysisProcessor
 import android.util.Log
 import androidx.activity.OnBackPressedCallback
 
@@ -29,7 +29,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     // Managers
     private lateinit var stateManager: TrainingStateManager
     private var videoPlayerManager: VideoPlayerManager? = null
-    private lateinit var feedbackAdapter: com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter
+    private lateinit var feedbackAdapter: com.ttcoachai.adapters.FeedbackListAdapter
     
     // Analysis processing
     private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
@@ -62,7 +62,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
     
     private fun initializeManagers() {
-        stateManager = com.google.mediapipe.examples.poselandmarker.managers.TrainingStateManager.getInstance(this)
+        stateManager = com.ttcoachai.managers.TrainingStateManager.getInstance(this)
     }
     
     private fun initializeAnalysis() {
@@ -131,7 +131,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         }
 
         // Setup Feedback RecyclerView
-        feedbackAdapter = com.google.mediapipe.examples.poselandmarker.adapters.FeedbackListAdapter()
+        feedbackAdapter = com.ttcoachai.adapters.FeedbackListAdapter()
         binding.drillMenu.rvFeedbackList.apply {
             layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@TrainingActivity)
             adapter = feedbackAdapter
@@ -139,19 +139,19 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
         // Add Mock Items for UI testing
         val mockItems = listOf(
-            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+            com.ttcoachai.models.FeedbackItem(
                 message = "Good Wrist Position!",
-                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.WRIST,
+                type = com.ttcoachai.models.CorrectionType.WRIST,
                 isPositive = true
             ),
-            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+            com.ttcoachai.models.FeedbackItem(
                 message = "Rotate your Body more",
-                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.BODY_ROTATION,
+                type = com.ttcoachai.models.CorrectionType.BODY_ROTATION,
                 isPositive = false
             ),
-            com.google.mediapipe.examples.poselandmarker.models.FeedbackItem(
+            com.ttcoachai.models.FeedbackItem(
                 message = "Excellent Follow Through",
-                type = com.google.mediapipe.examples.poselandmarker.models.CorrectionType.FOLLOW_THROUGH,
+                type = com.ttcoachai.models.CorrectionType.FOLLOW_THROUGH,
                 isPositive = true
             )
         )
@@ -171,7 +171,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     private fun applyDistanceMode() {
-        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
+        val settingsManager = com.ttcoachai.managers.SettingsManager(this)
         if (settingsManager.isDistanceModeEnabled()) {
             // Scale up overlays for better visibility from a distance
             val timerView = binding.root.findViewById<android.widget.TextView>(R.id.tv_timer)
@@ -241,7 +241,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             binding.overlay.visibility = View.GONE  // Fix: Hide overlay in camera mode as fragment handles it
             binding.cameraPreviewContainer.visibility = View.VISIBLE
             
-            val cameraFragment = com.google.mediapipe.examples.poselandmarker.fragment.CameraFragment()
+            val cameraFragment = com.ttcoachai.fragment.CameraFragment()
             supportFragmentManager.beginTransaction()
                 .replace(binding.cameraPreviewContainer.id, cameraFragment)
                 .commit()

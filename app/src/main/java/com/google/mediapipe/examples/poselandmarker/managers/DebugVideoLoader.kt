@@ -3,15 +3,15 @@
  * Debug Video Loader - Handles video loading operations
  */
 
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
-import com.google.mediapipe.examples.poselandmarker.databinding.ActivityDebugBinding
-import com.google.mediapipe.examples.poselandmarker.processors.VideoDebugProcessor
+import com.ttcoachai.databinding.ActivityDebugBinding
+import com.ttcoachai.processors.VideoDebugProcessor
 
 class DebugVideoLoader(
     private val context: Context,

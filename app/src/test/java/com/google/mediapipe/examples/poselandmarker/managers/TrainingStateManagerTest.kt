@@ -1,8 +1,8 @@
-package com.google.mediapipe.examples.poselandmarker.managers
+package com.ttcoachai.managers
 
 import android.content.Context
-import com.google.mediapipe.examples.poselandmarker.models.AnalysisResult
-import com.google.mediapipe.examples.poselandmarker.models.StrokePhase
+import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.StrokePhase
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,17 +7,17 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import com.google.mediapipe.examples.poselandmarker.AppSettingsActivity
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.SubscribeActivity
-import com.google.mediapipe.examples.poselandmarker.WeeklySessionsActivity
-import com.google.mediapipe.examples.poselandmarker.SkillTargetActivity
-import com.google.mediapipe.examples.poselandmarker.DebugActivity
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileBinding
-import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
+import com.ttcoachai.AppSettingsActivity
+import com.ttcoachai.R
+import com.ttcoachai.SubscribeActivity
+import com.ttcoachai.WeeklySessionsActivity
+import com.ttcoachai.SkillTargetActivity
+import com.ttcoachai.DebugActivity
+import com.ttcoachai.databinding.FragmentProfileBinding
+import com.ttcoachai.managers.SettingsManager
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
-import com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel
+import com.ttcoachai.viewmodels.AuthViewModel
 import coil.load
 import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.lifecycleScope
@@ -45,9 +45,9 @@ class ProfileFragment : Fragment() {
         settingsManager = SettingsManager(requireContext())
         
         // Initialize ViewModel
-        val app = requireActivity().application as com.google.mediapipe.examples.poselandmarker.TTCoachApplication
-        val factory = com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel.Factory(app.authRepository)
-        viewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.google.mediapipe.examples.poselandmarker.viewmodels.AuthViewModel::class.java]
+        val app = requireActivity().application as com.ttcoachai.TTCoachApplication
+        val factory = com.ttcoachai.viewmodels.AuthViewModel.Factory(app.authRepository)
+        viewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.ttcoachai.viewmodels.AuthViewModel::class.java]
 
         setupSubscriptionSection()
         setupLanguageSection()
@@ -68,7 +68,7 @@ class ProfileFragment : Fragment() {
         // Since we are in a Fragment, we should use viewLifecycleOwner
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collect { state ->
-                if (state is com.google.mediapipe.examples.poselandmarker.viewmodels.AuthUiState.Success) {
+                if (state is com.ttcoachai.viewmodels.AuthUiState.Success) {
                     val user = state.user
                     binding.tvProfileName.text = user.displayName ?: getString(R.string.placeholder_user_name)
                     binding.tvProfileEmail.text = user.email
@@ -133,23 +133,23 @@ class ProfileFragment : Fragment() {
         binding.autoCompleteLanguage.setAdapter(adapter)
 
         // Set current selection based on saved language
-        val currentLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
+        val currentLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
         val selectionIndex = languageCodes.indexOf(currentLanguage).coerceAtLeast(0)
         binding.autoCompleteLanguage.setText(languages[selectionIndex], false)
 
         binding.autoCompleteLanguage.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val newLanguage = languageCodes[position]
-            val savedLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
+            val savedLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
             
             if (newLanguage != savedLanguage) {
-                com.google.mediapipe.examples.poselandmarker.LocaleHelper.setLocale(requireContext(), newLanguage)
+                com.ttcoachai.LocaleHelper.setLocale(requireContext(), newLanguage)
                 restartApp()
             }
         }
     }
 
     private fun restartApp() {
-        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.MainActivity::class.java)
+        val intent = Intent(requireContext(), com.ttcoachai.MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(intent)
         requireActivity().finish()
@@ -232,7 +232,7 @@ class ProfileFragment : Fragment() {
         settingsManager.setLoggedIn(false)
         settingsManager.setSubscriptionActive(false)
         
-        val intent = Intent(requireContext(), com.google.mediapipe.examples.poselandmarker.LoginActivity::class.java)
+        val intent = Intent(requireContext(), com.ttcoachai.LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
         requireActivity().finish()
