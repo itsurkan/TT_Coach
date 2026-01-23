@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var settingsManager: SettingsManager

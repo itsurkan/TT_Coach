@@ -126,17 +126,19 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupLanguageSection() {
-        val languages = arrayOf("English", "Українська")
+        val languages = resources.getStringArray(R.array.language_options)
+        val languageCodes = resources.getStringArray(R.array.language_codes)
+        
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, languages)
         binding.autoCompleteLanguage.setAdapter(adapter)
 
         // Set current selection based on saved language
         val currentLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
-        val selectionIndex = if (currentLanguage == "uk") 1 else 0
+        val selectionIndex = languageCodes.indexOf(currentLanguage).coerceAtLeast(0)
         binding.autoCompleteLanguage.setText(languages[selectionIndex], false)
 
         binding.autoCompleteLanguage.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val newLanguage = if (position == 1) "uk" else "en"
+            val newLanguage = languageCodes[position]
             val savedLanguage = com.google.mediapipe.examples.poselandmarker.LocaleHelper.getSavedLanguage(requireContext())
             
             if (newLanguage != savedLanguage) {

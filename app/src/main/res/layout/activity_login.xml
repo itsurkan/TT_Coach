@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center_horizontal"
-    android:background="@color/white">
+    android:background="?attr/colorSurface">
 
     <ImageView
         android:layout_width="120dp"
@@ -22,7 +22,7 @@
         android:text="@string/title_login"
         android:textSize="32sp"
         android:textStyle="bold"
-        android:textColor="@color/black" />
+        android:textColor="?attr/colorOnSurface" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/subtitle_login"
         android:textSize="16sp"
-        android:textColor="@android:color/darker_gray" />
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
     <Space
         android:layout_width="match_parent"
@@ -39,45 +39,34 @@
     <!-- Google Login -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login_google"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="@string/btn_continue_google"
-        android:textSize="16sp"
         app:icon="@drawable/ic_check_circle_2"
         app:iconTint="@null"
-        app:cornerRadius="28dp"
-        app:backgroundTint="#FFFFFF"
-        android:textColor="#757575"
-        app:strokeColor="@color/gray_border"
-        app:strokeWidth="1dp"
         android:layout_marginBottom="16dp" />
 
     <!-- Facebook Login -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login_facebook"
+        style="@style/Widget.Material3.Button.TonalButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="@string/btn_continue_facebook"
-        android:textSize="16sp"
         app:icon="@drawable/ic_check_circle_2"
         app:iconTint="@null"
-        app:cornerRadius="28dp"
-        app:backgroundTint="#1877F2"
-        android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
 
     <!-- Apple Login -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_login_apple"
+        style="@style/Widget.Material3.Button.ElevatedButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="@string/btn_continue_apple"
-        android:textSize="16sp"
         app:icon="@drawable/ic_check_circle_2"
         app:iconTint="@null"
-        app:cornerRadius="28dp"
-        app:backgroundTint="#000000"
-        android:textColor="@color/white"
         android:layout_marginBottom="16dp" />
 
 </LinearLayout>
