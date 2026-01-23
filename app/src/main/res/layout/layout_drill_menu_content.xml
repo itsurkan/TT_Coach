@@ -37,6 +37,8 @@
             app:iconGravity="textStart"
             app:cornerRadius="12dp"
             android:layout_marginEnd="8dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/text_primary"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
         <com.google.android.material.button.MaterialButton
@@ -65,6 +67,8 @@
             android:layout_weight="1"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/green_500"
             android:layout_marginEnd="8dp">
 
             <LinearLayout
@@ -105,6 +109,8 @@
             android:layout_weight="1"
             app:cardCornerRadius="12dp"
             app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/orange_500"
             android:layout_marginStart="8dp">
 
             <LinearLayout
@@ -147,6 +153,8 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/blue_500"
         android:layout_marginBottom="16dp">
 
         <LinearLayout
