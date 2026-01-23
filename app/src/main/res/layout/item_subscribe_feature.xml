@@ -10,13 +10,13 @@
     <FrameLayout
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:background="#1A2196F3">
+        android:background="@color/bg_card_selected">
         <ImageView
             android:id="@+id/iv_feature_icon"
             android:layout_width="16dp"
             android:layout_height="16dp"
             android:src="@drawable/ic_check_circle_2"
-            app:tint="#2196F3"
+            app:tint="@color/phase_backswing"
             android:layout_gravity="center"/>
     </FrameLayout>
 

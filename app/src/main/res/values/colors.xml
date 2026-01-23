@@ -126,4 +126,33 @@
     <color name="badge_text_orange">#C2410C</color>
     <color name="badge_text_red">#B91C1C</color>
     <color name="badge_text_blue">#1D4ED8</color>
+    
+    <!-- Card Backgrounds with Alpha -->
+    <color name="card_bg_blue_10">#1A2563EB</color>
+    <color name="card_bg_blue_20">#332563EB</color>
+    <color name="card_stroke_blue_10">#1A2196F3</color>
+    <color name="card_stroke_blue_20">#332196F3</color>
+    <color name="card_bg_purple_light">#F3E5F5</color>
+    <color name="card_bg_amber_light">#FEF3C7</color>
+    
+    <!-- UI Neutral Colors -->
+    <color name="gray_light">#CCCCCC</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_button">#757575</color>
+    <color name="gray_border">#DDDDDD</color>
+    
+    <!-- Overlay Colors -->
+    <color name="white_20">#33FFFFFF</color>
+    <color name="blue_100_70">#B3DBEAFE</color>
+    
+    <!-- Emerald/Teal Colors -->
+    <color name="emerald_500">#10B981</color>
+    <color name="emerald_halo">#3310B981</color>
+    
+    <!-- Indigo Colors -->
+    <color name="indigo_500">#6366F1</color>
+    
+    <!-- Amber Dark Colors -->
+    <color name="amber_800">#92400E</color>
+    <color name="amber_700">#B45309</color>
 </resources>

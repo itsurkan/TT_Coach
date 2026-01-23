@@ -108,7 +108,7 @@
                         android:id="@+id/pose_visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:background="#F5F5F5"/>
+                        android:background="@color/background_surface_alt"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>

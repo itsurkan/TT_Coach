@@ -16,7 +16,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="#CCCCCC" />
+        android:background="@color/gray_light" />
 
     <!-- Control Buttons -->
     <LinearLayout
@@ -224,7 +224,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp"
-        app:cardBackgroundColor="#F3E5F5"
+        app:cardBackgroundColor="@color/card_bg_purple_light"
         android:layout_marginBottom="16dp">
 
         <LinearLayout

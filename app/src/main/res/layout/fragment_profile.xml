@@ -133,7 +133,7 @@
             app:cardBackgroundColor="@android:color/transparent"
             android:background="@drawable/bg_card_premium_light"
             app:strokeWidth="1dp"
-            app:strokeColor="#1A2196F3"
+            app:strokeColor="@color/card_stroke_blue_10"
             android:layout_marginBottom="24dp"
             android:visibility="gone">
 
@@ -178,7 +178,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_badge"
                             android:textSize="11sp"
-                            android:textColor="#15803d"
+                            android:textColor="@color/badge_text_green"
                             android:textStyle="bold"
                             android:background="@drawable/bg_badge_active"
                             android:paddingHorizontal="10dp"
@@ -213,9 +213,9 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="#1A2563EB"
+            app:cardBackgroundColor="@color/card_bg_blue_10"
             app:strokeWidth="1dp"
-            app:strokeColor="#332563EB"
+            app:strokeColor="@color/card_bg_blue_20"
             android:layout_marginBottom="24dp"
             android:clickable="true"
             android:focusable="true"
@@ -261,7 +261,7 @@
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_award"
-                            app:tint="#F97316"
+                            app:tint="@color/orange_500"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -284,12 +284,12 @@
                             android:layout_height="wrap_content"
                             android:text="@string/view_plans"
                             android:textStyle="bold"
-                            android:textColor="#F97316"/>
+                            android:textColor="@color/orange_500"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_chevron_right"
-                            app:tint="#F97316"
+                            app:tint="@color/orange_500"
                             android:layout_marginStart="4dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -339,7 +339,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_target"
-                            app:tint="#3B82F6"
+                            app:tint="@color/blue_500"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -388,7 +388,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_award"
-                            app:tint="#10B981"
+                            app:tint="@color/emerald_500"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -774,12 +774,12 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:text="@string/log_out"
-            android:textColor="#EF4444"
+            android:textColor="@color/red_500"
             android:textStyle="bold"
             app:cornerRadius="12dp"
             app:icon="@drawable/ic_log_out"
-            app:iconTint="#EF4444"
-            app:strokeColor="#EF4444"
+            app:iconTint="@color/red_500"
+            app:strokeColor="@color/red_500"
             app:strokeWidth="1dp"
             android:layout_marginBottom="16dp"/>
 
