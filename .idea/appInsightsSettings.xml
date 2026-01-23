@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.ttcoachai" />
+                  <option name="mobileSdkAppId" value="1:558931815872:android:18035005a05f4ddaa7ec25" />
+                  <option name="projectId" value="ttcoachai" />
+                  <option name="projectNumber" value="558931815872" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
