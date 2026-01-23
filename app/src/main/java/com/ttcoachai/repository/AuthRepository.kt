@@ -16,12 +16,17 @@ class AuthRepository(private val context: Context) {
     private val googleSignInClient: GoogleSignInClient
 
     init {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getWebClientId())
+        val webClientId = getWebClientId()
+        val gsoBuilder = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .build()
 
-        googleSignInClient = GoogleSignIn.getClient(context, gso)
+        if (webClientId.isNotEmpty()) {
+            gsoBuilder.requestIdToken(webClientId)
+        } else {
+            android.util.Log.w("AuthRepository", "Google Web Client ID (default_web_client_id) is missing. Google Sign-In may not work correctly.")
+        }
+
+        googleSignInClient = GoogleSignIn.getClient(context, gsoBuilder.build())
     }
 
     // TODO: Ideally this should be stored in a secure way or build config
