@@ -30,140 +30,60 @@
     <color name="colorOnSurfaceVariant">#C4C6D0</color>
     
     <color name="colorOutline">#8E9099</color>
+    <color name="colorOutlineVariant">#44474F</color>
     <color name="colorSurfaceInverse">#E2E2E9</color>
     <color name="colorOnSurfaceInverse">#2E3036</color>
     <color name="colorPrimaryInverse">#2563EB</color>
+    <color name="colorSurfaceTint">@color/colorPrimary</color>
 
-    <color name="mp_color_primary">#3B82F6</color>
+    <!-- App Specific / Brand Colors (Dark Theme) -->
+    <color name="mp_color_primary">@color/colorPrimary</color>
     <color name="mp_color_primary_variant">#12B5CB</color>
     <color name="mp_color_primary_dark">#007F8B</color>
-    <color name="mp_color_secondary">#FBBC04</color>
+    <color name="mp_color_secondary">@color/colorSecondary</color>
     <color name="mp_color_secondary_variant">#F9AB00</color>
-    <color name="mp_color_error">#CF6679</color>
-    <color name="toolbar_background">#000000</color>
-    <color name="ic_launcher_background">#000000</color>
-    <color name="bottom_sheet_background">#1E1E1E</color>
-    <color name="bottom_sheet_text_color">@android:color/white</color>
-    <color name="icActive">#FFFFFFFF</color>
-    <color name="icFocused">#DDFFFFFF</color>
-    <color name="icPressed">#AAFFFFFF</color>
-    
-    <!-- AI Coach colors -->
+    <color name="mp_color_error">@color/colorError</color>
+
+    <!-- UI Element Specific Colors (Dark Theme) -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
-    <!-- Dashboard Colors -->
+    <color name="text_muted">@color/colorOnSurfaceVariant</color>
+    <color name="border_color">#44474F</color>
+
+    <!-- Status Colors (Dark Theme) -->
+    <color name="success">#34D399</color>
+    <color name="warning">#FB923C</color>
+    <color name="info">#60A5FA</color>
+
+    <!-- Chart / Progress Colors (Dark Theme) -->
+    <color name="chart_primary">@color/colorPrimary</color>
+    <color name="chart_secondary">@color/colorSecondary</color>
+    <color name="chart_tertiary">@color/colorTertiary</color>
+
+    <!-- Legacy / Compatibility Colors (Dark Theme) -->
     <color name="blue_600">#60A5FA</color>
     <color name="blue_500">#3B82F6</color>
-    <color name="blue_700">#2563EB</color>
-    <color name="blue_100">#1E3A5F</color>
     <color name="green_500">#34D399</color>
-    <color name="green_50">#064E3B</color>
     <color name="orange_500">#FB923C</color>
-    <color name="orange_50">#7C2D12</color>
     <color name="purple_500">#C084FC</color>
-    <color name="purple_50">#3B0764</color>
     <color name="amber_500">#FBBF24</color>
-    <color name="amber_50">#78350F</color>
-    <color name="text_muted">#9CA3AF</color>
-
-    <!-- Progress UI Colors -->
-    <color name="chart_bar_color">@color/mp_color_primary</color>
-    <color name="chart_line_color">@color/mp_color_secondary</color>
-    <color name="chart_grid_color">#2A2A2A</color>
-    <color name="bg_card_calendar">#1A60A5FA</color>
-    <color name="bg_card_target">#1A34D399</color>
-    <color name="bg_card_award">#1AC084FC</color>
-    <color name="text_card_calendar">@color/blue_600</color>
-    <color name="text_card_target">@color/green_500</color>
-    <color name="text_card_award">@color/purple_500</color>
-    
-    <!-- Feedback Colors -->
-    <color name="feedback_success_bg">#1A34D399</color>
-    <color name="feedback_warning_bg">#1AFB923C</color>
-    <color name="feedback_info_bg">#1A3B82F6</color>
-    <color name="card_background">#1C1C1E</color>
-    <color name="border_color">#33FFFFFF</color>
-    
-    <!-- Theme Colors -->
-    <color name="colorMuted">#2A2A2A</color>
-    <color name="colorMutedForeground">#9CA3AF</color>
-    <color name="tab_track_color">#2C2C2E</color>
-    <color name="tab_indicator_color">#3A3A3C</color>
-    <color name="tab_selected_text_color">#FFFFFF</color>
-
-    <!-- Semantic Colors -->
-    <color name="overlay_scrim">#CC000000</color> <!-- Darker scrim for dark mode -->
-    <color name="text_secondary_contrast">#CCCCCC</color>
-    <color name="background_surface_alt">#1C1C1E</color>
-    <color name="bg_card_selected">#333B82F6</color> <!-- Blue 20% for visibility -->
-
-    <!-- Stroke Phase Colors (Brightened for dark mode visibility) -->
-    <color name="phase_ready">#808080</color>
-    <color name="phase_backswing">#64B5F6</color> <!-- Blue 300 -->
-    <color name="phase_forward_swing">#81C784</color> <!-- Green 300 -->
-    <color name="phase_contact">#FFB74D</color> <!-- Orange 300 -->
-    <color name="phase_follow_through">#BA68C8</color> <!-- Purple 300 -->
-    <color name="phase_recovery">#808080</color>
-    
-    <!-- Semantic UI Colors -->
-    <color name="primary_blue">#60A5FA</color>
-    <color name="success_green">#34D399</color>
-    <color name="text_primary">#F3F4F6</color>
-    <color name="red_500">#F87171</color>
-    <color name="red_100">#450A0A</color>
-    
-    <!-- Badge Dark Text Colors (WCAG AA) - Adjusted for dark mode -->
-    <color name="badge_text_green">#34D399</color>
-    <color name="badge_text_orange">#FB923C</color>
-    <color name="badge_text_red">#F87171</color>
-    <color name="badge_text_blue">#60A5FA</color>
-    
-    <!-- Card Backgrounds with Alpha -->
-    <color name="card_bg_blue_10">#1A60A5FA</color>
-    <color name="card_bg_blue_20">#3360A5FA</color>
-    <color name="card_bg_orange_10">#1AFB923C</color>
-    <color name="card_stroke_blue_10">#1A3B82F6</color>
-    <color name="card_stroke_blue_20">#333B82F6</color>
-    <color name="card_stroke_orange_20">#33FB923C</color>
-    <color name="card_bg_purple_light">#2D1B36</color>
-    <color name="card_bg_amber_light">#422006</color>
-    
-    <!-- UI Neutral Colors -->
-    <color name="gray_light">#4A4A4A</color>
-    <color name="gray_50">#111827</color>
-    <color name="gray_100">#1F2937</color>
-    <color name="gray_200">#374151</color>
-    <color name="gray_300">#4B5563</color>
-    <color name="gray_button">#9CA3AF</color>
-    <color name="gray_border">#3A3A3C</color>
-    
-    <!-- Component Colors -->
-    <color name="switch_track_checked">#3B82F6</color>
+    <!-- Missing colors restored for compatibility (Night) -->
+    <color name="gray_50">#1F2937</color>
+    <color name="gray_100">#374151</color>
+    <color name="green_50">#064E3B</color>
+    <color name="blue_100">#1E3A8A</color>
+    <color name="orange_50">#7C2D12</color>
+    <color name="purple_50">#4C1D95</color>
+    <color name="red_100">#7F1D1D</color>
+    <color name="indigo_50">#312E81</color>
+    <color name="white_20">#1AFFFFFF</color>
+    <color name="card_background">#1E293B</color>
+    <color name="badge_bg_blue">#1E293B</color>
+    <color name="badge_bg_green">#1E293B</color>
+    <color name="badge_bg_orange">#1E293B</color>
+    <color name="badge_bg_red">#1E293B</color>
+    <color name="switch_track_checked">#1E40AF</color>
     <color name="switch_track_unchecked">#4B5563</color>
-    <color name="spinner_bg">#2D2D2D</color>
-    <color name="spinner_border">#404040</color>
-    
-    <!-- Indigo Colors -->
-    <color name="indigo_50">#1E1B4B</color>
-    
-    <!-- Overlay Colors -->
-    <color name="white_20">#33FFFFFF</color>
-    <color name="blue_100_70">#B33B82F6</color>
-    
-    <!-- Emerald/Teal Colors -->
-    <color name="emerald_500">#34D399</color>
-    <color name="emerald_halo">#3334D399</color>
-    
-    <!-- Indigo Colors -->
-    <color name="indigo_500">#818CF8</color>
-    
-    <!-- Amber Dark Colors -->
-    <color name="amber_800">#FBBF24</color>
-    <color name="amber_700">#F59E0B</color>
-
-    <!-- Badge Background Colors (Dark Mode: Semi-transparent container) -->
-    <color name="badge_bg_green">#33064E3B</color> <!-- Dark Green 20% -->
-    <color name="badge_bg_orange">#337C2D12</color> <!-- Dark Orange 20% -->
-    <color name="badge_bg_red">#337F1D1D</color>   <!-- Dark Red 20% -->
-    <color name="badge_bg_blue">#331E3A5F</color>  <!-- Dark Blue 20% -->
+    <color name="overlay_scrim">#CC000000</color>
+    <color name="text_secondary_contrast">#94A3B8</color>
 </resources>

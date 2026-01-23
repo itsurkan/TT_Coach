@@ -74,14 +74,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="user@example.com"
-                            android:textColor="@color/text_muted"
-                            android:textSize="14sp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_level"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -98,15 +99,15 @@
                     
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_score" android:textAppearance="?attr/textAppearanceTitleLarge"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_skill_score" android:textAppearance="?attr/textAppearanceLabelSmall" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_skill_score" android:textAppearance="?attr/textAppearanceLabelSmall" android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_count_24" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_days_streak" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_count_24" android:textAppearance="?attr/textAppearanceTitleMedium" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_days_streak" android:textAppearance="?attr/textAppearanceLabelSmall" android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_streak" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_achievements" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_streak" android:textAppearance="?attr/textAppearanceTitleMedium" android:textStyle="bold" />
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_achievements" android:textAppearance="?attr/textAppearanceLabelSmall" android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -126,12 +127,8 @@
             android:id="@+id/card_subscription_active"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@android:color/transparent"
-            android:background="@drawable/bg_card_premium_light"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/card_stroke_blue_10"
+            style="?attr/materialCardViewFilledStyle"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
             android:layout_marginBottom="24dp"
             android:visibility="gone">
 
@@ -149,7 +146,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_crown"
-                        app:tint="@color/white"
+                        app:tint="?attr/colorOnSurface"
                         android:layout_gravity="center"/>
                 </FrameLayout>
 
@@ -170,17 +167,19 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textColor="?attr/colorOnPrimaryContainer"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_badge"
-                            android:textSize="11sp"
-                            android:textColor="@color/badge_text_green"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnPrimary"
                             android:textStyle="bold"
                             android:background="@drawable/bg_badge_active"
+                            android:backgroundTint="?attr/colorPrimary"
                             android:paddingHorizontal="10dp"
-                            android:paddingVertical="4dp"
+                            android:paddingVertical="2dp"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -188,9 +187,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/premium_enjoy_desc"
-                        android:textColor="@color/black"
-                        android:textSize="13sp"
-                        android:alpha="0.7"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:alpha="0.8"
                         android:layout_marginBottom="12dp"/>
 
                     <TextView
@@ -198,8 +197,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/placeholder_renews_on"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp"/>
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        android:textColor="?attr/colorOnPrimaryContainer"
+                        android:alpha="0.6"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -209,15 +209,11 @@
             android:id="@+id/card_subscription_upgrade"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/card_bg_blue_10"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/card_bg_blue_20"
+            style="?attr/materialCardViewFilledStyle"
+            app:cardBackgroundColor="?attr/colorSecondaryContainer"
             android:layout_marginBottom="24dp"
             android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -233,7 +229,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_crown"
-                        app:tint="@color/white"
+                        app:tint="?attr/colorOnSurface"
                         android:layout_gravity="center"/>
                 </FrameLayout>
 
@@ -254,12 +250,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/upgrade_to_premium"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textColor="?attr/colorOnSecondaryContainer"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_award"
-                            app:tint="@color/orange_500"
+                            app:tint="?attr/colorOnSecondaryContainer"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -267,9 +264,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/upgrade_unlock_desc"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp"
-                        android:lineSpacingMultiplier="1.3"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSecondaryContainer"
+                        android:alpha="0.8"
+                        android:lineSpacingMultiplier="1.2"
                         android:layout_marginBottom="12dp"/>
 
                     <LinearLayout
@@ -281,13 +279,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/view_plans"
-                            android:textStyle="bold"
-                            android:textColor="@color/orange_500"/>
+                            android:textAppearance="?attr/textAppearanceLabelLarge"
+                            android:textColor="?attr/colorSecondary"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/orange_500"
+                            app:tint="?attr/colorSecondary"
                             android:layout_marginStart="4dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -332,12 +330,13 @@
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_rounded_blue_light">
+                        android:background="@drawable/bg_rounded_blue_light"
+                        android:backgroundTint="?attr/colorPrimaryContainer">
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_target"
-                            app:tint="@color/blue_500"
+                            app:tint="?attr/colorPrimary"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -356,15 +355,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/weekly_sessions_desc"
-                            android:textColor="@color/text_muted"
-                            android:textSize="12sp"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="@color/text_muted"/>
+                        app:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
 
                 <!-- Skill Target -->
@@ -381,12 +380,13 @@
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_rounded_green_light">
+                        android:background="@drawable/bg_rounded_green_light"
+                        android:backgroundTint="?attr/colorTertiaryContainer">
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_award"
-                            app:tint="@color/emerald_500"
+                            app:tint="?attr/colorTertiary"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -405,15 +405,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_target_desc"
-                            android:textColor="@color/text_muted"
-                            android:textSize="12sp"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_chevron_right"
-                        app:tint="@color/text_muted"/>
+                        app:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -463,16 +463,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/language_title"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
                         android:textStyle="bold"
-                        android:textSize="14sp"
                         android:layout_marginBottom="4dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/language_desc"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginBottom="12dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -530,11 +530,12 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_sun"
-                            app:tint="@color/text_muted"
+                            app:tint="?attr/colorOnSurfaceVariant"
                             android:layout_marginEnd="12dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
                             android:text="@string/theme_title"/>
                     </LinearLayout>
 
@@ -793,17 +794,16 @@
         <!-- Log Out Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_log_out"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
             android:text="@string/log_out"
-            android:textColor="@color/red_500"
-            android:textStyle="bold"
-            app:cornerRadius="12dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:textColor="?attr/colorError"
             app:icon="@drawable/ic_log_out"
-            app:iconTint="@color/red_500"
-            app:strokeColor="@color/red_500"
-            app:strokeWidth="1dp"
+            app:iconTint="?attr/colorError"
+            app:strokeColor="?attr/colorError"
             android:layout_marginBottom="16dp"/>
 
         <!-- App Version -->
@@ -812,8 +812,8 @@
             android:layout_height="wrap_content"
             android:text="Version 1.0.0"
             android:gravity="center"
-            android:textColor="@color/text_muted"
-            android:textSize="12sp"/>
+            android:textAppearance="?attr/textAppearanceLabelSmall"
+            android:textColor="?attr/colorOnSurfaceVariant"/>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

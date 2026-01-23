@@ -49,8 +49,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/current_goal"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnPrimary"
                         android:alpha="0.9"
                         android:layout_marginBottom="8dp"/>
 
@@ -65,16 +65,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/num_7"
-                            android:textColor="@android:color/white"
-                            android:textSize="48sp"
+                            android:textAppearance="?attr/textAppearanceDisplayLarge"
+                            android:textColor="?attr/colorOnPrimary"
                             android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/days_per_week"
-                            android:textColor="@android:color/white"
-                            android:textSize="18sp"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorOnPrimary"
                             android:alpha="0.9"
                             android:layout_marginStart="12dp"/>
                     </LinearLayout>
@@ -305,14 +305,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/plan_beginner_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleSmall"
+                            android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/plan_beginner_desc"
-                            android:textColor="@color/text_muted"
-                            android:textSize="12sp"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
 
                     <TextView
@@ -454,13 +454,12 @@
             <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
                 android:text="@string/save_goal"
-                android:textAllCaps="false"
-                android:textSize="16sp"
-                app:cornerRadius="16dp"
-                app:backgroundTint="#3B82F6"/>
+                android:textAllCaps="false"/>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

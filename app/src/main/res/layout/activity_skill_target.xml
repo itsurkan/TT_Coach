@@ -49,8 +49,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/current_target"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
+                        android:textAppearance="?attr/textAppearanceLabelLarge"
+                        android:textColor="?attr/colorOnPrimary"
                         android:alpha="0.9"
                         android:layout_marginBottom="8dp"/>
 
@@ -65,16 +65,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/score_90"
-                            android:textColor="@android:color/white"
-                            android:textSize="48sp"
+                            android:textAppearance="?attr/textAppearanceDisplayLarge"
+                            android:textColor="?attr/colorOnPrimary"
                             android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_score"
-                            android:textColor="@android:color/white"
-                            android:textSize="18sp"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textColor="?attr/colorOnPrimary"
                             android:alpha="0.9"
                             android:layout_marginStart="12dp"/>
                     </LinearLayout>
@@ -184,10 +184,10 @@
                         android:valueTo="100"
                         android:value="90"
                         android:stepSize="5"
-                        app:trackColorActive="#10B981"
-                        app:trackColorInactive="#E5E7EB"
-                        app:thumbColor="#10B981"
-                        app:haloColor="#3310B981"/>
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="?attr/colorPrimaryContainer"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -368,16 +368,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/score_100"
+                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
                             android:textStyle="bold"
-                            android:textSize="24sp"
-                            android:textColor="#F97316"/>
+                            android:textColor="?attr/colorError"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/target_master"
-                            android:textColor="@color/text_muted"
-                            android:textSize="11sp"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

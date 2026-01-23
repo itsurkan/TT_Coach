@@ -30,8 +30,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:text="@string/progress_subtitle"
-                android:textColor="@color/text_muted"
-                android:textSize="14sp" />
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <!-- Stats Overview Cards -->
             <LinearLayout
@@ -47,8 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    style="@style/Widget.Material3.CardView.Filled"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -62,14 +61,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/bg_card_calendar">
+                            android:backgroundTint="?attr/colorPrimaryContainer">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_calendar"
-                                app:tint="@color/text_card_calendar" />
+                                app:tint="?attr/colorPrimary" />
                         </FrameLayout>
 
                         <TextView
@@ -77,7 +76,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_count_24"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface"/>
 
@@ -97,8 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -112,14 +110,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/bg_card_target">
+                            android:backgroundTint="?attr/colorSecondaryContainer">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_target"
-                                app:tint="@color/text_card_target" />
+                                app:tint="?attr/colorSecondary" />
                         </FrameLayout>
 
                         <TextView
@@ -127,7 +125,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_count_186"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface"/>
 
@@ -136,8 +134,8 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_total_hours"
-                            android:textColor="@color/text_muted"
-                            android:textSize="10sp" />
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -147,8 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -162,14 +159,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/bg_card_award">
+                            android:backgroundTint="?attr/colorTertiaryContainer">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_award"
-                                app:tint="@color/text_card_award" />
+                                app:tint="?attr/colorTertiary" />
                         </FrameLayout>
 
                         <TextView
@@ -177,7 +174,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_streak"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface"/>
 
@@ -186,8 +183,8 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_achievements"
-                            android:textColor="@color/text_muted"
-                            android:textSize="10sp" />
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -291,7 +288,7 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_trending_up"
-                            app:tint="@color/blue_500"
+                            app:tint="?attr/colorPrimary"
                             android:layout_marginEnd="8dp"/>
 
                         <TextView

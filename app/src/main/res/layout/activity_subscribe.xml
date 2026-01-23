@@ -36,8 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/subscribe_title"
-                android:textSize="24sp"
-                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceHeadlineMedium"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="8dp"/>
 
@@ -45,7 +44,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/subscribe_subtitle"
-                android:textColor="@color/text_muted"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:gravity="center"/>
         </LinearLayout>
 
@@ -77,23 +77,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/plan_monthly"
-                        android:textStyle="bold"
-                        android:textSize="16sp"/>
+                        android:textAppearance="?attr/textAppearanceTitleMedium"
+                        android:textStyle="bold"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/plan_monthly_duration"
-                        android:textColor="@color/text_muted"
-                        android:textSize="12sp"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/plan_monthly_price"
-                        android:textStyle="bold"
-                        android:textSize="22sp"/>
+                        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                        android:textStyle="bold"/>
                 </LinearLayout>
 
                 <ImageView
@@ -109,13 +109,12 @@
         <!-- Quarterly Plan (Popular) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_quarterly"
+            style="?attr/materialCardViewFilledStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="2dp"
-            app:strokeColor="@color/blue_500"
-            app:cardBackgroundColor="@color/card_stroke_blue_10"
+            app:cardBackgroundColor="?attr/colorPrimaryContainer"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/colorPrimary"
             android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true">
@@ -404,15 +403,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/subscribe_auto_renew"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"/>
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/subscribe_guarantee"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp"/>
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="?attr/colorOnSurfaceVariant"/>
         </LinearLayout>
 
     </LinearLayout>

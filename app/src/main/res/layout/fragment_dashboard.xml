@@ -29,8 +29,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/welcome_back_subtitle"
-                android:textSize="14sp"
-                android:textColor="@color/text_muted"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginBottom="24dp" />
 
             <!-- Start Training Card -->
@@ -111,8 +111,7 @@
                     android:layout_columnWeight="1"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="12dp"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -124,9 +123,9 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target" 
-                            app:tint="@color/green_500"
+                            app:tint="?attr/colorPrimary"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/green_50"
+                            android:backgroundTint="?attr/colorPrimaryContainer"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
                         
@@ -134,14 +133,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_minutes"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceHeadlineMedium"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_minutes"
-                            android:textSize="11sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -152,8 +151,7 @@
                     android:layout_columnWeight="1"
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="12dp"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -165,9 +163,9 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target" 
-                            app:tint="@color/orange_500"
+                            app:tint="?attr/colorTertiary"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/orange_50"
+                            android:backgroundTint="?attr/colorTertiaryContainer"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -175,14 +173,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_percentage_mid"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceHeadlineMedium"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_accuracy"
-                            android:textSize="11sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -193,8 +191,7 @@
                     android:layout_columnWeight="1"
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="12dp"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -206,9 +203,9 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target" 
-                            app:tint="@color/blue_600"
+                            app:tint="?attr/colorSecondary"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/blue_100" 
+                            android:backgroundTint="?attr/colorSecondaryContainer" 
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -216,14 +213,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_rallies"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceHeadlineMedium"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_rallies"
-                            android:textSize="11sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -234,8 +231,7 @@
                     android:layout_columnWeight="1"
                     android:layout_marginStart="8dp"
                     android:layout_marginBottom="12dp"
-                    style="?attr/materialCardViewFilledStyle"
-                    app:cardCornerRadius="16dp">
+                    style="?attr/materialCardViewFilledStyle">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -243,13 +239,13 @@
                         android:orientation="vertical"
                         android:padding="16dp">
                         
-                         <ImageView
+                        <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_trending_up" 
-                            app:tint="@color/purple_500"
+                            app:tint="?attr/colorError"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/purple_50"
+                            android:backgroundTint="?attr/colorErrorContainer"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -257,14 +253,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_improvement_positive"
-                            android:textSize="24sp"
+                            android:textAppearance="?attr/textAppearanceHeadlineMedium"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_vs_yesterday"
-                            android:textSize="11sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </GridLayout>
@@ -274,8 +270,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="?attr/materialCardViewFilledStyle"
-                app:cardCornerRadius="16dp">
+                style="?attr/materialCardViewFilledStyle">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -293,13 +288,14 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/label_weekly_goal"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_weekly_progress"
-                            android:textSize="12sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
 
                     <ProgressBar
@@ -308,15 +304,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="8dp"
                         android:progress="57"
-                        android:progressTint="@color/blue_600"
+                        android:progressTint="?attr/colorPrimary"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/desc_weekly_goal_remaining"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_muted"/>
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:textColor="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -325,8 +321,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="?attr/materialCardViewFilledStyle"
-                app:cardBackgroundColor="@color/amber_50"
-                app:cardCornerRadius="16dp">
+                app:cardBackgroundColor="?attr/colorTertiaryContainer">
             
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -338,9 +333,9 @@
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:src="@drawable/ic_target" 
-                        app:tint="@color/amber_500"
+                        app:tint="?attr/colorOnTertiaryContainer"
                         android:background="@drawable/bg_card_rounded"
-                        android:backgroundTint="@color/amber_50"
+                        android:backgroundTint="?attr/colorTertiary"
                         android:padding="8dp"
                         android:layout_marginEnd="12dp"/>
 
@@ -352,14 +347,17 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/title_new_achievement"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textColor="?attr/colorOnTertiaryContainer"
                             android:textStyle="bold"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/desc_achievement_100"
-                            android:textSize="14sp"
-                            android:textColor="@color/text_muted"/>
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textColor="?attr/colorOnTertiaryContainer"
+                            android:alpha="0.8"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>

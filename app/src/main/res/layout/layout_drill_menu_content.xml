@@ -29,28 +29,27 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_pause_resume"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
             android:layout_weight="1"
             android:text="@string/btn_resume"
-            android:textSize="16sp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"
-            app:cornerRadius="12dp"
             android:layout_marginEnd="8dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/text_primary"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+            style="?attr/materialButtonOutlinedStyle"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_end_session"
             android:layout_width="0dp"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
             android:layout_weight="1"
             android:text="@string/btn_end_session"
-            android:textSize="16sp"
-            app:cornerRadius="12dp"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
             android:layout_marginStart="8dp"
-            app:backgroundTint="@android:color/holo_red_light"/>
+            android:textColor="?attr/colorOnError"
+            app:backgroundTint="?attr/colorError"/>
 
     </LinearLayout>
 
@@ -222,9 +221,8 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:cardBackgroundColor="@color/card_bg_purple_light"
+        style="?attr/materialCardViewFilledStyle"
+        app:cardBackgroundColor="?attr/colorTertiaryContainer"
         android:layout_marginBottom="16dp">
 
         <LinearLayout
@@ -237,9 +235,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tip_title_ai_coach"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/holo_purple"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnTertiaryContainer"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
@@ -247,8 +244,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tip_camera_position"
-                android:textSize="12sp"
-                android:textColor="@color/text_muted"/>
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnTertiaryContainer"
+                android:alpha="0.8"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

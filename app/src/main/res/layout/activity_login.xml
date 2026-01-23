@@ -20,8 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="@string/title_login"
-        android:textSize="32sp"
-        android:textStyle="bold"
+        android:textAppearance="?attr/textAppearanceHeadlineLarge"
         android:textColor="?attr/colorOnSurface" />
 
     <TextView
@@ -29,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="@string/subtitle_login"
-        android:textSize="16sp"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
         android:textColor="?attr/colorOnSurfaceVariant" />
 
     <Space
