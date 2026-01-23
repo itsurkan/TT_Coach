@@ -201,9 +201,11 @@ class PoseAnalysisProcessor(
                 }
             }
             
-            // Log stroke analysis
-            logAnalysisResults(analysisResult, inferenceTime)
-            logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
+            // Log results only if developer mode is enabled to save resources and prevent log flooding
+            if (application.settingsManager.isDeveloperModeEnabled()) {
+                logAnalysisResults(analysisResult, inferenceTime)
+                logRawPoseLandmarks(poseLandmarkerResult, inferenceTime)
+            }
             
             // Periodic debug log
             if (frameCounter % LOG_INTERVAL_FRAMES == 0) {
