@@ -1,0 +1,36 @@
+﻿
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\Ivan\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 3F:47:39:61:6A:85:A8:17:0C:CB:A1:69:FA:24:FB:A2
+SHA1: 2D:16:C9:3C:54:DA:2A:2E:25:86:B4:DF:84:54:B0:E0:EF:26:84:01
+SHA-256: 08:C2:9C:E5:6B:A0:65:98:2D:4C:BF:C1:E8:BA:A1:1D:14:66:2E:4B:DB:DE:A5:CF:54:1B:9D:43:BA:C1:B5:09
+Valid until: Thursday, 9 December 2055
+----------
+Variant: release
+Config: null
+Store: null
+Alias: null
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\Ivan\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: 3F:47:39:61:6A:85:A8:17:0C:CB:A1:69:FA:24:FB:A2
+SHA1: 2D:16:C9:3C:54:DA:2A:2E:25:86:B4:DF:84:54:B0:E0:EF:26:84:01
+SHA-256: 08:C2:9C:E5:6B:A0:65:98:2D:4C:BF:C1:E8:BA:A1:1D:14:66:2E:4B:DB:DE:A5:CF:54:1B:9D:43:BA:C1:B5:09
+Valid until: Thursday, 9 December 2055
+----------
+
+[Incubating] Problems report is available at: file:///D:/Desktop/TT_Coach_AI/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed

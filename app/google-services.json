@@ -1,26 +1,21 @@
 {
     "project_info": {
-        "project_number": "123456789",
-        "project_id": "dummy-project",
-        "storage_bucket": "dummy-project.appspot.com"
+        "project_number": "558931815872",
+        "project_id": "ttcoachai",
+        "storage_bucket": "ttcoachai.firebasestorage.app"
     },
     "client": [
         {
             "client_info": {
-                "mobilesdk_app_id": "1:123456789:android:123456789",
+                "mobilesdk_app_id": "1:558931815872:android:18035005a05f4ddaa7ec25",
                 "android_client_info": {
-                    "package_name": "com.google.mediapipe.examples.poselandmarker"
+                    "package_name": "com.ttcoachai"
                 }
             },
-            "oauth_client": [
-                {
-                    "client_id": "dummy-client-id",
-                    "client_type": 3
-                }
-            ],
+            "oauth_client": [],
             "api_key": [
                 {
-                    "current_key": "dummy-api-key"
+                    "current_key": "AIzaSyDEkJjnL22Uh3dk7HY6K7I3prGv3adMljc"
                 }
             ],
             "services": {
