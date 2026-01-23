@@ -1,7 +1,6 @@
 package com.google.mediapipe.examples.poselandmarker
 
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivityWeeklySessionsBinding
@@ -21,11 +20,9 @@ class WeeklySessionsActivity : BaseActivity() {
 
         settingsManager = SettingsManager(this)
 
-        // Setup toolbar
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.apply {
-            title = ""
-            setDisplayHomeAsUpEnabled(true)
+        // Setup back button
+        binding.btnBack.setOnClickListener {
+            finish()
         }
 
         // Load current setting
@@ -115,16 +112,6 @@ class WeeklySessionsActivity : BaseActivity() {
         } else {
             card.strokeWidth = resources.getDimensionPixelSize(R.dimen.card_stroke_normal)
             card.strokeColor = getColor(android.R.color.darker_gray)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 }

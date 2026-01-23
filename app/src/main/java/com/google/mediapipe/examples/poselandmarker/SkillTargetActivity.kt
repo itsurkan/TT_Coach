@@ -1,10 +1,8 @@
 package com.google.mediapipe.examples.poselandmarker
 
 import android.os.Bundle
-import android.view.MenuItem
 import android.widget.Toast
 import com.google.android.material.card.MaterialCardView
-import com.google.android.material.slider.Slider
 import com.google.mediapipe.examples.poselandmarker.databinding.ActivitySkillTargetBinding
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 
@@ -22,11 +20,9 @@ class SkillTargetActivity : BaseActivity() {
 
         settingsManager = SettingsManager(this)
 
-        // Setup toolbar
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.apply {
-            title = ""
-            setDisplayHomeAsUpEnabled(true)
+        // Setup back button
+        binding.btnBack.setOnClickListener {
+            finish()
         }
 
         // Load current setting
@@ -106,16 +102,6 @@ class SkillTargetActivity : BaseActivity() {
         } else {
             card.strokeWidth = resources.getDimensionPixelSize(R.dimen.card_stroke_normal)
             card.strokeColor = getColor(android.R.color.darker_gray)
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
         }
     }
 }
