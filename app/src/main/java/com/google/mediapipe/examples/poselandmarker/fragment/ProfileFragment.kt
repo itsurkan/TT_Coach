@@ -39,6 +39,21 @@ class ProfileFragment : Fragment() {
         setupLanguageSection()
         setupThemeButtons()
         setupMenuItems()
+        
+        // Restore scroll position
+        if (savedInstanceState != null) {
+            val scrollPosition = savedInstanceState.getInt("SCROLL_POSITION", 0)
+            binding.profileScrollView.post {
+                binding.profileScrollView.scrollY = scrollPosition
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (_binding != null) {
+            outState.putInt("SCROLL_POSITION", binding.profileScrollView.scrollY)
+        }
     }
 
     private fun setupSubscriptionSection() {
