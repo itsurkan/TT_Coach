@@ -46,7 +46,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/training_settings_subtitle"
                 android:textColor="@color/text_muted"
-                android:textSize="14sp"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:layout_marginBottom="24dp"/>
 
             <!-- AI Trainer Section -->
@@ -68,8 +68,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/ai_trainer_section"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -99,14 +98,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/select_coach_label"
-                            android:textSize="16sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/select_coach_desc"
                             android:textColor="@color/text_muted"
-                            android:textSize="12sp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -200,8 +199,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/audio_feedback_section"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -237,14 +235,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/audio_feedback_enabled"
-                                android:textSize="16sp"/>
+                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/audio_feedback_desc"
                                 android:textColor="@color/text_muted"
-                                android:textSize="12sp"
+                                android:textAppearance="?attr/textAppearanceBodySmall"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
@@ -272,7 +270,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/volume_label"
-                                android:textSize="16sp"/>
+                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                             <TextView
                                 android:id="@+id/tv_volume_value"
@@ -295,7 +293,7 @@
                             android:layout_height="wrap_content"
                             android:text="@string/volume_desc"
                             android:textColor="@color/text_muted"
-                            android:textSize="12sp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
                             android:layout_marginTop="8dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -320,8 +318,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/camera_settings_section"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
+                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView
@@ -351,14 +348,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/video_quality_label"
-                            android:textSize="16sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/video_quality_desc"
                             android:textColor="@color/text_muted"
-                            android:textSize="12sp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -382,14 +379,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/frame_rate_label"
-                            android:textSize="16sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/frame_rate_desc"
                             android:textColor="@color/text_muted"
-                            android:textSize="12sp"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -431,7 +428,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/show_pose_skeleton_label"
-                                    android:textSize="16sp"/>
+                                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
                             </LinearLayout>
 
                             <TextView
@@ -439,7 +436,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/show_pose_skeleton_desc"
                                 android:textColor="@color/text_muted"
-                                android:textSize="12sp"
+                                android:textAppearance="?attr/textAppearanceBodySmall"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
@@ -466,14 +463,14 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/distance_mode_label"
-                                android:textSize="16sp"/>
+                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/distance_mode_desc"
                                 android:textColor="@color/text_muted"
-                                android:textSize="12sp"
+                                android:textAppearance="?attr/textAppearanceBodySmall"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 

@@ -39,7 +39,17 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:background="@drawable/bg_card_blue_gradient">
+                        
+                        <ImageView
+                            android:id="@+id/iv_profile_image"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop"
+                            android:src="@drawable/bg_card_blue_gradient"
+                            android:visibility="gone"/>
+
                         <TextView
+                            android:id="@+id/tv_profile_initials"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_initials"
@@ -56,11 +66,19 @@
                         android:orientation="vertical"
                         android:layout_marginStart="16dp">
                         <TextView
+                            android:id="@+id/tv_profile_name"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_name"
-                            android:textSize="20sp"
-                            android:textStyle="bold"/>
+                            android:textAppearance="?attr/textAppearanceTitleLarge"/>
+                        <TextView
+                            android:id="@+id/tv_profile_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="user@example.com"
+                            android:textColor="@color/text_muted"
+                            android:textSize="14sp"
+                            android:layout_marginBottom="4dp"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -81,8 +99,8 @@
                     android:baselineAligned="false">
                     
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_score" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_skill_score" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_score" android:textAppearance="?attr/textAppearanceTitleLarge"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_skill_score" android:textAppearance="?attr/textAppearanceLabelSmall" android:textColor="@color/text_muted"/>
                     </LinearLayout>
                      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_count_24" android:textStyle="bold" android:textSize="18sp"/>
@@ -102,7 +120,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/subscription_section"
-            android:textStyle="bold"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
             android:layout_marginBottom="12dp"/>
 
         <!-- Premium Active Card (visible when subscribed) -->
@@ -154,8 +172,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_title"
-                            android:textStyle="bold"
-                            android:textSize="16sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -239,7 +256,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/upgrade_to_premium"
-                            android:textStyle="bold"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
@@ -285,7 +302,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/training_goals_section"
-            android:textStyle="bold"
+            android:textAppearance="?attr/textAppearanceLabelLarge"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.card.MaterialCardView
@@ -337,8 +354,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/weekly_sessions"
-                            android:textStyle="bold"
-                            android:textSize="15sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -387,8 +403,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_target"
-                            android:textStyle="bold"
-                            android:textSize="15sp"/>
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
