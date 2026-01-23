@@ -8,30 +8,30 @@ package com.google.mediapipe.examples.poselandmarker.models
 import com.google.mediapipe.examples.poselandmarker.R
 
 enum class CoachingStyle(
-    val displayName: String,
-    val subtitle: String,
-    val description: String,
+    val displayNameResId: Int,
+    val subtitleResId: Int,
+    val descriptionResId: Int,
     val avatarInitial: String,
     val avatarColor: Int
 ) {
     MOTIVATIONAL_ENERGETIC(
-        displayName = "Ivan",
-        subtitle = "Motivational & Energetic",
-        description = "High-energy coaching with lots of encouragement and positive reinforcement",
+        displayNameResId = R.string.coach_ivan_name,
+        subtitleResId = R.string.coach_ivan_style,
+        descriptionResId = R.string.coach_ivan_desc,
         avatarInitial = "I",
         avatarColor = R.color.coach_avatar_green
     ),
     PRECISE_TECHNICAL(
-        displayName = "Andriy",
-        subtitle = "Precise and sticky to technique",
-        description = "Detail-oriented coaching focused on perfect form. Ideal for players who want to master technical precision.",
+        displayNameResId = R.string.coach_andriy_name,
+        subtitleResId = R.string.coach_andriy_style,
+        descriptionResId = R.string.coach_andriy_desc,
         avatarInitial = "A",
         avatarColor = R.color.coach_avatar_blue
     ),
     GENTLE_SUPPORTIVE(
-        displayName = "Vadym",
-        subtitle = "Short and soft",
-        description = "Gentle encouragement with concise feedback. Perfect for beginners who prefer a supportive approach.",
+        displayNameResId = R.string.coach_vadym_name,
+        subtitleResId = R.string.coach_vadym_style,
+        descriptionResId = R.string.coach_vadym_desc,
         avatarInitial = "V",
         avatarColor = R.color.coach_avatar_purple
     );

@@ -61,9 +61,9 @@ class SettingsFragment : Fragment() {
 
     private fun updateCoachInfoCard(coachStyle: com.google.mediapipe.examples.poselandmarker.models.CoachingStyle) {
         binding.tvCoachAvatar.text = coachStyle.avatarInitial
-        binding.tvCoachName.text = coachStyle.displayName
-        binding.tvCoachStyle.text = coachStyle.subtitle
-        binding.tvCoachDesc.text = coachStyle.description
+        binding.tvCoachName.text = getString(coachStyle.displayNameResId)
+        binding.tvCoachStyle.text = getString(coachStyle.subtitleResId)
+        binding.tvCoachDesc.text = getString(coachStyle.descriptionResId)
         
         // Set avatar background color dynamically
         binding.tvCoachAvatar.backgroundTintList = 
@@ -81,12 +81,12 @@ class SettingsFragment : Fragment() {
         // Volume slider (0-100)
         val currentVolume = settingsManager.getFeedbackVolume()
         binding.seekBarVolume.progress = currentVolume
-        binding.tvVolumeValue.text = "$currentVolume%"
+        binding.tvVolumeValue.text = getString(R.string.format_percent_simple, currentVolume)
         binding.seekBarVolume.isEnabled = settingsManager.isAudioFeedbackEnabled()
 
         binding.seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                binding.tvVolumeValue.text = "$progress%"
+                binding.tvVolumeValue.text = getString(R.string.format_percent_simple, progress)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -120,7 +120,11 @@ class SettingsFragment : Fragment() {
         }
 
         // FPS spinner
-        val fpsOptions = arrayOf("24 FPS - Standard", "30 FPS - Recommended", "60 FPS - Smooth")
+        val fpsOptions = arrayOf(
+            getString(R.string.fps_24),
+            getString(R.string.fps_30),
+            getString(R.string.fps_60)
+        )
         val fpsValues = intArrayOf(24, 30, 60)
         val fpsAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, fpsOptions)
         fpsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

@@ -21,6 +21,7 @@
     <color name="mp_color_secondary">#FBBC04</color>
     <color name="mp_color_secondary_variant">#F9AB00</color>
     <color name="mp_color_error">#B00020</color>
+    <color name="red_500">#EF4444</color>
     <color name="toolbar_background">#E0E0E0</color>
     <color name="ic_launcher_background">#FFFFFF</color>
     <color name="bottom_sheet_background">#EEEEEE</color>
@@ -41,6 +42,7 @@
     <color name="green_50">#F0FDF4</color>
     <color name="orange_500">#F97316</color>
     <color name="orange_50">#FFF7ED</color>
+    <color name="red_100">#FEE2E2</color>
     <color name="purple_500">#A855F7</color>
     <color name="purple_50">#FAF5FF</color>
     <color name="amber_500">#F59E0B</color>

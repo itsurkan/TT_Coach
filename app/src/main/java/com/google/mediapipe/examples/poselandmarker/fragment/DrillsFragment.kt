@@ -46,33 +46,51 @@ class DrillsFragment : Fragment() {
                 description = getString(R.string.exercise_forehand_desc),
                 difficulty = getString(R.string.difficulty_beginner),
                 duration = getString(R.string.duration_10_15),
-                category = "Technique"
+                category = getString(R.string.cat_technique)
             ),
             Exercise(
-                id = "backhand_drive",
-                name = getString(R.string.exercise_backhand_name),
-                description = getString(R.string.exercise_backhand_desc),
-                difficulty = getString(R.string.difficulty_beginner),
-                duration = getString(R.string.duration_10_15),
-                category = "Technique",
-                isLocked = true
-            ),
-            Exercise(
-                id = "forehand_topspin",
-                name = getString(R.string.exercise_topspin_name),
-                description = getString(R.string.exercise_topspin_desc),
+                id = "backhand_loop",
+                name = getString(R.string.exercise_backhand_loop_name),
+                description = getString(R.string.exercise_backhand_loop_desc),
                 difficulty = getString(R.string.difficulty_intermediate),
-                duration = getString(R.string.duration_10_15),
-                category = "Spin Control",
+                duration = getString(R.string.duration_20),
+                category = getString(R.string.cat_spin),
                 isLocked = true
             ),
             Exercise(
-                id = "service",
+                id = "serve_practice",
                 name = getString(R.string.exercise_service_name),
                 description = getString(R.string.exercise_service_desc),
+                difficulty = getString(R.string.difficulty_all_levels),
+                duration = getString(R.string.duration_10),
+                category = getString(R.string.cat_serving),
+                isLocked = true
+            ),
+            Exercise(
+                id = "footwork_drill",
+                name = getString(R.string.exercise_footwork_name),
+                description = getString(R.string.exercise_footwork_desc),
                 difficulty = getString(R.string.difficulty_intermediate),
+                duration = getString(R.string.duration_25),
+                category = getString(R.string.cat_footwork),
+                isLocked = true
+            ),
+            Exercise(
+                id = "multiball_rally",
+                name = getString(R.string.exercise_multiball_name),
+                description = getString(R.string.exercise_multiball_desc),
+                difficulty = getString(R.string.difficulty_advanced),
+                duration = getString(R.string.duration_30),
+                category = getString(R.string.cat_speed),
+                isLocked = true
+            ),
+            Exercise(
+                id = "consistency_challenge",
+                name = getString(R.string.exercise_consistency_name),
+                description = getString(R.string.exercise_consistency_desc),
+                difficulty = getString(R.string.difficulty_beginner),
                 duration = getString(R.string.duration_10_15),
-                category = "Serving",
+                category = getString(R.string.cat_control),
                 isLocked = true
             )
         )

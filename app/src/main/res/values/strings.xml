@@ -63,13 +63,33 @@
     <string name="exercise_backhand_desc">Basic backhand stroke</string>
     <string name="exercise_topspin_name">Forehand Topspin</string>
     <string name="exercise_topspin_desc">Attacking stroke with strong spin</string>
-    <string name="exercise_service_name">Service</string>
-    <string name="exercise_service_desc">Ball serving technique</string>
+    <string name="exercise_service_name">Serve Practice</string>
+    <string name="exercise_service_desc">Improve serve accuracy and variation</string>
+    <string name="exercise_backhand_loop_name">Backhand Loop</string>
+    <string name="exercise_backhand_loop_desc">Develop topspin control on backhand shots</string>
+    <string name="exercise_footwork_name">Footwork Drill</string>
+    <string name="exercise_footwork_desc">Enhance movement and positioning</string>
+    <string name="exercise_multiball_name">Multi-Ball Rally</string>
+    <string name="exercise_multiball_desc">Fast-paced drill for reaction time</string>
+    <string name="exercise_consistency_name">Consistency Challenge</string>
+    <string name="exercise_consistency_desc">Keep the ball in play for as long as possible</string>
     <string name="difficulty_beginner">Beginner</string>
     <string name="difficulty_intermediate">Intermediate</string>
+    <string name="difficulty_advanced">Advanced</string>
+    <string name="difficulty_all_levels">All Levels</string>
     <string name="difficulty_label">Difficulty: %s</string>
     <string name="duration_label">Duration: %s</string>
-    <string name="duration_10_15">10-15 min</string>
+    <string name="duration_10_15">15 min</string>
+    <string name="duration_20">20 min</string>
+    <string name="duration_10">10 min</string>
+    <string name="duration_25">25 min</string>
+    <string name="duration_30">30 min</string>
+    <string name="cat_technique">Technique</string>
+    <string name="cat_spin">Spin Control</string>
+    <string name="cat_serving">Serving</string>
+    <string name="cat_footwork">Footwork</string>
+    <string name="cat_speed">Speed</string>
+    <string name="cat_control">Control</string>
     <string name="lock_icon">🔒 Locked</string>
     
     <!-- Training Activity -->
@@ -494,7 +514,6 @@
     <string name="exercise_forehand_desc_short">Perfect for building consistency</string>
     <string name="btn_start_drill">START DRILL</string>
     <string name="section_all_drills">All Drills</string>
-    <string name="difficulty_advanced">Advanced</string>
     <string name="welcome_back">Welcome back!</string>
     <string name="welcome_back_subtitle">Ready to improve your game?</string>
     <string name="btn_start_training_dashboard">Start Training</string>
@@ -615,6 +634,9 @@
     <string name="feedback_good_simple">✓ Good</string>
     <string name="feedback_needs_improvement">⚠ Needs improvement</string>
     <string name="format_video_info">Duration: %1$.1fs | Frames: %2$d | Interval: %3$dms</string>
+    <string name="fps_24">24 FPS - Standard</string>
+    <string name="fps_30">30 FPS - Recommended</string>
+    <string name="fps_60">60 FPS - Smooth</string>
     <string name="btn_landscape_mode">🖥 Landscape Mode</string>
     <string name="btn_pause_text">⏸ Pause</string>
     <string name="btn_play_text">▶ Play</string>

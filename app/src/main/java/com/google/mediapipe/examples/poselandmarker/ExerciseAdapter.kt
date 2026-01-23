@@ -32,14 +32,19 @@ class ExerciseAdapter(
                 tvDuration.text = exercise.duration
                 tvCategory.text = exercise.category
 
-                // Set icon background based on exercise ID/category
-                val iconBackground = when (exercise.id) {
-                    "forehand_drive" -> R.drawable.bg_icon_container_blue
-                    "backhand_drive" -> R.drawable.bg_icon_container_green
-                    "forehand_topspin" -> R.drawable.bg_icon_container_purple
-                    "service" -> R.drawable.bg_icon_container_orange
-                    else -> R.drawable.bg_icon_container_blue
+                // Set icon, tint and background based on exercise ID
+                val (iconRes, iconTint, iconBackground) = when (exercise.id) {
+                    "forehand_drive" -> Triple(R.drawable.ic_target, R.color.blue_500, R.drawable.bg_icon_container_blue)
+                    "backhand_loop" -> Triple(R.drawable.ic_trending_up, R.color.green_500, R.drawable.bg_icon_container_green)
+                    "serve_practice" -> Triple(R.drawable.ic_target, R.color.purple_500, R.drawable.bg_icon_container_purple)
+                    "footwork_drill" -> Triple(R.drawable.ic_person, R.color.orange_500, R.drawable.bg_icon_container_orange)
+                    "multiball_rally" -> Triple(R.drawable.ic_alert_circle, R.color.red_500, R.drawable.bg_icon_container_red)
+                    "consistency_challenge" -> Triple(R.drawable.ic_check_circle_2, R.color.blue_500, R.drawable.bg_icon_container_blue)
+                    else -> Triple(R.drawable.ic_target, R.color.blue_500, R.drawable.bg_icon_container_blue)
                 }
+                
+                ivExerciseIcon.setImageResource(iconRes)
+                ivExerciseIcon.setColorFilter(root.context.getColor(iconTint))
                 flIconContainer.setBackgroundResource(iconBackground)
 
                 // Set difficulty badge background based on difficulty level
@@ -50,6 +55,12 @@ class ExerciseAdapter(
                     exercise.difficulty.contains("Intermediate", ignoreCase = true) || 
                     exercise.difficulty.contains("Середній", ignoreCase = true) -> 
                         Pair(R.drawable.bg_badge_bordered_orange, R.color.orange_500)
+                    exercise.difficulty.contains("Advanced", ignoreCase = true) || 
+                    exercise.difficulty.contains("Просунутий", ignoreCase = true) -> 
+                        Pair(R.drawable.bg_badge_bordered_red, R.color.red_500)
+                    exercise.difficulty.contains("All Level", ignoreCase = true) || 
+                    exercise.difficulty.contains("Всі рівні", ignoreCase = true) -> 
+                        Pair(R.drawable.bg_badge_bordered_blue, R.color.blue_500)
                     else -> Pair(R.drawable.bg_badge_bordered_green, R.color.green_500)
                 }
                 tvDifficulty.setBackgroundResource(badgeBackground)
