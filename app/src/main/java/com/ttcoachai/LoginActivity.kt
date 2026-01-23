@@ -76,19 +76,37 @@ class LoginActivity : BaseActivity() {
             viewModel.uiState.collect { state ->
                 when (state) {
                     is com.ttcoachai.viewmodels.AuthUiState.Loading -> {
-                        // TODO: Show loading indicator
+                        setLoading(true)
                     }
                     is com.ttcoachai.viewmodels.AuthUiState.Success -> {
+                        setLoading(false)
                         settingsManager.setLoggedIn(true)
                         navigateToMain()
                     }
                     is com.ttcoachai.viewmodels.AuthUiState.Error -> {
+                        setLoading(false)
                         Toast.makeText(this@LoginActivity, state.message, Toast.LENGTH_SHORT).show()
                     }
-                    else -> {}
+                    else -> {
+                        setLoading(false)
+                    }
                 }
             }
         }
+    }
+
+    private fun setLoading(isLoading: Boolean) {
+        binding.loadingSpinner.visibility = if (isLoading) android.view.View.VISIBLE else android.view.View.GONE
+        
+        binding.btnLoginGoogle.isEnabled = !isLoading
+        binding.btnLoginFacebook.isEnabled = !isLoading
+        binding.btnLoginApple.isEnabled = !isLoading
+        
+        // Optionally adjust alpha to show disabled state more clearly if theme doesn't do it well
+        val alpha = if (isLoading) 0.5f else 1.0f
+        binding.btnLoginGoogle.alpha = alpha
+        binding.btnLoginFacebook.alpha = alpha
+        binding.btnLoginApple.alpha = alpha
     }
 
     private fun navigateToMain() {
