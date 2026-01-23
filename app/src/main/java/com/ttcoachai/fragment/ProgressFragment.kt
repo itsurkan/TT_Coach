@@ -47,7 +47,15 @@ class ProgressFragment : Fragment() {
     }
 
     private fun setupCharts() {
-        val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+        val days = listOf(
+            getString(R.string.days_mon),
+            getString(R.string.days_tue),
+            getString(R.string.days_wed),
+            getString(R.string.days_thu),
+            getString(R.string.days_fri),
+            getString(R.string.days_sat),
+            getString(R.string.days_sun)
+        )
         
         // Setup BarChart (Training Time)
         binding.trainingBarChart.apply {
@@ -137,7 +145,8 @@ class ProgressFragment : Fragment() {
             BarEntry(6f, 23f)
         )
         
-        val barDataSet = BarDataSet(barEntries, "Training Time").apply {
+        val barDataLabel = getString(R.string.tab_training_time)
+        val barDataSet = BarDataSet(barEntries, barDataLabel).apply {
             color = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
             setDrawValues(false)
         }
@@ -157,7 +166,8 @@ class ProgressFragment : Fragment() {
             Entry(6f, 87f)
         )
         
-        val lineDataSet = LineDataSet(lineEntries, "Accuracy").apply {
+        val lineDataLabel = getString(R.string.tab_accuracy)
+        val lineDataSet = LineDataSet(lineEntries, lineDataLabel).apply {
             color = ContextCompat.getColor(requireContext(), R.color.colorTertiary)
             lineWidth = 3f
             setCircleColor(ContextCompat.getColor(requireContext(), R.color.colorTertiary))
@@ -173,10 +183,10 @@ class ProgressFragment : Fragment() {
 
         // LOAD SKILLS
         val skills = listOf(
-            Triple("Forehand", 85, R.color.blue_600),
-            Triple("Backhand", 78, R.color.blue_600),
-            Triple("Serve", 92, R.color.blue_600),
-            Triple("Footwork", 73, R.color.blue_600)
+            Triple(getString(R.string.exercise_forehand_name), 85, R.color.blue_600),
+            Triple(getString(R.string.exercise_backhand_name), 78, R.color.blue_600),
+            Triple(getString(R.string.exercise_service_name), 92, R.color.blue_600),
+            Triple(getString(R.string.exercise_footwork_name), 73, R.color.blue_600)
         )
 
         skills.forEach { (name, level, colorRes) ->
@@ -193,9 +203,9 @@ class ProgressFragment : Fragment() {
         data class Milestone(val title: String, val date: String, val iconRes: Int, val bgTint: Int, val iconTint: Int)
         
         val milestones = listOf(
-            Milestone("100 Consecutive Hits", "2 days ago", R.drawable.ic_award, R.color.bg_card_target, R.color.text_card_target),
-            Milestone("30-Day Streak", "5 days ago", R.drawable.ic_award, R.color.bg_card_calendar, R.color.text_card_calendar),
-            Milestone("Master Server", "1 week ago", R.drawable.ic_award, R.color.bg_card_award, R.color.text_card_award)
+            Milestone(getString(R.string.milestone_100_hits), getString(R.string.time_ago_2_days), R.drawable.ic_award, R.color.bg_card_target, R.color.text_card_target),
+            Milestone(getString(R.string.milestone_30_days), getString(R.string.time_ago_5_days), R.drawable.ic_award, R.color.bg_card_calendar, R.color.text_card_calendar),
+            Milestone(getString(R.string.milestone_master_server), getString(R.string.time_ago_1_week), R.drawable.ic_award, R.color.bg_card_award, R.color.text_card_award)
         )
 
         milestones.forEach { milestone ->

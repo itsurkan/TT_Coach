@@ -302,6 +302,14 @@
     <string name="time_ago_2_days">2 days ago</string>
     <string name="time_ago_5_days">5 days ago</string>
     <string name="time_ago_1_week">1 week ago</string>
+
+    <string name="days_mon">Mon</string>
+    <string name="days_tue">Tue</string>
+    <string name="days_wed">Wed</string>
+    <string name="days_thu">Thu</string>
+    <string name="days_fri">Fri</string>
+    <string name="days_sat">Sat</string>
+    <string name="days_sun">Sun</string>
     
     <!-- Activity Settings -->
     <string name="activity_settings_title">Activity Settings</string>

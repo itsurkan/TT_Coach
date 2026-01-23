@@ -484,4 +484,33 @@
     <string name="subscription_how_works_profile">• Це налаштування впливає на статус підписки у вашому Профілі</string>
     <string name="activity_settings_title">Налаштування активності</string>
     <string name="difficulty_all_levels">Всі рівні</string>
+
+    <!-- Progress Fragment -->
+    <string name="progress_title">Прогрес</string>
+    <string name="progress_subtitle">Стежте за своїм вдосконаленням</string>
+    <string name="stats_days_streak">Днів поспіль</string>
+    <string name="stats_total_hours">Всього годин</string>
+    <string name="stats_achievements">Досягнення</string>
+    <string name="tab_training_time">Час тренувань</string>
+    <string name="tab_accuracy">Точність</string>
+    <string name="chart_training_title">Тижневе тренування</string>
+    <string name="chart_training_subtitle">Хвилин на день</string>
+    <string name="chart_accuracy_title">Тижнева точність</string>
+    <string name="chart_accuracy_subtitle">Тренд відсотків</string>
+    <string name="skill_levels_title">Рівні навичок</string>
+    <string name="milestones_title">Останні досягнення</string>
+    <string name="milestone_100_hits">100 влучних ударів підряд</string>
+    <string name="milestone_30_days">30 днів поспіль</string>
+    <string name="milestone_master_server">Майстер подачі</string>
+    <string name="time_ago_2_days">2 дні тому</string>
+    <string name="time_ago_5_days">5 днів тому</string>
+    <string name="time_ago_1_week">1 тиждень тому</string>
+
+    <string name="days_mon">Пн</string>
+    <string name="days_tue">Вт</string>
+    <string name="days_wed">Ср</string>
+    <string name="days_thu">Чт</string>
+    <string name="days_fri">Пт</string>
+    <string name="days_sat">Сб</string>
+    <string name="days_sun">Нд</string>
 </resources>
