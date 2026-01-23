@@ -24,11 +24,13 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        binding.btnBeginSession.setOnClickListener {
-            // Navigate to Drills tab
+        val navigateToDrills = {
             val bottomNav = requireActivity().findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(com.google.mediapipe.examples.poselandmarker.R.id.nav_view)
             bottomNav.selectedItemId = com.google.mediapipe.examples.poselandmarker.R.id.navigation_drills
         }
+
+        binding.btnBeginSession.setOnClickListener { navigateToDrills() }
+        binding.cardStartTrainingContainer.setOnClickListener { navigateToDrills() }
     }
 
     override fun onDestroyView() {

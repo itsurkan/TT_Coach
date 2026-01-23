@@ -26,6 +26,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/ic_chevron_left"
                 app:title="@string/skill_target_title"
+                app:titleTextColor="?attr/colorOnSurface"
                 app:titleTextAppearance="?attr/textAppearanceTitleLarge" />
         </com.google.android.material.appbar.AppBarLayout>
 

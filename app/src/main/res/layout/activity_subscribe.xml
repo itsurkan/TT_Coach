@@ -38,6 +38,7 @@
                 android:text="@string/subscribe_title"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:textColor="?attr/colorOnSurface"
                 android:layout_marginBottom="8dp"/>
 
             <TextView
