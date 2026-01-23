@@ -19,6 +19,10 @@ class LocalFileLogger(context: Context) : Logger, AnalyticsProvider, CrashReport
     private val asyncLogger = AsyncFileLogger(context)
     private var currentSessionId: String? = null
     
+    fun setFileLoggingEnabled(enabled: Boolean) {
+        asyncLogger.setFileLoggingEnabled(enabled)
+    }
+    
     // === Logger Interface ===
     
     override fun logEvent(eventName: String, params: Map<String, Any>) {

@@ -91,8 +91,20 @@ class AsyncFileLogger(
         offerEvent(LogEvent.RawPose(rawPoseData))
     }
     
+    @Volatile
+    private var isFileLoggingEnabled = false
+
+    fun setFileLoggingEnabled(enabled: Boolean) {
+        isFileLoggingEnabled = enabled
+        Log.i(TAG, "File logging ${if (enabled) "enabled" else "disabled"}")
+    }
+
     // Non-blocking offer (returns immediately)
     private fun offerEvent(event: LogEvent) {
+        if (!isFileLoggingEnabled && event !is LogEvent.Error) {
+            return // Skip logging if disabled, but always log errors
+        }
+        
         val result = eventQueue.trySend(event)
         if (result.isFailure) {
             Log.w(TAG, "Event queue full, dropping event: ${event.javaClass.simpleName}")

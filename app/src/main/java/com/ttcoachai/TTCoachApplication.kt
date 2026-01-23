@@ -39,16 +39,13 @@ class TTCoachApplication : Application() {
         // Initialize async file logger (zero latency impact)
         fileLogger = LocalFileLogger(this)
         
-        Log.i(TAG, "Application started with async file logging")
+        // Disable file logging by default unless in developer mode
+        if (settingsManager.isDeveloperModeEnabled()) {
+            fileLogger.setFileLoggingEnabled(true)
+            fileLogger.logInfo(TAG, "Developer mode detected, enabling file logging")
+        }
         
-        // Log storage info
-        val storageInfo = fileLogger.getStorageInfo()
-        Log.i(TAG, "Log storage: ${String.format("%.2f", storageInfo.sizeMB)} MB at ${storageInfo.directory}")
-        
-        // Log app launch
-        fileLogger.logEvent("app_launched", mapOf(
-            "timestamp" to System.currentTimeMillis()
-        ))
+        Log.i(TAG, "Application started with async file logging (currently: ${if (settingsManager.isDeveloperModeEnabled()) "ON" else "OFF"})")
     }
     
     override fun onTerminate() {

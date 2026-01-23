@@ -72,6 +72,9 @@ class AppSettingsActivity : AppCompatActivity() {
         binding.switchDebugMode.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setDeveloperModeEnabled(isChecked)
             updateDebugInfoCard(isChecked)
+            
+            // Update logging state in real-time
+            (application as TTCoachApplication).getFileLogger().setFileLoggingEnabled(isChecked)
         }
     }
 
