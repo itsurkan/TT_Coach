@@ -114,6 +114,10 @@ class SettingsManager(context: Context) {
     fun getSkillTarget(): Int = prefs.getInt("skill_target", 90)
     fun setSkillTarget(target: Int) = prefs.edit().putInt("skill_target", target.coerceIn(50, 100)).apply()
         
+    // Distance Mode
+    fun isDistanceModeEnabled(): Boolean = prefs.getBoolean("distance_mode_enabled", false)
+    fun setDistanceModeEnabled(enabled: Boolean) = prefs.edit().putBoolean("distance_mode_enabled", enabled).apply()
+
     fun resetToDefaults() {
         prefs.edit().clear().apply()
     }

@@ -149,6 +149,12 @@ class SettingsFragment : Fragment() {
         binding.switchPoseSkeleton.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setShowSkeleton(isChecked)
         }
+
+        // Distance mode switch
+        binding.switchDistanceMode.isChecked = settingsManager.isDistanceModeEnabled()
+        binding.switchDistanceMode.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setDistanceModeEnabled(isChecked)
+        }
     }
 
     override fun onDestroyView() {

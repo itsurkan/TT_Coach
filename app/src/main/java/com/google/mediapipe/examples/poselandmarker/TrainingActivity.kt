@@ -165,6 +165,35 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         binding.root.postDelayed({
             startTraining()
         }, 500)
+
+        // Apply distance mode if enabled
+        applyDistanceMode()
+    }
+
+    private fun applyDistanceMode() {
+        val settingsManager = com.google.mediapipe.examples.poselandmarker.managers.SettingsManager(this)
+        if (settingsManager.isDistanceModeEnabled()) {
+            // Scale up overlays for better visibility from a distance
+            val timerView = binding.root.findViewById<android.widget.TextView>(R.id.tv_timer)
+            val hitsView = binding.root.findViewById<android.widget.TextView>(R.id.tv_hits_count)
+            val accuracyView = binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)
+            
+            // Labels
+            val hitsLabel = binding.root.findViewById<android.widget.TextView>(R.id.layout_hits_stat)?.getChildAt(0) as? android.widget.TextView
+            val accuracyLabel = binding.root.findViewById<android.widget.TextView>(R.id.layout_accuracy_stat)?.getChildAt(0) as? android.widget.TextView
+
+            // Scale factor 1.5x
+            timerView?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 28f)
+            hitsView?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 36f)
+            accuracyView?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 36f)
+            
+            hitsLabel?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
+            accuracyLabel?.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
+            
+            // Also scale the pause button
+            val fab = binding.root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)
+            fab?.customSize = (fab?.customSize ?: 56).let { (it * 1.5).toInt() }
+        }
     }
 
     private fun toggleTraining() {
