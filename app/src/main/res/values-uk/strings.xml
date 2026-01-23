@@ -89,7 +89,7 @@
     <string name="btn_complete">Завершити</string>
     <string name="btn_continue">Продовжити</string>
     <string name="finish_training_title">Завершити тренування?</string>
-    <string name="finish_training_message">Ви впевнені, що хочете завершити поточне тренування?</string>
+    <string name="finish_training_message">Ви дійсно бажаєте завершити активність?</string>
     
     <!-- Settings Activity -->
     <string name="settings_title">Налаштування</string>
@@ -218,7 +218,7 @@
     <string name="label_hits">Удари</string>
     <string name="label_accuracy">Точність</string>
     <string name="btn_resume">Продовжити</string>
-    <string name="btn_end_session">Завершити сесію</string>
+    <string name="btn_end_session">Завершити</string>
     <string name="label_focus">Фокус: %s</string>
     <string name="focus_consistency">Стабільність</string>
     <string name="hits_progress_format">%1$d/%2$d успішних</string>

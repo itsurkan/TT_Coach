@@ -18,6 +18,7 @@ import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.examples.poselandmarker.services.MotionAnalyzer
 import com.google.mediapipe.examples.poselandmarker.processors.PoseAnalysisProcessor
 import android.util.Log
+import androidx.activity.OnBackPressedCallback
 
 class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var binding: ActivityTrainingBinding
@@ -57,6 +58,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         initializeAnalysis()
         
         setupUI()
+        setupBackNavigation()
     }
     
     private fun initializeManagers() {
@@ -299,21 +301,37 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             .show()
     }
 
+    private fun setupBackNavigation() {
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                handleExitRequest()
+            }
+        })
+    }
+
+    private fun handleExitRequest() {
+        if (stateManager.isTrainingActive) {
+            showExitConfirmationDialog()
+        } else {
+            finish()
+        }
+    }
+
+    private fun showExitConfirmationDialog() {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(getString(R.string.finish_training_title))
+            .setMessage(getString(R.string.finish_training_message))
+            .setPositiveButton(getString(R.string.dialog_yes)) { _, _ ->
+                finish()
+            }
+            .setNegativeButton(getString(R.string.dialog_no), null)
+            .show()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                if (stateManager.isTrainingActive) {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.finish_training_title))
-                        .setMessage(getString(R.string.finish_training_message))
-                        .setPositiveButton(getString(R.string.dialog_yes)) { _, _ ->
-                            finish()
-                        }
-                        .setNegativeButton(getString(R.string.dialog_no), null)
-                        .show()
-                } else {
-                    finish()
-                }
+                handleExitRequest()
                 true
             }
             else -> super.onOptionsItemSelected(item)
