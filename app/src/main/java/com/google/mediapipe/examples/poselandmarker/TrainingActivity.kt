@@ -310,11 +310,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     private fun handleExitRequest() {
-        if (stateManager.isTrainingActive) {
-            showExitConfirmationDialog()
-        } else {
-            finish()
-        }
+        showExitConfirmationDialog()
     }
 
     private fun showExitConfirmationDialog() {

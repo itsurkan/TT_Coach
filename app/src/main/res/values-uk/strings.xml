@@ -89,7 +89,7 @@
     <string name="btn_complete">Завершити</string>
     <string name="btn_continue">Продовжити</string>
     <string name="finish_training_title">Завершити тренування?</string>
-    <string name="finish_training_message">Ви дійсно бажаєте завершити активність?</string>
+    <string name="finish_training_message">Ви дійсно бажаєте завершити поточне тренування?</string>
     
     <!-- Settings Activity -->
     <string name="settings_title">Налаштування</string>
