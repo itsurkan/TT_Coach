@@ -60,11 +60,13 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.btnLoginFacebook.setOnClickListener {
-            Toast.makeText(this, "Facebook Login not implemented yet", Toast.LENGTH_SHORT).show()
+            settingsManager.setLoggedIn(true)
+            navigateToMain()
         }
 
         binding.btnLoginApple.setOnClickListener {
-            Toast.makeText(this, "Apple Login not implemented yet", Toast.LENGTH_SHORT).show()
+            settingsManager.setLoggedIn(true)
+            navigateToMain()
         }
     }
     

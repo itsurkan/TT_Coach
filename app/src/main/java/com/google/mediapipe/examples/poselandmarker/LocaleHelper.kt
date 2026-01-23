@@ -58,7 +58,7 @@ object LocaleHelper {
         
         return when (systemLanguage) {
             "en", "uk" -> systemLanguage
-            else -> "uk" // Default to Ukrainian
+            else -> "en" // Default to English
         }
     }
     
