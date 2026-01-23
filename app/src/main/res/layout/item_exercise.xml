@@ -49,7 +49,7 @@
                 android:id="@+id/tv_exercise_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Forehand Drive"
+                android:text="@string/exercise_forehand_name"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="?attr/colorOnSurface"/>
@@ -58,7 +58,7 @@
                 android:id="@+id/tv_exercise_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Master the basic stroke"
+                android:text="@string/exercise_forehand_desc"
                 android:textSize="13sp"
                 android:textColor="@color/text_muted"
                 android:maxLines="2"
@@ -76,7 +76,7 @@
                     android:id="@+id/tv_difficulty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Beginner"
+                    android:text="@string/difficulty_beginner"
                     android:textSize="11sp"
                     android:textColor="@color/green_500"
                     android:background="@drawable/bg_badge_bordered_green"
@@ -88,7 +88,7 @@
                     android:id="@+id/tv_duration"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="15 min"
+                    android:text="@string/duration_10_15"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
                     
@@ -96,7 +96,7 @@
                     android:id="@+id/tv_category"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Technique"
+                    android:text="@string/label_technique"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"
                     android:layout_marginStart="8dp"/>

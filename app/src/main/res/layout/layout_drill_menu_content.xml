@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="Resume"
+            android:text="@string/btn_resume"
             android:textSize="16sp"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"
@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="End Session"
+            android:text="@string/btn_end_session"
             android:textSize="16sp"
             app:cornerRadius="12dp"
             android:layout_marginStart="8dp"
@@ -85,7 +85,7 @@
                     android:id="@+id/tv_total_hits"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/placeholder_hits"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"/>
@@ -93,7 +93,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Hits"
+                    android:text="@string/label_total_hits"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -125,7 +125,7 @@
                     android:id="@+id/tv_accuracy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0%"
+                    android:text="@string/placeholder_percent"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"/>
@@ -133,7 +133,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Accuracy"
+                    android:text="@string/label_accuracy"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -179,14 +179,14 @@
                         android:id="@+id/tv_drill_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Training Session"
+                        android:text="@string/training_session_title"
                         android:textSize="16sp"
                         android:textStyle="bold"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Focus: Consistency"
+                        android:text="@string/label_focus_consistency"
                         android:textSize="12sp"
                         android:textColor="@color/text_muted"/>
                 </LinearLayout>
@@ -204,7 +204,7 @@
                 android:id="@+id/tv_drill_progress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0/0 successful hits"
+                android:text="@string/hits_progress_format"
                 android:textSize="12sp"
                 android:textColor="@color/text_muted"/>
         </LinearLayout>
@@ -228,7 +228,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="💡 AI Coach Tip"
+                android:text="@string/tip_title_ai_coach"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/holo_purple"
@@ -238,7 +238,7 @@
                 android:id="@+id/tv_ai_tip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Position your camera to see your full body. Keep moving for active training!"
+                android:text="@string/tip_camera_position"
                 android:textSize="12sp"
                 android:textColor="@color/text_muted"/>
         </LinearLayout>
@@ -248,7 +248,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Real-time Feedback"
+        android:text="@string/label_realtime_feedback"
         android:textSize="14sp"
         android:textStyle="bold"
         android:layout_marginTop="8dp"

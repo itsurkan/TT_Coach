@@ -12,7 +12,7 @@
         android:id="@+id/tv_drills_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Training Drills"
+        android:text="@string/title_drills_header"
         android:textSize="28sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"
@@ -23,7 +23,7 @@
         android:id="@+id/tv_drills_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Choose your practice routine"
+        android:text="@string/subtitle_drills"
         android:textSize="14sp"
         android:textColor="@color/text_muted"
         android:layout_marginTop="4dp"
@@ -50,7 +50,7 @@
                 android:id="@+id/tv_featured_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Recommended"
+                android:text="@string/section_recommended"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:background="@drawable/bg_card_rounded"
@@ -74,7 +74,7 @@
                 android:id="@+id/tv_featured_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Forehand Drive"
+                android:text="@string/exercise_forehand_name"
                 android:textColor="@color/white"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -87,7 +87,7 @@
                 android:id="@+id/tv_featured_desc"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Perfect for building consistency"
+                android:text="@string/exercise_forehand_desc_short"
                 android:textColor="#B3DBEAFE"
                 android:textSize="14sp"
                 android:layout_marginTop="4dp"
@@ -99,7 +99,7 @@
                 android:id="@+id/btn_start_featured"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:text="START DRILL"
+                android:text="@string/btn_start_drill"
                 android:textColor="@color/blue_600"
                 android:backgroundTint="@color/white"
                 android:textStyle="bold"
@@ -130,7 +130,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="All Drills"
+                android:text="@string/section_all_drills"
                 android:checked="true"
                 android:layout_marginEnd="8dp"/>
 
@@ -139,7 +139,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Beginner"
+                android:text="@string/difficulty_beginner"
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.chip.Chip
@@ -147,7 +147,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Intermediate"
+                android:text="@string/difficulty_intermediate"
                 android:layout_marginEnd="8dp"/>
 
             <com.google.android.material.chip.Chip
@@ -155,7 +155,7 @@
                 style="@style/Widget.MaterialComponents.Chip.Choice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Advanced"/>
+                android:text="@string/difficulty_advanced"/>
         </LinearLayout>
     </HorizontalScrollView>
 

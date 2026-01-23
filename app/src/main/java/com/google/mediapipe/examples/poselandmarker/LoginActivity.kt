@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun performMockLogin(provider: String) {
         // Stimulate a loading or process if needed, but for now just instant login
-        Toast.makeText(this, "Logged in with $provider", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.toast_logged_in, provider), Toast.LENGTH_SHORT).show()
         
         settingsManager.setLoggedIn(true)
         

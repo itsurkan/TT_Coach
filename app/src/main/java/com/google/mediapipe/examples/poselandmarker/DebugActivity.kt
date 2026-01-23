@@ -59,6 +59,7 @@ class DebugActivity : AppCompatActivity() {
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
+            title = "Video Debug" // Consider localizing title too? Not critical as "Video Debug" is technical.
             title = "Video Debug"
         }
 
@@ -177,7 +178,7 @@ class DebugActivity : AppCompatActivity() {
         }
 
         if (videoFiles.isEmpty()) {
-            Toast.makeText(this, "No video files found in assets/Videos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_no_video_files), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -200,20 +201,20 @@ class DebugActivity : AppCompatActivity() {
 
     private fun exportPosesToFile() {
         if (!videoLoader.isVideoReady()) {
-            Toast.makeText(this, "No video loaded", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_no_video_loaded), Toast.LENGTH_SHORT).show()
             return
         }
 
         val poses = videoDebugProcessor.getAllPoseResults()
         if (poses.isEmpty()) {
-            Toast.makeText(this, "No poses to export", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.toast_no_poses_export), Toast.LENGTH_SHORT).show()
             return
         }
 
         val videoUriString = videoLoader.getCurrentVideoUri().toString()
         val filesDir = getExternalFilesDir(null)
 
-        Toast.makeText(this, "Exporting ${poses.size} frames in background...", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.toast_exporting_background, poses.size), Toast.LENGTH_SHORT).show()
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -259,13 +260,13 @@ class DebugActivity : AppCompatActivity() {
 
                 // UI Update
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@DebugActivity, "Poses exported to:\n${file.absolutePath}\n\nFrames: ${poses.size}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@DebugActivity, getString(R.string.toast_export_success, file.absolutePath, poses.size), Toast.LENGTH_LONG).show()
                     Log.i(TAG, "Exported ${poses.size} poses to ${file.absolutePath}")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Log.e(TAG, "Error exporting poses", e)
-                    Toast.makeText(this@DebugActivity, "Export failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this@DebugActivity, getString(R.string.toast_export_failed, e.message), Toast.LENGTH_LONG).show()
                 }
             }
         }

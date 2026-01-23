@@ -21,7 +21,7 @@
             android:id="@+id/tvVideoInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No video loaded"
+            android:text="@string/status_no_video"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
 
@@ -35,7 +35,7 @@
                 android:id="@+id/btnLoadVideo"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="📂 Load Video"
+                android:text="@string/btn_load_video"
                 android:textSize="12sp"
                 android:layout_marginEnd="8dp" />
 
@@ -43,7 +43,7 @@
                 android:id="@+id/btnLogPoses"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="💾 Log Poses"
+                android:text="@string/btn_log_poses"
                 android:textSize="12sp"
                 android:layout_marginEnd="8dp"
                 android:enabled="false" />
@@ -54,7 +54,7 @@
                 android:id="@+id/btnToggleViewMode"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
-                android:text="📱 Portrait Mode"
+                android:text="@string/btn_portrait_mode"
                 android:textSize="12sp"
                 android:visibility="gone" />
         </LinearLayout>
@@ -149,7 +149,7 @@
                             android:layout_width="0dp"
                             android:layout_height="36dp"
                             android:layout_weight="1"
-                            android:text="📂 Load"
+                            android:text="@string/btn_load"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp" />
 
@@ -158,7 +158,7 @@
                             android:layout_width="0dp"
                             android:layout_height="36dp"
                             android:layout_weight="1"
-                            android:text="💾 Log"
+                            android:text="@string/btn_log"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp"
                             android:enabled="false" />
@@ -168,7 +168,7 @@
                             android:layout_width="0dp"
                             android:layout_height="36dp"
                             android:layout_weight="1"
-                            android:text="🖥 Landscape"
+                            android:text="@string/btn_landscape"
                             android:textSize="11sp" />
                     </LinearLayout>
 
@@ -184,7 +184,7 @@
                     android:id="@+id/headerCurrentFrame"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▼ 📊 Current Frame"
+                    android:text="@string/header_current_frame"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -203,7 +203,7 @@
                         android:id="@+id/tvFrameNumber"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frame: 0 / 0"
+                        android:text="@string/label_frame_counter"
                         android:textSize="14sp"
                         android:paddingBottom="4dp" />
 
@@ -211,7 +211,7 @@
                         android:id="@+id/tvPhase"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phase: READY"
+                        android:text="@string/label_phase_ready"
                         android:textSize="14sp"
                         android:paddingBottom="4dp" />
 
@@ -219,7 +219,7 @@
                         android:id="@+id/tvScore"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Score: 0%"
+                        android:text="@string/label_score_placeholder"
                         android:textSize="18sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -235,7 +235,7 @@
                     android:id="@+id/headerFeedback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▼ 💬 Feedback"
+                    android:text="@string/header_video_feedback"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -269,7 +269,7 @@
                     android:id="@+id/headerSessionSummary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▶ 📈 Session Summary"
+                    android:text="@string/header_session_summary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -289,7 +289,7 @@
                         android:id="@+id/tvTotalFrames"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Total Frames: 0"
+                        android:text="@string/label_total_frames"
                         android:textSize="13sp"
                         android:paddingBottom="4dp" />
 
@@ -297,7 +297,7 @@
                         android:id="@+id/tvStrokesDetected"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Strokes Detected: 0"
+                        android:text="@string/label_strokes_detected"
                         android:textSize="13sp"
                         android:paddingBottom="4dp" />
 
@@ -305,7 +305,7 @@
                         android:id="@+id/tvAvgScore"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Avg Score: 0%"
+                        android:text="@string/label_avg_score"
                         android:textSize="13sp"
                         android:paddingBottom="4dp" />
 
@@ -313,7 +313,7 @@
                         android:id="@+id/tvGoodStrokes"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Good Strokes: 0"
+                        android:text="@string/label_good_strokes"
                         android:textSize="13sp"
                         android:paddingBottom="8dp" />
 
@@ -321,7 +321,7 @@
                         android:id="@+id/tvPhaseDistribution"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Phase Distribution:\n--"
+                        android:text="@string/label_phase_distribution"
                         android:textSize="12sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="8dp" />
@@ -330,7 +330,7 @@
                         android:id="@+id/btnReset"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="🔄 Reset Analysis" />
+                        android:text="@string/btn_reset_analysis" />
                 </LinearLayout>
 
                 <View
@@ -344,7 +344,7 @@
                     android:id="@+id/headerPlayback"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▼ 🎮 Playback Controls"
+                    android:text="@string/header_playback_controls"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -369,7 +369,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Frame:"
+                            android:text="@string/label_frame"
                             android:textSize="12sp"
                             android:paddingEnd="8dp" />
 
@@ -394,7 +394,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="⏮"
+                            android:text="@string/btn_step_back"
                             android:textSize="18sp"
                             android:layout_marginEnd="4dp" />
 
@@ -403,7 +403,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="2"
-                            android:text="▶ Play"
+                            android:text="@string/btn_play"
                             android:textSize="14sp"
                             android:layout_marginHorizontal="4dp" />
 
@@ -412,7 +412,7 @@
                             android:layout_width="0dp"
                             android:layout_height="48dp"
                             android:layout_weight="1"
-                            android:text="⏭"
+                            android:text="@string/btn_step_forward"
                             android:textSize="18sp"
                             android:layout_marginStart="4dp" />
                     </LinearLayout>
@@ -428,7 +428,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Speed:"
+                            android:text="@string/label_speed"
                             android:textSize="12sp"
                             android:paddingEnd="8dp" />
 
@@ -437,7 +437,7 @@
                             android:layout_width="0dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:text="0.25x"
+                            android:text="@string/speed_025x"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp" />
 
@@ -446,7 +446,7 @@
                             android:layout_width="0dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:text="0.5x"
+                            android:text="@string/speed_05x"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp" />
 
@@ -455,7 +455,7 @@
                             android:layout_width="0dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:text="1x"
+                            android:text="@string/speed_1x"
                             android:textSize="11sp"
                             android:layout_marginEnd="4dp" />
 
@@ -464,7 +464,7 @@
                             android:layout_width="0dp"
                             android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:text="2x"
+                            android:text="@string/speed_2x"
                             android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -480,7 +480,7 @@
                     android:id="@+id/headerTechnical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▶ 🎯 Technical Parameters"
+                    android:text="@string/header_technical_parameters"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -500,7 +500,7 @@
                         android:id="@+id/tvWristAngle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Wrist Angle: --"
+                        android:text="@string/label_wrist_angle_placeholder"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="4dp" />
@@ -509,7 +509,7 @@
                         android:id="@+id/tvBodyRotation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Body Rotation: --"
+                        android:text="@string/label_body_rotation_placeholder"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="4dp" />
@@ -518,7 +518,7 @@
                         android:id="@+id/tvFollowThrough"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Follow-Through: --"
+                        android:text="@string/label_follow_through_placeholder"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="4dp" />
@@ -527,7 +527,7 @@
                         android:id="@+id/tvContactHeight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Contact Height: --"
+                        android:text="@string/label_contact_height_placeholder"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="4dp" />
@@ -536,7 +536,7 @@
                         android:id="@+id/tvElbowDistance"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Elbow Distance: --"
+                        android:text="@string/label_elbow_distance_placeholder"
                         android:textSize="13sp"
                         android:fontFamily="monospace"
                         android:paddingBottom="4dp" />
@@ -553,7 +553,7 @@
                     android:id="@+id/headerFeedbackSettings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="▶ ⚙️ Feedback Settings"
+                    android:text="@string/header_feedback_settings_debug"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:paddingVertical="8dp"
@@ -572,7 +572,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frequency (every N strokes):"
+                        android:text="@string/label_frequency_n"
                         android:textSize="13sp"
                         android:paddingBottom="4dp" />
 
@@ -586,7 +586,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Enabled Corrections:"
+                        android:text="@string/label_enabled_corrections"
                         android:textSize="13sp"
                         android:paddingTop="8dp"
                         android:paddingBottom="4dp" />
@@ -595,42 +595,42 @@
                         android:id="@+id/cbWrist"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Wrist Angle"
+                        android:text="@string/correction_wrist_angle"
                         android:textSize="12sp" />
 
                     <CheckBox
                         android:id="@+id/cbBodyRotation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Body Rotation"
+                        android:text="@string/correction_body_rotation"
                         android:textSize="12sp" />
 
                     <CheckBox
                         android:id="@+id/cbFollowThrough"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Follow-Through"
+                        android:text="@string/correction_follow_through"
                         android:textSize="12sp" />
 
                     <CheckBox
                         android:id="@+id/cbContactHeight"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Contact Height"
+                        android:text="@string/correction_contact_height"
                         android:textSize="12sp" />
 
                     <CheckBox
                         android:id="@+id/cbElbowPosition"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Elbow Position"
+                        android:text="@string/correction_elbow_position"
                         android:textSize="12sp" />
 
                     <CheckBox
                         android:id="@+id/cbStrokeSpeed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Stroke Speed"
+                        android:text="@string/correction_stroke_speed"
                         android:textSize="12sp" />
                 </LinearLayout>
 

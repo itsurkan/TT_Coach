@@ -230,7 +230,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         // End Session
         root.findViewById<View>(R.id.btn_end_session)?.setOnClickListener {
             stateManager.stopTraining()
-            Toast.makeText(requireContext(), "Session Summary Coming Soon", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), getString(R.string.toast_session_summary_soon), Toast.LENGTH_LONG).show()
         }
         
         // Start timer update loop
@@ -252,7 +252,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         val root = fragmentCameraBinding.root
         val isActive = stateManager.isTrainingActive
         val icon = if (isActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-        val text = if (isActive) "Pause" else "Resume"
+        val text = if (isActive) getString(R.string.btn_pause) else getString(R.string.btn_resume)
         
         // Update drawer button
         root.findViewById<com.google.android.material.button.MaterialButton>(R.id.btn_pause_resume)?.apply {
@@ -293,11 +293,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             
             // Drawer stats
             root.findViewById<android.widget.TextView>(R.id.tv_total_hits)?.text = totalHits.toString()
-            root.findViewById<android.widget.TextView>(R.id.tv_accuracy)?.text = "$accuracy%"
+            root.findViewById<android.widget.TextView>(R.id.tv_accuracy)?.text = getString(R.string.format_percent_simple, accuracy)
             
             // Overlay stats
             root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
-            root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = "$accuracy%"
+            root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = getString(R.string.format_percent_simple, accuracy)
             
             // Update feedback list
             val latestFeedback = stateManager.getLatestFeedbackItems()
@@ -367,7 +367,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                     // Show confirmation once when first pose is detected
                     if (!hasShownDetectionToast && resultBundle.results.first().landmarks().isNotEmpty()) {
                         hasShownDetectionToast = true
-                        Toast.makeText(requireContext(), "Pose detected!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), getString(R.string.toast_pose_detected), Toast.LENGTH_SHORT).show()
                     }
                     
                     fragmentCameraBinding.overlay.setResults(

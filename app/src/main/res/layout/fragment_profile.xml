@@ -42,7 +42,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="JD"
+                            android:text="@string/placeholder_user_initials"
                             android:textColor="@color/white"
                             android:textSize="20sp"
                             android:textStyle="bold"
@@ -58,13 +58,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="John Doe"
+                            android:text="@string/placeholder_user_name"
                             android:textSize="20sp"
                             android:textStyle="bold"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Intermediate Player"
+                            android:text="@string/placeholder_user_level"
                             android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -81,16 +81,16 @@
                     android:baselineAligned="false">
                     
                     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="86" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Skill Score" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_score" android:textStyle="bold" android:textSize="18sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/label_skill_score" android:textSize="12sp" android:textColor="@color/text_muted"/>
                     </LinearLayout>
                      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="24" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Day Streak" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_count_24" android:textStyle="bold" android:textSize="18sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_days_streak" android:textSize="12sp" android:textColor="@color/text_muted"/>
                     </LinearLayout>
                      <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="12" android:textStyle="bold" android:textSize="18sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Achievements" android:textSize="12sp" android:textColor="@color/text_muted"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/placeholder_streak" android:textStyle="bold" android:textSize="18sp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/stats_achievements" android:textSize="12sp" android:textColor="@color/text_muted"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -182,7 +182,7 @@
                         android:id="@+id/tv_renewal_date"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Renews on March 15, 2026"
+                        android:text="@string/placeholder_renews_on"
                         android:textColor="@color/text_muted"
                         android:textSize="12sp"/>
                 </LinearLayout>
@@ -482,7 +482,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settings"
+            android:text="@string/title_settings"
             android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 

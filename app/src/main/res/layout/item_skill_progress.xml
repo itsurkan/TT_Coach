@@ -16,7 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Skill Name"
+            android:text="@string/placeholder_skill_name"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="@color/black"/>
@@ -25,7 +25,7 @@
             android:id="@+id/tv_skill_level"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="85%"
+            android:text="@string/placeholder_percentage_mid"
             android:textSize="14sp"
             android:textColor="@color/text_muted"/>
     </LinearLayout>

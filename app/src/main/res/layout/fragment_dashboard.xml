@@ -16,7 +16,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome back!"
+            android:text="@string/welcome_back"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnSurface" />
@@ -24,7 +24,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ready to improve your game?"
+            android:text="@string/welcome_back_subtitle"
             android:textSize="14sp"
             android:textColor="@color/text_muted"
             android:layout_marginBottom="24dp" />
@@ -42,7 +42,7 @@
                 android:id="@+id/tv_start_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start Training"
+                android:text="@string/btn_start_training_dashboard"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -53,7 +53,7 @@
                 android:id="@+id/tv_start_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="AI-guided session"
+                android:text="@string/desc_ai_session"
                 android:textColor="@color/blue_100"
                 android:textSize="14sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +73,7 @@
                 android:id="@+id/btn_begin_session"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Begin Session"
+                android:text="@string/btn_begin_session"
                 android:textColor="@color/blue_600"
                 android:backgroundTint="@color/white"
                 android:layout_marginTop="24dp"
@@ -85,7 +85,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Today's Progress"
+            android:text="@string/title_todays_progress"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="12dp" />
@@ -124,13 +124,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="23"
+                    android:text="@string/placeholder_minutes"
                     android:textSize="24sp"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Minutes"
+                    android:text="@string/label_minutes"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -159,13 +159,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="87%"
+                    android:text="@string/placeholder_percentage_mid"
                     android:textSize="24sp"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Accuracy"
+                    android:text="@string/label_accuracy"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -194,13 +194,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="156"
+                    android:text="@string/placeholder_rallies"
                     android:textSize="24sp"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rallies"
+                    android:text="@string/label_rallies"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -229,13 +229,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="+12%"
+                    android:text="@string/placeholder_improvement_positive"
                     android:textSize="24sp"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="vs Yesterday"
+                    android:text="@string/label_vs_yesterday"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -259,12 +259,12 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Weekly Goal"
+                    android:text="@string/label_weekly_goal"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4/7 days"
+                    android:text="@string/placeholder_weekly_progress"
                     android:textSize="12sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>
@@ -281,7 +281,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3 more sessions to reach your weekly goal"
+                android:text="@string/desc_weekly_goal_remaining"
                 android:textSize="14sp"
                 android:textColor="@color/text_muted"/>
         </LinearLayout>
@@ -312,13 +312,13 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="New Achievement!"
+                    android:text="@string/title_new_achievement"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"/>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="100 consecutive forehand hits unlocked"
+                    android:text="@string/desc_achievement_100"
                     android:textSize="14sp"
                     android:textColor="@color/text_muted"/>
             </LinearLayout>

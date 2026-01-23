@@ -114,7 +114,7 @@
                         android:id="@+id/tv_coach_avatar"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:text="V"
+                        android:text="@string/label_version_character"
                         android:textSize="20sp"
                         android:textStyle="bold"
                         android:textColor="@android:color/white"
@@ -258,7 +258,7 @@
                             android:id="@+id/tv_volume_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="75%"
+                            android:text="@string/placeholder_percentage_high"
                             android:textColor="@color/text_muted"
                             android:textSize="14sp"/>
                     </LinearLayout>

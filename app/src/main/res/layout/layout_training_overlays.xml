@@ -16,7 +16,7 @@
         android:paddingEnd="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        android:text="00:00"
+        android:text="@string/placeholder_duration"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -42,7 +42,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hits"
+            android:text="@string/label_hits"
             android:textColor="@color/text_secondary_contrast"
             android:textSize="12sp"/>
         
@@ -50,7 +50,7 @@
             android:id="@+id/tv_hits_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0"
+            android:text="@string/placeholder_hits"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"/>
@@ -72,7 +72,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Accuracy"
+            android:text="@string/label_accuracy"
             android:textColor="@color/text_secondary_contrast"
             android:textSize="12sp"/>
         
@@ -80,7 +80,7 @@
             android:id="@+id/tv_accuracy_percent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0%"
+            android:text="@string/placeholder_percent"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"/>

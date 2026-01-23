@@ -17,6 +17,7 @@ import com.google.mediapipe.examples.poselandmarker.services.FeedbackGenerator
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import com.google.mediapipe.examples.poselandmarker.R
 import java.util.Locale
 
 /**
@@ -108,14 +109,14 @@ class DebugUIController(
 
     fun updateFrameAnalysisUI(resultIndex: Int, result: AnalysisResult) {
         val totalFrames = videoDebugProcessor.getTotalFrames()
-        binding.tvFrameNumber.text = "Frame: $resultIndex / $totalFrames"
+        binding.tvFrameNumber.text = context.getString(R.string.format_frame_counter, resultIndex, totalFrames)
         
         // Metrics
-        binding.tvWristAngle.text = "Wrist Angle: %.1f°%s".format(Locale.US, result.wristAngle, if (result.isWristAngleValid) " ✓" else " ✗")
-        binding.tvBodyRotation.text = "Body Rotation: %.1f°%s".format(Locale.US, result.bodyRotation, if (result.isBodyRotationValid) " ✓" else " ✗")
-        binding.tvFollowThrough.text = "Follow-Through: %.1f°%s".format(Locale.US, result.followThroughAngle, if (result.isFollowThroughValid) " ✓" else " ✗")
-        binding.tvContactHeight.text = "Contact Height: %.2f%s".format(Locale.US, result.contactHeight, if (result.isContactHeightValid) " ✓" else " ✗")
-        binding.tvElbowDistance.text = "Elbow Distance: %.2fm%s".format(Locale.US, result.elbowBodyDistance, if (result.isElbowPositionValid) " ✓" else " ✗")
+        binding.tvWristAngle.text = context.getString(R.string.format_wrist_angle, result.wristAngle, if (result.isWristAngleValid) " ✓" else " ✗")
+        binding.tvBodyRotation.text = context.getString(R.string.format_body_rotation, result.bodyRotation, if (result.isBodyRotationValid) " ✓" else " ✗")
+        binding.tvFollowThrough.text = context.getString(R.string.format_follow_through, result.followThroughAngle, if (result.isFollowThroughValid) " ✓" else " ✗")
+        binding.tvContactHeight.text = context.getString(R.string.format_contact_height, result.contactHeight, if (result.isContactHeightValid) " ✓" else " ✗")
+        binding.tvElbowDistance.text = context.getString(R.string.format_elbow_distance, result.elbowBodyDistance, if (result.isElbowPositionValid) " ✓" else " ✗")
 
         // Phase Info
         val strokePhase = if (videoDebugProcessor.hasStrokeDetection()) {
@@ -123,11 +124,11 @@ class DebugUIController(
         } else {
             result.phase
         }
-        binding.tvPhase.text = "Phase: ${strokePhase.name}"
+        binding.tvPhase.text = context.getString(R.string.format_phase, strokePhase.name)
         binding.tvPhase.setTextColor(getPhaseColor(strokePhase))
 
         // Score
-        binding.tvScore.text = "Score: ${result.overallScore}%"
+        binding.tvScore.text = context.getString(R.string.format_score, result.overallScore.toString())
         binding.tvScore.setTextColor(when {
             result.overallScore >= 80 -> context.getColor(android.R.color.holo_green_dark)
             result.overallScore >= 60 -> context.getColor(android.R.color.holo_orange_dark)
@@ -149,10 +150,10 @@ class DebugUIController(
 
         stroke?.let { s ->
             val strokeNum = s.strokeIndex + 1
-            binding.tvStrokesDetected.text = "Stroke: $strokeNum / ${strokes.size}"
+            binding.tvStrokesDetected.text = context.getString(R.string.format_stroke_counter, strokeNum, strokes.size)
             appendFeedbackEntry(strokeNum, phase, s.peakVelocity)
         } ?: run {
-            binding.tvStrokesDetected.text = "Strokes: ${strokes.size} (between strokes)"
+            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_count_between, strokes.size)
         }
     }
 
@@ -220,11 +221,11 @@ class DebugUIController(
 
     fun updateAnalysisInfo() {
         val summary = videoDebugProcessor.getAnalysisSummary()
-        binding.tvTotalFrames.text = "Total Frames: ${summary.totalFrames}"
+        binding.tvTotalFrames.text = context.getString(R.string.format_total_frames, summary.totalFrames)
 
         if (videoDebugProcessor.hasStrokeDetection()) {
             val strokes = videoDebugProcessor.getDetectedStrokes()
-            binding.tvStrokesDetected.text = "Strokes Detected: ${strokes.size}"
+            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_detected, strokes.size)
             
             videoDebugProcessor.getStrokeDetectionResult()?.let { result ->
                 val phaseCount = result.framePhases.groupBy { it.phase }
@@ -235,20 +236,20 @@ class DebugUIController(
                 }
             }
         } else {
-            binding.tvStrokesDetected.text = "Strokes Detected: ${summary.strokeCount}"
+            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_detected, summary.strokeCount)
             binding.tvPhaseDistribution.text = buildString {
                 append("Phase Distribution:\n")
                 summary.phaseDistribution.forEach { (phase, count) -> append("  ${phase.name}: $count frames\n") }
             }
         }
 
-        binding.tvAvgScore.text = "Avg Score: %.1f%%".format(Locale.US, summary.averageScore)
-        binding.tvGoodStrokes.text = "Good Strokes: ${summary.goodStrokes} (${summary.successRate.toInt()}%)"
+        binding.tvAvgScore.text = context.getString(R.string.format_avg_score, summary.averageScore)
+        binding.tvGoodStrokes.text = context.getString(R.string.format_good_strokes, summary.goodStrokes, summary.successRate.toInt())
     }
 
     fun updateVideoInfo() {
         val totalFrames = videoDebugProcessor.getTotalFrames()
-        val infoText = "Duration: %.1fs | Frames: %d | Interval: %dms".format(Locale.US, videoDurationMs / 1000.0, totalFrames, VideoDebugProcessor.VIDEO_INTERVAL_MS)
+        val infoText = context.getString(R.string.format_video_info, videoDurationMs / 1000.0, totalFrames, VideoDebugProcessor.VIDEO_INTERVAL_MS)
         binding.tvVideoInfo.text = infoText
         binding.tvVideoInfoPortrait.text = infoText
     }
@@ -256,7 +257,7 @@ class DebugUIController(
     // --- Playback UI Controls ---
 
     fun updatePlaybackButton(isPlaying: Boolean) {
-        binding.btnPlayPause.text = if (isPlaying) "⏸ Pause" else "▶ Play"
+        binding.btnPlayPause.text = if (isPlaying) context.getString(R.string.btn_pause_text) else context.getString(R.string.btn_play_text)
     }
 
     fun updateSpeedButtons(speed: Float) {
@@ -300,7 +301,7 @@ class DebugUIController(
     }
 
     fun updateToggleViewButton(isPortraitMode: Boolean) {
-        val text = if (isPortraitMode) "🖥 Landscape Mode" else "📱 Portrait Mode"
+        val text = if (isPortraitMode) context.getString(R.string.btn_landscape_mode) else context.getString(R.string.btn_portrait_mode)
         binding.btnToggleViewMode.text = text
         binding.btnToggleViewModePortrait.text = text
     }

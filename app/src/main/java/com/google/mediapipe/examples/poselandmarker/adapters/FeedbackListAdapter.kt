@@ -69,7 +69,7 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
             )
 
             // Set details (use message as details for now since FeedbackItem doesn't have details field)
-            binding.tvFeedbackDetails.text = "Type: ${item.type.name}\n${if (item.isPositive) "✓ Good" else "⚠ Needs improvement"}"
+            binding.tvFeedbackDetails.text = binding.root.context.getString(R.string.format_feedback_details, item.type.name, if (item.isPositive) binding.root.context.getString(R.string.feedback_good_simple) else binding.root.context.getString(R.string.feedback_needs_improvement))
 
             // Set expanded state
             binding.layoutFeedbackDetails.visibility = if (isExpanded) View.VISIBLE else View.GONE

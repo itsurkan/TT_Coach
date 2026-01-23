@@ -57,9 +57,9 @@ class AppSettingsActivity : AppCompatActivity() {
         binding.switchLoggedIn.isChecked = isLoggedIn
         
         if (isLoggedIn) {
-            binding.tvLoginStatusDesc.text = "Logged in as User"
+            binding.tvLoginStatusDesc.text = getString(R.string.status_logged_in_as)
         } else {
-            binding.tvLoginStatusDesc.text = "Not logged in"
+            binding.tvLoginStatusDesc.text = getString(R.string.status_not_logged_in)
         }
     }
 

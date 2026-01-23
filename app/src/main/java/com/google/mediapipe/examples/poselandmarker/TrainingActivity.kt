@@ -224,7 +224,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // Start analysis session
         poseAnalysisProcessor.startSession(
             exerciseId ?: "forehand_drive",
-            exerciseName ?: "Forehand Drive"
+            exerciseName ?: getString(R.string.exercise_forehand_name)
         )
     }
 
@@ -250,7 +250,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     private fun updateUIForTrainingState(isActive: Boolean) {
         val icon = if (isActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-        val text = if (isActive) "Pause" else "Resume"
+        val text = if (isActive) getString(R.string.btn_pause) else getString(R.string.btn_resume)
         
         binding.root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)?.setImageResource(icon)
         binding.drillMenu.btnPauseResume.text = text
@@ -266,17 +266,17 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
         // Overlay stats
         binding.root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
-        binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = "$accuracy%"
+        binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = getString(R.string.format_percent_simple, accuracy)
         
         // Update drawer stats
         binding.drillMenu.tvTotalHits.text = totalHits.toString()
-        binding.drillMenu.tvAccuracy.text = "$accuracy%"
+        binding.drillMenu.tvAccuracy.text = getString(R.string.format_percent_simple, accuracy)
         
         // Update drill progress
         val successfulHits = stateManager.getSuccessfulHits()
         val targetHits = 20 // Dummy target for now
         binding.drillMenu.progressDrill.progress = (successfulHits.toFloat() / targetHits * 100).toInt()
-        binding.drillMenu.tvDrillProgress.text = "$successfulHits/$targetHits successful hits"
+        binding.drillMenu.tvDrillProgress.text = getString(R.string.hits_progress_format, successfulHits, targetHits)
 
         // Update feedback adapter
         val feedbackItems = stateManager.getLatestFeedbackItems()

@@ -77,7 +77,7 @@
                         android:id="@+id/tv_days_streak"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="24"
+                        android:text="@string/placeholder_count_24"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"/>
@@ -129,7 +129,7 @@
                         android:id="@+id/tv_total_hours"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="186"
+                        android:text="@string/placeholder_count_186"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"/>
@@ -181,7 +181,7 @@
                         android:id="@+id/tv_achievements"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="12"
+                        android:text="@string/placeholder_streak"
                         android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="?attr/colorOnSurface"/>

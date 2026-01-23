@@ -36,7 +36,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Perfect contact point!"
+                android:text="@string/placeholder_feedback_title_perfect"
                 android:textSize="14sp"
                 android:textColor="?android:textColorPrimary"/>
 
@@ -64,7 +64,7 @@
                 android:id="@+id/tv_feedback_details"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="You made contact with the ball at the optimal point in front of your body."
+                android:text="@string/placeholder_feedback_desc_perfect"
                 android:textSize="12sp"
                 android:textColor="@color/text_muted"
                 android:lineSpacingExtra="2dp"
@@ -90,7 +90,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Movement Analysis"
+                        android:text="@string/label_movement_analysis"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:layout_marginBottom="4dp"/>
@@ -98,7 +98,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Highlighted areas show the movement pattern"
+                        android:text="@string/desc_movement_analysis"
                         android:textSize="10sp"
                         android:textColor="@color/text_muted"
                         android:layout_marginBottom="12dp"/>
