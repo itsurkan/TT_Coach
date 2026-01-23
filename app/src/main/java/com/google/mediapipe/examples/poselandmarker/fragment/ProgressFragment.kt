@@ -1,4 +1,4 @@
-package com.google.mediapipe.examples.poselandmarker.fragment
+package com.ttcoachai.fragment
 
 import android.graphics.Color
 import android.os.Bundle
@@ -20,10 +20,10 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.google.android.material.tabs.TabLayout
-import com.google.mediapipe.examples.poselandmarker.R
-import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProgressBinding
-import com.google.mediapipe.examples.poselandmarker.databinding.ItemMilestoneCardBinding
-import com.google.mediapipe.examples.poselandmarker.databinding.ItemSkillProgressBinding
+import com.ttcoachai.R
+import com.ttcoachai.databinding.FragmentProgressBinding
+import com.ttcoachai.databinding.ItemMilestoneCardBinding
+import com.ttcoachai.databinding.ItemSkillProgressBinding
 
 class ProgressFragment : Fragment() {
 
