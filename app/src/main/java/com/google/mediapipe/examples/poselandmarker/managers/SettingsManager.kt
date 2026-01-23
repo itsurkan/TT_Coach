@@ -106,6 +106,13 @@ class SettingsManager(context: Context) {
     // Login State
     fun isLoggedIn(): Boolean = prefs.getBoolean("is_logged_in", false)
     fun setLoggedIn(loggedIn: Boolean) = prefs.edit().putBoolean("is_logged_in", loggedIn).apply()
+    
+    // Training Goals
+    fun getWeeklySessionsGoal(): Int = prefs.getInt("weekly_sessions_goal", 7)
+    fun setWeeklySessionsGoal(days: Int) = prefs.edit().putInt("weekly_sessions_goal", days.coerceIn(1, 7)).apply()
+    
+    fun getSkillTarget(): Int = prefs.getInt("skill_target", 90)
+    fun setSkillTarget(target: Int) = prefs.edit().putInt("skill_target", target.coerceIn(50, 100)).apply()
         
     fun resetToDefaults() {
         prefs.edit().clear().apply()

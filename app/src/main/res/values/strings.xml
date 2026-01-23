@@ -408,4 +408,38 @@
     <string name="maybe_later">Maybe Later</string>
     <string name="subscribe_auto_renew">Auto-renews. Cancel anytime.</string>
     <string name="subscribe_guarantee">30-day money-back guarantee</string>
+    
+    <!-- Weekly Sessions Activity -->
+    <string name="weekly_sessions_title">Weekly Sessions</string>
+    <string name="weekly_sessions_subtitle">Set your training frequency goal</string>
+    <string name="current_goal">Current Goal</string>
+    <string name="days_per_week">days/week</string>
+    <string name="select_sessions_goal">Select Your Goal</string>
+    <string name="recommended_plans">Recommended Plans</string>
+    <string name="plan_beginner_title">Beginner</string>
+    <string name="plan_beginner_desc">Perfect for starting out</string>
+    <string name="plan_regular_title">Regular</string>
+    <string name="plan_regular_desc">Balanced training schedule</string>
+    <string name="plan_intensive_title">Intensive</string>
+    <string name="plan_intensive_desc">Maximum improvement</string>
+    <string name="save_goal">Save Goal</string>
+    <string name="goal_saved">Goal saved successfully!</string>
+    
+    <!-- Skill Target Activity -->
+    <string name="skill_target_title">Skill Target</string>
+    <string name="skill_target_subtitle">Set your skill score goal</string>
+    <string name="current_target">Current Target</string>
+    <string name="skill_score">skill score</string>
+    <string name="current_skill">Current Skill</string>
+    <string name="set_your_target">Set Your Target</string>
+    <string name="target_score">Target Score</string>
+    <string name="quick_targets">Quick Select</string>
+    <string name="target_good">Good</string>
+    <string name="target_great">Great</string>
+    <string name="target_excellent">Excellent</string>
+    <string name="target_master">Master</string>
+    <string name="skill_tip_title">Pro Tip</string>
+    <string name="skill_tip_desc">Start with a realistic target and gradually increase it as you improve. Consistency is more important than perfection!</string>
+    <string name="save_target">Save Target</string>
+    <string name="target_saved">Target saved successfully!</string>
 </resources>

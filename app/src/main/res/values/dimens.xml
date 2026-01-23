@@ -30,4 +30,8 @@
 
     <integer name="bottom_sheet_control_text_min_ems">3</integer>
     <dimen name="fab_margin">16dp</dimen>
+    
+    <!-- Card Strokes -->
+    <dimen name="card_stroke_normal">1dp</dimen>
+    <dimen name="card_stroke_selected">2dp</dimen>
 </resources>

@@ -89,4 +89,9 @@
     <color name="phase_contact">#FF9800</color> <!-- Orange -->
     <color name="phase_follow_through">#9C27B0</color> <!-- Purple -->
     <color name="phase_recovery">#AAAAAA</color> <!-- Gray -->
+    
+    <!-- Semantic UI Colors -->
+    <color name="primary_blue">#3B82F6</color>
+    <color name="success_green">#10B981</color>
+    <color name="text_primary">#1F2937</color>
 </resources>

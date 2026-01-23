@@ -80,6 +80,18 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Weekly Sessions Screen -->
+        <activity
+            android:name=".WeeklySessionsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Skill Target Screen -->
+        <activity
+            android:name=".SkillTargetActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Main Activity (New Entry Point) -->
         <activity
             android:name=".MainActivity"

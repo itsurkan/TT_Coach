@@ -306,10 +306,14 @@
 
                 <!-- Weekly Sessions -->
                 <LinearLayout
+                    android:id="@+id/layout_weekly_sessions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
 
                     <FrameLayout
                         android:layout_width="48dp"
@@ -352,10 +356,14 @@
 
                 <!-- Skill Target -->
                 <LinearLayout
+                    android:id="@+id/layout_skill_target"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="20dp"
-                    android:gravity="center_vertical">
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
 
                     <FrameLayout
                         android:layout_width="48dp"

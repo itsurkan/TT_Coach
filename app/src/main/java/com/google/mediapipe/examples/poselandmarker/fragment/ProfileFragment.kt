@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment
 import com.google.mediapipe.examples.poselandmarker.AppSettingsActivity
 import com.google.mediapipe.examples.poselandmarker.R
 import com.google.mediapipe.examples.poselandmarker.SubscribeActivity
+import com.google.mediapipe.examples.poselandmarker.WeeklySessionsActivity
+import com.google.mediapipe.examples.poselandmarker.SkillTargetActivity
 import com.google.mediapipe.examples.poselandmarker.databinding.FragmentProfileBinding
 import com.google.mediapipe.examples.poselandmarker.managers.SettingsManager
 import android.widget.ArrayAdapter
@@ -178,6 +180,18 @@ class ProfileFragment : Fragment() {
     }
 
     private fun setupMenuItems() {
+        // Weekly Sessions
+        binding.layoutWeeklySessions.setOnClickListener {
+            val intent = Intent(requireContext(), WeeklySessionsActivity::class.java)
+            startActivity(intent)
+        }
+        
+        // Skill Target
+        binding.layoutSkillTarget.setOnClickListener {
+            val intent = Intent(requireContext(), SkillTargetActivity::class.java)
+            startActivity(intent)
+        }
+        
         // App Settings
         binding.layoutAppSettings.setOnClickListener {
             val intent = Intent(requireContext(), AppSettingsActivity::class.java)
