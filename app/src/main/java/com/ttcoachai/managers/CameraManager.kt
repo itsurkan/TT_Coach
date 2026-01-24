@@ -130,9 +130,20 @@ class CameraManager(
     }
 
     /**
-     * Get camera facing direction
+     * Stop and unbind all camera use cases
      */
-    fun getCameraFacing(): Int {
-        return cameraFacing
+    fun stop() {
+        cameraProvider?.unbindAll()
+    }
+
+    /**
+     * Release camera resources
+     */
+    fun release() {
+        stop()
+        cameraProvider = null
+        camera = null
+        preview = null
+        imageAnalyzer = null
     }
 }

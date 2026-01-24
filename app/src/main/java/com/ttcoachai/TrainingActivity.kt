@@ -281,7 +281,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     private fun updateUIForTrainingState(isActive: Boolean) {
         val icon = if (isActive) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-        val text = if (isActive) getString(R.string.btn_pause) else getString(R.string.btn_resume)
+        val textResId = if (isActive) R.string.btn_pause else R.string.btn_resume
+        val text = getString(textResId)
         
         binding.root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)?.setImageResource(icon)
         binding.drillMenu.btnPauseResume.text = text

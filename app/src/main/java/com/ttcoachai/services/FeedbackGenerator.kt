@@ -280,7 +280,8 @@ class FeedbackGenerator(private val context: Context) {
         } else {
             // Fallback to key itself if not found
             android.util.Log.e("FeedbackGenerator", "Resource not found: $resName")
-            key
+            // Return a more user-friendly fallback if it's a known key part
+            key.replace("error_", "").replace("rec_", "").replace("_", " ").capitalize()
         }
     }
 

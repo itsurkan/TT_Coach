@@ -91,11 +91,23 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             viewModel.setMinPosePresenceConfidence(poseLandmarkerHelper.minPosePresenceConfidence)
             viewModel.setDelegate(poseLandmarkerHelper.currentDelegate)
 
+            // Stop camera first to prevent new frames during cleanup
+            if (::cameraManager.isInitialized) {
+                cameraManager.stop()
+            }
+
             // Release resources
             backgroundExecutor.execute { 
                 poseLandmarkerHelper.clearPoseLandmarker() 
             }
         }
+    }
+
+    override fun onDestroy() {
+        if (::cameraManager.isInitialized) {
+            cameraManager.release()
+        }
+        super.onDestroy()
     }
 
     override fun onDestroyView() {
@@ -369,7 +381,6 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
                         hasShownDetectionToast = true
                         Toast.makeText(requireContext(), getString(R.string.toast_pose_detected), Toast.LENGTH_SHORT).show()
                     }
-                    
                     fragmentCameraBinding.overlay.setResults(
                         resultBundle.results.first(),
                         resultBundle.inputImageHeight,
