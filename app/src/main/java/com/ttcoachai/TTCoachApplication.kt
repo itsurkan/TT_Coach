@@ -30,22 +30,21 @@ class TTCoachApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         
-        // Enable Material 3 Dynamic Colors
+        // Enable Material 3 Dynamic Colors (apply as early as possible)
         com.google.android.material.color.DynamicColors.applyToActivitiesIfAvailable(this)
 
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
         
-        // Initialize async file logger (zero latency impact)
+        // Initialize async file logger
         fileLogger = LocalFileLogger(this)
         
-        // Disable file logging by default unless in developer mode
         if (settingsManager.isDeveloperModeEnabled()) {
             fileLogger.setFileLoggingEnabled(true)
-            fileLogger.logInfo(TAG, "Developer mode detected, enabling file logging")
+            fileLogger.logInfo(TAG, "Application initialized in developer mode")
         }
         
-        Log.i(TAG, "Application started with async file logging (currently: ${if (settingsManager.isDeveloperModeEnabled()) "ON" else "OFF"})")
+        Log.i(TAG, "TT Coach Application started [SDK: ${android.os.Build.VERSION.SDK_INT}, DevMode: ${settingsManager.isDeveloperModeEnabled()}]")
     }
     
     override fun onTerminate() {
