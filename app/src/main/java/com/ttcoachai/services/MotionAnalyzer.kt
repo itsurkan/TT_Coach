@@ -12,6 +12,7 @@ import com.ttcoachai.models.FeedbackItem
 import com.ttcoachai.models.StrokePhase
 import com.ttcoachai.models.TechniqueErrors
 import com.ttcoachai.models.TechniqueRecommendations
+import com.google.mediapipe.tasks.components.containers.Landmark
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 
@@ -34,7 +35,15 @@ class MotionAnalyzer(
                 errors = listOf("Не вдалося виявити позу - перевірте освітлення та позицію камери")
             )
         }
-        return analyzeStroke(poseLandmarkerResult.landmarks()[0], phase)
+        
+        // Prefer world landmarks (3D in meters) for better accuracy
+        val landmarks = if (poseLandmarkerResult.worldLandmarks().isNotEmpty()) {
+            poseLandmarkerResult.worldLandmarks()[0]
+        } else {
+            poseLandmarkerResult.landmarks()[0]
+        }
+        
+        return analyzeStroke(landmarks, phase)
     }
 
     /**
@@ -52,7 +61,7 @@ class MotionAnalyzer(
      * Аналізувати техніку удару на основі raw landmarks
      */
     fun analyzeStroke(
-        landmarks: List<NormalizedLandmark>,
+        landmarks: List<Any>, // Can be NormalizedLandmark or Landmark
         phase: StrokePhase = StrokePhase.CONTACT
     ): AnalysisResult {
         if (landmarks.isEmpty()) {
@@ -100,7 +109,7 @@ class MotionAnalyzer(
         )
     }
 
-    private fun extractMetrics(landmarks: List<NormalizedLandmark>): StrokeMetrics {
+    private fun extractMetrics(landmarks: List<Any>): StrokeMetrics {
         return StrokeMetrics(
             wristAngle = calculateWristAngle(landmarks),
             bodyRotation = calculateBodyRotation(landmarks),
@@ -196,18 +205,14 @@ class MotionAnalyzer(
     /**
      * Розрахувати кут зап'ястя (лікоть-зап'ястя-кисть)
      */
-    private fun calculateWristAngle(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Float? {
+    private fun calculateWristAngle(landmarks: List<Any>): Float? {
         try {
-            // Індекси для правої руки: плече=12, лікоть=14, зап'ястя=16
-            val elbow = landmarks[14]
-            val wrist = landmarks[16]
-            val index = landmarks[20] // індексний палець
+            // Right Hand: shoulder=12, elbow=14, wrist=16, index=20
+            val elbow = getLandmark(landmarks, 14) ?: return null
+            val wrist = getLandmark(landmarks, 16) ?: return null
+            val index = getLandmark(landmarks, 20) ?: return null
             
-            return calculateAngle(
-                elbow.x(), elbow.y(),
-                wrist.x(), wrist.y(),
-                index.x(), index.y()
-            )
+            return calculate3DAngle(elbow, wrist, index)
         } catch (e: Exception) {
             return null
         }
@@ -216,14 +221,14 @@ class MotionAnalyzer(
     /**
      * Розрахувати ротацію корпусу (плечі відносно стегон)
      */
-    private fun calculateBodyRotation(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Float? {
+    private fun calculateBodyRotation(landmarks: List<Any>): Float? {
         try {
-            // Плечі: ліве=11, праве=12
-            // Стегна: ліве=23, праве=24
-            val leftShoulder = landmarks[11]
-            val rightShoulder = landmarks[12]
-            val leftHip = landmarks[23]
-            val rightHip = landmarks[24]
+            // Shoulders: left=11, right=12
+            // Hips: left=23, right=24
+            val leftShoulder = getLandmark(landmarks, 11) ?: return null
+            val rightShoulder = getLandmark(landmarks, 12) ?: return null
+            val leftHip = getLandmark(landmarks, 23) ?: return null
+            val rightHip = getLandmark(landmarks, 24) ?: return null
             
             val shoulderAngle = Math.toDegrees(
                 Math.atan2(
@@ -248,17 +253,13 @@ class MotionAnalyzer(
     /**
      * Розрахувати кут проведення (follow-through)
      */
-    private fun calculateFollowThroughAngle(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Float? {
+    private fun calculateFollowThroughAngle(landmarks: List<Any>): Float? {
         try {
-            val shoulder = landmarks[12]
-            val elbow = landmarks[14]
-            val wrist = landmarks[16]
+            val shoulder = getLandmark(landmarks, 12) ?: return null
+            val elbow = getLandmark(landmarks, 14) ?: return null
+            val wrist = getLandmark(landmarks, 16) ?: return null
             
-            return calculateAngle(
-                shoulder.x(), shoulder.y(),
-                elbow.x(), elbow.y(),
-                wrist.x(), wrist.y()
-            )
+            return calculate3DAngle(shoulder, elbow, wrist)
         } catch (e: Exception) {
             return null
         }
@@ -267,12 +268,12 @@ class MotionAnalyzer(
     /**
      * Розрахувати відносну висоту контакту
      */
-    private fun calculateContactHeight(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Float? {
+    private fun calculateContactHeight(landmarks: List<Any>): Float? {
         try {
-            val wrist = landmarks[16]
-            val hip = landmarks[24]
+            val wrist = getLandmark(landmarks, 16) ?: return null
+            val hip = getLandmark(landmarks, 24) ?: return null
             
-            // Відносна висота: 0 = рівень стегон, 1 = на висоті плечей
+            // Relative height: 0 = hip level, 1 = shoulder height
             return 1f - wrist.y() / hip.y()
         } catch (e: Exception) {
             return null
@@ -282,10 +283,10 @@ class MotionAnalyzer(
     /**
      * Розрахувати відстань між лікоть та тілом
      */
-    private fun calculateElbowBodyDistance(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Float? {
+    private fun calculateElbowBodyDistance(landmarks: List<Any>): Float? {
         try {
-            val elbow = landmarks[14]
-            val hip = landmarks[24]
+            val elbow = getLandmark(landmarks, 14) ?: return null
+            val hip = getLandmark(landmarks, 24) ?: return null
             
             val dx = elbow.x() - hip.x()
             val dy = elbow.y() - hip.y()
@@ -297,7 +298,48 @@ class MotionAnalyzer(
     }
 
     /**
-     * Розрахувати кут між трьома точками (A-B-C)
+     * Get landmark safely and handle both types
+     */
+    private fun getLandmark(landmarks: List<Any>, index: Int): com.google.mediapipe.tasks.components.containers.Landmark? {
+        if (index >= landmarks.size) return null
+        val item = landmarks[index]
+        return if (item is com.google.mediapipe.tasks.components.containers.Landmark) {
+            item
+        } else if (item is com.google.mediapipe.tasks.components.containers.NormalizedLandmark) {
+            com.google.mediapipe.tasks.components.containers.Landmark.create(item.x(), item.y(), item.z(), item.visibility(), item.presence())
+        } else {
+            null
+        }
+    }
+
+    /**
+     * Calculate 3D angle between three points (A-B-C)
+     */
+    private fun calculate3DAngle(
+        a: com.google.mediapipe.tasks.components.containers.Landmark,
+        b: com.google.mediapipe.tasks.components.containers.Landmark,
+        c: com.google.mediapipe.tasks.components.containers.Landmark
+    ): Float {
+        // Vector BA
+        val bax = a.x() - b.x()
+        val bay = a.y() - b.y()
+        val baz = a.z() - b.z()
+        
+        // Vector BC
+        val bcx = c.x() - b.x()
+        val bcy = c.y() - b.y()
+        val bcz = c.z() - b.z()
+        
+        val dotProduct = bax * bcx + bay * bcy + baz * bcz
+        val magBA = Math.sqrt((bax * bax + bay * bay + baz * baz).toDouble())
+        val magBC = Math.sqrt((bcx * bcx + bcy * bcy + bcz * bcz).toDouble())
+        
+        val cosAngle = dotProduct / (magBA * magBC)
+        return Math.toDegrees(Math.acos(cosAngle.coerceIn(-1.0, 1.0))).toFloat()
+    }
+
+    /**
+     * Calculate angle between three points (A-B-C) in 2D
      */
     private fun calculateAngle(
         ax: Float, ay: Float,

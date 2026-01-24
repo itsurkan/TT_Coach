@@ -82,42 +82,39 @@ class PoseLandmarkerProcessor(
             matrix.postScale(-1f, 1f, imageProxy.width.toFloat(), imageProxy.height.toFloat())
         }
         
-        // Correcting the translation for rotated coordinates
-        val tempBitmap = rotatedBitmap
-        if (tempBitmap != null) {
-            val canvas = android.graphics.Canvas(tempBitmap)
-            canvas.drawColor(android.graphics.Color.BLACK) // Clear background
+        val tempBitmap = rotatedBitmap ?: return
+        
+        // 3. Robust Rotation and Centering logic
+        // We need to translate such that the rotated image center aligns with the result bitmap center
+        val centerX = imageProxy.width / 2f
+        val centerY = imageProxy.height / 2f
             
-            // Adjust matrix for rotation translation if necessary
-            // For 90/270 degrees, we need to translate to stay inside bounds
-            if (rotationDegrees == 90 || rotationDegrees == 270) {
-                val dx = if (rotationDegrees == 90) rotatedWidth.toFloat() else 0f
-                val dy = if (rotationDegrees == 270) rotatedHeight.toFloat() else 0f
-                // We'll let the Matrix handle the math but simple createBitmap with matrix is usually safer 
-                // IF we don't want to manually calculate the translation.
-                // However, let's use a more robust way to draw the rotated bitmap.
-            }
+        matrix.reset()
+        // Step 1: Center the original image at (0,0)
+        matrix.postTranslate(-centerX, -centerY)
             
-            // Reverting to a more standard way but reusing the bitmap via Canvas.drawBitmap if possible.
-            // Actually, Matrix-based drawing on Canvas is exactly what we need.
+        // Step 2: Rotate around the center (0,0)
+        matrix.postRotate(rotationDegrees.toFloat())
             
-            // Centering logic for different rotations
-            val centerX = imageProxy.width / 2f
-            val centerY = imageProxy.height / 2f
+        // Step 3: Handle mirroring if it's the front camera
+        if (isFrontCamera) {
+            matrix.postScale(-1f, 1f)
+        }
             
-            // We need to translate such that the rotated image center aligns with the result bitmap center
-            matrix.reset()
-            matrix.postTranslate(-centerX, -centerY)
-            matrix.postRotate(rotationDegrees.toFloat())
-            if (isFrontCamera) {
-                matrix.postScale(-1f, 1f)
-            }
-            matrix.postTranslate(rotatedWidth / 2f, rotatedHeight / 2f)
+        // Step 4: Translate back to the center of the pre-allocated result bitmap
+        matrix.postTranslate(rotatedWidth / 2f, rotatedHeight / 2f)
             
-            canvas.drawBitmap(bitmapBuffer!!, matrix, null)
+        // Draw onto the reused bitmap
+        val canvas = android.graphics.Canvas(tempBitmap)
+        canvas.drawColor(android.graphics.Color.BLACK) // Clear previous frame
+        canvas.drawBitmap(bitmapBuffer!!, matrix, null)
 
+        try {
             val mpImage = BitmapImageBuilder(tempBitmap).build()
             detectAsync(mpImage, frameTime)
+        } catch (e: Exception) {
+            Log.e(TAG, "MediaPipe JNI Error in detectLiveStream", e)
+            // Fallback: Notify app of processing failure without crashing
         }
     }
 

@@ -122,6 +122,9 @@
                 android:name="android.notch_support"
                 android:value="true" />
         </activity>
+
+        <!-- Samsung GOS/GameSDK explicit exclusion -->
+        <meta-data android:name="com.samsung.android.game.game_mode" android:value="0" />
     </application>
 
 </manifest>
