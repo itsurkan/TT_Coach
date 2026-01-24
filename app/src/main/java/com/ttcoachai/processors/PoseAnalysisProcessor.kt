@@ -135,8 +135,10 @@ class PoseAnalysisProcessor(
                 currentStrokeResults.add(analysisResult)
             }
             
-            // Trigger UI update callback (for animations/overlays)
-            onUIUpdate()
+            // Trigger UI update callback (for animations/overlays) on main thread
+            mainHandler.post {
+                onUIUpdate()
+            }
             
             // -------------------------------------------------------------------------
             // 1. DELAYED FEEDBACK (Trigger after NEXT BACKSWING completion)

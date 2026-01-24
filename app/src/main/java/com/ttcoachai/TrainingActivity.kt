@@ -290,29 +290,31 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     private fun updateStats() {
-        // Update stats on screen
-        val totalHits = stateManager.getTotalHits()
-        val accuracy = if (totalHits > 0) {
-            (stateManager.getSuccessfulHits().toFloat() / totalHits * 100).toInt()
-        } else 0
-
-        // Overlay stats
-        binding.root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
-        binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = getString(R.string.format_percent_simple, accuracy)
-        
-        // Update drawer stats
-        binding.drillMenu.tvTotalHits.text = totalHits.toString()
-        binding.drillMenu.tvAccuracy.text = getString(R.string.format_percent_simple, accuracy)
-        
-        // Update drill progress
-        val successfulHits = stateManager.getSuccessfulHits()
-        val targetHits = 20 // Dummy target for now
-        binding.drillMenu.progressDrill.progress = (successfulHits.toFloat() / targetHits * 100).toInt()
-        binding.drillMenu.tvDrillProgress.text = getString(R.string.hits_progress_format, successfulHits, targetHits)
-
-        // Update feedback adapter
-        val feedbackItems = stateManager.getLatestFeedbackItems()
-        feedbackAdapter.updateFeedback(feedbackItems)
+        runOnUiThread {
+            // Update stats on screen
+            val totalHits = stateManager.getTotalHits()
+            val accuracy = if (totalHits > 0) {
+                (stateManager.getSuccessfulHits().toFloat() / totalHits * 100).toInt()
+            } else 0
+    
+            // Overlay stats
+            binding.root.findViewById<android.widget.TextView>(R.id.tv_hits_count)?.text = totalHits.toString()
+            binding.root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = getString(R.string.format_percent_simple, accuracy)
+            
+            // Update drawer stats
+            binding.drillMenu.tvTotalHits.text = totalHits.toString()
+            binding.drillMenu.tvAccuracy.text = getString(R.string.format_percent_simple, accuracy)
+            
+            // Update drill progress
+            val successfulHits = stateManager.getSuccessfulHits()
+            val targetHits = 20 // Dummy target for now
+            binding.drillMenu.progressDrill.progress = (successfulHits.toFloat() / targetHits * 100).toInt()
+            binding.drillMenu.tvDrillProgress.text = getString(R.string.hits_progress_format, successfulHits, targetHits)
+    
+            // Update feedback adapter
+            val feedbackItems = stateManager.getLatestFeedbackItems()
+            feedbackAdapter.updateFeedback(feedbackItems)
+        }
     }
 
     private fun showSummary() {
