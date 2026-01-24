@@ -44,9 +44,9 @@ class PoseLandmarkerHelper(
 
     fun clearPoseLandmarker() {
         processor?.cancel()
+        processor = null
         poseLandmarker?.close()
         poseLandmarker = null
-        processor = null
     }
 
     fun isClose(): Boolean = poseLandmarker == null

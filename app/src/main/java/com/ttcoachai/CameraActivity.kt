@@ -41,6 +41,7 @@ class CameraActivity : BaseActivity() {
     }
 
     override fun onBackPressed() {
+        super.onBackPressed()
         finish()
     }
 }

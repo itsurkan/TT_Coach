@@ -39,8 +39,9 @@ class PoseLandmarkerProcessor(
     private val matrix = Matrix()
 
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
-        require(runningMode == RunningMode.LIVE_STREAM) {
-            "Attempting to call detectLiveStream while not using RunningMode.LIVE_STREAM"
+        if (runningMode != RunningMode.LIVE_STREAM) {
+            Log.w(TAG, "Attempting to call detectLiveStream while not using RunningMode.LIVE_STREAM")
+            return
         }
 
         val frameTime = SystemClock.uptimeMillis()
@@ -125,8 +126,9 @@ class PoseLandmarkerProcessor(
     }
 
     fun detectVideoFile(videoUri: Uri, inferenceIntervalMs: Long, onError: ((String) -> Unit)?): ResultBundle? {
-        require(runningMode == RunningMode.VIDEO) {
-            "Attempting to call detectVideoFile while not using RunningMode.VIDEO"
+        if (runningMode != RunningMode.VIDEO) {
+            Log.w(TAG, "Attempting to call detectVideoFile while not using RunningMode.VIDEO")
+            return null
         }
 
         val startTime = SystemClock.uptimeMillis()
@@ -213,8 +215,9 @@ class PoseLandmarkerProcessor(
     }
 
     fun detectImage(image: Bitmap, onError: ((String) -> Unit)?): ResultBundle? {
-        require(runningMode == RunningMode.IMAGE) {
-            "Attempting to call detectImage while not using RunningMode.IMAGE"
+        if (runningMode != RunningMode.IMAGE) {
+            Log.w(TAG, "Attempting to call detectImage while not using RunningMode.IMAGE")
+            return null
         }
 
         val startTime = SystemClock.uptimeMillis()

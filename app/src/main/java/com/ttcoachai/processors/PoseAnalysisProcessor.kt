@@ -26,6 +26,7 @@ class PoseAnalysisProcessor(
     private val stateManager: TrainingStateManager,
     private val onUIUpdate: () -> Unit
 ) {
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var frameCounter: Int = 0
     private var currentSessionId: String? = null
     
@@ -144,9 +145,8 @@ class PoseAnalysisProcessor(
                 pendingFeedbackResult?.let { result ->
                     val frequency = application.settingsManager.getFeedbackFrequency()
                     if (totalCompletedStrokes > 0 && totalCompletedStrokes % frequency == 0) {
-                        android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        mainHandler.post {
                             Log.i(TAG, "Playing DELAYED Audio Feedback from previous stroke (Frequency: $frequency, Stroke: $totalCompletedStrokes)")
-                            
                             feedbackGenerator.playFeedbackAudio(result)
                         }
                     }
@@ -191,7 +191,7 @@ class PoseAnalysisProcessor(
                     stateManager.addFeedbackItems(bestResult.feedbackItems)
                     
                     // Update UI on main thread
-                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    mainHandler.post {
                         onUIUpdate()
                     }
                     
