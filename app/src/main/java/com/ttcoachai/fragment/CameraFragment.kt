@@ -100,6 +100,10 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             backgroundExecutor.execute { 
                 poseLandmarkerHelper.clearPoseLandmarker() 
             }
+            
+            if (::poseAnalysisProcessor.isInitialized) {
+                poseAnalysisProcessor.release()
+            }
         }
     }
 
@@ -156,20 +160,22 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             }
         )
 
-        // Initialize analysis processor for standalone mode
-        val params = com.ttcoachai.models.ExerciseParameters(
-            exerciseId = "forehand_drive"
-        )
-        val motionAnalyzer = com.ttcoachai.services.MotionAnalyzer(params)
-        val feedbackGenerator = com.ttcoachai.services.FeedbackGenerator(requireContext())
-        
-        poseAnalysisProcessor = com.ttcoachai.processors.PoseAnalysisProcessor(
-            application = requireActivity().application as com.ttcoachai.TTCoachApplication,
-            motionAnalyzer = motionAnalyzer,
-            feedbackGenerator = feedbackGenerator,
-            stateManager = stateManager,
-            onUIUpdate = { updateStats() }
-        )
+        // Initialize analysis processor for standalone mode only if not in TrainingActivity
+        if (activity !is com.ttcoachai.TrainingActivity) {
+            val params = com.ttcoachai.models.ExerciseParameters(
+                exerciseId = "forehand_drive"
+            )
+            val motionAnalyzer = com.ttcoachai.services.MotionAnalyzer(params)
+            val feedbackGenerator = com.ttcoachai.services.FeedbackGenerator(requireContext())
+            
+            poseAnalysisProcessor = com.ttcoachai.processors.PoseAnalysisProcessor(
+                application = requireActivity().application as com.ttcoachai.TTCoachApplication,
+                motionAnalyzer = motionAnalyzer,
+                feedbackGenerator = feedbackGenerator,
+                stateManager = stateManager,
+                onUIUpdate = { updateStats() }
+            )
+        }
 
         // Setup UI after view is laid out
         fragmentCameraBinding.viewFinder.post {
