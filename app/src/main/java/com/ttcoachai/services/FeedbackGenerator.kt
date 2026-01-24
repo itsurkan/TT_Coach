@@ -30,43 +30,14 @@ class FeedbackGenerator(private val context: Context) {
     
     private var loadedSounds = mutableSetOf<Int>()
     private var toneGenerator: ToneGenerator? = null
-    private var soundPool: SoundPool? = null
     private var mediaPlayer: MediaPlayer? = null
-    private var ticSoundId: Int = 0
-    private var tacSoundId: Int = 0
 
     init {
-        val audioAttributes = android.media.AudioAttributes.Builder()
-            .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = android.media.SoundPool.Builder()
-            .setMaxStreams(2)
-            .setAudioAttributes(audioAttributes)
-            .build()
-            
-        // Fallback tone generator
+        // Fallback tone generator for rhythm
         try {
             toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
         } catch (e: Exception) {
             Log.e("FeedbackGenerator", "Failed to create ToneGenerator", e)
-        }
-            
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            if (status == 0) {
-                loadedSounds.add(sampleId)
-                android.util.Log.d("FeedbackGenerator", "Sound loaded successfully: $sampleId")
-            } else {
-                android.util.Log.e("FeedbackGenerator", "Failed to load sound $sampleId, status: $status")
-            }
-        }
-
-        try {
-            ticSoundId = soundPool?.load(context, R.raw.tic, 1) ?: 0
-            tacSoundId = soundPool?.load(context, R.raw.tac, 1) ?: 0
-        } catch (e: Exception) {
-            android.util.Log.e("FeedbackGenerator", "Error loading sound resources", e)
         }
     }
 
@@ -74,16 +45,10 @@ class FeedbackGenerator(private val context: Context) {
      * Play "tic" sound (start of stroke)
      */
     fun playTic() {
-        var played = false
-        if (ticSoundId != 0 && loadedSounds.contains(ticSoundId)) {
-            Log.d("FeedbackGenerator", "Playing TIC via SoundPool")
-            val streamId = soundPool?.play(ticSoundId, 1.0f, 1.0f, 1, 0, 1.0f) ?: 0
-            if (streamId != 0) played = true
-        }
-        
-        if (!played) {
-            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TIC")
-            // Removed ToneGenerator fallback to avoid beeps
+        try {
+            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 50)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error playing TIC tone", e)
         }
     }
 
@@ -91,16 +56,10 @@ class FeedbackGenerator(private val context: Context) {
      * Play "tac" sound (peak of stroke)
      */
     fun playTac() {
-        var played = false
-        if (tacSoundId != 0 && loadedSounds.contains(tacSoundId)) {
-            Log.d("FeedbackGenerator", "Playing TAC via SoundPool")
-            val streamId = soundPool?.play(tacSoundId, 1.0f, 1.0f, 1, 0, 1.0f) ?: 0
-            if (streamId != 0) played = true
-        }
-        
-        if (!played) {
-            android.util.Log.w("FeedbackGenerator", "SoundPool failed for TAC")
-            // Removed ToneGenerator fallback to avoid beeps
+        try {
+            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 50)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error playing TAC tone", e)
         }
     }
 
@@ -108,8 +67,6 @@ class FeedbackGenerator(private val context: Context) {
      * Release audio resources
      */
     fun release() {
-        soundPool?.release()
-        soundPool = null
         toneGenerator?.release()
         toneGenerator = null
         mediaPlayer?.release()
