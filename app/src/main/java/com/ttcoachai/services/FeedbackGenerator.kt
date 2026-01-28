@@ -29,37 +29,68 @@ class FeedbackGenerator(private val context: Context) {
     fun getSettingsManager() = settingsManager
     
     private var loadedSounds = mutableSetOf<Int>()
+    private var soundPool: SoundPool? = null
+    private var ticSoundId: Int = 0
+    private var tacSoundId: Int = 0
     private var toneGenerator: ToneGenerator? = null
     private var mediaPlayer: MediaPlayer? = null
 
     init {
-        // Fallback tone generator for rhythm
+        // Initialize SoundPool for rhythm sounds (tic/tac)
+        try {
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            
+            soundPool = SoundPool.Builder()
+                .setMaxStreams(5)
+                .setAudioAttributes(audioAttributes)
+                .build()
+                
+            ticSoundId = soundPool?.load(context, R.raw.tic, 1) ?: 0
+            tacSoundId = soundPool?.load(context, R.raw.tac, 1) ?: 0
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to initialize SoundPool", e)
+        }
+
+        // Fallback tone generator
         try {
             toneGenerator = ToneGenerator(AudioManager.STREAM_MUSIC, 100)
         } catch (e: Exception) {
-            Log.e("FeedbackGenerator", "Failed to create ToneGenerator", e)
+            Log.e(TAG, "Failed to create ToneGenerator", e)
         }
     }
 
     /**
-     * Play "tic" sound (start of stroke)
+     * Play "tic" sound (start of stroke) from assets
      */
     fun playTic() {
         try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 50)
+            if (ticSoundId != 0) {
+                soundPool?.play(ticSoundId, 1f, 1f, 1, 0, 1f)
+            } else {
+                // Fallback to tone generator
+                toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 50)
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error playing TIC tone", e)
+            Log.e(TAG, "Error playing TIC sound", e)
         }
     }
 
     /**
-     * Play "tac" sound (peak of stroke)
+     * Play "tac" sound (peak of stroke) from assets
      */
     fun playTac() {
         try {
-            toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 50)
+            if (tacSoundId != 0) {
+                soundPool?.play(tacSoundId, 1f, 1f, 1, 0, 1f)
+            } else {
+                // Fallback to tone generator
+                toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 50)
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Error playing TAC tone", e)
+            Log.e(TAG, "Error playing TAC sound", e)
         }
     }
 
@@ -71,6 +102,8 @@ class FeedbackGenerator(private val context: Context) {
         toneGenerator = null
         mediaPlayer?.release()
         mediaPlayer = null
+        soundPool?.release()
+        soundPool = null
     }
 
     /**
