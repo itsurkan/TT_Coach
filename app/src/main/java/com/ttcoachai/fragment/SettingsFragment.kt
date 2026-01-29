@@ -33,6 +33,7 @@ class SettingsFragment : Fragment() {
         setupAITrainerSettings()
         setupAudioSettings()
         setupCameraSettings()
+        setupFeedbackSettings()
     }
 
     private fun setupAITrainerSettings() {
@@ -147,6 +148,38 @@ class SettingsFragment : Fragment() {
             settingsManager.setDistanceModeEnabled(isChecked)
         }
     }
+
+    private fun setupFeedbackSettings() {
+        // Frequency dropdown
+        val frequencies = resources.getStringArray(R.array.feedback_frequencies)
+        val freqValues = listOf(3, 5, 10)
+        val frequencyAdapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, frequencies)
+        binding.autoCompleteFrequency.setAdapter(frequencyAdapter)
+        
+        val currentFreq = settingsManager.getFeedbackFrequency()
+        val freqIndex = freqValues.indexOf(currentFreq).coerceAtLeast(0)
+        binding.autoCompleteFrequency.setText(frequencies[freqIndex], false)
+        
+        binding.autoCompleteFrequency.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            settingsManager.setFeedbackFrequency(freqValues[position])
+        }
+
+        // Correction Chips
+        setupCorrectionChip(binding.chipWrist, com.ttcoachai.models.CorrectionType.WRIST)
+        setupCorrectionChip(binding.chipRotation, com.ttcoachai.models.CorrectionType.BODY_ROTATION)
+        setupCorrectionChip(binding.chipFollowThrough, com.ttcoachai.models.CorrectionType.FOLLOW_THROUGH)
+        setupCorrectionChip(binding.chipContactHeight, com.ttcoachai.models.CorrectionType.CONTACT_HEIGHT)
+        setupCorrectionChip(binding.chipElbow, com.ttcoachai.models.CorrectionType.ELBOW_POSITION)
+        setupCorrectionChip(binding.chipSpeed, com.ttcoachai.models.CorrectionType.STROKE_SPEED)
+    }
+
+    private fun setupCorrectionChip(chip: com.google.android.material.chip.Chip, type: com.ttcoachai.models.CorrectionType) {
+        chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)
+        chip.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setCorrectionTypeEnabled(type, isChecked)
+        }
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
