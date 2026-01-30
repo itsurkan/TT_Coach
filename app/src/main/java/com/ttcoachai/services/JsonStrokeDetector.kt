@@ -31,7 +31,7 @@ data class StrokeDetectorConfig(
     val returnVelocityThreshold: Float = -0.05f, // Negative velocity for return
     val minBackswingDepth: Float = 0.08f,     // Minimum movement back
     val minForwardExtension: Float = 0.15f,   // Minimum forward movement
-    val minStrokeFrames: Int = 4,             // 400ms minimum at 100ms interval
+    val minStrokeFrames: Int = 3,             // 300ms minimum at 100ms interval
     val maxStrokeFrames: Int = 20,            // 2s timeout
     val smoothingWindow: Int = 3,             // Moving average frames
     val invertDirection: Boolean = false       // For backhand (left-to-right)
@@ -39,7 +39,7 @@ data class StrokeDetectorConfig(
     companion object {
         /** Default config for forehand drive */
         val FOREHAND = StrokeDetectorConfig(
-            forwardVelocityThreshold = 0.05f
+            forwardVelocityThreshold = 0.075f
         )
 
         /** Config for backhand - inverted direction, left wrist */

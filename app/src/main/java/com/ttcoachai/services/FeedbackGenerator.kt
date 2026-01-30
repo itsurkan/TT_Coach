@@ -26,7 +26,7 @@ class FeedbackGenerator(private val context: Context) {
         if (oldPhase != newPhase) {
             when (newPhase) {
                 com.ttcoachai.models.StrokePhase.BACKSWING -> playTic()
-                com.ttcoachai.models.StrokePhase.FOLLOW_THROUGH -> playTac()
+                com.ttcoachai.models.StrokePhase.FORWARD_SWING -> playTac()
                 else -> {}
             }
         }

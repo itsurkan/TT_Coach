@@ -240,7 +240,7 @@ class JsonStrokeDetectorTest {
     }
 
     @Test
-    fun `detect strokes from forehand_drive_wrong_poses json - expects 5 strokes`() {
+    fun `detect strokes from forehand_drive_wrong_poses json - expects 4 strokes`() {
         val filename = "forehand_drive_wrong_poses.json"
         val jsonFile = findJsonFile(filename)
         assertNotNull("$filename should exist", jsonFile)
@@ -264,62 +264,56 @@ class JsonStrokeDetectorTest {
                     "peak=${String.format("%.3f", stroke.forwardPeakValue)}")
         }
 
-        assertEquals("Should detect 5 strokes in wrong technique file", 5, result.strokes.size)
+        assertEquals("Should detect 4 strokes in wrong technique file (1 filtered as too slow)", 4, result.strokes.size)
     }
 
     @Test
-    fun `trace phase timing for forehand_drive`() {
-        // Load the standard forehand drive file
-        val filename = "forehand_drive_poses.json"
+    fun `analyze stroke values for ivan_poses`() {
+        val filename = "ivan_poses.json"
         val jsonFile = findJsonFile(filename)
-        if (jsonFile == null) {
-            println("Skipping test - $filename not found")
-            return
-        }
+        if (jsonFile == null) return
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
-
-        // Use standard FOREHAND config
-        val result = detector.detectStrokes(frames, intervalMs)
+        val result = detector.detectStrokes(frames, 100L)
 
         val sb = StringBuilder()
-        sb.append("=== Phase Timing Trace for $filename ===\n")
-        sb.append("Total detection: ${result.strokes.size} strokes\n")
-
-        var currentPhase = StrokePhase.READY
-        var phaseStartFrame = 0
-
-        // Iterate through all frames to find transitions
-        for (i in 0 until result.totalFrames) {
-            val phase = result.getPhaseForFrame(i)
+        sb.append("=== Stroke Analysis (Values) ===\n")
+        sb.append("Config: Axis=${StrokeDetectorConfig.FOREHAND.trackingAxis}, Inv=${StrokeDetectorConfig.FOREHAND.invertDirection}\n")
+        
+        result.strokes.forEachIndexed { index, stroke ->
+            sb.append("\nStroke ${index + 1}:\n")
+            sb.append("  Frames: ${stroke.preparationStartFrame} -> ${stroke.returnEndFrame}\n")
+            sb.append("  Total Duration: ${stroke.strokeDurationMs}ms\n")
+            sb.append("  Backswing Min Value: ${stroke.backswingMinValue}\n")
+            sb.append("  Forward Peak Value: ${stroke.forwardPeakValue}\n")
+            sb.append("  Amplitude: ${stroke.forwardPeakValue - stroke.backswingMinValue}\n")
+            sb.append("  Peak Velocity: ${stroke.peakVelocity}\n")
             
-            if (phase != currentPhase) {
-                // End of previous phase
-                val durationMs = (i - phaseStartFrame) * intervalMs
-                sb.append("Frame $phaseStartFrame - $i (${phaseStartFrame * intervalMs}ms - ${i * intervalMs}ms): $currentPhase ($durationMs ms)\n")
-                
-                // Start of new phase
-                currentPhase = phase
-                phaseStartFrame = i
-                
-                // If this is a transition TO a new phase, verify if it aligns with stroke bounds
-                val stroke = result.getStrokeForFrame(i)
-                if (stroke != null) {
-                    sb.append("  -> Transition to $phase inside Stroke ${stroke.strokeIndex + 1}\n")
-                }
+            // Calculate average Z (depth) variation
+            var minZ = Float.MAX_VALUE
+            var maxZ = Float.MIN_VALUE
+            for (i in stroke.preparationStartFrame..stroke.returnEndFrame) {
+                val z = frames[i].landmarks[16].z
+                minZ = minOf(minZ, z)
+                maxZ = maxOf(maxZ, z)
             }
+            sb.append("  Z-Range (Depth): ${maxZ - minZ}\n")
+            
+            // Calculate Y variation (vertical)
+            var minY = Float.MAX_VALUE
+            var maxY = Float.MIN_VALUE
+            for (i in stroke.preparationStartFrame..stroke.returnEndFrame) {
+                val y = frames[i].landmarks[16].y
+                minY = minOf(minY, y)
+                maxY = maxOf(maxY, y)
+            }
+            sb.append("  Y-Range (Height): ${maxY - minY}\n")
         }
         
-        // Final phase
-        sb.append("Frame $phaseStartFrame - ${result.totalFrames} (${phaseStartFrame * intervalMs}ms - ${result.totalFrames * intervalMs}ms): $currentPhase\n")
-        sb.append("=== End Trace ===\n")
-        
-        val outFile = File("timing_trace.txt")
+        val outFile = File("stroke_values.txt")
         outFile.writeText(sb.toString())
-        println("Wrote trace to ${outFile.absolutePath}")
+        println("Wrote values to ${outFile.absolutePath}")
     }
 
     /**
