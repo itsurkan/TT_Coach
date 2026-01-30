@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -265,7 +266,99 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:nestedScrollingEnabled="false"
-        android:descendantFocusability="blocksDescendants"/>
+        android:descendantFocusability="blocksDescendants"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Feedback Settings -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/header_feedback_settings_debug"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_frequency_n"
+                android:textSize="13sp"
+                android:paddingBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spinner_frequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/feedback_frequencies"
+                android:paddingBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_enabled_corrections"
+                android:textSize="13sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp" />
+
+            <CheckBox
+                android:id="@+id/cb_wrist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_wrist_angle"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_body_rotation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_body_rotation"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_follow_through"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_follow_through"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_contact_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_contact_height"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_elbow_position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_elbow_position"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_stroke_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_stroke_speed"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -8,11 +8,16 @@ package com.ttcoachai
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
+import android.widget.CheckBox
+import android.widget.Spinner
 import com.ttcoachai.databinding.ActivityTrainingBinding
+import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.managers.VideoPlayerManager
-import com.ttcoachai.models.ExerciseParameters
 import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.CorrectionType
+import com.ttcoachai.models.ExerciseParameters
 import com.ttcoachai.models.StrokePhase
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
@@ -168,6 +173,41 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
         // Apply distance mode if enabled
         applyDistanceMode()
+
+        // Setup feedback settings
+        setupFeedbackSettings()
+    }
+    
+    private fun setupFeedbackSettings() {
+        val settingsManager = SettingsManager(this)
+        val frequencies = listOf(3, 5, 10)
+        
+        // Setup frequency spinner
+        val currentFreq = settingsManager.getFeedbackFrequency()
+        val freqIndex = frequencies.indexOf(currentFreq).coerceAtLeast(0)
+        binding.drillMenu.spinnerFrequency.setSelection(freqIndex)
+        
+        binding.drillMenu.spinnerFrequency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                settingsManager.setFeedbackFrequency(frequencies[position])
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+        
+        // Setup correction checkboxes
+        setupCorrectionCheckbox(binding.drillMenu.cbWrist, CorrectionType.WRIST, settingsManager)
+        setupCorrectionCheckbox(binding.drillMenu.cbBodyRotation, CorrectionType.BODY_ROTATION, settingsManager)
+        setupCorrectionCheckbox(binding.drillMenu.cbFollowThrough, CorrectionType.FOLLOW_THROUGH, settingsManager)
+        setupCorrectionCheckbox(binding.drillMenu.cbContactHeight, CorrectionType.CONTACT_HEIGHT, settingsManager)
+        setupCorrectionCheckbox(binding.drillMenu.cbElbowPosition, CorrectionType.ELBOW_POSITION, settingsManager)
+        setupCorrectionCheckbox(binding.drillMenu.cbStrokeSpeed, CorrectionType.STROKE_SPEED, settingsManager)
+    }
+    
+    private fun setupCorrectionCheckbox(checkbox: CheckBox, type: CorrectionType, settingsManager: SettingsManager) {
+        checkbox.isChecked = settingsManager.isCorrectionTypeEnabled(type)
+        checkbox.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setCorrectionTypeEnabled(type, isChecked)
+        }
     }
 
     private fun applyDistanceMode() {

@@ -43,6 +43,10 @@ class PoseAnalysisProcessor(
     private var audioPlayedForCurrentStroke = false
     private var totalCompletedStrokes = 0 // Counter for frequency logic
     
+    // Latest frame analysis result for real-time UI
+    var latestAnalysisResult: AnalysisResult? = null
+        private set
+    
     companion object {
         private const val TAG = "PoseAnalysisProcessor"
         private const val LOG_INTERVAL_FRAMES = 30 // Log every 30 frames (~1 sec at 30 FPS)
@@ -129,6 +133,7 @@ class PoseAnalysisProcessor(
             // Update state (real-time stats if needed, but we might want to move this to finalizeStroke)
             // For now, let's keep adding results to stateManager for real-time graphs if they exist
             // stateManager.addAnalysisResult(analysisResult)
+            latestAnalysisResult = analysisResult
             
             // Collect results during active stroke phases
             if (detectedPhase != StrokePhase.READY) {
@@ -433,6 +438,7 @@ class PoseAnalysisProcessor(
         velocityHistory.clear()
         phaseFrameCounter = 0
         audioPlayedForCurrentStroke = false
+        latestAnalysisResult = null
     }
     
     /**

@@ -39,17 +39,27 @@ class FeedbackGenerator(private val context: Context) {
         // Initialize SoundPool for rhythm sounds (tic/tac)
         try {
             val audioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_GAME)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
             
             soundPool = SoundPool.Builder()
-                .setMaxStreams(5)
+                .setMaxStreams(10)
                 .setAudioAttributes(audioAttributes)
                 .build()
+            
+            soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
+                if (status == 0) {
+                    loadedSounds.add(sampleId)
+                    Log.d(TAG, "Sound loaded successfully: $sampleId")
+                } else {
+                    Log.e(TAG, "Failed to load sound $sampleId, status: $status")
+                }
+            }
                 
             ticSoundId = soundPool?.load(context, R.raw.tic, 1) ?: 0
             tacSoundId = soundPool?.load(context, R.raw.tac, 1) ?: 0
+            Log.d(TAG, "Loading sounds: tic=$ticSoundId, tac=$tacSoundId")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize SoundPool", e)
         }
@@ -67,9 +77,11 @@ class FeedbackGenerator(private val context: Context) {
      */
     fun playTic() {
         try {
-            if (ticSoundId != 0) {
+            if (ticSoundId != 0 && loadedSounds.contains(ticSoundId)) {
                 soundPool?.play(ticSoundId, 1f, 1f, 1, 0, 1f)
+                Log.d(TAG, "Playing TIC sound via SoundPool")
             } else {
+                Log.d(TAG, "TIC sound not loaded or ID 0, using fallback. TicID: $ticSoundId, Loaded: ${loadedSounds.contains(ticSoundId)}")
                 // Fallback to tone generator
                 toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP, 50)
             }
@@ -83,9 +95,11 @@ class FeedbackGenerator(private val context: Context) {
      */
     fun playTac() {
         try {
-            if (tacSoundId != 0) {
+            if (tacSoundId != 0 && loadedSounds.contains(tacSoundId)) {
                 soundPool?.play(tacSoundId, 1f, 1f, 1, 0, 1f)
+                Log.d(TAG, "Playing TAC sound via SoundPool")
             } else {
+                Log.d(TAG, "TAC sound not loaded or ID 0, using fallback. TacID: $tacSoundId, Loaded: ${loadedSounds.contains(tacSoundId)}")
                 // Fallback to tone generator
                 toneGenerator?.startTone(ToneGenerator.TONE_PROP_BEEP2, 50)
             }
