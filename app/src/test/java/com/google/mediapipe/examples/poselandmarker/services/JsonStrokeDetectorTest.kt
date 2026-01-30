@@ -207,6 +207,37 @@ class JsonStrokeDetectorTest {
     }
 
     @Test
+    fun `detect strokes from ivan_poses json`() {
+        val filename = "ivan_poses.json"
+        val jsonFile = findJsonFile(filename)
+        assertNotNull("$filename should exist", jsonFile)
+
+        val jsonString = jsonFile!!.readText()
+        val frames = parseJsonToFrames(jsonString)
+
+        val jsonRoot = JSONObject(jsonString)
+        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
+        
+        println("JSON file: ${jsonFile.name}")
+        println("Total frames: ${frames.size}, interval: ${intervalMs}ms")
+
+        // Use standard forehand config
+        val result = detector.detectStrokes(frames, intervalMs)
+
+        println("Detected ${result.strokes.size} strokes in Ivan's poses:")
+        result.strokes.forEachIndexed { index, stroke ->
+            println("  Stroke ${index + 1}: frames ${stroke.preparationStartFrame}-${stroke.returnEndFrame}, " +
+                    "duration=${stroke.strokeDurationMs}ms, " +
+                    "backswing=${String.format("%.3f", stroke.backswingMinValue)}, " +
+                    "peak=${String.format("%.3f", stroke.forwardPeakValue)}")
+        }
+        
+        // Based on the generated test results, ivan_poses.json contains 5 strokes
+        assertEquals("Should detect exactly 5 strokes in ivan_poses.json", 5, result.strokes.size)
+        println("=== ivan_poses.json contains ${result.strokes.size} strokes ===")
+    }
+
+    @Test
     fun `detect strokes from forehand_drive_wrong_poses json - expects 5 strokes`() {
         val filename = "forehand_drive_wrong_poses.json"
         val jsonFile = findJsonFile(filename)
@@ -241,7 +272,9 @@ class JsonStrokeDetectorTest {
         val possiblePaths = listOf(
             "src/main/assets/Videos/$filename",
             "app/src/main/assets/Videos/$filename",
-            "../app/src/main/assets/Videos/$filename"
+            "../app/src/main/assets/Videos/$filename",
+            "debug_data/$filename",
+            "../debug_data/$filename"
         )
 
         for (path in possiblePaths) {
