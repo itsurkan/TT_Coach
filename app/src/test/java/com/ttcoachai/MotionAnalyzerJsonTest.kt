@@ -13,7 +13,7 @@ import org.robolectric.RobolectricTestRunner
 import java.io.File
 
 @RunWith(RobolectricTestRunner::class)
-class MotionAnalyzerJsonTest {
+    class MotionAnalyzerJsonTest {
 
     private lateinit var motionAnalyzer: MotionAnalyzer
     private val beginnerParameters = ExerciseParameters.forehandDriveBeginner()

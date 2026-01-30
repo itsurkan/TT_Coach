@@ -47,7 +47,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle">
+                    style="@style/AppTheme.Card.Grid">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -96,7 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle">
+                    style="@style/AppTheme.Card.Grid">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -145,7 +145,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                    style="?attr/materialCardViewFilledStyle">
+                        style="@style/AppTheme.Card.Grid">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -194,7 +194,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="?attr/materialCardViewFilledStyle"
+                style="@style/AppTheme.Card.Grid"
                 app:cardCornerRadius="16dp">
 
                 <LinearLayout
@@ -269,7 +269,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="?attr/materialCardViewFilledStyle"
+                style="@style/AppTheme.Card.Grid"
                 app:cardCornerRadius="16dp">
 
                 <LinearLayout
@@ -314,7 +314,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="?attr/materialCardViewFilledStyle"
+                style="@style/AppTheme.Card.Grid"
                 app:cardCornerRadius="16dp">
 
                 <LinearLayout

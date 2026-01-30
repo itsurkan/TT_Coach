@@ -40,6 +40,15 @@
     <color name="colorOnSurface">#191C1E</color>
     <color name="colorSurfaceVariant">#F4F4F5</color>
     <color name="colorOnSurfaceVariant">#44474F</color>
+
+    <!-- Material 3 Surface Containers (Explicit Overrides for Light Theme) -->
+    <color name="surfaceBright">#FFFFFF</color>
+    <color name="surfaceDim">#F5F5F7</color>
+    <color name="surfaceContainerLowest">#FFFFFF</color>
+    <color name="surfaceContainerLow">#F7F9FC</color>
+    <color name="surfaceContainer">#F0F2F5</color>
+    <color name="surfaceContainerHigh">#ECEEF2</color>
+    <color name="surfaceContainerHighest">#E6E8ED</color>
     
     <color name="colorOutline">#74777F</color>
     <color name="colorOutlineVariant">#C4C6D0</color>
@@ -57,6 +66,7 @@
     <color name="mp_color_error">@color/colorError</color>
     
     <!-- UI Element Specific Colors -->
+    <color name="bg_card_grid">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="text_muted">@color/colorOnSurfaceVariant</color>

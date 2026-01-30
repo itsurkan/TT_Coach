@@ -31,7 +31,7 @@ class TTCoachApplication : Application() {
         super.onCreate()
         
         // Enable Material 3 Dynamic Colors (apply as early as possible)
-        com.google.android.material.color.DynamicColors.applyToActivitiesIfAvailable(this)
+        // com.google.android.material.color.DynamicColors.applyToActivitiesIfAvailable(this)
 
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
