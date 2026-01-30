@@ -54,7 +54,7 @@ class StrokePhaseDetector(
                 phaseFrameCounter = 0; StrokePhase.FORWARD_SWING
             } else StrokePhase.BACKSWING
             
-            StrokePhase.FORWARD_SWING -> if (avgVelocity > 2.0f && phaseFrameCounter >= 1) {
+            StrokePhase.FORWARD_SWING -> if (avgVelocity > 0.05f && phaseFrameCounter >= 1) {
                 phaseFrameCounter = 0; StrokePhase.CONTACT
             } else StrokePhase.FORWARD_SWING
             

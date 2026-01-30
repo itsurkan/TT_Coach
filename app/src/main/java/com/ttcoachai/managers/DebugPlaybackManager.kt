@@ -71,19 +71,6 @@ class DebugPlaybackManager(
                     val currentPosition = binding.videoView.currentPosition
                     uiController.updateSeekBar(currentPosition)
                     if (currentPosition >= videoDurationMs - 100) pausePlayback()
-                    
-                    // Audio feedback on phase transitions
-                    if (videoDebugProcessor.hasStrokeDetection()) {
-                        val currentPhase = videoDebugProcessor.getStrokePhaseForFrame(resultIndex)
-                        if (currentPhase != previousPhase) {
-                            when (currentPhase) {
-                                StrokePhase.FORWARD_SWING -> feedbackGenerator.playTic()
-                                StrokePhase.CONTACT -> feedbackGenerator.playTac()
-                                else -> { /* no sound */ }
-                            }
-                            previousPhase = currentPhase
-                        }
-                    }
                 }
             }
         )

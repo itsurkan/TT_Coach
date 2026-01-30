@@ -35,11 +35,17 @@ class FeedbackAudioManager(private val context: Context) {
                 .build()
             
             soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-                if (status == 0) loadedSounds.add(sampleId)
+                if (status == 0) {
+                    loadedSounds.add(sampleId)
+                    Log.d(TAG, "Sound loaded successfully: sampleId=$sampleId")
+                } else {
+                    Log.e(TAG, "Failed to load sound: sampleId=$sampleId, status=$status")
+                }
             }
                 
             ticSoundId = soundPool?.load(context, R.raw.tic, 1) ?: 0
             tacSoundId = soundPool?.load(context, R.raw.tac, 1) ?: 0
+            Log.d(TAG, "Requesting sounds: tic=$ticSoundId, tac=$tacSoundId")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to initialize SoundPool", e)
         }
@@ -51,12 +57,21 @@ class FeedbackAudioManager(private val context: Context) {
         }
     }
 
-    fun playTic() = playSound(ticSoundId)
-    fun playTac() = playSound(tacSoundId)
+    fun playTic() { 
+        Log.v(TAG, "Playing Tic requested")
+        playSound(ticSoundId) 
+    }
+    fun playTac() { 
+        Log.v(TAG, "Playing Tac requested")
+        playSound(tacSoundId) 
+    }
 
     private fun playSound(soundId: Int) {
-        if (loadedSounds.contains(soundId)) {
+        if (soundId != 0 && loadedSounds.contains(soundId)) {
             soundPool?.play(soundId, 1f, 1f, 1, 0, 1f)
+            Log.v(TAG, "Sound triggered: $soundId")
+        } else {
+            Log.d(TAG, "Sound not played: $soundId (loaded: ${loadedSounds.contains(soundId)})")
         }
     }
 

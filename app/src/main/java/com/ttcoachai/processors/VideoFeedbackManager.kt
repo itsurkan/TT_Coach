@@ -18,6 +18,15 @@ class VideoFeedbackManager(private val feedbackGenerator: FeedbackGenerator) {
         val phase = result.phase
         if (phase != StrokePhase.READY && !strokeIndices.contains(index)) strokeIndices.add(index)
 
+        // Play tic/tac on phase transitions during playback
+        if (lastPhase != phase) {
+            when (phase) {
+                StrokePhase.FORWARD_SWING -> feedbackGenerator.playTic()
+                StrokePhase.CONTACT -> feedbackGenerator.playTac()
+                else -> {}
+            }
+        }
+
         if (lastPhase == StrokePhase.BACKSWING && phase == StrokePhase.FORWARD_SWING) {
             pendingFeedback?.let {
                 val freq = feedbackGenerator.getSettingsManager().getFeedbackFrequency()
