@@ -19,7 +19,7 @@ class TrainingRepository(
 ) {
     companion object {
         private const val TAG = "TrainingRepository"
-        private const val DEFAULT_LIMIT = 50
+        private const val DEFAULT_LIMIT = 100
     }
 
     /**

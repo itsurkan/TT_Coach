@@ -247,8 +247,8 @@
     <string name="placeholder_percent">0%</string>
     <string name="placeholder_duration">00:00</string>
     <string name="placeholder_ms">0ms</string>
-    <string name="placeholder_percentage_high">75%</string>
-    <string name="placeholder_percentage_mid">85%</string>
+    <string name="placeholder_percentage_high">0%</string>
+    <string name="placeholder_percentage_mid">0%</string>
     <string name="placeholder_count_24">24</string>
     <string name="placeholder_count_186">186</string>
     <string name="label_total_hits">Всього ударів</string>
