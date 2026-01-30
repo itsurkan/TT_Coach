@@ -25,14 +25,12 @@ class FeedbackGenerator(private val context: Context) {
     fun handlePhaseTransition(oldPhase: com.ttcoachai.models.StrokePhase, newPhase: com.ttcoachai.models.StrokePhase) {
         if (oldPhase != newPhase) {
             when (newPhase) {
-                com.ttcoachai.models.StrokePhase.FORWARD_SWING -> {
-                    if (oldPhase == com.ttcoachai.models.StrokePhase.BACKSWING) playTic()
-                }
+                com.ttcoachai.models.StrokePhase.BACKSWING -> playTic()
                 com.ttcoachai.models.StrokePhase.CONTACT -> playTac()
                 else -> {}
             }
         }
-    }
+    }   
 
     /**
      * Play audio feedback based on analysis results

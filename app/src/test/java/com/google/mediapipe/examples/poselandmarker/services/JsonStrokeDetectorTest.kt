@@ -267,6 +267,61 @@ class JsonStrokeDetectorTest {
         assertEquals("Should detect 5 strokes in wrong technique file", 5, result.strokes.size)
     }
 
+    @Test
+    fun `trace phase timing for forehand_drive`() {
+        // Load the standard forehand drive file
+        val filename = "forehand_drive_poses.json"
+        val jsonFile = findJsonFile(filename)
+        if (jsonFile == null) {
+            println("Skipping test - $filename not found")
+            return
+        }
+
+        val jsonString = jsonFile.readText()
+        val frames = parseJsonToFrames(jsonString)
+        val jsonRoot = JSONObject(jsonString)
+        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
+
+        // Use standard FOREHAND config
+        val result = detector.detectStrokes(frames, intervalMs)
+
+        val sb = StringBuilder()
+        sb.append("=== Phase Timing Trace for $filename ===\n")
+        sb.append("Total detection: ${result.strokes.size} strokes\n")
+
+        var currentPhase = StrokePhase.READY
+        var phaseStartFrame = 0
+
+        // Iterate through all frames to find transitions
+        for (i in 0 until result.totalFrames) {
+            val phase = result.getPhaseForFrame(i)
+            
+            if (phase != currentPhase) {
+                // End of previous phase
+                val durationMs = (i - phaseStartFrame) * intervalMs
+                sb.append("Frame $phaseStartFrame - $i (${phaseStartFrame * intervalMs}ms - ${i * intervalMs}ms): $currentPhase ($durationMs ms)\n")
+                
+                // Start of new phase
+                currentPhase = phase
+                phaseStartFrame = i
+                
+                // If this is a transition TO a new phase, verify if it aligns with stroke bounds
+                val stroke = result.getStrokeForFrame(i)
+                if (stroke != null) {
+                    sb.append("  -> Transition to $phase inside Stroke ${stroke.strokeIndex + 1}\n")
+                }
+            }
+        }
+        
+        // Final phase
+        sb.append("Frame $phaseStartFrame - ${result.totalFrames} (${phaseStartFrame * intervalMs}ms - ${result.totalFrames * intervalMs}ms): $currentPhase\n")
+        sb.append("=== End Trace ===\n")
+        
+        val outFile = File("timing_trace.txt")
+        outFile.writeText(sb.toString())
+        println("Wrote trace to ${outFile.absolutePath}")
+    }
+
     /**
      * Find the JSON file - tries multiple paths since test working directory varies
      */
