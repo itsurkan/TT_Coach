@@ -71,7 +71,13 @@ class PoseAnalysisProcessor(
             val inferenceTime = System.currentTimeMillis() - startTime
             latestAnalysisResult = analysis
             
-            if (detectedPhase != StrokePhase.READY) currentStrokeResults.add(analysis)
+            if (detectedPhase != StrokePhase.READY) {
+                currentStrokeResults.add(analysis)
+                // Capture landmarks for visualization
+                if (poseResult.landmarks().isNotEmpty()) {
+                    currentStrokeLandmarks.add(poseResult.landmarks()[0])
+                }
+            }
             
             mainHandler.post { onUIUpdate() }
             
@@ -122,10 +128,15 @@ class PoseAnalysisProcessor(
                     feedbackGenerator.generateDetailedFeedback(bestResult)
                 }
                 stateManager.addFeedback(feedbackText)
-                stateManager.addFeedbackItems(bestResult.feedbackItems)
+                // Attach captured stroke landmarks to feedback items
+                val feedbackWithLandmarks = bestResult.feedbackItems.map { item ->
+                    item.copy(strokeLandmarks = currentStrokeLandmarks.toList())
+                }
+                stateManager.addFeedbackItems(feedbackWithLandmarks)
                 
                 mainHandler.post { onUIUpdate() }
                 currentStrokeResults.clear()
+                currentStrokeLandmarks.clear()
             }
         }
     }
@@ -133,6 +144,7 @@ class PoseAnalysisProcessor(
     private fun resetStrokeDetection() {
         phaseDetector.reset()
         currentStrokeResults.clear()
+        currentStrokeLandmarks.clear()
         pendingFeedbackResult = null
         latestAnalysisResult = null
     }

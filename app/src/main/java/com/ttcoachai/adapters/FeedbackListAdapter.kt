@@ -77,10 +77,13 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
 
             // Handle Pose Visualizer
             if (isExpanded) {
-                // Generate and play mock animation
-                // In a real app, successful strokes would have their landmarks saved in the FeedbackItem
-                val mockFrames = MockPoseGenerator.generateMockStroke(item.type)
-                binding.poseVisualizer.setFrames(mockFrames)
+                // Use real captured landmarks if available, fall back to mock
+                val frames = if (item.strokeLandmarks.isNotEmpty()) {
+                    item.strokeLandmarks
+                } else {
+                    MockPoseGenerator.generateMockStroke(item.type)
+                }
+                binding.poseVisualizer.setFrames(frames)
                 binding.poseVisualizer.playAnimation()
             } else {
                 binding.poseVisualizer.stopAnimation()
