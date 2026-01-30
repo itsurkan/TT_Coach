@@ -49,7 +49,7 @@ data class ExerciseParameters(
             return ExerciseParameters(
                 exerciseId = "forehand_drive",
                 idealWristAngle = 180f,
-                wristAngleTolerance = 3f, // Reduced to 3f (177-183°) to strictly enforce straight wrist
+                wristAngleTolerance = 10f,
                 minBodyRotation = 45f,
                 bodyRotationTolerance = 10f,
                 followThroughAngle = 120f,
