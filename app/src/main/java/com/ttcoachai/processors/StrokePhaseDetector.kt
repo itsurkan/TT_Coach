@@ -75,7 +75,7 @@ class StrokePhaseDetector(
         if (isTransition) {
             Log.d(TAG, "Phase transition: $currentPhase -> $newPhase (velocity: $avgVelocity)")
             if (newPhase == StrokePhase.FORWARD_SWING) feedbackGenerator.playTic()
-            else if (newPhase == StrokePhase.CONTACT) feedbackGenerator.playTac()
+            else if (newPhase == StrokePhase.FOLLOW_THROUGH) feedbackGenerator.playTac()
         }
         
         currentPhase = newPhase
