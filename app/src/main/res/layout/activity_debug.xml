@@ -114,7 +114,7 @@
             android:layout_weight="1"
             android:background="@color/background_surface_alt"
             android:padding="12dp"
-            android:visibility="gone">
+            android:visibility="visible">
 
             <LinearLayout
                 android:layout_width="match_parent"

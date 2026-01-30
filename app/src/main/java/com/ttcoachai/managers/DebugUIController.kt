@@ -147,6 +147,7 @@ class DebugUIController(
             lp.topToBottom = -1; lp.topToTop = 0; binding.mainContent.layoutParams = lp
         } else {
             binding.topBar.visibility = View.VISIBLE; binding.portraitTopControls.visibility = View.GONE
+            binding.analysisPanel.visibility = View.VISIBLE
             val lp = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
             lp.topToTop = -1; lp.topToBottom = binding.topBar.id; binding.mainContent.layoutParams = lp
         }
