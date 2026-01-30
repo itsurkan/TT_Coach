@@ -151,55 +151,57 @@ class PoseLandmarkerProcessor(
 
             val timestampMs = i * inferenceIntervalMs
 
-            retriever.getFrameAtTime(
-                timestampMs * 1000,
-                MediaMetadataRetriever.OPTION_CLOSEST
-            )?.let { frame ->
-                // Validate bitmap before processing
-                if (frame.isRecycled) {
-                    Log.e(TAG, "Frame $i is recycled at $timestampMs ms")
-                    didErrorOccurred = true
-                    onError?.invoke("Frame was recycled before processing")
-                    return@let
-                }
-
-                // CRITICAL: Always create mutable copy for MediaPipe JNI safety
-                // MediaPipe's native code requires mutable ARGB_8888 bitmaps
-                val argb8888Frame = if (frame.config == Bitmap.Config.ARGB_8888 && frame.isMutable) {
-                    frame
-                } else {
-                    frame.copy(Bitmap.Config.ARGB_8888, true)  // true = mutable
-                }
-
-                // Additional validation
-                if (!argb8888Frame.isMutable || argb8888Frame.isRecycled) {
-                    Log.e(TAG, "Invalid bitmap state at frame $i: mutable=${argb8888Frame.isMutable}, recycled=${argb8888Frame.isRecycled}")
-                    didErrorOccurred = true
-                    onError?.invoke("Bitmap validation failed")
-                    return@let
-                }
-
-                try {
-                    val mpImage = BitmapImageBuilder(argb8888Frame).build()
-                    poseLandmarker?.detectForVideo(mpImage, timestampMs)?.let { detectionResult ->
-                        resultList.add(detectionResult)
-                    } ?: run {
+            try {
+                retriever.getFrameAtTime(
+                    timestampMs * 1000,
+                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                )?.let { frame ->
+                    // Validate bitmap before processing
+                    if (frame.isRecycled) {
+                        Log.e(TAG, "Frame $i is recycled at $timestampMs ms")
                         didErrorOccurred = true
-                        onError?.invoke("ResultBundle could not be returned in detectVideoFile")
+                        onError?.invoke("Frame was recycled before processing")
+                        return@let
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG, "MediaPipe processing failed at frame $i (${timestampMs}ms)", e)
-                    didErrorOccurred = true
-                    onError?.invoke("MediaPipe JNI error: ${e.message}")
-                } finally {
-                    // Free memory if we created a copy
-                    if (argb8888Frame != frame) {
-                        argb8888Frame.recycle()
+
+                    // CRITICAL: Always create mutable copy for MediaPipe JNI safety
+                    val argb8888Frame = if (frame.config == Bitmap.Config.ARGB_8888 && frame.isMutable) {
+                        frame
+                    } else {
+                        frame.copy(Bitmap.Config.ARGB_8888, true)  // true = mutable
                     }
+
+                    // Additional validation
+                    if (!argb8888Frame.isMutable || argb8888Frame.isRecycled) {
+                        Log.e(TAG, "Invalid bitmap state at frame $i: mutable=${argb8888Frame.isMutable}, recycled=${argb8888Frame.isRecycled}")
+                        didErrorOccurred = true
+                        onError?.invoke("Bitmap validation failed")
+                        return@let
+                    }
+
+                    try {
+                        val mpImage = BitmapImageBuilder(argb8888Frame).build()
+                        poseLandmarker?.detectForVideo(mpImage, timestampMs)?.let { detectionResult ->
+                            resultList.add(detectionResult)
+                        } ?: run {
+                            Log.w(TAG, "Pose detection returned null for frame $i")
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "MediaPipe processing failed at frame $i (${timestampMs}ms)", e)
+                        didErrorOccurred = true
+                        onError?.invoke("MediaPipe JNI error: ${e.message}")
+                    } finally {
+                        // Free memory if we created a copy
+                        if (argb8888Frame != frame) {
+                            argb8888Frame.recycle()
+                        }
+                    }
+                } ?: run {
+                    Log.w(TAG, "Could not retrieve frame $i at ${timestampMs}ms, skipping")
                 }
-            } ?: run {
-                didErrorOccurred = true
-                onError?.invoke("Frame at specified time could not be retrieved when detecting in video.")
+            } catch (e: Exception) {
+                Log.e(TAG, "System error during frame extraction at $timestampMs ms", e)
+                // Don't stop the whole process for one frame extraction error unless it's consistent
             }
         }
 
