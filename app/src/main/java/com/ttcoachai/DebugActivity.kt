@@ -1,12 +1,5 @@
-/*
- * AI Coach for Table Tennis
- * Debug Activity - Video-based debugging using batch processing (like GalleryFragment)
- * Refactored to use Manager Pattern for separation of concerns
- */
-
 package com.ttcoachai
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -17,35 +10,21 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.databinding.ActivityDebugBinding
-import com.ttcoachai.managers.DebugPlaybackManager
-import com.ttcoachai.managers.DebugSettingsController
-import com.ttcoachai.managers.DebugUIController
-import com.ttcoachai.managers.DebugVideoLoader
+import com.ttcoachai.managers.*
 import com.ttcoachai.models.ExerciseParameters
 import com.ttcoachai.processors.VideoDebugProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
 
-/**
- * Debug Activity for video-based analysis testing
- * Uses batch processing for reliable pose detection
- */
 class DebugActivity : AppCompatActivity() {
-
     private lateinit var binding: ActivityDebugBinding
     private lateinit var videoDebugProcessor: VideoDebugProcessor
     private lateinit var uiController: DebugUIController
     private lateinit var playbackManager: DebugPlaybackManager
     private lateinit var videoLoader: DebugVideoLoader
     private lateinit var settingsController: DebugSettingsController
+    private lateinit var poseExporter: PoseExporter
     private var isPortraitMode = true
 
     companion object {
@@ -59,7 +38,6 @@ class DebugActivity : AppCompatActivity() {
 
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            title = "Video Debug" // Consider localizing title too? Not critical as "Video Debug" is technical.
             title = "Video Debug"
         }
 
@@ -73,84 +51,61 @@ class DebugActivity : AppCompatActivity() {
         val parameters = ExerciseParameters.forehandDrive()
         val motionAnalyzer = MotionAnalyzer(parameters)
         val feedbackGenerator = FeedbackGenerator(this)
-
         val application = application as TTCoachApplication
-        val fileLogger = application.getFileLogger()
-        videoDebugProcessor = VideoDebugProcessor(
-            context = this,
-            motionAnalyzer = motionAnalyzer,
-            feedbackGenerator = feedbackGenerator,
-            fileLogger = fileLogger
-        )
-
+        
+        videoDebugProcessor = VideoDebugProcessor(this, motionAnalyzer, feedbackGenerator, application.getFileLogger())
         uiController = DebugUIController(this, binding, videoDebugProcessor, feedbackGenerator)
         playbackManager = DebugPlaybackManager(this, binding, videoDebugProcessor, uiController, feedbackGenerator)
         videoLoader = DebugVideoLoader(this, binding, videoDebugProcessor, uiController, playbackManager)
         settingsController = DebugSettingsController(binding, application.settingsManager)
+        poseExporter = PoseExporter(this)
     }
 
     private fun setupUI() {
-        // Video selection and logging
         binding.btnLoadVideo.setOnClickListener { showVideoSelectionDialog() }
         binding.btnLoadVideoPortrait.setOnClickListener { showVideoSelectionDialog() }
-        binding.btnLogPoses.setOnClickListener { exportPosesToFile() }
-        binding.btnLogPosesPortrait.setOnClickListener { exportPosesToFile() }
-
-        // View mode toggle
+        binding.btnLogPoses.setOnClickListener { exportPoses() }
+        binding.btnLogPosesPortrait.setOnClickListener { exportPoses() }
         binding.btnToggleViewMode.setOnClickListener { toggleViewMode() }
         binding.btnToggleViewModePortrait.setOnClickListener { toggleViewMode() }
-
-        // Playback controls
+        
         binding.btnPlayPause.setOnClickListener { playbackManager.togglePlayPause() }
         binding.btnStepBack.setOnClickListener { playbackManager.stepPosition(-300) }
         binding.btnStepForward.setOnClickListener { playbackManager.stepPosition(300) }
-
-        // Speed control
+        
         binding.btnSpeed025x.setOnClickListener { playbackManager.setPlaybackSpeed(0.25f) }
         binding.btnSpeed05x.setOnClickListener { playbackManager.setPlaybackSpeed(0.5f) }
         binding.btnSpeed1x.setOnClickListener { playbackManager.setPlaybackSpeed(1.0f) }
         binding.btnSpeed2x.setOnClickListener { playbackManager.setPlaybackSpeed(2.0f) }
 
-        // Seek bar
-        val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) playbackManager.seekToPosition(progress)
+        binding.seekBarFrame.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(s: SeekBar?, p: Int, fromUser: Boolean) {
+                if (fromUser) playbackManager.seekToPosition(p)
             }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            override fun onStartTrackingTouch(s: SeekBar?) {
                 if (playbackManager.isPlaying()) playbackManager.pausePlayback()
             }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        }
-        binding.seekBarFrame.setOnSeekBarChangeListener(seekBarListener)
+            override fun onStopTrackingTouch(s: SeekBar?) {}
+        })
         binding.btnReset.setOnClickListener { resetAnalysis() }
         
-        // Collapsible panels
-        setupCollapsiblePanel(binding.headerCurrentFrame, binding.contentCurrentFrame)
-        setupCollapsiblePanel(binding.headerFeedback, binding.contentFeedback)
-        setupCollapsiblePanel(binding.headerSessionSummary, binding.contentSessionSummary)
-        setupCollapsiblePanel(binding.headerPlayback, binding.contentPlayback)
-        setupCollapsiblePanel(binding.headerTechnical, binding.contentTechnical)
-        setupCollapsiblePanel(binding.headerFeedbackSettings, binding.contentFeedbackSettings)
+        listOf(
+            binding.headerCurrentFrame to binding.contentCurrentFrame,
+            binding.headerFeedback to binding.contentFeedback,
+            binding.headerSessionSummary to binding.contentSessionSummary,
+            binding.headerPlayback to binding.contentPlayback,
+            binding.headerTechnical to binding.contentTechnical,
+            binding.headerFeedbackSettings to binding.contentFeedbackSettings
+        ).forEach { (h, c) -> setupCollapsiblePanel(h, c) }
         
         settingsController.setup()
     }
 
     private fun setupCollapsiblePanel(header: TextView, content: View) {
-        Log.d(TAG, "Setting up collapsible panel for header: ${header.text}")
-
         header.setOnClickListener {
-            Log.d(TAG, "!!! CLICK DETECTED !!! Header: ${header.text}")
-
-            // Toggle visibility
-            if (content.visibility == View.VISIBLE) {
-                content.visibility = View.GONE
-                header.text = header.text.toString().replace("▼", "▶")
-                Log.d(TAG, "Collapsed content")
-            } else {
-                content.visibility = View.VISIBLE
-                header.text = header.text.toString().replace("▶", "▼")
-                Log.d(TAG, "Expanded content")
-            }
+            val isVisible = content.visibility == View.VISIBLE
+            content.visibility = if (isVisible) View.GONE else View.VISIBLE
+            header.text = header.text.toString().replace(if (isVisible) "▼" else "▶", if (isVisible) "▶" else "▼")
         }
     }
 
@@ -160,36 +115,18 @@ class DebugActivity : AppCompatActivity() {
         uiController.updateToggleViewButton(isPortraitMode)
     }
 
-
     private fun showVideoSelectionDialog() {
-        // Discover video files from assets/Videos folder
-        val videoFiles = mutableListOf<String>()
-
-        try {
-            val files = assets.list("Videos") ?: emptyArray()
-            for (file in files) {
-                // Only show video files
-                if (file.endsWith(".mp4") || file.endsWith(".3gp") || file.endsWith(".webm")) {
-                    videoFiles.add(file)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error listing assets", e)
-        }
-
+        val videoFiles = assets.list("Videos")?.filter { it.endsWith(".mp4") || it.endsWith(".3gp") || it.endsWith(".webm") }?.toMutableList() ?: mutableListOf()
         if (videoFiles.isEmpty()) {
-            Toast.makeText(this, getString(R.string.toast_no_video_files), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No video files found", Toast.LENGTH_SHORT).show()
             return
         }
-
-        // Sort alphabetically
         videoFiles.sort()
 
         AlertDialog.Builder(this)
-            .setTitle("Select Video (${videoFiles.size} available)")
+            .setTitle("Select Video (${videoFiles.size})")
             .setItems(videoFiles.toTypedArray()) { _, which ->
-                val videoPath = "Videos/${videoFiles[which]}"
-                videoLoader.loadVideoFromAssets(videoPath) { _, _ -> }
+                videoLoader.loadVideoFromAssets("Videos/${videoFiles[which]}") { _, _ -> }
             }
             .show()
     }
@@ -199,76 +136,13 @@ class DebugActivity : AppCompatActivity() {
         videoLoader.reset()
     }
 
-    private fun exportPosesToFile() {
+    private fun exportPoses() {
         if (!videoLoader.isVideoReady()) {
-            Toast.makeText(this, getString(R.string.toast_no_video_loaded), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "No video loaded", Toast.LENGTH_SHORT).show()
             return
         }
-
-        val poses = videoDebugProcessor.getAllPoseResults()
-        if (poses.isEmpty()) {
-            Toast.makeText(this, getString(R.string.toast_no_poses_export), Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        val videoUriString = videoLoader.getCurrentVideoUri().toString()
-        val filesDir = getExternalFilesDir(null)
-
-        Toast.makeText(this, getString(R.string.toast_exporting_background, poses.size), Toast.LENGTH_SHORT).show()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                // Heavy JSON construction
-                val jsonRoot = JSONObject().apply {
-                    put("videoUri", videoUriString)
-                    put("intervalMs", 100)
-                    put("totalFrames", poses.size)
-                    put("exportTimestamp", System.currentTimeMillis())
-                }
-
-                val framesArray = JSONArray()
-                poses.forEachIndexed { index, poseResult ->
-                    val frameObj = JSONObject().apply {
-                        put("frameIndex", index)
-                        put("timestampMs", index * 100L)
-                    }
-
-                    if (poseResult.landmarks().isNotEmpty()) {
-                        val landmarksArray = JSONArray()
-                        poseResult.landmarks()[0].forEach { landmark ->
-                            landmarksArray.put(JSONObject().apply {
-                                put("x", landmark.x())
-                                put("y", landmark.y())
-                                put("z", landmark.z())
-                                put("visibility", landmark.visibility().orElse(0f))
-                                put("presence", landmark.presence().orElse(0f))
-                            })
-                        }
-                        frameObj.put("landmarks", landmarksArray)
-                    } else {
-                        frameObj.put("landmarks", JSONArray())
-                    }
-                    framesArray.put(frameObj)
-                }
-
-                jsonRoot.put("frames", framesArray)
-
-                // File writing
-                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", java.util.Locale.US).format(Date())
-                val file = File(filesDir, "poses_$timestamp.json")
-                file.writeText(jsonRoot.toString(2))
-
-                // UI Update
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@DebugActivity, getString(R.string.toast_export_success, file.absolutePath, poses.size), Toast.LENGTH_LONG).show()
-                    Log.i(TAG, "Exported ${poses.size} poses to ${file.absolutePath}")
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e(TAG, "Error exporting poses", e)
-                    Toast.makeText(this@DebugActivity, getString(R.string.toast_export_failed, e.message), Toast.LENGTH_LONG).show()
-                }
-            }
+        lifecycleScope.launch {
+            poseExporter.exportPoses(videoLoader.getCurrentVideoUri().toString(), videoDebugProcessor)
         }
     }
 

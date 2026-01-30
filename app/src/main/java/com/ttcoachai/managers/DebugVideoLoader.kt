@@ -1,17 +1,12 @@
-/*
- * AI Coach for Table Tennis
- * Debug Video Loader - Handles video loading operations
- */
-
 package com.ttcoachai.managers
 
 import android.content.Context
 import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
 import com.ttcoachai.databinding.ActivityDebugBinding
 import com.ttcoachai.processors.VideoDebugProcessor
+import java.io.File
 
 class DebugVideoLoader(
     private val context: Context,
@@ -23,99 +18,38 @@ class DebugVideoLoader(
     private var currentVideoUri: Uri? = null
     private var currentAssetPath: String? = null
     private var isVideoReady = false
+    private val jsonMapper = DebugJsonMapper(context)
 
     companion object {
         private const val TAG = "DebugVideoLoader"
     }
 
     fun getCurrentVideoUri(): Uri? = currentVideoUri
-
     fun isVideoReady(): Boolean = isVideoReady
 
-    /**
-     * Load video from assets folder (e.g., "Videos/forehand_drive.mp4")
-     */
     fun loadVideoFromAssets(assetPath: String, onVideoReady: (Int, Int) -> Unit) {
         uiController.showProgress()
         isVideoReady = false
         currentAssetPath = assetPath
 
-        var videoDurationMs = 0L
-        var videoWidth = 0
-        var videoHeight = 0
-
         try {
-            // Copy asset to cache for VideoView (it can't play assets directly)
-            val cacheFile = java.io.File(context.cacheDir, assetPath.replace("/", "_"))
-            context.assets.open(assetPath).use { input ->
-                cacheFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
+            val cacheFile = File(context.cacheDir, assetPath.replace("/", "_"))
+            context.assets.open(assetPath).use { it.copyTo(cacheFile.outputStream()) }
             currentVideoUri = Uri.fromFile(cacheFile)
 
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(cacheFile.absolutePath)
-            videoDurationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
-            val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-            val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-            val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
+            val (width, height, duration) = extractMetadata(currentVideoUri!!)
+            setupPlayer(cacheFile.absolutePath, width, height)
 
-            if (rotation == "90" || rotation == "270") {
-                videoWidth = heightStr?.toInt() ?: 0
-                videoHeight = widthStr?.toInt() ?: 0
-            } else {
-                videoWidth = widthStr?.toInt() ?: 0
-                videoHeight = heightStr?.toInt() ?: 0
-            }
-            retriever.release()
-
-            val frameRetriever = MediaMetadataRetriever()
-            frameRetriever.setDataSource(cacheFile.absolutePath)
-            playbackManager.setFrameRetriever(frameRetriever)
-
-            binding.videoView.setVideoPath(cacheFile.absolutePath)
-            binding.videoView.setOnPreparedListener { mp ->
-                playbackManager.setMediaPlayer(mp)
-                mp.isLooping = false
-                mp.setVolume(0f, 0f)
-
-                if (videoWidth == 0 || videoHeight == 0) {
-                    videoWidth = mp.videoWidth
-                    videoHeight = mp.videoHeight
+            jsonMapper.getJsonFromAssets(assetPath)?.let { json ->
+                videoDebugProcessor.processVideoFromJson(json, width, height) { 
+                    handleComplete(it, duration, onVideoReady) 
                 }
-
-                uiController.setVideoDimensions(videoWidth, videoHeight)
-                val videoAspectRatio = if (videoHeight > 0) videoWidth.toFloat() / videoHeight.toFloat() else 1.0f
-                uiController.setToggleViewButtonVisibility(videoAspectRatio < 1.0f)
-                Log.i(TAG, "Video prepared from assets: ${videoWidth}x${videoHeight}, duration: ${videoDurationMs}ms")
-            }
-
-            // Check for poses JSON in assets
-            val jsonString = getJsonFromAssets(assetPath)
-            if (jsonString != null) {
-                Log.i(TAG, "Found JSON poses in assets, skipping video analysis")
-                videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
-                    handleProcessingComplete(success, videoDurationMs, onVideoReady)
-                }
-            } else {
-                Log.i(TAG, "No JSON poses found in assets, analyzing video...")
-                processVideoNormal(currentVideoUri!!, videoDurationMs, onVideoReady)
+            } ?: videoDebugProcessor.processVideo(currentVideoUri!!) { 
+                handleComplete(it != null, duration, onVideoReady) 
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error loading video from assets: $assetPath", e)
+            Log.e(TAG, "Error loading asset", e)
             uiController.hideProgress()
-        }
-    }
-
-    private fun getJsonFromAssets(videoAssetPath: String): String? {
-        // Convert video path to poses path: "Videos/forehand_drive.mp4" -> "Videos/forehand_drive_poses.json"
-        val posesPath = videoAssetPath.substringBeforeLast(".") + "_poses.json"
-        return try {
-            context.assets.open(posesPath).bufferedReader().use { it.readText() }
-        } catch (e: Exception) {
-            Log.d(TAG, "No poses file found at: $posesPath")
-            null
         }
     }
 
@@ -124,183 +58,75 @@ class DebugVideoLoader(
         isVideoReady = false
         currentVideoUri = uri
 
-        var videoDurationMs = 0L
-        var videoWidth = 0
-        var videoHeight = 0
-
-        try {
-            val retriever = MediaMetadataRetriever()
-            retriever.setDataSource(context, uri)
-            videoDurationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0
-            val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-            val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-            val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
-            
-            // Handle rotation (if video is rotated 90 or 270, swap width/height)
-            if (rotation == "90" || rotation == "270") {
-                 videoWidth = heightStr?.toInt() ?: 0
-                 videoHeight = widthStr?.toInt() ?: 0
-            } else {
-                 videoWidth = widthStr?.toInt() ?: 0
-                 videoHeight = heightStr?.toInt() ?: 0
-            }
-            
-            retriever.release()
-
-            val frameRetriever = MediaMetadataRetriever()
-            frameRetriever.setDataSource(context, uri)
-            playbackManager.setFrameRetriever(frameRetriever)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting video metadata", e)
-        }
-
+        val (width, height, duration) = extractMetadata(uri)
         binding.videoView.setVideoURI(uri)
         binding.videoView.setOnPreparedListener { mp ->
             playbackManager.setMediaPlayer(mp)
-            mp.isLooping = false
-            mp.setVolume(0f, 0f)
+            uiController.setVideoDimensions(if (width > 0) width else mp.videoWidth, if (height > 0) height else mp.videoHeight)
+            uiController.setToggleViewButtonVisibility((width.toFloat() / height.toFloat()) < 1.0f)
+        }
+
+        jsonMapper.getJsonForUri(uri)?.let { json ->
+            videoDebugProcessor.processVideoFromJson(json, width, height) { 
+                handleComplete(it, duration, onVideoReady) 
+            }
+        } ?: videoDebugProcessor.processVideo(uri) { 
+            handleComplete(it != null, duration, onVideoReady) 
+        }
+    }
+
+    private fun extractMetadata(uri: Uri): Triple<Int, Int, Long> {
+        val retriever = MediaMetadataRetriever()
+        return try {
+            if (uri.scheme == "file") retriever.setDataSource(uri.path) else retriever.setDataSource(context, uri)
+            val duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong() ?: 0L
+            val w = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toInt() ?: 0
+            val h = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toInt() ?: 0
+            val r = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toInt() ?: 0
             
-            // If we didn't get dimensions from metadata, get from player
-            if (videoWidth == 0 || videoHeight == 0) {
-                videoWidth = mp.videoWidth
-                videoHeight = mp.videoHeight
-            }
+            val frameRetriever = MediaMetadataRetriever()
+            if (uri.scheme == "file") frameRetriever.setDataSource(uri.path) else frameRetriever.setDataSource(context, uri)
+            playbackManager.setFrameRetriever(frameRetriever)
             
-            uiController.setVideoDimensions(videoWidth, videoHeight)
-            val videoAspectRatio = if (videoHeight > 0) videoWidth.toFloat() / videoHeight.toFloat() else 1.0f
-            val isVideoPortrait = videoAspectRatio < 1.0f
-            uiController.setToggleViewButtonVisibility(isVideoPortrait)
-            Log.i(TAG, "Video prepared: ${videoWidth}x${videoHeight}, duration: ${videoDurationMs}ms")
-        }
-
-        // Check for sidecar JSON - first try raw resource, then external file
-        val jsonString = getJsonForUri(uri)
-        if (jsonString != null) {
-            Log.i(TAG, "Found JSON poses data, skipping video analysis")
-            videoDebugProcessor.processVideoFromJson(jsonString, videoWidth, videoHeight) { success ->
-                handleProcessingComplete(success, videoDurationMs, onVideoReady)
-            }
-        } else {
-            Log.i(TAG, "No JSON poses found, analyzing video...")
-            processVideoNormal(uri, videoDurationMs, onVideoReady)
+            if (r == 90 || r == 270) Triple(h, w, duration) else Triple(w, h, duration)
+        } catch (e: Exception) {
+            Triple(0, 0, 0L)
+        } finally {
+            retriever.release()
         }
     }
 
-    private fun getJsonForUri(uri: Uri): String? {
-        // For raw resources, check if there's a corresponding _poses raw resource
-        if (uri.scheme == android.content.ContentResolver.SCHEME_ANDROID_RESOURCE) {
-            try {
-                val id = uri.lastPathSegment?.toIntOrNull()
-                if (id != null) {
-                    val videoName = context.resources.getResourceEntryName(id)
-                    val posesResourceName = "${videoName}_poses"
-                    val posesResId = context.resources.getIdentifier(
-                        posesResourceName, "raw", context.packageName
-                    )
-                    if (posesResId != 0) {
-                        Log.i(TAG, "Found raw resource: $posesResourceName")
-                        return context.resources.openRawResource(posesResId)
-                            .bufferedReader().use { it.readText() }
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading raw JSON resource", e)
-            }
-        }
-
-        // Fallback to external file
-        val jsonFile = getJsonFileForUri(uri)
-        if (jsonFile != null && jsonFile.exists()) {
-            try {
-                return jsonFile.readText()
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading JSON file", e)
-            }
-        }
-        return null
-    }
-
-    private fun processVideoNormal(uri: Uri, durationMs: Long, onVideoReady: (Int, Int) -> Unit) {
-        videoDebugProcessor.processVideo(uri) { resultBundle ->
-            handleProcessingComplete(resultBundle != null, durationMs, onVideoReady)
+    private fun setupPlayer(path: String, width: Int, height: Int) {
+        binding.videoView.setVideoPath(path)
+        binding.videoView.setOnPreparedListener { mp ->
+            playbackManager.setMediaPlayer(mp)
+            uiController.setVideoDimensions(if (width > 0) width else mp.videoWidth, if (height > 0) height else mp.videoHeight)
+            uiController.setToggleViewButtonVisibility((width.toFloat() / height.toFloat()) < 1.0f)
         }
     }
 
-    private fun handleProcessingComplete(
-        success: Boolean,
-        durationMs: Long,
-        onVideoReady: (Int, Int) -> Unit
-    ) {
+    private fun handleComplete(success: Boolean, duration: Long, onVideoReady: (Int, Int) -> Unit) {
         (context as? android.app.Activity)?.runOnUiThread {
             if (success) {
                 isVideoReady = true
-                val (width, height) = videoDebugProcessor.getVideoDimensions()
-
-                if (width > 0 && height > 0) {
-                    uiController.setVideoDimensions(width, height)
-                }
-                onVideoReady(width, height)
-
-                // Run stroke detection after poses are loaded
-                val strokeResult = videoDebugProcessor.runStrokeDetection()
-                if (strokeResult != null) {
-                    Log.i(TAG, "Stroke detection: ${strokeResult.strokes.size} strokes found")
-                    uiController.setPhaseColoringEnabled(true)
-                }
-
-                playbackManager.setVideoDuration(durationMs)
+                val dim = videoDebugProcessor.getVideoDimensions()
+                uiController.setVideoDimensions(dim.first, dim.second)
+                onVideoReady(dim.first, dim.second)
+                videoDebugProcessor.runStrokeDetection()?.let { uiController.setPhaseColoringEnabled(true) }
+                playbackManager.setVideoDuration(duration)
                 uiController.hideProgress()
                 uiController.enableLogButton()
                 uiController.updateVideoInfo()
                 uiController.updateAnalysisInfo()
-                uiController.clearFeedbackHistory()
                 playbackManager.updateDisplayAtPosition(0)
-                Log.i(TAG, "Video ready: ${videoDebugProcessor.getTotalFrames()} frames processed")
             } else {
                 uiController.hideProgress()
-                Log.e(TAG, "Video processing failed")
             }
         }
-    }
-
-    private fun getJsonFileForUri(uri: Uri): java.io.File? {
-        var filename: String? = null
-        try {
-            if (uri.scheme == android.content.ContentResolver.SCHEME_ANDROID_RESOURCE) {
-                val id = uri.lastPathSegment?.toIntOrNull()
-                if (id != null) {
-                    filename = context.resources.getResourceEntryName(id)
-                }
-            } else if (uri.scheme == android.content.ContentResolver.SCHEME_FILE) {
-                 filename = java.io.File(uri.path!!).nameWithoutExtension
-                 // Check sibling
-                 val sibling = java.io.File(java.io.File(uri.path!!).parent, "${filename}_poses.json")
-                 if (sibling.exists()) return sibling
-            }
-            
-            if (filename == null) {
-                 filename = uri.lastPathSegment
-                 if (filename?.contains(".") == true) {
-                     filename = filename.substringBeforeLast(".")
-                 }
-            }
-
-            if (filename != null) {
-                 val filesDir = context.getExternalFilesDir(null)
-                 val jsonFile = java.io.File(filesDir, "${filename}_poses.json")
-                 if (jsonFile.exists()) return jsonFile
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error resolving JSON file", e)
-        }
-        return null
     }
 
     fun reset() {
-        currentAssetPath?.let {
-            loadVideoFromAssets(it) { _, _ -> }
-            return
-        }
-        currentVideoUri?.let { loadVideo(it) { _, _ -> } }
+        currentAssetPath?.let { loadVideoFromAssets(it) { _, _ -> } } 
+            ?: currentVideoUri?.let { loadVideo(it) { _, _ -> } }
     }
 }

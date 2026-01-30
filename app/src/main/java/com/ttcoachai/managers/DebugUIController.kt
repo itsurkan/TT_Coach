@@ -1,12 +1,6 @@
-/*
- * AI Coach for Table Tennis
- * Debug UI Controller - Manages UI updates for debug activity
- */
-
 package com.ttcoachai.managers
 
 import android.content.Context
-import android.graphics.Color
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ttcoachai.databinding.ActivityDebugBinding
@@ -18,315 +12,144 @@ import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import com.ttcoachai.R
-import java.util.Locale
 
-/**
- * Controller class for managing the UI of the Debug Activity.
- */
 class DebugUIController(
     private val context: Context,
     private val binding: ActivityDebugBinding,
     private val videoDebugProcessor: VideoDebugProcessor,
     private val feedbackGenerator: FeedbackGenerator
 ) {
-    // UI Helpers
     private val feedbackAdapter = FeedbackLogAdapter()
-    private val feedbackEntries = mutableListOf<FeedbackLogEntry>()
-
-    // State
+    private val logManager = FeedbackLogManager(feedbackAdapter)
     private var videoWidth = 0
     private var videoHeight = 0
     private var videoDurationMs = 0L
-    private var lastDisplayedStroke = -1
-    private var lastDisplayedPhase: StrokePhase? = null
-
-    private val strokeColors = listOf(
-        0xFFE91E63.toInt(), // Pink
-        0xFF2196F3.toInt(), // Blue
-        0xFF4CAF50.toInt(), // Green
-        0xFFFF9800.toInt(), // Orange
-        0xFF9C27B0.toInt(), // Purple
-        0xFF00BCD4.toInt()  // Cyan
-    )
 
     init {
-        setupRecyclerView()
-    }
-
-    private fun setupRecyclerView() {
         binding.rvFeedbackHistory.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = feedbackAdapter
         }
     }
 
-    // --- Video & Overlay Management ---
+    fun setVideoDimensions(w: Int, h: Int) { videoWidth = w; videoHeight = h }
+    fun setVideoDuration(ms: Long) { videoDurationMs = ms }
 
-    fun setVideoDimensions(width: Int, height: Int) {
-        videoWidth = width
-        videoHeight = height
-    }
-
-    fun setVideoDuration(durationMs: Long) {
-        videoDurationMs = durationMs
-    }
-
-    fun updatePoseOverlay(poseResult: PoseLandmarkerResult) {
+    fun updatePoseOverlay(res: PoseLandmarkerResult) {
         if (videoHeight > 0 && videoWidth > 0) {
-            binding.overlayView.setResults(poseResult, videoHeight, videoWidth, RunningMode.VIDEO)
+            binding.overlayView.setResults(res, videoHeight, videoWidth, RunningMode.VIDEO)
             binding.overlayView.invalidate()
         }
     }
 
-    fun updatePoseOverlay(landmarks: List<NormalizedLandmark>?) {
-        if (videoHeight > 0 && videoWidth > 0 && landmarks != null) {
-            binding.overlayView.setResults(listOf(landmarks), videoHeight, videoWidth, RunningMode.VIDEO)
+    fun updatePoseOverlay(lms: List<NormalizedLandmark>?) {
+        if (videoHeight > 0 && videoWidth > 0 && lms != null) {
+            binding.overlayView.setResults(listOf(lms), videoHeight, videoWidth, RunningMode.VIDEO)
             binding.overlayView.invalidate()
         }
     }
 
-    fun updatePoseOverlayWithPhase(frameIndex: Int, landmarks: List<NormalizedLandmark>?) {
-        if (videoHeight > 0 && videoWidth > 0 && landmarks != null) {
+    fun updatePoseOverlayWithPhase(idx: Int, lms: List<NormalizedLandmark>?) {
+        if (videoHeight > 0 && videoWidth > 0 && lms != null) {
             if (videoDebugProcessor.hasStrokeDetection()) {
-                val phase = videoDebugProcessor.getStrokePhaseForFrame(frameIndex)
                 binding.overlayView.setPhaseColoringEnabled(true)
-                binding.overlayView.setStrokePhase(phase)
+                binding.overlayView.setStrokePhase(videoDebugProcessor.getStrokePhaseForFrame(idx))
             }
-            binding.overlayView.setResults(listOf(landmarks), videoHeight, videoWidth, RunningMode.VIDEO)
+            binding.overlayView.setResults(listOf(lms), videoHeight, videoWidth, RunningMode.VIDEO)
             binding.overlayView.invalidate()
         }
     }
 
-    fun setPhaseColoringEnabled(enabled: Boolean) {
-        binding.overlayView.setPhaseColoringEnabled(enabled)
-    }
+    fun setPhaseColoringEnabled(en: Boolean) { binding.overlayView.setPhaseColoringEnabled(en) }
+    fun clearPoseOverlay() { binding.overlayView.clear() }
 
-    fun clearPoseOverlay() {
-        binding.overlayView.clear()
-    }
-
-    // --- Frame Analysis UI ---
-
-    fun updateFrameAnalysisUI(resultIndex: Int, result: AnalysisResult) {
-        val totalFrames = videoDebugProcessor.getTotalFrames()
-        binding.tvFrameNumber.text = context.getString(R.string.format_frame_counter, resultIndex, totalFrames)
+    fun updateFrameAnalysisUI(idx: Int, res: AnalysisResult) {
+        val total = videoDebugProcessor.getTotalFrames()
+        binding.tvFrameNumber.text = "Frame: $idx / $total"
         
-        // Metrics
-        binding.tvWristAngle.text = context.getString(R.string.format_wrist_angle, result.wristAngle, if (result.isWristAngleValid) " ✓" else " ✗")
-        binding.tvBodyRotation.text = context.getString(R.string.format_body_rotation, result.bodyRotation, if (result.isBodyRotationValid) " ✓" else " ✗")
-        binding.tvFollowThrough.text = context.getString(R.string.format_follow_through, result.followThroughAngle, if (result.isFollowThroughValid) " ✓" else " ✗")
-        binding.tvContactHeight.text = context.getString(R.string.format_contact_height, result.contactHeight, if (result.isContactHeightValid) " ✓" else " ✗")
-        binding.tvElbowDistance.text = context.getString(R.string.format_elbow_distance, result.elbowBodyDistance, if (result.isElbowPositionValid) " ✓" else " ✗")
+        binding.tvWristAngle.text = "Wrist: %.1f%s".format(res.wristAngle, if (res.isWristAngleValid) " ✓" else " ✗")
+        binding.tvBodyRotation.text = "Body: %.1f%s".format(res.bodyRotation, if (res.isBodyRotationValid) " ✓" else " ✗")
+        binding.tvFollowThrough.text = "Follow: %.1f%s".format(res.followThroughAngle, if (res.isFollowThroughValid) " ✓" else " ✗")
+        binding.tvContactHeight.text = "Height: %.1f%s".format(res.contactHeight, if (res.isContactHeightValid) " ✓" else " ✗")
+        binding.tvElbowDistance.text = "Elbow: %.1f%s".format(res.elbowBodyDistance, if (res.isElbowPositionValid) " ✓" else " ✗")
 
-        // Phase Info
-        val strokePhase = if (videoDebugProcessor.hasStrokeDetection()) {
-            videoDebugProcessor.getStrokePhaseForFrame(resultIndex)
-        } else {
-            result.phase
-        }
-        binding.tvPhase.text = context.getString(R.string.format_phase, strokePhase.name)
-        binding.tvPhase.setTextColor(getPhaseColor(strokePhase))
+        val phase = if (videoDebugProcessor.hasStrokeDetection()) videoDebugProcessor.getStrokePhaseForFrame(idx) else res.phase
+        binding.tvPhase.text = "Phase: ${phase.name}"
+        binding.tvPhase.setTextColor(getPhaseColor(phase))
 
-        // Score
-        binding.tvScore.text = context.getString(R.string.format_score, result.overallScore.toString())
-        binding.tvScore.setTextColor(when {
-            result.overallScore >= 80 -> context.getColor(android.R.color.holo_green_dark)
-            result.overallScore >= 60 -> context.getColor(android.R.color.holo_orange_dark)
-            else -> context.getColor(android.R.color.holo_red_dark)
-        })
+        binding.tvScore.text = "Score: ${res.overallScore}"
+        binding.tvScore.setTextColor(context.getColor(if (res.overallScore >= 80) android.R.color.holo_green_dark else if (res.overallScore >= 60) android.R.color.holo_orange_dark else android.R.color.holo_red_dark))
 
-        // Feedback Logic
         if (videoDebugProcessor.hasStrokeDetection()) {
-            updateStrokeInfo(resultIndex)
+            val stroke = videoDebugProcessor.getStrokeForFrame(idx)
+            val strokes = videoDebugProcessor.getDetectedStrokes()
+            if (stroke != null) {
+                binding.tvStrokesDetected.text = "Stroke: ${stroke.strokeIndex + 1} / ${strokes.size}"
+                logManager.append(stroke.strokeIndex + 1, phase, stroke.peakVelocity)
+            } else {
+                binding.tvStrokesDetected.text = "Strokes: ${strokes.size}"
+            }
         } else {
-            appendFeedbackEntry(0, result.phase, 0f)
+            logManager.append(0, res.phase, 0f)
         }
     }
 
-    private fun updateStrokeInfo(frameIndex: Int) {
-        val stroke = videoDebugProcessor.getStrokeForFrame(frameIndex)
-        val strokes = videoDebugProcessor.getDetectedStrokes()
-        val phase = videoDebugProcessor.getStrokePhaseForFrame(frameIndex)
+    fun clearFeedbackHistory() { logManager.clear() }
 
-        stroke?.let { s ->
-            val strokeNum = s.strokeIndex + 1
-            binding.tvStrokesDetected.text = context.getString(R.string.format_stroke_counter, strokeNum, strokes.size)
-            appendFeedbackEntry(strokeNum, phase, s.peakVelocity)
-        } ?: run {
-            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_count_between, strokes.size)
-        }
-    }
-
-    // --- Feedback Log Management ---
-
-    private fun appendFeedbackEntry(strokeNum: Int, phase: StrokePhase, peakVelocity: Float) {
-        if (strokeNum == lastDisplayedStroke && phase == lastDisplayedPhase) return
-
-        lastDisplayedStroke = strokeNum
-        lastDisplayedPhase = phase
-
-        val feedback = generatePhaseFeedback(phase, peakVelocity)
-        val phaseName = formatPhaseName(phase)
-        val strokeLabel = if (strokeNum > 0) strokeNum.toString() else "RT"
-        val label = "$strokeLabel-$phaseName:"
-
-        val color = if (strokeNum > 0) {
-            strokeColors[(strokeNum - 1) % strokeColors.size]
-        } else {
-            Color.BLACK
-        }
-
-        val entry = FeedbackLogEntry(label, feedback, color)
-        feedbackEntries.add(entry)
-        feedbackAdapter.updateList(feedbackEntries)
-        binding.rvFeedbackHistory.scrollToPosition(feedbackEntries.size - 1)
-    }
-
-    fun clearFeedbackHistory() {
-        feedbackEntries.clear()
-        feedbackAdapter.updateList(feedbackEntries)
-        lastDisplayedStroke = -1
-        lastDisplayedPhase = null
-    }
-
-    private fun formatPhaseName(phase: StrokePhase): String {
-        return phase.name.split("_").joinToString("") { part ->
-            part.lowercase().replaceFirstChar { it.uppercase() }
-        }
-    }
-
-    private fun generatePhaseFeedback(phase: StrokePhase, peakVelocity: Float): String {
-        return when (phase) {
-            StrokePhase.READY -> "Ready position"
-            StrokePhase.BACKSWING -> "Start rotation"
-            StrokePhase.FORWARD_SWING -> "Accelerate (v=%.3f)".format(Locale.US, peakVelocity)
-            StrokePhase.CONTACT -> "Ball contact"
-            StrokePhase.FOLLOW_THROUGH -> "Complete swing"
-            StrokePhase.RECOVERY -> "Return to ready"
-        }
-    }
-
-    private fun getPhaseColor(phase: StrokePhase): Int {
-        return when (phase) {
-            StrokePhase.READY -> context.getColor(android.R.color.darker_gray)
-            StrokePhase.BACKSWING -> context.getColor(android.R.color.holo_blue_dark)
-            StrokePhase.FORWARD_SWING -> context.getColor(android.R.color.holo_green_dark)
-            StrokePhase.CONTACT -> context.getColor(android.R.color.holo_orange_dark)
-            StrokePhase.FOLLOW_THROUGH -> context.getColor(android.R.color.holo_purple)
-            StrokePhase.RECOVERY -> context.getColor(android.R.color.darker_gray)
-        }
-    }
-
-    // --- General Info Updates ---
+    private fun getPhaseColor(p: StrokePhase) = context.getColor(when(p) {
+        StrokePhase.READY -> android.R.color.darker_gray
+        StrokePhase.BACKSWING -> android.R.color.holo_blue_dark
+        StrokePhase.FORWARD_SWING -> android.R.color.holo_green_dark
+        StrokePhase.CONTACT -> android.R.color.holo_orange_dark
+        StrokePhase.FOLLOW_THROUGH -> android.R.color.holo_purple
+        StrokePhase.RECOVERY -> android.R.color.darker_gray
+    })
 
     fun updateAnalysisInfo() {
-        val summary = videoDebugProcessor.getAnalysisSummary()
-        binding.tvTotalFrames.text = context.getString(R.string.format_total_frames, summary.totalFrames)
-
+        val sum = videoDebugProcessor.getAnalysisSummary()
+        binding.tvTotalFrames.text = "Total Frames: ${sum.totalFrames}"
         if (videoDebugProcessor.hasStrokeDetection()) {
-            val strokes = videoDebugProcessor.getDetectedStrokes()
-            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_detected, strokes.size)
-            
-            videoDebugProcessor.getStrokeDetectionResult()?.let { result ->
-                val phaseCount = result.framePhases.groupBy { it.phase }
-                    .mapValues { it.value.size }
-                binding.tvPhaseDistribution.text = buildString {
-                    append("Phase Distribution:\n")
-                    phaseCount.forEach { (phase, count) -> append("  ${phase.name}: $count frames\n") }
-                }
-            }
+            val res = videoDebugProcessor.getStrokeDetectionResult()
+            binding.tvStrokesDetected.text = "Strokes: ${res?.strokes?.size ?: 0}"
+            binding.tvPhaseDistribution.text = "Phase distribution available in strokes"
         } else {
-            binding.tvStrokesDetected.text = context.getString(R.string.format_strokes_detected, summary.strokeCount)
-            binding.tvPhaseDistribution.text = buildString {
-                append("Phase Distribution:\n")
-                summary.phaseDistribution.forEach { (phase, count) -> append("  ${phase.name}: $count frames\n") }
-            }
+            binding.tvStrokesDetected.text = "Strokes: ${sum.strokeCount}"
+            binding.tvPhaseDistribution.text = "Score: %.1f".format(sum.averageScore)
         }
-
-        binding.tvAvgScore.text = context.getString(R.string.format_avg_score, summary.averageScore)
-        binding.tvGoodStrokes.text = context.getString(R.string.format_good_strokes, summary.goodStrokes, summary.successRate.toInt())
+        binding.tvAvgScore.text = "Avg Score: %.1f".format(sum.averageScore)
+        binding.tvGoodStrokes.text = "Good: ${sum.goodStrokes} (${sum.successRate.toInt()}%)"
     }
 
     fun updateVideoInfo() {
-        val totalFrames = videoDebugProcessor.getTotalFrames()
-        val infoText = context.getString(R.string.format_video_info, videoDurationMs / 1000.0, totalFrames, VideoDebugProcessor.VIDEO_INTERVAL_MS)
-        binding.tvVideoInfo.text = infoText
-        binding.tvVideoInfoPortrait.text = infoText
+        val text = "Video: %.1fs (%d frames @ %dms)".format(videoDurationMs / 1000.0, videoDebugProcessor.getTotalFrames(), VideoDebugProcessor.VIDEO_INTERVAL_MS)
+        binding.tvVideoInfo.text = text
+        binding.tvVideoInfoPortrait.text = text
     }
 
-    // --- Playback UI Controls ---
-
-    fun updatePlaybackButton(isPlaying: Boolean) {
-        binding.btnPlayPause.text = if (isPlaying) context.getString(R.string.btn_pause_text) else context.getString(R.string.btn_play_text)
+    fun updatePlaybackButton(playing: Boolean) { binding.btnPlayPause.text = if (playing) "Pause" else "Play" }
+    fun updateSpeedButtons(s: Float) {
+        binding.btnSpeed025x.isSelected = (s == 0.25f); binding.btnSpeed05x.isSelected = (s == 0.5f)
+        binding.btnSpeed1x.isSelected = (s == 1.0f); binding.btnSpeed2x.isSelected = (s == 2.0f)
     }
+    fun updateSeekBar(pos: Int) { binding.seekBarFrame.progress = pos }
+    fun setupSeekBar(max: Int) { binding.seekBarFrame.max = max }
+    fun showProgress() { binding.progressBar.visibility = View.VISIBLE; binding.analysisPanel.visibility = View.GONE }
+    fun hideProgress() { binding.progressBar.visibility = View.GONE; binding.analysisPanel.visibility = View.VISIBLE }
+    fun enableLogButton() { binding.btnLogPoses.isEnabled = true; binding.btnLogPosesPortrait.isEnabled = true }
+    fun showVideoView() { binding.frameImageView.visibility = View.GONE; binding.videoView.visibility = View.VISIBLE }
+    fun showFrameImage() { binding.frameImageView.visibility = View.VISIBLE; binding.videoView.visibility = View.INVISIBLE }
+    fun updateToggleViewButton(port: Boolean) { val t = if (port) "Landscape" else "Portrait"; binding.btnToggleViewMode.text = t; binding.btnToggleViewModePortrait.text = t }
 
-    fun updateSpeedButtons(speed: Float) {
-        binding.btnSpeed025x.isSelected = (speed == 0.25f)
-        binding.btnSpeed05x.isSelected = (speed == 0.5f)
-        binding.btnSpeed1x.isSelected = (speed == 1.0f)
-        binding.btnSpeed2x.isSelected = (speed == 2.0f)
-    }
-
-    fun updateSeekBar(positionMs: Int) {
-        binding.seekBarFrame.progress = positionMs
-    }
-
-    fun setupSeekBar(maxMs: Int) {
-        binding.seekBarFrame.max = maxMs
-    }
-
-    fun showProgress() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.analysisPanel.visibility = View.GONE
-    }
-
-    fun hideProgress() {
-        binding.progressBar.visibility = View.GONE
-        binding.analysisPanel.visibility = View.VISIBLE
-    }
-
-    fun enableLogButton() {
-        binding.btnLogPoses.isEnabled = true
-        binding.btnLogPosesPortrait.isEnabled = true
-    }
-
-    fun showVideoView() {
-        binding.frameImageView.visibility = View.GONE
-        binding.videoView.visibility = View.VISIBLE
-    }
-
-    fun showFrameImage() {
-        binding.frameImageView.visibility = View.VISIBLE
-        binding.videoView.visibility = View.INVISIBLE
-    }
-
-    fun updateToggleViewButton(isPortraitMode: Boolean) {
-        val text = if (isPortraitMode) context.getString(R.string.btn_landscape_mode) else context.getString(R.string.btn_portrait_mode)
-        binding.btnToggleViewMode.text = text
-        binding.btnToggleViewModePortrait.text = text
-    }
-
-    fun setPortraitMode(enabled: Boolean) {
-        if (enabled) {
-            binding.topBar.visibility = View.GONE
-            binding.portraitTopControls.visibility = View.VISIBLE
-            binding.analysisPanel.visibility = View.VISIBLE
-            binding.tvVideoInfoPortrait.text = binding.tvVideoInfo.text
-            val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-            params.topToBottom = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
-            params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
-            binding.mainContent.layoutParams = params
+    fun setPortraitMode(en: Boolean) {
+        if (en) {
+            binding.topBar.visibility = View.GONE; binding.portraitTopControls.visibility = View.VISIBLE
+            val lp = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+            lp.topToBottom = -1; lp.topToTop = 0; binding.mainContent.layoutParams = lp
         } else {
-            binding.topBar.visibility = View.VISIBLE
-            binding.portraitTopControls.visibility = View.GONE
-            val params = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-            params.topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET
-            params.topToBottom = binding.topBar.id
-            binding.mainContent.layoutParams = params
+            binding.topBar.visibility = View.VISIBLE; binding.portraitTopControls.visibility = View.GONE
+            val lp = binding.mainContent.layoutParams as androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+            lp.topToTop = -1; lp.topToBottom = binding.topBar.id; binding.mainContent.layoutParams = lp
         }
     }
-
-    fun setToggleViewButtonVisibility(visible: Boolean) {
-        binding.btnToggleViewMode.visibility = if (visible) View.VISIBLE else View.GONE
-    }
+    fun setToggleViewButtonVisibility(vis: Boolean) { binding.btnToggleViewMode.visibility = if (vis) View.VISIBLE else View.GONE }
 }
