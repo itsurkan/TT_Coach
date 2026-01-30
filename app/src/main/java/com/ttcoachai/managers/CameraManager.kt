@@ -133,6 +133,7 @@ class CameraManager(
      * Stop and unbind all camera use cases
      */
     fun stop() {
+        preview?.setSurfaceProvider(null)
         cameraProvider?.unbindAll()
     }
 

@@ -65,10 +65,13 @@ class PoseLandmarkerConfig(
 
             PoseLandmarker.createFromOptions(context, optionsBuilder.build())
         } catch (e: IllegalStateException) {
-            Log.e(TAG, "MediaPipe failed to load the task with error: ${e.message}")
+            Log.e(TAG, "MediaPipe failed to load task '$modelName' from assets: ${e.message}")
             null
         } catch (e: RuntimeException) {
-            Log.e(TAG, "Pose Landmarker failed to load model with error: ${e.message}")
+            Log.e(TAG, "Pose Landmarker failed to load model '$modelName' with error: ${e.message}")
+            null
+        } catch (e: Exception) {
+            Log.e(TAG, "General error loading model '$modelName': ${e.message}")
             null
         }
     }
