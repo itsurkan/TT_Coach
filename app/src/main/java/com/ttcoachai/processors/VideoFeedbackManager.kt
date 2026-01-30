@@ -22,7 +22,7 @@ class VideoFeedbackManager(private val feedbackGenerator: FeedbackGenerator) {
         if (lastPhase != phase) {
             when (phase) {
                 StrokePhase.FORWARD_SWING -> feedbackGenerator.playTic()
-                StrokePhase.FOLLOW_THROUGH -> feedbackGenerator.playTac()
+                StrokePhase.CONTACT -> feedbackGenerator.playTac()
                 else -> {}
             }
         }
