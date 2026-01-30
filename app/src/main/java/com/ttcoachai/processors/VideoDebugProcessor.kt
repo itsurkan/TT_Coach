@@ -40,7 +40,7 @@ class VideoDebugProcessor(
     companion object {
         private const val TAG = "VideoDebugProcessor"
         const val VIDEO_INTERVAL_MS = 100L
-        private const val DISPLAY_UPDATE_INTERVAL_MS = 33L
+        private const val DISPLAY_UPDATE_INTERVAL_MS = 50L
     }
 
     fun isFromJson(): Boolean = poseFrames != null
