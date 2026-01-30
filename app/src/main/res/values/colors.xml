@@ -18,12 +18,12 @@
     <!-- Material 3 Standard Tonal Palette -->
     <color name="colorPrimary">#2563EB</color>
     <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorPrimaryContainer">#D6E2FF</color>
+    <color name="colorPrimaryContainer">#EBF2FF</color>
     <color name="colorOnPrimaryContainer">#001A43</color>
     
     <color name="colorSecondary">#5B5D72</color>
     <color name="colorOnSecondary">#FFFFFF</color>
-    <color name="colorSecondaryContainer">#E0E1F9</color>
+    <color name="colorSecondaryContainer">#F2F2F7</color>
     <color name="colorOnSecondaryContainer">#181A2C</color>
 
     <color name="colorTertiary">#F59E0B</color>
@@ -36,9 +36,9 @@
     <color name="colorErrorContainer">#FFDAD6</color>
     <color name="colorOnErrorContainer">#410002</color>
 
-    <color name="colorSurface">#F8F9FF</color>
+    <color name="colorSurface">#FFFFFF</color>
     <color name="colorOnSurface">#191C1E</color>
-    <color name="colorSurfaceVariant">#E1E2EC</color>
+    <color name="colorSurfaceVariant">#F4F4F5</color>
     <color name="colorOnSurfaceVariant">#44474F</color>
     
     <color name="colorOutline">#74777F</color>
@@ -111,19 +111,19 @@
     <color name="card_stroke_blue_20">#333B82F6</color>
     <color name="card_stroke_blue_10">#1A3B82F6</color>
     <color name="toolbar_background">#FFFFFF</color>
-    <color name="background_surface_alt">#F8F9FA</color>
+    <color name="background_surface_alt">#FAFAFA</color>
     <color name="card_bg_amber_light">#FFFBEB</color>
     <color name="blue_100_70">#B3DBEAFE</color>
     <color name="bottom_sheet_background">#FFFFFF</color>
     <color name="bottom_sheet_text_color">#191C1E</color>
-    <color name="bg_card_selected">#EFF6FF</color>
+    <color name="bg_card_selected">#F5F9FF</color>
     <color name="phase_backswing">#3B82F6</color>
     <color name="phase_ready">#94A3B8</color>
     <color name="phase_forward_swing">#F59E0B</color>
     <color name="phase_contact">#EF4444</color>
     <color name="phase_follow_through">#8B5CF6</color>
     <color name="phase_recovery">#CBD5E1</color>
-    <color name="gray_light">#E5E7EB</color>
+    <color name="gray_light">#F3F4F6</color>
     <color name="badge_text_green">#166534</color>
     <color name="badge_text_orange">#9A3412</color>
     <color name="badge_text_red">#991B1B</color>
