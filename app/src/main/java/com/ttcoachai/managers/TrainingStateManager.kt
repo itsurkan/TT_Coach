@@ -77,6 +77,15 @@ class TrainingStateManager internal constructor(private val context: Context) {
         return String.format("%02d:%02d", minutes, seconds)
     }
     
+    fun getStartTime(): Long = startTime
+    
+    fun getSessionDurationSeconds(): Int {
+        if (startTime == 0L) return 0
+        val currentTime = if (pausedTime > 0L) pausedTime else System.currentTimeMillis()
+        val durationMs = currentTime - startTime - totalPausedDuration
+        return (durationMs / 1000).toInt()
+    }
+    
     fun addFeedback(feedback: String) = synchronized(lock) {
         feedbackHistory.add(feedback)
         if (feedbackHistory.size > 10) {

@@ -10,6 +10,9 @@ import com.ttcoachai.models.ExerciseParameters
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
     private lateinit var binding: ActivityTrainingBinding
@@ -125,7 +128,25 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         stateManager.stopTraining()
         uiController.updateUIForTrainingState(false)
         poseAnalysisProcessor.endSession()
+        
+        // Save training session to cloud
+        saveSessionToCloud()
+        
         uiController.showSummary(stateManager.getSummaryText(), stateManager.getImprovementTip())
+    }
+    
+    private fun saveSessionToCloud() {
+        val app = application as TTCoachApplication
+        app.cloudSyncManager.saveTrainingFromState(
+            exerciseId = exerciseId ?: "forehand_drive",
+            exerciseName = exerciseName ?: getString(R.string.exercise_forehand_name),
+            startTime = stateManager.getStartTime(),
+            durationSeconds = stateManager.getSessionDurationSeconds(),
+            strokeCount = stateManager.getStrokeCount(),
+            correctStrokes = stateManager.getGoodStrokesCount(),
+            averageScore = stateManager.getAverageScore(),
+            appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" }
+        )
     }
 
     private fun setupBackNavigation() {

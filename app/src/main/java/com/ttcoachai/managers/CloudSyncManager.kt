@@ -200,6 +200,48 @@ class CloudSyncManager(
         val userId = currentUserId ?: return false
         return userRepository.isPremium(userId)
     }
+
+    /**
+     * Save training session from TrainingStateManager data.
+     * Convenience method for TrainingActivity.
+     */
+    fun saveTrainingFromState(
+        exerciseId: String,
+        exerciseName: String,
+        startTime: Long,
+        durationSeconds: Int,
+        strokeCount: Int,
+        correctStrokes: Int,
+        averageScore: Double,
+        appVersion: String
+    ) {
+        if (!isAuthenticated) {
+            android.util.Log.d(TAG, "User not authenticated, skipping cloud sync")
+            return
+        }
+
+        val session = com.ttcoachai.models.TrainingSession(
+            id = com.ttcoachai.models.TrainingSession.generateId(),
+            exerciseId = exerciseId,
+            exerciseName = exerciseName,
+            startTime = startTime,
+            endTime = System.currentTimeMillis(),
+            durationSeconds = durationSeconds,
+            strokeCount = strokeCount,
+            correctStrokes = correctStrokes,
+            accuracy = (averageScore / 100).toFloat(),
+            appVersion = appVersion
+        )
+
+        scope.launch {
+            val result = saveTrainingSession(session)
+            if (result.isSuccess) {
+                android.util.Log.d(TAG, "Training session saved to cloud: ${result.getOrNull()}")
+            } else {
+                android.util.Log.e(TAG, "Failed to save session to cloud", result.exceptionOrNull())
+            }
+        }
+    }
 }
 
 /**
