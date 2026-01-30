@@ -221,8 +221,10 @@ class JsonStrokeDetectorTest {
         println("JSON file: ${jsonFile.name}")
         println("Total frames: ${frames.size}, interval: ${intervalMs}ms")
 
-        // Use standard forehand config
-        val result = detector.detectStrokes(frames, intervalMs)
+        // Use custom strict config for Ivan to filter shallow strokes
+        val strictConfig = StrokeDetectorConfig.FOREHAND.copy(backswingThreshold = 0.32f)
+        val strictDetector = JsonStrokeDetector(strictConfig)
+        val result = strictDetector.detectStrokes(frames, intervalMs)
 
         println("Detected ${result.strokes.size} strokes in Ivan's poses:")
         result.strokes.forEachIndexed { index, stroke ->
@@ -232,8 +234,8 @@ class JsonStrokeDetectorTest {
                     "peak=${String.format("%.3f", stroke.forwardPeakValue)}")
         }
         
-        // Based on the generated test results, ivan_poses.json contains 5 strokes
-        assertEquals("Should detect exactly 5 strokes in ivan_poses.json", 5, result.strokes.size)
+        // Based on the stricter detection logic, we expect 4 full strokes
+        assertEquals("Should detect exactly 4 strokes in ivan_poses.json", 4, result.strokes.size)
         println("=== ivan_poses.json contains ${result.strokes.size} strokes ===")
     }
 

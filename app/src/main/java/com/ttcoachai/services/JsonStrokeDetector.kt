@@ -488,8 +488,9 @@ class JsonStrokeDetector(
         val hasForwardSwing = builder.forwardStartFrame >= 0
         val hasSufficientExtension = (builder.maxForwardValue - builder.minBackswingValue) > config.minForwardExtension
         val hasSufficientFrames = (endFrame - builder.preparationStartFrame) >= config.minStrokeFrames
+        val hasSufficientBackswing = builder.minBackswingValue < config.backswingThreshold
 
-        if (hasForwardSwing && hasSufficientExtension && hasSufficientFrames) {
+        if (hasForwardSwing && hasSufficientExtension && hasSufficientFrames && hasSufficientBackswing) {
             val stroke = builder.build(endFrame)
             detectedStrokes.add(stroke)
             Log.i(TAG, "Finalized stroke ${stroke.strokeIndex + 1}: " +
