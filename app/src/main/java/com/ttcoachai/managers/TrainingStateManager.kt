@@ -18,6 +18,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
     private val feedbackHistory = mutableListOf<String>()
     private val feedbackItemsHistory = mutableListOf<List<FeedbackItem>>()
     private val analysisResults = mutableListOf<AnalysisResult>()
+    private var currentFeedbackItems = listOf<FeedbackItem>()
     var consecutiveGoodStrokes = 0
         private set
     

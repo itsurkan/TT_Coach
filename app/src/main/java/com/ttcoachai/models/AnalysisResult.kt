@@ -5,6 +5,8 @@
 
 package com.ttcoachai.models
 
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+
 /**
  * Типи корекції для фідбеку
  */
@@ -19,12 +21,13 @@ enum class CorrectionType {
 }
 
 /**
- * Елемент фідбеку з типом корекції
+ * Елемент фідбеку з типом корекції та захопленими позами удару
  */
 data class FeedbackItem(
     val message: String,
     val type: CorrectionType,
-    val isPositive: Boolean = false
+    val isPositive: Boolean = false,
+    val strokeLandmarks: List<List<NormalizedLandmark>> = emptyList()
 )
 
 /**

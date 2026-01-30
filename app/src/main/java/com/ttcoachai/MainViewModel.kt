@@ -22,7 +22,7 @@ import androidx.lifecycle.ViewModel
  */
 class MainViewModel : ViewModel() {
 
-    private var _model = PoseLandmarkerHelper.MODEL_POSE_LANDMARKER_FULL
+    private var _model = PoseLandmarkerHelper.MODEL_POSE_LANDMARKER_LITE
     private var _delegate: Int = PoseLandmarkerHelper.DELEGATE_CPU
     private var _minPoseDetectionConfidence: Float =
         PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE

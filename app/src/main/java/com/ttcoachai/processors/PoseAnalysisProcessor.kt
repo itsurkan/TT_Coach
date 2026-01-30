@@ -1,10 +1,12 @@
 package com.ttcoachai.processors
 
 import android.util.Log
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.ttcoachai.PoseLandmarkerHelper
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.models.FeedbackItem
 import com.ttcoachai.models.StrokePhase
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
@@ -23,6 +25,7 @@ class PoseAnalysisProcessor(
     private val analysisLogger = PoseAnalysisLogger(application)
     
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
+    private val currentStrokeLandmarks = mutableListOf<List<NormalizedLandmark>>()
     private var pendingFeedbackResult: AnalysisResult? = null
     private var totalCompletedStrokes = 0
     
