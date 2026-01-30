@@ -543,6 +543,8 @@
     <string name="label_weekly_goal">Weekly Goal</string>
     <string name="placeholder_weekly_progress">4/7 days</string>
     <string name="desc_weekly_goal_remaining">3 more sessions to reach your weekly goal</string>
+    <string name="format_weekly_days">%1$d/%2$d days</string>
+    <string name="weekly_goal_remaining_desc">%d more sessions to reach your weekly goal</string>
     <string name="title_new_achievement">New Achievement!</string>
     <string name="desc_achievement_100">100 consecutive forehand hits unlocked</string>
     <string name="score_50">50</string>

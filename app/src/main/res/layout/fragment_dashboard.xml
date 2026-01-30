@@ -130,6 +130,7 @@
                             android:layout_marginBottom="8dp"/>
                         
                         <TextView
+                            android:id="@+id/tv_minutes_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_minutes"
@@ -170,6 +171,7 @@
                             android:layout_marginBottom="8dp"/>
 
                         <TextView
+                            android:id="@+id/tv_accuracy_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_percentage_mid"
@@ -210,6 +212,7 @@
                             android:layout_marginBottom="8dp"/>
 
                         <TextView
+                            android:id="@+id/tv_strokes_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_rallies"
@@ -250,6 +253,7 @@
                             android:layout_marginBottom="8dp"/>
 
                         <TextView
+                            android:id="@+id/tv_improvement_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_improvement_positive"
@@ -291,6 +295,7 @@
                             android:textAppearance="?attr/textAppearanceTitleMedium"
                             android:textStyle="bold"/>
                         <TextView
+                            android:id="@+id/tv_weekly_progress"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_weekly_progress"
@@ -308,6 +313,7 @@
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
+                        android:id="@+id/tv_weekly_desc"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/desc_weekly_goal_remaining"
@@ -351,6 +357,7 @@
                             android:textStyle="bold"
                             android:layout_marginBottom="4dp"/>
                         <TextView
+                            android:id="@+id/tv_achievement_desc"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/desc_achievement_100"
