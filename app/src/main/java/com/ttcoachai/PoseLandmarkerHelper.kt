@@ -38,8 +38,12 @@ class PoseLandmarkerHelper(
         runningMode
     )
 
-    init {
-        setupPoseLandmarker()
+    // Lazy initialization check
+    private fun ensureInitialized(): Boolean {
+        if (poseLandmarker == null) {
+            setupPoseLandmarker()
+        }
+        return poseLandmarker != null
     }
 
     fun clearPoseLandmarker() {
@@ -73,15 +77,18 @@ class PoseLandmarkerHelper(
     }
 
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
+        if (!ensureInitialized()) return
         processor?.detectLiveStream(imageProxy, isFrontCamera)
     }
 
     @VisibleForTesting
     fun detectAsync(mpImage: MPImage, frameTime: Long) {
+        if (!ensureInitialized()) return
         processor?.detectAsync(mpImage, frameTime)
     }
 
     fun detectVideoFile(videoUri: Uri, inferenceIntervalMs: Long): ResultBundle? {
+        if (!ensureInitialized()) return null
         return processor?.detectVideoFile(
             videoUri,
             inferenceIntervalMs,
@@ -97,6 +104,7 @@ class PoseLandmarkerHelper(
     }
 
     fun detectImage(image: Bitmap): ResultBundle? {
+        if (!ensureInitialized()) return null
         return processor?.detectImage(
             image,
             onError = { error -> poseLandmarkerHelperListener?.onError(error) }
