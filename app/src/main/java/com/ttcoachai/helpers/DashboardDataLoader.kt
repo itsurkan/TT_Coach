@@ -47,6 +47,7 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
         val todayStart = calendar.timeInMillis
         
         val todaySessions = sessions.filter { it.startTime >= todayStart }
@@ -55,7 +56,16 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
             return TodayStats(0, 0, 0)
         }
         
-        val totalMinutes = todaySessions.sumOf { it.durationSeconds } / 60
+        var totalSeconds = 0
+        todaySessions.forEach { session ->
+            val calculatedDuration = if (session.endTime > session.startTime) {
+                ((session.endTime - session.startTime) / 1000).toInt()
+            } else 0
+            
+            totalSeconds += Math.max(session.durationSeconds, calculatedDuration)
+        }
+        
+        val totalMinutes = if (totalSeconds > 0 && totalSeconds < 60) 1 else totalSeconds / 60
         val avgAccuracy = (todaySessions.map { it.accuracy * 100 }.average()).toInt()
         val totalStrokes = todaySessions.sumOf { it.strokeCount }
         

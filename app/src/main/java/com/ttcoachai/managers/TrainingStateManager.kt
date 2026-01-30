@@ -24,6 +24,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
     
     // Timer logic
     private var startTime: Long = 0
+    private var endTime: Long = 0
     private var pausedTime: Long = 0
     private var totalPausedDuration: Long = 0
     
@@ -46,6 +47,14 @@ class TrainingStateManager internal constructor(private val context: Context) {
     }
     
     fun stopTraining() {
+        if (isTrainingActive) {
+            endTime = System.currentTimeMillis()
+        } else if (pausedTime > 0) {
+            // If training was paused when stopped, use pausedTime as endTime
+            endTime = pausedTime
+        } else {
+            endTime = System.currentTimeMillis()
+        }
         isTrainingActive = false
     }
     
@@ -81,10 +90,17 @@ class TrainingStateManager internal constructor(private val context: Context) {
     
     fun getSessionDurationSeconds(): Int {
         if (startTime == 0L) return 0
-        val currentTime = if (pausedTime > 0L) pausedTime else System.currentTimeMillis()
+        val currentTime = when {
+            endTime > 0L -> endTime  // Training finished
+            pausedTime > 0L -> pausedTime  // Training paused
+            isTrainingActive -> System.currentTimeMillis()  // Training active
+            else -> System.currentTimeMillis()
+        }
         val durationMs = currentTime - startTime - totalPausedDuration
         return (durationMs / 1000).toInt()
     }
+    
+    fun getEndTime(): Long = if (endTime > 0L) endTime else System.currentTimeMillis()
     
     fun addFeedback(feedback: String) = synchronized(lock) {
         feedbackHistory.add(feedback)
@@ -164,6 +180,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
         analysisResults.clear()
         consecutiveGoodStrokes = 0
         startTime = 0
+        endTime = 0
         pausedTime = 0
         totalPausedDuration = 0
     }

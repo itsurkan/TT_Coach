@@ -50,14 +50,13 @@ class TrainingRepository(
         return try {
             val snapshot = firestore.collection(TrainingSession.COLLECTION)
                 .whereEqualTo(TrainingSession.FIELD_USER_ID, userId)
-                .orderBy(TrainingSession.FIELD_START_TIME, Query.Direction.DESCENDING)
                 .limit(limit.toLong())
                 .get()
                 .await()
 
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(TrainingSession::class.java)
-            }
+            }.sortedByDescending { it.startTime }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get sessions for $userId", e)
             emptyList()
@@ -76,14 +75,13 @@ class TrainingRepository(
             val snapshot = firestore.collection(TrainingSession.COLLECTION)
                 .whereEqualTo(TrainingSession.FIELD_USER_ID, userId)
                 .whereEqualTo(TrainingSession.FIELD_EXERCISE_ID, exerciseId)
-                .orderBy(TrainingSession.FIELD_START_TIME, Query.Direction.DESCENDING)
                 .limit(limit.toLong())
                 .get()
                 .await()
 
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(TrainingSession::class.java)
-            }
+            }.sortedByDescending { it.startTime }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get sessions for exercise $exerciseId", e)
             emptyList()
@@ -103,13 +101,12 @@ class TrainingRepository(
                 .whereEqualTo(TrainingSession.FIELD_USER_ID, userId)
                 .whereGreaterThanOrEqualTo(TrainingSession.FIELD_START_TIME, startTime)
                 .whereLessThanOrEqualTo(TrainingSession.FIELD_START_TIME, endTime)
-                .orderBy(TrainingSession.FIELD_START_TIME, Query.Direction.DESCENDING)
                 .get()
                 .await()
 
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(TrainingSession::class.java)
-            }
+            }.sortedByDescending { it.startTime }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to get sessions in range", e)
             emptyList()

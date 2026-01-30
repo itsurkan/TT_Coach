@@ -137,14 +137,28 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     
     private fun saveSessionToCloud() {
         val app = application as TTCoachApplication
+        
+        val exerciseIdToSave = exerciseId ?: "forehand_drive"
+        val exerciseNameToSave = exerciseName ?: getString(R.string.exercise_forehand_name)
+        val startTimeValue = stateManager.getStartTime()
+        val endTimeValue = stateManager.getEndTime()
+        val durationValue = stateManager.getSessionDurationSeconds()
+        val strokeCountValue = stateManager.getStrokeCount()
+        val correctStrokesValue = stateManager.getGoodStrokesCount()
+        val avgScoreValue = stateManager.getAverageScore()
+        
+        android.util.Log.d("TrainingActivity", "Saving session to cloud: exercise=$exerciseIdToSave, duration=$durationValue sec, strokes=$strokeCountValue, score=$avgScoreValue")
+        android.util.Log.d("TrainingActivity", "CloudSync authenticated: ${app.cloudSyncManager.isAuthenticated}")
+        
         app.cloudSyncManager.saveTrainingFromState(
-            exerciseId = exerciseId ?: "forehand_drive",
-            exerciseName = exerciseName ?: getString(R.string.exercise_forehand_name),
-            startTime = stateManager.getStartTime(),
-            durationSeconds = stateManager.getSessionDurationSeconds(),
-            strokeCount = stateManager.getStrokeCount(),
-            correctStrokes = stateManager.getGoodStrokesCount(),
-            averageScore = stateManager.getAverageScore(),
+            exerciseId = exerciseIdToSave,
+            exerciseName = exerciseNameToSave,
+            startTime = startTimeValue,
+            endTime = endTimeValue,
+            durationSeconds = durationValue,
+            strokeCount = strokeCountValue,
+            correctStrokes = correctStrokesValue,
+            averageScore = avgScoreValue,
             appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" }
         )
     }
