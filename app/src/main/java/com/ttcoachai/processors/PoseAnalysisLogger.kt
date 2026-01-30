@@ -12,7 +12,7 @@ class PoseAnalysisLogger(
 ) {
     fun logAnalysis(sessionId: String?, frameCounter: Int, result: AnalysisResult, inferenceTime: Long) {
         sessionId?.let { id ->
-            val logger = application.getFileLogger()
+            val logger = com.ttcoachai.core.logging.LogManager.getLogger(application)
             logger.logStrokeAnalysis(result, id, inferenceTime, frameCounter)
             logger.logPerformanceMetric("inference_time_ms", inferenceTime.toFloat(), id)
         }
@@ -20,7 +20,7 @@ class PoseAnalysisLogger(
 
     fun logRawPose(sessionId: String?, frameCounter: Int, result: com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult, inferenceTime: Long) {
         sessionId?.let { id ->
-            val logger = application.getFileLogger()
+            val logger = com.ttcoachai.core.logging.LogManager.getLogger(application)
             val landmarks = result.landmarks().firstOrNull()?.map { l ->
                 LandmarkData(l.x(), l.y(), l.z(), l.visibility().orElse(0f), l.presence().orElse(0f))
             } ?: return

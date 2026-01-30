@@ -88,7 +88,6 @@ class CameraManager(
             .setTargetAspectRatio(AspectRatio.RATIO_4_3)
             .setTargetRotation(displayRotation)
             .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
             .build()
             .also {
                 it.setAnalyzer(backgroundExecutor) { image ->

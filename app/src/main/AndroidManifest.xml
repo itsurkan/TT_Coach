@@ -124,10 +124,6 @@
                 android:value="true" />
         </activity>
 
-        <!-- Samsung GOS/GameSDK explicit exclusion -->
-        <meta-data android:name="com.samsung.android.game.game_mode" android:value="0" />
-        <meta-data android:name="com.samsung.android.game.gos" android:value="false" />
-        <meta-data android:name="com.android.graphics.developertweak" android:value="true" />
     </application>
 
 </manifest>

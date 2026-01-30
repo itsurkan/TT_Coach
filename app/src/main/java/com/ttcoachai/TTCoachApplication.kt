@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatDelegate
 
 class TTCoachApplication : Application() {
     
-    private lateinit var fileLogger: LocalFileLogger
     val settingsManager: SettingsManager by lazy { SettingsManager(this) }
     val authRepository: com.ttcoachai.repository.AuthRepository by lazy { 
         com.ttcoachai.repository.AuthRepository(this) 
@@ -36,26 +35,12 @@ class TTCoachApplication : Application() {
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
         
-        // Initialize async file logger
-        fileLogger = LocalFileLogger(this)
-        
-        if (settingsManager.isDeveloperModeEnabled()) {
-            fileLogger.setFileLoggingEnabled(true)
-            fileLogger.logInfo(TAG, "Application initialized in developer mode")
-        }
-        
         Log.i(TAG, "TT Coach Application started [SDK: ${android.os.Build.VERSION.SDK_INT}, DevMode: ${settingsManager.isDeveloperModeEnabled()}]")
     }
     
     override fun onTerminate() {
-        // Graceful shutdown (flush pending events)
-        runBlocking {
-            fileLogger.shutdown()
-        }
         super.onTerminate()
     }
-    
-    fun getFileLogger(): LocalFileLogger = fileLogger
     
     companion object {
         private const val TAG = "TTCoachApplication"

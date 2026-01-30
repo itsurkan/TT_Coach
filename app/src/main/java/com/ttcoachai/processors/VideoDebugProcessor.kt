@@ -21,8 +21,7 @@ data class PoseFrame(val landmarks: List<NormalizedLandmark>, val timestampMs: L
 class VideoDebugProcessor(
     private val context: Context,
     private val motionAnalyzer: MotionAnalyzer,
-    private val feedbackGenerator: FeedbackGenerator,
-    private val fileLogger: LocalFileLogger
+    private val feedbackGenerator: FeedbackGenerator
 ) {
     private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
     private var resultBundle: PoseLandmarkerHelper.ResultBundle? = null

@@ -38,27 +38,31 @@ class PoseLandmarkerProcessor(
     private var rotatedBitmap: Bitmap? = null
     private val matrix = Matrix()
 
+    private var lastProcessedFrameTime = 0L
+    private val frameIntervalMs = 66L // Limit to ~15 FPS to reduce system load
+
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
         if (runningMode != RunningMode.LIVE_STREAM) {
             Log.w(TAG, "Attempting to call detectLiveStream while not using RunningMode.LIVE_STREAM")
             return
         }
 
+        val currentTime = SystemClock.uptimeMillis()
+        if (currentTime - lastProcessedFrameTime < frameIntervalMs) {
+            imageProxy.close()
+            return
+        }
+        lastProcessedFrameTime = currentTime
+        
         val frameTime = SystemClock.uptimeMillis()
         
-        // 1. Initial bitmap buffer setup/reuse
-        if (bitmapBuffer == null || bitmapBuffer!!.width != imageProxy.width || bitmapBuffer!!.height != imageProxy.height) {
-            bitmapBuffer?.recycle()
-            bitmapBuffer = Bitmap.createBitmap(
-                imageProxy.width,
-                imageProxy.height,
-                Bitmap.Config.ARGB_8888
-            )
-        }
-
-        // Copy pixels efficiently
-        imageProxy.use { proxy ->
-            bitmapBuffer?.copyPixelsFromBuffer(proxy.planes[0].buffer)
+        // Use safe translation to bitmap (handles YUV to RGBA correctly)
+        val bitmap = try {
+            imageProxy.toBitmap()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to convert image to bitmap", e)
+            imageProxy.close()
+            return
         }
 
         // 2. Rotation setup/reuse
@@ -75,39 +79,29 @@ class PoseLandmarkerProcessor(
             )
         }
 
-        // Efficient rotation using Canvas instead of Bitmap.createBitmap(matrix) which allocates
-        matrix.reset()
-        matrix.postRotate(rotationDegrees.toFloat())
-        if (isFrontCamera) {
-            matrix.postScale(-1f, 1f, imageProxy.width.toFloat(), imageProxy.height.toFloat())
-        }
-        
         val tempBitmap = rotatedBitmap ?: return
         
         // 3. Robust Rotation and Centering logic
-        // We need to translate such that the rotated image center aligns with the result bitmap center
         val centerX = imageProxy.width / 2f
         val centerY = imageProxy.height / 2f
             
         matrix.reset()
-        // Step 1: Center the original image at (0,0)
         matrix.postTranslate(-centerX, -centerY)
-            
-        // Step 2: Rotate around the center (0,0)
         matrix.postRotate(rotationDegrees.toFloat())
             
-        // Step 3: Handle mirroring if it's the front camera
         if (isFrontCamera) {
             matrix.postScale(-1f, 1f)
         }
             
-        // Step 4: Translate back to the center of the pre-allocated result bitmap
         matrix.postTranslate(rotatedWidth / 2f, rotatedHeight / 2f)
             
-        // Draw onto the reused bitmap
         val canvas = android.graphics.Canvas(tempBitmap)
-        canvas.drawColor(android.graphics.Color.BLACK) // Clear previous frame
-        canvas.drawBitmap(bitmapBuffer!!, matrix, null)
+        canvas.drawColor(android.graphics.Color.BLACK) 
+        canvas.drawBitmap(bitmap, matrix, null)
+        
+        // Recycle the intermediate bitmap from toBitmap()
+        bitmap.recycle()
+        imageProxy.close()
 
         try {
             val mpImage = BitmapImageBuilder(tempBitmap).build()

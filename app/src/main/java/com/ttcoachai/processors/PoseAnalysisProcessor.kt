@@ -18,7 +18,6 @@ class PoseAnalysisProcessor(
 ) {
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private var frameCounter: Int = 0
-    private var currentSessionId: String? = null
     
     private val phaseDetector = StrokePhaseDetector(feedbackGenerator)
     private val analysisLogger = PoseAnalysisLogger(application)
@@ -36,23 +35,13 @@ class PoseAnalysisProcessor(
     }
     
     fun startSession(exerciseId: String, exerciseName: String) {
-        currentSessionId = application.getFileLogger().startTrainingSession(exerciseId, exerciseName)
         frameCounter = 0
         resetStrokeDetection()
         totalCompletedStrokes = 0
-        Log.i(TAG, "Training session started: $currentSessionId")
+        Log.i(TAG, "Training session started for $exerciseName")
     }
 
     fun endSession() {
-        currentSessionId?.let { id ->
-            application.getFileLogger().endTrainingSession(
-                stateManager.getStrokeCount(),
-                stateManager.getGoodStrokesCount(),
-                stateManager.getAverageScore().toFloat()
-            )
-            Log.i(TAG, "Training session ended: $id")
-        }
-        currentSessionId = null
         frameCounter = 0
         totalCompletedStrokes = 0
     }
@@ -87,8 +76,8 @@ class PoseAnalysisProcessor(
             handleStrokeFinalization(previousPhase, detectedPhase, analysis)
             
             if (application.settingsManager.isDeveloperModeEnabled()) {
-                analysisLogger.logAnalysis(currentSessionId, frameCounter, analysis, inferenceTime)
-                analysisLogger.logRawPose(currentSessionId, frameCounter, poseResult, inferenceTime)
+                analysisLogger.logAnalysis(null, frameCounter, analysis, inferenceTime)
+                analysisLogger.logRawPose(null, frameCounter, poseResult, inferenceTime)
             }
             
             if (frameCounter % LOG_INTERVAL_FRAMES == 0) {
@@ -96,7 +85,6 @@ class PoseAnalysisProcessor(
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error analyzing pose", e)
-            application.getFileLogger().logError(e, "processResults")
         }
     }
 
@@ -147,7 +135,5 @@ class PoseAnalysisProcessor(
     }
     
     fun getFrameCount(): Int = frameCounter
-    fun getSessionId(): String? = currentSessionId
-    fun hasActiveSession(): Boolean = currentSessionId != null
     fun getCurrentPhase(): StrokePhase = phaseDetector.getCurrentPhase()
 }

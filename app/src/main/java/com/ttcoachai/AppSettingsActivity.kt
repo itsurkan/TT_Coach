@@ -74,7 +74,7 @@ class AppSettingsActivity : AppCompatActivity() {
             updateDebugInfoCard(isChecked)
             
             // Update logging state in real-time
-            (application as TTCoachApplication).getFileLogger().setFileLoggingEnabled(isChecked)
+            com.ttcoachai.core.logging.LogManager.getLogger(this).setFileLoggingEnabled(isChecked)
         }
     }
 

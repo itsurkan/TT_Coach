@@ -53,7 +53,7 @@ class DebugActivity : AppCompatActivity() {
         val feedbackGenerator = FeedbackGenerator(this)
         val application = application as TTCoachApplication
         
-        videoDebugProcessor = VideoDebugProcessor(this, motionAnalyzer, feedbackGenerator, application.getFileLogger())
+        videoDebugProcessor = VideoDebugProcessor(this, motionAnalyzer, feedbackGenerator)
         uiController = DebugUIController(this, binding, videoDebugProcessor, feedbackGenerator)
         playbackManager = DebugPlaybackManager(this, binding, videoDebugProcessor, uiController, feedbackGenerator)
         videoLoader = DebugVideoLoader(this, binding, videoDebugProcessor, uiController, playbackManager)
