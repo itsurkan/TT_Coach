@@ -9,6 +9,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.managers.CloudSyncManager
 import com.ttcoachai.core.logging.providers.LocalFileLogger
 import kotlinx.coroutines.runBlocking
 
@@ -19,6 +20,11 @@ class TTCoachApplication : Application() {
     val settingsManager: SettingsManager by lazy { SettingsManager(this) }
     val authRepository: com.ttcoachai.repository.AuthRepository by lazy { 
         com.ttcoachai.repository.AuthRepository(this) 
+    }
+    
+    // Cloud sync manager for Firestore operations
+    val cloudSyncManager: CloudSyncManager by lazy {
+        CloudSyncManager(settingsManager)
     }
     
     override fun attachBaseContext(base: Context) {
@@ -35,6 +41,9 @@ class TTCoachApplication : Application() {
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
         
+        // Initialize cloud sync (listens for auth state changes)
+        cloudSyncManager.initialize()
+        
         Log.i(TAG, "TT Coach Application started [SDK: ${android.os.Build.VERSION.SDK_INT}, DevMode: ${settingsManager.isDeveloperModeEnabled()}]")
     }
     
@@ -46,3 +55,4 @@ class TTCoachApplication : Application() {
         private const val TAG = "TTCoachApplication"
     }
 }
+
