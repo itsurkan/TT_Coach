@@ -58,8 +58,6 @@ class MotionAnalyzerJsonTest {
             val landmarks = JsonTestUtils.toNormalizedLandmarks(contactFrame!!.landmarks)
             val analysisResult = motionAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
             
-            println("Stroke ${stroke.strokeIndex}: Score=${analysisResult.overallScore}%")
-            
             assertEquals("Stroke ${stroke.strokeIndex} should have 100% score with beginner params. Errors: ${analysisResult.errors}", 
                 100f, analysisResult.overallScore, 0.1f)
         }
@@ -90,7 +88,7 @@ class MotionAnalyzerJsonTest {
             println("Stroke ${stroke.strokeIndex}: Score=${result.overallScore}%")
             println("  Errors: ${result.errors}")
 
-            // Assertions based on user feedback
+            // Assert that wrist error is caught
             val hasWristError = result.feedbackItems.any { it.type == CorrectionType.WRIST && !it.isPositive }
             // Note: Currently we only check if elbow is too FAR (ELBOW_FAR).
             // If the user recorded "pressed elbow" as an error, we should verify if the analyzer detects it.

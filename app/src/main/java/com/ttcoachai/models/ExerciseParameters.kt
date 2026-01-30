@@ -48,8 +48,8 @@ data class ExerciseParameters(
         fun forehandDrive(): ExerciseParameters {
             return ExerciseParameters(
                 exerciseId = "forehand_drive",
-                idealWristAngle = 180f,
-                wristAngleTolerance = 10f,
+                idealWristAngle = 165f,
+                wristAngleTolerance = 5f, // Range 160-170 to catch 170+ as wrong while accepting ~165 as right
                 minBodyRotation = 45f,
                 bodyRotationTolerance = 10f,
                 followThroughAngle = 120f,
