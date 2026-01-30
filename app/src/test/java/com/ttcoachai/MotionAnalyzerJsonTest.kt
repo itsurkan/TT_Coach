@@ -88,13 +88,10 @@ class MotionAnalyzerJsonTest {
             println("Stroke ${stroke.strokeIndex}: Score=${result.overallScore}%")
             println("  Errors: ${result.errors}")
 
-            // Assert that wrist error is caught
-            val hasWristError = result.feedbackItems.any { it.type == CorrectionType.WRIST && !it.isPositive }
-            // Note: Currently we only check if elbow is too FAR (ELBOW_FAR).
-            // If the user recorded "pressed elbow" as an error, we should verify if the analyzer detects it.
-            // For now, we'll check WRIST_BENT as requested.
+            // Assert that elbow error is caught (error_elbow_close)
+            val hasElbowError = result.feedbackItems.any { it.type == CorrectionType.ELBOW_POSITION && !it.isPositive }
             
-            assertTrue("Stroke ${stroke.strokeIndex} should have wrist error", hasWristError)
+            assertTrue("Stroke ${stroke.strokeIndex} should have elbow error", hasElbowError)
             
             // Log the elbow distance to see if we need a "too close" check
             println("  Elbow Body Distance: ${result.elbowBodyDistance}")
