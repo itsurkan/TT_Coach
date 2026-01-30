@@ -38,7 +38,6 @@ class DebugUIController(
     fun updatePoseOverlay(res: PoseLandmarkerResult) {
         if (videoHeight > 0 && videoWidth > 0) {
             binding.overlayView.setResults(res, videoHeight, videoWidth, RunningMode.VIDEO)
-            binding.overlayView.invalidate()
         }
     }
 
