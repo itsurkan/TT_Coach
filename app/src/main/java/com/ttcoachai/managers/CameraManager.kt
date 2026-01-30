@@ -133,8 +133,13 @@ class CameraManager(
      * Stop and unbind all camera use cases
      */
     fun stop() {
-        preview?.setSurfaceProvider(null)
-        cameraProvider?.unbindAll()
+        try {
+            preview?.setSurfaceProvider(null)
+            imageAnalyzer?.clearAnalyzer()
+            cameraProvider?.unbindAll()
+        } catch (exc: Exception) {
+            Log.e(TAG, "Error stopping camera", exc)
+        }
     }
 
     /**

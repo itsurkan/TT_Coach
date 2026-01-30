@@ -84,17 +84,17 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
     override fun onPause() {
         super.onPause()
         
+        // Stop camera first to prevent new frames during cleanup
+        if (::cameraManager.isInitialized) {
+            cameraManager.stop()
+        }
+
         if (::poseLandmarkerHelper.isInitialized) {
             // Save current settings to ViewModel
             viewModel.setMinPoseDetectionConfidence(poseLandmarkerHelper.minPoseDetectionConfidence)
             viewModel.setMinPoseTrackingConfidence(poseLandmarkerHelper.minPoseTrackingConfidence)
             viewModel.setMinPosePresenceConfidence(poseLandmarkerHelper.minPosePresenceConfidence)
             viewModel.setDelegate(poseLandmarkerHelper.currentDelegate)
-
-            // Stop camera first to prevent new frames during cleanup
-            if (::cameraManager.isInitialized) {
-                cameraManager.stop()
-            }
 
             // Release resources
             backgroundExecutor.execute { 

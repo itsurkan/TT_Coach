@@ -231,6 +231,13 @@ class PoseLandmarkerProcessor(
         }
     }
 
+    fun release() {
+        bitmapBuffer?.recycle()
+        bitmapBuffer = null
+        rotatedBitmap?.recycle()
+        rotatedBitmap = null
+    }
+
     data class ResultBundle(
         val results: List<PoseLandmarkerResult>,
         val inferenceTime: Long,
