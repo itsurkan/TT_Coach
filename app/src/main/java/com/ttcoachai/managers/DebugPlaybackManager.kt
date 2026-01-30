@@ -35,6 +35,7 @@ class DebugPlaybackManager(
 
     fun setMediaPlayer(mp: MediaPlayer?) {
         mediaPlayer = mp
+        mediaPlayer?.setVolume(0.1f, 0.1f) // Low volume for video to emphasize Tic/Tac SFX
     }
 
     fun setFrameRetriever(retriever: MediaMetadataRetriever?) {
