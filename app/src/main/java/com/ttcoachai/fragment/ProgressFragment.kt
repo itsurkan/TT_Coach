@@ -62,10 +62,31 @@ class ProgressFragment : Fragment() {
             }
             
             // Apply loaded data to UI
+            applyHeaderStats(progressData)
             applyChartData(progressData.weeklyChartData)
             applySkillsData(progressData.skillsData)
             applyMilestonesData(progressData.milestonesData)
         }
+    }
+    
+    private fun applyHeaderStats(progressData: com.ttcoachai.helpers.ProgressData) {
+        val progress = progressData.userProgress
+        val milestones = progressData.milestonesData
+        
+        binding.tvDaysStreak.text = progress?.currentStreak?.toString() ?: "0"
+        
+        // Total Hours (formatted as 1 decimals if needed, or just integer)
+        val totalMinutes = progress?.totalTrainingMinutes ?: 0
+        val totalHours = totalMinutes / 60f
+        binding.tvTotalHours.text = if (totalHours >= 10) {
+            totalHours.toInt().toString()
+        } else {
+            String.format("%.1f", totalHours)
+        }
+        
+        // Achievements (count of achieved milestones)
+        val achievementsCount = milestones.count { it.achieved }
+        binding.tvAchievements.text = achievementsCount.toString()
     }
     
     private fun applyChartData(chartData: com.ttcoachai.helpers.WeeklyChartData) {
@@ -131,11 +152,23 @@ class ProgressFragment : Fragment() {
                     val statusText = if (milestone.achieved) getString(R.string.milestone_achieved) else getString(R.string.milestone_in_progress)
                     listOf(getString(R.string.milestone_100_hits), statusText, R.color.bg_card_target, R.color.text_card_target)
                 }
+                com.ttcoachai.helpers.MilestoneType.HITS_500 -> {
+                    listOf("500 Hits", getString(R.string.milestone_achieved), R.color.bg_card_target, R.color.text_card_target)
+                }
+                com.ttcoachai.helpers.MilestoneType.HITS_1000 -> {
+                    listOf("1000 Hits", getString(R.string.milestone_achieved), R.color.bg_card_target, R.color.text_card_target)
+                }
                 com.ttcoachai.helpers.MilestoneType.STREAK_DAYS -> {
                     listOf(getString(R.string.milestone_30_days), "${milestone.value} ${getString(R.string.days_streak)}", R.color.bg_card_calendar, R.color.text_card_calendar)
                 }
                 com.ttcoachai.helpers.MilestoneType.MASTER_SERVER -> {
                     listOf(getString(R.string.milestone_master_server), getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
+                }
+                com.ttcoachai.helpers.MilestoneType.TIME_1_HOUR -> {
+                    listOf("1 Hour Trained", getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
+                }
+                com.ttcoachai.helpers.MilestoneType.TIME_10_HOURS -> {
+                    listOf("10 Hours Trained", getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
                 }
             }
             

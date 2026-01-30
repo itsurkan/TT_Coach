@@ -52,6 +52,8 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
         
         val todaySessions = sessions.filter { it.startTime >= todayStart }
         
+        android.util.Log.d(TAG, "calculateTodayStats: found ${todaySessions.size} sessions for today. Total sessions in list: ${sessions.size}")
+        
         if (todaySessions.isEmpty()) {
             return TodayStats(0, 0, 0)
         }
@@ -62,12 +64,16 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
                 ((session.endTime - session.startTime) / 1000).toInt()
             } else 0
             
-            totalSeconds += Math.max(session.durationSeconds, calculatedDuration)
+            val sessionSeconds = Math.max(session.durationSeconds, calculatedDuration)
+            totalSeconds += sessionSeconds
+            android.util.Log.d(TAG, "Session ${session.id}: strokes=${session.strokeCount}, seconds=$sessionSeconds")
         }
         
         val totalMinutes = if (totalSeconds > 0 && totalSeconds < 60) 1 else totalSeconds / 60
         val avgAccuracy = (todaySessions.map { it.accuracy * 100 }.average()).toInt()
         val totalStrokes = todaySessions.sumOf { it.strokeCount }
+        
+        android.util.Log.d(TAG, "Calculated stats: minutes=$totalMinutes, accuracy=$avgAccuracy, strokes=$totalStrokes")
         
         return TodayStats(totalMinutes, avgAccuracy, totalStrokes)
     }

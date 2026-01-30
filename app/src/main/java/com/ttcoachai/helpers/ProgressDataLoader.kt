@@ -84,14 +84,32 @@ class ProgressDataLoader(private val cloudSyncManager: CloudSyncManager) {
         val milestones = mutableListOf<MilestoneData>()
         
         progress?.let {
-            if (it.totalStrokes >= 100) {
+            // Hits milestones
+            if (it.totalStrokes >= 1000) {
+                milestones.add(MilestoneData(MilestoneType.HITS_1000, true, null))
+            } else if (it.totalStrokes >= 500) {
+                milestones.add(MilestoneData(MilestoneType.HITS_500, true, null))
+            } else if (it.totalStrokes >= 100) {
                 milestones.add(MilestoneData(MilestoneType.HITS_100, true, null))
             }
-            if (it.currentStreak >= 7) {
+            
+            // Streak milestones
+            if (it.currentStreak >= 30) {
+                milestones.add(MilestoneData(MilestoneType.STREAK_DAYS, true, it.currentStreak))
+            } else if (it.currentStreak >= 7) {
                 milestones.add(MilestoneData(MilestoneType.STREAK_DAYS, true, it.currentStreak))
             }
+            
+            // Accuracy milestones
             if (it.averageAccuracy >= 0.9f) {
                 milestones.add(MilestoneData(MilestoneType.MASTER_SERVER, true, null))
+            }
+            
+            // Training time milestones
+            if (it.totalTrainingMinutes >= 600) { // 10 hours
+                milestones.add(MilestoneData(MilestoneType.TIME_10_HOURS, true, null))
+            } else if (it.totalTrainingMinutes >= 60) { // 1 hour
+                milestones.add(MilestoneData(MilestoneType.TIME_1_HOUR, true, null))
             }
         }
         
@@ -137,6 +155,10 @@ data class MilestoneData(
 
 enum class MilestoneType {
     HITS_100,
+    HITS_500,
+    HITS_1000,
     STREAK_DAYS,
-    MASTER_SERVER
+    MASTER_SERVER,
+    TIME_1_HOUR,
+    TIME_10_HOURS
 }

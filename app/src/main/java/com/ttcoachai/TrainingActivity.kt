@@ -142,12 +142,19 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         val exerciseNameToSave = exerciseName ?: getString(R.string.exercise_forehand_name)
         val startTimeValue = stateManager.getStartTime()
         val endTimeValue = stateManager.getEndTime()
-        val durationValue = stateManager.getSessionDurationSeconds()
-        val strokeCountValue = stateManager.getStrokeCount()
-        val correctStrokesValue = stateManager.getGoodStrokesCount()
-        val avgScoreValue = stateManager.getAverageScore()
-        
-        android.util.Log.d("TrainingActivity", "Saving session to cloud: exercise=$exerciseIdToSave, duration=$durationValue sec, strokes=$strokeCountValue, score=$avgScoreValue")
+        val durationSeconds = stateManager.getSessionDurationSeconds()
+        val strokeCount = stateManager.getStrokeCount()
+        val correctStrokes = stateManager.getGoodStrokesCount()
+        val averageScore = stateManager.getAverageScore()
+
+        if (durationSeconds < 5) {
+            android.widget.Toast.makeText(this, "Training is too short", android.widget.Toast.LENGTH_SHORT).show()
+            android.util.Log.d("TrainingActivity", "Training too short ($durationSeconds s), skipping save")
+            return
+        }
+
+        // LOGGING FOR DEBUGGING
+        android.util.Log.d("TrainingActivity", "Saving to cloud: exercise=$exerciseIdToSave, duration=$durationSeconds sec, strokes=$strokeCount, score=$averageScore")
         android.util.Log.d("TrainingActivity", "CloudSync authenticated: ${app.cloudSyncManager.isAuthenticated}")
         
         app.cloudSyncManager.saveTrainingFromState(
@@ -155,10 +162,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             exerciseName = exerciseNameToSave,
             startTime = startTimeValue,
             endTime = endTimeValue,
-            durationSeconds = durationValue,
-            strokeCount = strokeCountValue,
-            correctStrokes = correctStrokesValue,
-            averageScore = avgScoreValue,
+            durationSeconds = durationSeconds,
+            strokeCount = strokeCount,
+            correctStrokes = correctStrokes,
+            averageScore = averageScore,
             appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" }
         )
     }
