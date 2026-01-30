@@ -14,6 +14,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false
         private set
     
+    private val lock = Any()
     private val feedbackHistory = mutableListOf<String>()
     private val feedbackItemsHistory = mutableListOf<List<FeedbackItem>>()
     private val analysisResults = mutableListOf<AnalysisResult>()
@@ -75,27 +76,27 @@ class TrainingStateManager internal constructor(private val context: Context) {
         return String.format("%02d:%02d", minutes, seconds)
     }
     
-    fun addFeedback(feedback: String) {
+    fun addFeedback(feedback: String) = synchronized(lock) {
         feedbackHistory.add(feedback)
         if (feedbackHistory.size > 10) {
             feedbackHistory.removeAt(0)
         }
     }
     
-    fun getFeedbackHistory(): List<String> = feedbackHistory.toList()
+    fun getFeedbackHistory(): List<String> = synchronized(lock) { feedbackHistory.toList() }
     
-    fun addFeedbackItems(items: List<FeedbackItem>) {
+    fun addFeedbackItems(items: List<FeedbackItem>) = synchronized(lock) {
         feedbackItemsHistory.add(items)
         if (feedbackItemsHistory.size > 10) {
             feedbackItemsHistory.removeAt(0)
         }
     }
     
-    fun getLatestFeedbackItems(): List<FeedbackItem> {
-        return feedbackItemsHistory.lastOrNull() ?: emptyList()
+    fun getLatestFeedbackItems(): List<FeedbackItem> = synchronized(lock) {
+        feedbackItemsHistory.lastOrNull() ?: emptyList()
     }
     
-    fun addAnalysisResult(result: AnalysisResult) {
+    fun addAnalysisResult(result: AnalysisResult) = synchronized(lock) {
         analysisResults.add(result)
         
         // Update consecutive good strokes
@@ -106,19 +107,19 @@ class TrainingStateManager internal constructor(private val context: Context) {
         }
     }
     
-    fun getAnalysisResults(): List<AnalysisResult> = analysisResults.toList()
+    fun getAnalysisResults(): List<AnalysisResult> = synchronized(lock) { analysisResults.toList() }
     
     // Helper methods for UI
-    fun getTotalHits(): Int = analysisResults.size
-    fun getSuccessfulHits(): Int = analysisResults.count { it.overallScore >= 70 } // Threshold for "successful"
+    fun getTotalHits(): Int = synchronized(lock) { analysisResults.size }
+    fun getSuccessfulHits(): Int = synchronized(lock) { analysisResults.count { it.overallScore >= 70 } } // Threshold for "successful"
     
-    fun getAverageScore(): Double {
+    fun getAverageScore(): Double = synchronized(lock) {
         if (analysisResults.isEmpty()) return 0.0
-        return analysisResults.map { it.overallScore }.average()
+        analysisResults.map { it.overallScore }.average()
     }
     
-    fun getStrokeCount(): Int = analysisResults.size
-    fun getGoodStrokesCount(): Int = analysisResults.count { it.overallScore >= 80 }
+    fun getStrokeCount(): Int = synchronized(lock) { analysisResults.size }
+    fun getGoodStrokesCount(): Int = synchronized(lock) { analysisResults.count { it.overallScore >= 80 } }
     
     fun getSummaryText(): String {
         val totalStrokes = getStrokeCount()
@@ -147,7 +148,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
         }
     }
     
-    fun reset() {
+    fun reset() = synchronized(lock) {
         isTrainingActive = false
         feedbackHistory.clear()
         analysisResults.clear()
