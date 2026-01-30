@@ -40,7 +40,7 @@ class VideoDebugProcessor(
     companion object {
         private const val TAG = "VideoDebugProcessor"
         const val VIDEO_INTERVAL_MS = 100L
-        private const val DISPLAY_UPDATE_INTERVAL_MS = 50L
+        private const val DISPLAY_UPDATE_INTERVAL_MS = 100L
     }
 
     fun isFromJson(): Boolean = poseFrames != null
@@ -48,6 +48,7 @@ class VideoDebugProcessor(
     fun getAllPoseResults(): List<PoseLandmarkerResult> = resultBundle?.results ?: emptyList()
 
     fun processVideo(videoUri: Uri, onComplete: (PoseLandmarkerHelper.ResultBundle?) -> Unit) {
+        backgroundExecutor?.shutdownNow()
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
         backgroundExecutor?.execute {
             try {
@@ -68,6 +69,7 @@ class VideoDebugProcessor(
     }
 
     fun processVideoFromJson(json: String, w: Int, h: Int, onComplete: (Boolean) -> Unit) {
+        backgroundExecutor?.shutdownNow()
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
         backgroundExecutor?.execute {
             try {
