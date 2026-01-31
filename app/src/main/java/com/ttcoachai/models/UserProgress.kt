@@ -18,7 +18,6 @@ import com.google.firebase.firestore.Exclude
 data class UserProgress(
     @PrimaryKey
     @DocumentId
-    val id: String = "progress", // Single document per user
     val userId: String = "",
     // Totals
     val totalSessions: Int = 0,
@@ -47,7 +46,7 @@ data class UserProgress(
     /**
      * No-arg constructor required for Firestore deserialization
      */
-    constructor() : this(id = "progress")
+    constructor() : this(userId = "")
 
     companion object {
         const val DOCUMENT_ID = "progress"
