@@ -22,6 +22,8 @@ import coil.load
 import kotlinx.coroutines.flow.collect
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import com.ttcoachai.helpers.ProgressDataLoader
+import com.ttcoachai.helpers.ProgressData
 
 class ProfileFragment : Fragment() {
 
@@ -29,6 +31,7 @@ class ProfileFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var settingsManager: SettingsManager
     private lateinit var viewModel: AuthViewModel
+    private lateinit var progressDataLoader: ProgressDataLoader
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,7 +56,12 @@ class ProfileFragment : Fragment() {
         setupLanguageSection()
         setupThemeButtons()
         setupMenuItems()
+        
+        // Initialize ProgressDataLoader
+        progressDataLoader = ProgressDataLoader(app.cloudSyncManager)
+        
         observeViewModel()
+        loadProfileStats()
         
         // Restore scroll position
         if (savedInstanceState != null) {
@@ -239,6 +247,7 @@ class ProfileFragment : Fragment() {
         // Refresh subscription status when returning
         setupSubscriptionSection()
         setupDebugMode()
+        loadProfileStats()
     }
 
     private fun setupDebugMode() {
@@ -251,6 +260,28 @@ class ProfileFragment : Fragment() {
         } else {
             binding.layoutDebugMode.visibility = View.GONE
         }
+    }
+
+    private fun loadProfileStats() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val progressData = progressDataLoader.loadProgressData()
+            updateStatsUi(progressData)
+        }
+    }
+
+    private fun updateStatsUi(progressData: ProgressData?) {
+        if (_binding == null) return
+
+        progressData?.userProgress?.let { progress ->
+            binding.tvProfileSkillScore.text = progress.getAccuracyPercent().toString()
+            binding.tvProfileStreak.text = progress.currentStreak.toString()
+        } ?: run {
+            binding.tvProfileSkillScore.text = "0"
+            binding.tvProfileStreak.text = "0"
+        }
+
+        val achievementCount = progressData?.milestonesData?.count { it.achieved } ?: 0
+        binding.tvProfileAchievements.text = achievementCount.toString()
     }
 
     override fun onDestroyView() {
