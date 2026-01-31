@@ -40,7 +40,7 @@ class TrainingUIController(
 
     private fun setupButtons() {
         binding.drillMenu.btnPauseResume.setOnClickListener { onToggleTraining() }
-        binding.drillMenu.btnEndSession.setOnClickListener { onStopTraining() }
+        binding.drillMenu.btnEndSession.setOnClickListener { showEndSessionDialog() }
         binding.root.findViewById<View>(R.id.fab_pause_play)?.setOnClickListener { onToggleTraining() }
     }
 
@@ -112,6 +112,30 @@ class TrainingUIController(
             .setMessage("$summary\n\n$tip")
             .setPositiveButton(activity.getString(R.string.btn_complete)) { _, _ -> activity.finish() }
             .setNegativeButton(activity.getString(R.string.btn_continue)) { dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun showEndSessionDialog() {
+        val wasActive = stateManager.isTrainingActive
+        if (wasActive) {
+            activity.runOnUiThread { onToggleTraining() } // Pause
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(activity)
+            .setTitle(activity.getString(R.string.finish_training_title))
+            .setMessage(activity.getString(R.string.finish_training_message))
+            .setNeutralButton(activity.getString(R.string.dialog_no)) { _, _ -> 
+                if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
+            }
+            .setNegativeButton(activity.getString(R.string.btn_discard)) { _, _ -> 
+                (activity as? TrainingActivity)?.let { it.javaClass.getDeclaredMethod("stopTraining", Boolean::class.java).apply { isAccessible = true }.invoke(it, true) }
+            }
+            .setPositiveButton(activity.getString(R.string.btn_finish_save)) { _, _ -> 
+                onStopTraining()
+            }
+            .setOnCancelListener {
+                if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
+            }
             .show()
     }
 }

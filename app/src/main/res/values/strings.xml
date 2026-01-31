@@ -110,8 +110,12 @@
     <string name="training_summary_title">Training Summary</string>
     <string name="btn_complete">Finish</string>
     <string name="btn_continue">Continue</string>
+    <string name="btn_finish_save">Finish &amp; Save</string>
+    <string name="btn_discard">Discard</string>
     <string name="finish_training_title">Finish training?</string>
     <string name="finish_training_message">Are you sure you want to finish the current training?</string>
+    <string name="discard_training_message">Are you sure you want to discard this session? It will not be saved.</string>
+    <string name="session_discarded">Session discarded</string>
     
     <!-- Settings Activity -->
     <string name="settings_title">Settings</string>

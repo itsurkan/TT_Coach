@@ -124,11 +124,17 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         uiController.updateUIForTrainingState(true)
     }
 
-    private fun stopTraining() {
+    private fun stopTraining(discard: Boolean = false) {
         stateManager.stopTraining()
         uiController.updateUIForTrainingState(false)
         poseAnalysisProcessor.endSession()
         
+        if (discard) {
+            android.widget.Toast.makeText(this, R.string.session_discarded, android.widget.Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
         // Save training session to cloud
         saveSessionToCloud()
         
@@ -173,11 +179,16 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                if (stateManager.isTrainingActive) {
+                    pauseTraining()
+                }
                 androidx.appcompat.app.AlertDialog.Builder(this@TrainingActivity)
                     .setTitle(getString(R.string.finish_training_title))
                     .setMessage(getString(R.string.finish_training_message))
-                    .setPositiveButton(getString(R.string.dialog_yes)) { _, _ -> finish() }
-                    .setNegativeButton(getString(R.string.dialog_no), null)
+                    .setNeutralButton(getString(R.string.dialog_no)) { _, _ -> resumeTraining() }
+                    .setNegativeButton(getString(R.string.btn_discard)) { _, _ -> stopTraining(discard = true) }
+                    .setPositiveButton(getString(R.string.btn_finish_save)) { _, _ -> stopTraining(discard = false) }
+                    .setOnCancelListener { resumeTraining() }
                     .show()
             }
         })
