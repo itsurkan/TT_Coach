@@ -33,6 +33,15 @@ data class UserSettings(
     val distanceModeEnabled: Boolean = false,
     val nightMode: Int = -1, // AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
     val developerModeEnabled: Boolean = false,
+    val skillLevel: String = "Intermediate",
+    val languageCode: String = "",
+    val subscriptionActive: Boolean = false,
+    // Activity Settings (Pose detection)
+    val detectionThreshold: Float = 0.5f,
+    val trackingThreshold: Float = 0.5f,
+    val presenceThreshold: Float = 0.5f,
+    val poseModel: Int = 0,
+    val poseDelegate: Int = 0,
     // Enabled correction types (stored as comma-separated string)
     val enabledCorrectionTypes: String = "",
     // Sync metadata
@@ -66,6 +75,14 @@ data class UserSettings(
                 distanceModeEnabled = manager.isDistanceModeEnabled(),
                 nightMode = manager.getNightMode(),
                 developerModeEnabled = manager.isDeveloperModeEnabled(),
+                skillLevel = manager.getSkillLevel(),
+                languageCode = manager.getLanguageCode(),
+                subscriptionActive = manager.isSubscriptionActive(),
+                detectionThreshold = manager.getDetectionThreshold(),
+                trackingThreshold = manager.getTrackingThreshold(),
+                presenceThreshold = manager.getPresenceThreshold(),
+                poseModel = manager.getPoseModel(),
+                poseDelegate = manager.getPoseDelegate(),
                 lastSyncedAt = System.currentTimeMillis()
             )
         }
@@ -87,6 +104,14 @@ data class UserSettings(
         "distanceModeEnabled" to distanceModeEnabled,
         "nightMode" to nightMode,
         "developerModeEnabled" to developerModeEnabled,
+        "skillLevel" to skillLevel,
+        "languageCode" to languageCode,
+        "subscriptionActive" to subscriptionActive,
+        "detectionThreshold" to detectionThreshold,
+        "trackingThreshold" to trackingThreshold,
+        "presenceThreshold" to presenceThreshold,
+        "poseModel" to poseModel,
+        "poseDelegate" to poseDelegate,
         "enabledCorrectionTypes" to enabledCorrectionTypes,
         "lastSyncedAt" to lastSyncedAt
     )
@@ -109,5 +134,13 @@ data class UserSettings(
         manager.setDistanceModeEnabled(distanceModeEnabled)
         manager.setNightMode(nightMode)
         manager.setDeveloperModeEnabled(developerModeEnabled)
+        manager.setSkillLevel(skillLevel)
+        manager.setLanguageCode(languageCode)
+        manager.setSubscriptionActive(subscriptionActive)
+        manager.setDetectionThreshold(detectionThreshold)
+        manager.setTrackingThreshold(trackingThreshold)
+        manager.setPresenceThreshold(presenceThreshold)
+        manager.setPoseModel(poseModel)
+        manager.setPoseDelegate(poseDelegate)
     }
 }

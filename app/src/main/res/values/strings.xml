@@ -304,7 +304,7 @@
     <string name="time_ago_1_week">1 week ago</string>
     <string name="milestone_achieved">Achieved</string>
     <string name="milestone_in_progress">In Progress</string>
-    <string name="days_streak">day streak</string>
+    <string name="days_streak">Day Streak</string>
 
     <string name="days_mon">Mon</string>
     <string name="days_tue">Tue</string>
@@ -468,7 +468,7 @@
     <string name="skill_target_title">Skill Target</string>
     <string name="skill_target_subtitle">Set your skill score goal</string>
     <string name="current_target">Current Target</string>
-    <string name="skill_score">skill score</string>
+    <string name="skill_score">Skill score</string>
     <string name="current_skill">Current Skill</string>
     <string name="set_your_target">Set Your Target</string>
     <string name="target_score">Target Score</string>

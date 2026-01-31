@@ -11,6 +11,9 @@ import android.content.SharedPreferences
 class SettingsManager(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("ai_coach_prefs", Context.MODE_PRIVATE)
     
+    // Pose Landmarker specific prefs (matching ActivitySettingsActivity)
+    private val posePrefs: SharedPreferences = context.getSharedPreferences("PoseLandmarkerPreferences", Context.MODE_PRIVATE)
+
     // Exercise parameters
     fun getIdealWristAngle(): Int = prefs.getInt("ideal_wrist_angle", 180)
     fun setIdealWristAngle(value: Int) = prefs.edit().putInt("ideal_wrist_angle", value).apply()
@@ -122,11 +125,32 @@ class SettingsManager(context: Context) {
     fun getSkillLevel(): String = prefs.getString("skill_level", "Intermediate") ?: "Intermediate"
     fun setSkillLevel(level: String) = prefs.edit().putString("skill_level", level).apply()
 
+    // Language
+    fun getLanguageCode(): String = prefs.getString("app_language", "") ?: ""
+    fun setLanguageCode(code: String) = prefs.edit().putString("app_language", code).apply()
+
+    // Activity Settings (Pose Detection)
+    fun getDetectionThreshold(): Float = posePrefs.getFloat("detection_confidence", 0.5f)
+    fun setDetectionThreshold(value: Float) = posePrefs.edit().putFloat("detection_confidence", value).apply()
+
+    fun getTrackingThreshold(): Float = posePrefs.getFloat("tracking_confidence", 0.5f)
+    fun setTrackingThreshold(value: Float) = posePrefs.edit().putFloat("tracking_confidence", value).apply()
+
+    fun getPresenceThreshold(): Float = posePrefs.getFloat("presence_confidence", 0.5f)
+    fun setPresenceThreshold(value: Float) = posePrefs.edit().putFloat("presence_confidence", value).apply()
+
+    fun getPoseModel(): Int = posePrefs.getInt("model", 0)
+    fun setPoseModel(model: Int) = posePrefs.edit().putInt("model", model).apply()
+
+    fun getPoseDelegate(): Int = posePrefs.getInt("delegate", 0)
+    fun setPoseDelegate(delegate: Int) = posePrefs.edit().putInt("delegate", delegate).apply()
+
     // Theme Mode
     fun getNightMode(): Int = prefs.getInt("night_mode", androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     fun setNightMode(mode: Int) = prefs.edit().putInt("night_mode", mode).apply()
 
     fun resetToDefaults() {
         prefs.edit().clear().apply()
+        posePrefs.edit().clear().apply()
     }
 }

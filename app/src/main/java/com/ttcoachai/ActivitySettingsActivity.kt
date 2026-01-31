@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.AdapterView
 import com.ttcoachai.databinding.ActivityActivitySettingsBinding
+import com.ttcoachai.managers.SettingsManager
 
 class ActivitySettingsActivity : BaseActivity() {
     
     private lateinit var binding: ActivityActivitySettingsBinding
+    private lateinit var settingsManager: SettingsManager
+    
     private var currentMinPoseDetectionConfidence = PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE
     private var currentMinPoseTrackingConfidence = PoseLandmarkerHelper.DEFAULT_POSE_TRACKING_CONFIDENCE
     private var currentMinPosePresenceConfidence = PoseLandmarkerHelper.DEFAULT_POSE_PRESENCE_CONFIDENCE
@@ -18,6 +21,8 @@ class ActivitySettingsActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        settingsManager = (application as TTCoachApplication).settingsManager
 
         // Setup toolbar
         setSupportActionBar(binding.toolbar)
@@ -35,32 +40,11 @@ class ActivitySettingsActivity : BaseActivity() {
     }
 
     private fun loadSettings() {
-        val sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE)
-        
-        currentMinPoseDetectionConfidence = sharedPreferences.getFloat(
-            DETECTION_CONFIDENCE_KEY,
-            PoseLandmarkerHelper.DEFAULT_POSE_DETECTION_CONFIDENCE
-        )
-        
-        currentMinPoseTrackingConfidence = sharedPreferences.getFloat(
-            TRACKING_CONFIDENCE_KEY,
-            PoseLandmarkerHelper.DEFAULT_POSE_TRACKING_CONFIDENCE
-        )
-        
-        currentMinPosePresenceConfidence = sharedPreferences.getFloat(
-            PRESENCE_CONFIDENCE_KEY,
-            PoseLandmarkerHelper.DEFAULT_POSE_PRESENCE_CONFIDENCE
-        )
-        
-        currentModel = sharedPreferences.getInt(
-            MODEL_KEY,
-            PoseLandmarkerHelper.MODEL_POSE_LANDMARKER_FULL
-        )
-        
-        currentDelegate = sharedPreferences.getInt(
-            DELEGATE_KEY,
-            PoseLandmarkerHelper.DELEGATE_CPU
-        )
+        currentMinPoseDetectionConfidence = settingsManager.getDetectionThreshold()
+        currentMinPoseTrackingConfidence = settingsManager.getTrackingThreshold()
+        currentMinPosePresenceConfidence = settingsManager.getPresenceThreshold()
+        currentModel = settingsManager.getPoseModel()
+        currentDelegate = settingsManager.getPoseDelegate()
         
         updateThresholdUI()
     }
@@ -174,15 +158,14 @@ class ActivitySettingsActivity : BaseActivity() {
     }
 
     private fun saveSettings() {
-        val sharedPreferences = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
-            putFloat(DETECTION_CONFIDENCE_KEY, currentMinPoseDetectionConfidence)
-            putFloat(TRACKING_CONFIDENCE_KEY, currentMinPoseTrackingConfidence)
-            putFloat(PRESENCE_CONFIDENCE_KEY, currentMinPosePresenceConfidence)
-            putInt(MODEL_KEY, currentModel)
-            putInt(DELEGATE_KEY, currentDelegate)
-            apply()
-        }
+        settingsManager.setDetectionThreshold(currentMinPoseDetectionConfidence)
+        settingsManager.setTrackingThreshold(currentMinPoseTrackingConfidence)
+        settingsManager.setPresenceThreshold(currentMinPosePresenceConfidence)
+        settingsManager.setPoseModel(currentModel)
+        settingsManager.setPoseDelegate(currentDelegate)
+        
+        // Trigger cloud sync
+        (application as TTCoachApplication).cloudSyncManager.uploadSettings()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -197,14 +180,5 @@ class ActivitySettingsActivity : BaseActivity() {
 
     private enum class ThresholdType {
         DETECTION, TRACKING, PRESENCE
-    }
-
-    companion object {
-        private const val PREFERENCE_NAME = "PoseLandmarkerPreferences"
-        private const val DETECTION_CONFIDENCE_KEY = "detection_confidence"
-        private const val TRACKING_CONFIDENCE_KEY = "tracking_confidence"
-        private const val PRESENCE_CONFIDENCE_KEY = "presence_confidence"
-        private const val MODEL_KEY = "model"
-        private const val DELEGATE_KEY = "delegate"
     }
 }

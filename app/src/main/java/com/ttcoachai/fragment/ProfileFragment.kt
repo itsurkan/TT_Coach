@@ -9,12 +9,14 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.ttcoachai.AppSettingsActivity
 import com.ttcoachai.R
+import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.SubscribeActivity
 import com.ttcoachai.WeeklySessionsActivity
 import com.ttcoachai.SkillTargetActivity
 import com.ttcoachai.DebugActivity
 import com.ttcoachai.databinding.FragmentProfileBinding
 import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.managers.CloudSyncManager
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
 import com.ttcoachai.viewmodels.AuthViewModel
@@ -152,6 +154,8 @@ class ProfileFragment : Fragment() {
             
             if (newLanguage != savedLanguage) {
                 com.ttcoachai.LocaleHelper.setLocale(requireContext(), newLanguage)
+                // Trigger cloud sync before restart
+                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
                 restartApp()
             }
         }
@@ -184,6 +188,8 @@ class ProfileFragment : Fragment() {
                 }
                 settingsManager.setNightMode(newMode)
                 AppCompatDelegate.setDefaultNightMode(newMode)
+                // Trigger cloud sync
+                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
             }
         }
     }
@@ -208,12 +214,19 @@ class ProfileFragment : Fragment() {
                 }
                 settingsManager.setSkillLevel(newLevel)
                 refreshLevelHeader(newLevel)
+                // Trigger cloud sync
+                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
             }
         }
     }
 
     private fun refreshLevelHeader(level: String) {
-        binding.tvProfileLevel.text = getString(R.string.level_format, level)
+        val localizedLevel = when (level) {
+            "Beginner" -> getString(R.string.level_beginner)
+            "Advanced" -> getString(R.string.level_advanced)
+            else -> getString(R.string.level_intermediate)
+        }
+        binding.tvProfileLevel.text = getString(R.string.level_format, localizedLevel)
     }
 
     private fun setupMenuItems() {

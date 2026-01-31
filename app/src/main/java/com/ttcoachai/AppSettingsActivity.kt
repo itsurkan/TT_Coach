@@ -5,11 +5,14 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.ttcoachai.databinding.ActivityAppSettingsBinding
 import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.managers.CloudSyncManager
+import com.ttcoachai.TTCoachApplication
 
 class AppSettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAppSettingsBinding
     private lateinit var settingsManager: SettingsManager
+    private lateinit var cloudSyncManager: com.ttcoachai.managers.CloudSyncManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,6 +20,7 @@ class AppSettingsActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         settingsManager = SettingsManager(this)
+        cloudSyncManager = (application as TTCoachApplication).cloudSyncManager
 
         setupAccount() // Login/Account Logic
         setupDebugMode()
@@ -75,6 +79,9 @@ class AppSettingsActivity : AppCompatActivity() {
             
             // Update logging state in real-time
             com.ttcoachai.core.logging.LogManager.getLogger(this).setFileLoggingEnabled(isChecked)
+            
+            // Trigger cloud sync
+            cloudSyncManager.uploadSettings()
         }
     }
 
@@ -92,6 +99,9 @@ class AppSettingsActivity : AppCompatActivity() {
         binding.switchSubscription.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setSubscriptionActive(isChecked)
             updateSubscriptionStatus(isChecked)
+            
+            // Trigger cloud sync
+            cloudSyncManager.uploadSettings()
         }
     }
 

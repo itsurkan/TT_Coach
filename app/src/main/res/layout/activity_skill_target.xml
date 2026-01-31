@@ -247,7 +247,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="16dp"
                         android:gravity="center">
 
                         <TextView
@@ -262,8 +263,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/target_good"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
                             android:textColor="@color/text_muted"
-                            android:textSize="11sp"/>
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -285,7 +288,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="16dp"
                         android:gravity="center">
 
                         <TextView
@@ -300,8 +304,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/target_great"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
                             android:textColor="@color/text_muted"
-                            android:textSize="11sp"/>
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -323,7 +329,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="16dp"
                         android:gravity="center">
 
                         <TextView
@@ -338,8 +345,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/target_excellent"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
                             android:textColor="@color/text_muted"
-                            android:textSize="11sp"/>
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -361,15 +370,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="16dp"
                         android:gravity="center">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/score_100"
-                            android:textAppearance="?attr/textAppearanceHeadlineSmall"
                             android:textStyle="bold"
+                            android:textSize="24sp"
                             android:textColor="?attr/colorError"/>
 
                         <TextView
@@ -377,7 +387,9 @@
                             android:layout_height="wrap_content"
                             android:text="@string/target_master"
                             android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textColor="@color/text_muted"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>

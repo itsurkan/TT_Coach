@@ -409,7 +409,7 @@
     <string name="title_progress">Прогрес</string>
     <string name="title_drills">Вправи</string>
     <string name="title_profile">Профіль</string>
-    <string name="title_settings">Налаштування</string>
+    <string name="title_settings">Налашт.</string>
     
     <!-- Profile Section -->
     <string name="subscription_section">Підписка</string>
@@ -429,6 +429,11 @@
     <string name="theme_light">Світла</string>
     <string name="theme_dark">Темна</string>
     <string name="theme_system">Системна</string>
+    <string name="skill_level_title">Рівень навичок</string>
+    <string name="level_beginner">Початківець</string>
+    <string name="level_intermediate">Середній</string>
+    <string name="level_advanced">Просунутий</string>
+    <string name="level_format">%s гравець</string>
     <string name="language_section">Мова</string>
     <string name="language_title">Мова інтерфейсу</string>
     <string name="language_desc">Оберіть бажану мову для додатка</string>
@@ -513,4 +518,38 @@
     <string name="days_fri">Пт</string>
     <string name="days_sat">Сб</string>
     <string name="days_sun">Нд</string>
+
+    <!-- Weekly Sessions Activity -->
+    <string name="weekly_sessions_title">Тижневі сесії</string>
+    <string name="weekly_sessions_subtitle">Встановіть ціль частоти тренувань</string>
+    <string name="current_goal">Поточна ціль</string>
+    <string name="days_per_week">днів/тиждень</string>
+    <string name="select_sessions_goal">Оберіть свою ціль</string>
+    <string name="recommended_plans">Рекомендовані плани</string>
+    <string name="plan_beginner_title">Початківець</string>
+    <string name="plan_beginner_desc">Ідеально для старту</string>
+    <string name="plan_regular_title">Регулярний</string>
+    <string name="plan_regular_desc">Збалансований графік тренувань</string>
+    <string name="plan_intensive_title">Інтенсивний</string>
+    <string name="plan_intensive_desc">Максимальний прогрес</string>
+    <string name="save_goal">Зберегти ціль</string>
+    <string name="goal_saved">Ціль успішно збережено!</string>
+
+    <!-- Skill Target Activity -->
+    <string name="skill_target_title">Ціль навички</string>
+    <string name="skill_target_subtitle">Встановіть ціль для оцінки навички</string>
+    <string name="current_target">Поточна ціль</string>
+    <string name="skill_score">Оцінка навички</string>
+    <string name="current_skill">Поточний рівень</string>
+    <string name="set_your_target">Встановіть свою ціль</string>
+    <string name="target_score">Цільова оцінка</string>
+    <string name="quick_targets">Швидкий вибір</string>
+    <string name="target_good">Добре</string>
+    <string name="target_great">Чудово</string>
+    <string name="target_excellent">Відмінно</string>
+    <string name="target_master">Майстер</string>
+    <string name="skill_tip_title">Порада</string>
+    <string name="skill_tip_desc">Почніть з реалістичної цілі та поступово підвищуйте її. Стабільність важливіша за досконалість!</string>
+    <string name="save_target">Зберегти ціль</string>
+    <string name="target_saved">Ціль успішно збережено!</string>
 </resources>
