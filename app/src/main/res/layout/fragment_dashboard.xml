@@ -324,6 +324,7 @@
 
             <!-- Recent Achievement -->
             <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_achievement"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 style="@style/AppTheme.Card.Grid">

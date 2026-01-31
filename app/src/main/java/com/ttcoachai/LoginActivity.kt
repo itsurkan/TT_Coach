@@ -60,13 +60,11 @@ class LoginActivity : BaseActivity() {
         }
 
         binding.btnLoginFacebook.setOnClickListener {
-            settingsManager.setLoggedIn(true)
-            navigateToMain()
+            viewModel.signInAnonymously()
         }
 
         binding.btnLoginApple.setOnClickListener {
-            settingsManager.setLoggedIn(true)
-            navigateToMain()
+            viewModel.signInAnonymously()
         }
     }
     

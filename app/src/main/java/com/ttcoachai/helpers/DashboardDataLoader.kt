@@ -70,7 +70,10 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
         }
         
         val totalMinutes = if (totalSeconds > 0 && totalSeconds < 60) 1 else totalSeconds / 60
-        val avgAccuracy = (todaySessions.map { it.accuracy * 100 }.average()).toInt()
+        val sessionsWithStrokes = todaySessions.filter { it.strokeCount > 0 }
+        val avgAccuracy = if (sessionsWithStrokes.isNotEmpty()) {
+            (sessionsWithStrokes.map { it.accuracy * 100 }.average()).toInt()
+        } else 0
         val totalStrokes = todaySessions.sumOf { it.strokeCount }
         
         android.util.Log.d(TAG, "Calculated stats: minutes=$totalMinutes, accuracy=$avgAccuracy, strokes=$totalStrokes")

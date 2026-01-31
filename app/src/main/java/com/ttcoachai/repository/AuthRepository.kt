@@ -55,6 +55,20 @@ class AuthRepository(private val context: Context) {
         }
     }
 
+    suspend fun signInAnonymously(): Result<FirebaseUser> {
+        return try {
+            val authResult = auth.signInAnonymously().await()
+            val user = authResult.user
+            if (user != null) {
+                Result.success(user)
+            } else {
+                Result.failure(Exception("Anonymous user is null"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun getCurrentUser(): FirebaseUser? {
         return auth.currentUser
     }

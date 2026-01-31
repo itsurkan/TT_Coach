@@ -275,7 +275,7 @@
     <string name="placeholder_minutes">--</string>
     <string name="label_minutes">Хвилин</string>
     <string name="placeholder_rallies">--</string>
-    <string name="label_rallies">Розіграшів</string>
+    <string name="label_rallies">Ударів</string>
     <string name="placeholder_improvement_positive">--</string>
     <string name="label_vs_yesterday">vs Вчора</string>
     <string name="label_weekly_goal">Тижнева ціль</string>

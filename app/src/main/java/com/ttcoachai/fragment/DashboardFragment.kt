@@ -68,6 +68,7 @@ class DashboardFragment : Fragment() {
         binding.tvWeeklyProgress.text = getString(R.string.format_weekly_days, 0, 7)
         binding.progressWeekly.progress = 0
         binding.tvWeeklyDesc.text = getString(R.string.weekly_goal_remaining_desc, 7)
+        binding.cardAchievement.visibility = View.GONE
     }
     
     private fun applyDashboardData(data: com.ttcoachai.helpers.DashboardData) {
@@ -93,8 +94,11 @@ class DashboardFragment : Fragment() {
         binding.tvWeeklyDesc.text = getString(R.string.weekly_goal_remaining_desc, remaining.coerceAtLeast(0))
         
         // Achievement
-        data.latestAchievement?.let {
-            binding.tvAchievementDesc.text = it
+        if (data.latestAchievement != null) {
+            binding.cardAchievement.visibility = View.VISIBLE
+            binding.tvAchievementDesc.text = data.latestAchievement
+        } else {
+            binding.cardAchievement.visibility = View.GONE
         }
     }
 

@@ -57,7 +57,12 @@ class ProgressFragment : Fragment() {
             val progressData = dataLoader.loadProgressData()
             
             if (progressData == null) {
-                loadDummyData()
+                if (!app.cloudSyncManager.isAuthenticated) {
+                    loadDummyData()
+                } else {
+                    // Logged in but no data yet, keep empty/zero state
+                    android.util.Log.d("ProgressFragment", "Authenticated but no progress data found. Showing zero state.")
+                }
                 return@launch
             }
             
