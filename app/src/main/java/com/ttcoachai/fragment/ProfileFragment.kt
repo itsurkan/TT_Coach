@@ -272,6 +272,11 @@ class ProfileFragment : Fragment() {
     }
 
     private fun performLogout() {
+        val app = requireActivity().application as TTCoachApplication
+        
+        // Clear local cache
+        app.cloudSyncManager.clearAllData()
+        
         // Sign out from Firebase and Google
         viewModel.signOut()
         

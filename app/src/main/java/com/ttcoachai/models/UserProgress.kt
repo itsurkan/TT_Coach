@@ -5,13 +5,18 @@
 
 package com.ttcoachai.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.Exclude
 
 /**
  * Aggregated progress statistics for a user.
  * Updated after each training session.
  */
+@Entity(tableName = "user_progress")
 data class UserProgress(
+    @PrimaryKey
     @DocumentId
     val id: String = "progress", // Single document per user
     val userId: String = "",
@@ -33,7 +38,11 @@ data class UserProgress(
     // Per-exercise stats (exerciseId -> count, stored as JSON string)
     val exerciseSessionCounts: String = "{}", // JSON map
     // Last updated
-    val lastUpdatedAt: Long = System.currentTimeMillis()
+    val lastUpdatedAt: Long = System.currentTimeMillis(),
+    
+    // Sync status for offline-first logic
+    @get:Exclude
+    val isSynced: Boolean = true
 ) {
     /**
      * No-arg constructor required for Firestore deserialization

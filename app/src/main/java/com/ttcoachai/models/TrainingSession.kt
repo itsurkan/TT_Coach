@@ -5,13 +5,18 @@
 
 package com.ttcoachai.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.Exclude
 
 /**
  * Represents a single training session.
- * Stored in Firestore for cross-device sync.
+ * Stored in Firestore and locally in Room for offline access.
  */
+@Entity(tableName = "training_sessions")
 data class TrainingSession(
+    @PrimaryKey
     @DocumentId
     val id: String = "",
     val userId: String = "",
@@ -27,7 +32,11 @@ data class TrainingSession(
     val poseDataPath: String? = null,
     // Device info for debugging
     val deviceModel: String = android.os.Build.MODEL,
-    val appVersion: String = ""
+    val appVersion: String = "",
+    
+    // Sync status for offline-first logic
+    @get:Exclude
+    val isSynced: Boolean = true
 ) {
     /**
      * No-arg constructor required for Firestore deserialization

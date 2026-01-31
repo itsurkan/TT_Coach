@@ -87,12 +87,16 @@ class CloudSyncManager(
                 Log.e(TAG, "Failed to sync profile", profileResult.exceptionOrNull())
             }
 
+            // Pull data from cloud (offline-first sync)
+            _syncState.value = SyncState.Syncing("Pulling data from cloud...")
+            pullFromCloud(user.uid)
+            
+            // Push any unsynced local changes (if any)
+            pushToCloud()
+
             // Sync settings
             _syncState.value = SyncState.Syncing("Syncing settings...")
             cloudSettingsRepository.syncSettings(user.uid, settingsManager)
-
-            // Initialize progress if needed
-            progressRepository.initializeProgress(user.uid)
 
             _lastSyncTime.value = System.currentTimeMillis()
             _syncState.value = SyncState.Success
@@ -101,6 +105,63 @@ class CloudSyncManager(
         } catch (e: Exception) {
             Log.e(TAG, "Sync failed", e)
             _syncState.value = SyncState.Error(e.message ?: "Sync failed")
+        }
+    }
+
+    /**
+     * Clear all local data (usually on logout).
+     */
+    fun clearAllData() {
+        val userId = currentUserId ?: return
+        scope.launch {
+            trainingRepository.clearLocalData(userId)
+            progressRepository.clearLocalData(userId)
+        }
+    }
+
+    /**
+     * Pull all data from cloud and populate local Room database.
+     */
+    suspend fun pullFromCloud(userId: String) {
+        try {
+            // 1. Pull user progress
+            val remoteProgress = progressRepository.getProgressFromCloud(userId)
+            if (remoteProgress != null) {
+                progressRepository.saveProgressLocally(remoteProgress.copy(isSynced = true))
+            }
+
+            // 2. Pull recent sessions
+            val remoteSessions = trainingRepository.getSessionsFromCloud(userId, limit = 100)
+            if (remoteSessions.isNotEmpty()) {
+                trainingRepository.saveSessionsLocally(remoteSessions.map { it.copy(isSynced = true) })
+            }
+            
+            Log.d(TAG, "Data pulled from cloud: ${remoteSessions.size} sessions")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to pull from cloud", e)
+        }
+    }
+
+    /**
+     * Push all unsynced local data to cloud.
+     */
+    fun pushToCloud() {
+        val userId = currentUserId ?: return
+        scope.launch {
+            try {
+                _syncState.value = SyncState.Syncing("Pushing local changes...")
+                
+                // 1. Push unsynced sessions
+                trainingRepository.pushUnsyncedSessions(userId)
+                
+                // 2. Push unsynced progress
+                progressRepository.pushUnsyncedProgress(userId)
+                
+                _syncState.value = SyncState.Success
+                Log.d(TAG, "Local data pushed to cloud")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to push to cloud", e)
+            }
         }
     }
 

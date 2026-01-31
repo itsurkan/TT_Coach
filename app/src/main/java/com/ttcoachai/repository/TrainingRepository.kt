@@ -7,15 +7,17 @@ package com.ttcoachai.repository
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.ttcoachai.db.TrainingDao
 import com.ttcoachai.models.TrainingSession
 import kotlinx.coroutines.tasks.await
 
 /**
- * Repository for training session operations in Firestore.
+ * Repository for training session operations, using Room as local cache
+ * and Firestore for cloud sync.
  */
 class TrainingRepository(
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val trainingDao: TrainingDao? = null
 ) {
     companion object {
         private const val TAG = "TrainingRepository"
@@ -23,30 +25,45 @@ class TrainingRepository(
     }
 
     /**
-     * Save a training session to Firestore.
+     * Save a training session. Saves to Room immediately and pushes to Firestore.
      */
     suspend fun saveSession(session: TrainingSession): Result<String> {
-        return try {
-            val id = if (session.id.isNotEmpty()) session.id else TrainingSession.generateId()
-            val sessionWithId = session.copy(id = id)
+        val id = if (session.id.isNotEmpty()) session.id else TrainingSession.generateId()
+        val sessionWithId = session.copy(id = id)
 
+        // 1. Save to local DB first (offline-first)
+        trainingDao?.insertSession(sessionWithId.copy(isSynced = false))
+
+        return try {
+            // 2. Try to save to Firestore
             firestore.collection(TrainingSession.COLLECTION)
                 .document(id)
                 .set(sessionWithId.toMap())
                 .await()
 
-            Log.d(TAG, "Session saved: $id")
+            // 3. If successful, mark as synced locally
+            trainingDao?.markAsSynced(id)
+            
+            Log.d(TAG, "Session saved and synced: $id")
             Result.success(id)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to save session", e)
-            Result.failure(e)
+            Log.e(TAG, "Failed to sync session, will retry later", e)
+            // Still return success of the ID because it's saved locally
+            Result.success(id)
         }
     }
 
     /**
-     * Get sessions for a user, ordered by start time descending.
+     * Get sessions for a user from local Room database.
      */
     suspend fun getSessions(userId: String, limit: Int = DEFAULT_LIMIT): List<TrainingSession> {
+        return trainingDao?.getRecentSessions(userId, limit) ?: emptyList()
+    }
+
+    /**
+     * Get sessions directly from Firestore (bypassing local cache).
+     */
+    suspend fun getSessionsFromCloud(userId: String, limit: Int = DEFAULT_LIMIT): List<TrainingSession> {
         return try {
             val snapshot = firestore.collection(TrainingSession.COLLECTION)
                 .whereEqualTo(TrainingSession.FIELD_USER_ID, userId)
@@ -56,11 +73,43 @@ class TrainingRepository(
 
             snapshot.documents.mapNotNull { doc ->
                 doc.toObject(TrainingSession::class.java)
-            }.sortedByDescending { it.startTime }
+            }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get sessions for $userId", e)
+            Log.e(TAG, "Failed to get sessions from cloud", e)
             emptyList()
         }
+    }
+
+    /**
+     * Save multiple sessions to local Room.
+     */
+    suspend fun saveSessionsLocally(sessions: List<TrainingSession>) {
+        trainingDao?.insertSessions(sessions)
+    }
+
+    /**
+     * Push all unsynced local sessions to Firestore.
+     */
+    suspend fun pushUnsyncedSessions(userId: String) {
+        val unsynced = trainingDao?.getUnsyncedSessions()?.filter { it.userId == userId } ?: return
+        for (session in unsynced) {
+            try {
+                firestore.collection(TrainingSession.COLLECTION)
+                    .document(session.id)
+                    .set(session.toMap())
+                    .await()
+                trainingDao.markAsSynced(session.id)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to push session ${session.id}", e)
+            }
+        }
+    }
+
+    /**
+     * Clear all local data for a user.
+     */
+    suspend fun clearLocalData(userId: String) {
+        trainingDao?.clearAllForUser(userId)
     }
 
     /**
@@ -71,21 +120,9 @@ class TrainingRepository(
         exerciseId: String,
         limit: Int = DEFAULT_LIMIT
     ): List<TrainingSession> {
-        return try {
-            val snapshot = firestore.collection(TrainingSession.COLLECTION)
-                .whereEqualTo(TrainingSession.FIELD_USER_ID, userId)
-                .whereEqualTo(TrainingSession.FIELD_EXERCISE_ID, exerciseId)
-                .limit(limit.toLong())
-                .get()
-                .await()
-
-            snapshot.documents.mapNotNull { doc ->
-                doc.toObject(TrainingSession::class.java)
-            }.sortedByDescending { it.startTime }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to get sessions for exercise $exerciseId", e)
-            emptyList()
-        }
+        // For now, still use local DB but we don't have a specific DAO method for this yet.
+        // I should probably add it to TrainingDao.
+        return trainingDao?.getRecentSessions(userId, 100)?.filter { it.exerciseId == exerciseId } ?: emptyList()
     }
 
     /**

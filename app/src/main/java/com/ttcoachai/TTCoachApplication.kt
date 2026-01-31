@@ -22,9 +22,17 @@ class TTCoachApplication : Application() {
         com.ttcoachai.repository.AuthRepository(this) 
     }
     
+    val database: com.ttcoachai.db.AppDatabase by lazy { 
+        com.ttcoachai.db.AppDatabase.getDatabase(this) 
+    }
+    
     // Cloud sync manager for Firestore operations
     val cloudSyncManager: CloudSyncManager by lazy {
-        CloudSyncManager(settingsManager)
+        CloudSyncManager(
+            settingsManager = settingsManager,
+            trainingRepository = com.ttcoachai.repository.TrainingRepository(trainingDao = database.trainingDao()),
+            progressRepository = com.ttcoachai.repository.ProgressRepository(progressDao = database.progressDao())
+        )
     }
     
     override fun attachBaseContext(base: Context) {
