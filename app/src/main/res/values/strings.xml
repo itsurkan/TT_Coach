@@ -390,6 +390,11 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
+    <string name="skill_level_title">Skill Level</string>
+    <string name="level_beginner">Beginner</string>
+    <string name="level_intermediate">Intermediate</string>
+    <string name="level_advanced">Advanced</string>
+    <string name="level_format">%s Player</string>
     
     <!-- Language Settings -->
     <string name="language_section">Language</string>

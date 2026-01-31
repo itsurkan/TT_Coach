@@ -80,6 +80,7 @@
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:layout_marginBottom="4dp"/>
                         <TextView
+                            android:id="@+id/tv_profile_level"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_level"
@@ -518,6 +519,65 @@
                 android:orientation="vertical"
                 android:divider="?android:attr/listDivider"
                 android:showDividers="middle">
+
+                <!-- Skill Level -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_award"
+                            app:tint="?attr/colorOnSurfaceVariant"
+                            android:layout_marginEnd="12dp"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="?attr/textAppearanceBodyLarge"
+                            android:text="@string/skill_level_title"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButtonToggleGroup
+                        android:id="@+id/toggle_group_level"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        app:singleSelection="true"
+                        app:selectionRequired="true">
+
+                        <Button
+                            android:id="@+id/btn_level_beginner"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/level_beginner" />
+
+                        <Button
+                            android:id="@+id/btn_level_intermediate"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/level_intermediate" />
+
+                        <Button
+                            android:id="@+id/btn_level_advanced"
+                            style="?attr/materialButtonOutlinedStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/level_advanced" />
+                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                </LinearLayout>
 
                 <!-- Theme -->
                 <LinearLayout

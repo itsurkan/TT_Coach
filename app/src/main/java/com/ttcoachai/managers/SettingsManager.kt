@@ -118,6 +118,10 @@ class SettingsManager(context: Context) {
     fun isDistanceModeEnabled(): Boolean = prefs.getBoolean("distance_mode_enabled", false)
     fun setDistanceModeEnabled(enabled: Boolean) = prefs.edit().putBoolean("distance_mode_enabled", enabled).apply()
 
+    // Skill Level
+    fun getSkillLevel(): String = prefs.getString("skill_level", "Intermediate") ?: "Intermediate"
+    fun setSkillLevel(level: String) = prefs.edit().putString("skill_level", level).apply()
+
     // Theme Mode
     fun getNightMode(): Int = prefs.getInt("night_mode", androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     fun setNightMode(mode: Int) = prefs.edit().putInt("night_mode", mode).apply()

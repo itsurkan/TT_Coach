@@ -55,6 +55,7 @@ class ProfileFragment : Fragment() {
         setupSubscriptionSection()
         setupLanguageSection()
         setupThemeButtons()
+        setupLevelSelector()
         setupMenuItems()
         
         // Initialize ProgressDataLoader
@@ -185,6 +186,34 @@ class ProfileFragment : Fragment() {
                 AppCompatDelegate.setDefaultNightMode(newMode)
             }
         }
+    }
+
+    private fun setupLevelSelector() {
+        val currentLevel = settingsManager.getSkillLevel()
+        
+        when (currentLevel) {
+            "Beginner" -> binding.toggleGroupLevel.check(R.id.btn_level_beginner)
+            "Advanced" -> binding.toggleGroupLevel.check(R.id.btn_level_advanced)
+            else -> binding.toggleGroupLevel.check(R.id.btn_level_intermediate)
+        }
+        
+        refreshLevelHeader(currentLevel)
+        
+        binding.toggleGroupLevel.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val newLevel = when (checkedId) {
+                    R.id.btn_level_beginner -> "Beginner"
+                    R.id.btn_level_advanced -> "Advanced"
+                    else -> "Intermediate"
+                }
+                settingsManager.setSkillLevel(newLevel)
+                refreshLevelHeader(newLevel)
+            }
+        }
+    }
+
+    private fun refreshLevelHeader(level: String) {
+        binding.tvProfileLevel.text = getString(R.string.level_format, level)
     }
 
     private fun setupMenuItems() {
