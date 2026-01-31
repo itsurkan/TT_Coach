@@ -127,6 +127,31 @@
                             android:textColor="?attr/colorOnSurfaceVariant"/>
                     </LinearLayout>
 
+                    <!-- Total Hours -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+                        
+                        <TextView
+                            android:id="@+id/tv_profile_hours"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textAppearance="?attr/textAppearanceTitleLarge"
+                            android:textStyle="bold"/>
+                            
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/stats_total_hours"
+                            android:textAppearance="?attr/textAppearanceLabelSmall"
+                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                    </LinearLayout>
+
                     <!-- Days Streak -->
                     <LinearLayout
                         android:layout_width="0dp"

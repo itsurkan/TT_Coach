@@ -322,9 +322,11 @@ class ProfileFragment : Fragment() {
         progressData?.userProgress?.let { progress ->
             binding.tvProfileSkillScore.text = progress.getAccuracyPercent().toString()
             binding.tvProfileStreak.text = progress.currentStreak.toString()
+            binding.tvProfileHours.text = progress.totalHours.toString()
         } ?: run {
             binding.tvProfileSkillScore.text = "0"
             binding.tvProfileStreak.text = "0"
+            binding.tvProfileHours.text = "0"
         }
 
         val achievementCount = progressData?.milestonesData?.count { it.achieved } ?: 0

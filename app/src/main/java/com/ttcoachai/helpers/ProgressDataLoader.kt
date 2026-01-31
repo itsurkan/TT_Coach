@@ -21,8 +21,19 @@ class ProgressDataLoader(private val cloudSyncManager: CloudSyncManager) {
         
         return try {
             val sessions = cloudSyncManager.getRecentSessions(50)
-            val progress = cloudSyncManager.getUserProgress()
+            var progress = cloudSyncManager.getUserProgress()
             
+            // If progress is missing or seems stale (streak 0 but sessions exist), recalculate
+            if (sessions.isNotEmpty() && (progress == null || progress.currentStreak == 0)) {
+                val userId = cloudSyncManager.currentUserId ?: ""
+                val recalculatedProgress = UserProgress.fromSessions(userId, sessions)
+                
+                // If recalculated is better, use it (but don't necessarily save to cloud here to avoid loops)
+                if (progress == null || recalculatedProgress.totalSessions > progress.totalSessions || recalculatedProgress.currentStreak > progress.currentStreak) {
+                    progress = recalculatedProgress
+                }
+            }
+
             if (sessions.isEmpty() && progress == null) {
                 return null
             }

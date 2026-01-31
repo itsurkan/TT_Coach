@@ -43,6 +43,8 @@ data class UserProgress(
     @get:Exclude
     val isSynced: Boolean = true
 ) {
+    @get:Exclude
+    val totalHours: Int get() = totalTrainingMinutes / 60
     /**
      * No-arg constructor required for Firestore deserialization
      */
@@ -57,6 +59,20 @@ data class UserProgress(
         fun calculateAccuracy(correctStrokes: Int, totalStrokes: Int): Float {
             if (totalStrokes == 0) return 0f
             return correctStrokes.toFloat() / totalStrokes.toFloat()
+        }
+
+        /**
+         * Helper to recalculate progress from a list of sessions.
+         * Useful for fixing inconsistent streaks or totals.
+         */
+        fun fromSessions(userId: String, sessions: List<TrainingSession>): UserProgress {
+            var progress = UserProgress(userId = userId)
+            // Sort by start time ascending to build streak correctly
+            val sortedSessions = sessions.sortedBy { it.startTime }
+            for (session in sortedSessions) {
+                progress = progress.withNewSession(session)
+            }
+            return progress
         }
     }
 
@@ -96,15 +112,17 @@ data class UserProgress(
             session.durationSeconds
         }
 
-        // Update streak
-        val today = java.util.Calendar.getInstance().apply {
+        // Update streak based on the SESSION time, not sync time
+        val sessionCalendar = java.util.Calendar.getInstance().apply {
+            timeInMillis = session.startTime
             set(java.util.Calendar.HOUR_OF_DAY, 0)
             set(java.util.Calendar.MINUTE, 0)
             set(java.util.Calendar.SECOND, 0)
             set(java.util.Calendar.MILLISECOND, 0)
-        }.timeInMillis
+        }
+        val sessionDateMidnight = sessionCalendar.timeInMillis
 
-        val lastDate = if (lastTrainingDate > 0) {
+        val lastDateMidnight = if (lastTrainingDate > 0) {
             java.util.Calendar.getInstance().apply {
                 timeInMillis = lastTrainingDate
                 set(java.util.Calendar.HOUR_OF_DAY, 0)
@@ -114,14 +132,15 @@ data class UserProgress(
             }.timeInMillis
         } else 0L
 
-        val daysDiff = if (lastDate > 0) {
-            ((today - lastDate) / (24 * 60 * 60 * 1000)).toInt()
+        val daysDiff = if (lastDateMidnight > 0) {
+            ((sessionDateMidnight - lastDateMidnight) / (24 * 60 * 60 * 1000)).toInt()
         } else -1
 
         val newStreak = when {
-            daysDiff == 0 -> currentStreak // Same day
+            daysDiff == 0 -> currentStreak // Same day session
             daysDiff == 1 -> currentStreak + 1 // Consecutive day
-            else -> 1 // Streak broken or first session
+            daysDiff < 0 -> currentStreak // Older session being synced, don't break/inc streak for now
+            else -> 1 // Streak broken (>1 day gap)
         }
 
         val newLongestStreak = maxOf(longestStreak, newStreak)
@@ -135,8 +154,8 @@ data class UserProgress(
             averageSessionDuration = newAvgDuration,
             currentStreak = newStreak,
             longestStreak = newLongestStreak,
-            lastTrainingDate = session.endTime,
-            weeklySessionsCount = weeklySessionsCount + 1, // Simplified, should reset weekly
+            lastTrainingDate = maxOf(lastTrainingDate, session.endTime),
+            weeklySessionsCount = weeklySessionsCount + 1,
             monthlySessionsCount = monthlySessionsCount + 1,
             lastUpdatedAt = System.currentTimeMillis()
         )
