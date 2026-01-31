@@ -19,7 +19,7 @@
             android:text="@string/placeholder_skill_name"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/black"/>
+            android:textColor="?attr/colorOnSurface"/>
 
         <TextView
             android:id="@+id/tv_skill_level"
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:text="@string/placeholder_percentage_mid"
             android:textSize="14sp"
-            android:textColor="@color/text_muted"/>
+            android:textColor="?attr/colorOnSurfaceVariant"/>
     </LinearLayout>
 
     <ProgressBar

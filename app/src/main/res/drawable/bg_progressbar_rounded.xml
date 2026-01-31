@@ -3,7 +3,7 @@
     <item android:id="@android:id/background">
         <shape>
             <corners android:radius="4dp"/>
-            <solid android:color="@color/gray_100"/> <!-- Muted background -->
+            <solid android:color="?attr/colorSurfaceVariant"/> <!-- Theme-aware background -->
         </shape>
     </item>
     <item android:id="@android:id/progress">
