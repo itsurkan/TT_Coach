@@ -15,3 +15,4 @@
 local.properties
 *.wav
 main-poselandmaker/*
+shared/build/*
