@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "TT AI Coach 1"
 include ':app'
+include ':shared'

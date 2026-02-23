@@ -19,11 +19,11 @@
 
 **Purpose**: Create the KMP shared module skeleton and configure Gradle for multiplatform builds.
 
-- [ ] T001 Create shared module directory structure: `shared/src/commonMain/kotlin/com/ttcoachai/shared/{models,analysis,detection}`, `shared/src/commonTest/kotlin/com/ttcoachai/shared/{models,analysis,detection}`, `shared/src/commonTest/resources/fixtures/`, `shared/src/androidMain/`
-- [ ] T002 Create `shared/build.gradle.kts` with `kotlin("multiplatform")` and `com.android.library` plugins, configure `androidTarget()` + `jvm()` targets, set `compileSdk=36`, `minSdk=24`, namespace `com.ttcoachai.shared`, add `kotlin("test")` to commonTest dependencies (see quickstart.md step 2)
-- [ ] T003 Update root `settings.gradle` to add `include ':shared'` after `include ':app'`
-- [ ] T004 Update root `build.gradle` to add `id 'org.jetbrains.kotlin.multiplatform' version '2.1.0' apply false` to the plugins block
-- [ ] T005 Update `app/build.gradle` to add `implementation project(':shared')` to the dependencies block
+- [X] T001 Create shared module directory structure: `shared/src/commonMain/kotlin/com/ttcoachai/shared/{models,analysis,detection}`, `shared/src/commonTest/kotlin/com/ttcoachai/shared/{models,analysis,detection}`, `shared/src/commonTest/resources/fixtures/`, `shared/src/androidMain/`
+- [X] T002 Create `shared/build.gradle.kts` with `kotlin("multiplatform")` and `com.android.library` plugins, configure `androidTarget()` + `jvm()` targets, set `compileSdk=36`, `minSdk=24`, namespace `com.ttcoachai.shared`, add `kotlin("test")` to commonTest dependencies (see quickstart.md step 2)
+- [X] T003 Update root `settings.gradle` to add `include ':shared'` after `include ':app'`
+- [X] T004 Update root `build.gradle` to add `id 'org.jetbrains.kotlin.multiplatform' version '2.1.0' apply false` to the plugins block
+- [X] T005 Update `app/build.gradle` to add `implementation project(':shared')` to the dependencies block
 - [ ] T006 Verify project syncs and builds: run `./gradlew :shared:assemble` and `./gradlew :app:assembleDebug`
 
 **Checkpoint**: Shared module exists, compiles (empty), and app module depends on it successfully.
@@ -46,20 +46,20 @@
 
 ### Implementation for User Story 2
 
-- [ ] T007 [P] [US2] Create `StrokePhase` enum (READY, BACKSWING, FORWARD_SWING, CONTACT, FOLLOW_THROUGH, RECOVERY) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokePhase.kt` — extract verbatim from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:104-111`
-- [ ] T008 [P] [US2] Create `CorrectionType` enum (WRIST, BODY_ROTATION, FOLLOW_THROUGH, CONTACT_HEIGHT, ELBOW_POSITION, STROKE_SPEED, GENERAL) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/CorrectionType.kt` — extract verbatim from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:13-21`
-- [ ] T009 [P] [US2] Create `Landmark3D` data class (x, y, z, visibility, presence) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/Landmark3D.kt` — new type replacing MediaPipe NormalizedLandmark usage
-- [ ] T010 [P] [US2] Create `PoseFrame` data class (frameIndex, timestampMs, landmarks) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/PoseFrame.kt` — replaces JsonPoseFrame
-- [ ] T011 [P] [US2] Create `FeedbackItem` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/FeedbackItem.kt` — change `strokeLandmarks` type from `List<List<NormalizedLandmark>>` to `List<List<Landmark3D>>` per research R4
-- [ ] T012 [P] [US2] Create `TechniqueErrors` object with string constants in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TechniqueErrors.kt` — extract verbatim
-- [ ] T013 [P] [US2] Create `TechniqueRecommendations` object with string constants in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TechniqueRecommendations.kt` — extract verbatim
-- [ ] T014 [P] [US2] Create `AnalysisResult` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/AnalysisResult.kt` — extract from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:36-65`, change `timestamp` default to `0L` (per migration note 3), preserve `isSuccessful()`, `getSummary()`, `getPrimaryError()`, `getPrimaryRecommendation()` methods
-- [ ] T015 [P] [US2] Create `ExerciseParameters` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/ExerciseParameters.kt` — extract from `app/src/main/java/com/ttcoachai/models/ExerciseParameters.kt`, remove `fromSharedPreferences()` factory, keep `forehandDrive()`, `backhandDrive()`, `forehandDriveBeginner()` presets and all validation methods
-- [ ] T016 [P] [US2] Create `TrackingAxis` enum (X, Y, Z) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrackingAxis.kt`
-- [ ] T017 [P] [US2] Create `StrokeDetectorConfig` data class with FOREHAND and BACKHAND companion presets in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokeDetectorConfig.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:24-51`
-- [ ] T018 [P] [US2] Create `DetectedStroke` data class with `containsFrame()` and `getPhaseForFrame()` methods in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/DetectedStroke.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:77-117`
-- [ ] T019 [P] [US2] Create `FramePhaseInfo` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/FramePhaseInfo.kt`
-- [ ] T020 [P] [US2] Create `StrokeDetectionResult` data class with `getStrokeForFrame()`, `getPhaseForFrame()`, `getFrameInfo()` methods in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokeDetectionResult.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:132-151`
+- [X] T007 [P] [US2] Create `StrokePhase` enum (READY, BACKSWING, FORWARD_SWING, CONTACT, FOLLOW_THROUGH, RECOVERY) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokePhase.kt` — extract verbatim from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:104-111`
+- [X] T008 [P] [US2] Create `CorrectionType` enum (WRIST, BODY_ROTATION, FOLLOW_THROUGH, CONTACT_HEIGHT, ELBOW_POSITION, STROKE_SPEED, GENERAL) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/CorrectionType.kt` — extract verbatim from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:13-21`
+- [X] T009 [P] [US2] Create `Landmark3D` data class (x, y, z, visibility, presence) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/Landmark3D.kt` — new type replacing MediaPipe NormalizedLandmark usage
+- [X] T010 [P] [US2] Create `PoseFrame` data class (frameIndex, timestampMs, landmarks) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/PoseFrame.kt` — replaces JsonPoseFrame
+- [X] T011 [P] [US2] Create `FeedbackItem` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/FeedbackItem.kt` — change `strokeLandmarks` type from `List<List<NormalizedLandmark>>` to `List<List<Landmark3D>>` per research R4
+- [X] T012 [P] [US2] Create `TechniqueErrors` object with string constants in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TechniqueErrors.kt` — extract verbatim
+- [X] T013 [P] [US2] Create `TechniqueRecommendations` object with string constants in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TechniqueRecommendations.kt` — extract verbatim
+- [X] T014 [P] [US2] Create `AnalysisResult` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/AnalysisResult.kt` — extract from `app/src/main/java/com/ttcoachai/models/AnalysisResult.kt:36-65`, change `timestamp` default to `0L` (per migration note 3), preserve `isSuccessful()`, `getSummary()`, `getPrimaryError()`, `getPrimaryRecommendation()` methods
+- [X] T015 [P] [US2] Create `ExerciseParameters` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/ExerciseParameters.kt` — extract from `app/src/main/java/com/ttcoachai/models/ExerciseParameters.kt`, remove `fromSharedPreferences()` factory, keep `forehandDrive()`, `backhandDrive()`, `forehandDriveBeginner()` presets and all validation methods
+- [X] T016 [P] [US2] Create `TrackingAxis` enum (X, Y, Z) in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrackingAxis.kt`
+- [X] T017 [P] [US2] Create `StrokeDetectorConfig` data class with FOREHAND and BACKHAND companion presets in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokeDetectorConfig.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:24-51`
+- [X] T018 [P] [US2] Create `DetectedStroke` data class with `containsFrame()` and `getPhaseForFrame()` methods in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/DetectedStroke.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:77-117`
+- [X] T019 [P] [US2] Create `FramePhaseInfo` data class in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/FramePhaseInfo.kt`
+- [X] T020 [P] [US2] Create `StrokeDetectionResult` data class with `getStrokeForFrame()`, `getPhaseForFrame()`, `getFrameInfo()` methods in `shared/src/commonMain/kotlin/com/ttcoachai/shared/models/StrokeDetectionResult.kt` — extract from `app/src/main/java/com/ttcoachai/services/JsonStrokeDetector.kt:132-151`
 - [ ] T021 [US2] Verify shared models compile: run `./gradlew :shared:compileKotlinJvm`
 
 **Checkpoint**: All shared data models compile in commonMain with zero platform-specific imports. US1 can now begin.

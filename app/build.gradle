@@ -71,6 +71,9 @@ apply from: 'download_tasks.gradle'
 
 dependencies {
 
+    // Shared KMP module
+    implementation project(':shared')
+
     // Kotlin lang
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
     implementation 'androidx.core:core-ktx:1.15.0'
