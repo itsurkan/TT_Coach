@@ -165,15 +165,15 @@ class SettingsFragment : Fragment() {
         }
 
         // Correction Chips
-        setupCorrectionChip(binding.chipWrist, com.ttcoachai.models.CorrectionType.WRIST)
-        setupCorrectionChip(binding.chipRotation, com.ttcoachai.models.CorrectionType.BODY_ROTATION)
-        setupCorrectionChip(binding.chipFollowThrough, com.ttcoachai.models.CorrectionType.FOLLOW_THROUGH)
-        setupCorrectionChip(binding.chipContactHeight, com.ttcoachai.models.CorrectionType.CONTACT_HEIGHT)
-        setupCorrectionChip(binding.chipElbow, com.ttcoachai.models.CorrectionType.ELBOW_POSITION)
-        setupCorrectionChip(binding.chipSpeed, com.ttcoachai.models.CorrectionType.STROKE_SPEED)
+        setupCorrectionChip(binding.chipWrist, com.ttcoachai.shared.models.CorrectionType.WRIST)
+        setupCorrectionChip(binding.chipRotation, com.ttcoachai.shared.models.CorrectionType.BODY_ROTATION)
+        setupCorrectionChip(binding.chipFollowThrough, com.ttcoachai.shared.models.CorrectionType.FOLLOW_THROUGH)
+        setupCorrectionChip(binding.chipContactHeight, com.ttcoachai.shared.models.CorrectionType.CONTACT_HEIGHT)
+        setupCorrectionChip(binding.chipElbow, com.ttcoachai.shared.models.CorrectionType.ELBOW_POSITION)
+        setupCorrectionChip(binding.chipSpeed, com.ttcoachai.shared.models.CorrectionType.STROKE_SPEED)
     }
 
-    private fun setupCorrectionChip(chip: com.google.android.material.chip.Chip, type: com.ttcoachai.models.CorrectionType) {
+    private fun setupCorrectionChip(chip: com.google.android.material.chip.Chip, type: com.ttcoachai.shared.models.CorrectionType) {
         chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)
         chip.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setCorrectionTypeEnabled(type, isChecked)

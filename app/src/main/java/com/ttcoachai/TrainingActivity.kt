@@ -6,7 +6,7 @@ import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
 import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.managers.*
-import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
@@ -57,11 +57,11 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun initializeAnalysis() {
         val prefs = getSharedPreferences("ai_coach_prefs", MODE_PRIVATE)
         exerciseParameters = when (exerciseId) {
-            "forehand_drive" -> ExerciseParameters.fromSharedPreferences(
-                "forehand_drive",
-                prefs.getInt("ideal_wrist_angle", 180),
-                prefs.getInt("min_body_rotation", 45),
-                prefs.getInt("follow_through_angle", 120)
+            "forehand_drive" -> ExerciseParameters(
+                exerciseId = "forehand_drive",
+                idealWristAngle = prefs.getInt("ideal_wrist_angle", 180).toFloat(),
+                minBodyRotation = prefs.getInt("min_body_rotation", 45).toFloat(),
+                followThroughAngle = prefs.getInt("follow_through_angle", 120).toFloat()
             )
             "backhand_drive" -> ExerciseParameters.backhandDrive()
             else -> ExerciseParameters.forehandDrive()

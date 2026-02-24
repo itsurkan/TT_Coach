@@ -8,7 +8,9 @@ import android.view.animation.RotateAnimation
 import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.R
 import com.ttcoachai.databinding.ItemFeedbackBinding
-import com.ttcoachai.models.FeedbackItem
+import com.ttcoachai.shared.models.FeedbackItem
+import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import java.util.Optional
 
 class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackViewHolder>() {
 
@@ -48,19 +50,19 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
 
             // Set icon color based on type
             val color = when (item.type) {
-                com.ttcoachai.models.CorrectionType.WRIST,
-                com.ttcoachai.models.CorrectionType.BODY_ROTATION,
-                com.ttcoachai.models.CorrectionType.FOLLOW_THROUGH,
-                com.ttcoachai.models.CorrectionType.CONTACT_HEIGHT,
-                com.ttcoachai.models.CorrectionType.ELBOW_POSITION,
-                com.ttcoachai.models.CorrectionType.STROKE_SPEED -> {
+                com.ttcoachai.shared.models.CorrectionType.WRIST,
+                com.ttcoachai.shared.models.CorrectionType.BODY_ROTATION,
+                com.ttcoachai.shared.models.CorrectionType.FOLLOW_THROUGH,
+                com.ttcoachai.shared.models.CorrectionType.CONTACT_HEIGHT,
+                com.ttcoachai.shared.models.CorrectionType.ELBOW_POSITION,
+                com.ttcoachai.shared.models.CorrectionType.STROKE_SPEED -> {
                     if (item.isPositive) {
                         android.R.color.holo_green_dark
                     } else {
                         android.R.color.holo_orange_dark
                     }
                 }
-                com.ttcoachai.models.CorrectionType.GENERAL -> {
+                com.ttcoachai.shared.models.CorrectionType.GENERAL -> {
                     android.R.color.holo_blue_dark
                 }
             }
@@ -77,9 +79,15 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
 
             // Handle Pose Visualizer
             if (isExpanded) {
-                // Use real captured landmarks if available, fall back to mock
-                val frames = if (item.strokeLandmarks.isNotEmpty()) {
-                    item.strokeLandmarks
+                // Use real captured landmarks if available, fall back to mock.
+                // Convert Landmark3D back to NormalizedLandmark for the visualizer.
+                val frames: List<List<NormalizedLandmark>> = if (item.strokeLandmarks.isNotEmpty()) {
+                    item.strokeLandmarks.map { frame ->
+                        frame.map { lm ->
+                            NormalizedLandmark.create(lm.x, lm.y, lm.z,
+                                Optional.of(lm.visibility), Optional.of(lm.presence))
+                        }
+                    }
                 } else {
                     MockPoseGenerator.generateMockStroke(item.type)
                 }
@@ -120,7 +128,7 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
 }
 
 object MockPoseGenerator {
-    fun generateMockStroke(type: com.ttcoachai.models.CorrectionType): List<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>> {
+    fun generateMockStroke(type: com.ttcoachai.shared.models.CorrectionType): List<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>> {
         val frames = mutableListOf<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>>()
         val numFrames = 30
         

@@ -1,7 +1,7 @@
 package com.ttcoachai.managers
 
 import android.graphics.Color
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.StrokePhase
 import java.util.Locale
 
 class FeedbackLogManager(private val adapter: FeedbackLogAdapter) {

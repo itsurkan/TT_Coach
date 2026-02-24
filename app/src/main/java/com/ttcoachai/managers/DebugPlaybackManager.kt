@@ -10,7 +10,7 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.ttcoachai.databinding.ActivityDebugBinding
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.StrokePhase
 import com.ttcoachai.processors.VideoDebugProcessor
 import com.ttcoachai.services.FeedbackGenerator
 

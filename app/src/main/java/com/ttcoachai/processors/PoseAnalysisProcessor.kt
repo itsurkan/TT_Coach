@@ -1,13 +1,14 @@
 package com.ttcoachai.processors
 
 import android.util.Log
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.ttcoachai.PoseLandmarkerHelper
 import com.ttcoachai.TTCoachApplication
+import com.ttcoachai.mappers.MediaPipeMapper
 import com.ttcoachai.managers.TrainingStateManager
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.FeedbackItem
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.FeedbackItem
+import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.shared.models.StrokePhase
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
 
@@ -25,7 +26,7 @@ class PoseAnalysisProcessor(
     private val analysisLogger = PoseAnalysisLogger(application)
     
     private val currentStrokeResults = mutableListOf<AnalysisResult>()
-    private val currentStrokeLandmarks = mutableListOf<List<NormalizedLandmark>>()
+    private val currentStrokeLandmarks = mutableListOf<List<Landmark3D>>()
     private var pendingFeedbackResult: AnalysisResult? = null
     private var totalCompletedStrokes = 0
     
@@ -73,10 +74,8 @@ class PoseAnalysisProcessor(
             
             if (detectedPhase != StrokePhase.READY) {
                 currentStrokeResults.add(analysis)
-                // Capture landmarks for visualization
-                if (poseResult.landmarks().isNotEmpty()) {
-                    currentStrokeLandmarks.add(poseResult.landmarks()[0])
-                }
+                // Capture landmarks for visualization (converted to shared Landmark3D)
+                currentStrokeLandmarks.add(MediaPipeMapper.toLandmarkList(poseResult))
             }
             
             mainHandler.post { onUIUpdate() }

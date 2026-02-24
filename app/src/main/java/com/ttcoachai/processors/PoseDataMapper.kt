@@ -1,43 +1,53 @@
 package com.ttcoachai.processors
 
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import com.ttcoachai.services.JsonPoseFrame
-import com.ttcoachai.services.JsonStrokeDetector
+import com.ttcoachai.mappers.MediaPipeMapper
 import com.ttcoachai.processors.VideoDebugProcessor.Companion.VIDEO_INTERVAL_MS
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.util.Optional
+import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.shared.models.PoseFrame
 import org.json.JSONObject
 
+/** Local storage for pose frames parsed from JSON — uses Landmark3D for analysis. */
+data class LocalPoseFrame(val landmarks: List<Landmark3D>, val timestampMs: Long)
+
 /**
- * Handles conversion between JSON, MediaPipe results, and PoseFrame objects.
+ * Handles conversion between JSON, MediaPipe results, and shared PoseFrame objects.
  */
 class PoseDataMapper {
-    fun parseJson(jsonString: String): List<PoseFrame> {
+    fun parseJson(jsonString: String): List<LocalPoseFrame> {
         val framesArray = JSONObject(jsonString).getJSONArray("frames")
         return (0 until framesArray.length()).map { i ->
             val obj = framesArray.getJSONObject(i)
             val lms = obj.getJSONArray("landmarks")
             val landmarks = (0 until lms.length()).map { j ->
                 val lm = lms.getJSONObject(j)
-                NormalizedLandmark.create(
-                    lm.getDouble("x").toFloat(),
-                    lm.getDouble("y").toFloat(),
-                    lm.getDouble("z").toFloat(),
-                    Optional.of(lm.optDouble("visibility", 0.0).toFloat()),
-                    Optional.of(lm.optDouble("presence", 0.0).toFloat())
+                Landmark3D(
+                    x = lm.getDouble("x").toFloat(),
+                    y = lm.getDouble("y").toFloat(),
+                    z = lm.getDouble("z").toFloat(),
+                    visibility = lm.optDouble("visibility", 0.0).toFloat(),
+                    presence = lm.optDouble("presence", 0.0).toFloat()
                 )
             }
-            PoseFrame(landmarks, obj.getLong("timestampMs"))
+            LocalPoseFrame(landmarks, obj.getLong("timestampMs"))
         }
     }
 
-    fun toStrokeFrames(poseFrames: List<PoseFrame>?, results: List<PoseLandmarkerResult>?): List<JsonPoseFrame> {
+    fun toStrokeFrames(poseFrames: List<LocalPoseFrame>?, results: List<PoseLandmarkerResult>?): List<PoseFrame> {
         poseFrames?.let { frames ->
-            return frames.mapIndexed { i, f -> JsonStrokeDetector.fromNormalizedLandmarks(f.landmarks, i, f.timestampMs) }
+            return frames.mapIndexed { i, f ->
+                PoseFrame(frameIndex = i, timestampMs = f.timestampMs, landmarks = f.landmarks)
+            }
         }
         results?.let { bundle ->
             return bundle.mapIndexedNotNull { i, r ->
-                if (r.landmarks().isNotEmpty()) JsonStrokeDetector.fromNormalizedLandmarks(r.landmarks()[0], i, i * VIDEO_INTERVAL_MS) else null
+                if (r.landmarks().isNotEmpty()) {
+                    PoseFrame(
+                        frameIndex = i,
+                        timestampMs = i * VIDEO_INTERVAL_MS,
+                        landmarks = MediaPipeMapper.toLandmarkList(r)
+                    )
+                } else null
             }
         }
         return emptyList()

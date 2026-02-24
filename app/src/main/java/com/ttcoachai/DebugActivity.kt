@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.databinding.ActivityDebugBinding
 import com.ttcoachai.managers.*
-import com.ttcoachai.models.ExerciseParameters
+import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.processors.VideoDebugProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer

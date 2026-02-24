@@ -4,8 +4,8 @@ import android.content.Context
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ttcoachai.databinding.ActivityDebugBinding
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.StrokePhase
 import com.ttcoachai.processors.VideoDebugProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark

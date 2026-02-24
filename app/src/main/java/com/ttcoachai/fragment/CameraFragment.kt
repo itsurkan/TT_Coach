@@ -162,7 +162,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
         // Initialize analysis processor for standalone mode only if not in TrainingActivity
         if (activity !is com.ttcoachai.TrainingActivity) {
-            val params = com.ttcoachai.models.ExerciseParameters(
+            val params = com.ttcoachai.shared.models.ExerciseParameters(
                 exerciseId = "forehand_drive"
             )
             val motionAnalyzer = com.ttcoachai.services.MotionAnalyzer(params)

@@ -1,8 +1,8 @@
 package com.ttcoachai.processors
 
 import android.util.Log
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.StrokePhase
 import com.ttcoachai.services.FeedbackGenerator
 
 /**

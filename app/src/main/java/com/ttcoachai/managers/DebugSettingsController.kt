@@ -10,7 +10,7 @@ import android.widget.AdapterView
 import android.widget.CheckBox
 import android.widget.Toast
 import com.ttcoachai.databinding.ActivityDebugBinding
-import com.ttcoachai.models.CorrectionType
+import com.ttcoachai.shared.models.CorrectionType
 
 class DebugSettingsController(
     private val binding: ActivityDebugBinding,

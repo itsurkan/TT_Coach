@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.ttcoachai.core.logging.*
-import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.shared.models.AnalysisResult
 import java.io.File
 import java.util.UUID
 

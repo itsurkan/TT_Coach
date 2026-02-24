@@ -2,21 +2,25 @@ package com.ttcoachai.processors
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import com.ttcoachai.PoseLandmarkerHelper
-import com.ttcoachai.core.logging.providers.LocalFileLogger
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.StrokePhase
-import com.ttcoachai.services.*
+import com.ttcoachai.mappers.MediaPipeMapper
+import com.ttcoachai.services.FeedbackGenerator
+import com.ttcoachai.services.MotionAnalyzer
+import com.ttcoachai.shared.detection.JsonStrokeDetector
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.shared.models.PoseFrame
+import com.ttcoachai.shared.models.StrokeDetectionResult
+import com.ttcoachai.shared.models.StrokeDetectorConfig
+import com.ttcoachai.shared.models.StrokePhase
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import java.util.Optional
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-
-data class PoseFrame(val landmarks: List<NormalizedLandmark>, val timestampMs: Long)
 
 class VideoDebugProcessor(
     private val context: Context,
@@ -25,7 +29,7 @@ class VideoDebugProcessor(
 ) {
     private var poseLandmarkerHelper: PoseLandmarkerHelper? = null
     private var resultBundle: PoseLandmarkerHelper.ResultBundle? = null
-    private var poseFrames: List<PoseFrame>? = null
+    private var poseFrames: List<LocalPoseFrame>? = null
     private var videoWidth: Int = 0
     private var videoHeight: Int = 0
     private var analysisResults: MutableList<AnalysisResult> = mutableListOf()
@@ -90,7 +94,7 @@ class VideoDebugProcessor(
         displayTask = backgroundExecutor?.scheduleWithFixedDelay({
             if (!isVideoPlaying()) return@scheduleWithFixedDelay
             val idx = (getVideoPositionMs() / VIDEO_INTERVAL_MS.toFloat() + 0.5f).toInt().coerceIn(0, total - 1)
-            val lms = getLandmarksAtIndex(idx)
+            val lms = getDisplayLandmarksAtIndex(idx)
             val res = analysisResults.getOrNull(idx) ?: AnalysisResult()
             feedbackManager.processFrame(idx, res)
             onFrameUpdate(idx, lms, res)
@@ -99,17 +103,27 @@ class VideoDebugProcessor(
 
     fun stopResultDisplay() { displayTask?.cancel(false); displayTask = null }
 
-    private fun getLandmarksAtIndex(idx: Int): List<NormalizedLandmark>? {
-        return poseFrames?.getOrNull(idx)?.landmarks ?: resultBundle?.results?.getOrNull(idx)?.landmarks()?.getOrNull(0)
+    /** Returns NormalizedLandmark for overlay display. */
+    private fun getDisplayLandmarksAtIndex(idx: Int): List<NormalizedLandmark>? {
+        poseFrames?.getOrNull(idx)?.let { frame ->
+            return frame.landmarks.map { lm ->
+                NormalizedLandmark.create(lm.x, lm.y, lm.z,
+                    Optional.of(lm.visibility), Optional.of(lm.presence))
+            }
+        }
+        return resultBundle?.results?.getOrNull(idx)?.landmarks()?.getOrNull(0)
     }
 
     fun getResultAtPosition(posMs: Int): Pair<List<NormalizedLandmark>?, AnalysisResult?> {
         val total = getTotalFrames()
         if (total == 0) return Pair(null, null)
         val idx = (posMs / VIDEO_INTERVAL_MS.toFloat() + 0.5f).toInt().coerceIn(0, total - 1)
-        val lms = getLandmarksAtIndex(idx)
+        val lms = getDisplayLandmarksAtIndex(idx)
         if (idx !in analyzedFrames && idx < analysisResults.size && lms != null) {
-            analysisResults[idx] = motionAnalyzer.analyzeStroke(lms, strokeDetectionResult?.getPhaseForFrame(idx) ?: StrokePhase.CONTACT)
+            val phase = strokeDetectionResult?.getPhaseForFrame(idx) ?: StrokePhase.CONTACT
+            val landmarks3D: List<Landmark3D> = poseFrames?.getOrNull(idx)?.landmarks
+                ?: lms.map { MediaPipeMapper.toLandmark3D(it) }
+            analysisResults[idx] = motionAnalyzer.analyzeStroke(landmarks3D, phase)
             analyzedFrames.add(idx)
         }
         return Pair(lms, analysisResults.getOrNull(idx))
@@ -123,7 +137,7 @@ class VideoDebugProcessor(
         val phases = mutableMapOf<StrokePhase, Int>()
         var score = 0.0
         var good = 0
-        analysisResults.forEach { 
+        analysisResults.forEach {
             phases[it.phase] = phases.getOrDefault(it.phase, 0) + 1
             score += it.overallScore
             if (it.isSuccessful()) good++
@@ -138,9 +152,9 @@ class VideoDebugProcessor(
     fun getStrokeDetectionResult() = strokeDetectionResult
 
     fun runStrokeDetection(config: StrokeDetectorConfig = StrokeDetectorConfig.FOREHAND): StrokeDetectionResult? {
-        val frames = dataMapper.toStrokeFrames(poseFrames, resultBundle?.results)
+        val frames: List<PoseFrame> = dataMapper.toStrokeFrames(poseFrames, resultBundle?.results)
         if (frames.isEmpty()) return null
-        strokeDetectionResult = JsonStrokeDetector(config).detectStrokes(frames, VIDEO_INTERVAL_MS)
+        strokeDetectionResult = JsonStrokeDetector(config).detect(frames)
         return strokeDetectionResult
     }
 

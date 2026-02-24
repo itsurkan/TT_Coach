@@ -42,11 +42,11 @@ class SettingsManager(context: Context) {
     fun setFeedbackFrequency(value: Int) = prefs.edit().putInt("feedback_frequency", value).apply()
     
     // Correction type filtering
-    fun isCorrectionTypeEnabled(type: com.ttcoachai.models.CorrectionType): Boolean {
+    fun isCorrectionTypeEnabled(type: com.ttcoachai.shared.models.CorrectionType): Boolean {
         return prefs.getBoolean("correction_enabled_${type.name}", true)
     }
     
-    fun setCorrectionTypeEnabled(type: com.ttcoachai.models.CorrectionType, enabled: Boolean) {
+    fun setCorrectionTypeEnabled(type: com.ttcoachai.shared.models.CorrectionType, enabled: Boolean) {
         prefs.edit().putBoolean("correction_enabled_${type.name}", enabled).apply()
     }
     

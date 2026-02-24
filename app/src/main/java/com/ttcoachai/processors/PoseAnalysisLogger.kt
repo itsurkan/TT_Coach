@@ -2,7 +2,7 @@ package com.ttcoachai.processors
 
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.core.logging.LandmarkData
-import com.ttcoachai.models.AnalysisResult
+import com.ttcoachai.shared.models.AnalysisResult
 
 /**
  * Handles logging of pose analysis results and raw landmarks.

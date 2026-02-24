@@ -7,8 +7,8 @@ package com.ttcoachai.managers
 
 import android.content.Context
 import com.ttcoachai.R
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.FeedbackItem
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.FeedbackItem
 
 class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false

@@ -93,13 +93,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Create `MediaPipeMapper` object in `app/src/main/java/com/ttcoachai/mappers/MediaPipeMapper.kt` — implement `toLandmark3D(NormalizedLandmark)`, `toLandmarkList(PoseLandmarkerResult)`, `toWorldLandmarkList(PoseLandmarkerResult)` per contract; map x→x, y→y, z→z, visibility→visibility, presence→presence; empty input → empty list
-- [ ] T029 [US3] Update `MotionAnalyzer` in `app/src/main/java/com/ttcoachai/services/MotionAnalyzer.kt` — simplify to delegate analysis to shared `StrokeAnalyzer`, use `MediaPipeMapper` to convert inputs, remove extracted math functions (now in shared module)
-- [ ] T030 [US3] Update all Android callers that use `StrokePhaseDetector` — convert MediaPipe landmarks via `MediaPipeMapper.toWorldLandmarkList()` before calling the shared `StrokePhaseDetector.detect()`
-- [ ] T031 [US3] Update all Android callers that use `JsonStrokeDetector` — ensure PoseFrame is constructed using shared types via mapper
-- [ ] T032 [US3] Update Android imports across affected files — replace `com.ttcoachai.models.AnalysisResult` with `com.ttcoachai.shared.models.AnalysisResult`, same for ExerciseParameters, StrokePhase, FeedbackItem, CorrectionType, and all other moved types
-- [ ] T033 [US3] Remove or mark deprecated the original Android-only model and service files that have been fully extracted to shared (keep `fromSharedPreferences()` as extension function if used)
-- [ ] T034 [US3] Verify app builds and runs: `./gradlew :app:assembleDebug`
+- [X] T028 [US3] Create `MediaPipeMapper` object in `app/src/main/java/com/ttcoachai/mappers/MediaPipeMapper.kt` — implement `toLandmark3D(NormalizedLandmark)`, `toLandmarkList(PoseLandmarkerResult)`, `toWorldLandmarkList(PoseLandmarkerResult)` per contract; map x→x, y→y, z→z, visibility→visibility, presence→presence; empty input → empty list
+- [X] T029 [US3] Update `MotionAnalyzer` in `app/src/main/java/com/ttcoachai/services/MotionAnalyzer.kt` — simplify to delegate analysis to shared `StrokeAnalyzer`, use `MediaPipeMapper` to convert inputs, remove extracted math functions (now in shared module)
+- [X] T030 [US3] Update all Android callers that use `StrokePhaseDetector` — convert MediaPipe landmarks via `MediaPipeMapper.toWorldLandmarkList()` before calling the shared `StrokePhaseDetector.detect()`
+- [X] T031 [US3] Update all Android callers that use `JsonStrokeDetector` — ensure PoseFrame is constructed using shared types via mapper
+- [X] T032 [US3] Update Android imports across affected files — replace `com.ttcoachai.models.AnalysisResult` with `com.ttcoachai.shared.models.AnalysisResult`, same for ExerciseParameters, StrokePhase, FeedbackItem, CorrectionType, and all other moved types
+- [X] T033 [US3] Remove or mark deprecated the original Android-only model and service files that have been fully extracted to shared (keep `fromSharedPreferences()` as extension function if used)
+- [X] T034 [US3] Verify app builds and runs: `./gradlew :app:assembleDebug`
 
 **Checkpoint**: Android app compiles, uses shared module for all analysis, MediaPipe conversion happens at the mapper boundary.
 

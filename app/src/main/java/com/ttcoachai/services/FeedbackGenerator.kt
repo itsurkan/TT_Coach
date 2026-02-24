@@ -4,8 +4,8 @@ import android.content.Context
 import android.util.Log
 import com.ttcoachai.R
 import com.ttcoachai.managers.SettingsManager
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.FeedbackItem
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.FeedbackItem
 import java.util.*
 
 /**
@@ -22,11 +22,11 @@ class FeedbackGenerator(private val context: Context) {
     fun playTac() = audioManager.playTac()
     fun release() = audioManager.release()
 
-    fun handlePhaseTransition(oldPhase: com.ttcoachai.models.StrokePhase, newPhase: com.ttcoachai.models.StrokePhase) {
+    fun handlePhaseTransition(oldPhase: com.ttcoachai.shared.models.StrokePhase, newPhase: com.ttcoachai.shared.models.StrokePhase) {
         if (oldPhase != newPhase) {
             when (newPhase) {
-                com.ttcoachai.models.StrokePhase.BACKSWING -> playTic()
-                com.ttcoachai.models.StrokePhase.FORWARD_SWING -> playTac()
+                com.ttcoachai.shared.models.StrokePhase.BACKSWING -> playTic()
+                com.ttcoachai.shared.models.StrokePhase.FORWARD_SWING -> playTac()
                 else -> {}
             }
         }

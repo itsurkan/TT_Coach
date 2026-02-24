@@ -9,8 +9,8 @@ import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
 import com.ttcoachai.adapters.FeedbackListAdapter
 import com.ttcoachai.databinding.ActivityTrainingBinding
-import com.ttcoachai.models.CorrectionType
-import com.ttcoachai.models.FeedbackItem
+import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.FeedbackItem
 
 /**
  * Manages UI interactions and updates for TrainingActivity
