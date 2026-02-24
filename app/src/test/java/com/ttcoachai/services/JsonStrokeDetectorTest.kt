@@ -1,6 +1,10 @@
 package com.ttcoachai.services
 
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.detection.JsonStrokeDetector
+import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.shared.models.PoseFrame
+import com.ttcoachai.shared.models.StrokeDetectorConfig
+import com.ttcoachai.shared.models.StrokePhase
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Before
@@ -11,8 +15,8 @@ import org.robolectric.annotation.Config
 import java.io.File
 
 /**
- * Unit tests for JsonStrokeDetector
- * Uses Robolectric to mock Android classes (Log, etc.)
+ * Unit tests for JsonStrokeDetector (shared module)
+ * Uses Robolectric to satisfy Android test runner requirements.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
@@ -37,14 +41,13 @@ class JsonStrokeDetectorTest {
 
         // Get interval from JSON
         val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
         val totalFrames = jsonRoot.optInt("totalFrames", frames.size)
 
         println("JSON file: ${jsonFile.name}")
-        println("Total frames: $totalFrames, interval: ${intervalMs}ms")
+        println("Total frames: $totalFrames")
 
         // Run stroke detection
-        val result = detector.detectStrokes(frames, intervalMs)
+        val result = detector.detect(frames)
 
         // Log stroke details for debugging
         println("Detected ${result.strokes.size} strokes:")
@@ -70,10 +73,8 @@ class JsonStrokeDetectorTest {
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
 
-        val result = detector.detectStrokes(frames, intervalMs)
+        val result = detector.detect(frames)
 
         // Every frame should have phase info
         assertEquals("All frames should have phase info", frames.size, result.framePhases.size)
@@ -100,7 +101,7 @@ class JsonStrokeDetectorTest {
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val result = detector.detectStrokes(frames, 100L)
+        val result = detector.detect(frames)
 
         // For each stroke, verify phase order
         result.strokes.forEach { stroke ->
@@ -123,7 +124,7 @@ class JsonStrokeDetectorTest {
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val result = detector.detectStrokes(frames, 100L)
+        val result = detector.detect(frames)
 
         result.strokes.forEach { stroke ->
             // Backswing should be less than peak
@@ -148,7 +149,7 @@ class JsonStrokeDetectorTest {
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val result = detector.detectStrokes(frames, 100L)
+        val result = detector.detect(frames)
 
         // Frame 0 should typically be READY or early phase
         val phase0 = result.getPhaseForFrame(0)
@@ -167,7 +168,7 @@ class JsonStrokeDetectorTest {
 
     @Test
     fun `empty frames list returns empty result`() {
-        val result = detector.detectStrokes(emptyList(), 100L)
+        val result = detector.detect(emptyList())
 
         assertEquals("Should have 0 strokes", 0, result.strokes.size)
         assertEquals("Should have 0 frame phases", 0, result.framePhases.size)
@@ -184,14 +185,13 @@ class JsonStrokeDetectorTest {
         val frames = parseJsonToFrames(jsonString)
 
         val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
         val totalFrames = jsonRoot.optInt("totalFrames", frames.size)
 
         println("JSON file: ${jsonFile.name}")
-        println("Total frames: $totalFrames, interval: ${intervalMs}ms")
+        println("Total frames: $totalFrames")
 
         // Use default FOREHAND config - this video has good motion range
-        val result = detector.detectStrokes(frames, intervalMs)
+        val result = detector.detect(frames)
 
         println("Detected ${result.strokes.size} strokes:")
         result.strokes.forEachIndexed { index, stroke ->
@@ -215,16 +215,13 @@ class JsonStrokeDetectorTest {
         val jsonString = jsonFile!!.readText()
         val frames = parseJsonToFrames(jsonString)
 
-        val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
-        
         println("JSON file: ${jsonFile.name}")
-        println("Total frames: ${frames.size}, interval: ${intervalMs}ms")
+        println("Total frames: ${frames.size}")
 
         // Use custom strict config for Ivan to filter shallow strokes
         val strictConfig = StrokeDetectorConfig.FOREHAND.copy(backswingThreshold = 0.32f)
         val strictDetector = JsonStrokeDetector(strictConfig)
-        val result = strictDetector.detectStrokes(frames, intervalMs)
+        val result = strictDetector.detect(frames)
 
         println("Detected ${result.strokes.size} strokes in Ivan's poses:")
         result.strokes.forEachIndexed { index, stroke ->
@@ -233,7 +230,7 @@ class JsonStrokeDetectorTest {
                     "backswing=${String.format("%.3f", stroke.backswingMinValue)}, " +
                     "peak=${String.format("%.3f", stroke.forwardPeakValue)}")
         }
-        
+
         // Based on the stricter detection logic, we expect 4 full strokes
         assertEquals("Should detect exactly 4 strokes in ivan_poses.json", 4, result.strokes.size)
         println("=== ivan_poses.json contains ${result.strokes.size} strokes ===")
@@ -248,13 +245,10 @@ class JsonStrokeDetectorTest {
         val jsonString = jsonFile!!.readText()
         val frames = parseJsonToFrames(jsonString)
 
-        val jsonRoot = JSONObject(jsonString)
-        val intervalMs = jsonRoot.optLong("intervalMs", 100L)
-        
         println("JSON file: ${jsonFile.name}")
-        println("Total frames: ${frames.size}, interval: ${intervalMs}ms")
+        println("Total frames: ${frames.size}")
 
-        val result = detector.detectStrokes(frames, intervalMs)
+        val result = detector.detect(frames)
 
         println("Detected ${result.strokes.size} strokes:")
         result.strokes.forEachIndexed { index, stroke ->
@@ -275,12 +269,12 @@ class JsonStrokeDetectorTest {
 
         val jsonString = jsonFile.readText()
         val frames = parseJsonToFrames(jsonString)
-        val result = detector.detectStrokes(frames, 100L)
+        val result = detector.detect(frames)
 
         val sb = StringBuilder()
         sb.append("=== Stroke Analysis (Values) ===\n")
         sb.append("Config: Axis=${StrokeDetectorConfig.FOREHAND.trackingAxis}, Inv=${StrokeDetectorConfig.FOREHAND.invertDirection}\n")
-        
+
         result.strokes.forEachIndexed { index, stroke ->
             sb.append("\nStroke ${index + 1}:\n")
             sb.append("  Frames: ${stroke.preparationStartFrame} -> ${stroke.returnEndFrame}\n")
@@ -289,7 +283,7 @@ class JsonStrokeDetectorTest {
             sb.append("  Forward Peak Value: ${stroke.forwardPeakValue}\n")
             sb.append("  Amplitude: ${stroke.forwardPeakValue - stroke.backswingMinValue}\n")
             sb.append("  Peak Velocity: ${stroke.peakVelocity}\n")
-            
+
             // Calculate average Z (depth) variation
             var minZ = Float.MAX_VALUE
             var maxZ = Float.MIN_VALUE
@@ -299,7 +293,7 @@ class JsonStrokeDetectorTest {
                 maxZ = maxOf(maxZ, z)
             }
             sb.append("  Z-Range (Depth): ${maxZ - minZ}\n")
-            
+
             // Calculate Y variation (vertical)
             var minY = Float.MAX_VALUE
             var maxY = Float.MIN_VALUE
@@ -310,7 +304,7 @@ class JsonStrokeDetectorTest {
             }
             sb.append("  Y-Range (Height): ${maxY - minY}\n")
         }
-        
+
         val outFile = File("stroke_values.txt")
         outFile.writeText(sb.toString())
         println("Wrote values to ${outFile.absolutePath}")
@@ -343,12 +337,12 @@ class JsonStrokeDetectorTest {
     }
 
     /**
-     * Parse JSON string to list of JsonPoseFrame
+     * Parse JSON string to list of PoseFrame
      */
-    private fun parseJsonToFrames(jsonString: String): List<JsonPoseFrame> {
+    private fun parseJsonToFrames(jsonString: String): List<PoseFrame> {
         val jsonRoot = JSONObject(jsonString)
         val framesArray = jsonRoot.getJSONArray("frames")
-        val frames = mutableListOf<JsonPoseFrame>()
+        val frames = mutableListOf<PoseFrame>()
 
         for (i in 0 until framesArray.length()) {
             val frameObj = framesArray.getJSONObject(i)
@@ -356,12 +350,11 @@ class JsonStrokeDetectorTest {
             val timestampMs = frameObj.getLong("timestampMs")
             val landmarksArray = frameObj.getJSONArray("landmarks")
 
-            val landmarks = mutableListOf<JsonLandmark>()
+            val landmarks = mutableListOf<Landmark3D>()
             for (j in 0 until landmarksArray.length()) {
                 val lmObj = landmarksArray.getJSONObject(j)
                 landmarks.add(
-                    JsonLandmark(
-                        index = lmObj.optInt("index", j),  // Use array index if not present
+                    Landmark3D(
                         x = lmObj.getDouble("x").toFloat(),
                         y = lmObj.getDouble("y").toFloat(),
                         z = lmObj.getDouble("z").toFloat(),
@@ -371,7 +364,7 @@ class JsonStrokeDetectorTest {
                 )
             }
 
-            frames.add(JsonPoseFrame(frameIndex, timestampMs, landmarks))
+            frames.add(PoseFrame(frameIndex, timestampMs, landmarks))
         }
 
         return frames

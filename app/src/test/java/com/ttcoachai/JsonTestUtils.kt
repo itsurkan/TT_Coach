@@ -1,9 +1,9 @@
 package com.ttcoachai
 
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
+import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.shared.models.PoseFrame
 import org.json.JSONObject
 import java.io.File
-import java.util.Optional
 
 /**
  * Utility class to load pose landmarks from JSON files for testing
@@ -13,7 +13,7 @@ object JsonTestUtils {
     /**
      * Loads frames from a JSON file.
      */
-    fun loadFramesFromJson(filePath: String): List<com.ttcoachai.services.JsonPoseFrame> {
+    fun loadFramesFromJson(filePath: String): List<PoseFrame> {
         val file = File(filePath)
         if (!file.exists()) {
             throw IllegalArgumentException("File not found: $filePath")
@@ -22,19 +22,18 @@ object JsonTestUtils {
         val jsonString = file.readText()
         val jsonObject = JSONObject(jsonString)
         val framesArray = jsonObject.getJSONArray("frames")
-        
-        val result = mutableListOf<com.ttcoachai.services.JsonPoseFrame>()
-        
+
+        val result = mutableListOf<PoseFrame>()
+
         for (i in 0 until framesArray.length()) {
             val frameObject = framesArray.getJSONObject(i)
             val landmarksArray = frameObject.getJSONArray("landmarks")
-            val frameLandmarks = mutableListOf<com.ttcoachai.services.JsonLandmark>()
-            
+            val frameLandmarks = mutableListOf<Landmark3D>()
+
             for (j in 0 until landmarksArray.length()) {
                 val lm = landmarksArray.getJSONObject(j)
                 frameLandmarks.add(
-                    com.ttcoachai.services.JsonLandmark(
-                        index = lm.optInt("index", j),
+                    Landmark3D(
                         x = lm.getDouble("x").toFloat(),
                         y = lm.getDouble("y").toFloat(),
                         z = lm.getDouble("z").toFloat(),
@@ -44,27 +43,14 @@ object JsonTestUtils {
                 )
             }
             result.add(
-                com.ttcoachai.services.JsonPoseFrame(
+                PoseFrame(
                     frameIndex = frameObject.getInt("frameIndex"),
                     timestampMs = frameObject.getLong("timestampMs"),
                     landmarks = frameLandmarks
                 )
             )
         }
-        
-        return result
-    }
 
-    /**
-     * Converts JsonLandmark to NormalizedLandmark
-     */
-    fun toNormalizedLandmarks(jsonLandmarks: List<com.ttcoachai.services.JsonLandmark>): List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark> {
-        return jsonLandmarks.map { lm ->
-            NormalizedLandmark.create(
-                lm.x, lm.y, lm.z, 
-                Optional.of(lm.visibility), 
-                Optional.of(lm.presence)
-            )
-        }
+        return result
     }
 }

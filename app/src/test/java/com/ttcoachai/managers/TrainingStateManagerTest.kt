@@ -1,8 +1,8 @@
 package com.ttcoachai.managers
 
 import android.content.Context
-import com.ttcoachai.models.AnalysisResult
-import com.ttcoachai.models.StrokePhase
+import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.StrokePhase
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

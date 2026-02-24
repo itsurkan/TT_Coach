@@ -1,9 +1,9 @@
 package com.ttcoachai
 
-import com.ttcoachai.models.CorrectionType
-import com.ttcoachai.models.ExerciseParameters
-import com.ttcoachai.models.StrokePhase
-import com.ttcoachai.services.JsonStrokeDetector
+import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.ExerciseParameters
+import com.ttcoachai.shared.models.StrokePhase
+import com.ttcoachai.shared.detection.JsonStrokeDetector
 import com.ttcoachai.services.MotionAnalyzer
 import org.junit.Assert.*
 import org.junit.Before
@@ -45,7 +45,7 @@ import java.io.File
 
         // 2. Detect strokes
         val detector = JsonStrokeDetector()
-        val detectionResult = detector.detectStrokes(frames)
+        val detectionResult = detector.detect(frames)
         assertFalse("Should detect at least one stroke", detectionResult.strokes.isEmpty())
 
         println("Detected ${detectionResult.strokes.size} strokes in correct technique file")
@@ -54,11 +54,10 @@ import java.io.File
         for (stroke in detectionResult.strokes) {
             val contactFrame = frames.find { it.frameIndex == stroke.contactFrame }
             assertNotNull("Contact frame ${stroke.contactFrame} must exist", contactFrame)
-            
-            val landmarks = JsonTestUtils.toNormalizedLandmarks(contactFrame!!.landmarks)
-            val analysisResult = motionAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
-            
-            assertEquals("Stroke ${stroke.strokeIndex} should have 100% score with beginner params. Errors: ${analysisResult.errors}", 
+
+            val analysisResult = motionAnalyzer.analyzeStroke(contactFrame!!.landmarks, StrokePhase.CONTACT)
+
+            assertEquals("Stroke ${stroke.strokeIndex} should have 100% score with beginner params. Errors: ${analysisResult.errors}",
                 100f, analysisResult.overallScore, 0.1f)
         }
     }
@@ -70,29 +69,28 @@ import java.io.File
 
         // 1. Load frames
         val frames = JsonTestUtils.loadFramesFromJson(jsonPath)
-        
+
         // 2. Detect strokes
         val detector = JsonStrokeDetector()
-        val detectionResult = detector.detectStrokes(frames)
-        
+        val detectionResult = detector.detect(frames)
+
         println("Detected ${detectionResult.strokes.size} strokes in wrong technique file")
 
         // 3. Analyze each stroke
         for (stroke in detectionResult.strokes) {
             val contactFrame = frames.find { it.frameIndex == stroke.contactFrame }
             assertNotNull(contactFrame)
-            
-            val landmarks = JsonTestUtils.toNormalizedLandmarks(contactFrame!!.landmarks)
-            val result = expertAnalyzer.analyzeStroke(landmarks, StrokePhase.CONTACT)
-            
+
+            val result = expertAnalyzer.analyzeStroke(contactFrame!!.landmarks, StrokePhase.CONTACT)
+
             println("Stroke ${stroke.strokeIndex}: Score=${result.overallScore}%")
             println("  Errors: ${result.errors}")
 
             // Assert that elbow error is caught (error_elbow_close)
             val hasElbowError = result.feedbackItems.any { it.type == CorrectionType.ELBOW_POSITION && !it.isPositive }
-            
+
             assertTrue("Stroke ${stroke.strokeIndex} should have elbow error", hasElbowError)
-            
+
             // Log the elbow distance to see if we need a "too close" check
             println("  Elbow Body Distance: ${result.elbowBodyDistance}")
         }

@@ -131,10 +131,10 @@
 
 **Purpose**: Final validation that the refactoring preserved behavioral parity and meets all success criteria.
 
-- [ ] T044 Verify zero platform-specific imports in shared module: search `shared/src/commonMain/` for `android.*`, `com.google.mediapipe.*`, `androidx.*` imports — must find zero (SC-001)
-- [ ] T045 Run Android unit tests to verify no regressions: `./gradlew :app:testDebugUnitTest` (SC-003)
-- [ ] T046 Build full app and verify it produces identical analysis output: `./gradlew :app:assembleDebug` (FR-010)
-- [ ] T047 Verify shared test suite runs under 30 seconds: time `./gradlew :shared:jvmTest` (SC-005)
+- [X] T044 Verify zero platform-specific imports in shared module: search `shared/src/commonMain/` for `android.*`, `com.google.mediapipe.*`, `androidx.*` imports — must find zero (SC-001)
+- [X] T045 Run Android unit tests to verify no regressions: `./gradlew :app:testDebugUnitTest` (SC-003)
+- [X] T046 Build full app and verify it produces identical analysis output: `./gradlew :app:assembleDebug` (FR-010)
+- [X] T047 Verify shared test suite runs under 30 seconds: time `./gradlew :shared:jvmTest` (SC-005)
 
 ---
 
