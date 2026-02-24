@@ -50,10 +50,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T010 [US4] Create CameraConfiguration data class in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/CameraConfiguration.kt
-- [ ] T011 [US4] Implement CameraOptimizer class with applyBallTrackingMode(), restoreDefaultMode(), and onBrightnessUpdate() in app/src/main/java/com/ttcoachai/tracking/CameraOptimizer.kt
-- [ ] T012 [US4] Integrate CameraOptimizer into CameraManager — add Camera2Interop exposure settings before bindToLifecycle and periodic brightness adaptation in app/src/main/java/com/ttcoachai/managers/CameraManager.kt
-- [ ] T013 [US4] Create CameraOptimizerTest with tests for initial config, brightness adaptation, rate limiting, and fallback behavior in app/src/test/java/com/ttcoachai/tracking/CameraOptimizerTest.kt
+- [X] T010 [US4] Create CameraConfiguration data class in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/CameraConfiguration.kt
+- [X] T011 [US4] Implement CameraOptimizer class with applyBallTrackingMode(), restoreDefaultMode(), and onBrightnessUpdate() in app/src/main/java/com/ttcoachai/tracking/CameraOptimizer.kt
+- [X] T012 [US4] Integrate CameraOptimizer into CameraManager — add Camera2Interop exposure settings before bindToLifecycle and periodic brightness adaptation in app/src/main/java/com/ttcoachai/managers/CameraManager.kt
+- [X] T013 [US4] Create CameraOptimizerTest with tests for initial config, brightness adaptation, rate limiting, and fallback behavior in app/src/test/java/com/ttcoachai/tracking/CameraOptimizerTest.kt
 
 **Checkpoint**: Camera optimization active during ball-tracking sessions. Frames show reduced motion blur.
 
