@@ -19,11 +19,11 @@
 
 **Purpose**: Add OpenCV dependency and create package directories for ball tracking code
 
-- [ ] T001 Add OpenCV 4.9.0 dependency and arm64-v8a ABI filter in app/build.gradle
-- [ ] T002 [P] Create tracking package directory at shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/
-- [ ] T003 [P] Create tracking package directory at app/src/main/java/com/ttcoachai/tracking/
-- [ ] T004 [P] Create test package directory at shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/
-- [ ] T005 [P] Create test package directory at app/src/test/java/com/ttcoachai/tracking/
+- [X] T001 Add OpenCV 4.9.0 dependency and arm64-v8a ABI filter in app/build.gradle
+- [X] T002 [P] Create tracking package directory at shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/
+- [X] T003 [P] Create tracking package directory at app/src/main/java/com/ttcoachai/tracking/
+- [X] T004 [P] Create test package directory at shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/
+- [X] T005 [P] Create test package directory at app/src/test/java/com/ttcoachai/tracking/
 
 ---
 
@@ -33,10 +33,10 @@
 
 **CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T006 [P] Create BallDetection data class and BallDetectionStatus enum in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/BallDetection.kt
-- [ ] T007 [P] Create DataSource enum (DETECTED, INTERPOLATED, ABSENT) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/DataSource.kt
-- [ ] T008 [P] Create BallPosition2D data class in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/BallPosition2D.kt
-- [ ] T009 [P] Create RegionOfInterest data class with createDefault(frameWidth, frameHeight) factory method in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/RegionOfInterest.kt
+- [X] T006 [P] Create BallDetection data class and BallDetectionStatus enum in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/BallDetection.kt
+- [X] T007 [P] Create DataSource enum (DETECTED, INTERPOLATED, ABSENT) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/DataSource.kt
+- [X] T008 [P] Create BallPosition2D data class in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/BallPosition2D.kt
+- [X] T009 [P] Create RegionOfInterest data class with createDefault(frameWidth, frameHeight) factory method in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/RegionOfInterest.kt
 
 **Checkpoint**: Core shared models ready — user story implementation can now begin
 
