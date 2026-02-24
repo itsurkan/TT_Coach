@@ -17,11 +17,17 @@ import com.google.mediapipe.framework.image.MPImage
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import com.ttcoachai.shared.models.BallDetection
+import com.ttcoachai.shared.models.RegionOfInterest
+import com.ttcoachai.tracking.BallDetector
+import com.ttcoachai.tracking.ROIManager
 
 class PoseLandmarkerProcessor(
     private val context: Context,
     private val poseLandmarker: PoseLandmarker?,
-    private val runningMode: RunningMode
+    private val runningMode: RunningMode,
+    /** Optional callback invoked on the background executor after each frame's ball detection. */
+    private val onBallDetected: ((BallDetection) -> Unit)? = null
 ) {
     companion object {
         private const val TAG = "PoseLandmarkerProc"
@@ -33,13 +39,19 @@ class PoseLandmarkerProcessor(
     fun cancel() {
         isCancelled = true
     }
-    
+
     private var bitmapBuffer: Bitmap? = null
     private var rotatedBitmap: Bitmap? = null
     private val matrix = Matrix()
 
     private var lastProcessedFrameTime = 0L
     private val frameIntervalMs = 66L // Limit to ~15 FPS to reduce system load
+
+    // Ball detection components — lazily initialised on first use
+    private val ballDetector: BallDetector by lazy { BallDetector() }
+    private val roiManager: ROIManager by lazy { ROIManager() }
+    private var currentRoi: RegionOfInterest? = null
+    private var frameIndex = 0
 
     fun detectLiveStream(imageProxy: ImageProxy, isFrontCamera: Boolean) {
         if (runningMode != RunningMode.LIVE_STREAM) {
@@ -53,9 +65,10 @@ class PoseLandmarkerProcessor(
             return
         }
         lastProcessedFrameTime = currentTime
-        
+
         val frameTime = SystemClock.uptimeMillis()
-        
+        val timestampMs = imageProxy.imageInfo.timestamp / 1_000_000L  // ns → ms
+
         // Use safe translation to bitmap (handles YUV to RGBA correctly)
         val bitmap = try {
             imageProxy.toBitmap()
@@ -80,28 +93,37 @@ class PoseLandmarkerProcessor(
         }
 
         val tempBitmap = rotatedBitmap ?: return
-        
+
         // 3. Robust Rotation and Centering logic
         val centerX = imageProxy.width / 2f
         val centerY = imageProxy.height / 2f
-            
+
         matrix.reset()
         matrix.postTranslate(-centerX, -centerY)
         matrix.postRotate(rotationDegrees.toFloat())
-            
+
         if (isFrontCamera) {
             matrix.postScale(-1f, 1f)
         }
-            
+
         matrix.postTranslate(rotatedWidth / 2f, rotatedHeight / 2f)
-            
+
         val canvas = android.graphics.Canvas(tempBitmap)
-        canvas.drawColor(android.graphics.Color.BLACK) 
+        canvas.drawColor(android.graphics.Color.BLACK)
         canvas.drawBitmap(bitmap, matrix, null)
-        
+
         // Recycle the intermediate bitmap from toBitmap()
         bitmap.recycle()
         imageProxy.close()
+
+        // 4. Ball detection (after rotation, before MediaPipe async call — research R6)
+        if (onBallDetected != null) {
+            val roi = currentRoi ?: roiManager.createDefault(rotatedWidth, rotatedHeight)
+                .also { currentRoi = it }
+            val currentFrameIndex = frameIndex++
+            val ballResult = ballDetector.detect(tempBitmap, roi, currentFrameIndex, timestampMs)
+            onBallDetected.invoke(ballResult)
+        }
 
         try {
             val mpImage = BitmapImageBuilder(tempBitmap).build()
@@ -230,6 +252,9 @@ class PoseLandmarkerProcessor(
         bitmapBuffer = null
         rotatedBitmap?.recycle()
         rotatedBitmap = null
+        if (onBallDetected != null) {
+            ballDetector.release()
+        }
     }
 
     data class ResultBundle(

@@ -67,11 +67,11 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement BallDetector class with detect() using HSV color thresholding, morphology, contour filtering by area/circularity, and release() for Mat cleanup in app/src/main/java/com/ttcoachai/tracking/BallDetector.kt
-- [ ] T015 [P] [US1] Implement ROIManager class with createDefault() (lower 75% height, central 80% width) and adapt() in app/src/main/java/com/ttcoachai/tracking/ROIManager.kt
-- [ ] T016 [US1] Integrate BallDetector into PoseLandmarkerProcessor.detectLiveStream() — call detect() on rotated bitmap after existing pose detection, emit ball detection via callback in app/src/main/java/com/ttcoachai/helpers/PoseLandmarkerProcessor.kt
-- [ ] T017 [US1] Update OverlayView to draw detected ball position as a circle marker on the canvas in app/src/main/java/com/ttcoachai/OverlayView.kt
-- [ ] T018 [US1] Create BallDetectorTest with tests for orange ball detection, white ball detection, NOT_DETECTED status when no ball in ROI, and ROI coordinate normalization in app/src/test/java/com/ttcoachai/tracking/BallDetectorTest.kt
+- [X] T014 [P] [US1] Implement BallDetector class with detect() using HSV color thresholding, morphology, contour filtering by area/circularity, and release() for Mat cleanup in app/src/main/java/com/ttcoachai/tracking/BallDetector.kt
+- [X] T015 [P] [US1] Implement ROIManager class with createDefault() (lower 75% height, central 80% width) and adapt() in app/src/main/java/com/ttcoachai/tracking/ROIManager.kt
+- [X] T016 [US1] Integrate BallDetector into PoseLandmarkerProcessor.detectLiveStream() — call detect() on rotated bitmap after existing pose detection, emit ball detection via callback in app/src/main/java/com/ttcoachai/helpers/PoseLandmarkerProcessor.kt
+- [X] T017 [US1] Update OverlayView to draw detected ball position as a circle marker on the canvas in app/src/main/java/com/ttcoachai/OverlayView.kt
+- [X] T018 [US1] Create BallDetectorTest with tests for orange ball detection, white ball detection, NOT_DETECTED status when no ball in ROI, and ROI coordinate normalization in app/src/test/java/com/ttcoachai/tracking/BallDetectorTest.kt
 
 **Checkpoint**: Ball detected and highlighted during live recording. ROI restricts detection to table area. Missing detections marked as NOT_DETECTED.
 

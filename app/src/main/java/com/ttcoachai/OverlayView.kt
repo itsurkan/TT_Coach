@@ -22,6 +22,8 @@ import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
+import com.ttcoachai.shared.models.BallDetection
+import com.ttcoachai.shared.models.BallDetectionStatus
 import com.ttcoachai.shared.models.StrokePhase
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -49,6 +51,11 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var currentPhase: StrokePhase = StrokePhase.READY
     private var phaseColoringEnabled: Boolean = false
 
+    // Ball detection overlay
+    private var ballDetection: BallDetection? = null
+    private var ballPaint = Paint()
+    private var ballOutlinePaint = Paint()
+
     init {
         initPaints()
     }
@@ -56,10 +63,13 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     fun clear() {
         results = null
         rawLandmarks = null
+        ballDetection = null
         currentPhase = StrokePhase.READY
         pointPaint.reset()
         linePaint.reset()
         rightArmPaint.reset()
+        ballPaint.reset()
+        ballOutlinePaint.reset()
         invalidate()
         initPaints()
     }
@@ -77,6 +87,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         rightArmPaint.color = Color.GREEN
         rightArmPaint.strokeWidth = LANDMARK_STROKE_WIDTH * 1.5f
         rightArmPaint.style = Paint.Style.STROKE
+
+        // Ball detection: filled semi-transparent circle with solid outline
+        ballPaint.color = Color.argb(160, 255, 165, 0)  // semi-transparent orange
+        ballPaint.style = Paint.Style.FILL
+        ballPaint.isAntiAlias = true
+
+        ballOutlinePaint.color = Color.WHITE
+        ballOutlinePaint.strokeWidth = 3f
+        ballOutlinePaint.style = Paint.Style.STROKE
+        ballOutlinePaint.isAntiAlias = true
     }
 
     /**
@@ -87,6 +107,16 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         if (phaseColoringEnabled) {
             updatePhaseColors()
         }
+    }
+
+    /**
+     * Update ball detection for the current frame.
+     * Pass null to clear any previously drawn ball.
+     * Should be called from the main thread (or postInvalidate will be called).
+     */
+    fun setBallDetection(detection: BallDetection?) {
+        ballDetection = detection
+        postInvalidate()
     }
 
     /**
@@ -128,6 +158,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
+
+        // Draw ball detection marker (drawn beneath skeleton so skeleton stays readable)
+        drawBallDetection(canvas)
+
         // Use rawLandmarks if available, otherwise use results
         val landmarks = rawLandmarks ?: results?.landmarks() ?: return
 
@@ -162,6 +196,27 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                 }
             }
         }
+    }
+
+    /**
+     * Draw the detected ball as a semi-transparent filled circle with a white outline.
+     * Does nothing if no detection is set or status is not DETECTED.
+     */
+    private fun drawBallDetection(canvas: Canvas) {
+        val detection = ballDetection ?: return
+        if (detection.status != BallDetectionStatus.DETECTED) return
+
+        val cx = detection.x * imageWidth * scaleFactor + offsetX
+        val cy = detection.y * imageHeight * scaleFactor + offsetY
+        // Use detected radius if available; fall back to a fixed display radius
+        val radius = if (detection.radiusPx > 0f) {
+            detection.radiusPx * scaleFactor
+        } else {
+            BALL_DISPLAY_RADIUS
+        }
+
+        canvas.drawCircle(cx, cy, radius, ballPaint)
+        canvas.drawCircle(cx, cy, radius, ballOutlinePaint)
     }
 
     /**
@@ -224,5 +279,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     companion object {
         private const val LANDMARK_STROKE_WIDTH = 12F
+        private const val BALL_DISPLAY_RADIUS = 18F  // Fallback display radius in pixels
     }
 }
