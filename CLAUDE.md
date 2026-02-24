@@ -3,6 +3,8 @@
 Auto-generated from all feature plans. Last updated: 2026-02-23
 
 ## Active Technologies
+- Kotlin 2.1.0 (KMP shared module + Android app module) + CameraX 1.5.3 (camera control + exposure), OpenCV Android SDK 4.9.0 (color/shape detection), MediaPipe tasks-vision 0.10.14 (existing pose detection), kotlinx-coroutines 1.10.2 (002-ball-tracking)
+- Room 2.6.1 (ball detection data persisted alongside training sessions) (002-ball-tracking)
 
 - Kotlin 2.1.0 (upgrade to KMP plugin from `org.jetbrains.kotlin.android`) + MediaPipe tasks-vision 0.10.14 (Android-only), kotlinx-coroutines 1.10.2, Firebase BOM 34.8.0 (001-kmp-shared-refactor)
 
@@ -22,6 +24,7 @@ tests/
 Kotlin 2.1.0 (upgrade to KMP plugin from `org.jetbrains.kotlin.android`): Follow standard conventions
 
 ## Recent Changes
+- 002-ball-tracking: Added Kotlin 2.1.0 (KMP shared module + Android app module) + CameraX 1.5.3 (camera control + exposure), OpenCV Android SDK 4.9.0 (color/shape detection), MediaPipe tasks-vision 0.10.14 (existing pose detection), kotlinx-coroutines 1.10.2
 
 - 001-kmp-shared-refactor: Added Kotlin 2.1.0 (upgrade to KMP plugin from `org.jetbrains.kotlin.android`) + MediaPipe tasks-vision 0.10.14 (Android-only), kotlinx-coroutines 1.10.2, Firebase BOM 34.8.0
 
