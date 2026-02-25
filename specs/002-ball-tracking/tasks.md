@@ -113,16 +113,16 @@
 
 ### Models for User Story 3
 
-- [ ] T028 [US3] Create SynchronizedFrame data class (frameIndex, timestampMs, pose: PoseFrame?, ball: BallDetection?, poseSource: DataSource, ballSource: DataSource) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/SynchronizedFrame.kt
+- [X] T028 [US3] Create SynchronizedFrame data class (frameIndex, timestampMs, pose: PoseFrame?, ball: BallDetection?, poseSource: DataSource, ballSource: DataSource) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/SynchronizedFrame.kt
 
 ### Tests for User Story 3
 
-- [ ] T029 [US3] Create TimelineSynchronizerTest with tests for exact timestamp match, 1-frame interpolation, missing data marked ABSENT, and output ordering matching allTimestampsMs in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TimelineSynchronizerTest.kt
+- [X] T029 [US3] Create TimelineSynchronizerTest with tests for exact timestamp match, 1-frame interpolation, missing data marked ABSENT, and output ordering matching allTimestampsMs in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TimelineSynchronizerTest.kt
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement TimelineSynchronizer class with merge() (map-join on timestamps, linear interpolation for 1-frame gaps) and interpolateBall() in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TimelineSynchronizer.kt
-- [ ] T031 [US3] Update OverlayView to render synchronized ball + skeleton data from SynchronizedFrame, showing both overlays aligned on the same canvas in app/src/main/java/com/ttcoachai/OverlayView.kt
+- [X] T030 [US3] Implement TimelineSynchronizer class with merge() (map-join on timestamps, linear interpolation for 1-frame gaps) and interpolateBall() in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TimelineSynchronizer.kt
+- [X] T031 [US3] Update OverlayView to render synchronized ball + skeleton data from SynchronizedFrame, showing both overlays aligned on the same canvas in app/src/main/java/com/ttcoachai/OverlayView.kt
 
 **Checkpoint**: Skeleton and ball data synchronized to within 1 frame. Combined overlay shows body pose and ball position together during playback.
 

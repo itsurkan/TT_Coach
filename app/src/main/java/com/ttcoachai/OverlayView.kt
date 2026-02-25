@@ -27,11 +27,13 @@ import com.ttcoachai.shared.models.BallDetection
 import com.ttcoachai.shared.models.BallDetectionStatus
 import com.ttcoachai.shared.models.BallPosition2D
 import com.ttcoachai.shared.models.StrokePhase
+import com.ttcoachai.shared.models.SynchronizedFrame
 import com.ttcoachai.shared.models.TrajectorySegment
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
+import java.util.Optional
 import kotlin.math.max
 import kotlin.math.min
 
@@ -143,6 +145,35 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
      */
     fun setTrajectorySegments(segments: List<TrajectorySegment>) {
         trajectorySegments = segments
+        postInvalidate()
+    }
+
+    /**
+     * Feed a [SynchronizedFrame] to the overlay so that the ball marker and skeleton
+     * are rendered from the same unified data point, aligned to within 1 frame.
+     *
+     * - If [frame.ball] is non-null it is forwarded to the ball detection renderer.
+     * - If [frame.pose] is non-null, its landmarks are forwarded to the skeleton renderer.
+     * - Null fields clear the corresponding overlay layer.
+     *
+     * Should be called from the main thread (or [postInvalidate] will be used internally).
+     */
+    fun setSynchronizedFrame(frame: SynchronizedFrame) {
+        ballDetection = frame.ball
+
+        if (frame.pose != null) {
+            // Convert shared Landmark3D list to the NormalizedLandmark format expected by draw()
+            val normalizedLandmarks: List<NormalizedLandmark> = frame.pose.landmarks.map { lm ->
+                NormalizedLandmark.create(lm.x, lm.y, lm.z,
+                    Optional.of(lm.visibility), Optional.of(lm.presence))
+            }
+            rawLandmarks = listOf(normalizedLandmarks)
+            results = null
+        } else {
+            rawLandmarks = null
+            results = null
+        }
+
         postInvalidate()
     }
 
