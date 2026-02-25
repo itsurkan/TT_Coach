@@ -85,21 +85,21 @@
 
 ### Models for User Story 2
 
-- [ ] T019 [P] [US2] Create ParabolicFit data class (ax, bx, ay, by, cy coefficients) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
-- [ ] T020 [P] [US2] Create ContactEvent data class and ContactType enum (BOUNCE, PADDLE_CONTACT, NET_CLIP, UNKNOWN_CONTACT) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
-- [ ] T021 [P] [US2] Create TrajectorySegment data class with segment state fields (detections, fittedPositions, contactBefore/After, fitCoefficients, fitRmsError) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
+- [X] T019 [P] [US2] Create ParabolicFit data class (ax, bx, ay, by, cy coefficients) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
+- [X] T020 [P] [US2] Create ContactEvent data class and ContactType enum (BOUNCE, PADDLE_CONTACT, NET_CLIP, UNKNOWN_CONTACT) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
+- [X] T021 [P] [US2] Create TrajectorySegment data class with segment state fields (detections, fittedPositions, contactBefore/After, fitCoefficients, fitRmsError) in shared/src/commonMain/kotlin/com/ttcoachai/shared/models/TrajectorySegment.kt
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] Create synthetic ball trajectory test fixtures (straight line, parabolic arc, bounce sequence, gap scenario) as JSON in shared/src/commonTest/resources/fixtures/ball_trajectory_straight.json and ball_trajectory_parabolic.json
-- [ ] T023 [P] [US2] Create TrajectoryFilterTest with tests for linear fit (2 points), parabolic fit (3+ points), gap filling, RMS error calculation, and null return for <2 detections in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TrajectoryFilterTest.kt
-- [ ] T024 [P] [US2] Create TrajectorySegmenterTest with tests for bounce detection (vertical velocity reversal), paddle contact detection (speed ratio >1.8x), segment splitting at contacts, and recursive sub-splitting on high RMS in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TrajectorySegmenterTest.kt
+- [X] T022 [P] [US2] Create synthetic ball trajectory test fixtures (straight line, parabolic arc, bounce sequence, gap scenario) as JSON in shared/src/commonTest/resources/fixtures/ball_trajectory_straight.json and ball_trajectory_parabolic.json
+- [X] T023 [P] [US2] Create TrajectoryFilterTest with tests for linear fit (2 points), parabolic fit (3+ points), gap filling, RMS error calculation, and null return for <2 detections in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TrajectoryFilterTest.kt
+- [X] T024 [P] [US2] Create TrajectorySegmenterTest with tests for bounce detection (vertical velocity reversal), paddle contact detection (speed ratio >1.8x), segment splitting at contacts, and recursive sub-splitting on high RMS in shared/src/commonTest/kotlin/com/ttcoachai/shared/tracking/TrajectorySegmenterTest.kt
 
 ### Implementation for User Story 2
 
-- [ ] T025 [US2] Implement TrajectoryFilter object with fit() (linear regression 2x2, quadratic regression 3x3 via Cramer's rule), evaluate(), rmsError(), and fillGaps() using pure kotlin.math in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TrajectoryFilter.kt
-- [ ] T026 [US2] Implement TrajectorySegmenter class with detectContacts() (three-signal detector: velocity reversal, speed ratio, direction angle) and segment() (split-then-fit pipeline with recursive refinement) in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TrajectorySegmenter.kt
-- [ ] T027 [US2] Update OverlayView to draw trajectory curves (smooth parabolic arcs between segments, color-coded by segment) in app/src/main/java/com/ttcoachai/OverlayView.kt
+- [X] T025 [US2] Implement TrajectoryFilter object with fit() (linear regression 2x2, quadratic regression 3x3 via Cramer's rule), evaluate(), rmsError(), and fillGaps() using pure kotlin.math in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TrajectoryFilter.kt
+- [X] T026 [US2] Implement TrajectorySegmenter class with detectContacts() (three-signal detector: velocity reversal, speed ratio, direction angle) and segment() (split-then-fit pipeline with recursive refinement) in shared/src/commonMain/kotlin/com/ttcoachai/shared/tracking/TrajectorySegmenter.kt
+- [X] T027 [US2] Update OverlayView to draw trajectory curves (smooth parabolic arcs between segments, color-coded by segment) in app/src/main/java/com/ttcoachai/OverlayView.kt
 
 **Checkpoint**: Trajectory reconstruction fills detection gaps with physically plausible arcs. Bounces and contacts detected and split into segments. Trajectory curves drawn on playback overlay.
 

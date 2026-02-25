@@ -19,12 +19,15 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import com.ttcoachai.shared.models.BallDetection
 import com.ttcoachai.shared.models.BallDetectionStatus
+import com.ttcoachai.shared.models.BallPosition2D
 import com.ttcoachai.shared.models.StrokePhase
+import com.ttcoachai.shared.models.TrajectorySegment
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
@@ -56,6 +59,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     private var ballPaint = Paint()
     private var ballOutlinePaint = Paint()
 
+    // Trajectory segment overlay
+    private var trajectorySegments: List<TrajectorySegment> = emptyList()
+    private val trajectoryPath = Path()
+    private val trajectoryPaints: List<Paint> = TRAJECTORY_SEGMENT_COLORS.map { color ->
+        Paint().apply {
+            this.color = color
+            strokeWidth = TRAJECTORY_STROKE_WIDTH
+            style = Paint.Style.STROKE
+            isAntiAlias = true
+            strokeCap = Paint.Cap.ROUND
+            strokeJoin = Paint.Join.ROUND
+        }
+    }
+
     init {
         initPaints()
     }
@@ -64,6 +81,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         results = null
         rawLandmarks = null
         ballDetection = null
+        trajectorySegments = emptyList()
         currentPhase = StrokePhase.READY
         pointPaint.reset()
         linePaint.reset()
@@ -120,6 +138,15 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     /**
+     * Update trajectory segments to draw on the overlay.
+     * Pass an empty list to clear any previously drawn trajectory.
+     */
+    fun setTrajectorySegments(segments: List<TrajectorySegment>) {
+        trajectorySegments = segments
+        postInvalidate()
+    }
+
+    /**
      * Enable/disable phase-based coloring
      */
     fun setPhaseColoringEnabled(enabled: Boolean) {
@@ -159,6 +186,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
 
+        // Draw trajectory curves beneath the ball marker and skeleton
+        drawTrajectorySegments(canvas)
+
         // Draw ball detection marker (drawn beneath skeleton so skeleton stays readable)
         drawBallDetection(canvas)
 
@@ -195,6 +225,36 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Draw trajectory curves for all segments, each in a distinct colour.
+     * Uses the segment's fittedPositions (which include interpolated gap frames)
+     * to draw a smooth connected polyline approximating the parabolic arc.
+     */
+    private fun drawTrajectorySegments(canvas: Canvas) {
+        if (trajectorySegments.isEmpty()) return
+
+        for (segment in trajectorySegments) {
+            val positions = segment.fittedPositions
+            if (positions.size < 2) continue
+
+            val paint = trajectoryPaints[segment.segmentIndex % trajectoryPaints.size]
+            trajectoryPath.reset()
+
+            var first = true
+            for (pos in positions) {
+                val px = pos.x * imageWidth * scaleFactor + offsetX
+                val py = pos.y * imageHeight * scaleFactor + offsetY
+                if (first) {
+                    trajectoryPath.moveTo(px, py)
+                    first = false
+                } else {
+                    trajectoryPath.lineTo(px, py)
+                }
+            }
+            canvas.drawPath(trajectoryPath, paint)
         }
     }
 
@@ -279,6 +339,17 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
 
     companion object {
         private const val LANDMARK_STROKE_WIDTH = 12F
-        private const val BALL_DISPLAY_RADIUS = 18F  // Fallback display radius in pixels
+        private const val BALL_DISPLAY_RADIUS = 18F      // Fallback display radius in pixels
+        private const val TRAJECTORY_STROKE_WIDTH = 4F   // Trajectory curve stroke width
+
+        // Colour palette for trajectory segments (cycles through for segment index % n)
+        private val TRAJECTORY_SEGMENT_COLORS = listOf(
+            Color.argb(200, 0,   200, 255),  // Cyan-blue   — segment 0
+            Color.argb(200, 255, 100,   0),  // Orange      — segment 1
+            Color.argb(200,   0, 220, 100),  // Green       — segment 2
+            Color.argb(200, 220,   0, 220),  // Magenta     — segment 3
+            Color.argb(200, 255, 220,   0),  // Yellow      — segment 4
+            Color.argb(200, 100, 100, 255)   // Purple-blue — segment 5+
+        )
     }
 }
