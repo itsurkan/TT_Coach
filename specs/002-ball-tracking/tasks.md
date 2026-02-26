@@ -132,10 +132,10 @@
 
 **Purpose**: Validation, build verification, and integration quality
 
-- [ ] T032 Run all shared module tests via ./gradlew :shared:jvmTest and verify pass
-- [ ] T033 Run all app unit tests via ./gradlew :app:testDebugUnitTest and verify pass
-- [ ] T034 Run full build via ./gradlew assembleDebug and verify no compilation errors
-- [ ] T035 Run quickstart.md validation — verify integration steps from specs/002-ball-tracking/quickstart.md work end-to-end
+- [X] T032 Run all shared module tests via ./gradlew :shared:jvmTest and verify pass
+- [X] T033 Run all app unit tests via ./gradlew :app:testDebugUnitTest and verify pass
+- [X] T034 Run full build via ./gradlew assembleDebug and verify no compilation errors
+- [X] T035 Run quickstart.md validation — verify integration steps from specs/002-ball-tracking/quickstart.md work end-to-end
 
 ---
 

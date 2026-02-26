@@ -126,17 +126,23 @@ class TimelineSynchronizerTest {
 
     @Test
     fun `merge marks frame ABSENT when both streams have no data for that timestamp`() {
-        val timestamps = listOf(0L, 33L, 66L)
-        // Data only at 0 and 66 — frame at 33 has no data
-        val poses = listOf(pose(0, 0L), pose(2, 66L))
-        val balls = listOf(ball(0, 0L), ball(2, 66L))
+        val timestamps = listOf(0L, 33L, 66L, 99L)
+        // Pose and ball only at 0 and 99 — frames 1 and 2 are a 2-frame gap (too wide to interpolate)
+        val poses = listOf(pose(0, 0L), pose(3, 99L))
+        val balls = listOf(ball(0, 0L), ball(3, 99L))
 
         val result = synchronizer.merge(poses, balls, timestamps)
 
+        // Frames 1 and 2 are in a 2-frame gap — no interpolation, must be ABSENT
         assertEquals(DataSource.ABSENT, result[1].poseSource)
         assertEquals(DataSource.ABSENT, result[1].ballSource)
         assertNull(result[1].pose)
         assertNull(result[1].ball)
+
+        assertEquals(DataSource.ABSENT, result[2].poseSource)
+        assertEquals(DataSource.ABSENT, result[2].ballSource)
+        assertNull(result[2].pose)
+        assertNull(result[2].ball)
     }
 
     // -------------------------------------------------------------------------

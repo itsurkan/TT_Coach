@@ -161,9 +161,10 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     fun setSynchronizedFrame(frame: SynchronizedFrame) {
         ballDetection = frame.ball
 
-        if (frame.pose != null) {
+        val poseFrame = frame.pose
+        if (poseFrame != null) {
             // Convert shared Landmark3D list to the NormalizedLandmark format expected by draw()
-            val normalizedLandmarks: List<NormalizedLandmark> = frame.pose.landmarks.map { lm ->
+            val normalizedLandmarks: List<NormalizedLandmark> = poseFrame.landmarks.map { lm ->
                 NormalizedLandmark.create(lm.x, lm.y, lm.z,
                     Optional.of(lm.visibility), Optional.of(lm.presence))
             }
