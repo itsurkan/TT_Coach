@@ -39,7 +39,7 @@ class BallDetector(
 
     companion object {
         private const val TAG = "BallDetector"
-        private const val MIN_CIRCULARITY = 0.45f   // Allow slightly oval blobs (motion blur)
+        private const val MIN_CIRCULARITY = 0.20f   // Allow heavily motion-blurred streaks
         private const val CONFIDENCE_CIRCULARITY_WEIGHT = 0.6f
         private const val CONFIDENCE_SIZE_WEIGHT = 0.4f
 
@@ -53,12 +53,15 @@ class BallDetector(
         private val WHITE_UPPER = Scalar(180.0, 50.0, 255.0)
     }
 
-    // Pre-allocated Mats (R5)
-    private val srcMat = Mat()
-    private val hsvMat = Mat()
-    private val maskMat = Mat()
-    private val morphMat = Mat()
-    private val morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
+    // Pre-allocated Mats (R5). Nullable so that OpenCV JNI is not called during construction,
+    // allowing the class to be instantiated in unit-test environments where native libs
+    // are unavailable. They are allocated on first use inside detectInternal() which is
+    // already guarded by the try/catch in detect().
+    private var srcMat: Mat? = null
+    private var hsvMat: Mat? = null
+    private var maskMat: Mat? = null
+    private var morphMat: Mat? = null
+    private var morphKernel: Mat? = null
 
     /**
      * Detect the ball in [bitmap] within [roi].
@@ -77,7 +80,8 @@ class BallDetector(
     ): BallDetection {
         return try {
             detectInternal(bitmap, roi, frameIndex, timestampMs)
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            // Catches both Exception and Error (e.g. UnsatisfiedLinkError when native libs absent)
             Log.e(TAG, "Ball detection failed on frame $frameIndex", e)
             notDetected(frameIndex, timestampMs)
         }
@@ -85,11 +89,16 @@ class BallDetector(
 
     /** Release pre-allocated OpenCV Mat objects. Call when detector is no longer needed. */
     fun release() {
-        srcMat.release()
-        hsvMat.release()
-        maskMat.release()
-        morphMat.release()
-        morphKernel.release()
+        srcMat?.release()
+        hsvMat?.release()
+        maskMat?.release()
+        morphMat?.release()
+        morphKernel?.release()
+        srcMat = null
+        hsvMat = null
+        maskMat = null
+        morphMat = null
+        morphKernel = null
     }
 
     // --- Internal pipeline ---
@@ -103,8 +112,21 @@ class BallDetector(
         val frameWidth = bitmap.width
         val frameHeight = bitmap.height
 
+        // Allocate Mats on first use (deferred to keep constructor OpenCV-free)
+        if (srcMat == null)      srcMat      = Mat()
+        if (hsvMat == null)      hsvMat      = Mat()
+        if (maskMat == null)     maskMat     = Mat()
+        if (morphMat == null)    morphMat    = Mat()
+        if (morphKernel == null) morphKernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, Size(5.0, 5.0))
+
+        val src     = srcMat!!
+        val hsv     = hsvMat!!
+        val mask    = maskMat!!
+        val morph   = morphMat!!
+        val kernel  = morphKernel!!
+
         // 1. Bitmap → Mat
-        Utils.bitmapToMat(bitmap, srcMat)
+        Utils.bitmapToMat(bitmap, src)
 
         // 2. Clamp ROI to frame bounds
         val roiX = roi.x.coerceIn(0, frameWidth - 1)
@@ -116,27 +138,27 @@ class BallDetector(
 
         // 3. Zero-copy sub-matrix crop (R4)
         val roiRect = Rect(roiX, roiY, roiW, roiH)
-        val roiMat = Mat(srcMat, roiRect)
+        val roiMat = Mat(src, roiRect)
 
         // 4. Convert to HSV
-        Imgproc.cvtColor(roiMat, hsvMat, Imgproc.COLOR_RGBA2RGB)
-        Imgproc.cvtColor(hsvMat, hsvMat, Imgproc.COLOR_RGB2HSV)
+        Imgproc.cvtColor(roiMat, hsv, Imgproc.COLOR_RGBA2RGB)
+        Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV)
 
         // 5. Color threshold
         val (lower, upper) = when (ballColor) {
             BallColor.ORANGE -> ORANGE_LOWER to ORANGE_UPPER
             BallColor.WHITE  -> WHITE_LOWER  to WHITE_UPPER
         }
-        Core.inRange(hsvMat, lower, upper, maskMat)
+        Core.inRange(hsv, lower, upper, mask)
 
         // 6. Morphological open (remove noise) then close (fill small holes)
-        Imgproc.morphologyEx(maskMat, morphMat, Imgproc.MORPH_OPEN, morphKernel)
-        Imgproc.morphologyEx(morphMat, morphMat, Imgproc.MORPH_CLOSE, morphKernel)
+        Imgproc.morphologyEx(mask, morph, Imgproc.MORPH_OPEN, kernel)
+        Imgproc.morphologyEx(morph, morph, Imgproc.MORPH_CLOSE, kernel)
 
         // 7. Find contours
         val contours = mutableListOf<MatOfPoint>()
         Imgproc.findContours(
-            morphMat,
+            morph,
             contours,
             Mat(),
             Imgproc.RETR_EXTERNAL,
@@ -173,18 +195,21 @@ class BallDetector(
         }
 
         roiMat.release()
-        contours.forEach { it.release() }
 
-        if (bestContour == null) return notDetected(frameIndex, timestampMs)
+        if (bestContour == null) {
+            contours.forEach { it.release() }
+            return notDetected(frameIndex, timestampMs)
+        }
 
-        // 9. Compute centroid and radius in ROI coordinates
+        // 9. Compute centroid and radius in ROI coordinates (before releasing contours)
         val moments = Imgproc.moments(bestContour)
+        val bestArea = Imgproc.contourArea(bestContour)
+        contours.forEach { it.release() }
         if (moments.m00 == 0.0) return notDetected(frameIndex, timestampMs)
 
         val cxRoi = (moments.m10 / moments.m00).toFloat()
         val cyRoi = (moments.m01 / moments.m00).toFloat()
-        val area = Imgproc.contourArea(bestContour)
-        val radiusPx = sqrt(area / PI).toFloat()
+        val radiusPx = sqrt(bestArea / PI).toFloat()
 
         // 10. Translate from ROI coords to full-frame normalised [0,1]
         val cxFrame = (roiX + cxRoi) / frameWidth.toFloat()

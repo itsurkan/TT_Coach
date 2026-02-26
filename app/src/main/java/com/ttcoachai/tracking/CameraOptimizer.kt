@@ -19,7 +19,8 @@ import com.ttcoachai.shared.models.CameraConfiguration
  */
 class CameraOptimizer(
     private val camera2Control: Camera2CameraControl,
-    private val cameraCharacteristics: CameraCharacteristics
+    private val cameraCharacteristics: CameraCharacteristics,
+    initialConfig: CameraConfiguration = CameraConfiguration()
 ) {
 
     companion object {
@@ -43,7 +44,7 @@ class CameraOptimizer(
         private const val MIN_ADJUSTMENT_INTERVAL_MS = 2_000L
     }
 
-    private var _currentConfig = CameraConfiguration()
+    private var _currentConfig = initialConfig
     val currentConfig: CameraConfiguration get() = _currentConfig
 
     private var supportsManualExposure: Boolean = false

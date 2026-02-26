@@ -9,9 +9,14 @@ import com.ttcoachai.shared.models.CameraConfiguration
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [33], manifest = Config.NONE)
 class CameraOptimizerTest {
 
     private lateinit var camera2Control: Camera2CameraControl
@@ -83,12 +88,15 @@ class CameraOptimizerTest {
 
     @Test
     fun `onBrightnessUpdate does not adjust within rate limit window`() {
-        optimizer.applyBallTrackingMode()
+        // Start with luminanceEma already below DIM_THRESHOLD so the first update triggers
+        val dimOptimizer = CameraOptimizer(camera2Control, cameraCharacteristics,
+            initialConfig = com.ttcoachai.shared.models.CameraConfiguration(luminanceEma = 50f))
+        dimOptimizer.applyBallTrackingMode()
         val invocationsAfterApply = mockingDetails(camera2Control).invocations.size
 
         // Send two dim-brightness updates in quick succession
-        optimizer.onBrightnessUpdate(50f)
-        optimizer.onBrightnessUpdate(50f)
+        dimOptimizer.onBrightnessUpdate(50f)   // rate limiter allows — triggers adjustment
+        dimOptimizer.onBrightnessUpdate(50f)   // rate limiter blocks — no additional call
 
         // Only one additional adjustment should have been made (rate limit blocks second)
         val invocationsAfterUpdates = mockingDetails(camera2Control).invocations.size
@@ -101,13 +109,16 @@ class CameraOptimizerTest {
 
     @Test
     fun `onBrightnessUpdate raises ISO when brightness is low`() {
-        optimizer.applyBallTrackingMode()
-        val initialIso = optimizer.currentConfig.isoSensitivity
+        // Start with luminanceEma already below DIM_THRESHOLD (80f) so first update triggers
+        val dimOptimizer = CameraOptimizer(camera2Control, cameraCharacteristics,
+            initialConfig = com.ttcoachai.shared.models.CameraConfiguration(luminanceEma = 50f))
+        dimOptimizer.applyBallTrackingMode()
+        val initialIso = dimOptimizer.currentConfig.isoSensitivity
 
-        // Simulate dim conditions (below DIM_THRESHOLD = 80)
-        optimizer.onBrightnessUpdate(50f)
+        // EMA starts at 50 — first update keeps EMA below dim threshold → ISO should increase
+        dimOptimizer.onBrightnessUpdate(50f)
 
-        val newIso = optimizer.currentConfig.isoSensitivity
+        val newIso = dimOptimizer.currentConfig.isoSensitivity
         assertTrue("ISO should increase when dim. Was $initialIso, now $newIso", newIso > initialIso)
     }
 

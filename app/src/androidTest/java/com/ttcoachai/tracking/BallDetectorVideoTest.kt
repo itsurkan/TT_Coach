@@ -12,6 +12,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.opencv.android.OpenCVLoader
 
 /**
  * Instrumented integration test for BallDetector using a real pre-recorded video.
@@ -43,8 +44,14 @@ class BallDetectorVideoTest {
 
     @Before
     fun setUp() {
-        // Orange ball is typical for table tennis training videos.
-        detector = BallDetector(BallDetector.BallColor.ORANGE, expectedRadiusRange = 4..40)
+        // OpenCV native library must be loaded before any Mat/Imgproc calls.
+        // Without this the detector silently falls back to NOT_DETECTED on every frame.
+        OpenCVLoader.initLocal()
+
+        // forehand_drive.mp4: white ball, heavily motion-blurred into elongated streaks.
+        // On-device diagnostics show blob radius ~30px at 720x1280 during fast strokes.
+        // MIN_CIRCULARITY is 0.20 to accept motion-blur streaks.
+        detector = BallDetector(BallDetector.BallColor.WHITE, expectedRadiusRange = 3..50)
     }
 
     @After
@@ -63,7 +70,9 @@ class BallDetectorVideoTest {
 
         var detectedCount = 0
         val results = frames.mapIndexed { i, (bitmap, timestampMs) ->
-            val roi = RegionOfInterest.createDefault(bitmap.width, bitmap.height)
+            // Full-frame ROI: the ball in forehand_drive.mp4 sits near x=53, which is
+            // just outside the default ROI (starts at x=72 for 720px-wide frames).
+            val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
             val result = detector.detect(bitmap, roi, frameIndex = i, timestampMs = timestampMs)
             bitmap.recycle()
             if (result.status == BallDetectionStatus.DETECTED) detectedCount++
@@ -92,7 +101,7 @@ class BallDetectorVideoTest {
         val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
 
         val detectedResults = frames.mapIndexed { i, (bitmap, timestampMs) ->
-            val roi = RegionOfInterest.createDefault(bitmap.width, bitmap.height)
+            val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
             val result = detector.detect(bitmap, roi, frameIndex = i, timestampMs = timestampMs)
             bitmap.recycle()
             result
@@ -130,7 +139,7 @@ class BallDetectorVideoTest {
         val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
 
         frames.forEachIndexed { i, (bitmap, timestampMs) ->
-            val roi = RegionOfInterest.createDefault(bitmap.width, bitmap.height)
+            val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
             val result = detector.detect(bitmap, roi, frameIndex = i, timestampMs = timestampMs)
             bitmap.recycle()
 
@@ -149,7 +158,7 @@ class BallDetectorVideoTest {
     fun releaseAfterVideoProcessingDoesNotThrow() {
         val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
         val (bitmap, ts) = frames.first()
-        val roi = RegionOfInterest.createDefault(bitmap.width, bitmap.height)
+        val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
         detector.detect(bitmap, roi, frameIndex = 0, timestampMs = ts)
         bitmap.recycle()
         frames.drop(1).forEach { (b, _) -> b.recycle() }
@@ -168,7 +177,9 @@ class BallDetectorVideoTest {
      * AssetFileDescriptor — no temp file needed.
      */
     private fun extractFrames(assetPath: String, stepMs: Long): List<Pair<Bitmap, Long>> {
-        val context = InstrumentationRegistry.getInstrumentation().context
+        // targetContext = the app under test, which carries the main assets (Videos/).
+        // context = the instrumentation test APK, which does NOT have the app's assets.
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         val afd = context.assets.openFd(assetPath)
 
         val retriever = MediaMetadataRetriever()
