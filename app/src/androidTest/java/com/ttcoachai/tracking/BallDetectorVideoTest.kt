@@ -13,6 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.opencv.android.OpenCVLoader
+import java.io.File
 
 /**
  * Instrumented integration test for BallDetector using a real pre-recorded video.
@@ -166,6 +167,134 @@ class BallDetectorVideoTest {
     }
 
     // -------------------------------------------------------------------------
+    // JSON export
+    // -------------------------------------------------------------------------
+
+    /**
+     * Runs ball detection on every video in [EXPORT_VIDEOS] and writes a
+     * `<name>_ball.json` file to the app's external files directory.
+     *
+     * The output schema mirrors the poses JSON:
+     * ```json
+     * {
+     *   "videoName": "forehand_drive.mp4",
+     *   "intervalMs": 100,
+     *   "totalFrames": 73,
+     *   "videoDurationMs": 7254,
+     *   "videoWidth": 720,
+     *   "videoHeight": 1280,
+     *   "exportTimestamp": 1234567890,
+     *   "frames": [
+     *     {
+     *       "frameIndex": 0,
+     *       "timestampMs": 0,
+     *       "ball": { "x": 0.12, "y": 0.45, "radiusPx": 22.5, "confidence": 0.87, "status": "DETECTED" }
+     *       // or "ball": null when NOT_DETECTED / OUT_OF_FRAME
+     *     }
+     *   ]
+     * }
+     * ```
+     *
+     * After the test runs, pull the files with:
+     *   adb pull /sdcard/Android/data/com.ttcoachai/files/ .
+     */
+    @Test
+    fun exportsBallDetectionsToJson() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val outDir = context.getExternalFilesDir(null)
+            ?: error("External storage not available")
+
+        for (videoName in EXPORT_VIDEOS) {
+            val assetPath = "Videos/$videoName"
+            val baseName = videoName.substringBeforeLast('.')
+            val outFile = File(outDir, "${baseName}_ball.json")
+
+            val retriever = MediaMetadataRetriever()
+            val afd = context.assets.openFd(assetPath)
+            retriever.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            afd.close()
+
+            val durationMs = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
+            val width = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                ?.toIntOrNull() ?: 0
+            val height = retriever
+                .extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                ?.toIntOrNull() ?: 0
+
+            val sb = StringBuilder()
+            sb.appendLine("{")
+            sb.appendLine("  \"videoName\": \"$videoName\",")
+            sb.appendLine("  \"intervalMs\": $FRAME_STEP_MS,")
+            sb.appendLine("  \"videoDurationMs\": $durationMs,")
+            sb.appendLine("  \"videoWidth\": $width,")
+            sb.appendLine("  \"videoHeight\": $height,")
+            sb.appendLine("  \"exportTimestamp\": ${System.currentTimeMillis()},")
+            sb.appendLine("  \"frames\": [")
+
+            var posMs = 0L
+            var frameIndex = 0
+            var firstFrame = true
+            while (posMs <= durationMs) {
+                val bitmap = retriever.getFrameAtTime(
+                    posMs * 1_000L,
+                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                )
+                if (bitmap != null) {
+                    val argb = bitmap.copy(Bitmap.Config.ARGB_8888, false)
+                    if (argb !== bitmap) bitmap.recycle()
+
+                    val roi = RegionOfInterest(x = 0, y = 0, width = argb.width, height = argb.height)
+                    val result = detector.detect(argb, roi, frameIndex = frameIndex, timestampMs = posMs)
+                    argb.recycle()
+
+                    if (!firstFrame) sb.appendLine("    ,")
+                    firstFrame = false
+
+                    sb.appendLine("    {")
+                    sb.appendLine("      \"frameIndex\": $frameIndex,")
+                    sb.appendLine("      \"timestampMs\": $posMs,")
+                    if (result.status == BallDetectionStatus.DETECTED) {
+                        sb.appendLine("      \"ball\": {")
+                        sb.appendLine("        \"x\": ${result.x},")
+                        sb.appendLine("        \"y\": ${result.y},")
+                        sb.appendLine("        \"radiusPx\": ${result.radiusPx},")
+                        sb.appendLine("        \"confidence\": ${result.confidence},")
+                        sb.appendLine("        \"status\": \"DETECTED\"")
+                        sb.append("      }")
+                    } else {
+                        sb.append("      \"ball\": null")
+                    }
+                    sb.appendLine()
+                    sb.append("    }")
+
+                    frameIndex++
+                }
+                posMs += FRAME_STEP_MS
+            }
+
+            retriever.release()
+
+            // Write totalFrames now that we know the count
+            val json = sb.toString()
+                .let { raw ->
+                    // Inject totalFrames after exportTimestamp line
+                    raw.replace(
+                        "  \"exportTimestamp\":",
+                        "  \"totalFrames\": $frameIndex,\n  \"exportTimestamp\":"
+                    )
+                }
+
+            val fullJson = "$json\n  ]\n}"
+            outFile.writeText(fullJson)
+
+            println("BallDetectorVideoTest: wrote ${outFile.absolutePath} ($frameIndex frames)")
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // Helper
     // -------------------------------------------------------------------------
 
@@ -208,5 +337,15 @@ class BallDetectorVideoTest {
 
         retriever.release()
         return frames
+    }
+
+    companion object {
+        /** Videos to process in [exportsBallDetectionsToJson]. Add more names here as needed. */
+        private val EXPORT_VIDEOS = listOf(
+            "forehand_drive.mp4",
+            "forehand_drive_wrong.mp4",
+            "forehand_drive2.mp4",
+            "ivan.mp4",
+        )
     }
 }
