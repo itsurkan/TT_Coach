@@ -78,20 +78,36 @@ def run(cmd: list[str], *, env: dict | None = None, check: bool = True, cwd: str
 
 def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
     """Run adb instrument with a live status bar that parses output in real-time."""
+    import re as _re
     print(f"\n$ {' '.join(cmd)}\n")
 
-    spinner_chars = "|/-\\"
-    spin_idx      = 0
-    start_time    = time.time()
-    last_status   = ""
-    lock          = threading.Lock()
+    spinner_chars  = "|/-\\"
+    spin_idx       = 0
+    start_time     = time.time()
+    last_status    = "starting..."
+    # Progress tracking: (current_frame, total_frames) when known
+    progress: list[tuple[int, int]] = []
+    lock           = threading.Lock()
+
+    def format_eta(elapsed: float) -> str:
+        if not progress:
+            return f"[{elapsed:.0f}s]"
+        cur, total = progress[-1]
+        if cur <= 0 or total <= 0:
+            return f"[{elapsed:.0f}s]"
+        frac = cur / total
+        if frac <= 0:
+            return f"[{elapsed:.0f}s]"
+        eta = elapsed / frac - elapsed
+        return f"[{elapsed:.0f}s  ETA {eta:.0f}s]"
 
     def update_spinner():
         nonlocal spin_idx
         while not done_event.is_set():
             elapsed = time.time() - start_time
             with lock:
-                line = f"\r  {spinner_chars[spin_idx % 4]}  {last_status}  [{elapsed:.0f}s]   "
+                eta_str = format_eta(elapsed)
+                line = f"\r  {spinner_chars[spin_idx % 4]}  {last_status}  {eta_str}   "
             print(line, end="", flush=True)
             spin_idx += 1
             time.sleep(0.12)
@@ -106,6 +122,9 @@ def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
         text=True, encoding="utf-8", errors="replace"
     )
 
+    # Matches: "forehand_drive.mp4 frame 20 / ~73"
+    _frame_re = _re.compile(r"frame\s+(\d+)\s*/\s*~?(\d+)")
+
     output_lines = []
     for raw_line in proc.stdout:
         line = raw_line.rstrip()
@@ -114,9 +133,12 @@ def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
         # Parse progress hints from the test's println() calls
         if "BallDetectorVideoTest:" in line:
             msg = line.split("BallDetectorVideoTest:", 1)[-1].strip()
+            m = _frame_re.search(msg)
             with lock:
                 last_status = msg
-            print(f"\r  {msg}{' ' * 20}")
+                if m:
+                    progress.append((int(m.group(1)), int(m.group(2))))
+            print(f"\r  {msg}{' ' * 30}")
 
         elif line.startswith("INSTRUMENTATION_STATUS: test="):
             test_name = line.split("test=", 1)[-1]
