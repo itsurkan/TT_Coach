@@ -3,7 +3,10 @@
   "videoName": "ivan.mp4",
   "intervalMs": 100,
   "totalFrames": 57,
-  "exportTimestamp": 1772104324109,
+  "videoDurationMs": 5643,
+  "videoWidth": 540,
+  "videoHeight": 960,
+  "exportTimestamp": 1772107429095,
   "frames": [
     {
       "frameIndex": 0,

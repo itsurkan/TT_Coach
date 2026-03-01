@@ -240,7 +240,7 @@ class BallDetectorVideoTest {
             while (posMs <= durationMs) {
                 val bitmap = retriever.getFrameAtTime(
                     posMs * 1_000L,
-                    MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                    MediaMetadataRetriever.OPTION_CLOSEST
                 )
                 if (bitmap != null) {
                     val argb = bitmap.copy(Bitmap.Config.ARGB_8888, false)
@@ -324,7 +324,7 @@ class BallDetectorVideoTest {
         while (posMs <= durationMs) {
             val bitmap = retriever.getFrameAtTime(
                 posMs * 1_000L,  // microseconds
-                MediaMetadataRetriever.OPTION_CLOSEST_SYNC
+                MediaMetadataRetriever.OPTION_CLOSEST
             )
             if (bitmap != null) {
                 // Ensure ARGB_8888 — BallDetector requires it
