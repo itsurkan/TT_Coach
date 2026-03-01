@@ -6,7 +6,7 @@
   "videoDurationMs": 5600,
   "videoWidth": 1080,
   "videoHeight": 1920,
-  "exportTimestamp": 1772107429089,
+  "exportTimestamp": 1772386102144,
   "frames": [
     {
       "frameIndex": 0,
@@ -6520,7 +6520,7 @@
         {
           "x": 0.6552818,
           "y": 0.5546849,
-          "z": 0.000024086772,
+          "z": 2.4086772e-05,
           "visibility": 0.9965365,
           "presence": 0.99818975
         },

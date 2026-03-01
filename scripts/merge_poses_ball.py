@@ -114,7 +114,7 @@ def main():
 
         n_frames = len(merged["frames"])
         n_detected = sum(1 for fr in merged["frames"] if fr["ball"] is not None)
-        print(f"  → {out_path}")
+        print(f"  -> {out_path}")
         print(f"     {n_frames} frames, {n_detected} with ball detected")
 
     print("\nDone.")

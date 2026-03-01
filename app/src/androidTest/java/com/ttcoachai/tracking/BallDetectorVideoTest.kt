@@ -34,7 +34,7 @@ import java.io.File
 @LargeTest
 class BallDetectorVideoTest {
 
-    private lateinit var detector: BallDetector
+    private lateinit var detector: BallDetectorV2
 
     // Sample every FRAME_STEP_MS milliseconds — coarse enough to be fast,
     // fine enough to catch a fast-moving ball.
@@ -52,7 +52,7 @@ class BallDetectorVideoTest {
         // forehand_drive.mp4: white ball, heavily motion-blurred into elongated streaks.
         // On-device diagnostics show blob radius ~30px at 720x1280 during fast strokes.
         // MIN_CIRCULARITY is 0.20 to accept motion-blur streaks.
-        detector = BallDetector(BallDetector.BallColor.WHITE, expectedRadiusRange = 3..50)
+        detector = BallDetectorV2(BallDetectorV2.BallColor.WHITE, expectedRadiusRange = 3..50)
     }
 
     @After
@@ -346,6 +346,7 @@ class BallDetectorVideoTest {
             "forehand_drive_wrong.mp4",
             "forehand_drive2.mp4",
             "ivan.mp4",
+            "video_2026-03-01_13-59-49.mp4",
         )
     }
 }
