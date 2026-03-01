@@ -24,7 +24,8 @@ import java.io.File
  * Asset: app/src/main/assets/Videos/forehand_drive.mp4
  *
  * Strategy:
- *  - Decode every Nth frame with MediaMetadataRetriever (no MediaCodec/GL needed).
+ *  - Decode every Nth frame with MediaMetadataRetriever (no MediaCodec/GL needed            "IMG_6370.MP4",
+        ).
  *  - Run BallDetector on each frame with a full-frame ROI.
  *  - Assert that at least one frame produces DETECTED (proves real detection works).
  *  - Assert that DETECTED results carry plausible confidence and radius values.
@@ -66,7 +67,7 @@ class BallDetectorVideoTest {
 
     @Test
     fun detectsBallInAtLeastOneFrameOfForehandDriveVideo() {
-        val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
+        val frames = extractFrames(videoAssetPath("forehand_drive.mp4"), FRAME_STEP_MS)
         assertTrue("Video should have at least 5 frames", frames.size >= 5)
 
         var detectedCount = 0
@@ -99,7 +100,7 @@ class BallDetectorVideoTest {
 
     @Test
     fun detectedFramesHavePlausibleConfidenceAndRadius() {
-        val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
+        val frames = extractFrames(videoAssetPath("forehand_drive.mp4"), FRAME_STEP_MS)
 
         val detectedResults = frames.mapIndexed { i, (bitmap, timestampMs) ->
             val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
@@ -137,7 +138,7 @@ class BallDetectorVideoTest {
 
     @Test
     fun timestampMsPropagatedCorrectlyForAllFrames() {
-        val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
+        val frames = extractFrames(videoAssetPath("forehand_drive.mp4"), FRAME_STEP_MS)
 
         frames.forEachIndexed { i, (bitmap, timestampMs) ->
             val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
@@ -157,7 +158,7 @@ class BallDetectorVideoTest {
 
     @Test
     fun releaseAfterVideoProcessingDoesNotThrow() {
-        val frames = extractFrames("Videos/forehand_drive.mp4", FRAME_STEP_MS)
+        val frames = extractFrames(videoAssetPath("forehand_drive.mp4"), FRAME_STEP_MS)
         val (bitmap, ts) = frames.first()
         val roi = RegionOfInterest(x = 0, y = 0, width = bitmap.width, height = bitmap.height)
         detector.detect(bitmap, roi, frameIndex = 0, timestampMs = ts)
@@ -205,7 +206,7 @@ class BallDetectorVideoTest {
             ?: error("External storage not available")
 
         for (videoName in EXPORT_VIDEOS) {
-            val assetPath = "Videos/$videoName"
+            val assetPath = videoAssetPath(videoName)
             val baseName = videoName.substringBeforeLast('.')
             val outFile = File(outDir, "${baseName}_ball.json")
 
@@ -234,10 +235,14 @@ class BallDetectorVideoTest {
             sb.appendLine("  \"exportTimestamp\": ${System.currentTimeMillis()},")
             sb.appendLine("  \"frames\": [")
 
+            val totalFrames = ((durationMs / FRAME_STEP_MS) + 1).toInt()
             var posMs = 0L
             var frameIndex = 0
             var firstFrame = true
             while (posMs <= durationMs) {
+                if (frameIndex % 10 == 0) {
+                    println("BallDetectorVideoTest: $videoName frame $frameIndex / ~$totalFrames")
+                }
                 val bitmap = retriever.getFrameAtTime(
                     posMs * 1_000L,
                     MediaMetadataRetriever.OPTION_CLOSEST
@@ -340,6 +345,12 @@ class BallDetectorVideoTest {
     }
 
     companion object {
+        /** Returns the asset path for a video in its per-video subfolder. */
+        fun videoAssetPath(videoName: String): String {
+            val base = videoName.substringBeforeLast('.')
+            return "Videos/$base/$videoName"
+        }
+
         /** Videos to process in [exportsBallDetectionsToJson]. Add more names here as needed. */
         private val EXPORT_VIDEOS = listOf(
             "forehand_drive.mp4",
@@ -347,6 +358,7 @@ class BallDetectorVideoTest {
             "forehand_drive2.mp4",
             "ivan.mp4",
             "video_2026-03-01_13-59-49.mp4",
+                "IMG_6370.MP4",
         )
     }
 }
