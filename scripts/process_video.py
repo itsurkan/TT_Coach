@@ -4,12 +4,9 @@ process_video.py
 
 Full pipeline for any video file. Handles:
   0. Copy video to assets/<base>/ subfolder if not already there
-  1. Add video to EXPORT_VIDEOS in BallDetectorVideoTest.kt (if missing)
-  2. Rebuild + reinstall APKs  (skipped if video was already registered)
-  3. Export poses  (Python MediaPipe, PC-side)
-  4. Run ball detection test on device  (adb)
-  5. Pull ball JSON from device
-  6. Merge poses + ball  ->  *_poses_ball.json
+  1. Export poses  (Python MediaPipe, PC-side)
+  2. Export ball detections  (Python OpenCV, PC-side)
+  3. Merge poses + ball  ->  *_poses_ball.json
 
 Usage:
     python scripts/process_video.py <video_name_or_path>
@@ -22,193 +19,33 @@ Examples:
 Options:
     --interval N       Frame sampling interval in ms (default 100)
     --skip-poses       Skip pose export (reuse existing _poses.json)
-    --skip-ball        Skip ball detection + adb (reuse existing _ball.json)
-    --skip-rebuild     Skip Gradle build + adb install even if video is new
-    --force-install    Install already-built APKs without rebuilding
-    --force-rebuild    Force a full Gradle rebuild (passes --rerun-tasks); useful after
-                       Kotlin source changes that don't affect asset timestamps
+    --skip-ball        Skip ball detection (reuse existing _ball.json)
+    --color COLOR      Ball color: white (default) or orange
 """
 
 import argparse
 import os
-import re
 import shutil
 import subprocess
 import sys
-import threading
-import time
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
 VIDEOS_DIR  = os.path.join(PROJECT_DIR, "app", "src", "main", "assets", "Videos")
-TEST_FILE   = os.path.join(PROJECT_DIR, "app", "src", "androidTest", "java",
-                            "com", "ttcoachai", "tracking", "BallDetectorVideoTest.kt")
-GRADLEW     = os.path.join(PROJECT_DIR, "gradlew.bat" if sys.platform == "win32" else "gradlew")
-APK_DEBUG   = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk",
-                            "debug", "app-arm64-v8a-debug.apk")
-APK_TEST    = os.path.join(PROJECT_DIR, "app", "build", "outputs", "apk",
-                            "androidTest", "debug", "app-debug-androidTest.apk")
 
 PYTHON      = sys.executable
-
-def _find_adb() -> str:
-    if adb_env := os.environ.get("ADB"):
-        return adb_env
-    if sys.platform == "win32":
-        candidate = os.path.expandvars(r"%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe")
-        if os.path.isfile(candidate):
-            return candidate
-    return "adb"
-
-ADB = _find_adb()
-DEVICE_OUT  = "/sdcard/Android/data/com.ttcoachai/files"
-TEST_RUNNER = "com.ttcoachai.test/androidx.test.runner.AndroidJUnitRunner"
-TEST_CLASS  = "com.ttcoachai.tracking.BallDetectorVideoTest#exportsBallDetectionsToJson"
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def run(cmd: list[str], *, env: dict | None = None, check: bool = True, cwd: str | None = None) -> int:
+def run(cmd: list[str], *, check: bool = True, cwd: str | None = None) -> int:
     print(f"\n$ {' '.join(cmd)}")
-    result = subprocess.run(cmd, env=env, cwd=cwd)
+    result = subprocess.run(cmd, cwd=cwd)
     if check and result.returncode != 0:
         print(f"ERROR: command failed (exit {result.returncode})", file=sys.stderr)
         sys.exit(result.returncode)
     return result.returncode
-
-
-def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
-    """Run adb instrument with a live status bar that parses output in real-time."""
-    import re as _re
-    print(f"\n$ {' '.join(cmd)}\n")
-
-    spinner_chars  = "|/-\\"
-    spin_idx       = 0
-    start_time     = time.time()
-    last_status    = "starting..."
-    # Progress tracking: (current_frame, total_frames) when known
-    progress: list[tuple[int, int]] = []
-    lock           = threading.Lock()
-
-    def format_eta(elapsed: float) -> str:
-        if not progress:
-            return f"[{elapsed:.0f}s]"
-        cur, total = progress[-1]
-        if cur <= 0 or total <= 0:
-            return f"[{elapsed:.0f}s]"
-        frac = cur / total
-        if frac <= 0:
-            return f"[{elapsed:.0f}s]"
-        eta = elapsed / frac - elapsed
-        return f"[{elapsed:.0f}s  ETA {eta:.0f}s]"
-
-    def update_spinner():
-        nonlocal spin_idx
-        while not done_event.is_set():
-            elapsed = time.time() - start_time
-            with lock:
-                eta_str = format_eta(elapsed)
-                line = f"\r  {spinner_chars[spin_idx % 4]}  {last_status}  {eta_str}   "
-            print(line, end="", flush=True)
-            spin_idx += 1
-            time.sleep(0.12)
-
-    done_event = threading.Event()
-    spinner_thread = threading.Thread(target=update_spinner, daemon=True)
-    spinner_thread.start()
-
-    proc = subprocess.Popen(
-        cmd, env=env,
-        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        text=True, encoding="utf-8", errors="replace"
-    )
-
-    # Matches: "forehand_drive.mp4 frame 20 / ~73"
-    _frame_re = _re.compile(r"frame\s+(\d+)\s*/\s*~?(\d+)")
-
-    output_lines = []
-    # Failure signals:
-    #   INSTRUMENTATION_STATUS_CODE: -2  → a test threw an exception
-    #   "FAILURES!!!" in result stream   → one or more tests failed
-    #   absence of INSTRUMENTATION_CODE  → runner crashed / OOM / killed
-    had_exception = False   # STATUS_CODE -2 seen
-    had_failures  = False   # "FAILURES!!!" in result stream
-    had_ok        = False   # "OK (" in result stream (all tests passed)
-    saw_instr_code = False  # INSTRUMENTATION_CODE line was seen at all
-
-    for raw_line in proc.stdout:
-        line = raw_line.rstrip()
-        output_lines.append(line)
-
-        # Parse progress hints from the test's println() calls
-        if "BallDetectorVideoTest:" in line:
-            msg = line.split("BallDetectorVideoTest:", 1)[-1].strip()
-            m = _frame_re.search(msg)
-            with lock:
-                last_status = msg
-                if m:
-                    progress.append((int(m.group(1)), int(m.group(2))))
-            print(f"\r  {msg}{' ' * 30}")
-
-        elif line.startswith("INSTRUMENTATION_STATUS: test="):
-            test_name = line.split("test=", 1)[-1]
-            with lock:
-                last_status = f"running {test_name}"
-
-        elif line == "INSTRUMENTATION_STATUS_CODE: -2":
-            had_exception = True
-
-        elif line.startswith("INSTRUMENTATION_RESULT:") or line.startswith("INSTRUMENTATION_CODE:"):
-            with lock:
-                last_status = line
-            if line.startswith("INSTRUMENTATION_CODE:"):
-                saw_instr_code = True
-            # Scan result stream text for pass/fail markers
-            if "FAILURES!!!" in line:
-                had_failures = True
-            if line.startswith("INSTRUMENTATION_RESULT: stream=") and "OK (" in line:
-                had_ok = True
-
-        # Multi-line result stream: "FAILURES!!!" / "OK (" appear on their own lines
-        elif had_failures is False and "FAILURES!!!" in line:
-            had_failures = True
-        elif had_ok is False and line.startswith("OK ("):
-            had_ok = True
-
-    proc.wait()
-    done_event.set()
-    spinner_thread.join()
-
-    elapsed = time.time() - start_time
-
-    # Determine pass/fail:
-    #   pass  = runner completed + no exceptions + no FAILURES in stream
-    #   fail  = any of: adb error, no INSTRUMENTATION_CODE, exception, FAILURES in stream
-    if proc.returncode != 0:
-        test_passed = False
-        reason = f"adb exit {proc.returncode}"
-    elif not saw_instr_code:
-        test_passed = False
-        reason = "no INSTRUMENTATION_CODE in output (crash/OOM/timeout?)"
-    elif had_failures or had_exception:
-        test_passed = False
-        reason = "test failure (see output below)"
-    else:
-        test_passed = True
-        reason = ""
-
-    if test_passed:
-        print(f"\r  Done  [{elapsed:.0f}s]{' ' * 30}")
-    else:
-        print(f"\r  Failed ({reason})  [{elapsed:.0f}s]{' ' * 20}")
-        print("\n--- instrument output (last 40 lines) ---")
-        for l in output_lines[-40:]:
-            print(" ", l)
-        print("---")
-        sys.exit(1)
-
-    return proc.returncode
 
 
 def video_subdir(base: str) -> str:
@@ -233,43 +70,6 @@ def ensure_in_assets(video_name: str, src_path: str | None, base: str) -> str:
     return dest
 
 
-def is_in_export_videos(video_name: str) -> bool:
-    with open(TEST_FILE, encoding="utf-8") as f:
-        return f'"{video_name}"' in f.read()
-
-
-def add_to_export_videos(video_name: str):
-    with open(TEST_FILE, encoding="utf-8") as f:
-        src = f.read()
-    pattern = r'(private val EXPORT_VIDEOS = listOf\(.*?\))'
-    match = re.search(pattern, src, re.DOTALL)
-    if not match:
-        print("ERROR: could not find EXPORT_VIDEOS in test file", file=sys.stderr)
-        sys.exit(1)
-    old_block = match.group(1)
-    new_block = old_block.rstrip(')') + f'        "{video_name}",\n        )'
-    src = src.replace(old_block, new_block)
-    with open(TEST_FILE, "w", encoding="utf-8") as f:
-        f.write(src)
-    print(f"  Added \"{video_name}\" to EXPORT_VIDEOS in BallDetectorVideoTest.kt")
-
-
-def install_apks():
-    env = {**os.environ, "MSYS_NO_PATHCONV": "1"}
-    print("      Installing APKs...")
-    run([ADB, "install", "-r", APK_DEBUG], env=env)
-    run([ADB, "install", "-r", APK_TEST],  env=env)
-
-
-def rebuild_and_install(force: bool = False):
-    print("\n[2/6] Building APKs...")
-    cmd = [GRADLEW, ":app:assembleDebug", ":app:assembleDebugAndroidTest"]
-    if force:
-        cmd.append("--rerun-tasks")
-    run(cmd, cwd=PROJECT_DIR)
-    install_apks()
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
@@ -279,11 +79,8 @@ def main():
     parser.add_argument("--interval",       type=int, default=100)
     parser.add_argument("--skip-poses",     action="store_true")
     parser.add_argument("--skip-ball",      action="store_true")
-    parser.add_argument("--skip-rebuild",   action="store_true")
-    parser.add_argument("--force-install",  action="store_true",
-        help="Install already-built APKs without rebuilding")
-    parser.add_argument("--force-rebuild",  action="store_true",
-        help="Force full Gradle rebuild with --rerun-tasks (use after Kotlin source changes)")
+    parser.add_argument("--color", choices=["white", "orange"], default="white",
+        help="Ball color to detect (default: white)")
     args = parser.parse_args()
 
     # Resolve video name and optional source path
@@ -300,82 +97,35 @@ def main():
     print(f"\n=== Processing: {video_name} ===")
 
     # ── Step 0: Copy to per-video subfolder if needed ────────────────────────
-    print("\n[0/6] Checking assets folder...")
+    print("\n[0/3] Checking assets folder...")
     video_path = ensure_in_assets(video_name, src_path, base)
     subdir     = video_subdir(base)
 
-    # ── Step 1: Add to EXPORT_VIDEOS if needed ───────────────────────────────
-    needs_rebuild = False
-    if not args.skip_ball:
-        print("\n[1/6] Checking EXPORT_VIDEOS list...")
-        if is_in_export_videos(video_name):
-            print(f"  \"{video_name}\" already registered.")
-        else:
-            add_to_export_videos(video_name)
-            needs_rebuild = True
-
-    # ── Step 2: Rebuild + install ────────────────────────────────────────────
-    # Also rebuild if the video asset is newer than the current debug APK,
-    # which means the APK was built before this video was added to assets.
-    if not needs_rebuild and not args.skip_ball and not args.skip_rebuild and not args.force_install:
-        apk_mtime = os.path.getmtime(APK_DEBUG) if os.path.isfile(APK_DEBUG) else 0
-        # Use max(mtime, ctime): on Windows, copying a file preserves the original
-        # mtime (recording date) but sets a new ctime (time the file appeared here).
-        asset_mtime = max(os.path.getmtime(video_path), os.path.getctime(video_path))
-        if asset_mtime > apk_mtime:
-            print(f"  Asset is newer than APK — rebuild needed to include it.")
-            needs_rebuild = True
-
-    if args.force_install and not args.skip_ball:
-        print("\n[2/6] Force-installing existing APKs...")
-        install_apks()
-    elif args.force_rebuild and not args.skip_ball:
-        print("\n[2/6] Force-rebuilding (--rerun-tasks)...")
-        rebuild_and_install(force=True)
-    elif needs_rebuild and not args.skip_rebuild and not args.skip_ball:
-        rebuild_and_install()
-    elif args.skip_ball or args.skip_rebuild:
-        print("\n[2/6] Skipping rebuild.")
-    else:
-        print("\n[2/6] No rebuild needed (video already registered, APK is current).")
-
-    # ── Step 3: Export poses ─────────────────────────────────────────────────
+    # ── Step 1: Export poses (Python MediaPipe) ──────────────────────────────
     poses_json = os.path.join(subdir, base + "_poses.json")
     if args.skip_poses:
-        print(f"\n[3/6] Skipping pose export.")
+        print(f"\n[1/3] Skipping pose export.")
         if not os.path.isfile(poses_json):
             print(f"  WARNING: {poses_json} missing -- merge will have no landmarks")
     else:
-        print(f"\n[3/6] Exporting poses...")
+        print(f"\n[1/3] Exporting poses...")
         run([PYTHON, os.path.join(SCRIPTS_DIR, "export_poses.py"),
              video_path, "--interval", str(args.interval)])
 
-    # ── Step 4: Ball detection on device ─────────────────────────────────────
-    ball_json_device = f"{DEVICE_OUT}/{base}_ball.json"
-    ball_json_local  = os.path.join(subdir, base + "_ball.json")
-
-    env = {**os.environ, "MSYS_NO_PATHCONV": "1"}
+    # ── Step 2: Export ball detections (Python OpenCV) ────────────────────────
+    ball_json_local = os.path.join(subdir, base + "_ball.json")
     if args.skip_ball:
-        print(f"\n[4/6] Skipping ball detection.")
-        print(f"[5/6] Skipping adb pull.")
+        print(f"\n[2/3] Skipping ball detection.")
         if not os.path.isfile(ball_json_local):
             print(f"  WARNING: {ball_json_local} missing -- merge will have no ball data")
     else:
-        print(f"\n[4/6] Running ball detection on device...")
-        run_instrument([ADB, "shell", "am", "instrument",
-                        "-w", "-r",
-                        "-e", "class", TEST_CLASS,
-                        "-e", "videoName", video_name,
-                        TEST_RUNNER], env=env)
+        print(f"\n[2/3] Exporting ball detections...")
+        run([PYTHON, os.path.join(SCRIPTS_DIR, "export_ball.py"),
+             video_path, "--interval", str(args.interval),
+             "--color", args.color])
 
-        # ── Step 5: Pull ball JSON ───────────────────────────────────────────
-        print(f"\n[5/6] Pulling ball JSON from device...")
-        print(f"  Device output dir contents:")
-        run([ADB, "shell", "ls", "-la", DEVICE_OUT + "/"], env=env, check=False)
-        run([ADB, "pull", ball_json_device, subdir + "/"], env=env)
-
-    # ── Step 6: Merge ────────────────────────────────────────────────────────
-    print(f"\n[6/6] Merging poses + ball...")
+    # ── Step 3: Merge ────────────────────────────────────────────────────────
+    print(f"\n[3/3] Merging poses + ball...")
     run([PYTHON, os.path.join(SCRIPTS_DIR, "merge_poses_ball.py"), "--video", base])
 
     out = os.path.join(subdir, base + "_poses_ball.json")
