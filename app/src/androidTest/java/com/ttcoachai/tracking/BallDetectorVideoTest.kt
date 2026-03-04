@@ -35,7 +35,7 @@ import java.io.File
 @LargeTest
 class BallDetectorVideoTest {
 
-    private lateinit var detector: BallDetectorV2
+    private lateinit var detector: BallDetectorV3
 
     // Sample every FRAME_STEP_MS milliseconds — coarse enough to be fast,
     // fine enough to catch a fast-moving ball.
@@ -53,7 +53,7 @@ class BallDetectorVideoTest {
         // forehand_drive.mp4: white ball, heavily motion-blurred into elongated streaks.
         // On-device diagnostics show blob radius ~30px at 720x1280 during fast strokes.
         // MIN_CIRCULARITY is 0.20 to accept motion-blur streaks.
-        detector = BallDetectorV2(BallDetectorV2.BallColor.WHITE, expectedRadiusRange = 3..50)
+        detector = BallDetectorV3(BallDetectorV3.BallColor.WHITE, expectedRadiusRange = 3..35)
     }
 
     @After
@@ -205,7 +205,13 @@ class BallDetectorVideoTest {
         val outDir = context.getExternalFilesDir(null)
             ?: error("External storage not available")
 
-        for (videoName in EXPORT_VIDEOS) {
+        // If -e videoName <name> was passed via adb instrument, process only that video.
+        // Otherwise fall back to the full EXPORT_VIDEOS list.
+        val singleVideo = InstrumentationRegistry.getArguments().getString("videoName")
+        val videos = if (singleVideo != null) listOf(singleVideo) else EXPORT_VIDEOS
+
+        for (videoName in videos) {
+            detector.reset()  // clear prevGray so each video starts fresh
             val assetPath = videoAssetPath(videoName)
             val baseName = videoName.substringBeforeLast('.')
             val outFile = File(outDir, "${baseName}_ball.json")
@@ -359,6 +365,7 @@ class BallDetectorVideoTest {
             "ivan.mp4",
             "video_2026-03-01_13-59-49.mp4",
                 "IMG_6370.MP4",
+                "project_9.mp4",
         )
     }
 }

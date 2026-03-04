@@ -25,6 +25,8 @@ Options:
     --skip-ball        Skip ball detection + adb (reuse existing _ball.json)
     --skip-rebuild     Skip Gradle build + adb install even if video is new
     --force-install    Install already-built APKs without rebuilding
+    --force-rebuild    Force a full Gradle rebuild (passes --rerun-tasks); useful after
+                       Kotlin source changes that don't affect asset timestamps
 """
 
 import argparse
@@ -126,6 +128,15 @@ def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
     _frame_re = _re.compile(r"frame\s+(\d+)\s*/\s*~?(\d+)")
 
     output_lines = []
+    # Failure signals:
+    #   INSTRUMENTATION_STATUS_CODE: -2  → a test threw an exception
+    #   "FAILURES!!!" in result stream   → one or more tests failed
+    #   absence of INSTRUMENTATION_CODE  → runner crashed / OOM / killed
+    had_exception = False   # STATUS_CODE -2 seen
+    had_failures  = False   # "FAILURES!!!" in result stream
+    had_ok        = False   # "OK (" in result stream (all tests passed)
+    saw_instr_code = False  # INSTRUMENTATION_CODE line was seen at all
+
     for raw_line in proc.stdout:
         line = raw_line.rstrip()
         output_lines.append(line)
@@ -145,24 +156,57 @@ def run_instrument(cmd: list[str], *, env: dict | None = None) -> int:
             with lock:
                 last_status = f"running {test_name}"
 
+        elif line == "INSTRUMENTATION_STATUS_CODE: -2":
+            had_exception = True
+
         elif line.startswith("INSTRUMENTATION_RESULT:") or line.startswith("INSTRUMENTATION_CODE:"):
             with lock:
                 last_status = line
+            if line.startswith("INSTRUMENTATION_CODE:"):
+                saw_instr_code = True
+            # Scan result stream text for pass/fail markers
+            if "FAILURES!!!" in line:
+                had_failures = True
+            if line.startswith("INSTRUMENTATION_RESULT: stream=") and "OK (" in line:
+                had_ok = True
+
+        # Multi-line result stream: "FAILURES!!!" / "OK (" appear on their own lines
+        elif had_failures is False and "FAILURES!!!" in line:
+            had_failures = True
+        elif had_ok is False and line.startswith("OK ("):
+            had_ok = True
 
     proc.wait()
     done_event.set()
     spinner_thread.join()
 
     elapsed = time.time() - start_time
-    if proc.returncode == 0:
+
+    # Determine pass/fail:
+    #   pass  = runner completed + no exceptions + no FAILURES in stream
+    #   fail  = any of: adb error, no INSTRUMENTATION_CODE, exception, FAILURES in stream
+    if proc.returncode != 0:
+        test_passed = False
+        reason = f"adb exit {proc.returncode}"
+    elif not saw_instr_code:
+        test_passed = False
+        reason = "no INSTRUMENTATION_CODE in output (crash/OOM/timeout?)"
+    elif had_failures or had_exception:
+        test_passed = False
+        reason = "test failure (see output below)"
+    else:
+        test_passed = True
+        reason = ""
+
+    if test_passed:
         print(f"\r  Done  [{elapsed:.0f}s]{' ' * 30}")
     else:
-        print(f"\r  Failed (exit {proc.returncode})  [{elapsed:.0f}s]{' ' * 20}")
-        print("\n--- instrument output ---")
-        for l in output_lines[-30:]:
+        print(f"\r  Failed ({reason})  [{elapsed:.0f}s]{' ' * 20}")
+        print("\n--- instrument output (last 40 lines) ---")
+        for l in output_lines[-40:]:
             print(" ", l)
         print("---")
-        sys.exit(proc.returncode)
+        sys.exit(1)
 
     return proc.returncode
 
@@ -217,9 +261,12 @@ def install_apks():
     run([ADB, "install", "-r", APK_TEST],  env=env)
 
 
-def rebuild_and_install():
+def rebuild_and_install(force: bool = False):
     print("\n[2/6] Building APKs...")
-    run([GRADLEW, ":app:assembleDebug", ":app:assembleDebugAndroidTest"], cwd=PROJECT_DIR)
+    cmd = [GRADLEW, ":app:assembleDebug", ":app:assembleDebugAndroidTest"]
+    if force:
+        cmd.append("--rerun-tasks")
+    run(cmd, cwd=PROJECT_DIR)
     install_apks()
 
 
@@ -235,6 +282,8 @@ def main():
     parser.add_argument("--skip-rebuild",   action="store_true")
     parser.add_argument("--force-install",  action="store_true",
         help="Install already-built APKs without rebuilding")
+    parser.add_argument("--force-rebuild",  action="store_true",
+        help="Force full Gradle rebuild with --rerun-tasks (use after Kotlin source changes)")
     args = parser.parse_args()
 
     # Resolve video name and optional source path
@@ -266,15 +315,29 @@ def main():
             needs_rebuild = True
 
     # ── Step 2: Rebuild + install ────────────────────────────────────────────
+    # Also rebuild if the video asset is newer than the current debug APK,
+    # which means the APK was built before this video was added to assets.
+    if not needs_rebuild and not args.skip_ball and not args.skip_rebuild and not args.force_install:
+        apk_mtime = os.path.getmtime(APK_DEBUG) if os.path.isfile(APK_DEBUG) else 0
+        # Use max(mtime, ctime): on Windows, copying a file preserves the original
+        # mtime (recording date) but sets a new ctime (time the file appeared here).
+        asset_mtime = max(os.path.getmtime(video_path), os.path.getctime(video_path))
+        if asset_mtime > apk_mtime:
+            print(f"  Asset is newer than APK — rebuild needed to include it.")
+            needs_rebuild = True
+
     if args.force_install and not args.skip_ball:
         print("\n[2/6] Force-installing existing APKs...")
         install_apks()
+    elif args.force_rebuild and not args.skip_ball:
+        print("\n[2/6] Force-rebuilding (--rerun-tasks)...")
+        rebuild_and_install(force=True)
     elif needs_rebuild and not args.skip_rebuild and not args.skip_ball:
         rebuild_and_install()
     elif args.skip_ball or args.skip_rebuild:
         print("\n[2/6] Skipping rebuild.")
     else:
-        print("\n[2/6] No rebuild needed (video already registered).")
+        print("\n[2/6] No rebuild needed (video already registered, APK is current).")
 
     # ── Step 3: Export poses ─────────────────────────────────────────────────
     poses_json = os.path.join(subdir, base + "_poses.json")
@@ -300,10 +363,15 @@ def main():
     else:
         print(f"\n[4/6] Running ball detection on device...")
         run_instrument([ADB, "shell", "am", "instrument",
-                        "-w", "-r", "-e", "class", TEST_CLASS, TEST_RUNNER], env=env)
+                        "-w", "-r",
+                        "-e", "class", TEST_CLASS,
+                        "-e", "videoName", video_name,
+                        TEST_RUNNER], env=env)
 
         # ── Step 5: Pull ball JSON ───────────────────────────────────────────
         print(f"\n[5/6] Pulling ball JSON from device...")
+        print(f"  Device output dir contents:")
+        run([ADB, "shell", "ls", "-la", DEVICE_OUT + "/"], env=env, check=False)
         run([ADB, "pull", ball_json_device, subdir + "/"], env=env)
 
     # ── Step 6: Merge ────────────────────────────────────────────────────────
