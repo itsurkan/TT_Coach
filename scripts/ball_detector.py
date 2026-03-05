@@ -29,7 +29,7 @@ import cv2
 # ── Constants (matching BallDetectorV3.kt) ────────────────────────────────────
 
 HSV_RANGES = {
-    "white":  ((0, 0, 200),   (180, 50, 255)),
+    "white":  ((0, 0, 170),   (180, 70, 255)),
     "orange": ((5, 100, 100), (25, 255, 255)),
 }
 
@@ -41,10 +41,13 @@ MOTION_THRESHOLD      = 100
 MOTION_DILATE_PX      = 10
 MORPH_KERNEL_SIZE     = 5
 
-# Table exclusion — detect green/teal surface on first frame
-TABLE_HSV_LOWER       = (30, 15, 20)
-TABLE_HSV_UPPER       = (95, 255, 230)
-TABLE_DILATE_PX       = 25
+# Table exclusion — detect table surface on first frame (auto-detect color)
+# Supports green tables (H≈30-95) and blue/purple tables (H≈100-160)
+TABLE_HSV_RANGES = [
+    ((30, 15, 20),   (95, 255, 230)),    # green/teal
+    ((100, 30, 30),  (160, 255, 255)),   # blue/purple
+]
+TABLE_DILATE_PX       = 15
 TABLE_MIN_AREA_FRAC   = 0.03   # table must be at least 3% of frame area
 
 
@@ -68,8 +71,10 @@ class BallDetector:
             cv2.MORPH_ELLIPSE, (MOTION_DILATE_PX, MOTION_DILATE_PX))
         self.table_kernel  = cv2.getStructuringElement(
             cv2.MORPH_ELLIPSE, (TABLE_DILATE_PX, TABLE_DILATE_PX))
-        self.table_hsv_lower = np.array(TABLE_HSV_LOWER, dtype=np.uint8)
-        self.table_hsv_upper = np.array(TABLE_HSV_UPPER, dtype=np.uint8)
+        self.table_hsv_ranges = [
+            (np.array(lo, dtype=np.uint8), np.array(hi, dtype=np.uint8))
+            for lo, hi in TABLE_HSV_RANGES
+        ]
 
         self.prev_gray: np.ndarray | None = None
         self.table_mask: np.ndarray | None = None  # static, computed once
@@ -114,34 +119,46 @@ class BallDetector:
     # ── Table detection (once) ────────────────────────────────────────────────
 
     def _detect_table(self, frame_bgr: np.ndarray) -> np.ndarray:
-        """Detect the table surface on the first frame. Returns a binary mask (255=table)."""
+        """Detect the table surface on the first frame. Returns a binary mask (255=table).
+
+        Tries multiple HSV ranges (green, blue/purple) and picks the one that
+        produces the largest table region.
+        """
         h, w = frame_bgr.shape[:2]
         hsv = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2HSV)
-        raw_mask = cv2.inRange(hsv, self.table_hsv_lower, self.table_hsv_upper)
-
-        # Clean up noise
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-        clean = cv2.morphologyEx(raw_mask, cv2.MORPH_OPEN, kernel)
-        clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel)
-
-        # Collect all table-colored contours above min area, merge via convex hull
-        contours, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
         min_area = h * w * TABLE_MIN_AREA_FRAC
-        table_points = []
-        for c in contours:
-            if cv2.contourArea(c) >= min_area:
-                table_points.append(c)
 
-        # Build convex hull from all table contour points to fill the full rectangle
-        mask = np.zeros((h, w), dtype=np.uint8)
-        if table_points:
+        best_mask = np.zeros((h, w), dtype=np.uint8)
+        best_coverage = 0
+
+        for hsv_lo, hsv_hi in self.table_hsv_ranges:
+            raw_mask = cv2.inRange(hsv, hsv_lo, hsv_hi)
+            clean = cv2.morphologyEx(raw_mask, cv2.MORPH_OPEN, kernel)
+            clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel)
+
+            contours, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            table_points = []
+            for c in contours:
+                if cv2.contourArea(c) >= min_area:
+                    table_points.append(c)
+
+            if not table_points:
+                continue
+
+            mask = np.zeros((h, w), dtype=np.uint8)
             all_pts = np.vstack(table_points)
             hull = cv2.convexHull(all_pts)
             cv2.drawContours(mask, [hull], -1, 255, cv2.FILLED)
             mask = cv2.dilate(mask, self.table_kernel)
 
-        return mask
+            coverage = np.count_nonzero(mask)
+            if coverage > best_coverage:
+                best_coverage = coverage
+                best_mask = mask
+
+        return best_mask
 
     # ── Motion bounding rects ────────────────────────────────────────────────
 
