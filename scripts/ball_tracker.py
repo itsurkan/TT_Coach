@@ -192,9 +192,9 @@ class BallTracker:
         h, w = frame_bgr.shape[:2]
         gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
 
-        # Detect table once
-        if self.detector.table_mask is None:
-            self.detector.table_mask = self.detector._detect_table(frame_bgr)
+        # Table mask disabled — was too aggressive
+        # if self.detector.table_mask is None:
+        #     self.detector.table_mask = self.detector._detect_table(frame_bgr)
 
         # Get motion rects
         if self.detector.prev_gray is not None:

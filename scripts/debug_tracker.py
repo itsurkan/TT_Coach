@@ -8,17 +8,14 @@ candidates, chains, and final confirmed detection per frame.
 For each frame writes:
   01_original.png        – raw frame
   02_motion_diff.png     – absolute difference with previous frame
-  03_motion_mask.png     – thresholded + dilated motion mask
+  03_motion_mask.png     – thresholded + opened + dilated motion mask
   04_motion_rects.png    – motion bounding boxes on original
-  05_table_mask.png      – static table exclusion zone (overlay)
-  06_hsv_mask.png        – HSV color mask inside motion rects
-  07_morph_mask.png      – after table exclusion + morphological open/close
-  08_play_zone.png       – playing zone rectangle + all contour candidates
-  09_candidates.png      – top-N candidates after scoring + play zone boost
-  10_chains.png          – active chains drawn as colored polylines
-  11_result.png          – confirmed detection (green) vs unconfirmed (yellow)
-
-Also saves 00_table_mask.png once in the output root.
+  05_hsv_mask.png        – HSV color mask inside motion rects
+  06_morph_mask.png      – after morphological open/close
+  07_play_zone.png       – playing zone rectangle + all contour candidates
+  08_candidates.png      – top-N candidates after scoring + play zone boost
+  09_chains.png          – active chains drawn as colored polylines
+  10_result.png          – confirmed detection (green) vs unconfirmed (yellow)
 
 Output goes to: scripts/debug_tracker_frames/frame_NNN/
 
@@ -50,7 +47,7 @@ from ball_detector import (
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
 VIDEO_PATH  = os.path.join(
-    PROJECT_DIR, "app", "src", "main", "assets", "Videos", "IMG_6414", "IMG_6414.MOV"
+    PROJECT_DIR, "app", "src", "main", "assets", "Videos", "video_2", "video_2.mp4"
 )
 OUTPUT_DIR  = os.path.join(SCRIPTS_DIR, "debug_tracker_frames")
 
@@ -91,6 +88,8 @@ def compute_intermediate_steps(tracker, frame_bgr, frame_index):
     if det.prev_gray is not None:
         diff = cv2.absdiff(gray, det.prev_gray)
         _, motion_mask = cv2.threshold(diff, MOTION_THRESHOLD, 255, cv2.THRESH_BINARY)
+        # Remove thin/elongated structures before dilation
+        motion_mask = cv2.morphologyEx(motion_mask, cv2.MORPH_OPEN, det.morph_kernel)
         motion_dilated = cv2.dilate(motion_mask, det.motion_kernel)
 
         contours_motion, _ = cv2.findContours(
@@ -118,9 +117,6 @@ def compute_intermediate_steps(tracker, frame_bgr, frame_index):
         result["motion_mask"] = np.zeros((h, w), dtype=np.uint8)
         result["motion_rects"] = [(0, 0, w, h)]
 
-    # Table mask
-    result["table_mask"] = det.table_mask
-
     # HSV + morph masks (inside motion rects)
     hsv_full = np.zeros((h, w), dtype=np.uint8)
     morph_full = np.zeros((h, w), dtype=np.uint8)
@@ -132,11 +128,6 @@ def compute_intermediate_steps(tracker, frame_bgr, frame_index):
         mask = cv2.inRange(hsv, det.hsv_lower, det.hsv_upper)
         hsv_full[ry:ry + rh, rx:rx + rw] = np.maximum(
             hsv_full[ry:ry + rh, rx:rx + rw], mask)
-
-        # Table exclusion
-        if det.table_mask is not None:
-            table_sub = det.table_mask[ry:ry + rh, rx:rx + rw]
-            mask = cv2.bitwise_and(mask, cv2.bitwise_not(table_sub))
 
         morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, det.morph_kernel)
         morph = cv2.morphologyEx(morph, cv2.MORPH_CLOSE, det.morph_kernel)
@@ -214,21 +205,6 @@ def main():
         if not in_range:
             continue
 
-        # Save table mask once
-        if frame_idx == FRAME_START and intermediate["table_mask"] is not None:
-            save(OUTPUT_DIR, "00_table_mask.png", intermediate["table_mask"])
-            vis_table = frame_bgr.copy()
-            table_overlay = np.zeros_like(frame_bgr)
-            table_overlay[:, :, 2] = intermediate["table_mask"]
-            vis_table = cv2.addWeighted(vis_table, 0.7, table_overlay, 0.3, 0)
-            contours_t, _ = cv2.findContours(
-                intermediate["table_mask"], cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            cv2.drawContours(vis_table, contours_t, -1, (0, 0, 255), 2)
-            cv2.putText(vis_table, "TABLE EXCLUSION ZONE", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-            save(OUTPUT_DIR, "00_table_overlay.png", vis_table)
-            print("  Table mask saved to 00_table_mask.png")
-
         fdir = os.path.join(OUTPUT_DIR, f"frame_{frame_idx:03d}")
         os.makedirs(fdir, exist_ok=True)
 
@@ -253,23 +229,13 @@ def main():
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
         save(fdir, "04_motion_rects.png", vis_rects)
 
-        # 05 - table mask overlay
-        vis_table = frame_bgr.copy()
-        if intermediate["table_mask"] is not None:
-            table_overlay = np.zeros_like(frame_bgr)
-            table_overlay[:, :, 2] = intermediate["table_mask"]
-            vis_table = cv2.addWeighted(vis_table, 0.7, table_overlay, 0.3, 0)
-            cv2.putText(vis_table, "TABLE EXCLUSION", (10, 30),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-        save(fdir, "05_table_mask.png", vis_table)
+        # 05 - HSV mask
+        save(fdir, "05_hsv_mask.png", intermediate["hsv_mask"])
 
-        # 06 - HSV mask
-        save(fdir, "06_hsv_mask.png", intermediate["hsv_mask"])
+        # 06 - morph mask (after morphological open/close)
+        save(fdir, "06_morph_mask.png", intermediate["morph_mask"])
 
-        # 07 - morph mask (after table exclusion + morphology)
-        save(fdir, "07_morph_mask.png", intermediate["morph_mask"])
-
-        # 08 - play zone + all contour candidates
+        # 07 - play zone + all contour candidates
         vis_zone = frame_bgr.copy()
         # Draw play zone rectangle
         pz_x1 = int(PLAY_ZONE_X_MIN * w)
@@ -296,9 +262,9 @@ def main():
         n_contours = len(intermediate["all_contours"])
         cv2.putText(vis_zone, f"{n_contours} contour(s) + play zone", (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 200, 0), 2)
-        save(fdir, "08_play_zone.png", vis_zone)
+        save(fdir, "07_play_zone.png", vis_zone)
 
-        # 09 - top-N candidates after scoring + play zone boost
+        # 08 - top-N candidates after scoring + play zone boost
         vis_cand = frame_bgr.copy()
         # Draw play zone faintly
         cv2.rectangle(vis_cand, (pz_x1, pz_y1), (pz_x2, pz_y2), (255, 200, 0), 1)
@@ -312,9 +278,9 @@ def main():
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
         cv2.putText(vis_cand, f"{len(candidates)} candidate(s) (top {TOP_N_CANDIDATES})",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
-        save(fdir, "09_candidates.png", vis_cand)
+        save(fdir, "08_candidates.png", vis_cand)
 
-        # 10 - chains as polylines
+        # 09 - chains as polylines
         vis_chains = frame_bgr.copy()
         active_chains = [ch for ch in chains if ch.length >= 2]
         for i, chain in enumerate(active_chains):
@@ -337,9 +303,9 @@ def main():
                           if ch.length >= 3 and ch.avg_speed >= MIN_CHAIN_SPEED_PX)
         cv2.putText(vis_chains, f"{len(active_chains)} chain(s), {n_confirmed} confirmed",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-        save(fdir, "10_chains.png", vis_chains)
+        save(fdir, "09_chains.png", vis_chains)
 
-        # 11 - final result
+        # 10 - final result
         vis_result = frame_bgr.copy()
         if ball is not None:
             bx = int(ball["x"] * w)
@@ -366,7 +332,7 @@ def main():
             else:
                 cv2.putText(vis_result, "NO DETECTION", (10, 30),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-        save(fdir, "11_result.png", vis_result)
+        save(fdir, "10_result.png", vis_result)
 
         # Print summary
         status = "CONFIRMED" if ball else ("unconf" if candidates else "---")

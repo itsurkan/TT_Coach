@@ -92,9 +92,9 @@ class BallDetector:
         h, w = frame_bgr.shape[:2]
         gray = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2GRAY)
 
-        # Detect table once on first frame
-        if self.table_mask is None:
-            self.table_mask = self._detect_table(frame_bgr)
+        # Table mask disabled — was too aggressive, excluded ball near table
+        # if self.table_mask is None:
+        #     self.table_mask = self._detect_table(frame_bgr)
 
         # Determine search rects — motion boxes or full frame on first frame
         if self.prev_gray is not None:
@@ -165,6 +165,10 @@ class BallDetector:
     def _motion_rects(self, gray: np.ndarray, fw: int, fh: int) -> list[tuple[int, int, int, int]]:
         diff = cv2.absdiff(gray, self.prev_gray)
         _, motion_mask = cv2.threshold(diff, MOTION_THRESHOLD, 255, cv2.THRESH_BINARY)
+
+        # Remove thin/elongated structures (arms, racket edges, score digits)
+        motion_mask = cv2.morphologyEx(motion_mask, cv2.MORPH_OPEN, self.morph_kernel)
+
         motion_mask = cv2.dilate(motion_mask, self.motion_kernel)
 
         contours, _ = cv2.findContours(motion_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
