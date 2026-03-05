@@ -42,11 +42,10 @@ MOTION_DILATE_PX      = 10
 MORPH_KERNEL_SIZE     = 5
 
 # Table exclusion — detect green/teal surface on first frame
-# Narrow hue range for green table (avoids purple/blue ambient lighting)
-TABLE_HSV_LOWER       = (35, 20, 30)
-TABLE_HSV_UPPER       = (90, 255, 200)
-TABLE_DILATE_PX       = 20
-TABLE_MIN_AREA_FRAC   = 0.05   # table must be at least 5% of frame area
+TABLE_HSV_LOWER       = (30, 15, 20)
+TABLE_HSV_UPPER       = (95, 255, 230)
+TABLE_DILATE_PX       = 25
+TABLE_MIN_AREA_FRAC   = 0.03   # table must be at least 3% of frame area
 
 
 # ── Ball Detector ─────────────────────────────────────────────────────────────
@@ -125,22 +124,21 @@ class BallDetector:
         clean = cv2.morphologyEx(raw_mask, cv2.MORPH_OPEN, kernel)
         clean = cv2.morphologyEx(clean, cv2.MORPH_CLOSE, kernel)
 
-        # Find the largest contour — that's the table
+        # Collect all table-colored contours above min area, merge via convex hull
         contours, _ = cv2.findContours(clean, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         min_area = h * w * TABLE_MIN_AREA_FRAC
-        table_contour = None
-        table_area = 0
+        table_points = []
         for c in contours:
-            a = cv2.contourArea(c)
-            if a > table_area and a >= min_area:
-                table_area = a
-                table_contour = c
+            if cv2.contourArea(c) >= min_area:
+                table_points.append(c)
 
-        # Create filled mask from the table contour, then dilate to cover lines
+        # Build convex hull from all table contour points to fill the full rectangle
         mask = np.zeros((h, w), dtype=np.uint8)
-        if table_contour is not None:
-            cv2.drawContours(mask, [table_contour], -1, 255, cv2.FILLED)
+        if table_points:
+            all_pts = np.vstack(table_points)
+            hull = cv2.convexHull(all_pts)
+            cv2.drawContours(mask, [hull], -1, 255, cv2.FILLED)
             mask = cv2.dilate(mask, self.table_kernel)
 
         return mask
