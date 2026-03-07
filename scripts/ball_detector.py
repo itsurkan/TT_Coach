@@ -37,7 +37,7 @@ MIN_CIRCULARITY       = 0.20
 CONFIDENCE_CIRC_W     = 0.6
 CONFIDENCE_SIZE_W     = 0.4
 
-MOTION_THRESHOLD      = 100
+MOTION_THRESHOLD      = 50
 MOTION_DILATE_PX      = 10
 MORPH_KERNEL_SIZE     = 5
 
@@ -209,11 +209,11 @@ class BallDetector:
             table_sub = self.table_mask[ry:ry + rh, rx:rx + rw]
             mask = cv2.bitwise_and(mask, cv2.bitwise_not(table_sub))
 
-        # Morphological open then close
-        morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self.morph_kernel)
-        morph = cv2.morphologyEx(morph, cv2.MORPH_CLOSE, self.morph_kernel)
+        # Morphological open/close disabled — was removing small ball blobs
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self.morph_kernel)
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.morph_kernel)
 
-        contours, _ = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         min_area = math.pi * self.radius_min ** 2
         max_area = math.pi * self.radius_max ** 2

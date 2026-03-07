@@ -246,10 +246,11 @@ class BallTracker:
             table_sub = self.detector.table_mask[ry:ry + rh, rx:rx + rw]
             mask = cv2.bitwise_and(mask, cv2.bitwise_not(table_sub))
 
-        morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self.detector.morph_kernel)
-        morph = cv2.morphologyEx(morph, cv2.MORPH_CLOSE, self.detector.morph_kernel)
+        # Morphological open/close disabled — was removing small ball blobs
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, self.detector.morph_kernel)
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, self.detector.morph_kernel)
 
-        contours, _ = cv2.findContours(morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         min_area = math.pi * self.detector.radius_min ** 2
         max_area = math.pi * self.detector.radius_max ** 2

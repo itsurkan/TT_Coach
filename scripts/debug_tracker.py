@@ -52,8 +52,8 @@ VIDEO_PATH  = os.path.join(
 OUTPUT_DIR  = os.path.join(SCRIPTS_DIR, "debug_tracker_frames")
 
 INTERVAL_MS = 100
-FRAME_START = 5
-FRAME_END   = 30   # inclusive
+FRAME_START = 0
+FRAME_END   = 15   # inclusive
 
 # Chain colors (BGR) — one per chain for visualization
 CHAIN_COLORS = [
@@ -129,13 +129,12 @@ def compute_intermediate_steps(tracker, frame_bgr, frame_index):
         hsv_full[ry:ry + rh, rx:rx + rw] = np.maximum(
             hsv_full[ry:ry + rh, rx:rx + rw], mask)
 
-        morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, det.morph_kernel)
-        morph = cv2.morphologyEx(morph, cv2.MORPH_CLOSE, det.morph_kernel)
-        morph_full[ry:ry + rh, rx:rx + rw] = np.maximum(
-            morph_full[ry:ry + rh, rx:rx + rw], morph)
+        # Morph open/close disabled — was removing small ball blobs
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_OPEN, det.morph_kernel)
+        # morph = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, det.morph_kernel)
 
         contours_hsv, _ = cv2.findContours(
-            morph, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         min_area = math.pi * det.radius_min ** 2
         max_area = math.pi * det.radius_max ** 2
