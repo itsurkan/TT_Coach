@@ -1,0 +1,5 @@
+---
+description: build
+---
+
+.\gradlew assembleDebug

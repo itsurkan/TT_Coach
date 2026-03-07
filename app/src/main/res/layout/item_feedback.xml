@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Collapsed Header -->
+        <LinearLayout
+            android:id="@+id/layout_feedback_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground">
+
+            <!-- Icon -->
+            <View
+                android:id="@+id/iv_feedback_icon"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@android:drawable/ic_menu_info_details"
+                android:layout_marginEnd="12dp"/>
+
+            <!-- Message -->
+            <TextView
+                android:id="@+id/tv_feedback_message"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/placeholder_feedback_title_perfect"
+                android:textSize="14sp"
+                android:textColor="?android:textColorPrimary"/>
+
+            <!-- Expand Icon -->
+            <ImageView
+                android:id="@+id/iv_expand_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_baseline_add_24"
+                app:tint="@color/text_muted"
+                android:rotation="0"/>
+        </LinearLayout>
+
+        <!-- Expandable Details Section -->
+        <LinearLayout
+            android:id="@+id/layout_feedback_details"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:visibility="gone">
+
+            <!-- Details Text -->
+            <TextView
+                android:id="@+id/tv_feedback_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder_feedback_desc_perfect"
+                android:textSize="12sp"
+                android:textColor="@color/text_muted"
+                android:lineSpacingExtra="2dp"
+                android:padding="12dp"
+                android:background="@color/card_background"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Pose Visualization Card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="1dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border_color">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_movement_analysis"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:layout_marginBottom="4dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/desc_movement_analysis"
+                        android:textSize="10sp"
+                        android:textColor="@color/text_muted"
+                        android:layout_marginBottom="12dp"/>
+
+                    <!-- Pose Replay View Placeholder -->
+                    <com.ttcoachai.views.PoseVisualizer
+                        android:id="@+id/pose_visualizer"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:background="@color/background_surface_alt"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

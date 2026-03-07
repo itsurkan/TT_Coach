@@ -1,0 +1,42 @@
+=== Stroke Analysis (Values) ===
+Config: Axis=X, Inv=false
+
+Stroke 1:
+  Frames: 0 -> 13
+  Total Duration: 1300ms
+  Backswing Min Value: 0.2500703
+  Forward Peak Value: 0.5799849
+  Amplitude: 0.3299146
+  Peak Velocity: 0.09494692
+  Z-Range (Depth): 0.9694141
+  Y-Range (Height): 0.14692774
+
+Stroke 2:
+  Frames: 13 -> 24
+  Total Duration: 1100ms
+  Backswing Min Value: 0.2517379
+  Forward Peak Value: 0.5741479
+  Amplitude: 0.32241
+  Peak Velocity: 0.10687801
+  Z-Range (Depth): 1.0052099
+  Y-Range (Height): 0.13871592
+
+Stroke 3:
+  Frames: 24 -> 35
+  Total Duration: 1100ms
+  Backswing Min Value: 0.2989952
+  Forward Peak Value: 0.57534426
+  Amplitude: 0.27634907
+  Peak Velocity: 0.07982585
+  Z-Range (Depth): 1.00975
+  Y-Range (Height): 0.15460482
+
+Stroke 4:
+  Frames: 35 -> 46
+  Total Duration: 1100ms
+  Backswing Min Value: 0.26763573
+  Forward Peak Value: 0.5868527
+  Amplitude: 0.319217
+  Peak Velocity: 0.1147756
+  Z-Range (Depth): 1.0331635
+  Y-Range (Height): 0.16266087

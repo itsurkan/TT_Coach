@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Dark theme colors
+-->
+<resources>
+    <!-- Material 3 Dark Tonal Palette -->
+    <color name="colorPrimary">#ADC6FF</color>
+    <color name="colorOnPrimary">#002E69</color>
+    <color name="colorPrimaryContainer">#004494</color>
+    <color name="colorOnPrimaryContainer">#D6E2FF</color>
+    
+    <color name="colorSecondary">#C1C6DD</color>
+    <color name="colorOnSecondary">#2B3042</color>
+    <color name="colorSecondaryContainer">#414659</color>
+    <color name="colorOnSecondaryContainer">#E0E1F9</color>
+
+    <color name="colorTertiary">#FFB951</color>
+    <color name="colorOnTertiary">#452B00</color>
+    <color name="colorTertiaryContainer">#633F00</color>
+    <color name="colorOnTertiaryContainer">#FFDDB3</color>
+
+    <color name="colorError">#FFB4AB</color>
+    <color name="colorOnError">#690005</color>
+    <color name="colorErrorContainer">#93000A</color>
+    <color name="colorOnErrorContainer">#FFDAD6</color>
+
+    <color name="colorSurface">#111318</color>
+    <color name="colorOnSurface">#E2E2E9</color>
+    <color name="colorSurfaceVariant">#44474F</color>
+    <color name="colorOnSurfaceVariant">#C4C6D0</color>
+
+    <!-- Material 3 Surface Containers (Dark Theme Overrides) -->
+    <color name="surfaceBright">#3B3D45</color>
+    <color name="surfaceDim">#111318</color>
+    <color name="surfaceContainerLowest">#0F1115</color>
+    <color name="surfaceContainerLow">#191C20</color>
+    <color name="surfaceContainer">#1E2125</color>
+    <color name="surfaceContainerHigh">#292C32</color>
+    <color name="surfaceContainerHighest">#34373E</color>
+    
+    <color name="colorOutline">#8E9099</color>
+    <color name="colorOutlineVariant">#44474F</color>
+    <color name="colorSurfaceInverse">#E2E2E9</color>
+    <color name="colorOnSurfaceInverse">#2E3036</color>
+    <color name="colorPrimaryInverse">#2563EB</color>
+    <color name="colorSurfaceTint">@color/colorPrimary</color>
+
+    <!-- App Specific / Brand Colors (Dark Theme) -->
+    <color name="mp_color_primary">@color/colorPrimary</color>
+    <color name="mp_color_primary_variant">#12B5CB</color>
+    <color name="mp_color_primary_dark">#007F8B</color>
+    <color name="mp_color_secondary">@color/colorSecondary</color>
+    <color name="mp_color_secondary_variant">#F9AB00</color>
+    <color name="mp_color_error">@color/colorError</color>
+
+    <!-- UI Element Specific Colors (Dark Theme) -->
+    <color name="bg_card_grid">#3B3D45</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_muted">@color/colorOnSurfaceVariant</color>
+    <color name="border_color">#44474F</color>
+
+    <!-- Status Colors (Dark Theme) -->
+    <color name="success">#34D399</color>
+    <color name="warning">#FB923C</color>
+    <color name="info">#60A5FA</color>
+
+    <!-- Chart / Progress Colors (Dark Theme) -->
+    <color name="chart_primary">@color/colorPrimary</color>
+    <color name="chart_secondary">@color/colorSecondary</color>
+    <color name="chart_tertiary">@color/colorTertiary</color>
+
+    <!-- Legacy / Compatibility Colors (Dark Theme) -->
+    <color name="blue_600">#60A5FA</color>
+    <color name="blue_500">#3B82F6</color>
+    <color name="green_500">#34D399</color>
+    <color name="orange_500">#FB923C</color>
+    <color name="purple_500">#C084FC</color>
+    <color name="amber_500">#FBBF24</color>
+    <!-- Missing colors restored for compatibility (Night) -->
+    <color name="gray_50">#1F2937</color>
+    <color name="gray_100">#374151</color>
+    <color name="green_50">#064E3B</color>
+    <color name="blue_100">#1E3A8A</color>
+    <color name="orange_50">#7C2D12</color>
+    <color name="purple_50">#4C1D95</color>
+    <color name="red_100">#7F1D1D</color>
+    <color name="indigo_50">#312E81</color>
+    <color name="white_20">#1AFFFFFF</color>
+    <color name="card_background">#1E293B</color>
+    <color name="badge_bg_blue">#1E293B</color>
+    <color name="badge_bg_green">#1E293B</color>
+    <color name="badge_bg_orange">#1E293B</color>
+    <color name="badge_bg_red">#1E293B</color>
+    <color name="switch_track_checked">#1E40AF</color>
+    <color name="switch_track_unchecked">#4B5563</color>
+    <color name="overlay_scrim">#CC000000</color>
+    <color name="text_secondary_contrast">#94A3B8</color>
+
+    <!-- Additional missing colors for legacy compatibility (Night) -->
+    <color name="tab_indicator_color">#ADC6FF</color>
+    <color name="tab_track_color">#44474F</color>
+    <color name="coach_accent_green">#34D399</color>
+    <color name="spinner_bg">#1E293B</color>
+    <color name="spinner_border">#334155</color>
+    <color name="card_stroke_orange_20">#4DFB923C</color>
+    <color name="card_bg_orange_10">#26FB923C</color>
+    <color name="card_stroke_blue_20">#4D60A5FA</color>
+    <color name="card_stroke_blue_10">#2660A5FA</color>
+    <color name="toolbar_background">#111318</color>
+    <color name="background_surface_alt">#1A1C1E</color>
+    <color name="card_bg_amber_light">#2D2310</color>
+    <color name="blue_100_70">#B31E3A8A</color>
+    <color name="bottom_sheet_background">#1A1C1E</color>
+    <color name="bottom_sheet_text_color">#E2E2E9</color>
+    <color name="bg_card_selected">#1E293B</color>
+    <color name="phase_backswing">#60A5FA</color>
+    <color name="phase_ready">#64748B</color>
+    <color name="phase_forward_swing">#FBBF24</color>
+    <color name="phase_contact">#F87171</color>
+    <color name="phase_follow_through">#A78BFA</color>
+    <color name="phase_recovery">#94A3B8</color>
+    <color name="gray_light">#374151</color>
+    <color name="badge_text_green">#BBF7D0</color>
+    <color name="badge_text_orange">#FED7AA</color>
+    <color name="badge_text_red">#FECACA</color>
+    <color name="badge_text_blue">#DBEAFE</color>
+    <color name="coach_avatar_green">#059669</color>
+    <color name="coach_avatar_blue">#2563EB</color>
+    <color name="coach_avatar_purple">#7C3AED</color>
+    <color name="success_green">#34D399</color>
+    <color name="primary_blue">#60A5FA</color>
+    <color name="text_primary">#E2E2E9</color>
+    <color name="bg_card_target">#2D2310</color>
+    <color name="text_card_target">#FDBA74</color>
+    <color name="bg_card_calendar">#064E3B</color>
+    <color name="text_card_calendar">#86EFAC</color>
+    <color name="bg_card_award">#312E81</color>
+    <color name="text_card_award">#C7D2FE</color>
+</resources>

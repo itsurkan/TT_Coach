@@ -17,11 +17,24 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
+        <intent>
+            <action android:name="com.google.android.gms.auth.GOOGLE_SIGN_IN" />
+        </intent>
+    </queries>
+
     <!-- Declare features -->
     <uses-feature android:name="android.hardware.camera" />
 
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:name=".TTCoachApplication"
@@ -30,42 +43,77 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:taskAffinity=""
         android:theme="@style/AppTheme"
         tools:ignore="AllowBackup">
 
-        <!-- Welcome Screen (Main Launcher) -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <!-- Debug Activity - Video Testing (Development Mode) -->
         <activity
-            android:name=".WelcomeActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:name=".DebugActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+
+        <!-- Login Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:launchMode="singleTask" />
 
         <!-- Exercise Selection Screen -->
         <activity
             android:name=".ExerciseSelectionActivity"
             android:exported="false"
-            android:parentActivityName=".WelcomeActivity" />
+            android:parentActivityName=".MainActivity" />
 
         <!-- Training Screen -->
         <activity
             android:name=".TrainingActivity"
             android:exported="false"
-            android:parentActivityName=".ExerciseSelectionActivity" />
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:parentActivityName=".MainActivity" />
 
-        <!-- Settings Screen -->
+        <!-- Activity Settings Screen -->
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ActivitySettingsActivity"
             android:exported="false"
-            android:parentActivityName=".WelcomeActivity" />
+            android:parentActivityName=".MainActivity" />
 
-        <!-- Original MainActivity (Legacy) -->
+        <!-- App Settings Screen -->
+        <activity
+            android:name=".AppSettingsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Subscribe Screen -->
+        <activity
+            android:name=".SubscribeActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Weekly Sessions Screen -->
+        <activity
+            android:name=".WeeklySessionsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Skill Target Screen -->
+        <activity
+            android:name=".SkillTargetActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Main Activity (New Entry Point) -->
         <activity
             android:name=".MainActivity"
-            android:exported="false">
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
             <!-- Declare notch support -->
             <meta-data
                 android:name="android.notch_support"
@@ -81,6 +129,7 @@
                 android:name="android.notch_support"
                 android:value="true" />
         </activity>
+
     </application>
 
 </manifest>

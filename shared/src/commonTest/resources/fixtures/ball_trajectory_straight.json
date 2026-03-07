@@ -1,0 +1,21 @@
+{
+  "description": "Straight horizontal line: ball moving left to right at constant velocity, no vertical change",
+  "frameWidth": 1280,
+  "frameHeight": 720,
+  "frameDurationMs": 33,
+  "detections": [
+    { "frameIndex": 0, "timestampMs":   0, "x": 0.100, "y": 0.500, "confidence": 0.90, "radiusPx": 10.0, "status": "DETECTED" },
+    { "frameIndex": 1, "timestampMs":  33, "x": 0.200, "y": 0.500, "confidence": 0.91, "radiusPx": 10.0, "status": "DETECTED" },
+    { "frameIndex": 2, "timestampMs":  66, "x": 0.300, "y": 0.500, "confidence": 0.89, "radiusPx": 10.0, "status": "DETECTED" },
+    { "frameIndex": 3, "timestampMs":  99, "x": 0.400, "y": 0.500, "confidence": 0.92, "radiusPx": 10.0, "status": "DETECTED" },
+    { "frameIndex": 4, "timestampMs": 132, "x": 0.500, "y": 0.500, "confidence": 0.88, "radiusPx": 10.0, "status": "DETECTED" }
+  ],
+  "expectedFit": {
+    "ax": 0.100,
+    "bx": 0.100,
+    "ay": 0.500,
+    "by": 0.000,
+    "cy": 0.000
+  },
+  "expectedRmsErrorMax": 0.001
+}

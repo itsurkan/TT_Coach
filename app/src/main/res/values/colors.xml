@@ -15,21 +15,139 @@
     ~ limitations under the License.
 -->
 <resources>
-    <color name="mp_color_primary">#007F8B</color>
+    <!-- Material 3 Standard Tonal Palette -->
+    <color name="colorPrimary">#2563EB</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#EBF2FF</color>
+    <color name="colorOnPrimaryContainer">#001A43</color>
+    
+    <color name="colorSecondary">#5B5D72</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#F2F2F7</color>
+    <color name="colorOnSecondaryContainer">#181A2C</color>
+
+    <color name="colorTertiary">#F59E0B</color>
+    <color name="colorOnTertiary">#000000</color>
+    <color name="colorTertiaryContainer">#FFD78F</color>
+    <color name="colorOnTertiaryContainer">#281900</color>
+
+    <color name="colorError">#BA1A1A</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#FFDAD6</color>
+    <color name="colorOnErrorContainer">#410002</color>
+
+    <color name="colorSurface">#FFFFFF</color>
+    <color name="colorOnSurface">#191C1E</color>
+    <color name="colorSurfaceVariant">#F4F4F5</color>
+    <color name="colorOnSurfaceVariant">#44474F</color>
+
+    <!-- Material 3 Surface Containers (Explicit Overrides for Light Theme) -->
+    <color name="surfaceBright">#FFFFFF</color>
+    <color name="surfaceDim">#F5F5F7</color>
+    <color name="surfaceContainerLowest">#FFFFFF</color>
+    <color name="surfaceContainerLow">#F7F9FC</color>
+    <color name="surfaceContainer">#F0F2F5</color>
+    <color name="surfaceContainerHigh">#ECEEF2</color>
+    <color name="surfaceContainerHighest">#E6E8ED</color>
+    
+    <color name="colorOutline">#74777F</color>
+    <color name="colorOutlineVariant">#C4C6D0</color>
+    <color name="colorSurfaceInverse">#2E3032</color>
+    <color name="colorOnSurfaceInverse">#F0F0F3</color>
+    <color name="colorPrimaryInverse">#ADC6FF</color>
+    <color name="colorSurfaceTint">@color/colorPrimary</color>
+
+    <!-- App Specific / Brand Colors (Mapped to M3 roles where possible) -->
+    <color name="mp_color_primary">@color/colorPrimary</color>
     <color name="mp_color_primary_variant">#12B5CB</color>
     <color name="mp_color_primary_dark">#00676D</color>
-    <color name="mp_color_secondary">#FBBC04</color>
+    <color name="mp_color_secondary">@color/colorSecondary</color>
     <color name="mp_color_secondary_variant">#F9AB00</color>
-    <color name="mp_color_error">#B00020</color>
-    <color name="toolbar_background">#E0E0E0</color>
-    <color name="ic_launcher_background">#FFFFFF</color>
-    <color name="bottom_sheet_background">#EEEEEE</color>
-    <color name="bottom_sheet_text_color">@android:color/black</color>
-    <color name="icActive">#FFFFFFFF</color>
-    <color name="icFocused">#DDFFFFFF</color>
-    <color name="icPressed">#AAFFFFFF</color>
+    <color name="mp_color_error">@color/colorError</color>
     
-    <!-- AI Coach colors -->
+    <!-- UI Element Specific Colors -->
+    <color name="bg_card_grid">#FFFFFF</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="text_muted">@color/colorOnSurfaceVariant</color>
+    <color name="border_color">#C4C6D0</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#22C55E</color>
+    <color name="warning">#F59E0B</color>
+    <color name="info">#3B82F6</color>
+    
+    <!-- Chart / Progress Colors -->
+    <color name="chart_primary">@color/colorPrimary</color>
+    <color name="chart_secondary">@color/colorSecondary</color>
+    <color name="chart_tertiary">@color/colorTertiary</color>
+
+    <!-- Legacy / Compatibility Colors (Should be phased out) -->
+    <color name="blue_600">#2563EB</color>
+    <color name="blue_500">#3B82F6</color>
+    <color name="green_500">#22C55E</color>
+    <color name="orange_500">#F97316</color>
+    <color name="purple_500">#A855F7</color>
+    <color name="amber_500">#F59E0B</color>
+    <color name="red_500">#EF4444</color>
+    <!-- Missing colors restored for compatibility with existing drawables -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="green_50">#F0FDF4</color>
+    <color name="blue_100">#DBEAFE</color>
+    <color name="orange_50">#FFF7ED</color>
+    <color name="purple_50">#FAF5FF</color>
+    <color name="red_100">#FEE2E2</color>
+    <color name="indigo_50">#EEF2FF</color>
+    <color name="white_20">#33FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="badge_bg_blue">#E0EAFF</color>
+    <color name="badge_bg_green">#E7F7EF</color>
+    <color name="badge_bg_orange">#FFF1E7</color>
+    <color name="badge_bg_red">#FBE8E8</color>
+    <color name="switch_track_checked">#93C5FD</color>
+    <color name="switch_track_unchecked">#E5E7EB</color>
+    <color name="overlay_scrim">#99000000</color>
+    <color name="text_secondary_contrast">#E5E7EB</color>
+
+    <!-- Additional missing colors for legacy compatibility -->
+    <color name="tab_indicator_color">#2563EB</color>
+    <color name="tab_track_color">#E1E2EC</color>
+    <color name="coach_accent_green">#10B981</color>
+    <color name="spinner_bg">#FFFFFF</color>
+    <color name="spinner_border">#E5E7EB</color>
+    <color name="card_stroke_orange_20">#33F97316</color>
+    <color name="card_bg_orange_10">#1AF97316</color>
+    <color name="card_stroke_blue_20">#333B82F6</color>
+    <color name="card_stroke_blue_10">#1A3B82F6</color>
+    <color name="toolbar_background">#FFFFFF</color>
+    <color name="background_surface_alt">#FAFAFA</color>
+    <color name="card_bg_amber_light">#FFFBEB</color>
+    <color name="blue_100_70">#B3DBEAFE</color>
+    <color name="bottom_sheet_background">#FFFFFF</color>
+    <color name="bottom_sheet_text_color">#191C1E</color>
+    <color name="bg_card_selected">#F5F9FF</color>
+    <color name="phase_backswing">#3B82F6</color>
+    <color name="phase_ready">#94A3B8</color>
+    <color name="phase_forward_swing">#F59E0B</color>
+    <color name="phase_contact">#EF4444</color>
+    <color name="phase_follow_through">#8B5CF6</color>
+    <color name="phase_recovery">#CBD5E1</color>
+    <color name="gray_light">#F3F4F6</color>
+    <color name="badge_text_green">#166534</color>
+    <color name="badge_text_orange">#9A3412</color>
+    <color name="badge_text_red">#991B1B</color>
+    <color name="badge_text_blue">#1E40AF</color>
+    <color name="coach_avatar_green">#10B981</color>
+    <color name="coach_avatar_blue">#3B82F6</color>
+    <color name="coach_avatar_purple">#8B5CF6</color>
+    <color name="success_green">#10B981</color>
+    <color name="primary_blue">#3B82F6</color>
+    <color name="text_primary">#191C1E</color>
+    <color name="bg_card_target">#FFF7ED</color>
+    <color name="text_card_target">#C2410C</color>
+    <color name="bg_card_calendar">#F0FDF4</color>
+    <color name="text_card_calendar">#15803D</color>
+    <color name="bg_card_award">#EEF2FF</color>
+    <color name="text_card_award">#4338CA</color>
 </resources>

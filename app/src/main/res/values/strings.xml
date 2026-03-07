@@ -1,48 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    ~ Copyright 2023 The TensorFlow Authors. All Rights Reserved.
-    ~
-    ~ Licensed under the Apache License, Version 2.0 (the "License");
-    ~ you may not use this file except in compliance with the License.
-    ~ You may obtain a copy of the License at
-    ~
-    ~       http://www.apache.org/licenses/LICENSE-2.0
-    ~
-    ~ Unless required by applicable law or agreed to in writing, software
-    ~ distributed under the License is distributed on an "AS IS" BASIS,
-    ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    ~ See the License for the specific language governing permissions and
-    ~ limitations under the License.
--->
 <resources>
     <string name="app_name">TT AI Coach 1</string>
     <string name="use_video_debug">🎬 Use video (debug)</string>
-
     <string name="media_pipe">MediaPipe</string>
-
     <string name="alt_bottom_sheet_chevron">Bottom sheet expandable indicator</string>
-
-    <string name="alt_bottom_sheet_max_results_button_minus">Decreasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_max_results_button_plus">Increasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_threshold_button_minus">Decreasing
-        threshold of pose detect results button</string>
-    <string name="alt_bottom_sheet_threshold_button_plus">Increasing
-        threshold of pose detect results button</string>
+    <string name="alt_bottom_sheet_max_results_button_minus">Decreasing maximum pose results button</string>
+    <string name="alt_bottom_sheet_max_results_button_plus">Increasing maximum pose results button</string>
+    <string name="alt_bottom_sheet_threshold_button_minus">Decreasing threshold of pose detect results button</string>
+    <string name="alt_bottom_sheet_threshold_button_plus">Increasing threshold of pose detect results button</string>
     <string name="menu_camera">Camera</string>
     <string name="menu_gallery">Gallery</string>
-    <string name="tv_gallery_placeholder">Click + to add an image or a video
-        to begin running the pose landmarker.</string>
-
+    <string name="tv_gallery_placeholder">Click + to add an image or a video to begin running the pose landmarker.</string>
     <string name="label_inference_time">Inference Time</string>
     <string name="label_fps">Frames per Second</string>
-    <string name="label_pose_detection_confidence_threshold">Detection
-        Threshold</string>
-    <string name="label_pose_tracking_confidence_threshold">Tracking
-        Threshold</string>
-    <string name="label_pose_presence_confidence_threshold">Presence
-        Threshold</string>
+    <string name="label_pose_detection_confidence_threshold">Detection Threshold</string>
+    <string name="label_pose_tracking_confidence_threshold">Tracking Threshold</string>
+    <string name="label_pose_presence_confidence_threshold">Presence Threshold</string>
     <string name="label_num_poses">Number of Poses</string>
     <string name="label_delegate">Delegate</string>
     <string name="label_models">Model</string>
@@ -56,6 +29,12 @@
         <item>Pose Landmarker Full</item>
         <item>Pose Landmarker Lite</item>
         <item>Pose Landmarker Heavy</item>
+    </string-array>
+
+    <string-array name="feedback_frequencies">
+        <item>Each 3 strokes</item>
+        <item>Each 5 strokes</item>
+        <item>Each 10 strokes</item>
     </string-array>
     
     <!-- Welcome Activity -->
@@ -84,13 +63,33 @@
     <string name="exercise_backhand_desc">Basic backhand stroke</string>
     <string name="exercise_topspin_name">Forehand Topspin</string>
     <string name="exercise_topspin_desc">Attacking stroke with strong spin</string>
-    <string name="exercise_service_name">Service</string>
-    <string name="exercise_service_desc">Ball serving technique</string>
+    <string name="exercise_service_name">Serve Practice</string>
+    <string name="exercise_service_desc">Improve serve accuracy and variation</string>
+    <string name="exercise_backhand_loop_name">Backhand Loop</string>
+    <string name="exercise_backhand_loop_desc">Develop topspin control on backhand shots</string>
+    <string name="exercise_footwork_name">Footwork Drill</string>
+    <string name="exercise_footwork_desc">Enhance movement and positioning</string>
+    <string name="exercise_multiball_name">Multi-Ball Rally</string>
+    <string name="exercise_multiball_desc">Fast-paced drill for reaction time</string>
+    <string name="exercise_consistency_name">Consistency Challenge</string>
+    <string name="exercise_consistency_desc">Keep the ball in play for as long as possible</string>
     <string name="difficulty_beginner">Beginner</string>
     <string name="difficulty_intermediate">Intermediate</string>
+    <string name="difficulty_advanced">Advanced</string>
+    <string name="difficulty_all_levels">All Levels</string>
     <string name="difficulty_label">Difficulty: %s</string>
     <string name="duration_label">Duration: %s</string>
-    <string name="duration_10_15">10-15 min</string>
+    <string name="duration_10_15">15 min</string>
+    <string name="duration_20">20 min</string>
+    <string name="duration_10">10 min</string>
+    <string name="duration_25">25 min</string>
+    <string name="duration_30">30 min</string>
+    <string name="cat_technique">Technique</string>
+    <string name="cat_spin">Spin Control</string>
+    <string name="cat_serving">Serving</string>
+    <string name="cat_footwork">Footwork</string>
+    <string name="cat_speed">Speed</string>
+    <string name="cat_control">Control</string>
     <string name="lock_icon">🔒 Locked</string>
     
     <!-- Training Activity -->
@@ -111,8 +110,12 @@
     <string name="training_summary_title">Training Summary</string>
     <string name="btn_complete">Finish</string>
     <string name="btn_continue">Continue</string>
+    <string name="btn_finish_save">Finish &amp; Save</string>
+    <string name="btn_discard">Discard</string>
     <string name="finish_training_title">Finish training?</string>
     <string name="finish_training_message">Are you sure you want to finish the current training?</string>
+    <string name="discard_training_message">Are you sure you want to discard this session? It will not be saved.</string>
+    <string name="session_discarded">Session discarded</string>
     
     <!-- Settings Activity -->
     <string name="settings_title">Settings</string>
@@ -139,6 +142,52 @@
     <string name="reset_done_title">Done</string>
     <string name="reset_done_message">Settings reset to default values</string>
     
+    <!-- Feedback Style Settings -->
+    <string name="section_feedback">💬 Feedback Type</string>
+    <string name="feedback_type_label">Feedback style:</string>
+    <string name="feedback_type_short">Short (Pro)</string>
+    <string name="feedback_type_standard">Standard (Full description)</string>
+    
+    <!-- Short Feedback Messages -->
+    <string name="short_error_wrist_bent">Straighten wrist</string>
+    <string name="short_error_low_rotation">More rotation</string>
+    <string name="short_error_high_contact">Lower contact</string>
+    <string name="short_error_low_contact">Higher contact</string>
+    <string name="short_error_no_follow_through">Complete stroke</string>
+    <string name="short_error_elbow_far">Elbow closer</string>
+    <string name="short_error_elbow_close">Elbow looser</string>
+    <string name="short_error_slow_stroke">Faster</string>
+    <string name="short_error_fast_stroke">Slower</string>
+
+    <string name="short_rec_straighten_wrist">Wrist straight</string>
+    <string name="short_rec_rotate_more">Body rotation</string>
+    <string name="short_rec_contact_height">Contact height</string>
+    <string name="short_rec_complete_follow">Finish movement</string>
+    <string name="short_rec_keep_elbow_close">Elbow close</string>
+    <string name="short_rec_move_elbow_away">Release elbow</string>
+    <string name="short_rec_increase_speed">More speed</string>
+    <string name="short_rec_control_speed">Less speed</string>
+
+    <!-- Standard Feedback Messages -->
+    <string name="error_wrist_bent_full">Wrist bent - straighten it</string>
+    <string name="error_low_rotation_full">Insufficient body rotation - turn more</string>
+    <string name="error_high_contact_full">Contact too high - lower strike point</string>
+    <string name="error_low_contact_full">Contact too low - raise strike point</string>
+    <string name="error_no_follow_through_full">Insufficient follow-through - complete the movement</string>
+    <string name="error_elbow_far_full">Elbow far from body - keep it closer</string>
+    <string name="error_elbow_close_full">Elbow pressed to body - keep it looser</string>
+    <string name="error_slow_stroke_full">Stroke too slow - add speed</string>
+    <string name="error_fast_stroke_full">Stroke too fast - control speed</string>
+
+    <string name="rec_straighten_wrist_full">Keep wrist straight during stroke</string>
+    <string name="rec_rotate_more_full">More body rotation for power</string>
+    <string name="rec_contact_height_full">Contact at table level - optimal height</string>
+    <string name="rec_complete_follow_full">Complete follow-through upward and forward</string>
+    <string name="rec_keep_elbow_close_full">Keep elbow close to body</string>
+    <string name="rec_move_elbow_away_full">Don\'t press your elbow too tightly</string>
+    <string name="rec_increase_speed_full">Add speed for efficiency</string>
+    <string name="rec_control_speed_full">Reduce speed for better control</string>
+
     <!-- Language Options -->
     <string-array name="language_options">
         <item>English</item>
@@ -150,15 +199,8 @@
         <item>uk</item>
     </string-array>
     
-    <!-- Camera Resolution Options -->
-    <!-- Feedback Messages -->
+    <!-- Feedback General -->
     <string name="error_no_pose">Failed to detect pose - check lighting and camera position</string>
-    <string name="error_wrist_bent">Wrist bent</string>
-    <string name="error_low_rotation">Insufficient body rotation</string>
-    <string name="error_insufficient_follow">Insufficient follow-through</string>
-    <string name="recommendation_wrist">Keep wrist straight</string>
-    <string name="recommendation_rotation">More rotation for power</string>
-    <string name="recommendation_follow">Complete the movement</string>
     <string name="feedback_good">Great! Keep it up!</string>
     <string name="feedback_work_on">⚠️ %s</string>
     <string name="feedback_work_on_technique">Work on technique</string>
@@ -172,14 +214,20 @@
     <string name="session_average_score">Average score: %d%%\n\n</string>
     <string name="session_excellent">🏆 Excellent work! You\'re making progress!</string>
     <string name="session_good">👍 Good training! Keep working!</string>
-    <string name="session_improvement">💪 There\'s improvement! Train regularly!</string>
-    <string name="session_keep_trying">🎯 Don\'t give up! Every training makes you better!</string>
-    <string name="consecutive_5">🔥 5 good strokes in a row! Keep going!</string>
-    <string name="consecutive_10">🎯 10 excellent strokes! You\'re on fire!</string>
-    <string name="consecutive_20">⭐ 20 strokes in a row! Incredible!</string>
-    <string name="consecutive_50">🏆 50 strokes! You\'re a master!</string>
-    <string name="positive_excellent">✅ Excellent! Perfect technique!</string>
-    <string name="positive_great">✅ Great! Keep it up!</string>
+    <string name="session_improvement">💪 Improvement! Practice regularly!</string>
+    <string name="session_keep_trying">🎯 Don\'t give up! Every practice makes you better!</string>
+    
+    <!-- Training Summary Stats -->
+    <string name="summary_total_strokes">Total Strokes: %d</string>
+    <string name="summary_successful_strokes">Successful Strokes: %1$d (%2$d%%)</string>
+    <string name="summary_average_accuracy">Average Score: %1$.1f%%</string>
+    
+    <!-- Improvement Tips for Session -->
+    <string name="tip_excellent">🎯 Excellent! Keep practicing to master the technique.</string>
+    <string name="tip_good">👍 Good! Focus on stroke stability.</string>
+    <string name="tip_not_bad">💪 Not bad! Improve body and racket position.</string>
+    <string name="tip_needs_practice">🎓 Needs practice. Focus on basic technique.</string>
+    
     <string name="positive_flawless">✅ Flawless! Continue!</string>
     <string name="positive_perfect">✅ Perfect! Well done!</string>
     <string name="positive_super">✅ Super stroke! Very good!</string>
@@ -188,20 +236,433 @@
     <string name="tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
     <string name="tip_follow_through">💡 Tip: Imagine brushing the ball up and forward - don\'t stop at contact</string>
     
-    <!-- Analysis Result Constants -->
-    <string name="error_wrist_bent_full">Wrist bent - straighten it</string>
-    <string name="error_low_rotation_full">Insufficient body rotation - turn more</string>
-    <string name="error_high_contact">Contact too high - lower strike point</string>
-    <string name="error_low_contact">Contact too low - raise strike point</string>
-    <string name="error_no_follow_through">Insufficient follow-through - complete the movement</string>
-    <string name="error_elbow_far">Elbow far from body - keep it closer</string>
-    <string name="error_slow_stroke">Stroke too slow - add speed</string>
-    <string name="error_fast_stroke">Stroke too fast - control speed</string>
-    <string name="rec_straighten_wrist">Keep wrist straight during stroke</string>
-    <string name="rec_rotate_more">More body rotation for power</string>
-    <string name="rec_contact_height">Contact at table level - optimal height</string>
-    <string name="rec_complete_follow">Complete follow-through upward and forward</string>
-    <string name="rec_keep_elbow_close">Keep elbow close to body</string>
-    <string name="rec_increase_speed">Add speed for efficiency</string>
-    <string name="rec_control_speed">Reduce speed for better control</string>
+    <!-- Training Activity Messages -->
+    <string name="camera_started">📹 Camera started. Press \'Calibrate\'</string>
+    <string name="calibration_skipped">✅ Calibration skipped (video mode)</string>
+    <string name="pose_detection_error">❌ Pose detection error: %s</string>
+    
+    <!-- Training State Messages -->
+    <string name="start_training_advice">Start training to get advice</string>
+    
+    <!-- Exercise Selection -->
+    <string name="select_exercise_hint">Select an exercise to start training</string>
+    
+    <!-- Summary Dialog -->
+    <string name="training_summary">Training Summary</string>
+    <string name="finish_button">Finish</string>
+    <string name="continue_button">Continue</string>
+    
+    <!-- FeedbackGenerator Messages -->
+    <string name="feedback_good_keep_up">Great! Keep it up!</string>
+    <string name="feedback_work_technique">Work on technique</string>
+    <string name="feedback_score_format">Score: %d%%\n\n</string>
+    <string name="feedback_errors_header">⚠️ Errors:\n</string>
+    <string name="feedback_recommendations_header">💡 Recommendations:\n</string>
+    <string name="feedback_param_not_detected">❓ %s: not detected</string>
+    <string name="feedback_param_perfect">✅ %1$s: %2$d° (perfect)</string>
+    <string name="feedback_param_expected">⚠️ %1$s: %2$d° (expected %3$d°)</string>
+    
+    <!-- Positive Feedback -->
+    <string name="positive_feedback_1">✅ Excellent! Perfect technique!</string>
+    <string name="positive_feedback_2">✅ Great! Keep it up!</string>
+    <string name="positive_feedback_3">✅ Flawless! Continue!</string>
+    <string name="positive_feedback_4">✅ Perfect! Well done!</string>
+    <string name="positive_feedback_5">✅ Super stroke! Very good!</string>
+    
+    <!-- Motivational Messages -->
+    <string name="motivational_5_strokes">🔥 5 good strokes in a row! Keep going!</string>
+    <string name="motivational_10_strokes">🎯 10 excellent strokes! You\'re on fire!</string>
+    <string name="motivational_20_strokes">⭐ 20 strokes in a row! Incredible!</string>
+    <string name="motivational_50_strokes">🏆 50 strokes! You\'re a master!</string>
+    
+    <!-- Improvement Tips -->
+    <string name="improvement_tip_wrist">💡 Tip: Imagine holding a pencil - wrist should be an extension of forearm</string>
+    <string name="improvement_tip_rotation">💡 Tip: Turn waist and shoulders as one - imagine winding a spring</string>
+    <string name="improvement_tip_contact">💡 Tip: Optimal contact point - waist height, slightly ahead of body</string>
+    <string name="improvement_tip_follow">💡 Tip: Complete stroke - racket should finish near opposite shoulder</string>
+    <string name="title_dashboard">Home</string>
+    <string name="title_progress">Progress</string>
+    <string name="title_drills">Drills</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- Progress Fragment -->
+    <string name="progress_title">Progress</string>
+    <string name="progress_subtitle">Track your improvement</string>
+    <string name="stats_days_streak">Days Streak</string>
+    <string name="stats_total_hours">Total Hours</string>
+    <string name="stats_achievements">Achievements</string>
+    <string name="tab_training_time">Training Time</string>
+    <string name="tab_accuracy">Accuracy</string>
+    <string name="chart_training_title">Weekly Training</string>
+    <string name="chart_training_subtitle">Minutes per day</string>
+    <string name="chart_accuracy_title">Weekly Accuracy</string>
+    <string name="chart_accuracy_subtitle">Percentage trend</string>
+    <string name="skill_levels_title">Skill Levels</string>
+    <string name="milestones_title">Recent Milestones</string>
+    <string name="milestone_100_hits">100 Consecutive Hits</string>
+    <string name="milestone_30_days">30-Day Streak</string>
+    <string name="milestone_master_server">Master Server</string>
+    <string name="time_ago_2_days">2 days ago</string>
+    <string name="time_ago_5_days">5 days ago</string>
+    <string name="time_ago_1_week">1 week ago</string>
+    <string name="milestone_achieved">Achieved</string>
+    <string name="milestone_in_progress">In Progress</string>
+    <string name="days_streak">Day Streak</string>
+
+    <string name="days_mon">Mon</string>
+    <string name="days_tue">Tue</string>
+    <string name="days_wed">Wed</string>
+    <string name="days_thu">Thu</string>
+    <string name="days_fri">Fri</string>
+    <string name="days_sat">Sat</string>
+    <string name="days_sun">Sun</string>
+    
+    <!-- Activity Settings -->
+    <string name="activity_settings_title">Activity Settings</string>
+    <string name="btn_activity_settings">Activity Settings</string>
+
+    <!-- Training Settings Fragment -->
+    <string name="training_settings_title">Training Settings</string>
+    <string name="training_settings_subtitle">Configure your training session preferences</string>
+    <string name="audio_feedback_section">Audio Feedback</string>
+    <string name="audio_feedback_desc">Receive audio cues during training</string>
+    <string name="volume_label">Volume</string>
+    <string name="volume_desc">Adjust the volume of voice feedback and sound effects</string>
+    <string name="camera_settings_section">Camera Settings</string>
+    <string name="video_quality_label">Video Quality</string>
+    <string name="video_quality_desc">Higher quality improves pose detection accuracy</string>
+    <string name="frame_rate_label">Frame Rate (FPS)</string>
+    <string name="frame_rate_desc">Higher frame rates capture faster movements</string>
+    <string name="show_pose_skeleton_label">Show Pose Skeleton</string>
+    <string name="show_pose_skeleton_desc">Overlay skeleton visualization during training</string>
+    <string name="settings_pro_tip_title">💡 Pro Tip</string>
+    <string name="settings_pro_tip">For best results, use 720p at 30 FPS with pose skeleton enabled. This balance provides accurate feedback without draining your battery.</string>
+    
+    <string name="distance_mode_label">Distance Mode</string>
+    <string name="distance_mode_desc">Increase text size for better visibility when training farther from the camera</string>
+    
+    <!-- AI Trainer Settings -->
+    <string name="ai_trainer_section">AI Trainer</string>
+    <string name="select_coach_label">Select Your Coach</string>
+    <string name="select_coach_desc">Choose a coaching style that matches your learning preference</string>
+    <string name="coach_ivan_name">Ivan</string>
+    <string name="coach_ivan_style">Motivational &amp; Energetic</string>
+    <string name="coach_ivan_desc">High-energy coaching with lots of encouragement and positive reinforcement</string>
+    <string name="coach_andriy_name">Andriy</string>
+    <string name="coach_andriy_style">Precise and sticky to technique</string>
+    <string name="coach_andriy_desc">Detail-oriented coaching focused on perfect form. Ideal for players who want to master technical precision.</string>
+    <string name="coach_vadym_name">Vadym</string>
+    <string name="coach_vadym_style">Short and soft</string>
+    <string name="coach_vadym_desc">Gentle encouragement with concise feedback. Perfect for beginners who prefer a supportive approach.</string>
+    
+    <!-- App Settings Activity -->
+    <string name="app_settings_title">App Settings</string>
+    <string name="app_settings_subtitle">Configure application-wide settings</string>
+    <string name="developer_options">Developer Options</string>
+    <string name="debug_mode">Debug Mode</string>
+    <string name="debug_mode_desc">Show debug activity in navigation for testing</string>
+    <string name="debug_mode_active_title">Debug Mode Active</string>
+    <string name="debug_mode_active_info">A new \"Debug\" tab will appear in the bottom navigation. Use it to test features and view diagnostic information.</string>
+    <string name="subscription_management">Subscription Management</string>
+    <string name="subscription_active">Subscription Active</string>
+    <string name="subscription_simulate_desc">Simulate premium subscription status</string>
+    <string name="premium_active">Premium Active</string>
+    <string name="free_plan">Free Plan</string>
+    <string name="subscription_active_info">Your premium subscription is active until %s.</string>
+    <string name="subscription_inactive_info">You\'re on the free plan. Upgrade to unlock all features.</string>
+    <string name="subscription_how_works_title">ℹ️ How it works</string>
+    <string name="subscription_how_works_active">• When subscription is active: Full access to training and drills</string>
+    <string name="subscription_how_works_inactive">• When subscription is inactive: Starting training or drills will redirect to subscription page</string>
+    <string name="subscription_how_works_profile">• This setting affects the subscription status shown in your Profile</string>
+    
+    <!-- Profile Updates -->
+    <string name="subscription_section">Subscription</string>
+    <string name="premium_active_badge">Active</string>
+    <string name="premium_active_title">Premium Active</string>
+    <string name="premium_enjoy_desc">Enjoy unlimited AI coaching and all premium features</string>
+    <string name="premium_renews_on">Renews on %s</string>
+    <string name="upgrade_to_premium">Upgrade to Premium</string>
+    <string name="upgrade_unlock_desc">Unlock unlimited AI coaching, advanced pose analysis, and personalized training plans</string>
+    <string name="view_plans">View Plans</string>
+    <string name="training_goals_section">Training Goals</string>
+    <string name="weekly_sessions">Weekly Sessions</string>
+    <string name="weekly_sessions_desc">Train 7 days/week</string>
+    <string name="skill_target">Skill Target</string>
+    <string name="skill_target_desc">Reach 90 score</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_system">System</string>
+    <string name="skill_level_title">Skill Level</string>
+    <string name="level_beginner">Beginner</string>
+    <string name="level_intermediate">Intermediate</string>
+    <string name="level_advanced">Advanced</string>
+    <string name="level_format">%s Player</string>
+    
+    <!-- Language Settings -->
+    <string name="language_section">Language</string>
+    <string name="language_title">Interface Language</string>
+    <string name="language_desc">Choose your preferred language for the app</string>
+    <string name="language_en">English</string>
+    <string name="language_uk">Ukrainian</string>
+
+    <string name="push_notifications">Push Notifications</string>
+    <string name="daily_reminders">Daily Reminders</string>
+    <string name="achievement_alerts">Achievement Alerts</string>
+    <string name="more_section">More</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="app_settings">App Settings</string>
+    <string name="help_support">Help \u0026 Support</string>
+    <string name="log_out">Log Out</string>
+    <string name="logout_title">Log Out</string>
+    <string name="logout_message">Are you sure you want to log out?</string>
+    <string name="version_format">Version %s</string>
+
+    <!-- Subscribe Page -->
+    <string name="subscribe_title">Unlock Premium Features</string>
+    <string name="subscribe_subtitle">Get unlimited access to AI coaching and advanced training tools</string>
+    <string name="plan_monthly">Monthly</string>
+    <string name="plan_monthly_duration">1 month</string>
+    <string name="plan_monthly_price">$9.99</string>
+    <string name="plan_quarterly">Quarterly</string>
+    <string name="plan_quarterly_duration">3 months</string>
+    <string name="plan_quarterly_price">$24.99</string>
+    <string name="plan_quarterly_per_month">($8.33/month)</string>
+    <string name="plan_quarterly_save">Save 17%</string>
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_yearly_duration">12 months</string>
+    <string name="plan_yearly_price">$79.99</string>
+    <string name="plan_yearly_per_month">($6.67/month)</string>
+    <string name="plan_yearly_save">Save 33%</string>
+    <string name="badge_popular">Popular</string>
+    <string name="badge_best_value">Best Value</string>
+    <string name="whats_included">What\'s Included</string>
+    <string name="feature_unlimited_coaching">Unlimited AI coaching sessions</string>
+    <string name="feature_pose_analysis">Advanced pose analysis</string>
+    <string name="feature_progress_analytics">Detailed progress analytics</string>
+    <string name="feature_training_plans">Personalized training plans</string>
+    <string name="feature_realtime_feedback">Real-time feedback</string>
+    <string name="feature_premium_drills">Access to all premium drills</string>
+    <string name="start_plan">Start Quarterly Plan</string>
+    <string name="start_monthly_plan">Start Monthly Plan</string>
+    <string name="start_quarterly_plan">Start Quarterly Plan</string>
+    <string name="start_yearly_plan">Start Yearly Plan</string>
+    <string name="maybe_later">Maybe Later</string>
+    <string name="subscribe_auto_renew">Auto-renews. Cancel anytime.</string>
+    <string name="subscribe_guarantee">30-day money-back guarantee</string>
+    
+    <!-- Weekly Sessions Activity -->
+    <string name="weekly_sessions_title">Weekly Sessions</string>
+    <string name="weekly_sessions_subtitle">Set your training frequency goal</string>
+    <string name="current_goal">Current Goal</string>
+    <string name="days_per_week">days/week</string>
+    <string name="select_sessions_goal">Select Your Goal</string>
+    <string name="recommended_plans">Recommended Plans</string>
+    <string name="plan_beginner_title">Beginner</string>
+    <string name="plan_beginner_desc">Perfect for starting out</string>
+    <string name="plan_regular_title">Regular</string>
+    <string name="plan_regular_desc">Balanced training schedule</string>
+    <string name="plan_intensive_title">Intensive</string>
+    <string name="plan_intensive_desc">Maximum improvement</string>
+    <string name="save_goal">Save Goal</string>
+    <string name="goal_saved">Goal saved successfully!</string>
+    
+    <!-- Skill Target Activity -->
+    <string name="skill_target_title">Skill Target</string>
+    <string name="skill_target_subtitle">Set your skill score goal</string>
+    <string name="current_target">Current Target</string>
+    <string name="skill_score">Skill score</string>
+    <string name="current_skill">Current Skill</string>
+    <string name="set_your_target">Set Your Target</string>
+    <string name="target_score">Target Score</string>
+    <string name="quick_targets">Quick Select</string>
+    <string name="target_good">Good</string>
+    <string name="target_great">Great</string>
+    <string name="target_excellent">Excellent</string>
+    <string name="target_master">Master</string>
+    <string name="skill_tip_title">Pro Tip</string>
+    <string name="skill_tip_desc">Start with a realistic target and gradually increase it as you improve. Consistency is more important than perfection!</string>
+    <string name="save_target">Save Target</string>
+    <string name="target_saved">Target saved successfully!</string>
+
+    <!-- New Localization Strings -->
+    <string name="label_hits">Hits</string>
+    <string name="label_accuracy">Accuracy</string>
+    <string name="btn_resume">Resume</string>
+    <string name="btn_end_session">End Session</string>
+    <string name="label_focus">Focus: %s</string>
+    <string name="focus_consistency">Consistency</string>
+    <string name="hits_progress_format">%1$d/%2$d successful hits</string>
+    <string name="tip_title_ai_coach">💡 AI Coach Tip</string>
+    <string name="tip_camera_position">Position your camera to see your full body. Keep moving for active training!</string>
+    <string name="label_realtime_feedback">Real-time Feedback</string>
+    <string name="label_movement_analysis">Movement Analysis</string>
+    <string name="desc_movement_analysis">Highlighted areas show the movement pattern</string>
+    <string name="training_session_title">Training Session</string>
+    
+    <!-- Placeholders -->
+    <string name="placeholder_feature_text">Feature text</string>
+    <string name="placeholder_skill_name">Skill Name</string>
+    <string name="placeholder_milestone_title">Milestone Title</string>
+    <string name="placeholder_time_ago">2 days ago</string>
+    <string name="placeholder_feedback_step">1-Backswing:</string>
+    <string name="placeholder_feedback_message">Start rotation</string>
+    <string name="placeholder_feedback_title_perfect">Perfect contact point!</string>
+    <string name="placeholder_feedback_desc_perfect">You made contact with the ball at the optimal point in front of your body.</string>
+    <string name="placeholder_user_initials">JD</string>
+    <string name="placeholder_user_name">John Doe</string>
+    <string name="placeholder_user_level">Intermediate Player</string>
+    <string name="placeholder_score">86</string>
+    <string name="placeholder_streak">12</string>
+    <string name="placeholder_hits">0</string>
+    <string name="placeholder_percent">0%</string>
+    <string name="placeholder_duration">00:00</string>
+    <string name="placeholder_ms">0ms</string>
+    <string name="placeholder_percentage_high">0%</string>
+    <string name="placeholder_percentage_mid">0%</string>
+    <string name="placeholder_count_24">24</string>
+    <string name="placeholder_count_186">186</string>
+    <string name="label_total_hits">Total Hits</string>
+    <string name="label_focus_consistency">Focus: Consistency</string>
+    <string name="label_technique">Technique</string>
+    <string name="label_skill_score">Skill Score</string>
+    <string name="label_version_character">V</string>
+    <string name="placeholder_renews_on">Renews on March 15, 2026</string>
+    
+    <!-- Drills & Dashboard -->
+    <string name="title_drills_header">Training Drills</string>
+    <string name="subtitle_drills">Choose your practice routine</string>
+    <string name="section_recommended">Recommended</string>
+    <string name="exercise_forehand_desc_short">Perfect for building consistency</string>
+    <string name="btn_start_drill">START DRILL</string>
+    <string name="section_all_drills">All Drills</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="welcome_back_subtitle">Ready to improve your game?</string>
+    <string name="btn_start_training_dashboard">Start Training</string>
+    <string name="desc_ai_session">AI-guided session</string>
+    <string name="btn_begin_session">Begin Session</string>
+    <string name="title_todays_progress">Today\'s Progress</string>
+    <string name="placeholder_minutes">--</string>
+    <string name="label_minutes">Minutes</string>
+    <string name="placeholder_rallies">--</string>
+    <string name="label_rallies">Rallies</string>
+    <string name="placeholder_improvement_positive">--</string>
+    <string name="label_vs_yesterday">vs Yesterday</string>
+    <string name="label_weekly_goal">Weekly Goal</string>
+    <string name="placeholder_weekly_progress">--</string>
+    <string name="desc_weekly_goal_remaining">Reach your weekly goal</string>
+    <string name="format_weekly_days">%1$d/%2$d days</string>
+    <string name="weekly_goal_remaining_desc">%d more sessions to reach your weekly goal</string>
+    <string name="title_new_achievement">New Achievement!</string>
+    <string name="desc_achievement_100">100 consecutive forehand hits unlocked</string>
+    <string name="score_50">50</string>
+    <string name="score_70">70</string>
+    <string name="score_80">80</string>
+    <string name="score_90">90</string>
+    <string name="score_100">100</string>
+    <string name="num_1">1</string>
+    <string name="num_2">2</string>
+    <string name="num_3">3</string>
+    <string name="num_4">4</string>
+    <string name="num_5">5</string>
+    <string name="num_6">6</string>
+    <string name="num_7">7</string>
+    
+    <!-- Login Activity -->
+    <string name="title_login">Login</string>
+    <string name="subtitle_login">Please sign in to continue</string>
+    <string name="btn_continue_google">Continue with Google</string>
+    <string name="btn_continue_facebook">Continue with Facebook</string>
+    <string name="btn_continue_apple">Continue with Apple</string>
+    
+    <!-- App Settings -->
+    <string name="header_account">Account</string>
+    <string name="label_logged_in">Logged In</string>
+    <string name="status_not_logged_in">Not logged in</string>
+    <string name="placeholder_threshold">0.5</string>
+    
+    <!-- Debug Activity -->
+    <string name="status_no_video">No video loaded</string>
+    <string name="btn_load_video">📂 Load Video</string>
+    <string name="btn_log_poses">💾 Log Poses</string>
+    <string name="btn_portrait_mode">📱 Portrait Mode</string>
+    <string name="btn_load">📂 Load</string>
+    <string name="btn_log">💾 Log</string>
+    <string name="btn_landscape">🖥 Landscape</string>
+    <string name="header_current_frame">▼ 📊 Current Frame</string>
+    <string name="label_frame_counter">Frame: 0 / 0</string>
+    <string name="label_phase_ready">Phase: READY</string>
+    <string name="label_score_placeholder">Score: 0%</string>
+    <string name="header_video_feedback">▼ 💬 Feedback</string>
+    <string name="header_session_summary">▶ 📈 Session Summary</string>
+    <string name="label_total_frames">Total Frames: 0</string>
+    <string name="label_strokes_detected">Strokes Detected: 0</string>
+    <string name="label_avg_score">Avg Score: 0%</string>
+    <string name="label_good_strokes">Good Strokes: 0</string>
+    <string name="label_phase_distribution">Phase Distribution:\n--</string>
+    <string name="btn_reset_analysis">🔄 Reset Analysis</string>
+    <string name="header_playback_controls">▼ 🎮 Playback Controls</string>
+    <string name="label_frame">Frame:</string>
+    <string name="btn_step_back">⏮</string>
+    <string name="btn_play">▶ Play</string>
+    <string name="btn_pause_symbol">⏸</string>
+    <string name="btn_step_forward">⏭</string>
+    <string name="label_speed">Speed:</string>
+    <string name="speed_025x">0.25x</string>
+    <string name="speed_05x">0.5x</string>
+    <string name="speed_1x">1x</string>
+    <string name="speed_2x">2x</string>
+    <string name="header_technical_parameters">▶ 🎯 Technical Parameters</string>
+    <string name="label_wrist_angle_placeholder">Wrist Angle: --</string>
+    <string name="label_body_rotation_placeholder">Body Rotation: --</string>
+    <string name="label_follow_through_placeholder">Follow-Through: --</string>
+    <string name="label_contact_height_placeholder">Contact Height: --</string>
+    <string name="label_elbow_distance_placeholder">Elbow Distance: --</string>
+    <string name="header_feedback_settings_debug">▶ ⚙️ Feedback Settings</string>
+    <string name="label_frequency_n">Frequency (every N strokes):</string>
+    <string name="label_enabled_corrections">Enabled Corrections:</string>
+    <string name="correction_wrist_angle">Wrist Angle</string>
+    <string name="correction_body_rotation">Body Rotation</string>
+    <string name="correction_follow_through">Follow-Through</string>
+    <string name="correction_contact_height">Contact Height</string>
+    <string name="correction_elbow_position">Elbow Position</string>
+    <string name="correction_stroke_speed">Stroke Speed</string>
+    
+    <!-- Code Strings -->
+    <string name="format_percent_simple">%d%%</string>
+    <string name="format_frame_counter">Frame: %1$d / %2$d</string>
+    <string name="format_wrist_angle">Wrist Angle: %1$.1f°%2$s</string>
+    <string name="format_body_rotation">Body Rotation: %1$.1f°%2$s</string>
+    <string name="format_follow_through">Follow-Through: %1$.1f°%2$s</string>
+    <string name="format_contact_height">Contact Height: %1$.2f%2$s</string>
+    <string name="format_elbow_distance">Elbow Distance: %1$.2fm%2$s</string>
+    <string name="format_phase">Phase: %s</string>
+    <string name="format_score">Score: %s%%</string>
+    <string name="format_stroke_counter">Stroke: %1$d / %2$d</string>
+    <string name="format_strokes_count_between">Strokes: %1$d (between strokes)</string>
+    <string name="format_total_frames">Total Frames: %d</string>
+    <string name="format_strokes_detected">Strokes Detected: %d</string>
+    <string name="format_avg_score">Avg Score: %1$.1f%%</string>
+    <string name="format_good_strokes">Good Strokes: %1$d (%2$d%%)</string>
+    <string name="toast_logged_in">Logged in with %s</string>
+    <string name="toast_session_summary_soon">Session Summary Coming Soon</string>
+    <string name="toast_pose_detected">Pose detected!</string>
+    <string name="toast_no_video_files">No video files found in assets/Videos</string>
+    <string name="toast_no_video_loaded">No video loaded</string>
+    <string name="toast_no_poses_export">No poses to export</string>
+    <string name="toast_exporting_background">Exporting %d frames in background...</string>
+    <string name="toast_export_success">Poses exported to:\n%1$s\n\nFrames: %2$d</string>
+    <string name="toast_export_failed">Export failed: %s</string>
+    <string name="status_logged_in_as">Logged in as User</string>
+    <string name="format_feedback_details">Type: %1$s\n%2$s</string>
+    <string name="feedback_good_simple">✓ Good</string>
+    <string name="feedback_needs_improvement">⚠ Needs improvement</string>
+    <string name="format_video_info">Duration: %1$.1fs | Frames: %2$d | Interval: %3$dms</string>
+    <string name="fps_24">24</string>
+    <string name="fps_30">30</string>
+    <string name="fps_60">60</string>
+    <string name="btn_landscape_mode">🖥 Landscape Mode</string>
+    <string name="btn_pause_text">⏸ Pause</string>
+    <string name="btn_play_text">▶ Play</string>
 </resources>

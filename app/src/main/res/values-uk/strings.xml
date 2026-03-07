@@ -89,7 +89,7 @@
     <string name="btn_complete">Завершити</string>
     <string name="btn_continue">Продовжити</string>
     <string name="finish_training_title">Завершити тренування?</string>
-    <string name="finish_training_message">Ви впевнені, що хочете завершити поточне тренування?</string>
+    <string name="finish_training_message">Ви дійсно бажаєте завершити поточне тренування?</string>
     
     <!-- Settings Activity -->
     <string name="settings_title">Налаштування</string>
@@ -116,6 +116,52 @@
     <string name="reset_done_title">Готово</string>
     <string name="reset_done_message">Налаштування скинуто до стандартних значень</string>
     
+    <!-- Feedback Style Settings -->
+    <string name="section_feedback">💬 Тип зворотного зв’язку</string>
+    <string name="feedback_type_label">Тип фідбеку:</string>
+    <string name="feedback_type_short">Короткий (для досвідчених)</string>
+    <string name="feedback_type_standard">Стандартний (з поясненням)</string>
+    
+    <!-- Short Feedback Messages (Ukrainian) -->
+    <string name="short_error_wrist_bent">Випряміть зап’ястя</string>
+    <string name="short_error_low_rotation">Більше ротації</string>
+    <string name="short_error_high_contact">Нижче контакт</string>
+    <string name="short_error_low_contact">Вище контакт</string>
+    <string name="short_error_no_follow_through">Доведіть удар</string>
+    <string name="short_error_elbow_far">Лікоть ближче</string>
+    <string name="short_error_elbow_close">Лікоть вільніше</string>
+    <string name="short_error_slow_stroke">Швидше</string>
+    <string name="short_error_fast_stroke">Повільніше</string>
+
+    <string name="short_rec_straighten_wrist">Зап’ястя рівно</string>
+    <string name="short_rec_rotate_more">Ротація корпусу</string>
+    <string name="short_rec_contact_height">Висота контакту</string>
+    <string name="short_rec_complete_follow">Завершіть рух</string>
+    <string name="short_rec_keep_elbow_close">Лікоть близько</string>
+    <string name="short_rec_move_elbow_away">Відпустіть лікоть</string>
+    <string name="short_rec_increase_speed">Більше швидкості</string>
+    <string name="short_rec_control_speed">Менше швидкості</string>
+
+    <!-- Standard Feedback Messages (Ukrainian) -->
+    <string name="error_wrist_bent_full">Зап’ястя зігнуте - випряміть його</string>
+    <string name="error_low_rotation_full">Недостатня ротація корпусу - поверніться більше</string>
+    <string name="error_high_contact_full">Контакт надто високо - опустіть точку удару</string>
+    <string name="error_low_contact_full">Контакт надто низько - підніміть точку удару</string>
+    <string name="error_no_follow_through_full">Недостатнє проведення - доведіть рух до кінця</string>
+    <string name="error_elbow_far_full">Лікоть далеко від тіла - тримайте його ближче</string>
+    <string name="error_elbow_close_full">Лікоть притиснутий до тіла - тримайте його вільніше</string>
+    <string name="error_slow_stroke_full">Занадто повільний удар - додайте швидкості</string>
+    <string name="error_fast_stroke_full">Занадто швидкий удар - контролюйте швидкість</string>
+
+    <string name="rec_straighten_wrist_full">Тримайте зап’ястя рівно під час удару</string>
+    <string name="rec_rotate_more_full">Більше ротації корпусу для потужності</string>
+    <string name="rec_contact_height_full">Контакт на рівні столу - оптимальна висота</string>
+    <string name="rec_complete_follow_full">Завершуйте проведення вгору-вперед</string>
+    <string name="rec_keep_elbow_close_full">Тримайте лікоть близько до тіла</string>
+    <string name="rec_move_elbow_away_full">Не притискайте лікоть занадто сильно</string>
+    <string name="rec_increase_speed_full">Додайте швидкості для ефективності</string>
+    <string name="rec_control_speed_full">Зменшіть швидкість для кращого контролю</string>
+
     <!-- Language Options -->
     <string-array name="language_options">
         <item>English</item>
@@ -128,14 +174,8 @@
     </string-array>
     
     <!-- Camera Resolution Options -->
-    <!-- Feedback Messages -->
+    <!-- Feedback General -->
     <string name="error_no_pose">Не вдалося виявити позу - перевірте освітлення та позицію камери</string>
-    <string name="error_wrist_bent">Зап\'ястя зігнуте</string>
-    <string name="error_low_rotation">Недостатня ротація корпусу</string>
-    <string name="error_insufficient_follow">Недостатнє проведення</string>
-    <string name="recommendation_wrist">Тримайте зап\'ястя рівно</string>
-    <string name="recommendation_rotation">Більше ротації для потужності</string>
-    <string name="recommendation_follow">Доведіть рух до кінця</string>
     <string name="feedback_good">Гарно! Продовжуйте в тому ж дусі!</string>
     <string name="feedback_work_on">⚠️ %s</string>
     <string name="feedback_work_on_technique">Працюйте над технікою</string>
@@ -151,12 +191,21 @@
     <string name="session_good">👍 Гарне тренування! Продовжуйте працювати!</string>
     <string name="session_improvement">💪 Є покращення! Тренуйтесь регулярно!</string>
     <string name="session_keep_trying">🎯 Не здавайтесь! Кожне тренування робить вас кращим!</string>
-    <string name="consecutive_5">🔥 5 гарних ударів підряд! Продовжуйте!</string>
-    <string name="consecutive_10">🎯 10 відмінних ударів! Ви в ударі!</string>
-    <string name="consecutive_20">⭐ 20 ударів поспіль! Неймовірно!</string>
-    <string name="consecutive_50">🏆 50 ударів! Ви майстер!</string>
-    <string name="positive_excellent">✅ Чудово! Ідеальна техніка!</string>
-    <string name="positive_great">✅ Відмінно! Так тримати!</string>
+    
+    <!-- Статистика підсумку тренування -->
+    <string name="summary_total_strokes">Всього ударів: %d</string>
+    <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
+    <string name="summary_average_accuracy">Середня точність: %1$.1f%%</string>
+    
+    <!-- Поради для покращення сесії -->
+    <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки.</string>
+    <string name="tip_good">👍 Добре! Зосередьтесь на стабільності ударів.</string>
+    <string name="tip_not_bad">💪 Непогано! Покращуйте положення тіла та ракетки.</string>
+    <string name="tip_needs_practice">🎓 Потрібна практика. Зосередьтесь на базовій техніці.</string>
+    <string name="motivational_5_strokes">🔥 5 гарних ударів підряд! Продовжуйте!</string>
+    <string name="motivational_10_strokes">🎯 10 відмінних ударів! Ви в ударі!</string>
+    <string name="motivational_20_strokes">⭐ 20 ударів поспіль! Неймовірно!</string>
+    <string name="motivational_50_strokes">🏆 50 ударів! Ви майстер!</string>
     <string name="positive_flawless">✅ Бездоганно! Продовжуйте!</string>
     <string name="positive_perfect">✅ Ідеально! Ви молодець!</string>
     <string name="positive_super">✅ Супер удар! Дуже добре!</string>
@@ -165,20 +214,342 @@
     <string name="tip_contact">💡 Порада: Оптимальна точка контакту - на висоті пояса, трохи попереду тіла</string>
     <string name="tip_follow_through">💡 Порада: Уявіть, що ви щіткою проводите м\'яч вгору-вперед - не зупиняйтесь на контакті</string>
     
-    <!-- Analysis Result Constants -->
-    <string name="error_wrist_bent_full">Зап\'ястя зігнуте - випряміть його</string>
-    <string name="error_low_rotation_full">Недостатня ротація корпусу - поверніться більше</string>
-    <string name="error_high_contact">Контакт надто високо - опустіть точку удару</string>
-    <string name="error_low_contact">Контакт надто низько - підніміть точку удару</string>
-    <string name="error_no_follow_through">Недостатнє проведення - доведіть рух до кінця</string>
-    <string name="error_elbow_far">Лікоть далеко від тіла - тримайте його ближче</string>
-    <string name="error_slow_stroke">Занадто повільний удар - додайте швидкості</string>
-    <string name="error_fast_stroke">Занадто швидкий удар - контролюйте швидкість</string>
-    <string name="rec_straighten_wrist">Тримайте зап\'ястя рівно під час удару</string>
-    <string name="rec_rotate_more">Більше ротації корпусу для потужності</string>
-    <string name="rec_contact_height">Контакт на рівні столу - оптимальна висота</string>
-    <string name="rec_complete_follow">Завершуйте проведення вгору-вперед</string>
-    <string name="rec_keep_elbow_close">Тримайте лікоть близько до тіла</string>
-    <string name="rec_increase_speed">Додайте швидкості для ефективності</string>
-    <string name="rec_control_speed">Зменшіть швидкість для кращого контролю</string>
+    <!-- New Localization Strings -->
+    <string name="label_hits">Удари</string>
+    <string name="label_accuracy">Точність</string>
+    <string name="btn_resume">Продовжити</string>
+    <string name="btn_end_session">Завершити</string>
+    <string name="label_focus">Фокус: %s</string>
+    <string name="focus_consistency">Стабільність</string>
+    <string name="hits_progress_format">%1$d/%2$d успішних</string>
+    <string name="tip_title_ai_coach">💡 Порада AI Coach</string>
+    <string name="tip_camera_position">Розмістіть камеру так, щоб бачити все тіло. Рухайтесь активно!</string>
+    <string name="label_realtime_feedback">Фідбек у реальному часі</string>
+    <string name="label_movement_analysis">Аналіз руху</string>
+    <string name="desc_movement_analysis">Підсвічені зони показують шаблон руху</string>
+    <string name="training_session_title">Тренувальна сесія</string>
+    
+    <!-- Placeholders -->
+    <string name="placeholder_feature_text">Текст функції</string>
+    <string name="placeholder_skill_name">Назва навички</string>
+    <string name="placeholder_milestone_title">Назва досягнення</string>
+    <string name="placeholder_time_ago">2 дні тому</string>
+    <string name="placeholder_feedback_step">1-Замах:</string>
+    <string name="placeholder_feedback_message">Почніть ротацію</string>
+    <string name="placeholder_feedback_title_perfect">Ідеальна точка контакту!</string>
+    <string name="placeholder_feedback_desc_perfect">Ви зробили контакт з м\'ячем у оптимальній точці перед собою.</string>
+    <string name="placeholder_user_initials">ІП</string>
+    <string name="placeholder_user_name">Іван Петренко</string>
+    <string name="placeholder_user_level">Середній рівень</string>
+    <string name="placeholder_score">86</string>
+    <string name="placeholder_streak">12</string>
+    <string name="placeholder_hits">0</string>
+    <string name="placeholder_percent">0%</string>
+    <string name="placeholder_duration">00:00</string>
+    <string name="placeholder_ms">0ms</string>
+    <string name="placeholder_percentage_high">0%</string>
+    <string name="placeholder_percentage_mid">0%</string>
+    <string name="placeholder_count_24">24</string>
+    <string name="placeholder_count_186">186</string>
+    <string name="label_total_hits">Всього ударів</string>
+    <string name="label_focus_consistency">Фокус: Стабільність</string>
+    <string name="label_technique">Техніка</string>
+    <string name="label_skill_score">Оцінка навички</string>
+    <string name="label_version_character">В</string>
+    <string name="placeholder_renews_on">Оновлюється 15 березня 2026</string>
+
+    <!-- Drills & Dashboard -->
+    <string name="title_drills_header">Тренувальні вправи</string>
+    <string name="subtitle_drills">Оберіть програму тренувань</string>
+    <string name="section_recommended">Рекомендовано</string>
+    <string name="exercise_forehand_desc_short">Ідеально для стабільності</string>
+    <string name="btn_start_drill">ПОЧАТИ ВПРАВУ</string>
+    <string name="section_all_drills">Всі вправи</string>
+    <string name="difficulty_advanced">Просунутий</string>
+    <string name="welcome_back">З поверненням!</string>
+    <string name="welcome_back_subtitle">Готові покращити свою гру?</string>
+    <string name="btn_start_training_dashboard">Почати тренування</string>
+    <string name="desc_ai_session">Сесія з AI</string>
+    <string name="btn_begin_session">Почати сесію</string>
+    <string name="title_todays_progress">Прогрес за сьогодні</string>
+    <string name="placeholder_minutes">--</string>
+    <string name="label_minutes">Хвилин</string>
+    <string name="placeholder_rallies">--</string>
+    <string name="label_rallies">Ударів</string>
+    <string name="placeholder_improvement_positive">--</string>
+    <string name="label_vs_yesterday">vs Вчора</string>
+    <string name="label_weekly_goal">Тижнева ціль</string>
+    <string name="placeholder_weekly_progress">--</string>
+    <string name="desc_weekly_goal_remaining">--</string>
+    <string name="title_new_achievement">Нове досягнення!</string>
+    <string name="desc_achievement_100">Розблоковано 100 ударів підряд</string>
+    <string name="score_50">50</string>
+    <string name="score_70">70</string>
+    <string name="score_80">80</string>
+    <string name="score_90">90</string>
+    <string name="score_100">100</string>
+    <string name="num_1">1</string>
+    <string name="num_2">2</string>
+    <string name="num_3">3</string>
+    <string name="num_4">4</string>
+    <string name="num_5">5</string>
+    <string name="num_6">6</string>
+    <string name="num_7">7</string>
+    
+    <!-- Login Activity -->
+    <string name="title_login">Вхід</string>
+    <string name="subtitle_login">Будь ласка, увійдіть щоб продовжити</string>
+    <string name="btn_continue_google">Продовжити з Google</string>
+    <string name="btn_continue_facebook">Продовжити з Facebook</string>
+    <string name="btn_continue_apple">Продовжити з Apple</string>
+    
+    <!-- App Settings -->
+    <string name="header_account">Акаунт</string>
+    <string name="label_logged_in">Увійшов як</string>
+    <string name="status_not_logged_in">Не увійшов</string>
+    <string name="placeholder_threshold">0.5</string>
+    
+    <!-- Debug Activity -->
+    <string name="status_no_video">Відео не завантажено</string>
+    <string name="btn_load_video">📂 Завантажити відео</string>
+    <string name="btn_log_poses">💾 Логувати пози</string>
+    <string name="btn_portrait_mode">📱 Портретний режим</string>
+    <string name="btn_load">📂 Завантажити</string>
+    <string name="btn_log">💾 Лог</string>
+    <string name="btn_landscape">🖥 Ландшафтний режим</string>
+    <string name="header_current_frame">▼ 📊 Поточний кадр</string>
+    <string name="label_frame_counter">Кадр: 0 / 0</string>
+    <string name="label_phase_ready">Фаза: ГОТОВНІСТЬ</string>
+    <string name="label_score_placeholder">Оцінка: 0%</string>
+    <string name="header_video_feedback">▼ 💬 Фідбек</string>
+    <string name="header_session_summary">▶ 📈 Підсумок сесії</string>
+    <string name="label_total_frames">Всього кадрів: 0</string>
+    <string name="label_strokes_detected">Виявлено ударів: 0</string>
+    <string name="label_avg_score">Сер. оцінка: 0%</string>
+    <string name="label_good_strokes">Гарних ударів: 0</string>
+    <string name="label_phase_distribution">Розподіл фаз:\n--</string>
+    <string name="btn_reset_analysis">🔄 Скинути аналіз</string>
+    <string name="header_playback_controls">▼ 🎮 Керування відтворенням</string>
+    <string name="label_frame">Кадр:</string>
+    <string name="btn_step_back">⏮</string>
+    <string name="btn_play">▶ Грати</string>
+    <string name="btn_pause_symbol">⏸</string>
+    <string name="btn_step_forward">⏭</string>
+    <string name="label_speed">Швидкість:</string>
+    <string name="speed_025x">0.25x</string>
+    <string name="speed_05x">0.5x</string>
+    <string name="speed_1x">1x</string>
+    <string name="speed_2x">2x</string>
+    <string name="header_technical_parameters">▶ 🎯 Технічні параметри</string>
+    <string name="label_wrist_angle_placeholder">Кут зап\'ястя: --</string>
+    <string name="label_body_rotation_placeholder">Ротація корпусу: --</string>
+    <string name="label_follow_through_placeholder">Проведення: --</string>
+    <string name="label_contact_height_placeholder">Висота контакту: --</string>
+    <string name="label_elbow_distance_placeholder">Відстань ліктя: --</string>
+    <string name="header_feedback_settings_debug">▶ ⚙️ Налаштування фідбеку</string>
+    <string name="label_frequency_n">Частота (кожні N ударів):</string>
+    <string name="label_enabled_corrections">Увімкнені корекції:</string>
+    <string name="correction_wrist_angle">Кут зап\'ястя</string>
+    <string name="correction_body_rotation">Ротація корпусу</string>
+    <string name="correction_follow_through">Проведення</string>
+    <string name="correction_contact_height">Висота контакту</string>
+    <string name="correction_elbow_position">Позиція ліктя</string>
+    <string name="correction_stroke_speed">Швидкість удару</string>
+    
+    <!-- Code Strings -->
+    <string name="format_percent_simple">%d%%</string>
+    <string name="format_frame_counter">Кадр: %1$d / %2$d</string>
+    <string name="format_wrist_angle">Кут зап\'ястя: %1$.1f°%2$s</string>
+    <string name="format_body_rotation">Ротація корпусу: %1$.1f°%2$s</string>
+    <string name="format_follow_through">Проведення: %1$.1f°%2$s</string>
+    <string name="format_contact_height">Висота контакту: %1$.2f%2$s</string>
+    <string name="format_elbow_distance">Відстань ліктя: %1$.2fm%2$s</string>
+    <string name="format_phase">Фаза: %s</string>
+    <string name="format_score">Оцінка: %s%%</string>
+    <string name="format_stroke_counter">Удар: %1$d / %2$d</string>
+    <string name="format_strokes_count_between">Удари: %1$d (між ударами)</string>
+    <string name="format_total_frames">Всього кадрів: %d</string>
+    <string name="format_strokes_detected">Виявлено ударів: %d</string>
+    <string name="format_avg_score">Сер. оцінка: %1$.1f%%</string>
+    <string name="format_good_strokes">Гарних ударів: %1$d (%2$d%%)</string>
+    <string name="toast_logged_in">Увійшов за допомогою %s</string>
+    <string name="toast_session_summary_soon">Підсумок сесії скоро з\'явиться</string>
+    <string name="toast_pose_detected">Позу виявлено!</string>
+    <string name="toast_no_video_files">Відео файли не знайдено в assets/Videos</string>
+    <string name="toast_no_video_loaded">Відео не завантажено</string>
+    <string name="toast_no_poses_export">Немає поз для експорту</string>
+    <string name="toast_exporting_background">Експорт %d кадрів у фоні...</string>
+    <string name="toast_export_success">Пози експортовано у:\n%1$s\n\nКадрів: %2$d</string>
+    <string name="toast_export_failed">Експорт не вдався: %s</string>
+    <string name="status_logged_in_as">Увійшов як Користувач</string>
+    <string name="format_feedback_details">Тип: %1$s\n%2$s</string>
+    <string name="feedback_good_simple">✓ Добре</string>
+    <string name="feedback_needs_improvement">⚠ Потребує покращення</string>
+    <string name="format_video_info">Трв: %1$.1fs | Кдр: %2$d | Інт: %3$dms</string>
+    <string name="fps_24">24</string>
+    <string name="fps_30">30</string>
+    <string name="fps_60">60</string>
+    <string name="coach_ivan_name">Іван</string>
+    <string name="coach_ivan_style">Мотиваційний та Енергійний</string>
+    <string name="coach_ivan_desc">Енергійне тренування з великою кількістю заохочень та позитивного підкріплення</string>
+    <string name="coach_andriy_name">Андрій</string>
+    <string name="coach_andriy_style">Точний та прискіпливий до техніки</string>
+    <string name="coach_andriy_desc">Тренування, орієнтоване на деталі та ідеальну форму. Ідеально для тих, хто хоче опанувати технічну точність.</string>
+    <string name="coach_vadym_name">Вадим</string>
+    <string name="coach_vadym_style">Коротко та м\'яко</string>
+    <string name="coach_vadym_desc">М\'яке заохочення з лаконічним фідбеком. Ідеально для початківців, які віддають перевагу підтримці.</string>
+    <string name="select_coach_label">Оберіть свого тренера</string>
+    <string name="select_coach_desc">Оберіть стиль тренування, що відповідає вашим перевагам</string>
+    <string name="btn_landscape_mode">🖥 Ландшафтний режим</string>
+    <string name="btn_pause_text">⏸ Пауза</string>
+    <string name="btn_play_text">▶ Грати</string>
+    
+    <!-- Navigation -->
+    <string name="title_dashboard">Головна</string>
+    <string name="title_progress">Прогрес</string>
+    <string name="title_drills">Вправи</string>
+    <string name="title_profile">Профіль</string>
+    <string name="title_settings">Налашт.</string>
+    
+    <!-- Profile Section -->
+    <string name="subscription_section">Підписка</string>
+    <string name="premium_active_badge">Активно</string>
+    <string name="premium_active_title">Premium Активний</string>
+    <string name="premium_enjoy_desc">Насолоджуйтесь необмеженим AI-коучингом та всіма преміум функціями</string>
+    <string name="premium_renews_on">Оновлюється %s</string>
+    <string name="upgrade_to_premium">Оновити до Premium</string>
+    <string name="upgrade_unlock_desc">Розблокуйте необмежений AI-коучинг, розширений аналіз пози та персоналізовані плани тренувань</string>
+    <string name="view_plans">Переглянути плани</string>
+    <string name="training_goals_section">Тренувальні цілі</string>
+    <string name="weekly_sessions">Тижневі сесії</string>
+    <string name="weekly_sessions_desc">Тренуватись 7 днів/тиждень</string>
+    <string name="skill_target">Ціль навички</string>
+    <string name="skill_target_desc">Досягти 90 балів</string>
+    <string name="theme_title">Тема</string>
+    <string name="theme_light">Світла</string>
+    <string name="theme_dark">Темна</string>
+    <string name="theme_system">Системна</string>
+    <string name="skill_level_title">Рівень навичок</string>
+    <string name="level_beginner">Початківець</string>
+    <string name="level_intermediate">Середній</string>
+    <string name="level_advanced">Просунутий</string>
+    <string name="level_format">%s гравець</string>
+    <string name="language_section">Мова</string>
+    <string name="language_title">Мова інтерфейсу</string>
+    <string name="language_desc">Оберіть бажану мову для додатка</string>
+    <string name="push_notifications">Push-сповіщення</string>
+    <string name="daily_reminders">Щоденні нагадування</string>
+    <string name="achievement_alerts">Сповіщення про досягнення</string>
+    <string name="more_section">Більше</string>
+    <string name="edit_profile">Редагувати профіль</string>
+    <string name="app_settings">Налаштування додатка</string>
+    <string name="help_support">Допомога та підтримка</string>
+    <string name="log_out">Вийти</string>
+    <string name="logout_title">Вихід</string>
+    <string name="logout_message">Ви впевнені, що хочете вийти?</string>
+    
+    <!-- Training Settings -->
+    <string name="training_settings_title">Налаштування тренування</string>
+    <string name="training_settings_subtitle">Налаштуйте параметри тренувальної сесії</string>
+    <string name="audio_feedback_section">Аудіо фідбек</string>
+    <string name="audio_feedback_desc">Отримуйте звукові підказки під час тренування</string>
+    <string name="volume_label">Гучність</string>
+    <string name="volume_desc">Налаштуйте гучність голосового фідбеку та звукових ефектів</string>
+    <string name="camera_settings_section">Налаштування камери</string>
+    <string name="video_quality_label">Якість відео</string>
+    <string name="video_quality_desc">Вища якість покращує точність виявлення пози</string>
+    <string name="frame_rate_label">Частота кадрів (FPS)</string>
+    <string name="frame_rate_desc">Вища частота кадрів фіксує швидші рухи</string>
+    <string name="show_pose_skeleton_label">Показувати скелет пози</string>
+    <string name="show_pose_skeleton_desc">Накладання візуалізації скелету під час тренування</string>
+    <string name="settings_pro_tip_title">💡 Порада</string>
+    <string name="settings_pro_tip">Для найкращих результатів використовуйте 720p при 30 FPS з увімкненим скелетом пози. Цей баланс забезпечує точний фідбек без розрядження батареї.</string>
+    <string name="distance_mode_label">Режим на відстані</string>
+    <string name="distance_mode_desc">Збільште розмір тексту для кращої видимості при тренуванні далі від камери</string>
+    <string name="ai_trainer_section">AI Тренер</string>
+    
+    <!-- App Settings Activity -->
+    <string name="app_settings_title">Налаштування додатка</string>
+    <string name="app_settings_subtitle">Налаштуйте загальні параметри додатка</string>
+    <string name="developer_options">Опції розробника</string>
+    <string name="debug_mode">Режим налагодження</string>
+    <string name="debug_mode_desc">Показувати debug activity у навігації для тестування</string>
+    <string name="debug_mode_active_title">Режим налагодження активний</string>
+    <string name="debug_mode_active_info">Нова вкладка \"Debug\" з\'явиться у нижній навігації. Використовуйте її для тестування функцій та перегляду діагностичної інформації.</string>
+    <string name="subscription_management">Управління підпискою</string>
+    <string name="subscription_active">Підписка активна</string>
+    <string name="subscription_simulate_desc">Симулювати статус преміум підписки</string>
+    <string name="premium_active">Premium Активний</string>
+    <string name="free_plan">Безкоштовний план</string>
+    <string name="subscription_active_info">Ваша преміум підписка активна до %s.</string>
+    <string name="subscription_inactive_info">Ви на безкоштовному плані. Оновіться, щоб розблокувати всі функції.</string>
+    <string name="subscription_how_works_title">ℹ️ Як це працює</string>
+    <string name="subscription_how_works_active">• Коли підписка активна: Повний доступ до тренувань та вправ</string>
+    <string name="subscription_how_works_inactive">• Коли підписка неактивна: Початок тренування перенаправить на сторінку підписки</string>
+    <string name="subscription_how_works_profile">• Це налаштування впливає на статус підписки у вашому Профілі</string>
+    <string name="activity_settings_title">Налаштування активності</string>
+    <string name="difficulty_all_levels">Всі рівні</string>
+
+    <!-- Progress Fragment -->
+    <string name="progress_title">Прогрес</string>
+    <string name="progress_subtitle">Стежте за своїм вдосконаленням</string>
+    <string name="stats_days_streak">Днів поспіль</string>
+    <string name="stats_total_hours">Всього годин</string>
+    <string name="stats_achievements">Досягнення</string>
+    <string name="tab_training_time">Час тренувань</string>
+    <string name="tab_accuracy">Точність</string>
+    <string name="chart_training_title">Тижневе тренування</string>
+    <string name="chart_training_subtitle">Хвилин на день</string>
+    <string name="chart_accuracy_title">Тижнева точність</string>
+    <string name="chart_accuracy_subtitle">Тренд відсотків</string>
+    <string name="skill_levels_title">Рівні навичок</string>
+    <string name="milestones_title">Останні досягнення</string>
+    <string name="milestone_100_hits">100 влучних ударів підряд</string>
+    <string name="milestone_30_days">30 днів поспіль</string>
+    <string name="milestone_master_server">Майстер подачі</string>
+    <string name="time_ago_2_days">2 дні тому</string>
+    <string name="time_ago_5_days">5 днів тому</string>
+    <string name="time_ago_1_week">1 тиждень тому</string>
+
+    <string name="days_mon">Пн</string>
+    <string name="days_tue">Вт</string>
+    <string name="days_wed">Ср</string>
+    <string name="days_thu">Чт</string>
+    <string name="days_fri">Пт</string>
+    <string name="days_sat">Сб</string>
+    <string name="days_sun">Нд</string>
+
+    <!-- Weekly Sessions Activity -->
+    <string name="weekly_sessions_title">Тижневі сесії</string>
+    <string name="weekly_sessions_subtitle">Встановіть ціль частоти тренувань</string>
+    <string name="current_goal">Поточна ціль</string>
+    <string name="days_per_week">днів/тиждень</string>
+    <string name="select_sessions_goal">Оберіть свою ціль</string>
+    <string name="recommended_plans">Рекомендовані плани</string>
+    <string name="plan_beginner_title">Початківець</string>
+    <string name="plan_beginner_desc">Ідеально для старту</string>
+    <string name="plan_regular_title">Регулярний</string>
+    <string name="plan_regular_desc">Збалансований графік тренувань</string>
+    <string name="plan_intensive_title">Інтенсивний</string>
+    <string name="plan_intensive_desc">Максимальний прогрес</string>
+    <string name="save_goal">Зберегти ціль</string>
+    <string name="goal_saved">Ціль успішно збережено!</string>
+
+    <!-- Skill Target Activity -->
+    <string name="skill_target_title">Ціль навички</string>
+    <string name="skill_target_subtitle">Встановіть ціль для оцінки навички</string>
+    <string name="current_target">Поточна ціль</string>
+    <string name="skill_score">Оцінка навички</string>
+    <string name="current_skill">Поточний рівень</string>
+    <string name="set_your_target">Встановіть свою ціль</string>
+    <string name="target_score">Цільова оцінка</string>
+    <string name="quick_targets">Швидкий вибір</string>
+    <string name="target_good">Добре</string>
+    <string name="target_great">Чудово</string>
+    <string name="target_excellent">Відмінно</string>
+    <string name="target_master">Майстер</string>
+    <string name="skill_tip_title">Порада</string>
+    <string name="skill_tip_desc">Почніть з реалістичної цілі та поступово підвищуйте її. Стабільність важливіша за досконалість!</string>
+    <string name="save_target">Зберегти ціль</string>
+    <string name="target_saved">Ціль успішно збережено!</string>
 </resources>

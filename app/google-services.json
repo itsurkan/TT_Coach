@@ -1,0 +1,39 @@
+{
+    "project_info": {
+        "project_number": "558931815872",
+        "project_id": "ttcoachai",
+        "storage_bucket": "ttcoachai.firebasestorage.app"
+    },
+    "client": [
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:558931815872:android:18035005a05f4ddaa7ec25",
+                "android_client_info": {
+                    "package_name": "com.ttcoachai"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "558931815872-rpq3aq16vnlfm7uk5cq8i5rh862ovjqe.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDEkJjnL22Uh3dk7HY6K7I3prGv3adMljc"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "558931815872-rpq3aq16vnlfm7uk5cq8i5rh862ovjqe.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "configuration_version": "1"
+}
