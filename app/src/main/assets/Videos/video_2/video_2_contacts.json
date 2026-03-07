@@ -1,0 +1,163 @@
+{
+  "videoName": "video_2.mp4",
+  "intervalMs": 100,
+  "videoDurationMs": 7061,
+  "totalFrames": 71,
+  "audioSampleRate": 22050,
+  "sensitivity": "high",
+  "exportTimestamp": 1772884173279,
+  "contacts": [
+    {
+      "frameIndex": 0,
+      "timestampMs": 46,
+      "confidence": 1.0,
+      "type": "table",
+      "spectralCentroid": 1545.5,
+      "lowHighRatio": 10.49
+    },
+    {
+      "frameIndex": 1,
+      "timestampMs": 139,
+      "confidence": 0.167,
+      "type": "table",
+      "spectralCentroid": 1873.3,
+      "lowHighRatio": 13.487
+    },
+    {
+      "frameIndex": 3,
+      "timestampMs": 325,
+      "confidence": 0.114,
+      "type": "table",
+      "spectralCentroid": 2316.6,
+      "lowHighRatio": 3.152
+    },
+    {
+      "frameIndex": 7,
+      "timestampMs": 697,
+      "confidence": 0.221,
+      "type": "table",
+      "spectralCentroid": 1694.4,
+      "lowHighRatio": 12.126
+    },
+    {
+      "frameIndex": 8,
+      "timestampMs": 813,
+      "confidence": 0.246,
+      "type": "table",
+      "spectralCentroid": 1832.4,
+      "lowHighRatio": 10.728
+    },
+    {
+      "frameIndex": 12,
+      "timestampMs": 1184,
+      "confidence": 0.111,
+      "type": "table",
+      "spectralCentroid": 2289.3,
+      "lowHighRatio": 10.101
+    },
+    {
+      "frameIndex": 20,
+      "timestampMs": 1997,
+      "confidence": 0.213,
+      "type": "table",
+      "spectralCentroid": 1878.0,
+      "lowHighRatio": 11.257
+    },
+    {
+      "frameIndex": 21,
+      "timestampMs": 2136,
+      "confidence": 0.341,
+      "type": "table",
+      "spectralCentroid": 2262.3,
+      "lowHighRatio": 5.606
+    },
+    {
+      "frameIndex": 24,
+      "timestampMs": 2392,
+      "confidence": 0.204,
+      "type": "table",
+      "spectralCentroid": 1868.4,
+      "lowHighRatio": 10.935
+    },
+    {
+      "frameIndex": 29,
+      "timestampMs": 2856,
+      "confidence": 0.121,
+      "type": "table",
+      "spectralCentroid": 700.5,
+      "lowHighRatio": 6.594
+    },
+    {
+      "frameIndex": 31,
+      "timestampMs": 3111,
+      "confidence": 0.197,
+      "type": "table",
+      "spectralCentroid": 1620.0,
+      "lowHighRatio": 8.969
+    },
+    {
+      "frameIndex": 42,
+      "timestampMs": 4180,
+      "confidence": 0.096,
+      "type": "table",
+      "spectralCentroid": 1826.3,
+      "lowHighRatio": 6.328
+    },
+    {
+      "frameIndex": 43,
+      "timestampMs": 4296,
+      "confidence": 0.11,
+      "type": "table",
+      "spectralCentroid": 2422.7,
+      "lowHighRatio": 9.889
+    },
+    {
+      "frameIndex": 45,
+      "timestampMs": 4528,
+      "confidence": 0.236,
+      "type": "table",
+      "spectralCentroid": 1884.2,
+      "lowHighRatio": 7.722
+    },
+    {
+      "frameIndex": 47,
+      "timestampMs": 4667,
+      "confidence": 0.087,
+      "type": "table",
+      "spectralCentroid": 2052.5,
+      "lowHighRatio": 9.251
+    },
+    {
+      "frameIndex": 48,
+      "timestampMs": 4783,
+      "confidence": 0.249,
+      "type": "table",
+      "spectralCentroid": 1609.0,
+      "lowHighRatio": 22.337
+    },
+    {
+      "frameIndex": 55,
+      "timestampMs": 5457,
+      "confidence": 0.221,
+      "type": "table",
+      "spectralCentroid": 1641.8,
+      "lowHighRatio": 8.807
+    },
+    {
+      "frameIndex": 59,
+      "timestampMs": 5921,
+      "confidence": 0.119,
+      "type": "table",
+      "spectralCentroid": 2000.0,
+      "lowHighRatio": 25.282
+    },
+    {
+      "frameIndex": 66,
+      "timestampMs": 6618,
+      "confidence": 0.087,
+      "type": "table",
+      "spectralCentroid": 2455.7,
+      "lowHighRatio": 0.76
+    }
+  ]
+}
