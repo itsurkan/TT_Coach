@@ -62,7 +62,9 @@
     },
     "14": {
       "frameIndex": 14,
-      "label": "correct"
+      "label": "correct",
+      "correctedX": 0.5332242,
+      "correctedY": 0.6158791
     },
     "15": {
       "frameIndex": 15,
@@ -72,7 +74,9 @@
     },
     "16": {
       "frameIndex": 16,
-      "label": "correct"
+      "label": "correct",
+      "correctedX": 0.30338767,
+      "correctedY": 0.52657187
     },
     "17": {
       "frameIndex": 17,
