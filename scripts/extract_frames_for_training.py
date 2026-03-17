@@ -38,6 +38,34 @@ VIDEOS_DIR = os.path.join(PROJECT_DIR, "app", "src", "main", "assets", "Videos")
 DATA_DIR = os.path.join(PROJECT_DIR, "data_regressor")
 
 
+def crop_square(frame: np.ndarray, crop_cfg: dict | None) -> tuple[np.ndarray, int, int]:
+    """Crop a portrait frame to a square region.
+
+    Args:
+        frame: BGR image (h > w typically for portrait)
+        crop_cfg: {"y": int, "h": int} in pixels, or None for center crop
+
+    Returns:
+        (cropped_frame, crop_y, crop_h) where crop is width x width
+    """
+    h, w = frame.shape[:2]
+    side = min(h, w)  # square side = frame width for portrait
+
+    if crop_cfg:
+        cy = int(crop_cfg.get("y", (h - side) // 2))
+        ch = int(crop_cfg.get("h", side))
+    else:
+        # Default: center crop
+        cy = (h - side) // 2
+        ch = side
+
+    # Clamp
+    cy = max(0, min(cy, h - ch))
+    ch = min(ch, h - cy)
+
+    return frame[cy:cy + ch, 0:w], cy, ch
+
+
 def process_video(
     video_name: str,
     img_size: int,
@@ -56,6 +84,9 @@ def process_video(
     if not labels:
         return []
 
+    # Crop config: {"y": pixel_offset, "h": crop_height}
+    crop_cfg = labels_data.get("crop", None)
+
     # Find video file
     video_file = None
     for ext in [".mp4", ".MP4", ".mov", ".MOV", ".webm"]:
@@ -73,6 +104,9 @@ def process_video(
         print(f"  WARNING: cannot open {video_file}")
         return []
 
+    frame_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    frame_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+
     # Get interval
     interval_ms = 100
     poses_path = os.path.join(video_dir, f"{video_name}_poses.json")
@@ -82,6 +116,7 @@ def process_video(
         interval_ms = poses_data.get("intervalMs", interval_ms)
 
     results = []
+    skipped = 0
 
     for key, label in labels.items():
         fi = label["frameIndex"]
@@ -92,18 +127,28 @@ def process_video(
         if not ret or frame is None:
             continue
 
-        # Resize to square
-        resized = cv2.resize(frame, (img_size, img_size))
+        # Crop to square
+        cropped, crop_y, crop_h = crop_square(frame, crop_cfg)
+        resized = cv2.resize(cropped, (img_size, img_size))
 
         if label.get("correctedX") is not None and label.get("correctedY") is not None:
-            # Ball visible — position is already normalized (0-1)
-            x = float(label["correctedX"])
-            y = float(label["correctedY"])
-            results.append((resized, x, y, 1.0))
+            # Remap normalized coords from full frame to cropped region
+            x = float(label["correctedX"])  # x unchanged (full width kept)
+            y_px = float(label["correctedY"]) * frame_h  # to pixel
+            y_in_crop = (y_px - crop_y) / crop_h  # normalize to crop
+
+            # Skip if ball falls outside crop
+            if y_in_crop < 0 or y_in_crop > 1:
+                skipped += 1
+                continue
+
+            results.append((resized, x, y_in_crop, 1.0))
         elif label["label"] == "no_ball":
             results.append((resized, 0.0, 0.0, 0.0))
 
     cap.release()
+    if skipped:
+        print(f"  skipped {skipped} frames (ball outside crop)")
     return results
 
 

@@ -2700,5 +2700,9 @@
       "frameIndex": 580,
       "label": "no_ball"
     }
+  },
+  "crop": {
+    "y": 424,
+    "h": 1072
   }
 }

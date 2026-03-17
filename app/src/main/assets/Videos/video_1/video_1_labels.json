@@ -204,5 +204,9 @@
       "frameIndex": 34,
       "label": "no_ball"
     }
+  },
+  "crop": {
+    "y": 0,
+    "h": 720
   }
 }
