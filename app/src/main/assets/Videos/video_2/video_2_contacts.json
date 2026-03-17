@@ -5,11 +5,11 @@
   "totalFrames": 71,
   "audioSampleRate": 22050,
   "sensitivity": "high",
-  "exportTimestamp": 1772884173279,
+  "exportTimestamp": 1772884511503,
   "contacts": [
     {
       "frameIndex": 0,
-      "timestampMs": 46,
+      "timestampMs": 21,
       "confidence": 1.0,
       "type": "table",
       "spectralCentroid": 1545.5,
@@ -17,7 +17,7 @@
     },
     {
       "frameIndex": 1,
-      "timestampMs": 139,
+      "timestampMs": 114,
       "confidence": 0.167,
       "type": "table",
       "spectralCentroid": 1873.3,
@@ -25,15 +25,23 @@
     },
     {
       "frameIndex": 3,
-      "timestampMs": 325,
+      "timestampMs": 300,
       "confidence": 0.114,
       "type": "table",
       "spectralCentroid": 2316.6,
       "lowHighRatio": 3.152
     },
     {
+      "frameIndex": 5,
+      "timestampMs": 532,
+      "confidence": 0.049,
+      "type": "table",
+      "spectralCentroid": 1963.7,
+      "lowHighRatio": 3.216
+    },
+    {
       "frameIndex": 7,
-      "timestampMs": 697,
+      "timestampMs": 672,
       "confidence": 0.221,
       "type": "table",
       "spectralCentroid": 1694.4,
@@ -41,7 +49,7 @@
     },
     {
       "frameIndex": 8,
-      "timestampMs": 813,
+      "timestampMs": 788,
       "confidence": 0.246,
       "type": "table",
       "spectralCentroid": 1832.4,
@@ -49,7 +57,7 @@
     },
     {
       "frameIndex": 12,
-      "timestampMs": 1184,
+      "timestampMs": 1159,
       "confidence": 0.111,
       "type": "table",
       "spectralCentroid": 2289.3,
@@ -57,7 +65,7 @@
     },
     {
       "frameIndex": 20,
-      "timestampMs": 1997,
+      "timestampMs": 1972,
       "confidence": 0.213,
       "type": "table",
       "spectralCentroid": 1878.0,
@@ -65,7 +73,7 @@
     },
     {
       "frameIndex": 21,
-      "timestampMs": 2136,
+      "timestampMs": 2111,
       "confidence": 0.341,
       "type": "table",
       "spectralCentroid": 2262.3,
@@ -73,15 +81,15 @@
     },
     {
       "frameIndex": 24,
-      "timestampMs": 2392,
+      "timestampMs": 2367,
       "confidence": 0.204,
       "type": "table",
       "spectralCentroid": 1868.4,
       "lowHighRatio": 10.935
     },
     {
-      "frameIndex": 29,
-      "timestampMs": 2856,
+      "frameIndex": 28,
+      "timestampMs": 2831,
       "confidence": 0.121,
       "type": "table",
       "spectralCentroid": 700.5,
@@ -89,15 +97,23 @@
     },
     {
       "frameIndex": 31,
-      "timestampMs": 3111,
+      "timestampMs": 3086,
       "confidence": 0.197,
       "type": "table",
       "spectralCentroid": 1620.0,
       "lowHighRatio": 8.969
     },
     {
+      "frameIndex": 35,
+      "timestampMs": 3458,
+      "confidence": 0.081,
+      "type": "table",
+      "spectralCentroid": 1615.9,
+      "lowHighRatio": 14.688
+    },
+    {
       "frameIndex": 42,
-      "timestampMs": 4180,
+      "timestampMs": 4155,
       "confidence": 0.096,
       "type": "table",
       "spectralCentroid": 1826.3,
@@ -105,7 +121,7 @@
     },
     {
       "frameIndex": 43,
-      "timestampMs": 4296,
+      "timestampMs": 4271,
       "confidence": 0.11,
       "type": "table",
       "spectralCentroid": 2422.7,
@@ -113,15 +129,15 @@
     },
     {
       "frameIndex": 45,
-      "timestampMs": 4528,
+      "timestampMs": 4503,
       "confidence": 0.236,
       "type": "table",
       "spectralCentroid": 1884.2,
       "lowHighRatio": 7.722
     },
     {
-      "frameIndex": 47,
-      "timestampMs": 4667,
+      "frameIndex": 46,
+      "timestampMs": 4642,
       "confidence": 0.087,
       "type": "table",
       "spectralCentroid": 2052.5,
@@ -129,31 +145,55 @@
     },
     {
       "frameIndex": 48,
-      "timestampMs": 4783,
+      "timestampMs": 4758,
       "confidence": 0.249,
       "type": "table",
       "spectralCentroid": 1609.0,
       "lowHighRatio": 22.337
     },
     {
-      "frameIndex": 55,
-      "timestampMs": 5457,
+      "frameIndex": 50,
+      "timestampMs": 5014,
+      "confidence": 0.076,
+      "type": "table",
+      "spectralCentroid": 1725.2,
+      "lowHighRatio": 3.35
+    },
+    {
+      "frameIndex": 54,
+      "timestampMs": 5432,
       "confidence": 0.221,
       "type": "table",
       "spectralCentroid": 1641.8,
       "lowHighRatio": 8.807
     },
     {
+      "frameIndex": 58,
+      "timestampMs": 5780,
+      "confidence": 0.081,
+      "type": "table",
+      "spectralCentroid": 2029.0,
+      "lowHighRatio": 16.603
+    },
+    {
       "frameIndex": 59,
-      "timestampMs": 5921,
+      "timestampMs": 5896,
       "confidence": 0.119,
       "type": "table",
       "spectralCentroid": 2000.0,
       "lowHighRatio": 25.282
     },
     {
+      "frameIndex": 62,
+      "timestampMs": 6244,
+      "confidence": 0.059,
+      "type": "table",
+      "spectralCentroid": 1820.5,
+      "lowHighRatio": 34.113
+    },
+    {
       "frameIndex": 66,
-      "timestampMs": 6618,
+      "timestampMs": 6593,
       "confidence": 0.087,
       "type": "table",
       "spectralCentroid": 2455.7,

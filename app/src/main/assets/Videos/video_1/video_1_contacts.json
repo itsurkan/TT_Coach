@@ -5,43 +5,43 @@
   "totalFrames": 35,
   "audioSampleRate": 22050,
   "sensitivity": "high",
-  "exportTimestamp": 1772884172285,
+  "exportTimestamp": 1772884490680,
   "contacts": [
     {
-      "frameIndex": 0,
-      "timestampMs": 46,
-      "confidence": 0.476,
-      "type": "racket",
-      "spectralCentroid": 3854.7,
-      "lowHighRatio": 0.754
-    },
-    {
       "frameIndex": 6,
-      "timestampMs": 580,
+      "timestampMs": 555,
       "confidence": 0.636,
       "type": "table",
       "spectralCentroid": 4003.7,
       "lowHighRatio": 29.588
     },
     {
-      "frameIndex": 9,
-      "timestampMs": 859,
+      "frameIndex": 8,
+      "timestampMs": 834,
       "confidence": 0.851,
       "type": "racket",
       "spectralCentroid": 5155.4,
       "lowHighRatio": 0.683
     },
     {
+      "frameIndex": 14,
+      "timestampMs": 1391,
+      "confidence": 0.279,
+      "type": "racket",
+      "spectralCentroid": 4608.4,
+      "lowHighRatio": 3.512
+    },
+    {
       "frameIndex": 17,
-      "timestampMs": 1741,
+      "timestampMs": 1716,
       "confidence": 0.545,
       "type": "racket",
       "spectralCentroid": 4614.0,
       "lowHighRatio": 1.348
     },
     {
-      "frameIndex": 22,
-      "timestampMs": 2159,
+      "frameIndex": 21,
+      "timestampMs": 2134,
       "confidence": 0.438,
       "type": "racket",
       "spectralCentroid": 5287.9,
@@ -49,7 +49,7 @@
     },
     {
       "frameIndex": 25,
-      "timestampMs": 2485,
+      "timestampMs": 2460,
       "confidence": 0.713,
       "type": "racket",
       "spectralCentroid": 4913.8,
@@ -57,7 +57,7 @@
     },
     {
       "frameIndex": 29,
-      "timestampMs": 2902,
+      "timestampMs": 2877,
       "confidence": 1.0,
       "type": "table",
       "spectralCentroid": 3853.4,
@@ -65,7 +65,7 @@
     },
     {
       "frameIndex": 31,
-      "timestampMs": 3111,
+      "timestampMs": 3086,
       "confidence": 0.39,
       "type": "racket",
       "spectralCentroid": 5491.1,

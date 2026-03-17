@@ -54,7 +54,7 @@ def _find_ffmpeg() -> str | None:
 SENSITIVITY = {
     "low":    {"delta": 0.15, "energy_percentile": 70},
     "medium": {"delta": 0.08, "energy_percentile": 40},
-    "high":   {"delta": 0.04, "energy_percentile": 20},
+    "high":   {"delta": 0.04, "energy_percentile": 0},
 }
 
 SAMPLE_RATE = 22050
@@ -65,7 +65,9 @@ MIN_GAP_FRAMES = 3        # ~70 ms minimum gap between contacts (physical limit)
 SHARPNESS_WINDOW_SHORT = 5   # ms  — energy window for the transient
 SHARPNESS_WINDOW_LONG = 50   # ms  — energy window for background
 SHARPNESS_THRESHOLD = 0.15   # minimum ratio to keep
-AUDIO_OFFSET_MS = 0           # ms — no fixed offset; backtracking provides best average timing
+AUDIO_OFFSET_MS = -25         # ms — small shift earlier (backtrack slightly overshoots)
+PRE_SILENCE_WINDOW_MS = 100   # ms — window to check for silence before onset
+PRE_SILENCE_THRESHOLD = 1e-5  # if mean energy before onset is below this, it's recording start noise
 
 # ── Contact type classification ──────────────────────────────────────────────
 # Table hits: lower spectral centroid, more energy in 1-3 kHz (table resonance)
@@ -259,6 +261,16 @@ def detect_onsets(y: np.ndarray, sr: int, sensitivity: str) -> list[dict]:
 
         # Classify contact type at peak position (cleaner signal)
         classification = classify_contact(y, sr, sample_center)
+
+        # Skip recording-start noise: if the audio before the onset is silent,
+        # this is likely a mic power-on transient, not a ball contact
+        pre_window = int(PRE_SILENCE_WINDOW_MS * sr / 1000)
+        pre_start = max(0, sample_center - pre_window)
+        pre_end = max(0, sample_center - short_samples)  # exclude the transient itself
+        if pre_end > pre_start:
+            pre_energy = np.mean(y[pre_start:pre_end] ** 2)
+            if pre_energy < PRE_SILENCE_THRESHOLD:
+                continue
 
         # Apply A/V sync offset and clamp to >= 0
         adjusted_ms = max(0, round(t_bt * 1000) + AUDIO_OFFSET_MS)
