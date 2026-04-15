@@ -147,6 +147,28 @@ class SettingsFragment : Fragment() {
         binding.switchDistanceMode.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setDistanceModeEnabled(isChecked)
         }
+
+        // Ball detection FPS toggle
+        when (settingsManager.getBallDetectionFps()) {
+            10 -> binding.toggleBallDetectionFps.check(R.id.btn_ball_fps_10)
+            30 -> binding.toggleBallDetectionFps.check(R.id.btn_ball_fps_30)
+            60 -> binding.toggleBallDetectionFps.check(R.id.btn_ball_fps_60)
+            120 -> binding.toggleBallDetectionFps.check(R.id.btn_ball_fps_120)
+            else -> binding.toggleBallDetectionFps.check(R.id.btn_ball_fps_30)
+        }
+
+        binding.toggleBallDetectionFps.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                val fps = when (checkedId) {
+                    R.id.btn_ball_fps_10 -> 10
+                    R.id.btn_ball_fps_30 -> 30
+                    R.id.btn_ball_fps_60 -> 60
+                    R.id.btn_ball_fps_120 -> 120
+                    else -> 30
+                }
+                settingsManager.setBallDetectionFps(fps)
+            }
+        }
     }
 
     private fun setupFeedbackSettings() {

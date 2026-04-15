@@ -1,0 +1,198 @@
+{
+  "videoName": "table_v3",
+  "totalFrames": 36,
+  "labels": {
+    "0": {
+      "frameIndex": 0,
+      "label": "wrong",
+      "correctedX": 0.22014682433801205,
+      "correctedY": 0.46070999238256194
+    },
+    "1": {
+      "frameIndex": 1,
+      "label": "wrong",
+      "correctedX": 0.21734002198810312,
+      "correctedY": 0.4656946795446879
+    },
+    "2": {
+      "frameIndex": 2,
+      "label": "wrong",
+      "correctedX": 0.18927199848901388,
+      "correctedY": 0.4993413178890379
+    },
+    "3": {
+      "frameIndex": 3,
+      "label": "no_ball"
+    },
+    "4": {
+      "frameIndex": 4,
+      "label": "wrong",
+      "correctedX": 0.29452708661059857,
+      "correctedY": 0.6127429508274028
+    },
+    "5": {
+      "frameIndex": 5,
+      "label": "wrong",
+      "correctedX": 0.4145178870692051,
+      "correctedY": 0.569126938158801
+    },
+    "6": {
+      "frameIndex": 6,
+      "label": "wrong",
+      "correctedX": 0.4832845446419738,
+      "correctedY": 0.5093106922132898
+    },
+    "7": {
+      "frameIndex": 7,
+      "label": "wrong",
+      "correctedX": 0.5394205916401523,
+      "correctedY": 0.496848974307975
+    },
+    "8": {
+      "frameIndex": 8,
+      "label": "wrong",
+      "correctedX": 0.5787158245388773,
+      "correctedY": 0.5105568640038213
+    },
+    "9": {
+      "frameIndex": 9,
+      "label": "wrong",
+      "correctedX": 0.6046787462755349,
+      "correctedY": 0.4806487410310657
+    },
+    "10": {
+      "frameIndex": 10,
+      "label": "wrong",
+      "correctedX": 0.6292382668372379,
+      "correctedY": 0.4632023359636249
+    },
+    "11": {
+      "frameIndex": 11,
+      "label": "wrong",
+      "correctedX": 0.6495875838740777,
+      "correctedY": 0.4719255384973453
+    },
+    "12": {
+      "frameIndex": 12,
+      "label": "wrong",
+      "correctedX": 0.617746843050833,
+      "correctedY": 0.45019798003009004
+    },
+    "13": {
+      "frameIndex": 13,
+      "label": "wrong",
+      "correctedX": 0.5679980923429058,
+      "correctedY": 0.41314783225011215
+    },
+    "14": {
+      "frameIndex": 14,
+      "label": "wrong",
+      "correctedX": 0.5098241499828295,
+      "correctedY": 0.4110103237243442
+    },
+    "15": {
+      "frameIndex": 15,
+      "label": "wrong",
+      "correctedX": 0.45124900802026996,
+      "correctedY": 0.4373729288754823
+    },
+    "16": {
+      "frameIndex": 16,
+      "label": "wrong",
+      "correctedX": 0.3822426763931451,
+      "correctedY": 0.5022106874904436
+    },
+    "17": {
+      "frameIndex": 17,
+      "label": "wrong",
+      "correctedX": 0.30521235271635444,
+      "correctedY": 0.572748468840786
+    },
+    "18": {
+      "frameIndex": 18,
+      "label": "wrong",
+      "correctedX": 0.2068038404096891,
+      "correctedY": 0.538216128829815
+    },
+    "19": {
+      "frameIndex": 19,
+      "label": "wrong",
+      "correctedX": 0.08155843644182839,
+      "correctedY": 0.540660383687145
+    },
+    "20": {
+      "frameIndex": 20,
+      "label": "no_ball"
+    },
+    "21": {
+      "frameIndex": 21,
+      "label": "no_ball",
+      "correctedX": 0.14312318761522527,
+      "correctedY": 0.47495613126103153
+    },
+    "22": {
+      "frameIndex": 22,
+      "label": "wrong",
+      "correctedX": 0.3356937190325567,
+      "correctedY": 0.3953141541562699
+    },
+    "23": {
+      "frameIndex": 23,
+      "label": "wrong",
+      "correctedX": 0.45440158086515825,
+      "correctedY": 0.3878184386640571
+    },
+    "24": {
+      "frameIndex": 24,
+      "label": "wrong",
+      "correctedX": 0.5282642504498881,
+      "correctedY": 0.409368620704169
+    },
+    "25": {
+      "frameIndex": 25,
+      "label": "wrong",
+      "correctedX": 0.582606071644368,
+      "correctedY": 0.4552798780939728
+    },
+    "26": {
+      "frameIndex": 26,
+      "label": "no_ball"
+    },
+    "27": {
+      "frameIndex": 27,
+      "label": "no_ball"
+    },
+    "28": {
+      "frameIndex": 28,
+      "label": "no_ball"
+    },
+    "29": {
+      "frameIndex": 29,
+      "label": "no_ball"
+    },
+    "30": {
+      "frameIndex": 30,
+      "label": "no_ball"
+    },
+    "31": {
+      "frameIndex": 31,
+      "label": "no_ball"
+    },
+    "32": {
+      "frameIndex": 32,
+      "label": "no_ball"
+    },
+    "33": {
+      "frameIndex": 33,
+      "label": "no_ball"
+    },
+    "34": {
+      "frameIndex": 34,
+      "label": "no_ball"
+    },
+    "35": {
+      "frameIndex": 35,
+      "label": "no_ball"
+    }
+  }
+}

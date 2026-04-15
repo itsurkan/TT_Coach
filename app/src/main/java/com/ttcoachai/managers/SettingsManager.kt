@@ -60,6 +60,10 @@ class SettingsManager(context: Context) {
     fun isShowSkeleton(): Boolean = prefs.getBoolean("show_skeleton", true)
     fun setShowSkeleton(show: Boolean) = prefs.edit().putBoolean("show_skeleton", show).apply()
     
+    // Ball detection FPS (how often to run ball detector)
+    fun getBallDetectionFps(): Int = prefs.getInt("ball_detection_fps", 30).coerceIn(10, 120)
+    fun setBallDetectionFps(fps: Int) = prefs.edit().putInt("ball_detection_fps", fps).apply()
+
     // Bulk operations
     fun saveAll(
         wristAngle: Int,

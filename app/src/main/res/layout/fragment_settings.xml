@@ -648,6 +648,69 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
+
+                    <!-- Ball Detection FPS -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ball_detection_fps_label"
+                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/ball_detection_fps_desc"
+                            android:textColor="@color/text_muted"
+                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="12dp"/>
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_ball_detection_fps"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <Button
+                                android:id="@+id/btn_ball_fps_10"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/ball_fps_10" />
+
+                            <Button
+                                android:id="@+id/btn_ball_fps_30"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/ball_fps_30" />
+
+                            <Button
+                                android:id="@+id/btn_ball_fps_60"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/ball_fps_60" />
+
+                            <Button
+                                android:id="@+id/btn_ball_fps_120"
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/ball_fps_120" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

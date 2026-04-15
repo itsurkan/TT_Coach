@@ -70,7 +70,7 @@ android {
         }
     }
     androidResources {
-        noCompress 'task'
+        noCompress 'task', 'tflite'
     }
 }
 
@@ -157,4 +157,8 @@ dependencies {
 
     // OpenCV Android SDK 4.9.0 (ball detection via color/shape analysis)
     implementation 'org.opencv:opencv:4.9.0'
+
+    // TensorFlow Lite (ball detection)
+    implementation 'org.tensorflow:tensorflow-lite:2.16.1'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.16.1'
 }

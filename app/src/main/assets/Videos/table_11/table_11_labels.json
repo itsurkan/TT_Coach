@@ -1,0 +1,176 @@
+{
+  "videoName": "table_11",
+  "totalFrames": 35,
+  "labels": {
+    "0": {
+      "frameIndex": 0,
+      "label": "no_ball"
+    },
+    "1": {
+      "frameIndex": 1,
+      "label": "no_ball"
+    },
+    "2": {
+      "frameIndex": 2,
+      "label": "no_ball"
+    },
+    "3": {
+      "frameIndex": 3,
+      "label": "no_ball"
+    },
+    "4": {
+      "frameIndex": 4,
+      "label": "no_ball"
+    },
+    "5": {
+      "frameIndex": 5,
+      "label": "wrong",
+      "correctedX": 0.07234421795496233,
+      "correctedY": 0.33635159010600707
+    },
+    "6": {
+      "frameIndex": 6,
+      "label": "wrong",
+      "correctedX": 0.22306528033974918,
+      "correctedY": 0.41784220406950023
+    },
+    "7": {
+      "frameIndex": 7,
+      "label": "wrong",
+      "correctedX": 0.3142863567117892,
+      "correctedY": 0.5424594115579113
+    },
+    "8": {
+      "frameIndex": 8,
+      "label": "wrong",
+      "correctedX": 0.39428022368419363,
+      "correctedY": 0.4190883761443844
+    },
+    "9": {
+      "frameIndex": 9,
+      "label": "wrong",
+      "correctedX": 0.4188397442458967,
+      "correctedY": 0.36799532107413585
+    },
+    "10": {
+      "frameIndex": 10,
+      "label": "wrong",
+      "correctedX": 0.22446868151470364,
+      "correctedY": 0.3181484380787714
+    },
+    "11": {
+      "frameIndex": 11,
+      "label": "no_ball"
+    },
+    "12": {
+      "frameIndex": 12,
+      "label": "no_ball"
+    },
+    "13": {
+      "frameIndex": 13,
+      "label": "no_ball"
+    },
+    "14": {
+      "frameIndex": 14,
+      "label": "no_ball"
+    },
+    "15": {
+      "frameIndex": 15,
+      "label": "no_ball"
+    },
+    "16": {
+      "frameIndex": 16,
+      "label": "no_ball"
+    },
+    "17": {
+      "frameIndex": 17,
+      "label": "no_ball"
+    },
+    "18": {
+      "frameIndex": 18,
+      "label": "no_ball",
+      "correctedX": 0.08904046813159798,
+      "correctedY": 0.47516611951416937
+    },
+    "19": {
+      "frameIndex": 19,
+      "label": "wrong",
+      "correctedX": 0.3325305719861973,
+      "correctedY": 0.5324900349588384
+    },
+    "20": {
+      "frameIndex": 20,
+      "label": "wrong",
+      "correctedX": 0.46655538419434844,
+      "correctedY": 0.3979034508713545
+    },
+    "21": {
+      "frameIndex": 21,
+      "label": "wrong",
+      "correctedX": 0.40199893014644317,
+      "correctedY": 0.32437929845319197
+    },
+    "22": {
+      "frameIndex": 22,
+      "label": "wrong",
+      "correctedX": 0.1949972568406599,
+      "correctedY": 0.27702475960759576
+    },
+    "23": {
+      "frameIndex": 23,
+      "label": "no_ball"
+    },
+    "24": {
+      "frameIndex": 24,
+      "label": "no_ball"
+    },
+    "25": {
+      "frameIndex": 25,
+      "label": "no_ball"
+    },
+    "26": {
+      "frameIndex": 26,
+      "label": "no_ball"
+    },
+    "27": {
+      "frameIndex": 27,
+      "label": "no_ball"
+    },
+    "28": {
+      "frameIndex": 28,
+      "label": "no_ball"
+    },
+    "29": {
+      "frameIndex": 29,
+      "label": "no_ball"
+    },
+    "30": {
+      "frameIndex": 30,
+      "label": "no_ball"
+    },
+    "31": {
+      "frameIndex": 31,
+      "label": "no_ball"
+    },
+    "32": {
+      "frameIndex": 32,
+      "label": "no_ball"
+    },
+    "33": {
+      "frameIndex": 33,
+      "label": "no_ball",
+      "correctedX": 0.11009148575591493,
+      "correctedY": 0.5237668304346497
+    },
+    "34": {
+      "frameIndex": 34,
+      "label": "wrong",
+      "correctedX": 0.2644656150009058,
+      "correctedY": 0.42033454821926847
+    },
+    "35": {
+      "frameIndex": 35,
+      "label": "no_ball"
+    }
+  }
+}

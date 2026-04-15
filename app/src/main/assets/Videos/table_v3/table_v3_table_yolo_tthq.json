@@ -1,0 +1,83 @@
+{
+  "videoName": "table_v3",
+  "detector": "YOLOv11-nano-pose",
+  "modelPath": "D:\\Desktop\\TT_Coach_AI\\yolo_table_keypoints_tthq\\best.pt",
+  "videoWidth": 1280,
+  "videoHeight": 720,
+  "exportTimestamp": 1775334859344,
+  "detection": {
+    "frameIndex": 77,
+    "confidence": 0.7778,
+    "keypoints": [
+      {
+        "x": 0.543541,
+        "y": 0.474138,
+        "confidence": 0.9041
+      },
+      {
+        "x": 0.693879,
+        "y": 0.553385,
+        "confidence": 0.9697
+      },
+      {
+        "x": 0.368773,
+        "y": 0.7091,
+        "confidence": 0.9394
+      },
+      {
+        "x": 0.221601,
+        "y": 0.612536,
+        "confidence": 0.8851
+      },
+      {
+        "x": 0.391214,
+        "y": 0.518167,
+        "confidence": 0.9737
+      },
+      {
+        "x": 0.539663,
+        "y": 0.621152,
+        "confidence": 0.991
+      }
+    ],
+    "bbox": {
+      "x1": 0.147505,
+      "y1": 0.42481,
+      "x2": 0.720049,
+      "y2": 0.741084
+    },
+    "keypoints_averaged": [
+      {
+        "x": 0.542789,
+        "y": 0.490041,
+        "confidence": 0.8968
+      },
+      {
+        "x": 0.686076,
+        "y": 0.567092,
+        "confidence": 0.9667
+      },
+      {
+        "x": 0.348489,
+        "y": 0.697474,
+        "confidence": 0.9394
+      },
+      {
+        "x": 0.210717,
+        "y": 0.608147,
+        "confidence": 0.8756
+      },
+      {
+        "x": 0.388693,
+        "y": 0.526844,
+        "confidence": 0.9752
+      },
+      {
+        "x": 0.525479,
+        "y": 0.622493,
+        "confidence": 0.9915
+      }
+    ],
+    "num_samples": 3
+  }
+}

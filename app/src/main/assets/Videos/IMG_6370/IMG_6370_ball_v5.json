@@ -1,0 +1,5099 @@
+{
+  "videoName": "IMG_6370.MP4",
+  "detector": "V5-TFLite",
+  "intervalMs": 100,
+  "videoDurationMs": 46300,
+  "videoWidth": 720,
+  "videoHeight": 1280,
+  "totalFrames": 463,
+  "exportTimestamp": 1773847435788,
+  "frames": [
+    {
+      "frameIndex": 0,
+      "timestampMs": 0,
+      "ball": {
+        "x": 0.511603,
+        "y": 0.556914,
+        "radiusPx": 0.0,
+        "confidence": 0.994383,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 1,
+      "timestampMs": 100,
+      "ball": {
+        "x": 0.100431,
+        "y": 0.379538,
+        "radiusPx": 0.0,
+        "confidence": 0.979185,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 2,
+      "timestampMs": 200,
+      "ball": {
+        "x": 0.196662,
+        "y": 0.702815,
+        "radiusPx": 0.0,
+        "confidence": 0.904595,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 3,
+      "timestampMs": 300,
+      "ball": {
+        "x": 0.462131,
+        "y": 0.269615,
+        "radiusPx": 0.0,
+        "confidence": 0.979211,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 4,
+      "timestampMs": 400,
+      "ball": {
+        "x": 0.893903,
+        "y": 0.570592,
+        "radiusPx": 0.0,
+        "confidence": 0.994698,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 5,
+      "timestampMs": 500,
+      "ball": {
+        "x": 0.894065,
+        "y": 0.572239,
+        "radiusPx": 0.0,
+        "confidence": 0.99282,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 6,
+      "timestampMs": 600,
+      "ball": {
+        "x": 0.975288,
+        "y": 0.974262,
+        "radiusPx": 0.0,
+        "confidence": 0.584449,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 7,
+      "timestampMs": 700,
+      "ball": {
+        "x": 0.47508,
+        "y": 0.458748,
+        "radiusPx": 0.0,
+        "confidence": 0.845609,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 8,
+      "timestampMs": 800,
+      "ball": {
+        "x": 0.14392,
+        "y": 0.349215,
+        "radiusPx": 0.0,
+        "confidence": 0.78885,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 9,
+      "timestampMs": 900,
+      "ball": {
+        "x": 0.90077,
+        "y": 0.546232,
+        "radiusPx": 0.0,
+        "confidence": 0.995657,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 10,
+      "timestampMs": 1000,
+      "ball": {
+        "x": 0.918352,
+        "y": 0.552391,
+        "radiusPx": 0.0,
+        "confidence": 0.995163,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 11,
+      "timestampMs": 1100,
+      "ball": {
+        "x": 0.864173,
+        "y": 0.594612,
+        "radiusPx": 0.0,
+        "confidence": 0.855971,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 12,
+      "timestampMs": 1200,
+      "ball": {
+        "x": 0.14816,
+        "y": 0.346144,
+        "radiusPx": 0.0,
+        "confidence": 0.927042,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 13,
+      "timestampMs": 1300,
+      "ball": {
+        "x": 0.151182,
+        "y": 0.349591,
+        "radiusPx": 0.0,
+        "confidence": 0.969401,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 14,
+      "timestampMs": 1400,
+      "ball": {
+        "x": 0.92508,
+        "y": 0.552631,
+        "radiusPx": 0.0,
+        "confidence": 0.973531,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 15,
+      "timestampMs": 1500,
+      "ball": {
+        "x": 0.222668,
+        "y": 0.690969,
+        "radiusPx": 0.0,
+        "confidence": 0.729623,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 16,
+      "timestampMs": 1600,
+      "ball": {
+        "x": 0.227801,
+        "y": 0.695387,
+        "radiusPx": 0.0,
+        "confidence": 0.557314,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 17,
+      "timestampMs": 1700,
+      "ball": {
+        "x": 0.147749,
+        "y": 0.348641,
+        "radiusPx": 0.0,
+        "confidence": 0.987184,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 18,
+      "timestampMs": 1800,
+      "ball": {
+        "x": 0.141518,
+        "y": 0.348106,
+        "radiusPx": 0.0,
+        "confidence": 0.940656,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 19,
+      "timestampMs": 1900,
+      "ball": {
+        "x": 0.918097,
+        "y": 0.559298,
+        "radiusPx": 0.0,
+        "confidence": 0.986006,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 20,
+      "timestampMs": 2000,
+      "ball": {
+        "x": 0.906894,
+        "y": 0.546855,
+        "radiusPx": 0.0,
+        "confidence": 0.996586,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 21,
+      "timestampMs": 2100,
+      "ball": {
+        "x": 0.024109,
+        "y": 0.557042,
+        "radiusPx": 0.0,
+        "confidence": 0.881094,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 22,
+      "timestampMs": 2200,
+      "ball": {
+        "x": 0.023083,
+        "y": 0.280078,
+        "radiusPx": 0.0,
+        "confidence": 0.968533,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 23,
+      "timestampMs": 2300,
+      "ball": {
+        "x": 0.903662,
+        "y": 0.551182,
+        "radiusPx": 0.0,
+        "confidence": 0.997669,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 24,
+      "timestampMs": 2400,
+      "ball": {
+        "x": 0.910762,
+        "y": 0.552497,
+        "radiusPx": 0.0,
+        "confidence": 0.9903,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 25,
+      "timestampMs": 2500,
+      "ball": {
+        "x": 0.197736,
+        "y": 0.26487,
+        "radiusPx": 0.0,
+        "confidence": 0.99308,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 26,
+      "timestampMs": 2600,
+      "ball": {
+        "x": 0.131688,
+        "y": 0.361569,
+        "radiusPx": 0.0,
+        "confidence": 0.747577,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 27,
+      "timestampMs": 2700,
+      "ball": {
+        "x": 0.114681,
+        "y": 0.365762,
+        "radiusPx": 0.0,
+        "confidence": 0.951785,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 28,
+      "timestampMs": 2800,
+      "ball": {
+        "x": 0.124422,
+        "y": 0.369527,
+        "radiusPx": 0.0,
+        "confidence": 0.931048,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 29,
+      "timestampMs": 2900,
+      "ball": {
+        "x": 0.914252,
+        "y": 0.547374,
+        "radiusPx": 0.0,
+        "confidence": 0.982637,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 30,
+      "timestampMs": 3000,
+      "ball": {
+        "x": 0.119511,
+        "y": 0.367916,
+        "radiusPx": 0.0,
+        "confidence": 0.979994,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 31,
+      "timestampMs": 3100,
+      "ball": {
+        "x": 0.118401,
+        "y": 0.365907,
+        "radiusPx": 0.0,
+        "confidence": 0.958712,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 32,
+      "timestampMs": 3200,
+      "ball": {
+        "x": 0.115808,
+        "y": 0.364246,
+        "radiusPx": 0.0,
+        "confidence": 0.893157,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 33,
+      "timestampMs": 3300,
+      "ball": {
+        "x": 0.02568,
+        "y": 0.281547,
+        "radiusPx": 0.0,
+        "confidence": 0.998293,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 34,
+      "timestampMs": 3400,
+      "ball": {
+        "x": 0.893768,
+        "y": 0.57159,
+        "radiusPx": 0.0,
+        "confidence": 0.986022,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 35,
+      "timestampMs": 3500,
+      "ball": {
+        "x": 0.10561,
+        "y": 0.367644,
+        "radiusPx": 0.0,
+        "confidence": 0.893031,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 36,
+      "timestampMs": 3600,
+      "ball": {
+        "x": 0.098012,
+        "y": 0.369154,
+        "radiusPx": 0.0,
+        "confidence": 0.860869,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 37,
+      "timestampMs": 3700,
+      "ball": {
+        "x": 0.12843,
+        "y": 0.366711,
+        "radiusPx": 0.0,
+        "confidence": 0.968851,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 38,
+      "timestampMs": 3800,
+      "ball": {
+        "x": 0.913075,
+        "y": 0.554421,
+        "radiusPx": 0.0,
+        "confidence": 0.996118,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 39,
+      "timestampMs": 3900,
+      "ball": {
+        "x": 0.699919,
+        "y": 0.431947,
+        "radiusPx": 0.0,
+        "confidence": 0.979116,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 40,
+      "timestampMs": 4000,
+      "ball": {
+        "x": 0.117865,
+        "y": 0.370297,
+        "radiusPx": 0.0,
+        "confidence": 0.978435,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 41,
+      "timestampMs": 4100,
+      "ball": {
+        "x": 0.914614,
+        "y": 0.563493,
+        "radiusPx": 0.0,
+        "confidence": 0.967489,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 42,
+      "timestampMs": 4200,
+      "ball": {
+        "x": 0.120846,
+        "y": 0.360676,
+        "radiusPx": 0.0,
+        "confidence": 0.908778,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 43,
+      "timestampMs": 4300,
+      "ball": {
+        "x": 0.889866,
+        "y": 0.563488,
+        "radiusPx": 0.0,
+        "confidence": 0.987877,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 44,
+      "timestampMs": 4400,
+      "ball": {
+        "x": 0.11361,
+        "y": 0.358236,
+        "radiusPx": 0.0,
+        "confidence": 0.918242,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 45,
+      "timestampMs": 4500,
+      "ball": {
+        "x": 0.911748,
+        "y": 0.550425,
+        "radiusPx": 0.0,
+        "confidence": 0.951393,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 46,
+      "timestampMs": 4600,
+      "ball": {
+        "x": 0.490086,
+        "y": 0.928211,
+        "radiusPx": 0.0,
+        "confidence": 0.857146,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 47,
+      "timestampMs": 4700,
+      "ball": {
+        "x": 0.92566,
+        "y": 0.972947,
+        "radiusPx": 0.0,
+        "confidence": 0.858489,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 48,
+      "timestampMs": 4800,
+      "ball": {
+        "x": 0.906686,
+        "y": 0.54712,
+        "radiusPx": 0.0,
+        "confidence": 0.998895,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 49,
+      "timestampMs": 4900,
+      "ball": {
+        "x": 0.919585,
+        "y": 0.556325,
+        "radiusPx": 0.0,
+        "confidence": 0.991462,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 50,
+      "timestampMs": 5000,
+      "ball": {
+        "x": 0.91163,
+        "y": 0.550076,
+        "radiusPx": 0.0,
+        "confidence": 0.96197,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 51,
+      "timestampMs": 5100,
+      "ball": {
+        "x": 0.906363,
+        "y": 0.547677,
+        "radiusPx": 0.0,
+        "confidence": 0.931858,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 52,
+      "timestampMs": 5200,
+      "ball": {
+        "x": 0.055718,
+        "y": 0.390149,
+        "radiusPx": 0.0,
+        "confidence": 0.995593,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 53,
+      "timestampMs": 5300,
+      "ball": {
+        "x": 0.153343,
+        "y": 0.37818,
+        "radiusPx": 0.0,
+        "confidence": 0.940565,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 54,
+      "timestampMs": 5400,
+      "ball": {
+        "x": 0.14899,
+        "y": 0.378303,
+        "radiusPx": 0.0,
+        "confidence": 0.971681,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 55,
+      "timestampMs": 5500,
+      "ball": {
+        "x": 0.146498,
+        "y": 0.376077,
+        "radiusPx": 0.0,
+        "confidence": 0.99454,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 56,
+      "timestampMs": 5600,
+      "ball": {
+        "x": 0.144861,
+        "y": 0.378566,
+        "radiusPx": 0.0,
+        "confidence": 0.877951,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 57,
+      "timestampMs": 5700,
+      "ball": {
+        "x": 0.140991,
+        "y": 0.379017,
+        "radiusPx": 0.0,
+        "confidence": 0.943302,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 58,
+      "timestampMs": 5800,
+      "ball": {
+        "x": 0.691667,
+        "y": 0.433517,
+        "radiusPx": 0.0,
+        "confidence": 0.989439,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 59,
+      "timestampMs": 5900,
+      "ball": {
+        "x": 0.027056,
+        "y": 0.281108,
+        "radiusPx": 0.0,
+        "confidence": 0.999897,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 60,
+      "timestampMs": 6000,
+      "ball": {
+        "x": 0.395495,
+        "y": 0.292498,
+        "radiusPx": 0.0,
+        "confidence": 0.98032,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 61,
+      "timestampMs": 6100,
+      "ball": {
+        "x": 0.027248,
+        "y": 0.281723,
+        "radiusPx": 0.0,
+        "confidence": 0.999741,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 62,
+      "timestampMs": 6200,
+      "ball": {
+        "x": 0.256111,
+        "y": 0.353376,
+        "radiusPx": 0.0,
+        "confidence": 0.907064,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 63,
+      "timestampMs": 6300,
+      "ball": {
+        "x": 0.023726,
+        "y": 0.281316,
+        "radiusPx": 0.0,
+        "confidence": 0.999748,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 64,
+      "timestampMs": 6400,
+      "ball": {
+        "x": 0.874797,
+        "y": 0.56061,
+        "radiusPx": 0.0,
+        "confidence": 0.948061,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 65,
+      "timestampMs": 6500,
+      "ball": {
+        "x": 0.862949,
+        "y": 0.573872,
+        "radiusPx": 0.0,
+        "confidence": 0.999485,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 66,
+      "timestampMs": 6600,
+      "ball": {
+        "x": 0.153245,
+        "y": 0.351682,
+        "radiusPx": 0.0,
+        "confidence": 0.838455,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 67,
+      "timestampMs": 6700,
+      "ball": {
+        "x": 0.039397,
+        "y": 0.292607,
+        "radiusPx": 0.0,
+        "confidence": 0.915467,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 68,
+      "timestampMs": 6800,
+      "ball": {
+        "x": 0.098447,
+        "y": 0.299459,
+        "radiusPx": 0.0,
+        "confidence": 0.73395,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 69,
+      "timestampMs": 6900,
+      "ball": {
+        "x": 0.911247,
+        "y": 0.551018,
+        "radiusPx": 0.0,
+        "confidence": 0.998067,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 70,
+      "timestampMs": 7000,
+      "ball": {
+        "x": 0.87356,
+        "y": 0.556256,
+        "radiusPx": 0.0,
+        "confidence": 0.998729,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 71,
+      "timestampMs": 7100,
+      "ball": {
+        "x": 0.893101,
+        "y": 0.551369,
+        "radiusPx": 0.0,
+        "confidence": 0.999688,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 72,
+      "timestampMs": 7200,
+      "ball": {
+        "x": 0.141112,
+        "y": 0.35944,
+        "radiusPx": 0.0,
+        "confidence": 0.973183,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 73,
+      "timestampMs": 7300,
+      "ball": {
+        "x": 0.909087,
+        "y": 0.567621,
+        "radiusPx": 0.0,
+        "confidence": 0.996893,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 74,
+      "timestampMs": 7400,
+      "ball": {
+        "x": 0.050121,
+        "y": 0.593415,
+        "radiusPx": 0.0,
+        "confidence": 0.998487,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 75,
+      "timestampMs": 7500,
+      "ball": {
+        "x": 0.893582,
+        "y": 0.552453,
+        "radiusPx": 0.0,
+        "confidence": 0.998126,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 76,
+      "timestampMs": 7600,
+      "ball": {
+        "x": 0.908539,
+        "y": 0.555733,
+        "radiusPx": 0.0,
+        "confidence": 0.968083,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 77,
+      "timestampMs": 7700,
+      "ball": {
+        "x": 0.692591,
+        "y": 0.375499,
+        "radiusPx": 0.0,
+        "confidence": 0.972723,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 78,
+      "timestampMs": 7800,
+      "ball": {
+        "x": 0.189359,
+        "y": 0.264153,
+        "radiusPx": 0.0,
+        "confidence": 0.996641,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 79,
+      "timestampMs": 7900,
+      "ball": {
+        "x": 0.024392,
+        "y": 0.280617,
+        "radiusPx": 0.0,
+        "confidence": 0.945154,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 80,
+      "timestampMs": 8000,
+      "ball": {
+        "x": 0.906272,
+        "y": 0.559933,
+        "radiusPx": 0.0,
+        "confidence": 0.979338,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 81,
+      "timestampMs": 8100,
+      "ball": {
+        "x": 0.925132,
+        "y": 0.606716,
+        "radiusPx": 0.0,
+        "confidence": 0.818042,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 82,
+      "timestampMs": 8200,
+      "ball": {
+        "x": 0.190551,
+        "y": 0.262926,
+        "radiusPx": 0.0,
+        "confidence": 0.992652,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 83,
+      "timestampMs": 8300,
+      "ball": {
+        "x": 0.193977,
+        "y": 0.263213,
+        "radiusPx": 0.0,
+        "confidence": 0.994636,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 84,
+      "timestampMs": 8400,
+      "ball": {
+        "x": 0.035521,
+        "y": 0.289001,
+        "radiusPx": 0.0,
+        "confidence": 0.935435,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 85,
+      "timestampMs": 8500,
+      "ball": {
+        "x": 0.975162,
+        "y": 0.136499,
+        "radiusPx": 0.0,
+        "confidence": 0.811521,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 86,
+      "timestampMs": 8600,
+      "ball": {
+        "x": 0.015998,
+        "y": 0.007653,
+        "radiusPx": 0.0,
+        "confidence": 0.784659,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 87,
+      "timestampMs": 8700,
+      "ball": {
+        "x": 0.989031,
+        "y": 0.012824,
+        "radiusPx": 0.0,
+        "confidence": 0.997426,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 88,
+      "timestampMs": 8800,
+      "ball": {
+        "x": 0.196235,
+        "y": 0.26076,
+        "radiusPx": 0.0,
+        "confidence": 0.994908,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 89,
+      "timestampMs": 8900,
+      "ball": {
+        "x": 0.445955,
+        "y": 0.274252,
+        "radiusPx": 0.0,
+        "confidence": 0.970298,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 90,
+      "timestampMs": 9000,
+      "ball": {
+        "x": 0.781975,
+        "y": 0.740612,
+        "radiusPx": 0.0,
+        "confidence": 0.728121,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 91,
+      "timestampMs": 9100,
+      "ball": {
+        "x": 0.033447,
+        "y": 0.287316,
+        "radiusPx": 0.0,
+        "confidence": 0.969363,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 92,
+      "timestampMs": 9200,
+      "ball": {
+        "x": 0.461158,
+        "y": 0.279706,
+        "radiusPx": 0.0,
+        "confidence": 0.998251,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 93,
+      "timestampMs": 9300,
+      "ball": {
+        "x": 0.091772,
+        "y": 0.298764,
+        "radiusPx": 0.0,
+        "confidence": 0.98737,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 94,
+      "timestampMs": 9400,
+      "ball": {
+        "x": 0.854731,
+        "y": 0.556793,
+        "radiusPx": 0.0,
+        "confidence": 0.997735,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 95,
+      "timestampMs": 9500,
+      "ball": {
+        "x": 0.19942,
+        "y": 0.262873,
+        "radiusPx": 0.0,
+        "confidence": 0.950266,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 96,
+      "timestampMs": 9600,
+      "ball": {
+        "x": 0.120846,
+        "y": 0.313538,
+        "radiusPx": 0.0,
+        "confidence": 0.939385,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 97,
+      "timestampMs": 9700,
+      "ball": {
+        "x": 0.0821,
+        "y": 0.30316,
+        "radiusPx": 0.0,
+        "confidence": 0.980935,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 98,
+      "timestampMs": 9800,
+      "ball": {
+        "x": 0.465476,
+        "y": 0.526686,
+        "radiusPx": 0.0,
+        "confidence": 0.988758,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 99,
+      "timestampMs": 9900,
+      "ball": {
+        "x": 0.197589,
+        "y": 0.264529,
+        "radiusPx": 0.0,
+        "confidence": 0.992778,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 100,
+      "timestampMs": 10000,
+      "ball": {
+        "x": 0.834991,
+        "y": 0.365242,
+        "radiusPx": 0.0,
+        "confidence": 0.877138,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 101,
+      "timestampMs": 10100,
+      "ball": {
+        "x": 0.099983,
+        "y": 0.971499,
+        "radiusPx": 0.0,
+        "confidence": 0.910758,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 102,
+      "timestampMs": 10200,
+      "ball": {
+        "x": 0.052454,
+        "y": 0.592671,
+        "radiusPx": 0.0,
+        "confidence": 0.999175,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 103,
+      "timestampMs": 10300,
+      "ball": {
+        "x": 0.419761,
+        "y": 0.083011,
+        "radiusPx": 0.0,
+        "confidence": 0.688331,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 104,
+      "timestampMs": 10400,
+      "ball": {
+        "x": 0.189286,
+        "y": 0.262715,
+        "radiusPx": 0.0,
+        "confidence": 0.995475,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 105,
+      "timestampMs": 10500,
+      "ball": {
+        "x": 0.461853,
+        "y": 0.267982,
+        "radiusPx": 0.0,
+        "confidence": 0.992498,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 106,
+      "timestampMs": 10600,
+      "ball": {
+        "x": 0.023115,
+        "y": 0.279345,
+        "radiusPx": 0.0,
+        "confidence": 0.999543,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 107,
+      "timestampMs": 10700,
+      "ball": {
+        "x": 0.465632,
+        "y": 0.263649,
+        "radiusPx": 0.0,
+        "confidence": 0.905479,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 108,
+      "timestampMs": 10800,
+      "ball": {
+        "x": 0.705673,
+        "y": 0.548464,
+        "radiusPx": 0.0,
+        "confidence": 0.999261,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 109,
+      "timestampMs": 10900,
+      "ball": {
+        "x": 0.193882,
+        "y": 0.265619,
+        "radiusPx": 0.0,
+        "confidence": 0.963187,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 110,
+      "timestampMs": 11000,
+      "ball": {
+        "x": 0.189415,
+        "y": 0.264799,
+        "radiusPx": 0.0,
+        "confidence": 0.988863,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 111,
+      "timestampMs": 11100,
+      "ball": {
+        "x": 0.195995,
+        "y": 0.26554,
+        "radiusPx": 0.0,
+        "confidence": 0.968484,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 112,
+      "timestampMs": 11200,
+      "ball": {
+        "x": 0.761995,
+        "y": 0.370471,
+        "radiusPx": 0.0,
+        "confidence": 0.724181,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 113,
+      "timestampMs": 11300,
+      "ball": {
+        "x": 0.034789,
+        "y": 0.288907,
+        "radiusPx": 0.0,
+        "confidence": 0.979036,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 114,
+      "timestampMs": 11400,
+      "ball": {
+        "x": 0.986225,
+        "y": 0.629267,
+        "radiusPx": 0.0,
+        "confidence": 0.905127,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 115,
+      "timestampMs": 11500,
+      "ball": {
+        "x": 0.893899,
+        "y": 0.548624,
+        "radiusPx": 0.0,
+        "confidence": 0.996669,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 116,
+      "timestampMs": 11600,
+      "ball": {
+        "x": 0.25668,
+        "y": 0.467975,
+        "radiusPx": 0.0,
+        "confidence": 0.938887,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 117,
+      "timestampMs": 11700,
+      "ball": {
+        "x": 0.197477,
+        "y": 0.264415,
+        "radiusPx": 0.0,
+        "confidence": 0.973511,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 118,
+      "timestampMs": 11800,
+      "ball": {
+        "x": 0.902428,
+        "y": 0.554327,
+        "radiusPx": 0.0,
+        "confidence": 0.995472,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 119,
+      "timestampMs": 11900,
+      "ball": {
+        "x": 0.884253,
+        "y": 0.550537,
+        "radiusPx": 0.0,
+        "confidence": 0.993436,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 120,
+      "timestampMs": 12000,
+      "ball": {
+        "x": 0.025008,
+        "y": 0.281163,
+        "radiusPx": 0.0,
+        "confidence": 0.999591,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 121,
+      "timestampMs": 12100,
+      "ball": {
+        "x": 0.893348,
+        "y": 0.541871,
+        "radiusPx": 0.0,
+        "confidence": 0.992911,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 122,
+      "timestampMs": 12200,
+      "ball": {
+        "x": 0.742703,
+        "y": 0.520259,
+        "radiusPx": 0.0,
+        "confidence": 0.963267,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 123,
+      "timestampMs": 12300,
+      "ball": {
+        "x": 0.892257,
+        "y": 0.541657,
+        "radiusPx": 0.0,
+        "confidence": 0.989779,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 124,
+      "timestampMs": 12400,
+      "ball": {
+        "x": 0.20886,
+        "y": 0.688974,
+        "radiusPx": 0.0,
+        "confidence": 0.966299,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 125,
+      "timestampMs": 12500,
+      "ball": {
+        "x": 0.905864,
+        "y": 0.548082,
+        "radiusPx": 0.0,
+        "confidence": 0.994796,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 126,
+      "timestampMs": 12600,
+      "ball": {
+        "x": 0.196741,
+        "y": 0.263312,
+        "radiusPx": 0.0,
+        "confidence": 0.996188,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 127,
+      "timestampMs": 12700,
+      "ball": {
+        "x": 0.193578,
+        "y": 0.263863,
+        "radiusPx": 0.0,
+        "confidence": 0.992793,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 128,
+      "timestampMs": 12800,
+      "ball": {
+        "x": 0.189731,
+        "y": 0.263539,
+        "radiusPx": 0.0,
+        "confidence": 0.98529,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 129,
+      "timestampMs": 12900,
+      "ball": {
+        "x": 0.462515,
+        "y": 0.270315,
+        "radiusPx": 0.0,
+        "confidence": 0.997047,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 130,
+      "timestampMs": 13000,
+      "ball": {
+        "x": 0.907329,
+        "y": 0.562173,
+        "radiusPx": 0.0,
+        "confidence": 0.995873,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 131,
+      "timestampMs": 13100,
+      "ball": {
+        "x": 0.077676,
+        "y": 0.300164,
+        "radiusPx": 0.0,
+        "confidence": 0.996997,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 132,
+      "timestampMs": 13200,
+      "ball": {
+        "x": 0.485777,
+        "y": 0.941717,
+        "radiusPx": 0.0,
+        "confidence": 0.99506,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 133,
+      "timestampMs": 13300,
+      "ball": {
+        "x": 0.904338,
+        "y": 0.550844,
+        "radiusPx": 0.0,
+        "confidence": 0.943797,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 134,
+      "timestampMs": 13400,
+      "ball": {
+        "x": 0.193433,
+        "y": 0.263023,
+        "radiusPx": 0.0,
+        "confidence": 0.997202,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 135,
+      "timestampMs": 13500,
+      "ball": {
+        "x": 0.650557,
+        "y": 0.573701,
+        "radiusPx": 0.0,
+        "confidence": 0.917253,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 136,
+      "timestampMs": 13600,
+      "ball": {
+        "x": 0.102583,
+        "y": 0.293092,
+        "radiusPx": 0.0,
+        "confidence": 0.777491,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 137,
+      "timestampMs": 13700,
+      "ball": {
+        "x": 0.901775,
+        "y": 0.552371,
+        "radiusPx": 0.0,
+        "confidence": 0.996641,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 138,
+      "timestampMs": 13800,
+      "ball": {
+        "x": 0.024896,
+        "y": 0.280992,
+        "radiusPx": 0.0,
+        "confidence": 0.999429,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 139,
+      "timestampMs": 13900,
+      "ball": {
+        "x": 0.72206,
+        "y": 0.495773,
+        "radiusPx": 0.0,
+        "confidence": 0.920797,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 140,
+      "timestampMs": 14000,
+      "ball": {
+        "x": 0.046186,
+        "y": 0.379047,
+        "radiusPx": 0.0,
+        "confidence": 0.926661,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 141,
+      "timestampMs": 14100,
+      "ball": {
+        "x": 0.895318,
+        "y": 0.55819,
+        "radiusPx": 0.0,
+        "confidence": 0.981884,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 142,
+      "timestampMs": 14200,
+      "ball": {
+        "x": 0.978091,
+        "y": 0.977108,
+        "radiusPx": 0.0,
+        "confidence": 0.698183,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 143,
+      "timestampMs": 14300,
+      "ball": {
+        "x": 0.132166,
+        "y": 0.947808,
+        "radiusPx": 0.0,
+        "confidence": 0.980867,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 144,
+      "timestampMs": 14400,
+      "ball": {
+        "x": 0.478502,
+        "y": 0.92744,
+        "radiusPx": 0.0,
+        "confidence": 0.875351,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 145,
+      "timestampMs": 14500,
+      "ball": {
+        "x": 0.893202,
+        "y": 0.549797,
+        "radiusPx": 0.0,
+        "confidence": 0.996567,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 146,
+      "timestampMs": 14600,
+      "ball": {
+        "x": 0.096014,
+        "y": 0.293388,
+        "radiusPx": 0.0,
+        "confidence": 0.782176,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 147,
+      "timestampMs": 14700,
+      "ball": {
+        "x": 0.192107,
+        "y": 0.264249,
+        "radiusPx": 0.0,
+        "confidence": 0.960146,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 148,
+      "timestampMs": 14800,
+      "ball": {
+        "x": 0.192029,
+        "y": 0.263812,
+        "radiusPx": 0.0,
+        "confidence": 0.911734,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 149,
+      "timestampMs": 14900,
+      "ball": {
+        "x": 0.907614,
+        "y": 0.574504,
+        "radiusPx": 0.0,
+        "confidence": 0.991671,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 150,
+      "timestampMs": 15000,
+      "ball": {
+        "x": 0.899116,
+        "y": 0.553139,
+        "radiusPx": 0.0,
+        "confidence": 0.879975,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 151,
+      "timestampMs": 15100,
+      "ball": {
+        "x": 0.2944,
+        "y": 0.235907,
+        "radiusPx": 0.0,
+        "confidence": 0.6964,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 152,
+      "timestampMs": 15200,
+      "ball": {
+        "x": 0.026664,
+        "y": 0.280715,
+        "radiusPx": 0.0,
+        "confidence": 0.99992,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 153,
+      "timestampMs": 15300,
+      "ball": {
+        "x": 0.179179,
+        "y": 0.701367,
+        "radiusPx": 0.0,
+        "confidence": 0.979409,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 154,
+      "timestampMs": 15400,
+      "ball": {
+        "x": 0.026495,
+        "y": 0.281111,
+        "radiusPx": 0.0,
+        "confidence": 0.999137,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 155,
+      "timestampMs": 15500,
+      "ball": {
+        "x": 0.189942,
+        "y": 0.261221,
+        "radiusPx": 0.0,
+        "confidence": 0.950588,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 156,
+      "timestampMs": 15600,
+      "ball": {
+        "x": 0.727495,
+        "y": 0.544992,
+        "radiusPx": 0.0,
+        "confidence": 0.898843,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 157,
+      "timestampMs": 15700,
+      "ball": {
+        "x": 0.023921,
+        "y": 0.280024,
+        "radiusPx": 0.0,
+        "confidence": 0.987947,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 158,
+      "timestampMs": 15800,
+      "ball": {
+        "x": 0.384335,
+        "y": 0.293231,
+        "radiusPx": 0.0,
+        "confidence": 0.994971,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 159,
+      "timestampMs": 15900,
+      "ball": {
+        "x": 0.973802,
+        "y": 0.131497,
+        "radiusPx": 0.0,
+        "confidence": 0.728212,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 160,
+      "timestampMs": 16000,
+      "ball": {
+        "x": 0.422693,
+        "y": 0.085381,
+        "radiusPx": 0.0,
+        "confidence": 0.719122,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 161,
+      "timestampMs": 16100,
+      "ball": {
+        "x": 0.910112,
+        "y": 0.560944,
+        "radiusPx": 0.0,
+        "confidence": 0.970955,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 162,
+      "timestampMs": 16200,
+      "ball": {
+        "x": 0.065879,
+        "y": 0.130768,
+        "radiusPx": 0.0,
+        "confidence": 0.878906,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 163,
+      "timestampMs": 16300,
+      "ball": {
+        "x": 0.193942,
+        "y": 0.263108,
+        "radiusPx": 0.0,
+        "confidence": 0.998213,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 164,
+      "timestampMs": 16400,
+      "ball": {
+        "x": 0.060596,
+        "y": 0.291804,
+        "radiusPx": 0.0,
+        "confidence": 0.996955,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 165,
+      "timestampMs": 16500,
+      "ball": {
+        "x": 0.079435,
+        "y": 0.302832,
+        "radiusPx": 0.0,
+        "confidence": 0.968148,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 166,
+      "timestampMs": 16600,
+      "ball": {
+        "x": 0.674472,
+        "y": 0.505221,
+        "radiusPx": 0.0,
+        "confidence": 0.950095,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 167,
+      "timestampMs": 16700,
+      "ball": {
+        "x": 0.119437,
+        "y": 0.360675,
+        "radiusPx": 0.0,
+        "confidence": 0.965858,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 168,
+      "timestampMs": 16800,
+      "ball": {
+        "x": 0.189353,
+        "y": 0.263999,
+        "radiusPx": 0.0,
+        "confidence": 0.990991,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 169,
+      "timestampMs": 16900,
+      "ball": {
+        "x": 0.654809,
+        "y": 0.574792,
+        "radiusPx": 0.0,
+        "confidence": 0.996282,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 170,
+      "timestampMs": 17000,
+      "ball": {
+        "x": 0.024899,
+        "y": 0.280771,
+        "radiusPx": 0.0,
+        "confidence": 0.999481,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 171,
+      "timestampMs": 17100,
+      "ball": {
+        "x": 0.091585,
+        "y": 0.371098,
+        "radiusPx": 0.0,
+        "confidence": 0.941823,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 172,
+      "timestampMs": 17200,
+      "ball": {
+        "x": 0.908392,
+        "y": 0.557676,
+        "radiusPx": 0.0,
+        "confidence": 0.998852,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 173,
+      "timestampMs": 17300,
+      "ball": {
+        "x": 0.925657,
+        "y": 0.608218,
+        "radiusPx": 0.0,
+        "confidence": 0.900313,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 174,
+      "timestampMs": 17400,
+      "ball": {
+        "x": 0.841861,
+        "y": 0.357139,
+        "radiusPx": 0.0,
+        "confidence": 0.886755,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 175,
+      "timestampMs": 17500,
+      "ball": {
+        "x": 0.192859,
+        "y": 0.260558,
+        "radiusPx": 0.0,
+        "confidence": 0.978787,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 176,
+      "timestampMs": 17600,
+      "ball": {
+        "x": 0.130669,
+        "y": 0.32607,
+        "radiusPx": 0.0,
+        "confidence": 0.813566,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 177,
+      "timestampMs": 17700,
+      "ball": {
+        "x": 0.917836,
+        "y": 0.546274,
+        "radiusPx": 0.0,
+        "confidence": 0.863503,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 178,
+      "timestampMs": 17800,
+      "ball": {
+        "x": 0.778697,
+        "y": 0.41038,
+        "radiusPx": 0.0,
+        "confidence": 0.877689,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 179,
+      "timestampMs": 17900,
+      "ball": {
+        "x": 0.906141,
+        "y": 0.555977,
+        "radiusPx": 0.0,
+        "confidence": 0.992484,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 180,
+      "timestampMs": 18000,
+      "ball": {
+        "x": 0.878403,
+        "y": 0.566317,
+        "radiusPx": 0.0,
+        "confidence": 0.998507,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 181,
+      "timestampMs": 18100,
+      "ball": {
+        "x": 0.706757,
+        "y": 0.547703,
+        "radiusPx": 0.0,
+        "confidence": 0.991844,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 182,
+      "timestampMs": 18200,
+      "ball": {
+        "x": 0.868865,
+        "y": 0.557532,
+        "radiusPx": 0.0,
+        "confidence": 0.983663,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 183,
+      "timestampMs": 18300,
+      "ball": {
+        "x": 0.194196,
+        "y": 0.265351,
+        "radiusPx": 0.0,
+        "confidence": 0.899772,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 184,
+      "timestampMs": 18400,
+      "ball": {
+        "x": 0.682273,
+        "y": 0.422686,
+        "radiusPx": 0.0,
+        "confidence": 0.962579,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 185,
+      "timestampMs": 18500,
+      "ball": {
+        "x": 0.036118,
+        "y": 0.585873,
+        "radiusPx": 0.0,
+        "confidence": 0.804132,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 186,
+      "timestampMs": 18600,
+      "ball": {
+        "x": 0.467601,
+        "y": 0.783538,
+        "radiusPx": 0.0,
+        "confidence": 0.719787,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 187,
+      "timestampMs": 18700,
+      "ball": {
+        "x": 0.463699,
+        "y": 0.269499,
+        "radiusPx": 0.0,
+        "confidence": 0.997351,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 188,
+      "timestampMs": 18800,
+      "ball": {
+        "x": 0.07771,
+        "y": 0.388868,
+        "radiusPx": 0.0,
+        "confidence": 0.978316,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 189,
+      "timestampMs": 18900,
+      "ball": {
+        "x": 0.918912,
+        "y": 0.552109,
+        "radiusPx": 0.0,
+        "confidence": 0.994186,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 190,
+      "timestampMs": 19000,
+      "ball": {
+        "x": 0.652577,
+        "y": 0.508081,
+        "radiusPx": 0.0,
+        "confidence": 0.94964,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 191,
+      "timestampMs": 19100,
+      "ball": {
+        "x": 0.070459,
+        "y": 0.373452,
+        "radiusPx": 0.0,
+        "confidence": 0.982226,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 192,
+      "timestampMs": 19200,
+      "ball": {
+        "x": 0.928741,
+        "y": 0.030698,
+        "radiusPx": 0.0,
+        "confidence": 0.965528,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 193,
+      "timestampMs": 19300,
+      "ball": {
+        "x": 0.928656,
+        "y": 0.029821,
+        "radiusPx": 0.0,
+        "confidence": 0.990733,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 194,
+      "timestampMs": 19400,
+      "ball": {
+        "x": 0.891257,
+        "y": 0.56126,
+        "radiusPx": 0.0,
+        "confidence": 0.987967,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 195,
+      "timestampMs": 19500,
+      "ball": {
+        "x": 0.568569,
+        "y": 0.933647,
+        "radiusPx": 0.0,
+        "confidence": 0.986759,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 196,
+      "timestampMs": 19600,
+      "ball": {
+        "x": 0.02456,
+        "y": 0.281022,
+        "radiusPx": 0.0,
+        "confidence": 0.999928,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 197,
+      "timestampMs": 19700,
+      "ball": {
+        "x": 0.192247,
+        "y": 0.264234,
+        "radiusPx": 0.0,
+        "confidence": 0.959219,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 198,
+      "timestampMs": 19800,
+      "ball": {
+        "x": 0.422119,
+        "y": 0.086335,
+        "radiusPx": 0.0,
+        "confidence": 0.565097,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 199,
+      "timestampMs": 19900,
+      "ball": {
+        "x": 0.219635,
+        "y": 0.256064,
+        "radiusPx": 0.0,
+        "confidence": 0.986473,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 200,
+      "timestampMs": 20000,
+      "ball": {
+        "x": 0.088618,
+        "y": 0.362539,
+        "radiusPx": 0.0,
+        "confidence": 0.997296,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 201,
+      "timestampMs": 20100,
+      "ball": {
+        "x": 0.19369,
+        "y": 0.264546,
+        "radiusPx": 0.0,
+        "confidence": 0.992587,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 202,
+      "timestampMs": 20200,
+      "ball": {
+        "x": 0.140298,
+        "y": 0.354041,
+        "radiusPx": 0.0,
+        "confidence": 0.980295,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 203,
+      "timestampMs": 20300,
+      "ball": {
+        "x": 0.046575,
+        "y": 0.392493,
+        "radiusPx": 0.0,
+        "confidence": 0.993424,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 204,
+      "timestampMs": 20400,
+      "ball": {
+        "x": 0.011153,
+        "y": 0.992775,
+        "radiusPx": 0.0,
+        "confidence": 0.796772,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 205,
+      "timestampMs": 20500,
+      "ball": {
+        "x": 0.052379,
+        "y": 0.391475,
+        "radiusPx": 0.0,
+        "confidence": 0.948497,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 206,
+      "timestampMs": 20600,
+      "ball": {
+        "x": 0.044699,
+        "y": 0.391821,
+        "radiusPx": 0.0,
+        "confidence": 0.998787,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 207,
+      "timestampMs": 20700,
+      "ball": {
+        "x": 0.891985,
+        "y": 0.551837,
+        "radiusPx": 0.0,
+        "confidence": 0.999535,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 208,
+      "timestampMs": 20800,
+      "ball": {
+        "x": 0.043737,
+        "y": 0.39452,
+        "radiusPx": 0.0,
+        "confidence": 0.99785,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 209,
+      "timestampMs": 20900,
+      "ball": {
+        "x": 0.040562,
+        "y": 0.395664,
+        "radiusPx": 0.0,
+        "confidence": 0.996634,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 210,
+      "timestampMs": 21000,
+      "ball": {
+        "x": 0.044157,
+        "y": 0.392752,
+        "radiusPx": 0.0,
+        "confidence": 0.975364,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 211,
+      "timestampMs": 21100,
+      "ball": {
+        "x": 0.928735,
+        "y": 0.569194,
+        "radiusPx": 0.0,
+        "confidence": 0.985506,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 212,
+      "timestampMs": 21200,
+      "ball": {
+        "x": 0.137524,
+        "y": 0.362758,
+        "radiusPx": 0.0,
+        "confidence": 0.971281,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 213,
+      "timestampMs": 21300,
+      "ball": {
+        "x": 0.043575,
+        "y": 0.388658,
+        "radiusPx": 0.0,
+        "confidence": 0.987614,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 214,
+      "timestampMs": 21400,
+      "ball": {
+        "x": 0.89689,
+        "y": 0.560845,
+        "radiusPx": 0.0,
+        "confidence": 0.998318,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 215,
+      "timestampMs": 21500,
+      "ball": {
+        "x": 0.420968,
+        "y": 0.084349,
+        "radiusPx": 0.0,
+        "confidence": 0.654419,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 216,
+      "timestampMs": 21600,
+      "ball": {
+        "x": 0.19754,
+        "y": 0.263384,
+        "radiusPx": 0.0,
+        "confidence": 0.960923,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 217,
+      "timestampMs": 21700,
+      "ball": {
+        "x": 0.934149,
+        "y": 0.566398,
+        "radiusPx": 0.0,
+        "confidence": 0.985776,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 218,
+      "timestampMs": 21800,
+      "ball": {
+        "x": 0.129574,
+        "y": 0.336054,
+        "radiusPx": 0.0,
+        "confidence": 0.971205,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 219,
+      "timestampMs": 21900,
+      "ball": {
+        "x": 0.198188,
+        "y": 0.264525,
+        "radiusPx": 0.0,
+        "confidence": 0.999772,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 220,
+      "timestampMs": 22000,
+      "ball": {
+        "x": 0.190753,
+        "y": 0.264392,
+        "radiusPx": 0.0,
+        "confidence": 0.997998,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 221,
+      "timestampMs": 22100,
+      "ball": {
+        "x": 0.033309,
+        "y": 0.40204,
+        "radiusPx": 0.0,
+        "confidence": 0.986087,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 222,
+      "timestampMs": 22200,
+      "ball": {
+        "x": 0.125721,
+        "y": 0.360889,
+        "radiusPx": 0.0,
+        "confidence": 0.997506,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 223,
+      "timestampMs": 22300,
+      "ball": {
+        "x": 0.073158,
+        "y": 0.278924,
+        "radiusPx": 0.0,
+        "confidence": 0.956083,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 224,
+      "timestampMs": 22400,
+      "ball": {
+        "x": 0.122888,
+        "y": 0.312629,
+        "radiusPx": 0.0,
+        "confidence": 0.987032,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 225,
+      "timestampMs": 22500,
+      "ball": {
+        "x": 0.092212,
+        "y": 0.36288,
+        "radiusPx": 0.0,
+        "confidence": 0.992157,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 226,
+      "timestampMs": 22600,
+      "ball": {
+        "x": 0.092997,
+        "y": 0.366968,
+        "radiusPx": 0.0,
+        "confidence": 0.995851,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 227,
+      "timestampMs": 22700,
+      "ball": {
+        "x": 0.034741,
+        "y": 0.399709,
+        "radiusPx": 0.0,
+        "confidence": 0.960567,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 228,
+      "timestampMs": 22800,
+      "ball": {
+        "x": 0.034618,
+        "y": 0.402392,
+        "radiusPx": 0.0,
+        "confidence": 0.967589,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 229,
+      "timestampMs": 22900,
+      "ball": {
+        "x": 0.883729,
+        "y": 0.577704,
+        "radiusPx": 0.0,
+        "confidence": 0.995218,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 230,
+      "timestampMs": 23000,
+      "ball": {
+        "x": 0.193489,
+        "y": 0.264203,
+        "radiusPx": 0.0,
+        "confidence": 0.994744,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 231,
+      "timestampMs": 23100,
+      "ball": {
+        "x": 0.193208,
+        "y": 0.264617,
+        "radiusPx": 0.0,
+        "confidence": 0.989947,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 232,
+      "timestampMs": 23200,
+      "ball": {
+        "x": 0.196666,
+        "y": 0.264278,
+        "radiusPx": 0.0,
+        "confidence": 0.997124,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 233,
+      "timestampMs": 23300,
+      "ball": {
+        "x": 0.141436,
+        "y": 0.35135,
+        "radiusPx": 0.0,
+        "confidence": 0.991906,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 234,
+      "timestampMs": 23400,
+      "ball": {
+        "x": 0.02326,
+        "y": 0.403604,
+        "radiusPx": 0.0,
+        "confidence": 0.888424,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 235,
+      "timestampMs": 23500,
+      "ball": {
+        "x": 0.050126,
+        "y": 0.953502,
+        "radiusPx": 0.0,
+        "confidence": 0.967021,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 236,
+      "timestampMs": 23600,
+      "ball": {
+        "x": 0.021057,
+        "y": 0.409361,
+        "radiusPx": 0.0,
+        "confidence": 0.996228,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 237,
+      "timestampMs": 23700,
+      "ball": {
+        "x": 0.908738,
+        "y": 0.571929,
+        "radiusPx": 0.0,
+        "confidence": 0.98031,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 238,
+      "timestampMs": 23800,
+      "ball": {
+        "x": 0.463179,
+        "y": 0.53066,
+        "radiusPx": 0.0,
+        "confidence": 0.994149,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 239,
+      "timestampMs": 23900,
+      "ball": {
+        "x": 0.126623,
+        "y": 0.360597,
+        "radiusPx": 0.0,
+        "confidence": 0.980178,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 240,
+      "timestampMs": 24000,
+      "ball": {
+        "x": 0.123996,
+        "y": 0.360743,
+        "radiusPx": 0.0,
+        "confidence": 0.966308,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 241,
+      "timestampMs": 24100,
+      "ball": {
+        "x": 0.139618,
+        "y": 0.354449,
+        "radiusPx": 0.0,
+        "confidence": 0.998864,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 242,
+      "timestampMs": 24200,
+      "ball": {
+        "x": 0.137863,
+        "y": 0.370287,
+        "radiusPx": 0.0,
+        "confidence": 0.989118,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 243,
+      "timestampMs": 24300,
+      "ball": {
+        "x": 0.110981,
+        "y": 0.368689,
+        "radiusPx": 0.0,
+        "confidence": 0.960234,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 244,
+      "timestampMs": 24400,
+      "ball": {
+        "x": 0.848344,
+        "y": 0.582381,
+        "radiusPx": 0.0,
+        "confidence": 0.997051,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 245,
+      "timestampMs": 24500,
+      "ball": {
+        "x": 0.875023,
+        "y": 0.560541,
+        "radiusPx": 0.0,
+        "confidence": 0.997033,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 246,
+      "timestampMs": 24600,
+      "ball": {
+        "x": 0.078648,
+        "y": 0.377893,
+        "radiusPx": 0.0,
+        "confidence": 0.973792,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 247,
+      "timestampMs": 24700,
+      "ball": {
+        "x": 0.753501,
+        "y": 0.370818,
+        "radiusPx": 0.0,
+        "confidence": 0.953048,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 248,
+      "timestampMs": 24800,
+      "ball": {
+        "x": 0.120617,
+        "y": 0.347488,
+        "radiusPx": 0.0,
+        "confidence": 0.977928,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 249,
+      "timestampMs": 24900,
+      "ball": {
+        "x": 0.18933,
+        "y": 0.26425,
+        "radiusPx": 0.0,
+        "confidence": 0.981679,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 250,
+      "timestampMs": 25000,
+      "ball": {
+        "x": 0.193937,
+        "y": 0.264212,
+        "radiusPx": 0.0,
+        "confidence": 0.990363,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 251,
+      "timestampMs": 25100,
+      "ball": {
+        "x": 0.274843,
+        "y": 0.463155,
+        "radiusPx": 0.0,
+        "confidence": 0.932624,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 252,
+      "timestampMs": 25200,
+      "ball": {
+        "x": 0.113443,
+        "y": 0.361416,
+        "radiusPx": 0.0,
+        "confidence": 0.980441,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 253,
+      "timestampMs": 25300,
+      "ball": {
+        "x": 0.193711,
+        "y": 0.262274,
+        "radiusPx": 0.0,
+        "confidence": 0.996682,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 254,
+      "timestampMs": 25400,
+      "ball": {
+        "x": 0.114241,
+        "y": 0.360516,
+        "radiusPx": 0.0,
+        "confidence": 0.993235,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 255,
+      "timestampMs": 25500,
+      "ball": {
+        "x": 0.201167,
+        "y": 0.012398,
+        "radiusPx": 0.0,
+        "confidence": 0.751324,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 256,
+      "timestampMs": 25600,
+      "ball": {
+        "x": 0.723383,
+        "y": 0.089703,
+        "radiusPx": 0.0,
+        "confidence": 0.770154,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 257,
+      "timestampMs": 25700,
+      "ball": {
+        "x": 0.913618,
+        "y": 0.55401,
+        "radiusPx": 0.0,
+        "confidence": 0.760319,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 258,
+      "timestampMs": 25800,
+      "ball": {
+        "x": 0.192144,
+        "y": 0.264355,
+        "radiusPx": 0.0,
+        "confidence": 0.996588,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 259,
+      "timestampMs": 25900,
+      "ball": {
+        "x": 0.025883,
+        "y": 0.280987,
+        "radiusPx": 0.0,
+        "confidence": 0.999034,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 260,
+      "timestampMs": 26000,
+      "ball": {
+        "x": 0.066786,
+        "y": 0.388157,
+        "radiusPx": 0.0,
+        "confidence": 0.710706,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 261,
+      "timestampMs": 26100,
+      "ball": {
+        "x": 0.136936,
+        "y": 0.358524,
+        "radiusPx": 0.0,
+        "confidence": 0.959735,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 262,
+      "timestampMs": 26200,
+      "ball": {
+        "x": 0.190141,
+        "y": 0.260718,
+        "radiusPx": 0.0,
+        "confidence": 0.983911,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 263,
+      "timestampMs": 26300,
+      "ball": {
+        "x": 0.389374,
+        "y": 0.294751,
+        "radiusPx": 0.0,
+        "confidence": 0.999854,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 264,
+      "timestampMs": 26400,
+      "ball": {
+        "x": 0.929284,
+        "y": 0.030835,
+        "radiusPx": 0.0,
+        "confidence": 0.99105,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 265,
+      "timestampMs": 26500,
+      "ball": {
+        "x": 0.456456,
+        "y": 0.528623,
+        "radiusPx": 0.0,
+        "confidence": 0.948202,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 266,
+      "timestampMs": 26600,
+      "ball": {
+        "x": 0.247474,
+        "y": 0.858492,
+        "radiusPx": 0.0,
+        "confidence": 0.690135,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 267,
+      "timestampMs": 26700,
+      "ball": {
+        "x": 0.141434,
+        "y": 0.362466,
+        "radiusPx": 0.0,
+        "confidence": 0.998831,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 268,
+      "timestampMs": 26800,
+      "ball": {
+        "x": 0.047877,
+        "y": 0.095569,
+        "radiusPx": 0.0,
+        "confidence": 0.765887,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 269,
+      "timestampMs": 26900,
+      "ball": {
+        "x": 0.150238,
+        "y": 0.352666,
+        "radiusPx": 0.0,
+        "confidence": 0.95997,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 270,
+      "timestampMs": 27000,
+      "ball": {
+        "x": 0.027795,
+        "y": 0.281903,
+        "radiusPx": 0.0,
+        "confidence": 0.999502,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 271,
+      "timestampMs": 27100,
+      "ball": {
+        "x": 0.113175,
+        "y": 0.317655,
+        "radiusPx": 0.0,
+        "confidence": 0.995064,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 272,
+      "timestampMs": 27200,
+      "ball": {
+        "x": 0.071441,
+        "y": 0.359519,
+        "radiusPx": 0.0,
+        "confidence": 0.992676,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 273,
+      "timestampMs": 27300,
+      "ball": {
+        "x": 0.061744,
+        "y": 0.380229,
+        "radiusPx": 0.0,
+        "confidence": 0.990178,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 274,
+      "timestampMs": 27400,
+      "ball": {
+        "x": 0.060139,
+        "y": 0.375983,
+        "radiusPx": 0.0,
+        "confidence": 0.982915,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 275,
+      "timestampMs": 27500,
+      "ball": {
+        "x": 0.151554,
+        "y": 0.350544,
+        "radiusPx": 0.0,
+        "confidence": 0.699459,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 276,
+      "timestampMs": 27600,
+      "ball": {
+        "x": 0.057888,
+        "y": 0.375484,
+        "radiusPx": 0.0,
+        "confidence": 0.982918,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 277,
+      "timestampMs": 27700,
+      "ball": {
+        "x": 0.953844,
+        "y": 0.556829,
+        "radiusPx": 0.0,
+        "confidence": 0.98368,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 278,
+      "timestampMs": 27800,
+      "ball": {
+        "x": 0.028815,
+        "y": 0.383286,
+        "radiusPx": 0.0,
+        "confidence": 0.911078,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 279,
+      "timestampMs": 27900,
+      "ball": {
+        "x": 0.041508,
+        "y": 0.379136,
+        "radiusPx": 0.0,
+        "confidence": 0.992283,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 280,
+      "timestampMs": 28000,
+      "ball": {
+        "x": 0.052681,
+        "y": 0.374809,
+        "radiusPx": 0.0,
+        "confidence": 0.991364,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 281,
+      "timestampMs": 28100,
+      "ball": {
+        "x": 0.061799,
+        "y": 0.381254,
+        "radiusPx": 0.0,
+        "confidence": 0.981653,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 282,
+      "timestampMs": 28200,
+      "ball": {
+        "x": 0.07782,
+        "y": 0.378046,
+        "radiusPx": 0.0,
+        "confidence": 0.996062,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 283,
+      "timestampMs": 28300,
+      "ball": {
+        "x": 0.08242,
+        "y": 0.378564,
+        "radiusPx": 0.0,
+        "confidence": 0.943147,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 284,
+      "timestampMs": 28400,
+      "ball": {
+        "x": 0.897265,
+        "y": 0.562243,
+        "radiusPx": 0.0,
+        "confidence": 0.999162,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 285,
+      "timestampMs": 28500,
+      "ball": {
+        "x": 0.088881,
+        "y": 0.368192,
+        "radiusPx": 0.0,
+        "confidence": 0.992495,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 286,
+      "timestampMs": 28600,
+      "ball": {
+        "x": 0.901221,
+        "y": 0.560138,
+        "radiusPx": 0.0,
+        "confidence": 0.997701,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 287,
+      "timestampMs": 28700,
+      "ball": {
+        "x": 0.111369,
+        "y": 0.354974,
+        "radiusPx": 0.0,
+        "confidence": 0.998676,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 288,
+      "timestampMs": 28800,
+      "ball": {
+        "x": 0.101072,
+        "y": 0.358113,
+        "radiusPx": 0.0,
+        "confidence": 0.998077,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 289,
+      "timestampMs": 28900,
+      "ball": {
+        "x": 0.921244,
+        "y": 0.552384,
+        "radiusPx": 0.0,
+        "confidence": 0.994057,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 290,
+      "timestampMs": 29000,
+      "ball": {
+        "x": 0.058648,
+        "y": 0.374441,
+        "radiusPx": 0.0,
+        "confidence": 0.997876,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 291,
+      "timestampMs": 29100,
+      "ball": {
+        "x": 0.061838,
+        "y": 0.376325,
+        "radiusPx": 0.0,
+        "confidence": 0.995491,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 292,
+      "timestampMs": 29200,
+      "ball": {
+        "x": 0.062236,
+        "y": 0.377533,
+        "radiusPx": 0.0,
+        "confidence": 0.992015,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 293,
+      "timestampMs": 29300,
+      "ball": {
+        "x": 0.135626,
+        "y": 0.361953,
+        "radiusPx": 0.0,
+        "confidence": 0.977197,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 294,
+      "timestampMs": 29400,
+      "ball": {
+        "x": 0.064023,
+        "y": 0.378743,
+        "radiusPx": 0.0,
+        "confidence": 0.994412,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 295,
+      "timestampMs": 29500,
+      "ball": {
+        "x": 0.889776,
+        "y": 0.55765,
+        "radiusPx": 0.0,
+        "confidence": 0.997223,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 296,
+      "timestampMs": 29600,
+      "ball": {
+        "x": 0.027911,
+        "y": 0.281247,
+        "radiusPx": 0.0,
+        "confidence": 0.999882,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 297,
+      "timestampMs": 29700,
+      "ball": {
+        "x": 0.899051,
+        "y": 0.545879,
+        "radiusPx": 0.0,
+        "confidence": 0.967692,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 298,
+      "timestampMs": 29800,
+      "ball": {
+        "x": 0.930653,
+        "y": 0.560351,
+        "radiusPx": 0.0,
+        "confidence": 0.988243,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 299,
+      "timestampMs": 29900,
+      "ball": {
+        "x": 0.197905,
+        "y": 0.263826,
+        "radiusPx": 0.0,
+        "confidence": 0.997032,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 300,
+      "timestampMs": 30000,
+      "ball": {
+        "x": 0.076216,
+        "y": 0.363098,
+        "radiusPx": 0.0,
+        "confidence": 0.991033,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 301,
+      "timestampMs": 30100,
+      "ball": {
+        "x": 0.095304,
+        "y": 0.342907,
+        "radiusPx": 0.0,
+        "confidence": 0.948825,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 302,
+      "timestampMs": 30200,
+      "ball": {
+        "x": 0.887764,
+        "y": 0.581244,
+        "radiusPx": 0.0,
+        "confidence": 0.998944,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 303,
+      "timestampMs": 30300,
+      "ball": {
+        "x": 0.190214,
+        "y": 0.263923,
+        "radiusPx": 0.0,
+        "confidence": 0.966836,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 304,
+      "timestampMs": 30400,
+      "ball": {
+        "x": 0.123576,
+        "y": 0.346742,
+        "radiusPx": 0.0,
+        "confidence": 0.993483,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 305,
+      "timestampMs": 30500,
+      "ball": {
+        "x": 0.099966,
+        "y": 0.368638,
+        "radiusPx": 0.0,
+        "confidence": 0.962416,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 306,
+      "timestampMs": 30600,
+      "ball": {
+        "x": 0.708265,
+        "y": 0.49418,
+        "radiusPx": 0.0,
+        "confidence": 0.97914,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 307,
+      "timestampMs": 30700,
+      "ball": {
+        "x": 0.938057,
+        "y": 0.554026,
+        "radiusPx": 0.0,
+        "confidence": 0.980191,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 308,
+      "timestampMs": 30800,
+      "ball": {
+        "x": 0.711812,
+        "y": 0.395901,
+        "radiusPx": 0.0,
+        "confidence": 0.873817,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 309,
+      "timestampMs": 30900,
+      "ball": {
+        "x": 0.080067,
+        "y": 0.364936,
+        "radiusPx": 0.0,
+        "confidence": 0.992115,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 310,
+      "timestampMs": 31000,
+      "ball": {
+        "x": 0.527175,
+        "y": 0.778503,
+        "radiusPx": 0.0,
+        "confidence": 0.838896,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 311,
+      "timestampMs": 31100,
+      "ball": {
+        "x": 0.888353,
+        "y": 0.557038,
+        "radiusPx": 0.0,
+        "confidence": 0.956946,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 312,
+      "timestampMs": 31200,
+      "ball": {
+        "x": 0.027472,
+        "y": 0.281268,
+        "radiusPx": 0.0,
+        "confidence": 0.998322,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 313,
+      "timestampMs": 31300,
+      "ball": {
+        "x": 0.103104,
+        "y": 0.362222,
+        "radiusPx": 0.0,
+        "confidence": 0.996612,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 314,
+      "timestampMs": 31400,
+      "ball": {
+        "x": 0.101611,
+        "y": 0.363064,
+        "radiusPx": 0.0,
+        "confidence": 0.996525,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 315,
+      "timestampMs": 31500,
+      "ball": {
+        "x": 0.098451,
+        "y": 0.358778,
+        "radiusPx": 0.0,
+        "confidence": 0.984623,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 316,
+      "timestampMs": 31600,
+      "ball": {
+        "x": 0.097299,
+        "y": 0.35927,
+        "radiusPx": 0.0,
+        "confidence": 0.999126,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 317,
+      "timestampMs": 31700,
+      "ball": {
+        "x": 0.102919,
+        "y": 0.361433,
+        "radiusPx": 0.0,
+        "confidence": 0.998384,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 318,
+      "timestampMs": 31800,
+      "ball": {
+        "x": 0.025621,
+        "y": 0.280933,
+        "radiusPx": 0.0,
+        "confidence": 0.99936,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 319,
+      "timestampMs": 31900,
+      "ball": {
+        "x": 0.110274,
+        "y": 0.357347,
+        "radiusPx": 0.0,
+        "confidence": 0.99433,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 320,
+      "timestampMs": 32000,
+      "ball": {
+        "x": 0.118974,
+        "y": 0.338088,
+        "radiusPx": 0.0,
+        "confidence": 0.983204,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 321,
+      "timestampMs": 32100,
+      "ball": {
+        "x": 0.920693,
+        "y": 0.554843,
+        "radiusPx": 0.0,
+        "confidence": 0.999334,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 322,
+      "timestampMs": 32200,
+      "ball": {
+        "x": 0.192705,
+        "y": 0.264832,
+        "radiusPx": 0.0,
+        "confidence": 0.952854,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 323,
+      "timestampMs": 32300,
+      "ball": {
+        "x": 0.064482,
+        "y": 0.371033,
+        "radiusPx": 0.0,
+        "confidence": 0.995633,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 324,
+      "timestampMs": 32400,
+      "ball": {
+        "x": 0.063434,
+        "y": 0.378778,
+        "radiusPx": 0.0,
+        "confidence": 0.991242,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 325,
+      "timestampMs": 32500,
+      "ball": {
+        "x": 0.023325,
+        "y": 0.279768,
+        "radiusPx": 0.0,
+        "confidence": 0.993636,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 326,
+      "timestampMs": 32600,
+      "ball": {
+        "x": 0.077248,
+        "y": 0.379372,
+        "radiusPx": 0.0,
+        "confidence": 0.916551,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 327,
+      "timestampMs": 32700,
+      "ball": {
+        "x": 0.053425,
+        "y": 0.373037,
+        "radiusPx": 0.0,
+        "confidence": 0.886877,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 328,
+      "timestampMs": 32800,
+      "ball": {
+        "x": 0.912686,
+        "y": 0.55475,
+        "radiusPx": 0.0,
+        "confidence": 0.998573,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 329,
+      "timestampMs": 32900,
+      "ball": {
+        "x": 0.898667,
+        "y": 0.548907,
+        "radiusPx": 0.0,
+        "confidence": 0.999796,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 330,
+      "timestampMs": 33000,
+      "ball": {
+        "x": 0.93003,
+        "y": 0.569399,
+        "radiusPx": 0.0,
+        "confidence": 0.973223,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 331,
+      "timestampMs": 33100,
+      "ball": {
+        "x": 0.138521,
+        "y": 0.359432,
+        "radiusPx": 0.0,
+        "confidence": 0.984406,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 332,
+      "timestampMs": 33200,
+      "ball": {
+        "x": 0.024916,
+        "y": 0.280307,
+        "radiusPx": 0.0,
+        "confidence": 0.997894,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 333,
+      "timestampMs": 33300,
+      "ball": {
+        "x": 0.927927,
+        "y": 0.030389,
+        "radiusPx": 0.0,
+        "confidence": 0.991585,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 334,
+      "timestampMs": 33400,
+      "ball": {
+        "x": 0.054391,
+        "y": 0.430626,
+        "radiusPx": 0.0,
+        "confidence": 0.985613,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 335,
+      "timestampMs": 33500,
+      "ball": {
+        "x": 0.045475,
+        "y": 0.416396,
+        "radiusPx": 0.0,
+        "confidence": 0.98601,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 336,
+      "timestampMs": 33600,
+      "ball": {
+        "x": 0.025685,
+        "y": 0.27993,
+        "radiusPx": 0.0,
+        "confidence": 0.998659,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 337,
+      "timestampMs": 33700,
+      "ball": {
+        "x": 0.887079,
+        "y": 0.54605,
+        "radiusPx": 0.0,
+        "confidence": 0.997532,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 338,
+      "timestampMs": 33800,
+      "ball": {
+        "x": 0.192467,
+        "y": 0.263921,
+        "radiusPx": 0.0,
+        "confidence": 0.986673,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 339,
+      "timestampMs": 33900,
+      "ball": {
+        "x": 0.114768,
+        "y": 0.339524,
+        "radiusPx": 0.0,
+        "confidence": 0.9584,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 340,
+      "timestampMs": 34000,
+      "ball": {
+        "x": 0.907811,
+        "y": 0.557268,
+        "radiusPx": 0.0,
+        "confidence": 0.983126,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 341,
+      "timestampMs": 34100,
+      "ball": {
+        "x": 0.324731,
+        "y": 0.891305,
+        "radiusPx": 0.0,
+        "confidence": 0.632599,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 342,
+      "timestampMs": 34200,
+      "ball": {
+        "x": 0.158176,
+        "y": 0.351817,
+        "radiusPx": 0.0,
+        "confidence": 0.817194,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 343,
+      "timestampMs": 34300,
+      "ball": {
+        "x": 0.193374,
+        "y": 0.262649,
+        "radiusPx": 0.0,
+        "confidence": 0.995843,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 344,
+      "timestampMs": 34400,
+      "ball": {
+        "x": 0.061469,
+        "y": 0.373695,
+        "radiusPx": 0.0,
+        "confidence": 0.995674,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 345,
+      "timestampMs": 34500,
+      "ball": {
+        "x": 0.07132,
+        "y": 0.376319,
+        "radiusPx": 0.0,
+        "confidence": 0.994861,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 346,
+      "timestampMs": 34600,
+      "ball": {
+        "x": 0.98513,
+        "y": 0.882423,
+        "radiusPx": 0.0,
+        "confidence": 0.663273,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 347,
+      "timestampMs": 34700,
+      "ball": {
+        "x": 0.122979,
+        "y": 0.314548,
+        "radiusPx": 0.0,
+        "confidence": 0.979283,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 348,
+      "timestampMs": 34800,
+      "ball": {
+        "x": 0.91172,
+        "y": 0.558649,
+        "radiusPx": 0.0,
+        "confidence": 0.998138,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 349,
+      "timestampMs": 34900,
+      "ball": {
+        "x": 0.072596,
+        "y": 0.532034,
+        "radiusPx": 0.0,
+        "confidence": 0.996677,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 350,
+      "timestampMs": 35000,
+      "ball": {
+        "x": 0.058328,
+        "y": 0.53704,
+        "radiusPx": 0.0,
+        "confidence": 0.98833,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 351,
+      "timestampMs": 35100,
+      "ball": {
+        "x": 0.147471,
+        "y": 0.357116,
+        "radiusPx": 0.0,
+        "confidence": 0.994176,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 352,
+      "timestampMs": 35200,
+      "ball": {
+        "x": 0.145378,
+        "y": 0.359976,
+        "radiusPx": 0.0,
+        "confidence": 0.988521,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 353,
+      "timestampMs": 35300,
+      "ball": {
+        "x": 0.146415,
+        "y": 0.353691,
+        "radiusPx": 0.0,
+        "confidence": 0.984894,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 354,
+      "timestampMs": 35400,
+      "ball": {
+        "x": 0.076915,
+        "y": 0.51913,
+        "radiusPx": 0.0,
+        "confidence": 0.976216,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 355,
+      "timestampMs": 35500,
+      "ball": {
+        "x": 0.935377,
+        "y": 0.554468,
+        "radiusPx": 0.0,
+        "confidence": 0.991976,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 356,
+      "timestampMs": 35600,
+      "ball": {
+        "x": 0.857063,
+        "y": 0.586997,
+        "radiusPx": 0.0,
+        "confidence": 0.992557,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 357,
+      "timestampMs": 35700,
+      "ball": {
+        "x": 0.189298,
+        "y": 0.264068,
+        "radiusPx": 0.0,
+        "confidence": 0.99317,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 358,
+      "timestampMs": 35800,
+      "ball": {
+        "x": 0.893307,
+        "y": 0.544506,
+        "radiusPx": 0.0,
+        "confidence": 0.995743,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 359,
+      "timestampMs": 35900,
+      "ball": {
+        "x": 0.6008,
+        "y": 0.504713,
+        "radiusPx": 0.0,
+        "confidence": 0.892686,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 360,
+      "timestampMs": 36000,
+      "ball": {
+        "x": 0.873154,
+        "y": 0.559608,
+        "radiusPx": 0.0,
+        "confidence": 0.930741,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 361,
+      "timestampMs": 36100,
+      "ball": {
+        "x": 0.231754,
+        "y": 0.409518,
+        "radiusPx": 0.0,
+        "confidence": 0.855532,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 362,
+      "timestampMs": 36200,
+      "ball": {
+        "x": 0.906933,
+        "y": 0.548739,
+        "radiusPx": 0.0,
+        "confidence": 0.977272,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 363,
+      "timestampMs": 36300,
+      "ball": {
+        "x": 0.714672,
+        "y": 0.363852,
+        "radiusPx": 0.0,
+        "confidence": 0.814438,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 364,
+      "timestampMs": 36400,
+      "ball": {
+        "x": 0.892667,
+        "y": 0.556773,
+        "radiusPx": 0.0,
+        "confidence": 0.990144,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 365,
+      "timestampMs": 36500,
+      "ball": {
+        "x": 0.042299,
+        "y": 0.293312,
+        "radiusPx": 0.0,
+        "confidence": 0.913689,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 366,
+      "timestampMs": 36600,
+      "ball": {
+        "x": 0.025148,
+        "y": 0.279894,
+        "radiusPx": 0.0,
+        "confidence": 0.904719,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 367,
+      "timestampMs": 36700,
+      "ball": {
+        "x": 0.903071,
+        "y": 0.561297,
+        "radiusPx": 0.0,
+        "confidence": 0.998865,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 368,
+      "timestampMs": 36800,
+      "ball": {
+        "x": 0.293173,
+        "y": 0.236051,
+        "radiusPx": 0.0,
+        "confidence": 0.877464,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 369,
+      "timestampMs": 36900,
+      "ball": {
+        "x": 0.968096,
+        "y": 0.933697,
+        "radiusPx": 0.0,
+        "confidence": 0.818513,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 370,
+      "timestampMs": 37000,
+      "ball": {
+        "x": 0.160956,
+        "y": 0.352507,
+        "radiusPx": 0.0,
+        "confidence": 0.821172,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 371,
+      "timestampMs": 37100,
+      "ball": {
+        "x": 0.161013,
+        "y": 0.35251,
+        "radiusPx": 0.0,
+        "confidence": 0.845946,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 372,
+      "timestampMs": 37200,
+      "ball": {
+        "x": 0.188779,
+        "y": 0.264187,
+        "radiusPx": 0.0,
+        "confidence": 0.93831,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 373,
+      "timestampMs": 37300,
+      "ball": {
+        "x": 0.759213,
+        "y": 0.368043,
+        "radiusPx": 0.0,
+        "confidence": 0.83477,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 374,
+      "timestampMs": 37400,
+      "ball": {
+        "x": 0.923442,
+        "y": 0.556482,
+        "radiusPx": 0.0,
+        "confidence": 0.987749,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 375,
+      "timestampMs": 37500,
+      "ball": {
+        "x": 0.923685,
+        "y": 0.557986,
+        "radiusPx": 0.0,
+        "confidence": 0.984084,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 376,
+      "timestampMs": 37600,
+      "ball": {
+        "x": 0.519285,
+        "y": 0.692348,
+        "radiusPx": 0.0,
+        "confidence": 0.812914,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 377,
+      "timestampMs": 37700,
+      "ball": {
+        "x": 0.897257,
+        "y": 0.551634,
+        "radiusPx": 0.0,
+        "confidence": 0.997954,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 378,
+      "timestampMs": 37800,
+      "ball": {
+        "x": 0.912765,
+        "y": 0.552013,
+        "radiusPx": 0.0,
+        "confidence": 0.997264,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 379,
+      "timestampMs": 37900,
+      "ball": {
+        "x": 0.084927,
+        "y": 0.395572,
+        "radiusPx": 0.0,
+        "confidence": 0.971603,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 380,
+      "timestampMs": 38000,
+      "ball": {
+        "x": 0.904052,
+        "y": 0.554279,
+        "radiusPx": 0.0,
+        "confidence": 0.987802,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 381,
+      "timestampMs": 38100,
+      "ball": {
+        "x": 0.496815,
+        "y": 0.135396,
+        "radiusPx": 0.0,
+        "confidence": 0.648717,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 382,
+      "timestampMs": 38200,
+      "ball": {
+        "x": 0.092792,
+        "y": 0.345725,
+        "radiusPx": 0.0,
+        "confidence": 0.955136,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 383,
+      "timestampMs": 38300,
+      "ball": {
+        "x": 0.381474,
+        "y": 0.502886,
+        "radiusPx": 0.0,
+        "confidence": 0.715919,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 384,
+      "timestampMs": 38400,
+      "ball": {
+        "x": 0.908722,
+        "y": 0.556037,
+        "radiusPx": 0.0,
+        "confidence": 0.953214,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 385,
+      "timestampMs": 38500,
+      "ball": {
+        "x": 0.190632,
+        "y": 0.262692,
+        "radiusPx": 0.0,
+        "confidence": 0.992634,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 386,
+      "timestampMs": 38600,
+      "ball": {
+        "x": 0.196167,
+        "y": 0.26392,
+        "radiusPx": 0.0,
+        "confidence": 0.970139,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 387,
+      "timestampMs": 38700,
+      "ball": {
+        "x": 0.914874,
+        "y": 0.550204,
+        "radiusPx": 0.0,
+        "confidence": 0.997899,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 388,
+      "timestampMs": 38800,
+      "ball": {
+        "x": 0.195502,
+        "y": 0.706617,
+        "radiusPx": 0.0,
+        "confidence": 0.761216,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 389,
+      "timestampMs": 38900,
+      "ball": {
+        "x": 0.412744,
+        "y": 0.480794,
+        "radiusPx": 0.0,
+        "confidence": 0.981426,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 390,
+      "timestampMs": 39000,
+      "ball": {
+        "x": 0.958403,
+        "y": 0.890376,
+        "radiusPx": 0.0,
+        "confidence": 0.710868,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 391,
+      "timestampMs": 39100,
+      "ball": {
+        "x": 0.258425,
+        "y": 0.353126,
+        "radiusPx": 0.0,
+        "confidence": 0.947207,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 392,
+      "timestampMs": 39200,
+      "ball": {
+        "x": 0.955315,
+        "y": 0.974489,
+        "radiusPx": 0.0,
+        "confidence": 0.844625,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 393,
+      "timestampMs": 39300,
+      "ball": {
+        "x": 0.861904,
+        "y": 0.983624,
+        "radiusPx": 0.0,
+        "confidence": 0.723096,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 394,
+      "timestampMs": 39400,
+      "ball": null
+    },
+    {
+      "frameIndex": 395,
+      "timestampMs": 39500,
+      "ball": {
+        "x": 0.236397,
+        "y": 0.695249,
+        "radiusPx": 0.0,
+        "confidence": 0.592515,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 396,
+      "timestampMs": 39600,
+      "ball": {
+        "x": 0.906183,
+        "y": 0.093393,
+        "radiusPx": 0.0,
+        "confidence": 0.679126,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 397,
+      "timestampMs": 39700,
+      "ball": {
+        "x": 0.225055,
+        "y": 0.533799,
+        "radiusPx": 0.0,
+        "confidence": 0.966744,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 398,
+      "timestampMs": 39800,
+      "ball": {
+        "x": 0.713333,
+        "y": 0.362604,
+        "radiusPx": 0.0,
+        "confidence": 0.790084,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 399,
+      "timestampMs": 39900,
+      "ball": {
+        "x": 0.234781,
+        "y": 0.691854,
+        "radiusPx": 0.0,
+        "confidence": 0.661736,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 400,
+      "timestampMs": 40000,
+      "ball": {
+        "x": 0.447214,
+        "y": 0.458265,
+        "radiusPx": 0.0,
+        "confidence": 0.764072,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 401,
+      "timestampMs": 40100,
+      "ball": {
+        "x": 0.424292,
+        "y": 0.44731,
+        "radiusPx": 0.0,
+        "confidence": 0.938548,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 402,
+      "timestampMs": 40200,
+      "ball": {
+        "x": 0.175969,
+        "y": 0.712375,
+        "radiusPx": 0.0,
+        "confidence": 0.983624,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 403,
+      "timestampMs": 40300,
+      "ball": {
+        "x": 0.253341,
+        "y": 0.353287,
+        "radiusPx": 0.0,
+        "confidence": 0.693256,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 404,
+      "timestampMs": 40400,
+      "ball": {
+        "x": 0.893442,
+        "y": 0.54893,
+        "radiusPx": 0.0,
+        "confidence": 0.998289,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 405,
+      "timestampMs": 40500,
+      "ball": {
+        "x": 0.189285,
+        "y": 0.26344,
+        "radiusPx": 0.0,
+        "confidence": 0.993009,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 406,
+      "timestampMs": 40600,
+      "ball": {
+        "x": 0.196725,
+        "y": 0.524874,
+        "radiusPx": 0.0,
+        "confidence": 0.943678,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 407,
+      "timestampMs": 40700,
+      "ball": {
+        "x": 0.204977,
+        "y": 0.533135,
+        "radiusPx": 0.0,
+        "confidence": 0.975083,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 408,
+      "timestampMs": 40800,
+      "ball": {
+        "x": 0.986111,
+        "y": 0.993161,
+        "radiusPx": 0.0,
+        "confidence": 0.835291,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 409,
+      "timestampMs": 40900,
+      "ball": {
+        "x": 0.1982,
+        "y": 0.701828,
+        "radiusPx": 0.0,
+        "confidence": 0.981825,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 410,
+      "timestampMs": 41000,
+      "ball": {
+        "x": 0.07801,
+        "y": 0.341271,
+        "radiusPx": 0.0,
+        "confidence": 0.947889,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 411,
+      "timestampMs": 41100,
+      "ball": {
+        "x": 0.293317,
+        "y": 0.235182,
+        "radiusPx": 0.0,
+        "confidence": 0.815526,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 412,
+      "timestampMs": 41200,
+      "ball": {
+        "x": 0.232303,
+        "y": 0.692839,
+        "radiusPx": 0.0,
+        "confidence": 0.790813,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 413,
+      "timestampMs": 41300,
+      "ball": {
+        "x": 0.728373,
+        "y": 0.52677,
+        "radiusPx": 0.0,
+        "confidence": 0.990853,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 414,
+      "timestampMs": 41400,
+      "ball": {
+        "x": 0.73167,
+        "y": 0.521129,
+        "radiusPx": 0.0,
+        "confidence": 0.933318,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 415,
+      "timestampMs": 41500,
+      "ball": {
+        "x": 0.730935,
+        "y": 0.521849,
+        "radiusPx": 0.0,
+        "confidence": 0.912193,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 416,
+      "timestampMs": 41600,
+      "ball": {
+        "x": 0.67075,
+        "y": 0.42096,
+        "radiusPx": 0.0,
+        "confidence": 0.975413,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 417,
+      "timestampMs": 41700,
+      "ball": {
+        "x": 0.713167,
+        "y": 0.822619,
+        "radiusPx": 0.0,
+        "confidence": 0.837348,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 418,
+      "timestampMs": 41800,
+      "ball": {
+        "x": 0.092119,
+        "y": 0.342805,
+        "radiusPx": 0.0,
+        "confidence": 0.973805,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 419,
+      "timestampMs": 41900,
+      "ball": {
+        "x": 0.411712,
+        "y": 0.474992,
+        "radiusPx": 0.0,
+        "confidence": 0.972713,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 420,
+      "timestampMs": 42000,
+      "ball": {
+        "x": 0.809207,
+        "y": 0.427625,
+        "radiusPx": 0.0,
+        "confidence": 0.981604,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 421,
+      "timestampMs": 42100,
+      "ball": {
+        "x": 0.198091,
+        "y": 0.703438,
+        "radiusPx": 0.0,
+        "confidence": 0.945732,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 422,
+      "timestampMs": 42200,
+      "ball": {
+        "x": 0.195646,
+        "y": 0.700035,
+        "radiusPx": 0.0,
+        "confidence": 0.974877,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 423,
+      "timestampMs": 42300,
+      "ball": {
+        "x": 0.422718,
+        "y": 0.476124,
+        "radiusPx": 0.0,
+        "confidence": 0.980067,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 424,
+      "timestampMs": 42400,
+      "ball": {
+        "x": 0.297211,
+        "y": 0.234326,
+        "radiusPx": 0.0,
+        "confidence": 0.878387,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 425,
+      "timestampMs": 42500,
+      "ball": {
+        "x": 0.220475,
+        "y": 0.692462,
+        "radiusPx": 0.0,
+        "confidence": 0.916273,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 426,
+      "timestampMs": 42600,
+      "ball": {
+        "x": 0.194735,
+        "y": 0.26227,
+        "radiusPx": 0.0,
+        "confidence": 0.995341,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 427,
+      "timestampMs": 42700,
+      "ball": {
+        "x": 0.090236,
+        "y": 0.455939,
+        "radiusPx": 0.0,
+        "confidence": 0.985975,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 428,
+      "timestampMs": 42800,
+      "ball": {
+        "x": 0.470346,
+        "y": 0.708659,
+        "radiusPx": 0.0,
+        "confidence": 0.840046,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 429,
+      "timestampMs": 42900,
+      "ball": {
+        "x": 0.114132,
+        "y": 0.399648,
+        "radiusPx": 0.0,
+        "confidence": 0.990811,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 430,
+      "timestampMs": 43000,
+      "ball": {
+        "x": 0.139856,
+        "y": 0.350342,
+        "radiusPx": 0.0,
+        "confidence": 0.953396,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 431,
+      "timestampMs": 43100,
+      "ball": {
+        "x": 0.075596,
+        "y": 0.391085,
+        "radiusPx": 0.0,
+        "confidence": 0.904042,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 432,
+      "timestampMs": 43200,
+      "ball": {
+        "x": 0.258311,
+        "y": 0.352928,
+        "radiusPx": 0.0,
+        "confidence": 0.956219,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 433,
+      "timestampMs": 43300,
+      "ball": {
+        "x": 0.18933,
+        "y": 0.262719,
+        "radiusPx": 0.0,
+        "confidence": 0.990604,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 434,
+      "timestampMs": 43400,
+      "ball": {
+        "x": 0.090545,
+        "y": 0.45461,
+        "radiusPx": 0.0,
+        "confidence": 0.998454,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 435,
+      "timestampMs": 43500,
+      "ball": {
+        "x": 0.189168,
+        "y": 0.263931,
+        "radiusPx": 0.0,
+        "confidence": 0.993039,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 436,
+      "timestampMs": 43600,
+      "ball": {
+        "x": 0.885043,
+        "y": 0.554955,
+        "radiusPx": 0.0,
+        "confidence": 0.998249,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 437,
+      "timestampMs": 43700,
+      "ball": {
+        "x": 0.902097,
+        "y": 0.552245,
+        "radiusPx": 0.0,
+        "confidence": 0.997676,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 438,
+      "timestampMs": 43800,
+      "ball": {
+        "x": 0.171478,
+        "y": 0.691695,
+        "radiusPx": 0.0,
+        "confidence": 0.879608,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 439,
+      "timestampMs": 43900,
+      "ball": {
+        "x": 0.187808,
+        "y": 0.704132,
+        "radiusPx": 0.0,
+        "confidence": 0.973522,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 440,
+      "timestampMs": 44000,
+      "ball": {
+        "x": 0.904658,
+        "y": 0.55029,
+        "radiusPx": 0.0,
+        "confidence": 0.976965,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 441,
+      "timestampMs": 44100,
+      "ball": {
+        "x": 0.136736,
+        "y": 0.359883,
+        "radiusPx": 0.0,
+        "confidence": 0.967548,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 442,
+      "timestampMs": 44200,
+      "ball": {
+        "x": 0.13422,
+        "y": 0.35309,
+        "radiusPx": 0.0,
+        "confidence": 0.926913,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 443,
+      "timestampMs": 44300,
+      "ball": {
+        "x": 0.294888,
+        "y": 0.234565,
+        "radiusPx": 0.0,
+        "confidence": 0.902696,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 444,
+      "timestampMs": 44400,
+      "ball": {
+        "x": 0.04095,
+        "y": 0.292361,
+        "radiusPx": 0.0,
+        "confidence": 0.970848,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 445,
+      "timestampMs": 44500,
+      "ball": {
+        "x": 0.887399,
+        "y": 0.546719,
+        "radiusPx": 0.0,
+        "confidence": 0.999514,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 446,
+      "timestampMs": 44600,
+      "ball": {
+        "x": 0.258677,
+        "y": 0.545595,
+        "radiusPx": 0.0,
+        "confidence": 0.836645,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 447,
+      "timestampMs": 44700,
+      "ball": {
+        "x": 0.128674,
+        "y": 0.355092,
+        "radiusPx": 0.0,
+        "confidence": 0.89375,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 448,
+      "timestampMs": 44800,
+      "ball": {
+        "x": 0.194966,
+        "y": 0.938017,
+        "radiusPx": 0.0,
+        "confidence": 0.956682,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 449,
+      "timestampMs": 44900,
+      "ball": {
+        "x": 0.900164,
+        "y": 0.571361,
+        "radiusPx": 0.0,
+        "confidence": 0.983996,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 450,
+      "timestampMs": 45000,
+      "ball": {
+        "x": 0.862902,
+        "y": 0.506337,
+        "radiusPx": 0.0,
+        "confidence": 0.961968,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 451,
+      "timestampMs": 45100,
+      "ball": {
+        "x": 0.915535,
+        "y": 0.561982,
+        "radiusPx": 0.0,
+        "confidence": 0.991971,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 452,
+      "timestampMs": 45200,
+      "ball": {
+        "x": 0.915505,
+        "y": 0.563215,
+        "radiusPx": 0.0,
+        "confidence": 0.987816,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 453,
+      "timestampMs": 45300,
+      "ball": {
+        "x": 0.112794,
+        "y": 0.38284,
+        "radiusPx": 0.0,
+        "confidence": 0.834339,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 454,
+      "timestampMs": 45400,
+      "ball": {
+        "x": 0.916718,
+        "y": 0.553088,
+        "radiusPx": 0.0,
+        "confidence": 0.969238,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 455,
+      "timestampMs": 45500,
+      "ball": {
+        "x": 0.196883,
+        "y": 0.26296,
+        "radiusPx": 0.0,
+        "confidence": 0.997832,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 456,
+      "timestampMs": 45600,
+      "ball": {
+        "x": 0.189246,
+        "y": 0.263171,
+        "radiusPx": 0.0,
+        "confidence": 0.993753,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 457,
+      "timestampMs": 45700,
+      "ball": {
+        "x": 0.92887,
+        "y": 0.029453,
+        "radiusPx": 0.0,
+        "confidence": 0.932713,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 458,
+      "timestampMs": 45800,
+      "ball": {
+        "x": 0.603349,
+        "y": 0.505554,
+        "radiusPx": 0.0,
+        "confidence": 0.825866,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 459,
+      "timestampMs": 45900,
+      "ball": {
+        "x": 0.295207,
+        "y": 0.236363,
+        "radiusPx": 0.0,
+        "confidence": 0.612999,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 460,
+      "timestampMs": 46000,
+      "ball": {
+        "x": 0.786746,
+        "y": 0.398042,
+        "radiusPx": 0.0,
+        "confidence": 0.9243,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 461,
+      "timestampMs": 46100,
+      "ball": {
+        "x": 0.025708,
+        "y": 0.278853,
+        "radiusPx": 0.0,
+        "confidence": 0.999802,
+        "status": "DETECTED"
+      }
+    },
+    {
+      "frameIndex": 462,
+      "timestampMs": 46200,
+      "ball": {
+        "x": 0.928704,
+        "y": 0.030659,
+        "radiusPx": 0.0,
+        "confidence": 0.957799,
+        "status": "DETECTED"
+      }
+    }
+  ]
+}

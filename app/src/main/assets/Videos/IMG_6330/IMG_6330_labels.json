@@ -4,67 +4,93 @@
   "labels": {
     "0": {
       "frameIndex": 0,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.6044987330605701,
+      "correctedY": 0.46173245617261593
     },
     "1": {
       "frameIndex": 1,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.49784542050185215,
+      "correctedY": 0.47860633376579315
     },
     "2": {
       "frameIndex": 2,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.7036109023070554,
+      "correctedY": 0.5394728207983254
     },
     "3": {
       "frameIndex": 3,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5697158922782036,
+      "correctedY": 0.22015810276679842
     },
     "4": {
       "frameIndex": 4,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.47362093447350717,
+      "correctedY": 0.4383399209486166
     },
     "5": {
       "frameIndex": 5,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.49063212139453316,
+      "correctedY": 0.587251568677999
     },
     "6": {
       "frameIndex": 6,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.520609332932027,
+      "correctedY": 0.5285598227804862
     },
     "7": {
       "frameIndex": 7,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "8": {
       "frameIndex": 8,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "9": {
       "frameIndex": 9,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "10": {
       "frameIndex": 10,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "11": {
       "frameIndex": 11,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "12": {
       "frameIndex": 12,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "13": {
       "frameIndex": 13,
       "label": "wrong",
-      "correctedX": 0.6728373602708634,
-      "correctedY": 0.39676541123383907
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "14": {
       "frameIndex": 14,
       "label": "wrong",
-      "correctedX": 0.6344290579884493,
-      "correctedY": 0.390477009887677
+      "correctedX": 0.5196725450714804,
+      "correctedY": 0.5275117558894591
     },
     "15": {
       "frameIndex": 15,
@@ -491,14 +517,14 @@
     "95": {
       "frameIndex": 95,
       "label": "wrong",
-      "correctedX": 0.66815342096813,
-      "correctedY": 0.39728944467935257
+      "correctedX": 0.4404597091261511,
+      "correctedY": 0.44678343986742425
     },
     "96": {
       "frameIndex": 96,
       "label": "wrong",
-      "correctedX": 0.6915731174817972,
-      "correctedY": 0.3999096119069201
+      "correctedX": 0.38380810207390553,
+      "correctedY": 0.4247665958517435
     },
     "97": {
       "frameIndex": 97,
@@ -509,8 +535,8 @@
     "98": {
       "frameIndex": 98,
       "label": "wrong",
-      "correctedX": 0.6925099053423438,
-      "correctedY": 0.38104440786843385
+      "correctedX": 0.14803569454990698,
+      "correctedY": 0.3770757159222649
     },
     "99": {
       "frameIndex": 99,
@@ -538,75 +564,53 @@
     },
     "103": {
       "frameIndex": 103,
-      "label": "wrong",
-      "correctedX": 0.40491603215451144,
-      "correctedY": 0.392573143669731
+      "label": "no_ball"
     },
     "104": {
       "frameIndex": 104,
-      "label": "wrong",
-      "correctedX": 0.28875433744672246,
-      "correctedY": 0.39833751157037955
+      "label": "correct",
+      "correctedX": 0.5891782694727936,
+      "correctedY": 0.4918812406557407
     },
     "105": {
       "frameIndex": 105,
-      "label": "wrong",
-      "correctedX": 0.3683813055931907,
-      "correctedY": 0.395717344342812
+      "label": "correct"
     },
     "106": {
       "frameIndex": 106,
-      "label": "wrong",
-      "correctedX": 0.5023419696513667,
-      "correctedY": 0.39204911022421746
+      "label": "correct"
     },
     "107": {
       "frameIndex": 107,
-      "label": "wrong",
-      "correctedX": 0.584779301379475,
-      "correctedY": 0.39100104333319047
+      "label": "correct"
     },
     "108": {
       "frameIndex": 108,
-      "label": "wrong",
-      "correctedX": 0.650354451617743,
-      "correctedY": 0.39676541123383907
+      "label": "correct"
     },
     "109": {
       "frameIndex": 109,
-      "label": "wrong",
-      "correctedX": 0.6840788145974237,
-      "correctedY": 0.4056739798075687
+      "label": "correct"
     },
     "110": {
       "frameIndex": 110,
-      "label": "wrong",
-      "correctedX": 0.7178031775771043,
-      "correctedY": 0.40148171224346063
+      "label": "correct"
     },
     "111": {
       "frameIndex": 111,
-      "label": "wrong",
-      "correctedX": 0.7402860862302247,
-      "correctedY": 0.39466927745178504
+      "label": "correct"
     },
     "112": {
       "frameIndex": 112,
-      "label": "wrong",
-      "correctedX": 0.7608954191622519,
-      "correctedY": 0.393621210560758
+      "label": "correct"
     },
     "113": {
       "frameIndex": 113,
-      "label": "wrong",
-      "correctedX": 0.6793948752946902,
-      "correctedY": 0.3862847423235689
+      "label": "correct"
     },
     "114": {
       "frameIndex": 114,
-      "label": "wrong",
-      "correctedX": 0.5707274834712748,
-      "correctedY": 0.390477009887677
+      "label": "correct"
     },
     "115": {
       "frameIndex": 115,
@@ -667,8 +671,8 @@
     "125": {
       "frameIndex": 125,
       "label": "wrong",
-      "correctedX": 0.6306819065462625,
-      "correctedY": 0.39204911022421746
+      "correctedX": 0.6055085388306438,
+      "correctedY": 0.7339691160124223
     },
     "126": {
       "frameIndex": 126,
@@ -715,8 +719,8 @@
     "133": {
       "frameIndex": 133,
       "label": "wrong",
-      "correctedX": 0.5604228170052612,
-      "correctedY": 0.3789482740863798
+      "correctedX": 0.2858660142786545,
+      "correctedY": 0.41991509044117004
     },
     "134": {
       "frameIndex": 134,
@@ -727,20 +731,20 @@
     "135": {
       "frameIndex": 135,
       "label": "wrong",
-      "correctedX": 0.6306819065462625,
-      "correctedY": 0.4088181804806497
+      "correctedX": 0.3495563789815102,
+      "correctedY": 0.5680808502000488
     },
     "136": {
       "frameIndex": 136,
       "label": "wrong",
-      "correctedX": 0.6550383909204764,
-      "correctedY": 0.3868087757690824
+      "correctedX": 0.6020636898616694,
+      "correctedY": 0.4142889646878998
     },
     "137": {
       "frameIndex": 137,
       "label": "wrong",
-      "correctedX": 0.66815342096813,
-      "correctedY": 0.3805203744229203
+      "correctedX": 0.2108514282144679,
+      "correctedY": 0.40893250676416953
     },
     "138": {
       "frameIndex": 138,
@@ -802,7 +806,9 @@
     },
     "148": {
       "frameIndex": 148,
-      "label": "no_ball"
+      "label": "no_ball",
+      "correctedX": 0.47289172114238104,
+      "correctedY": 0.44254226046517925
     },
     "149": {
       "frameIndex": 149,
@@ -885,8 +891,8 @@
     "162": {
       "frameIndex": 162,
       "label": "wrong",
-      "correctedX": 0.6138197250564222,
-      "correctedY": 0.3705637389581637
+      "correctedX": 0.5080244738349164,
+      "correctedY": 0.42343815497690135
     },
     "163": {
       "frameIndex": 163,
@@ -1071,8 +1077,8 @@
     "194": {
       "frameIndex": 194,
       "label": "wrong",
-      "correctedX": 0.2241159750690012,
-      "correctedY": 0.395717344342812
+      "correctedX": 0.5169436976837969,
+      "correctedY": 0.574779014291352
     },
     "195": {
       "frameIndex": 195,
@@ -1747,8 +1753,8 @@
     "317": {
       "frameIndex": 317,
       "label": "wrong",
-      "correctedX": 0.5978943314271286,
-      "correctedY": 0.4030538125800011
+      "correctedX": 0.4698856514135095,
+      "correctedY": 0.4339853505017397
     },
     "318": {
       "frameIndex": 318,

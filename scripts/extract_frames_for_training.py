@@ -38,32 +38,40 @@ VIDEOS_DIR = os.path.join(PROJECT_DIR, "app", "src", "main", "assets", "Videos")
 DATA_DIR = os.path.join(PROJECT_DIR, "data_regressor")
 
 
-def crop_square(frame: np.ndarray, crop_cfg: dict | None) -> tuple[np.ndarray, int, int]:
-    """Crop a portrait frame to a square region.
+def crop_square(frame: np.ndarray, crop_cfg: dict | None) -> tuple[np.ndarray, int, int, int, int]:
+    """Crop a frame to a square region.
+
+    Handles both portrait (h > w) and landscape (w > h) videos.
 
     Args:
-        frame: BGR image (h > w typically for portrait)
-        crop_cfg: {"y": int, "h": int} in pixels, or None for center crop
+        frame: BGR image
+        crop_cfg: {"y": int, "h": int} and/or {"x": int, "w": int} in pixels, or None for center crop
 
     Returns:
-        (cropped_frame, crop_y, crop_h) where crop is width x width
+        (cropped_frame, crop_x, crop_y, crop_w, crop_h)
     """
     h, w = frame.shape[:2]
-    side = min(h, w)  # square side = frame width for portrait
+    side = min(h, w)
 
     if crop_cfg:
-        cy = int(crop_cfg.get("y", (h - side) // 2))
-        ch = int(crop_cfg.get("h", side))
+        cx = int(crop_cfg.get("x", (w - side) // 2 if w > h else 0))
+        cy = int(crop_cfg.get("y", (h - side) // 2 if h > w else 0))
+        cw = int(crop_cfg.get("w", side if w > h else w))
+        ch = int(crop_cfg.get("h", side if h > w else h))
     else:
-        # Default: center crop
+        # Default: center crop to square
+        cx = (w - side) // 2
         cy = (h - side) // 2
+        cw = side
         ch = side
 
     # Clamp
-    cy = max(0, min(cy, h - ch))
+    cx = max(0, min(cx, w - 1))
+    cy = max(0, min(cy, h - 1))
+    cw = min(cw, w - cx)
     ch = min(ch, h - cy)
 
-    return frame[cy:cy + ch, 0:w], cy, ch
+    return frame[cy:cy + ch, cx:cx + cw], cx, cy, cw, ch
 
 
 def process_video(
@@ -128,21 +136,22 @@ def process_video(
             continue
 
         # Crop to square
-        cropped, crop_y, crop_h = crop_square(frame, crop_cfg)
+        cropped, crop_x, crop_y, crop_w, crop_h = crop_square(frame, crop_cfg)
         resized = cv2.resize(cropped, (img_size, img_size))
 
         if label.get("correctedX") is not None and label.get("correctedY") is not None:
             # Remap normalized coords from full frame to cropped region
-            x = float(label["correctedX"])  # x unchanged (full width kept)
-            y_px = float(label["correctedY"]) * frame_h  # to pixel
-            y_in_crop = (y_px - crop_y) / crop_h  # normalize to crop
+            x_px = float(label["correctedX"]) * frame_w
+            y_px = float(label["correctedY"]) * frame_h
+            x_in_crop = (x_px - crop_x) / crop_w
+            y_in_crop = (y_px - crop_y) / crop_h
 
             # Skip if ball falls outside crop
-            if y_in_crop < 0 or y_in_crop > 1:
+            if x_in_crop < 0 or x_in_crop > 1 or y_in_crop < 0 or y_in_crop > 1:
                 skipped += 1
                 continue
 
-            results.append((resized, x, y_in_crop, 1.0))
+            results.append((resized, x_in_crop, y_in_crop, 1.0))
         elif label["label"] == "no_ball":
             results.append((resized, 0.0, 0.0, 0.0))
 
@@ -180,13 +189,15 @@ def main():
     parser.add_argument("--split", type=float, default=0.8, help="Train/val split (default: 0.8)")
     parser.add_argument("--augment", action="store_true", default=True, help="Enable augmentation")
     parser.add_argument("--no-augment", action="store_true", help="Disable augmentation")
+    parser.add_argument("--video", type=str, default=None, help="Process only this video (e.g. IMG_6370)")
     args = parser.parse_args()
 
     do_augment = args.augment and not args.no_augment
 
     all_samples: list[tuple[np.ndarray, float, float, float]] = []
 
-    for entry in sorted(os.listdir(VIDEOS_DIR)):
+    entries = [args.video] if args.video else sorted(os.listdir(VIDEOS_DIR))
+    for entry in entries:
         video_dir = os.path.join(VIDEOS_DIR, entry)
         if not os.path.isdir(video_dir):
             continue
@@ -223,7 +234,12 @@ def main():
         "val": all_samples[split_idx:],
     }
 
-    # Write to disk
+    # Write to disk (clean old data first)
+    import shutil
+    if os.path.exists(DATA_DIR):
+        shutil.rmtree(DATA_DIR)
+        print(f"Cleaned old data at {DATA_DIR}")
+
     for split_name, samples in splits.items():
         img_dir = os.path.join(DATA_DIR, split_name, "images")
         os.makedirs(img_dir, exist_ok=True)

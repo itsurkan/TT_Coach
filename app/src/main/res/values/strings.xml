@@ -662,6 +662,12 @@
     <string name="fps_24">24</string>
     <string name="fps_30">30</string>
     <string name="fps_60">60</string>
+    <string name="ball_detection_fps_label">Ball Detection FPS</string>
+    <string name="ball_detection_fps_desc">How often to run ball detection. Higher = more precise tracking, more battery usage</string>
+    <string name="ball_fps_10">10</string>
+    <string name="ball_fps_30">30</string>
+    <string name="ball_fps_60">60</string>
+    <string name="ball_fps_120">120</string>
     <string name="btn_landscape_mode">🖥 Landscape Mode</string>
     <string name="btn_pause_text">⏸ Pause</string>
     <string name="btn_play_text">▶ Play</string>

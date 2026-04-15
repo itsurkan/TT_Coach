@@ -2,6 +2,12 @@
   "videoName": "IMG_6370",
   "totalFrames": 463,
   "labels": {
+    "0": {
+      "frameIndex": 0,
+      "label": "wrong",
+      "correctedX": 0.8991952444243306,
+      "correctedY": 0.8185386251766725
+    },
     "41": {
       "frameIndex": 41,
       "label": "wrong",
@@ -2218,7 +2224,7 @@
     }
   },
   "crop": {
-    "y": 280,
+    "y": 560,
     "h": 720
   }
 }
