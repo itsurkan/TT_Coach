@@ -154,8 +154,8 @@ Calculate angles using `calculateAngle()` helper with landmark coordinates.
 - **Model Files**: Don't commit `.task` files to git (large binaries, auto-downloaded)
 
 ## Development References
-- [MVP Progress Tracker](../MVP_PROGRESS_TRACKER.md) - Feature implementation status (Ukrainian)
-- [Navigation Implementation](../NAVIGATION_IMPLEMENTATION.md) - Screen flow details (Ukrainian)
+- [MVP Progress Tracker](../docs/MVP_PROGRESS_TRACKER.md) - Feature implementation status (Ukrainian)
+- [Navigation Implementation](../docs/NAVIGATION_IMPLEMENTATION.md) - Screen flow details (Ukrainian)
 - MediaPipe Pose Landmarker: Uses 33 body landmarks, outputs 3D coordinates and visibility scores
 - Min SDK 24 (Android 7.0), Target SDK 34 (Android 14)
 

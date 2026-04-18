@@ -19,9 +19,9 @@ import numpy as np
 from ultralytics import YOLO
 
 # ── Config ──
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app/src/main/assets/Videos"
-MODEL_PATH = PROJECT_ROOT / "yolo_table_keypoints/best.pt"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+MODEL_PATH = PROJECT_ROOT / "models/table_keypoints/best.pt"
 
 NUM_KEYPOINTS = 6
 CONFIDENCE_THRESHOLD = 0.3
