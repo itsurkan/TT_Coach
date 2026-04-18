@@ -88,6 +88,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Baseline Parameter Editor (Phase 7, dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
+        <activity
+            android:name=".debug.BaselinePreviewActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Baseline Dump Receiver (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
         <receiver
             android:name=".debug.BaselineDumpReceiver"

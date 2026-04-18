@@ -70,7 +70,7 @@ app/                         # Android app (UI, sensors, TFLite, Firebase)
     core/logging/            # Logger/Analytics/CrashReporter interfaces
     models/                  # Room entities (TrainingSession, UserProgress, PersonalBaselineEntity)
     calibration/             # CalibrationActivity + onboarding/capture/review fragments (Stage 1 · Phase 1)
-    debug/                   # BaselineDebugActivity, BaselineDumpReceiver (runtime-gated by FLAG_DEBUGGABLE)
+    debug/                   # BaselineDebugActivity, BaselineDumpReceiver, BaselinePreviewActivity, AssetPoseFrameLoader (runtime-gated by FLAG_DEBUGGABLE)
   src/main/assets/           # TFLite models (ball_yolo, pose_landmarker)
   src/test/                  # JVM unit tests (Robolectric)
   src/androidTest/           # Instrumented tests (Espresso)
@@ -126,6 +126,8 @@ Mockups/                     # UI mockups
 - **Live `DetectedStroke` is reconstructed, not detected** — the live `PoseAnalysisProcessor` only receives a current phase enum per frame from `StrokePhaseDetector`, so phase-boundary frames are tracked via transition observation and the `DetectedStroke` is assembled at stroke finalization. Only boundary frames + `strokeDurationMs` are populated; velocity/peak-value fields stay at 0f and are unused by `BaselineDeriver`. [PoseAnalysisProcessor.kt](app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt)
 - **`CameraFragment` skips its own processor when hosted by a `LandmarkerListener` activity** — if you add a new activity that also implements `PoseLandmarkerHelper.LandmarkerListener` and hosts `CameraFragment`, add it to the carve-out check in [CameraFragment.kt:164](app/src/main/java/com/ttcoachai/fragment/CameraFragment.kt#L164) or you'll get double-processing. Current exemptions: `TrainingActivity`, `CalibrationActivity`.
 - **`BaselineConverters` uses `org.json`, not kotlinx-serialization** — the shared module stays dependency-free, and `MetricStats` doesn't need `@Serializable`. When adding new Room columns, add explicit converters here. [BaselineConverters.kt](app/src/main/java/com/ttcoachai/db/BaselineConverters.kt)
+- **`BaselineRuleFactory` is the single source of truth for default rule derivation** — `PersonalBaseline → List<BaselineRule>` only happens here (2σ consistency per metric, 25% rhythm per phase). When Stage 1 Phase 2 adds a production rule evaluator, promote its reverse operation (rule + frame → pass/fail) to absorb [FrameRuleEvaluator](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/FrameRuleEvaluator.kt). [BaselineRuleFactory.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineRuleFactory.kt)
+- **Phase 7 editor replays bundled fixtures, not captured reps** — `CalibrationStateManager` intentionally doesn't persist raw pose frames (only derived strokes + analyses). `BaselinePreviewActivity` therefore loads from `assets/fixtures/forehand_drive.json` via [AssetPoseFrameLoader](app/src/main/java/com/ttcoachai/debug/AssetPoseFrameLoader.kt). When adding real captured-rep replay, you'll need a separate raw-frame persistence path — don't expect it through the state manager.
 
 <!-- MANUAL ADDITIONS END -->
 

@@ -76,7 +76,7 @@ Implement the calibration flow that captures a player's reference strokes and de
 ### Phase 3 — Integration + dev debug screen ✅ DONE
 
 **Deliverables:**
-- [x] [BaselineDebugActivity](../../app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt) — text-based metric dump of the active baseline, runtime-gated by `ApplicationInfo.FLAG_DEBUGGABLE`. Histogram view deferred until the rule engine lands and the debug UX needs more than numbers.
+- [x] [BaselineDebugActivity](../../app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt) — text-based metric dump of the active baseline, runtime-gated by `ApplicationInfo.FLAG_DEBUGGABLE`. Histogram view deliberately NOT built here — the interactive parameter editor ([BaselinePreviewActivity](../../app/src/main/java/com/ttcoachai/debug/BaselinePreviewActivity.kt), T035–T039) realizes the slider-preview idea that originally lived inside T029, against a replayed reference rep.
 - [x] [BaselineDumpReceiver](../../app/src/main/java/com/ttcoachai/debug/BaselineDumpReceiver.kt) — `adb shell am broadcast -a com.ttcoachai.debug.DUMP_BASELINE` logs the active baseline as JSON under `adb logcat -s BaselineDump:V`. Refuses to run on non-debuggable APKs.
 - [x] [AppDatabase](../../app/src/main/java/com/ttcoachai/db/AppDatabase.kt) now exposes `personalBaselineDao()` and registers `BaselineConverters`
 

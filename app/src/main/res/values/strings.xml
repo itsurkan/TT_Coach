@@ -695,6 +695,23 @@
     <string name="debug_baseline_title">Baseline Debug Dump</string>
     <string name="debug_baseline_empty">No active baseline found for the requested drill type.</string>
     <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
+
+    <!-- Baseline preview / drill parameter editor (Phase 7 dev tool) -->
+    <string name="preview_title">Baseline Preview</string>
+    <string name="preview_empty_baseline">No active baseline for forehand_shadow. Run calibration first.</string>
+    <string name="preview_play">▶</string>
+    <string name="preview_pause">⏸</string>
+    <string name="preview_humanize">Humanize</string>
+    <string name="preview_frame_label">Frame %1$d / %2$d</string>
+    <string name="preview_metric_line">%1$s = %2$s  (baseline %3$.2f ± %4$.2f)  → %5$s</string>
+    <string name="preview_metric_na">n/a</string>
+    <string name="preview_rule_slider_consistency">kσ = %1$.2f — fails at %2$d frame(s)</string>
+    <string name="preview_rule_slider_regression">maxDrop = %1$.2f — fails at %2$d frame(s)</string>
+    <string name="preview_rule_slider_rhythm">maxDeviation = %1$.0f%% (phase-level — not evaluated per frame)</string>
+    <string name="preview_export">Export tuned rules</string>
+    <string name="preview_exported_toast">Tuned rules copied to clipboard + logcat (BaselineDump tag).</string>
+    <string name="preview_pass">PASS</string>
+    <string name="preview_fail">FAIL</string>
     <string name="calibration_review_save">Save baseline</string>
     <string name="calibration_review_redo">Redo</string>
     <string name="calibration_saved_toast">Baseline saved.</string>
