@@ -1,7 +1,7 @@
 # Implementation Plan: Personal Baseline Calibration
 
 **Parent Spec:** [spec.md](spec.md)
-**Branch**: `002-ball-tracking` (Stage 1 content before resuming ball work)
+**Branch**: `003-stage1-calibration` (rebranched from `002-ball-tracking` on 2026-04-18)
 **Date**: 2026-04-18
 **Status:** 🟡 In Progress
 
@@ -49,41 +49,39 @@ Implement the calibration flow that captures a player's reference strokes and de
 - [x] Zero variance — identical reps → `std = 0` on every metric and `qualityScore = 1.0`.
 - [x] Determinism — twice-derived baselines with same input compare equal.
 
-### Phase 1 — Persistence (app/, Room)
+### Phase 1 — Persistence (app/, Room) ✅ DONE
 
 **Deliverables:**
-- `PersonalBaselineEntity` Room entity in [app/.../models/](../../app/src/main/java/com/ttcoachai/models/)
-- `PersonalBaselineDao` in [app/.../db/](../../app/src/main/java/com/ttcoachai/db/)
-- `PersonalBaselineRepository` following existing [TrainingRepository](../../app/src/main/java/com/ttcoachai/repository/TrainingRepository.kt) pattern (local-only — no Firestore branch)
-- Room migration from current schema (still `fallbackToDestructiveMigration()` acceptable pre-Play-Store; revisit before Phase 6)
-- Serialize `MetricStats` map as JSON column (simplest; `@TypeConverter` for `Map<String, MetricStats>` → String)
+- [x] [PersonalBaselineEntity](../../app/src/main/java/com/ttcoachai/models/PersonalBaselineEntity.kt) Room entity
+- [x] [PersonalBaselineDao](../../app/src/main/java/com/ttcoachai/db/PersonalBaselineDao.kt) — `insert`, `getActiveByDrillType`, `getAllForDrillType`, `archiveActive`, transactional `archiveAndInsert`
+- [x] [PersonalBaselineRepository](../../app/src/main/java/com/ttcoachai/repository/PersonalBaselineRepository.kt) — local-only (no Firestore branch); `saveBaseline` routes through `archiveAndInsert` from day one so the "≤ 1 active row per drill type" invariant holds even before US2 UI lands
+- [x] [AppDatabase](../../app/src/main/java/com/ttcoachai/db/AppDatabase.kt) bumped to v2 with `fallbackToDestructiveMigration()` (will switch to explicit migrations before Play Store, tracked for Stage 1 Phase 6)
+- [x] [BaselineConverters](../../app/src/main/java/com/ttcoachai/db/BaselineConverters.kt) — serialize `Map<String, MetricStats>` and `List<Int>` to JSON via `org.json` (chose over kotlinx-serialization to keep shared/ dependency-free)
 
 **Tests:**
-- DAO round-trip: insert → query by drill_type → equal
-- Multiple versions for same (user, drill_type): active vs archived
+- [x] [PersonalBaselineDaoTest](../../app/src/test/java/com/ttcoachai/db/PersonalBaselineDaoTest.kt) — 4 cases: insert→query round-trip, empty-query null, `archiveAndInsert` single-active invariant, cross-drill isolation (Robolectric + in-memory Room)
 
-### Phase 2 — Capture UI (app/, new activity/fragment)
-
-**Deliverables:**
-- `CalibrationActivity` — entry point, drill-type selection
-- Calibration flow fragments:
-  - `CalibrationOnboardingFragment` — camera setup guidance (angle, distance, full-body visibility check using existing pose landmarker)
-  - `CalibrationCaptureFragment` — live camera + rep counter ("Rep 7/15"), real-time outlier warnings
-  - `CalibrationReviewFragment` — quality score, baseline summary, "save" / "redo" CTAs
-- `CalibrationStateManager` (new, follow existing `*Manager` pattern) — session state singleton
-- Reuse [PoseAnalysisProcessor](../../app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt) for frame pipeline; add a "calibration" mode that routes to `BaselineDeriver` instead of `FeedbackGenerator`
-
-**UI spec — deferred** to UX iteration; use plain Compose screens initially. Polish in Phase 5 of Stage 1.
-
-### Phase 3 — Integration + dev debug screen
+### Phase 2 — Capture UI (app/, new activity/fragment) ✅ DONE
 
 **Deliverables:**
-- Debug screen (dev build only): load a baseline, show metric distributions as histograms, slider-preview "what rules would this baseline trigger for synthetic input"
-- CLI/ADB command to dump current baseline as JSON for manual inspection
-- Hook into [AppDatabase](../../app/src/main/java/com/ttcoachai/db/) to include new DAO
+- [x] [CalibrationActivity](../../app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt) — mirrors TrainingActivity shape (`LandmarkerListener` + owned `PoseAnalysisProcessor` in `Mode.CALIBRATION`); hosts `CameraFragment` for the full lifetime and swaps phase fragments in an overlay container; first-time vs recalibrate CTA driven by active-baseline lookup
+- [x] [CalibrationOnboardingFragment](../../app/src/main/java/com/ttcoachai/calibration/CalibrationOnboardingFragment.kt) — camera-setup guidance card; live full-body pose-landmarker gate deferred to a follow-up once the end-to-end flow is validated on device
+- [x] [CalibrationCaptureFragment](../../app/src/main/java/com/ttcoachai/calibration/CalibrationCaptureFragment.kt) — rep counter bound to `CalibrationStateManager.acceptedRepCount`, running excluded-count subtext, transient outlier banner from `outlierEvents` (US3)
+- [x] [CalibrationReviewFragment](../../app/src/main/java/com/ttcoachai/calibration/CalibrationReviewFragment.kt) — runs `BaselineDeriver.derive` on the snapshot, renders metrics + quality score, low-quality (<0.6) non-blocking banner, Save/Redo
+- [x] [CalibrationStateManager](../../app/src/main/java/com/ttcoachai/managers/CalibrationStateManager.kt) — volatile/DCL singleton; parallel stroke/analysis buffers, `acceptedRepCount` + `excludedCount` StateFlows, `outlierEvents` SharedFlow (2σ live detection after warmup), observed-frame timing for `frameIntervalMs`
+- [x] [PoseAnalysisProcessor](../../app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt) — added `Mode { TRAINING, CALIBRATION }`, optional `calibrationStateManager`, phase-boundary frame tracking across transitions so `DetectedStroke` can be reconstructed at stroke finalization; training path unchanged
+
+**UI spec — deferred** to UX iteration. Note: plan previously suggested Compose; shipped with Views + ViewBinding to match the existing app (no Compose deps in the repo). Polish in Phase 5 of Stage 1.
+
+### Phase 3 — Integration + dev debug screen ✅ DONE
+
+**Deliverables:**
+- [x] [BaselineDebugActivity](../../app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt) — text-based metric dump of the active baseline, runtime-gated by `ApplicationInfo.FLAG_DEBUGGABLE`. Histogram view deferred until the rule engine lands and the debug UX needs more than numbers.
+- [x] [BaselineDumpReceiver](../../app/src/main/java/com/ttcoachai/debug/BaselineDumpReceiver.kt) — `adb shell am broadcast -a com.ttcoachai.debug.DUMP_BASELINE` logs the active baseline as JSON under `adb logcat -s BaselineDump:V`. Refuses to run on non-debuggable APKs.
+- [x] [AppDatabase](../../app/src/main/java/com/ttcoachai/db/AppDatabase.kt) now exposes `personalBaselineDao()` and registers `BaselineConverters`
 
 **Tests:**
-- End-to-end instrumented test: mocked pose stream → calibration flow → persisted baseline → query via repository
+- [x] [CalibrationFlowTest](../../app/src/androidTest/java/com/ttcoachai/calibration/CalibrationFlowTest.kt) — Espresso smoke (activity launches + onboarding renders) + real-SQLite round-trip via `PersonalBaselineRepository` using synthetic pipeline output. Full mocked-pose-stream E2E requires plumbing synthetic frames into MediaPipe's live pipeline and is deferred.
 
 ## Project Structure
 

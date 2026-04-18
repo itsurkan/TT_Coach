@@ -1,6 +1,6 @@
 # Feature Specification: Personal Baseline Calibration (Stage 1 · Phase 1)
 
-**Feature Branch**: `002-ball-tracking` (Stage 1 content on existing branch)
+**Feature Branch**: `003-stage1-calibration` (rebranched from `002-ball-tracking` on 2026-04-18)
 **Created**: 2026-04-18
 **Status**: Draft → In Progress
 **Parent:** [docs/STAGED_ROADMAP.md](../../docs/STAGED_ROADMAP.md)
@@ -68,7 +68,7 @@ A `PersonalBaseline` MUST capture at minimum, per drill type:
 - Outlier-exclusion metadata (which reps were excluded and why)
 
 ### FR-3 — Outlier exclusion
-Reps with metrics more than 2σ from the running mean (computed incrementally) MUST be excluded from the final baseline and flagged to the user during the session.
+Reps with metrics more than 2σ from the running mean MUST be excluded from the final baseline (derivation-time correctness). Live surfacing of excluded reps during the capture session SHOULD be provided and is covered by User Story 3; MVP (User Story 1) satisfies FR-3 via derivation-time exclusion only.
 
 ### FR-4 — Calibration quality score
 After calibration, the app MUST compute and display a quality score based on the σ of key metrics (lower σ = higher quality). Low-quality baselines MUST prompt the user to redo before proceeding to drill mode.
@@ -77,7 +77,7 @@ After calibration, the app MUST compute and display a quality score based on the
 `PersonalBaseline` MUST persist locally in Room. No cloud sync in Stage 1. One baseline per `(user, drill_type)` combination at a time; previous versions archived for drift analysis.
 
 ### FR-6 — Consumability by downstream phases
-The `PersonalBaseline` MUST be queryable by drill_type and readable from the rule evaluator in `shared/`. The API MUST be platform-agnostic (living in `shared/commonMain`) so iOS/web could later reuse it.
+The `PersonalBaseline` **data type** MUST live in `shared/commonMain` so rule evaluators can consume it as a pure input (platform-agnostic, iOS/web reusable). **Persistence** may be platform-specific — Stage 1 uses Android Room in `app/`; the repository exposes `getActiveBaseline(drillType)` so callers load a baseline once and pass it into shared-side evaluators by value. No shared-side repository interface required for Stage 1.
 
 ### FR-7 — Baseline-aware rules (consumer contract)
 Downstream rule evaluators MUST be able to express rules like:
@@ -125,13 +125,16 @@ Given the same input pose frames, the derived `PersonalBaseline` MUST be identic
 2. **Calibration replaces user-authored DSL** — most amateurs can't articulate their own joint angles; let the app derive them. End-user rule authoring deferred indefinitely; coach-authored drills is a later persona.
 3. **Local-only persistence** — no accounts, no Firebase in Stage 1. Reduces scope significantly.
 4. **15 reps, 2σ exclusion, quality score** — concrete starting points for FR-1/FR-3/FR-4; subject to tuning after first real sessions.
+5. **Quality threshold = 0.6** — baselines with `qualityScore < 0.6` surface a "redo recommended" banner on the review screen (gating, not blocking). Starting value; revisit after first real calibration sessions.
+6. **Minimum rep count = 10, target = 15** — capture auto-advances at 15 valid (non-outlier) reps; a manual "finish early" path is allowed at ≥10; <10 discards the session per US1 AC3.
+7. **Onboarding stays in this phase** — camera-setup fragment (FR-9) ships as part of Phase 1 of Stage 1; UI polish deferred to Stage 1 Phase 5.
 
 ---
 
 ## Open Questions (to resolve before or during implementation)
 
-- [ ] Exact rep count for calibration (15 is a guess — may need 20 for noisier drills like swing, 10 for stance)
-- [ ] Minimum calibration quality threshold for "proceed allowed" vs "redo required"
-- [ ] How do we handle left-handed vs right-handed players — separate baselines or mirrored?
-- [ ] Does camera setup onboarding live in this phase or Phase 5?
-- [ ] Recalibration cadence — prompt user every N sessions, or never until they ask?
+- [x] ~~Exact rep count for calibration~~ — **Decided**: target 15, floor 10 (see Key Decision #6). Per-drill tuning deferred.
+- [x] ~~Minimum calibration quality threshold~~ — **Decided**: `qualityScore < 0.6` surfaces redo-recommended banner (Key Decision #5).
+- [x] ~~Does camera setup onboarding live in this phase or Phase 5?~~ — **Decided**: this phase (Key Decision #7).
+- [x] ~~**Handedness policy**~~ — **Deferred to Stage 1 Phase 5 (UI polish).** MVP ships right-handed as the implicit default; `drillerHandedness` column is already written (`null` = unspecified / assumed right). Left-handed selector lands alongside the handedness-aware metric mirroring in `StrokeAnalyzer` — a larger change than fits here. No user-visible surface required until then.
+- [x] ~~**Recalibration cadence**~~ — **Deferred indefinitely.** No automatic staleness prompt in Stage 1; user triggers manually via the "Recalibrate" CTA (which now shows `{N} reps, {Δt} days old` on re-entry). Revisit only if real-user drift data shows cadence matters — otherwise prompting feels nannying and the versioning infrastructure (archived baselines in Room) gives us the history we need when we want to ask the question.
