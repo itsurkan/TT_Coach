@@ -1,16 +1,20 @@
 package com.ttcoachai.fragment
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.FragmentDashboardBinding
+import com.ttcoachai.debug.BaselineDebugActivity
+import com.ttcoachai.debug.BaselinePreviewActivity
 import com.ttcoachai.helpers.DashboardDataLoader
 import kotlinx.coroutines.launch
 
@@ -46,6 +50,34 @@ class DashboardFragment : Fragment() {
         binding.btnCalibrate.setOnClickListener {
             startActivity(Intent(requireContext(), CalibrationActivity::class.java))
         }
+        binding.btnCalibrate.setOnLongClickListener {
+            showDevToolsDialogIfDebug()
+        }
+    }
+
+    /**
+     * Long-press on the Calibrate button opens a picker for the dev-only debug
+     * tools (Baseline Debug Dump, Baseline Parameter Editor). Gated by
+     * FLAG_DEBUGGABLE — a long-press on a release build is a no-op so users
+     * don't stumble into half-built dev UI.
+     */
+    private fun showDevToolsDialogIfDebug(): Boolean {
+        val ctx = requireContext()
+        val isDebuggable = ctx.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+        if (!isDebuggable) return false
+        val items = arrayOf("Baseline Debug Dump", "Baseline Parameter Editor")
+        AlertDialog.Builder(ctx)
+            .setTitle("Calibration dev tools")
+            .setItems(items) { _, which ->
+                val target = when (which) {
+                    0 -> BaselineDebugActivity::class.java
+                    1 -> BaselinePreviewActivity::class.java
+                    else -> return@setItems
+                }
+                startActivity(Intent(ctx, target))
+            }
+            .show()
+        return true
     }
     
     private fun loadDashboardData() {
