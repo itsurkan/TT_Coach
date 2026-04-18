@@ -671,4 +671,25 @@
     <string name="btn_landscape_mode">🖥 Landscape Mode</string>
     <string name="btn_pause_text">⏸ Pause</string>
     <string name="btn_play_text">▶ Play</string>
+
+    <!-- Personal Baseline Calibration (Stage 1 · Phase 1) -->
+    <string name="calibration_title">Personal Baseline</string>
+    <string name="calibration_cta_first_time">Calibrate: Forehand Shadow</string>
+    <string name="calibration_cta_recalibrate">Recalibrate (current: %1$d reps, %2$d days old)</string>
+    <string name="calibration_onboarding_headline">Set up your camera</string>
+    <string name="calibration_onboarding_instructions">Place the phone 2–3 m to your side, waist-height, at your hitting angle. You should be fully visible in frame during the stroke.\n\nYou\'ll perform %1$d reference reps of the forehand shadow swing in your natural technique — no coaching, just your normal stroke.</string>
+    <string name="calibration_onboarding_start">Start Capture</string>
+    <string name="calibration_rep_counter">Rep %1$d / %2$d</string>
+    <string name="calibration_finish_early">Finish Early</string>
+    <string name="calibration_discard_title">Discard calibration?</string>
+    <string name="calibration_discard_message">You\'ve captured %1$d reps — at least %2$d are required to save a baseline. Exit anyway?</string>
+    <string name="calibration_review_headline">Your baseline</string>
+    <string name="calibration_review_quality">Quality score: %1$.2f</string>
+    <string name="calibration_review_quality_low">Low calibration quality — redo recommended</string>
+    <string name="calibration_review_metric_row">%1$s: %2$.1f ± %3$.1f (n=%4$d)</string>
+    <string name="calibration_review_excluded">%1$d rep(s) excluded as outliers.</string>
+    <string name="calibration_review_save">Save baseline</string>
+    <string name="calibration_review_redo">Redo</string>
+    <string name="calibration_saved_toast">Baseline saved.</string>
+    <string name="calibration_insufficient_reps">Not enough valid reps to derive a baseline. Try again with steadier strokes.</string>
 </resources>

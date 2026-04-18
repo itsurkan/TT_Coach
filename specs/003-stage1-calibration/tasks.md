@@ -70,11 +70,11 @@ description: "Task list for Personal Baseline Calibration (Stage 1 · Phase 1)"
 
 ### UI flow (US1)
 
-- [ ] T015 [P] [US1] `CalibrationActivity` entry point in [app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt) — drill-type selection (hardcode `forehand_shadow` for MVP), hosts fragment stack onboarding → capture → review
-- [ ] T016 [P] [US1] `CalibrationOnboardingFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationOnboardingFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationOnboardingFragment.kt) — camera angle/distance guidance; use existing pose landmarker to confirm full-body visibility before "Start Capture" CTA enables (FR-9)
-- [ ] T017 [US1] `CalibrationCaptureFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationCaptureFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationCaptureFragment.kt) — live camera preview + rep counter ("Rep N/15") bound to `CalibrationStateManager` flow; auto-advance to review at target 15 reps (spec Key Decision #6); allow manual "finish early" at ≥10 reps; exit with <10 reps discards session per AC3 (depends on T013, T014)
-- [ ] T018 [US1] `CalibrationReviewFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationReviewFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationReviewFragment.kt) — invoke `BaselineDeriver.derive(...)` on the captured lists, show per-metric mean ± σ + `qualityScore`; "Save" calls `PersonalBaselineRepository.saveBaseline`, "Redo" pops back to onboarding (depends on T011, T013)
-- [ ] T019 [US1] Add calibration entry point from main app (menu item or home-screen card) linking into `CalibrationActivity` — [app/src/main/java/com/ttcoachai/](../../app/src/main/java/com/ttcoachai/) top-level activity host (pick whichever existing home/menu surface exists; small, single file edit). Handedness: assume right-handed for MVP; add selector later per spec §Open Questions
+- [x] T015 [US1] `CalibrationActivity` in [app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt) + [activity_calibration.xml](../../app/src/main/res/layout/activity_calibration.xml) — mirrors TrainingActivity shape (implements `LandmarkerListener`, owns `PoseAnalysisProcessor` in `Mode.CALIBRATION`), hosts `CameraFragment` in `camera_preview_container` for the full lifetime and overlays phase fragments on top; drill hardcoded to `forehand_shadow`; back-navigation shows a discard dialog once reps have been captured
+- [x] T016 [US1] `CalibrationOnboardingFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationOnboardingFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationOnboardingFragment.kt) + [fragment_calibration_onboarding.xml](../../app/src/main/res/layout/fragment_calibration_onboarding.xml) — static camera-setup instructions card + "Start Capture" CTA satisfies FR-9 for MVP; live pose-landmarker-based full-body-visibility gating deferred to a follow-up
+- [x] T017 [US1] `CalibrationCaptureFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationCaptureFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationCaptureFragment.kt) + [fragment_calibration_capture.xml](../../app/src/main/res/layout/fragment_calibration_capture.xml) — rep counter overlay bound to `CalibrationStateManager.acceptedRepCount` via `repeatOnLifecycle`; auto-advance at target, "Finish Early" surfaces at ≥ floor; discard dialog handled by Activity
+- [x] T018 [US1] `CalibrationReviewFragment` in [app/src/main/java/com/ttcoachai/calibration/CalibrationReviewFragment.kt](../../app/src/main/java/com/ttcoachai/calibration/CalibrationReviewFragment.kt) + [fragment_calibration_review.xml](../../app/src/main/res/layout/fragment_calibration_review.xml) — derives baseline from snapshot, renders per-metric mean ± σ and phase durations, low-quality (<0.6) banner non-blocking per Key Decision #5, Save persists via repository, Redo returns to onboarding
+- [x] T019 [US1] Entry point: outlined "Calibrate: Forehand Shadow" button in [fragment_dashboard.xml](../../app/src/main/res/layout/fragment_dashboard.xml), wired in [DashboardFragment](../../app/src/main/java/com/ttcoachai/fragment/DashboardFragment.kt). Also patched [CameraFragment](../../app/src/main/java/com/ttcoachai/fragment/CameraFragment.kt) to skip standalone-processor setup when hosted by `CalibrationActivity`, and registered the activity in [AndroidManifest.xml](../../app/src/main/AndroidManifest.xml). Handedness: right-handed assumed (selector deferred per spec §Open Questions)
 
 **Checkpoint**: User Story 1 fully functional — user can calibrate forehand shadow end-to-end and the baseline persists across app restarts. MVP delivered.
 
@@ -119,12 +119,44 @@ description: "Task list for Personal Baseline Calibration (Stage 1 · Phase 1)"
 
 **Purpose**: Plan §Phase 3 deliverables — dev-only debug tooling + end-to-end instrumented coverage + doc updates. Not blocking for first real-world calibration test but required before moving to Stage 1 Phase 2 (rule engine).
 
-- [ ] T029 [P] Dev-only baseline debug screen in [app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt](../../app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt) — load active baseline, render metric distributions as histograms, slider preview "what rules would this trigger for synthetic input" (gate with `BuildConfig.DEBUG`)
+- [ ] T029 [P] Dev-only baseline debug screen in [app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt](../../app/src/main/java/com/ttcoachai/debug/BaselineDebugActivity.kt) — load active baseline, render metric distributions as histograms, slider preview "what rules would this trigger for synthetic input" (gate with `BuildConfig.DEBUG`). **Note:** the slider-preview aspect is expanded and superseded by Phase 7 (T035–T040); keep T029 scope to histograms only, or fold it into Phase 7 entirely.
 - [ ] T030 [P] ADB baseline dump in [app/src/main/java/com/ttcoachai/debug/BaselineDumpReceiver.kt](../../app/src/main/java/com/ttcoachai/debug/BaselineDumpReceiver.kt) — broadcast receiver that serializes current baseline to JSON on `adb shell am broadcast` invocation; debug builds only
 - [ ] T031 End-to-end instrumented test in [app/src/androidTest/java/com/ttcoachai/calibration/CalibrationFlowTest.kt](../../app/src/androidTest/java/com/ttcoachai/calibration/CalibrationFlowTest.kt) — inject mocked pose stream from an existing fixture → run through calibration activity → assert `PersonalBaseline` persisted and queryable via repository (plan §Phase 3 test)
 - [ ] T032 [P] Update [CLAUDE.md](../../CLAUDE.md) — add `CalibrationStateManager` and new `calibration/` package to project structure section; add any new gotchas encountered
 - [ ] T033 [P] Resolve or explicitly defer the open questions in [spec.md](spec.md#open-questions) (rep-count final value, low-quality threshold, handedness policy, onboarding location, recalibration cadence) — update spec in place with decisions or explicit "defer to Stage 1 Phase 5" notes
 - [ ] T034 Tick Phase 1/2/3 deliverables in [plan.md](plan.md) §Phases as they land (mirrors how Phase 0 was tracked)
+
+---
+
+## Phase 7: Drill Parameter Editor with Movement Preview (Dev-Only, Optional)
+
+**Purpose**: Give a dev (Ivan) a visual tool for tuning `BaselineRule` parameters against a replayed reference rep, so threshold tuning is honest and iterative instead of guess-and-recapture. Expands T029's slider-preview idea into a full interactive screen.
+
+**Scope guardrails** (per [docs/STAGED_ROADMAP.md](../../docs/STAGED_ROADMAP.md) "Dev-only debug UI for tuning rules; NO end-user authoring UI"): behind `BuildConfig.DEBUG`, no main-app entry point, no Play Store surface. Same code can be promoted to user-facing in Stage 1.5+ if/when end-user drill authoring is unblocked.
+
+**Architecture principle (important):** the preview **replays a recorded pose sequence** (captured calibration rep or bundled fixture) and re-evaluates rules against those frames when sliders move. It does **NOT** synthesize poses from parameters — inverse-kinematics from scalar params to a pose is ambiguous and out of scope. Sliders affect the pass/fail overlay, not the geometry.
+
+**Independent Test**: In a debug build, open "Drill Parameter Editor" → pick `forehand_shadow` + active baseline + one reference rep from the latest capture → see the rep animate with a humanized stick figure and racket → drag `kSigma` slider on the wrist-angle `ConsistencyRule` from 2.0 to 1.0 → affected frames tint red in real time → tap "Export" → JSON of edited rule overrides appears in logcat (or a saved `DrillConfig` row, depending on T039 choice).
+
+### Implementation for Phase 7
+
+- [ ] T035 [Editor] `BaselinePreviewActivity` scaffold in [app/src/main/java/com/ttcoachai/debug/BaselinePreviewActivity.kt](../../app/src/main/java/com/ttcoachai/debug/BaselinePreviewActivity.kt) — debug-gated entry, drill-type picker, active-baseline picker, reference-rep source picker (latest captured rep from `CalibrationStateManager` history OR bundled JSON fixture from [shared/src/commonTest/resources/fixtures/](../../shared/src/commonTest/resources/fixtures/)), timeline scrubber + play/pause
+- [ ] T036 [Editor] Refactor [app/src/main/java/com/ttcoachai/OverlayView.kt](../../app/src/main/java/com/ttcoachai/OverlayView.kt) — extract a pure `drawPose(canvas: Canvas, frame: PoseFrame, jointTint: (landmarkIdx: Int) -> Int)` method so the same renderer works against a static pose frame (no camera). Existing live-camera path must keep working unchanged (additive refactor)
+- [ ] T037 [Editor] Rule-tuning panel in [app/src/main/java/com/ttcoachai/debug/BaselinePreviewActivity.kt](../../app/src/main/java/com/ttcoachai/debug/BaselinePreviewActivity.kt) — for each [BaselineRule](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineRule.kt) derived for the selected baseline, render a slider for its tunable field (`kSigma`, `maxDropFromMean`, `maxDurationDeviationPct`). On slider change: re-evaluate rules against every frame of the reference rep and update per-joint/per-frame tint (red = rule fails at this frame, green = passes). Requires a lightweight rule evaluator — if Stage 1 Phase 2 evaluator doesn't exist yet, inline a minimal evaluator here and refactor to shared when Phase 2 lands
+- [ ] T038 [P] [Editor] Humanization Tier 1 in [app/src/main/java/com/ttcoachai/OverlayView.kt](../../app/src/main/java/com/ttcoachai/OverlayView.kt) (or a new `HumanizedPoseRenderer.kt` next to it) — filled capsule bones between joint pairs, filled head circle at nose landmark, filled torso polygon (shoulders ↔ hips), racket stick extending from wrist along the `wrist → index_finger` direction. Gotcha: MediaPipe hand landmarks are noisy during fast swing — don't promise realistic racket angle, and fall back to forearm direction (`elbow → wrist`) if index-finger visibility < 0.5. Depends on T036
+- [ ] T039 [Editor] Persistence/export of edited rule overrides — pick **one** of: (a) new `DrillConfigEntity` Room table keyed by name, storing rule-override JSON; DAO + repository to list/load/save; OR (b) one-click "Export to logcat/clipboard" as JSON that Ivan can paste into a hardcoded preset drill config. **Recommend (b) for Phase 7** — no schema change, less to maintain while the drill model is still in flux. Upgrade to (a) when preset drills land in Stage 1 Phase 4
+- [ ] T040 [P] [Editor] Cross-link in [plan.md](plan.md) §Phase 3 that T029 histogram scope is narrowed and the interactive editor is realized by T035–T039; add entry in [CLAUDE.md](../../CLAUDE.md) project structure for the new `debug/BaselinePreviewActivity.kt`
+
+**Checkpoint**: Ivan can open the debug editor, replay a real captured rep, tune rule tolerances with immediate visual feedback, and export the tuned config. No impact on user-facing app.
+
+**Effort estimate**: ~2 dev days for T035–T037 (functional tool), +0.5–1 day for T038 (Tier 1 humanization — optional, lands separately), +0.5 day for T039+T040.
+
+**Out of scope for Phase 7** (explicitly deferred):
+- Tier 2/3 humanization (Rive/Lottie humanoid, 3D model) — too much for a dev screen
+- Synthesizing poses from parameters (inverse kinematics) — architectural no-go, see §principle above
+- Editing legacy [ExerciseParameters](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/models/ExerciseParameters.kt) — dead-end path, calibration-derived `BaselineRule` is the target model
+- User-facing entry point — roadmap scope guardrail
+- Live-camera tuning (tune against what's happening *now*) — interesting but out of scope; replay-against-recording is deterministic and enough
 
 ---
 
@@ -139,6 +171,7 @@ description: "Task list for Personal Baseline Calibration (Stage 1 · Phase 1)"
   - US2 extends US1's persistence layer — hard dependency on T009/T011
   - US3 extends US1's capture UI — hard dependency on T013/T017
 - **Polish (Phase 6)**: Depends on all user stories being complete
+- **Drill Parameter Editor (Phase 7, optional)**: Depends on US1 persistence (T011) and at least one completed calibration to have an active baseline to load; narrows T029 scope. Can be skipped entirely for Stage 1 MVP
 
 ### User Story Dependencies
 

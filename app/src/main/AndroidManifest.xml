@@ -75,6 +75,13 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Calibration Screen (Personal Baseline) -->
+        <activity
+            android:name=".calibration.CalibrationActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Activity Settings Screen -->
         <activity
             android:name=".ActivitySettingsActivity"

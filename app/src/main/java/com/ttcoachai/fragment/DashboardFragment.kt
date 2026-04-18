@@ -1,5 +1,6 @@
 package com.ttcoachai.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
+import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.FragmentDashboardBinding
 import com.ttcoachai.helpers.DashboardDataLoader
 import kotlinx.coroutines.launch
@@ -41,6 +43,9 @@ class DashboardFragment : Fragment() {
 
         binding.btnBeginSession.setOnClickListener { navigateToDrills() }
         binding.cardStartTrainingContainer.setOnClickListener { navigateToDrills() }
+        binding.btnCalibrate.setOnClickListener {
+            startActivity(Intent(requireContext(), CalibrationActivity::class.java))
+        }
     }
     
     private fun loadDashboardData() {
