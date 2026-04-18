@@ -29,4 +29,95 @@ Kotlin 2.1.0 (upgrade to KMP plugin from `org.jetbrains.kotlin.android`): Follow
 - 001-kmp-shared-refactor: Added Kotlin 2.1.0 (upgrade to KMP plugin from `org.jetbrains.kotlin.android`) + MediaPipe tasks-vision 0.10.14 (Android-only), kotlinx-coroutines 1.10.2, Firebase BOM 34.8.0
 
 <!-- MANUAL ADDITIONS START -->
+
+## Commands
+
+**Build**
+- `./gradlew :app:assembleDebug` — build debug APK
+- `./gradlew :app:assembleRelease` — build release APK
+
+**Tests**
+- `./gradlew test` — all JVM unit tests (no device needed)
+- `./gradlew :shared:jvmTest` — shared KMP tests only
+- `./gradlew :app:test` — Android unit tests only
+- `./gradlew test --tests TrainingActivityTest` — run specific class
+- `./gradlew connectedAndroidTest` — instrumented tests (device/emulator required)
+
+**Poses viewer (React + Vite debug tool)**
+- `cd poses_viewer && npm run dev` — http://localhost:5780, overlays pose/ball/contact/label JSON on video frames
+
+**Python scripts (`scripts/`)**
+- `training/train_ball_yolo.ipynb` — YOLOv11-nano training on Colab T4
+- `contacts/detect_contacts.py` + `filter_contacts_by_pose.py` — audio contact detection, then wrist-velocity filter
+- `frames/extract_frames_320.py` — 320×320 frames for training
+- `poses/export_poses.py` — pose landmarks video→JSON
+- `video/process_video.py` — end-to-end video processing
+
+## Project structure
+
+```
+app/                         # Android app (UI, sensors, TFLite, Firebase)
+  src/main/java/com/ttcoachai/
+    processors/              # Frame-by-frame pipelines (PoseAnalysisProcessor)
+    managers/                # Session state, camera, UI controllers
+    repository/              # Dual-source (Room + Firestore) data access
+    db/                      # AppDatabase, DAOs
+    tracking/                # BallDetectorV1..V6 (V6 current, V5 deprecated)
+    services/                # MotionAnalyzer, FeedbackGenerator, StrokeDetector
+    helpers/                 # PoseLandmarkerProcessor (MediaPipe)
+    core/logging/            # Logger/Analytics/CrashReporter interfaces
+    models/                  # Room entities (TrainingSession, UserProgress)
+  src/main/assets/           # TFLite models (ball_yolo, pose_landmarker)
+  src/test/                  # JVM unit tests (Robolectric)
+  src/androidTest/           # Instrumented tests (Espresso)
+
+shared/                      # KMP module (platform-independent)
+  src/commonMain/kotlin/com/ttcoachai/shared/
+    analysis/                # StrokeAnalyzer, AngleCalculations, MetricCalculations
+    detection/               # JsonStrokeDetector, StrokePhaseDetector
+    tracking/                # TimelineSynchronizer, TrajectoryFilter, TrajectorySegmenter
+    models/                  # FeedbackItem, AnalysisResult, PoseFrame, Landmark3D
+  src/commonTest/resources/fixtures/  # JSON pose/ball fixtures for unit tests
+
+poses_viewer/                # React + Vite debug/labeling UI
+models/trained/              # Python-trained models (best_yolo.pt)
+Videos/                      # Test videos + per-video JSON (*_poses, *_ball_yolo, *_contacts, *_labels)
+scripts/                     # Python data/training scripts
+Mockups/                     # UI mockups
+```
+
+## Conventions
+
+**Naming suffixes** (meaning drives placement):
+- `*Manager` — stateful singleton (session, camera, settings, UI)
+- `*Processor` — frame-by-frame stateful pipeline
+- `*Analyzer` — pure business logic, no state
+- `*Detector` — inference (versioned: `V6` current, `V5` deprecated)
+- `*Repository` — dual-source data (Room offline-first → Firestore sync)
+
+**KMP split rule:**
+- Platform-independent logic (pose math, rule evaluation, models) → `shared/commonMain`
+- Android-only (UI, CameraX, MediaPipe, TFLite, Firebase) → `app/`
+- New analysis/detection logic goes in `shared/` by default; put in `app/` only if it needs Android APIs
+
+**Room:** entities in `app/.../models/`, DAOs in `app/.../db/`, central `AppDatabase` singleton via `getDatabase(context)`. Currently uses `fallbackToDestructiveMigration()` — OK for dev, will wipe local data on schema bump.
+
+**Feedback pipeline (trace this flow when debugging):**
+`PoseLandmarkerProcessor.detectLiveStream()` → `PoseAnalysisProcessor.processResults()` → `MotionAnalyzer.analyze()` → `FeedbackGenerator.generateFeedback()` → `TrainingStateManager.recordFeedback()` → UI callback
+
+**Tests:** unit tests under `app/src/test/` and `shared/src/jvmTest/`; shared JSON fixtures in `shared/src/commonTest/resources/fixtures/`; load pose frames via `JsonTestUtils`. Instrumented tests under `app/src/androidTest/`.
+
+## Gotchas
+
+- **BallDetectorV6 requires top-half ROI crop** — full-frame inference drops to 26.8% accuracy. Always crop via `ROIManager` before `detect()`. [app/.../tracking/BallDetectorV6.kt](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt), [README.md](README.md)
+- **YOLO confidence threshold is 0.25, not 0.5** — tuned for this training set; changing without re-evaluation regresses precision/recall. [BallDetectorV6.kt:31](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt#L31)
+- **Ball coordinates need dual transform** — model outputs in 320×320 ROI space, must convert back through ROI bounds to full-frame normalized coords before overlay. [BallDetectorV6.kt:182-183](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt#L182-L183)
+- **BallDetectorV5 is deprecated** — kept for historical comparison (6.6% vs V6's 86.3%). Don't call from live pipeline. [README.md:60](README.md#L60)
+- **MediaPipe landmarks are normalized [0,1] image coords** — not pixels. Rotation/centering handled in [PoseLandmarkerProcessor](app/src/main/java/com/ttcoachai/helpers/PoseLandmarkerProcessor.kt).
+- **TrainingStateManager is a volatile singleton** — double-checked locking; not safe for concurrent in-place mutation. Use synchronized or coroutine-scoped updates. [TrainingStateManager.kt:35-39](app/src/main/java/com/ttcoachai/managers/TrainingStateManager.kt#L35-L39)
+- **TFLite GPU delegate silently falls back to CPU** — no exception on GPU-unavailable devices; check logcat for `GPU delegate unavailable`. [BallDetectorV6.kt:60-69](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt#L60-L69)
+- **Room uses `fallbackToDestructiveMigration()`** — schema changes wipe local DB. Switch to explicit migrations before Play Store release. [AppDatabase.kt:26](app/src/main/java/com/ttcoachai/db/AppDatabase.kt#L26)
+- **Pose fixture schema** — `frames[].landmarks[].{x, y, z, visibility}`. `JsonTestUtils` will fail if schema drifts. [shared/src/commonTest/resources/fixtures/](shared/src/commonTest/resources/fixtures/)
+- **GoogleSignIn relies on `default_web_client_id` string** — auto-generated by google-services plugin; init fails silently if missing. [AuthRepository.kt:32-36](app/src/main/java/com/ttcoachai/repository/AuthRepository.kt#L32-L36)
+
 <!-- MANUAL ADDITIONS END -->
