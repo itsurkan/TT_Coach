@@ -67,9 +67,10 @@ class ExerciseSelectionActivity : BaseActivity() {
 
         // Setup RecyclerView
         binding.exerciseRecyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = ExerciseAdapter(exercises) { exercise ->
-            onExerciseSelected(exercise)
-        }
+        val adapter = ExerciseAdapter(
+            exercises = exercises,
+            onExerciseClick = { onExerciseSelected(it) }
+        )
         binding.exerciseRecyclerView.adapter = adapter
 
         // Текст підказки
