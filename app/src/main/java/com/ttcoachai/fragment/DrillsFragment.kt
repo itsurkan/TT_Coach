@@ -1,18 +1,22 @@
 package com.ttcoachai.fragment
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ttcoachai.Exercise
 import com.ttcoachai.ExerciseAdapter
 import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
+import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.FragmentDrillsBinding
+import com.ttcoachai.debug.BaselinePreviewActivity
 
 class DrillsFragment : Fragment() {
 
@@ -99,9 +103,11 @@ class DrillsFragment : Fragment() {
     private fun setupUI() {
         // Setup RecyclerView
         binding.rvDrills.layoutManager = LinearLayoutManager(context)
-        adapter = ExerciseAdapter(exercises) { exercise ->
-            onExerciseSelected(exercise)
-        }
+        adapter = ExerciseAdapter(
+            exercises = exercises,
+            onExerciseClick = { onExerciseSelected(it) },
+            onExerciseLongClick = { showDrillOptions(it) }
+        )
         binding.rvDrills.adapter = adapter
         
         // Setup Featured Drill Button
@@ -127,6 +133,31 @@ class DrillsFragment : Fragment() {
             exercises.filter { it.difficulty.equals(difficulty, ignoreCase = true) }
         }
         adapter.updateList(filtered)
+    }
+
+    /**
+     * Long-press on a drill row opens the drill-action picker:
+     *  - "Calibrate" launches CalibrationActivity (Stage 1 Phase 1 uses a
+     *    hardcoded `forehand_shadow` drill type internally regardless of
+     *    which row was long-pressed — matches tasks.md T015 MVP scope).
+     *  - "Edit in UI mode" opens the BaselinePreviewActivity parameter
+     *    editor (Phase 7). Hidden on release builds via FLAG_DEBUGGABLE.
+     */
+    private fun showDrillOptions(exercise: Exercise) {
+        val ctx = requireContext()
+        val isDebuggable = ctx.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+        val labels = mutableListOf(getString(R.string.drill_menu_calibrate))
+        if (isDebuggable) labels += getString(R.string.drill_menu_edit_ui_mode)
+
+        AlertDialog.Builder(ctx)
+            .setTitle(exercise.name)
+            .setItems(labels.toTypedArray()) { _, which ->
+                when (which) {
+                    0 -> startActivity(Intent(ctx, CalibrationActivity::class.java))
+                    1 -> startActivity(Intent(ctx, BaselinePreviewActivity::class.java))
+                }
+            }
+            .show()
     }
 
     private fun onExerciseSelected(exercise: Exercise) {

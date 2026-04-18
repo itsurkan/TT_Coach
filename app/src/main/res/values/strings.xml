@@ -674,6 +674,8 @@
 
     <!-- Personal Baseline Calibration (Stage 1 · Phase 1) -->
     <string name="calibration_title">Personal Baseline</string>
+    <string name="drill_menu_calibrate">Calibrate</string>
+    <string name="drill_menu_edit_ui_mode">Edit in UI mode</string>
     <string name="calibration_cta_first_time">Calibrate: Forehand Shadow</string>
     <string name="calibration_cta_recalibrate">Recalibrate (current: %1$d reps, %2$d days old)</string>
     <string name="calibration_onboarding_headline">Set up your camera</string>

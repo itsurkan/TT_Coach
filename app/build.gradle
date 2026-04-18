@@ -19,7 +19,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'de.undercouch.download'
     id 'com.google.gms.google-services'
-    id 'com.google.devtools.ksp' version '2.3.2' // Fits Kotlin 2.1.0
+    id 'com.google.devtools.ksp' version '2.2.21-2.0.5' // Matches Kotlin 2.2.21
 }
 
 android {
@@ -84,7 +84,7 @@ dependencies {
     implementation project(':shared')
 
     // Kotlin lang
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.2.21"
     implementation 'androidx.core:core-ktx:1.15.0'
 
     // App compat and UI things

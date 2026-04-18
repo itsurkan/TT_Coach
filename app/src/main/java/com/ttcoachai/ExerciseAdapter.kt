@@ -12,7 +12,8 @@ import com.ttcoachai.databinding.ItemExerciseBinding
 
 class ExerciseAdapter(
     private var exercises: List<Exercise>,
-    private val onExerciseClick: (Exercise) -> Unit
+    private val onExerciseClick: (Exercise) -> Unit,
+    private val onExerciseLongClick: ((Exercise) -> Unit)? = null
 ) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
 
     fun updateList(newExercises: List<Exercise>) {
@@ -75,6 +76,10 @@ class ExerciseAdapter(
 
                 root.setOnClickListener {
                     onExerciseClick(exercise)
+                }
+                root.setOnLongClickListener {
+                    onExerciseLongClick?.invoke(exercise)
+                    onExerciseLongClick != null
                 }
             }
         }
