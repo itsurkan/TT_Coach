@@ -1,0 +1,20 @@
+{
+  "videoName": "IMG_6370",
+  "totalFrames": 464,
+  "labels": {
+    "186": {
+      "frameIndex": 186,
+      "points": [
+        null,
+        {
+          "x": 0.5050959518808478,
+          "y": 0.6477388757523646
+        },
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}

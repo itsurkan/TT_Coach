@@ -1,0 +1,20 @@
+{
+  "videoName": "IMG_6330",
+  "totalFrames": 345,
+  "labels": {
+    "36": {
+      "frameIndex": 36,
+      "points": [
+        {
+          "x": 0.49213920452801463,
+          "y": 0.2582173638559508
+        },
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  }
+}
