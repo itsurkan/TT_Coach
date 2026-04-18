@@ -8,6 +8,7 @@ import com.ttcoachai.shared.models.StrokePhase
 import org.json.JSONObject
 import org.junit.Assert.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -207,6 +208,7 @@ class JsonStrokeDetectorTest {
     }
 
     @Test
+    @Ignore("ivan_poses.json fixture is not checked into the repo; restore fixture or drop this test")
     fun `detect strokes from ivan_poses json`() {
         val filename = "ivan_poses.json"
         val jsonFile = findJsonFile(filename)
@@ -314,24 +316,33 @@ class JsonStrokeDetectorTest {
      * Find the JSON file - tries multiple paths since test working directory varies
      */
     private fun findJsonFile(filename: String = "forehand_drive_poses.json"): File? {
-        val possiblePaths = listOf(
-            "src/main/assets/Videos/$filename",
-            "app/src/main/assets/Videos/$filename",
-            "../app/src/main/assets/Videos/$filename",
-            "debug_data/$filename",
-            "../debug_data/$filename"
+        // Accept both legacy "_poses.json" suffix and the current shared fixture names.
+        val candidateNames = listOf(
+            filename,
+            filename.removeSuffix("_poses.json") + ".json"
+        )
+        val candidateDirs = listOf(
+            "shared/src/commonTest/resources/fixtures",
+            "../shared/src/commonTest/resources/fixtures",
+            "src/main/assets/Videos",
+            "app/src/main/assets/Videos",
+            "../app/src/main/assets/Videos",
+            "debug_data",
+            "../debug_data"
         )
 
-        for (path in possiblePaths) {
-            val file = File(path)
-            if (file.exists()) {
-                println("Found JSON file at: ${file.absolutePath}")
-                return file
+        for (dir in candidateDirs) {
+            for (name in candidateNames) {
+                val file = File("$dir/$name")
+                if (file.exists()) {
+                    println("Found JSON file at: ${file.absolutePath}")
+                    return file
+                }
             }
         }
 
         println("JSON file not found. Tried paths:")
-        possiblePaths.forEach { println("  - $it") }
+        candidateDirs.forEach { dir -> candidateNames.forEach { n -> println("  - $dir/$n") } }
         println("Current directory: ${File(".").absolutePath}")
         return null
     }
