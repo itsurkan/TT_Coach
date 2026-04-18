@@ -19,7 +19,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'de.undercouch.download'
     id 'com.google.gms.google-services'
-    id 'com.google.devtools.ksp' version '2.1.0-1.0.29' // Fits Kotlin 2.1.0
+    id 'com.google.devtools.ksp' version '2.3.2' // Fits Kotlin 2.1.0
 }
 
 android {
