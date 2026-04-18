@@ -26,25 +26,28 @@ Implement the calibration flow that captures a player's reference strokes and de
 
 ## Phases
 
-### Phase 0 — Data model + math (shared/, pure logic)
+### Phase 0 — Data model + math (shared/, pure logic) ✅ DONE
 
 **Deliverables:**
-- `PersonalBaseline` data class in `shared/.../models/`
-  - fields: `drillType: String`, `metricStats: Map<String, MetricStats>`, `phaseDurations: Map<StrokePhase, Duration>`, `repCount: Int`, `excludedReps: List<Int>`, `qualityScore: Double`, `createdAt: Instant`
-- `MetricStats` data class: `mean`, `std`, `min`, `max`
-- `BaselineDeriver` in `shared/.../analysis/`
-  - input: `List<DetectedStroke>` + `List<AnalysisResult>` (already emitted by existing pipeline)
+- [x] `PersonalBaseline` data class in [shared/.../models/PersonalBaseline.kt](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/models/PersonalBaseline.kt)
+  - fields: `drillType`, `metricStats: Map<String, MetricStats>`, `phaseDurationsMs: Map<String, MetricStats>`, `repCount`, `excludedRepIndices`, `qualityScore`, `createdAtMs`, `drillerHandedness`
+  - Note: `phaseDurationsMs` uses string keys and millisecond stats (mean/std/min/max) rather than `Map<StrokePhase, Duration>`, so phase timing has full distribution info and stays portable without `kotlin.time` on the serialization boundary.
+- [x] `MetricStats` data class in [shared/.../models/MetricStats.kt](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/models/MetricStats.kt): `mean`, `std`, `min`, `max`, `sampleCount`
+- [x] `BaselineDeriver` in [shared/.../analysis/BaselineDeriver.kt](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineDeriver.kt)
+  - input: `List<DetectedStroke>` + `List<AnalysisResult>` (already emitted by existing pipeline) + `frameIntervalMs`
   - output: `PersonalBaseline`
-  - logic: per-metric mean/std, 2σ outlier exclusion (iterative), quality score = 1 - mean(normalized σ across key metrics)
-- `BaselineRule` sealed type for downstream phases (not implemented yet — just the data shape):
-  - `ConsistencyRule(metric: String, kSigma: Double)` — "stay within mean ± k·σ"
-  - `RegressionRule(metric: String, maxDrop: Double)` — "don't drop below mean - Δ"
-  - `RhythmRule(phase: StrokePhase, maxDeviation: Double)` — "phase duration within ±k%"
+  - logic: per-metric sample mean/std, single-pass 2σ rep-level outlier exclusion, qualityScore = 1 − mean(coefficient of variation) clamped to [0, 1]. Iterative outlier rejection deferred (see §Open questions in `phase-0-kickoff.md`).
+- [x] `BaselineRule` sealed type in [shared/.../analysis/BaselineRule.kt](../../shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineRule.kt) — data-only, not yet evaluated:
+  - `ConsistencyRule(id, metricKey, kSigma)` — "stay within mean ± k·σ"
+  - `RegressionRule(id, metricKey, maxDropFromMean)` — "don't drop below mean − Δ"
+  - `RhythmRule(id, metricKey, maxDurationDeviationPct)` — "phase duration within ±k%"
 
-**Tests:**
-- Feed existing `forehand_drive.json` fixture, verify deterministic baseline output
-- Inject synthetic outlier rep, verify exclusion
-- Edge cases: <10 valid reps → throws; all reps identical → σ=0 handled
+**Tests:** [shared/.../jvmTest/.../BaselineDeriverTest.kt](../../shared/src/jvmTest/kotlin/com/ttcoachai/shared/analysis/BaselineDeriverTest.kt)
+- [x] Happy path — real `forehand_drive.json` fixture through `JsonStrokeDetector` + `StrokeAnalyzer` → `BaselineDeriver` (5 strokes detected; uses `minRepCount=1` since fixture is below the production default of 10).
+- [x] Insufficient reps — 3 synthetic strokes → `IllegalArgumentException`.
+- [x] Outlier exclusion — 14 identical reps with one wrist-angle outlier → outlier index appears in `excludedRepIndices` and mean stays near non-outlier cluster.
+- [x] Zero variance — identical reps → `std = 0` on every metric and `qualityScore = 1.0`.
+- [x] Determinism — twice-derived baselines with same input compare equal.
 
 ### Phase 1 — Persistence (app/, Room)
 
