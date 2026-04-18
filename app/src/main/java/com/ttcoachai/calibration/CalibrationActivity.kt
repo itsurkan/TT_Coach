@@ -6,6 +6,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.BaseActivity
 import com.ttcoachai.PoseLandmarkerHelper
 import com.ttcoachai.R
@@ -20,6 +21,9 @@ import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
 import com.ttcoachai.shared.models.ExerciseParameters
+import com.ttcoachai.shared.models.PersonalBaseline
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
  * Hosts the calibration flow: onboarding → capture → review.
@@ -62,8 +66,20 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
 
         if (savedInstanceState == null) {
             hostCameraFragment()
-            showFragment(CalibrationOnboardingFragment())
+            lifecycleScope.launch { showOnboardingWithBaselineContext() }
         }
+    }
+
+    private suspend fun showOnboardingWithBaselineContext() {
+        val existing: PersonalBaseline? = baselineRepository.getActiveBaseline(drillType).first()
+        val args = Bundle().apply {
+            if (existing != null) {
+                putInt(CalibrationOnboardingFragment.ARG_EXISTING_REP_COUNT, existing.repCount)
+                putLong(CalibrationOnboardingFragment.ARG_EXISTING_CREATED_AT_MS, existing.createdAtMs)
+            }
+        }
+        val fragment = CalibrationOnboardingFragment().apply { arguments = args }
+        showFragment(fragment)
     }
 
     private fun initializeAnalysis() {
@@ -119,7 +135,7 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
 
     fun redoCalibration() {
         calibrationStateManager.discardSession()
-        showFragment(CalibrationOnboardingFragment())
+        lifecycleScope.launch { showOnboardingWithBaselineContext() }
     }
 
     fun exitAfterSave() {
