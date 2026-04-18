@@ -688,6 +688,8 @@
     <string name="calibration_review_quality_low">Low calibration quality — redo recommended</string>
     <string name="calibration_review_metric_row">%1$s: %2$.1f ± %3$.1f (n=%4$d)</string>
     <string name="calibration_review_excluded">%1$d rep(s) excluded as outliers.</string>
+    <string name="calibration_capture_excluded_subtext">+%1$d excluded</string>
+    <string name="calibration_outlier_banner">Rep excluded — %1$s off by %2$.1fσ</string>
     <string name="calibration_review_save">Save baseline</string>
     <string name="calibration_review_redo">Redo</string>
     <string name="calibration_saved_toast">Baseline saved.</string>
