@@ -27,11 +27,10 @@ except ImportError:
 # ── Config ────────────────────────────────────────────────────────────────────
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
-VIDEO_PATH  = os.path.join(
-    PROJECT_DIR, "app", "src", "main", "assets", "Videos", "IMG_6370", "IMG_6370.MP4"
-)
+PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", ".."))
+VIDEO_PATH  = os.path.join(PROJECT_DIR, "Videos", "IMG_6370", "IMG_6370.MP4")
 OUTPUT_DIR  = os.path.join(SCRIPTS_DIR, "debug_yolo_frames")
+YOLO_MODEL_PATH = os.path.join(PROJECT_DIR, "models", "pretrained", "yolov8n.pt")
 
 INTERVAL_MS = 100
 FRAME_START = 120
@@ -54,7 +53,7 @@ def main():
 
     # Load YOLOv8-nano (downloads automatically on first run)
     print("Loading YOLOv8-nano...")
-    model = YOLO("yolov8n.pt")
+    model = YOLO(YOLO_MODEL_PATH)
 
     cap = cv2.VideoCapture(VIDEO_PATH)
     if not cap.isOpened():

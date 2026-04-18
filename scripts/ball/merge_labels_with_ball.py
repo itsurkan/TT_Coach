@@ -7,11 +7,11 @@ For "correct" labels, copies (x, y) from *_ball.json into correctedX/correctedY.
 This makes labels self-contained for training data extraction.
 
 Usage:
-    python scripts/merge_labels_with_ball.py <video_dir>
-    python scripts/merge_labels_with_ball.py app/src/main/assets/Videos/IMG_6370
+    python scripts/ball/merge_labels_with_ball.py <video_dir>
+    python scripts/ball/merge_labels_with_ball.py Videos/IMG_6370
 
 Processes all video dirs if given the Videos root:
-    python scripts/merge_labels_with_ball.py app/src/main/assets/Videos
+    python scripts/ball/merge_labels_with_ball.py Videos
 """
 
 import json

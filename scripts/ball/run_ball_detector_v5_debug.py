@@ -16,9 +16,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEO_PATH = PROJECT_ROOT / "app/src/main/assets/Videos/IMG_6330/IMG_6330.MOV"
-DEBUG_DIR = PROJECT_ROOT / "app/src/main/assets/Videos/IMG_6330/debug_v5"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEO_PATH = PROJECT_ROOT / "Videos/IMG_6330/IMG_6330.MOV"
+DEBUG_DIR = PROJECT_ROOT / "Videos/IMG_6330/debug_v5"
 
 FRAME_STEP_MS = 100
 

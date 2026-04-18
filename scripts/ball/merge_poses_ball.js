@@ -3,7 +3,7 @@
  * merge_poses_ball.js
  *
  * Merges *_poses.json + *_ball.json → *_poses_ball.json for every video
- * in app/src/main/assets/Videos/.
+ * in Videos/.
  *
  * Output schema (matches pose_viewer expectations):
  * {
@@ -29,7 +29,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const VIDEOS_DIR = path.resolve(__dirname, '..', 'app', 'src', 'main', 'assets', 'Videos');
+const VIDEOS_DIR = path.resolve(__dirname, '..', '..', 'Videos');
 
 function findPairs(videosDir) {
   const files = new Set(fs.readdirSync(videosDir));

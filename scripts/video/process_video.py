@@ -31,8 +31,9 @@ import sys
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
-VIDEOS_DIR  = os.path.join(PROJECT_DIR, "app", "src", "main", "assets", "Videos")
+PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", ".."))
+SCRIPTS_ROOT = os.path.join(PROJECT_DIR, "scripts")
+VIDEOS_DIR  = os.path.join(PROJECT_DIR, "Videos")
 
 PYTHON      = sys.executable
 
@@ -109,7 +110,7 @@ def main():
             print(f"  WARNING: {poses_json} missing -- merge will have no landmarks")
     else:
         print(f"\n[1/3] Exporting poses...")
-        run([PYTHON, os.path.join(SCRIPTS_DIR, "export_poses.py"),
+        run([PYTHON, os.path.join(SCRIPTS_ROOT, "poses", "export_poses.py"),
              video_path, "--interval", str(args.interval)])
 
     # ── Step 2: Export ball detections (Python OpenCV) ────────────────────────
@@ -120,13 +121,13 @@ def main():
             print(f"  WARNING: {ball_json_local} missing -- merge will have no ball data")
     else:
         print(f"\n[2/3] Exporting ball detections...")
-        run([PYTHON, os.path.join(SCRIPTS_DIR, "export_ball.py"),
+        run([PYTHON, os.path.join(SCRIPTS_ROOT, "ball", "export_ball.py"),
              video_path, "--interval", str(args.interval),
              "--color", args.color])
 
     # ── Step 3: Merge ────────────────────────────────────────────────────────
     print(f"\n[3/3] Merging poses + ball...")
-    run([PYTHON, os.path.join(SCRIPTS_DIR, "merge_poses_ball.py"), "--video", base])
+    run([PYTHON, os.path.join(SCRIPTS_ROOT, "ball", "merge_poses_ball.py"), "--video", base])
 
     out = os.path.join(subdir, base + "_poses_ball.json")
     print(f"\nDone. Load in poses viewer:\n  {out}")

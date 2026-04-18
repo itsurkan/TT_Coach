@@ -5,11 +5,11 @@ Crops a square region (top/center/bottom) then resizes to 320x320.
 Frames sampled every 100ms.
 
 Usage:
-    python scripts/extract_frames_320.py <video_path> <top|center|bottom>
+    python scripts/frames/extract_frames_320.py <video_path> <top|center|bottom>
 
 Examples:
-    python scripts/extract_frames_320.py app/src/main/assets/Videos/IMG_6330/IMG_6330.MOV top
-    python scripts/extract_frames_320.py app/src/main/assets/Videos/IMG_6414/IMG_6414.MOV center
+    python scripts/frames/extract_frames_320.py Videos/IMG_6330/IMG_6330.MOV top
+    python scripts/frames/extract_frames_320.py Videos/IMG_6414/IMG_6414.MOV center
 """
 
 import sys

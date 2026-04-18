@@ -23,9 +23,9 @@ import numpy as np
 from ultralytics import YOLO
 
 # ── Config ──
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app/src/main/assets/Videos"
-MODEL_PATH = PROJECT_ROOT / "trained/best_yolo.pt"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+MODEL_PATH = PROJECT_ROOT / "models/trained/best_yolo.pt"
 
 FRAME_STEP_MS = 100
 CONFIDENCE_THRESHOLD = 0.25  # YOLO confidence threshold
@@ -331,7 +331,7 @@ def main():
 
     if not MODEL_PATH.exists():
         print(f"ERROR: model not found: {MODEL_PATH}")
-        print(f"Download best.pt from Colab to trained/best_yolo.pt")
+        print(f"Download best.pt from Colab to models/trained/best_yolo.pt")
         sys.exit(1)
 
     print(f"Loading YOLO model: {MODEL_PATH}")

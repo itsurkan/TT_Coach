@@ -44,10 +44,8 @@ from ball_detector import (
 # ── Config ────────────────────────────────────────────────────────────────────
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
-VIDEO_PATH  = os.path.join(
-    PROJECT_DIR, "app", "src", "main", "assets", "Videos", "IMG_6370", "IMG_6370.MP4"
-)
+PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", ".."))
+VIDEO_PATH  = os.path.join(PROJECT_DIR, "Videos", "IMG_6370", "IMG_6370.MP4")
 OUTPUT_DIR  = os.path.join(SCRIPTS_DIR, "debug_frames")
 
 COLOR       = "white"

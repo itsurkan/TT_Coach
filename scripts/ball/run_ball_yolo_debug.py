@@ -26,10 +26,10 @@ import numpy as np
 from ultralytics import YOLO
 
 # ── Config ──
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app/src/main/assets/Videos"
-YOLO_MODEL_PATH = PROJECT_ROOT / "trained/best_yolo.pt"
-COCO_MODEL_PATH = PROJECT_ROOT / "yolo11n.pt"  # pretrained COCO (if available)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+YOLO_MODEL_PATH = PROJECT_ROOT / "models/trained/best_yolo.pt"
+COCO_MODEL_PATH = PROJECT_ROOT / "models/pretrained/yolo11n.pt"
 
 FRAME_STEP_MS = 100
 CONFIDENCE_THRESHOLD = 0.25

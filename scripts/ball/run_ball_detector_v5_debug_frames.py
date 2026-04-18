@@ -27,9 +27,9 @@ import torch.nn as nn
 from torchvision.models import mobilenet_v3_small
 
 # ── Config ──
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app/src/main/assets/Videos"
-PTH_PATH = PROJECT_ROOT / "trained/best_model.pth"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+PTH_PATH = PROJECT_ROOT / "models/trained/best_model.pth"
 
 FRAME_STEP_MS = 100
 MODEL_INPUT_SIZE = 320

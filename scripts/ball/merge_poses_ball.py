@@ -3,7 +3,7 @@
 merge_poses_ball.py
 
 Merges *_poses.json + *_ball.json -> *_poses_ball.json for videos in
-app/src/main/assets/Videos/<base>/ subfolders.
+Videos/<base>/ subfolders.
 
 Usage:
     python scripts/merge_poses_ball.py              # merge all videos
@@ -18,7 +18,7 @@ import time
 
 VIDEOS_DIR = os.path.normpath(os.path.join(
     os.path.dirname(__file__),
-    "..", "app", "src", "main", "assets", "Videos"
+    "..", "..", "Videos"
 ))
 
 

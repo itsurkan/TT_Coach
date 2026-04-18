@@ -8,7 +8,7 @@ Usage:
     python scripts/detect_contacts.py <video_path> [--interval 100] [--sensitivity medium] [--out-dir <dir>]
 
 Examples:
-    python scripts/detect_contacts.py app/src/main/assets/Videos/forehand_drive/forehand_drive.mp4
+    python scripts/contacts/detect_contacts.py Videos/forehand_drive/forehand_drive.mp4
     python scripts/detect_contacts.py my_video.mp4 --interval 33 --sensitivity high
 
 Output:

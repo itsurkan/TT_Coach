@@ -31,9 +31,9 @@ import torch.nn as nn
 from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
 
 # ── Paths ──
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app" / "src" / "main" / "assets" / "Videos"
-MODEL_PATH = PROJECT_ROOT / "trained" / "best_model.pth"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+MODEL_PATH = PROJECT_ROOT / "models" / "trained" / "best_model.pth"
 
 MODEL_INPUT_SIZE = 320
 FRAME_STEP_MS = 100

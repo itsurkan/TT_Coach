@@ -36,8 +36,8 @@ import cv2
 import numpy as np
 
 SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, ".."))
-VIDEOS_DIR = os.path.join(PROJECT_DIR, "app", "src", "main", "assets", "Videos")
+PROJECT_DIR = os.path.normpath(os.path.join(SCRIPTS_DIR, "..", ".."))
+VIDEOS_DIR = os.path.join(PROJECT_DIR, "Videos")
 DATA_DIR = os.path.join(PROJECT_DIR, "data")
 
 

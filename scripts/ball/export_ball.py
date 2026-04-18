@@ -9,7 +9,7 @@ Usage:
     python scripts/export_ball.py <video_path> --color orange
 
 Examples:
-    python scripts/export_ball.py app/src/main/assets/Videos/IMG_6370/IMG_6370.MP4
+    python scripts/ball/export_ball.py Videos/IMG_6370/IMG_6370.MP4
     python scripts/export_ball.py my_video.mp4 --interval 50
 
 Output:

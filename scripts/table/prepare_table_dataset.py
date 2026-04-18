@@ -24,9 +24,10 @@ import numpy as np
 
 # ── Config ───────────────────────────────────────────────────────────────────
 
-VIDEOS_DIR = Path("D:/Desktop/TT_Coach_AI/app/src/main/assets/Videos")
-TTHQ_DIR = Path("D:/Desktop/TT_Coach_AI/datasets/tthq")
-OUTPUT_DIR = Path("D:/Desktop/TT_Coach_AI/datasets/table_keypoints")
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
+TTHQ_DIR = PROJECT_ROOT / "datasets/tthq"
+OUTPUT_DIR = PROJECT_ROOT / "datasets/table_keypoints"
 
 NUM_KEYPOINTS = 6
 TRAIN_RATIO = 0.85

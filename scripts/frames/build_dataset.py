@@ -18,8 +18,8 @@ from pathlib import Path
 
 random.seed(42)
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-VIDEOS_DIR = PROJECT_ROOT / "app/src/main/assets/Videos"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+VIDEOS_DIR = PROJECT_ROOT / "Videos"
 OUT_DIR = PROJECT_ROOT / "data_regressor"
 
 TRAIN_RATIO = 0.8

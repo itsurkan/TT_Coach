@@ -9,7 +9,7 @@ Usage:
     python scripts/export_poses.py <video_path> [--interval 100] [--out-dir <dir>]
 
 Examples:
-    python scripts/export_poses.py app/src/main/assets/Videos/video_2026-03-01_13-59-49.mp4
+    python scripts/poses/export_poses.py Videos/video_2026-03-01_13-59-49.mp4
     python scripts/export_poses.py my_video.mp4 --interval 50
 
 Output:
@@ -44,7 +44,8 @@ MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/"
     "pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
 )
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "pose_landmarker_full.task")
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MODEL_PATH = os.path.join(PROJECT_ROOT, "models", "pose", "pose_landmarker_full.task")
 
 
 def ensure_model() -> str:

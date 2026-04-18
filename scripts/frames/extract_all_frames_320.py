@@ -14,7 +14,7 @@ from pathlib import Path
 
 import cv2
 
-VIDEOS_DIR = Path(__file__).resolve().parent.parent / "app/src/main/assets/Videos"
+VIDEOS_DIR = Path(__file__).resolve().parent.parent.parent / "Videos"
 STEP_MS = 100
 
 
