@@ -1,5 +1,6 @@
 package com.ttcoachai.debug
 
+import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -10,6 +11,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
@@ -53,7 +55,14 @@ class BaselinePreviewActivity : BaseActivity() {
     private var isPlaying: Boolean = false
     private var frameIntervalMs: Long = 33L
     private var params: PoseTransformer.EditableParams = PoseTransformer.EditableParams()
-    private val viewCameraYawDeg: Float = PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG
+
+    /** Target yaw (set by the rotation slider). The displayed yaw chases this via [yawAnimator]. */
+    private var targetCameraYawDeg: Float = PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG
+
+    /** Currently-rendered yaw — may be mid-animation between steps. */
+    private var displayedCameraYawDeg: Float = PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG
+
+    private var yawAnimator: ValueAnimator? = null
 
     private data class SliderSpec(
         val minValue: Float,
@@ -119,10 +128,11 @@ class BaselinePreviewActivity : BaseActivity() {
                 RunningMode.VIDEO
             )
         }
-        binding.tvCameraHint.text = getString(R.string.preview_camera_hint, viewCameraYawDeg)
 
         buildSliderViews()
         wireTransport()
+        wireRotationSlider()
+        applyCameraYawUI(displayedCameraYawDeg)
 
         lifecycleScope.launch { loadAll() }
     }
@@ -202,13 +212,68 @@ class BaselinePreviewActivity : BaseActivity() {
         if (meanStrokeFrames.isEmpty()) return
         currentFrame = index.coerceIn(0, meanStrokeFrames.size - 1)
         val source = meanStrokeFrames[currentFrame]
-        val transformed = PoseTransformer.apply(source, params, viewCameraYawDeg)
+        val transformed = PoseTransformer.apply(source, params, displayedCameraYawDeg)
         binding.overlayView.setPoseFrame(transformed)
         binding.tvFrameLabel.text = getString(
             R.string.preview_frame_label,
             currentFrame + 1,
             meanStrokeFrames.size
         )
+    }
+
+    // ---------------- camera rotation ----------------
+
+    private fun wireRotationSlider() {
+        binding.seekRotation.max = ROTATION_STEPS - 1
+        binding.seekRotation.progress = yawToProgress(targetCameraYawDeg)
+        binding.seekRotation.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (!fromUser) return
+                val newTarget = progress * ROTATION_STEP_DEG
+                animateYawTo(newTarget)
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+        })
+    }
+
+    private fun animateYawTo(targetDeg: Float) {
+        targetCameraYawDeg = targetDeg
+        yawAnimator?.cancel()
+        yawAnimator = ValueAnimator.ofFloat(displayedCameraYawDeg, targetDeg).apply {
+            duration = ROTATION_ANIM_MS
+            interpolator = DecelerateInterpolator()
+            addUpdateListener { anim ->
+                displayedCameraYawDeg = anim.animatedValue as Float
+                applyCameraYawUI(displayedCameraYawDeg)
+                renderFrame(currentFrame)
+            }
+            start()
+        }
+    }
+
+    private fun applyCameraYawUI(yawDeg: Float) {
+        binding.clockIcon.setCameraYawDeg(yawDeg)
+        val clockLabel = clockLabelForYaw(targetCameraYawDeg)
+        binding.tvCameraHint.text = getString(R.string.preview_camera_hint, clockLabel, yawDeg)
+        binding.tvRotationLabel.text = getString(R.string.preview_rotation_label, clockLabel)
+    }
+
+    private fun yawToProgress(yawDeg: Float): Int {
+        val mod = ((yawDeg % 360f) + 360f) % 360f
+        return (mod / ROTATION_STEP_DEG).toInt().coerceIn(0, ROTATION_STEPS - 1)
+    }
+
+    /**
+     * Maps a yaw angle to a clock-face label. Yaw=0 = 6:00; every +1° rotates
+     * 2 minutes on the clock (since 360° = 720 min round trip).
+     */
+    private fun clockLabelForYaw(yawDeg: Float): String {
+        val mod = ((yawDeg % 360f) + 360f) % 360f
+        val totalMin = (360 + (mod * 2f).toInt()) % 720
+        val hour = ((totalMin / 60) % 12).let { if (it == 0) 12 else it }
+        val minute = totalMin % 60
+        return "%d:%02d".format(hour, minute)
     }
 
     private fun buildSliderViews() {
@@ -273,7 +338,7 @@ class BaselinePreviewActivity : BaseActivity() {
     private fun exportParams() {
         val json = JSONObject().apply {
             put("drillType", DRILL_TYPE)
-            put("viewCameraYawDeg", viewCameraYawDeg.toDouble())
+            put("viewCameraYawDeg", targetCameraYawDeg.toDouble())
             put("bodyRotationDeltaDeg", params.bodyRotationDeltaDeg.toDouble())
             put("torsoTiltDeltaDeg", params.torsoTiltDeltaDeg.toDouble())
             put("rightShoulderAngleDeltaDeg", params.rightShoulderAngleDeltaDeg.toDouble())
@@ -292,6 +357,7 @@ class BaselinePreviewActivity : BaseActivity() {
     override fun onDestroy() {
         super.onDestroy()
         handler.removeCallbacks(playbackLoop)
+        yawAnimator?.cancel()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -308,5 +374,10 @@ class BaselinePreviewActivity : BaseActivity() {
         // header so OverlayView scales poses into the same coordinate system.
         private const val FIXTURE_IMAGE_WIDTH = 720
         private const val FIXTURE_IMAGE_HEIGHT = 1280
+
+        /** 12 discrete camera positions around the clock, 30-min (15°) apart. */
+        private const val ROTATION_STEPS = 12
+        private const val ROTATION_STEP_DEG = 15f
+        private const val ROTATION_ANIM_MS = 300L
     }
 }
