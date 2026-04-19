@@ -131,7 +131,7 @@ class BaselinePreviewActivity : BaseActivity() {
 
         buildSliderViews()
         wireTransport()
-        wireRotationSlider()
+        wireRotationButtons()
         applyCameraYawUI(displayedCameraYawDeg)
 
         lifecycleScope.launch { loadAll() }
@@ -223,18 +223,13 @@ class BaselinePreviewActivity : BaseActivity() {
 
     // ---------------- camera rotation ----------------
 
-    private fun wireRotationSlider() {
-        binding.seekRotation.max = ROTATION_STEPS - 1
-        binding.seekRotation.progress = yawToProgress(targetCameraYawDeg)
-        binding.seekRotation.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (!fromUser) return
-                val newTarget = progress * ROTATION_STEP_DEG
-                animateYawTo(newTarget)
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-            override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-        })
+    private fun wireRotationButtons() {
+        binding.btnRotateLeft.setOnClickListener {
+            animateYawTo(targetCameraYawDeg - ROTATION_STEP_DEG)
+        }
+        binding.btnRotateRight.setOnClickListener {
+            animateYawTo(targetCameraYawDeg + ROTATION_STEP_DEG)
+        }
     }
 
     private fun animateYawTo(targetDeg: Float) {
@@ -255,13 +250,9 @@ class BaselinePreviewActivity : BaseActivity() {
     private fun applyCameraYawUI(yawDeg: Float) {
         binding.clockIcon.setCameraYawDeg(yawDeg)
         val clockLabel = clockLabelForYaw(targetCameraYawDeg)
-        binding.tvCameraHint.text = getString(R.string.preview_camera_hint, clockLabel, yawDeg)
+        val normalizedYaw = ((yawDeg % 360f) + 360f) % 360f
+        binding.tvCameraHint.text = getString(R.string.preview_camera_hint, clockLabel, normalizedYaw)
         binding.tvRotationLabel.text = getString(R.string.preview_rotation_label, clockLabel)
-    }
-
-    private fun yawToProgress(yawDeg: Float): Int {
-        val mod = ((yawDeg % 360f) + 360f) % 360f
-        return (mod / ROTATION_STEP_DEG).toInt().coerceIn(0, ROTATION_STEPS - 1)
     }
 
     /**
@@ -375,8 +366,7 @@ class BaselinePreviewActivity : BaseActivity() {
         private const val FIXTURE_IMAGE_WIDTH = 720
         private const val FIXTURE_IMAGE_HEIGHT = 1280
 
-        /** 12 discrete camera positions around the clock, 30-min (15°) apart. */
-        private const val ROTATION_STEPS = 12
+        /** 30-min (15°) step between discrete camera positions around the clock. */
         private const val ROTATION_STEP_DEG = 15f
         private const val ROTATION_ANIM_MS = 300L
     }
