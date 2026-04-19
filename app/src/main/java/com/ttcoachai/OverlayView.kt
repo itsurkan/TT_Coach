@@ -406,7 +406,7 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         if (dirLen > 1e-3f) {
             val nx = dirX / dirLen
             val ny = dirY / dirLen
-            val totalLen = headRadius.coerceAtLeast(LANDMARK_STROKE_WIDTH * 6f) * 2.0f
+            val totalLen = headRadius.coerceAtLeast(LANDMARK_STROKE_WIDTH * 6f) * 1.0f
             val handleLen = totalLen * 0.38f
             val bladeRadius = totalLen * 0.30f
 
