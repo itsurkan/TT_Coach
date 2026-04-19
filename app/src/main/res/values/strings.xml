@@ -698,22 +698,27 @@
     <string name="debug_baseline_empty">No active baseline found for the requested drill type.</string>
     <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
 
-    <!-- Baseline preview / drill parameter editor (Phase 7 dev tool) -->
-    <string name="preview_title">Baseline Preview</string>
-    <string name="preview_empty_baseline">No active baseline for forehand_shadow. Run calibration first.</string>
+    <!-- Drill parameter editor (Phase 7 dev tool) -->
+    <string name="preview_title">Drill Shape Editor</string>
+    <string name="preview_status_mean">Mean stroke from %1$d rep(s), %2$d frames</string>
+    <string name="preview_status_raw_fallback">No stroke detected — replaying raw fixture</string>
     <string name="preview_play">▶</string>
     <string name="preview_pause">⏸</string>
     <string name="preview_humanize">Humanize</string>
     <string name="preview_frame_label">Frame %1$d / %2$d</string>
-    <string name="preview_metric_line">%1$s = %2$s  (baseline %3$.2f ± %4$.2f)  → %5$s</string>
-    <string name="preview_metric_na">n/a</string>
-    <string name="preview_rule_slider_consistency">kσ = %1$.2f — fails at %2$d frame(s)</string>
-    <string name="preview_rule_slider_regression">maxDrop = %1$.2f — fails at %2$d frame(s)</string>
-    <string name="preview_rule_slider_rhythm">maxDeviation = %1$.0f%% (phase-level — not evaluated per frame)</string>
-    <string name="preview_export">Export tuned rules</string>
-    <string name="preview_exported_toast">Tuned rules copied to clipboard + logcat (BaselineDump tag).</string>
-    <string name="preview_pass">PASS</string>
-    <string name="preview_fail">FAIL</string>
+    <string name="preview_slider_body_rotation">Ротація корпусу (yaw) %1$+.0f°</string>
+    <string name="preview_slider_torso_tilt">Нахил тулуба (pitch) %1$+.0f°</string>
+    <string name="preview_slider_shoulder">Кут плеча (right) %1$+.0f°</string>
+    <string name="preview_slider_elbow_angle">Кут ліктя %1$+.0f°</string>
+    <string name="preview_slider_elbow_x">Позиція ліктя X %1$+.3f</string>
+    <string name="preview_slider_wrist">Кут зап\'ястка %1$+.0f°</string>
+    <string name="preview_slider_knee_bend">Згин колін %1$+.0f°</string>
+    <string name="preview_save">Save overrides</string>
+    <string name="preview_reset">Reset</string>
+    <string name="preview_export">Export JSON</string>
+    <string name="preview_saved_toast">Drill overrides saved.</string>
+    <string name="preview_exported_toast">Overrides copied to clipboard + logcat (BaselineDump tag).</string>
+    <string name="preview_camera_hint">Camera: 7:30 (%.0f° yaw)</string>
     <string name="calibration_review_save">Save baseline</string>
     <string name="calibration_review_redo">Redo</string>
     <string name="calibration_saved_toast">Baseline saved.</string>

@@ -98,11 +98,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         style = Paint.Style.FILL
         isAntiAlias = true
     }
-    private val humanizedRacketPaint = Paint().apply {
-        color = Color.argb(230, 30, 30, 30)
-        strokeWidth = LANDMARK_STROKE_WIDTH * 1.3f
+    private val paddleHandlePaint = Paint().apply {
+        color = Color.argb(255, 90, 60, 30) // warm wood tone
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val paddleBladeFillPaint = Paint().apply {
+        color = Color.argb(255, 200, 30, 30) // classic TT-blade red
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val paddleBladeRimPaint = Paint().apply {
+        color = Color.argb(255, 20, 20, 20)
+        strokeWidth = 4f
         style = Paint.Style.STROKE
-        strokeCap = Paint.Cap.ROUND
         isAntiAlias = true
     }
     private val highlightedJointPaint = Paint().apply {
@@ -383,8 +392,9 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         val headRadius = kotlin.math.hypot(noseX - shoulderMidX, noseY - shoulderMidY) * 0.55f
         if (headRadius > 0f) canvas.drawCircle(noseX, noseY, headRadius, humanizedHeadPaint)
 
-        // Racket stick: extend from right wrist (16) along wrist→index (16→20).
-        // Falls back to forearm direction (14→16) when index finger visibility is low.
+        // Table-tennis paddle: short filled handle in hand-direction, then a
+        // round red blade. Falls back to forearm direction when index-finger
+        // visibility is poor (MediaPipe hand landmarks are noisy on fast swings).
         val wristX = px(16); val wristY = py(16)
         val indexVisibility = lm.getOrNull(20)?.visibility()?.orElse(0f) ?: 0f
         val (dirX, dirY) = if (indexVisibility >= 0.5f) {
@@ -394,11 +404,33 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         }
         val dirLen = kotlin.math.hypot(dirX, dirY)
         if (dirLen > 1e-3f) {
-            val racketLen = headRadius.coerceAtLeast(LANDMARK_STROKE_WIDTH * 6f) * 2.2f
-            val tipX = wristX + dirX / dirLen * racketLen
-            val tipY = wristY + dirY / dirLen * racketLen
-            canvas.drawLine(wristX, wristY, tipX, tipY, humanizedRacketPaint)
-            canvas.drawCircle(tipX, tipY, racketLen * 0.18f, humanizedRacketPaint)
+            val nx = dirX / dirLen
+            val ny = dirY / dirLen
+            val totalLen = headRadius.coerceAtLeast(LANDMARK_STROKE_WIDTH * 6f) * 2.0f
+            val handleLen = totalLen * 0.38f
+            val bladeRadius = totalLen * 0.30f
+
+            val handleEndX = wristX + nx * handleLen
+            val handleEndY = wristY + ny * handleLen
+
+            // Handle: thin rectangle from wrist → handle end, rotated along paddle axis.
+            val halfHandleW = LANDMARK_STROKE_WIDTH * 0.5f
+            val perpX = -ny * halfHandleW
+            val perpY = nx * halfHandleW
+            val handlePath = Path().apply {
+                moveTo(wristX + perpX, wristY + perpY)
+                lineTo(handleEndX + perpX, handleEndY + perpY)
+                lineTo(handleEndX - perpX, handleEndY - perpY)
+                lineTo(wristX - perpX, wristY - perpY)
+                close()
+            }
+            canvas.drawPath(handlePath, paddleHandlePaint)
+
+            // Blade: red filled circle centered past the handle, black rim outline.
+            val bladeCenterX = handleEndX + nx * bladeRadius
+            val bladeCenterY = handleEndY + ny * bladeRadius
+            canvas.drawCircle(bladeCenterX, bladeCenterY, bladeRadius, paddleBladeFillPaint)
+            canvas.drawCircle(bladeCenterX, bladeCenterY, bladeRadius, paddleBladeRimPaint)
         }
     }
 

@@ -23,12 +23,23 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/controls_panel"
-        app:layout_constraintHeight_percent="0.45">
+        app:layout_constraintHeight_percent="0.42">
 
         <com.ttcoachai.OverlayView
             android:id="@+id/overlay_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_camera_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="12dp"
+            android:background="#66000000"
+            android:padding="6dp"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
 
     </FrameLayout>
 
@@ -48,18 +59,16 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_empty"
+                android:id="@+id/tv_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/preview_empty_baseline"
-                android:textColor="#FFB71C1C"
-                android:visibility="gone" />
+                android:textAppearance="?attr/textAppearanceBody2" />
 
             <LinearLayout
-                android:id="@+id/ll_transport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
+                android:layout_marginTop="8dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -93,37 +102,44 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Metrics"
-                android:textAppearance="?attr/textAppearanceSubtitle2" />
-
             <LinearLayout
-                android:id="@+id/ll_metric_readout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-
-            <TextView
+                android:id="@+id/ll_param_sliders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Rules"
-                android:textAppearance="?attr/textAppearanceSubtitle2" />
+                android:orientation="vertical" />
 
             <LinearLayout
-                android:id="@+id/ll_rule_sliders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_reset"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
+                    android:text="@string/preview_reset" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:text="@string/preview_save" />
+
+            </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_export"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/preview_export" />
 
         </LinearLayout>

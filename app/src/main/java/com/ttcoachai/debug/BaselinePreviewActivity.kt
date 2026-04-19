@@ -18,58 +18,83 @@ import androidx.lifecycle.lifecycleScope
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.ttcoachai.BaseActivity
 import com.ttcoachai.R
-import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.ActivityBaselinePreviewBinding
 import com.ttcoachai.db.AppDatabase
-import com.ttcoachai.repository.PersonalBaselineRepository
-import com.ttcoachai.shared.analysis.AngleCalculations
-import com.ttcoachai.shared.analysis.BaselineDeriver
-import com.ttcoachai.shared.analysis.BaselineRule
-import com.ttcoachai.shared.analysis.BaselineRuleFactory
-import com.ttcoachai.shared.analysis.FrameRuleEvaluator
-import com.ttcoachai.shared.analysis.MetricCalculations
-import com.ttcoachai.shared.models.Landmark3D
-import com.ttcoachai.shared.models.PersonalBaseline
+import com.ttcoachai.repository.DrillConfigRepository
 import com.ttcoachai.shared.models.PoseFrame
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONArray
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import kotlin.math.abs
 
 /**
- * Dev-only parameter editor (Phase 7).
+ * Dev-only drill-shape editor (Phase 7).
  *
- * Loads the active `forehand_shadow` baseline, loads a bundled reference rep
- * from `assets/fixtures/forehand_drive.json`, and lets you scrub through
- * frames while tuning each rule's threshold with a slider. For every frame,
- * the per-metric value is recomputed via [AngleCalculations] / [MetricCalculations]
- * and evaluated against the current rule config via [FrameRuleEvaluator];
- * landmarks tied to a failing metric are tinted red on the overlay.
+ * Loads the canonical stroke for forehand_drive (fixture → JsonStrokeDetector
+ * → MeanStrokeBuilder) and loops it. Sliders apply [PoseTransformer] deltas
+ * to reshape the replayed pose in real time. On top of every frame we bake
+ * a fixed 45° camera yaw so the figure is rendered from the 7:30 position
+ * (three-quarter view) rather than a flat frontal 6 o'clock.
  *
- * Constraints (intentional):
- * - Replays a recorded pose sequence — does NOT synthesize poses from sliders
- *   (IK from scalar params to pose is ambiguous, see tasks.md T037 note).
- * - Phase-duration (Rhythm) rules don't evaluate at the frame level — their
- *   slider only affects the exported JSON.
- * - Gated by `ApplicationInfo.FLAG_DEBUGGABLE`; refuses to open on release
- *   APKs even though the manifest entry is always present.
+ * Edits persist to [com.ttcoachai.models.DrillConfigEntity] so the next open
+ * restores the last-tuned shape. Export dumps the same params as JSON to
+ * logcat + clipboard.
  */
 class BaselinePreviewActivity : BaseActivity() {
 
     private lateinit var binding: ActivityBaselinePreviewBinding
-    private val repository by lazy {
-        PersonalBaselineRepository(AppDatabase.getDatabase(this).personalBaselineDao())
+    private val drillConfigRepo by lazy {
+        DrillConfigRepository(AppDatabase.getDatabase(this).drillConfigDao())
     }
     private val handler = Handler(Looper.getMainLooper())
 
-    private var baseline: PersonalBaseline? = null
-    private var frames: List<PoseFrame> = emptyList()
+    private var meanStrokeFrames: List<PoseFrame> = emptyList()
     private var currentFrame: Int = 0
     private var isPlaying: Boolean = false
     private var frameIntervalMs: Long = 33L
+    private var params: PoseTransformer.EditableParams = PoseTransformer.EditableParams()
+    private val viewCameraYawDeg: Float = PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG
 
-    private val ruleOverrides: MutableMap<String, BaselineRule> = mutableMapOf()
+    private data class SliderSpec(
+        val minValue: Float,
+        val maxValue: Float,
+        val step: Float,
+        val initial: Float,
+        val labelFormatRes: Int,
+        val writeToParams: (PoseTransformer.EditableParams, Float) -> PoseTransformer.EditableParams,
+        val readFromParams: (PoseTransformer.EditableParams) -> Float
+    ) {
+        val steps: Int get() = ((maxValue - minValue) / step).toInt().coerceAtLeast(1)
+        fun progressFor(value: Float): Int =
+            (((value - minValue) / step).toInt()).coerceIn(0, steps)
+        fun valueFor(progress: Int): Float = minValue + progress * step
+    }
+
+    private val sliderSpecs: List<SliderSpec> by lazy {
+        listOf(
+            SliderSpec(-30f, 30f, 1f, 0f, R.string.preview_slider_body_rotation,
+                writeToParams = { p, v -> p.copy(bodyRotationDeltaDeg = v) },
+                readFromParams = { it.bodyRotationDeltaDeg }),
+            SliderSpec(-20f, 20f, 1f, 0f, R.string.preview_slider_torso_tilt,
+                writeToParams = { p, v -> p.copy(torsoTiltDeltaDeg = v) },
+                readFromParams = { it.torsoTiltDeltaDeg }),
+            SliderSpec(-30f, 30f, 1f, 0f, R.string.preview_slider_shoulder,
+                writeToParams = { p, v -> p.copy(rightShoulderAngleDeltaDeg = v) },
+                readFromParams = { it.rightShoulderAngleDeltaDeg }),
+            SliderSpec(-45f, 45f, 1f, 0f, R.string.preview_slider_elbow_angle,
+                writeToParams = { p, v -> p.copy(rightElbowAngleDeltaDeg = v) },
+                readFromParams = { it.rightElbowAngleDeltaDeg }),
+            SliderSpec(-0.1f, 0.1f, 0.005f, 0f, R.string.preview_slider_elbow_x,
+                writeToParams = { p, v -> p.copy(rightElbowXOffset = v) },
+                readFromParams = { it.rightElbowXOffset }),
+            SliderSpec(-40f, 40f, 1f, 0f, R.string.preview_slider_wrist,
+                writeToParams = { p, v -> p.copy(rightWristAngleDeltaDeg = v) },
+                readFromParams = { it.rightWristAngleDeltaDeg }),
+            SliderSpec(-30f, 30f, 1f, 0f, R.string.preview_slider_knee_bend,
+                writeToParams = { p, v -> p.copy(kneeBendDeltaDeg = v) },
+                readFromParams = { it.kneeBendDeltaDeg })
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,7 +112,6 @@ class BaselinePreviewActivity : BaseActivity() {
         binding.overlayView.setHumanizationEnabled(true)
         binding.overlayView.setPhaseColoringEnabled(false)
         binding.overlayView.post {
-            // Fixture is 720×1280; overlay scales poses into that coordinate system.
             binding.overlayView.setResults(
                 emptyList(),
                 FIXTURE_IMAGE_HEIGHT,
@@ -95,32 +119,29 @@ class BaselinePreviewActivity : BaseActivity() {
                 RunningMode.VIDEO
             )
         }
+        binding.tvCameraHint.text = getString(R.string.preview_camera_hint, viewCameraYawDeg)
 
+        buildSliderViews()
         wireTransport()
-        lifecycleScope.launch { loadData() }
+
+        lifecycleScope.launch { loadAll() }
     }
 
-    private suspend fun loadData() {
-        val loaded = runCatching { AssetPoseFrameLoader.load(this, FIXTURE_ASSET_PATH) }
-            .getOrElse {
-                Log.e(TAG, "Failed to load fixture", it)
-                return
-            }
-        frames = loaded.frames
-        frameIntervalMs = loaded.intervalMs
-        val active = repository.getActiveBaseline(CalibrationActivity.DRILL_FOREHAND_SHADOW).first()
-        baseline = active
-
-        if (active == null) {
-            binding.tvEmpty.visibility = View.VISIBLE
-        } else {
-            for (rule in BaselineRuleFactory.defaultRules(active)) {
-                ruleOverrides[rule.id] = rule
-            }
-            buildRuleSliders(active)
+    private suspend fun loadAll() {
+        val loaded = runCatching {
+            CanonicalStrokeLoader.loadForehandDrive(this@BaselinePreviewActivity)
+        }.getOrElse {
+            Log.e(TAG, "Failed to load canonical stroke", it)
+            return
         }
-
-        binding.seekTimeline.max = (frames.size - 1).coerceAtLeast(0)
+        meanStrokeFrames = loaded.frames
+        frameIntervalMs = loaded.intervalMs
+        binding.tvStatus.text = if (loaded.strokeCount > 0) {
+            getString(R.string.preview_status_mean, loaded.strokeCount, loaded.meanStrokeLength)
+        } else {
+            getString(R.string.preview_status_raw_fallback)
+        }
+        binding.seekTimeline.max = (meanStrokeFrames.size - 1).coerceAtLeast(0)
         binding.seekTimeline.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) renderFrame(progress)
@@ -131,16 +152,31 @@ class BaselinePreviewActivity : BaseActivity() {
         binding.swHumanize.setOnCheckedChangeListener { _, checked ->
             binding.overlayView.setHumanizationEnabled(checked)
         }
+
+        params = drillConfigRepo.load(DRILL_TYPE)
+        syncSlidersToParams()
         renderFrame(0)
+        play()
     }
 
     private fun wireTransport() {
         binding.btnPlayPause.setOnClickListener { if (isPlaying) pause() else play() }
-        binding.btnExport.setOnClickListener { exportRules() }
+        binding.btnReset.setOnClickListener {
+            params = PoseTransformer.EditableParams()
+            syncSlidersToParams()
+            renderFrame(currentFrame)
+        }
+        binding.btnSave.setOnClickListener {
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) { drillConfigRepo.save(DRILL_TYPE, params) }
+                Toast.makeText(this@BaselinePreviewActivity, R.string.preview_saved_toast, Toast.LENGTH_SHORT).show()
+            }
+        }
+        binding.btnExport.setOnClickListener { exportParams() }
     }
 
     private fun play() {
-        if (frames.isEmpty()) return
+        if (meanStrokeFrames.isEmpty()) return
         isPlaying = true
         binding.btnPlayPause.text = getString(R.string.preview_pause)
         handler.post(playbackLoop)
@@ -154,8 +190,8 @@ class BaselinePreviewActivity : BaseActivity() {
 
     private val playbackLoop = object : Runnable {
         override fun run() {
-            if (!isPlaying) return
-            val next = (currentFrame + 1) % frames.size
+            if (!isPlaying || meanStrokeFrames.isEmpty()) return
+            val next = (currentFrame + 1) % meanStrokeFrames.size
             renderFrame(next)
             binding.seekTimeline.progress = next
             handler.postDelayed(this, frameIntervalMs)
@@ -163,222 +199,99 @@ class BaselinePreviewActivity : BaseActivity() {
     }
 
     private fun renderFrame(index: Int) {
-        if (frames.isEmpty()) return
-        currentFrame = index.coerceIn(0, frames.size - 1)
-        val frame = frames[currentFrame]
-        binding.overlayView.setPoseFrame(frame)
+        if (meanStrokeFrames.isEmpty()) return
+        currentFrame = index.coerceIn(0, meanStrokeFrames.size - 1)
+        val source = meanStrokeFrames[currentFrame]
+        val transformed = PoseTransformer.apply(source, params, viewCameraYawDeg)
+        binding.overlayView.setPoseFrame(transformed)
         binding.tvFrameLabel.text = getString(
             R.string.preview_frame_label,
             currentFrame + 1,
-            frames.size
+            meanStrokeFrames.size
         )
-        val metrics = computeFrameMetrics(frame.landmarks)
-        val failingMetrics = collectFailingMetrics(metrics)
-        binding.overlayView.setJointTint { landmarkIdx ->
-            if (landmarkIdxNeedsTint(landmarkIdx, failingMetrics)) android.graphics.Color.RED else null
-        }
-        renderMetricReadout(metrics, failingMetrics)
-        refreshRuleSliderLabels(metrics)
     }
 
-    private fun computeFrameMetrics(landmarks: List<Landmark3D>): Map<String, Double?> = mapOf(
-        BaselineDeriver.METRIC_WRIST_ANGLE to AngleCalculations.calculateWristAngle(landmarks)?.toDouble(),
-        BaselineDeriver.METRIC_BODY_ROTATION to AngleCalculations.calculateBodyRotation(landmarks)?.toDouble(),
-        BaselineDeriver.METRIC_FOLLOW_THROUGH_ANGLE to AngleCalculations.calculateFollowThroughAngle(landmarks)?.toDouble(),
-        BaselineDeriver.METRIC_CONTACT_HEIGHT to MetricCalculations.calculateContactHeight(landmarks)?.toDouble(),
-        BaselineDeriver.METRIC_ELBOW_BODY_DISTANCE to MetricCalculations.calculateElbowBodyDistance(landmarks)?.toDouble()
-    )
-
-    private fun collectFailingMetrics(metrics: Map<String, Double?>): Set<String> {
-        val b = baseline ?: return emptySet()
-        val failing = mutableSetOf<String>()
-        for (rule in ruleOverrides.values) {
-            val pass = FrameRuleEvaluator.evaluate(rule, b, metrics[rule.metricKey])
-            if (pass == false) failing += rule.metricKey
-        }
-        return failing
-    }
-
-    private fun landmarkIdxNeedsTint(idx: Int, failing: Set<String>): Boolean {
-        for (metric in failing) {
-            if (idx in METRIC_TO_LANDMARKS[metric].orEmpty()) return true
-        }
-        return false
-    }
-
-    private fun renderMetricReadout(
-        metrics: Map<String, Double?>,
-        failing: Set<String>
-    ) {
-        val parent = binding.llMetricReadout
+    private fun buildSliderViews() {
+        val parent = binding.llParamSliders
         parent.removeAllViews()
-        val b = baseline ?: return
-        for ((key, value) in metrics) {
-            val stats = b.metricStats[key] ?: continue
-            val tv = TextView(this).apply {
-                text = getString(
-                    R.string.preview_metric_line,
-                    key,
-                    value?.let { "%.2f".format(it) } ?: getString(R.string.preview_metric_na),
-                    stats.mean,
-                    stats.std,
-                    if (key in failing) getString(R.string.preview_fail)
-                    else getString(R.string.preview_pass)
-                )
-                setTextColor(
-                    if (key in failing) android.graphics.Color.parseColor("#B71C1C")
-                    else android.graphics.Color.parseColor("#1B5E20")
-                )
-                setPadding(0, 2, 0, 2)
-            }
-            parent.addView(tv)
-        }
-    }
+        for ((i, spec) in sliderSpecs.withIndex()) {
+            val row = LayoutInflater.from(this)
+                .inflate(android.R.layout.simple_list_item_2, parent, false) as android.view.ViewGroup
 
-    private fun buildRuleSliders(b: PersonalBaseline) {
-        val parent = binding.llRuleSliders
-        parent.removeAllViews()
-        for (rule in ruleOverrides.values.toList()) {
-            val row = LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(0, 8, 0, 8)
+            // Discard the default text1/text2 setup — we need a TextView + SeekBar.
+            row.removeAllViews()
+            row.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            (row as LinearLayout).orientation = LinearLayout.VERTICAL
+            row.setPadding(0, 8, 0, 8)
+
+            val label = TextView(this).apply {
+                id = View.generateViewId()
+                textSize = 13f
             }
-            val label = TextView(this)
-            val bar = SeekBar(this)
-            val cfg = sliderConfigFor(rule)
-            bar.max = cfg.steps
-            bar.progress = cfg.initialProgress
-            label.text = describeRule(rule, frameFailureCount = 0)
-            bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (!fromUser) return
-                    val updated = cfg.buildRule(progress)
-                    ruleOverrides[updated.id] = updated
-                    renderFrame(currentFrame)
-                }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
-                override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
-            })
+            val bar = SeekBar(this).apply {
+                id = View.generateViewId()
+                max = spec.steps
+                progress = spec.progressFor(spec.readFromParams(params))
+                tag = i
+                setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        if (!fromUser) return
+                        val sliderIdx = seekBar?.tag as? Int ?: return
+                        val value = sliderSpecs[sliderIdx].valueFor(progress)
+                        params = sliderSpecs[sliderIdx].writeToParams(params, value)
+                        refreshSliderLabel(sliderIdx)
+                        renderFrame(currentFrame)
+                    }
+                    override fun onStartTrackingTouch(seekBar: SeekBar?) = Unit
+                    override fun onStopTrackingTouch(seekBar: SeekBar?) = Unit
+                })
+            }
             row.addView(label)
             row.addView(bar)
             parent.addView(row)
         }
+        // Populate initial labels after views are in the tree.
+        for (i in sliderSpecs.indices) refreshSliderLabel(i)
     }
 
-    private fun refreshRuleSliderLabels(metrics: Map<String, Double?>) {
-        val parent = binding.llRuleSliders
-        val b = baseline ?: return
-        var row = 0
-        for (rule in ruleOverrides.values) {
-            val container = parent.getChildAt(row) as? LinearLayout ?: break
-            val label = container.getChildAt(0) as? TextView ?: break
-            val failures = countFramesFailing(rule, b)
-            label.text = describeRule(rule, failures)
-            row++
-        }
-    }
-
-    private fun countFramesFailing(rule: BaselineRule, b: PersonalBaseline): Int {
-        if (rule is BaselineRule.RhythmRule) return 0
-        var failing = 0
-        for (frame in frames) {
-            val value = when (rule.metricKey) {
-                BaselineDeriver.METRIC_WRIST_ANGLE ->
-                    AngleCalculations.calculateWristAngle(frame.landmarks)?.toDouble()
-                BaselineDeriver.METRIC_BODY_ROTATION ->
-                    AngleCalculations.calculateBodyRotation(frame.landmarks)?.toDouble()
-                BaselineDeriver.METRIC_FOLLOW_THROUGH_ANGLE ->
-                    AngleCalculations.calculateFollowThroughAngle(frame.landmarks)?.toDouble()
-                BaselineDeriver.METRIC_CONTACT_HEIGHT ->
-                    MetricCalculations.calculateContactHeight(frame.landmarks)?.toDouble()
-                BaselineDeriver.METRIC_ELBOW_BODY_DISTANCE ->
-                    MetricCalculations.calculateElbowBodyDistance(frame.landmarks)?.toDouble()
-                else -> null
-            }
-            if (FrameRuleEvaluator.evaluate(rule, b, value) == false) failing++
-        }
-        return failing
-    }
-
-    private fun describeRule(rule: BaselineRule, frameFailureCount: Int): String = when (rule) {
-        is BaselineRule.ConsistencyRule ->
-            "${rule.id} | " + getString(
-                R.string.preview_rule_slider_consistency, rule.kSigma, frameFailureCount
-            )
-        is BaselineRule.RegressionRule ->
-            "${rule.id} | " + getString(
-                R.string.preview_rule_slider_regression, rule.maxDropFromMean, frameFailureCount
-            )
-        is BaselineRule.RhythmRule ->
-            "${rule.id} | " + getString(
-                R.string.preview_rule_slider_rhythm, rule.maxDurationDeviationPct * 100.0
-            )
-    }
-
-    private data class SliderConfig(
-        val steps: Int,
-        val initialProgress: Int,
-        val buildRule: (Int) -> BaselineRule
-    )
-
-    private fun sliderConfigFor(rule: BaselineRule): SliderConfig = when (rule) {
-        is BaselineRule.ConsistencyRule -> {
-            // kσ ∈ [0.5, 4.0] in 0.1 steps
-            val steps = 35
-            val progress = (((rule.kSigma - 0.5) / 0.1).toInt()).coerceIn(0, steps)
-            SliderConfig(steps, progress) { p ->
-                rule.copy(kSigma = (0.5 + p * 0.1))
-            }
-        }
-        is BaselineRule.RegressionRule -> {
-            // maxDrop ∈ [0, 2 × std] in 40 steps, fallback to linear 0..10
-            val steps = 40
-            val progress = (rule.maxDropFromMean / 0.25).toInt().coerceIn(0, steps)
-            SliderConfig(steps, progress) { p ->
-                rule.copy(maxDropFromMean = p * 0.25)
-            }
-        }
-        is BaselineRule.RhythmRule -> {
-            // pct ∈ [5%, 50%] in 1% steps
-            val steps = 45
-            val progress = (((rule.maxDurationDeviationPct * 100 - 5)).toInt()).coerceIn(0, steps)
-            SliderConfig(steps, progress) { p ->
-                rule.copy(maxDurationDeviationPct = (5 + p) / 100.0)
-            }
+    private fun syncSlidersToParams() {
+        val parent = binding.llParamSliders
+        for (i in sliderSpecs.indices) {
+            val row = parent.getChildAt(i) as? LinearLayout ?: continue
+            val bar = row.getChildAt(1) as? SeekBar ?: continue
+            bar.progress = sliderSpecs[i].progressFor(sliderSpecs[i].readFromParams(params))
+            refreshSliderLabel(i)
         }
     }
 
-    private fun exportRules() {
-        val arr = JSONArray()
-        for (rule in ruleOverrides.values) {
-            arr.put(ruleToJson(rule))
+    private fun refreshSliderLabel(index: Int) {
+        val parent = binding.llParamSliders
+        val row = parent.getChildAt(index) as? LinearLayout ?: return
+        val label = row.getChildAt(0) as? TextView ?: return
+        val spec = sliderSpecs[index]
+        label.text = getString(spec.labelFormatRes, spec.readFromParams(params))
+    }
+
+    private fun exportParams() {
+        val json = JSONObject().apply {
+            put("drillType", DRILL_TYPE)
+            put("viewCameraYawDeg", viewCameraYawDeg.toDouble())
+            put("bodyRotationDeltaDeg", params.bodyRotationDeltaDeg.toDouble())
+            put("torsoTiltDeltaDeg", params.torsoTiltDeltaDeg.toDouble())
+            put("rightShoulderAngleDeltaDeg", params.rightShoulderAngleDeltaDeg.toDouble())
+            put("rightElbowAngleDeltaDeg", params.rightElbowAngleDeltaDeg.toDouble())
+            put("rightElbowXOffset", params.rightElbowXOffset.toDouble())
+            put("rightWristAngleDeltaDeg", params.rightWristAngleDeltaDeg.toDouble())
+            put("kneeBendDeltaDeg", params.kneeBendDeltaDeg.toDouble())
         }
-        val root = JSONObject().apply {
-            put("drillType", CalibrationActivity.DRILL_FOREHAND_SHADOW)
-            put("baselineCreatedAtMs", baseline?.createdAtMs ?: 0L)
-            put("rules", arr)
-        }
-        val payload = root.toString(2)
+        val payload = json.toString(2)
         Log.i("BaselineDump", payload)
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("tuned_rules", payload))
+        clipboard.setPrimaryClip(ClipData.newPlainText("drill_overrides", payload))
         Toast.makeText(this, R.string.preview_exported_toast, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun ruleToJson(rule: BaselineRule): JSONObject = JSONObject().apply {
-        put("id", rule.id)
-        put("metricKey", rule.metricKey)
-        when (rule) {
-            is BaselineRule.ConsistencyRule -> {
-                put("type", "ConsistencyRule"); put("kSigma", rule.kSigma)
-            }
-            is BaselineRule.RegressionRule -> {
-                put("type", "RegressionRule"); put("maxDropFromMean", rule.maxDropFromMean)
-            }
-            is BaselineRule.RhythmRule -> {
-                put("type", "RhythmRule"); put("maxDurationDeviationPct", rule.maxDurationDeviationPct)
-            }
-        }
     }
 
     override fun onDestroy() {
@@ -395,26 +308,10 @@ class BaselinePreviewActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "BaselinePreview"
-        private const val FIXTURE_ASSET_PATH = "fixtures/forehand_drive.json"
-        // Must match the videoWidth/videoHeight declared in the fixture JSON header.
+        private const val DRILL_TYPE = "forehand_drive"
+        // Fixture video was 720×1280 (portrait). These must match the fixture
+        // header so OverlayView scales poses into the same coordinate system.
         private const val FIXTURE_IMAGE_WIDTH = 720
         private const val FIXTURE_IMAGE_HEIGHT = 1280
-
-        /**
-         * MediaPipe pose landmark indices tied to each metric — used to pick which
-         * joints glow red when the rule fails at a frame. Indices mirror the
-         * MediaPipe pose-landmarker model (0=nose, 11/12=shoulders, 13/14=elbows,
-         * 15/16=wrists, 23/24=hips, etc.).
-         */
-        private val METRIC_TO_LANDMARKS: Map<String, Set<Int>> = mapOf(
-            BaselineDeriver.METRIC_WRIST_ANGLE to setOf(14, 16, 20),
-            BaselineDeriver.METRIC_BODY_ROTATION to setOf(11, 12, 23, 24),
-            BaselineDeriver.METRIC_FOLLOW_THROUGH_ANGLE to setOf(12, 14, 16),
-            BaselineDeriver.METRIC_CONTACT_HEIGHT to setOf(16),
-            BaselineDeriver.METRIC_ELBOW_BODY_DISTANCE to setOf(12, 14, 24)
-        )
-
-        @Suppress("unused")
-        private fun forceKeep(a: Any?): Any? = abs(0.0).let { a }
     }
 }
