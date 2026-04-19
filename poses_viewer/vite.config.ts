@@ -4,9 +4,10 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs'
 
-// Serve JSON and video files from the TT_Coach_AI assets folder at /videos/*
-const VIDEOS_DIR = 'D:/Desktop/TT_Coach_AI/app/src/main/assets/Videos'
-const DATASET_DIR = 'D:/Desktop/TT_Coach_AI/datasets/table_keypoints'
+// Serve JSON and video files from the repo's top-level Videos/ folder at /videos/*
+const REPO_ROOT = path.resolve(__dirname, '..')
+const VIDEOS_DIR = path.join(REPO_ROOT, 'Videos')
+const DATASET_DIR = path.join(REPO_ROOT, 'datasets', 'table_keypoints')
 
 const MIME: Record<string, string> = {
   '.json': 'application/json',

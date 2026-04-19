@@ -26,3 +26,4 @@ tthq_annotations/*
 *.zip
 build_log.txt
 scripts/**/__pycache__/
+/tmp/screenshots/
