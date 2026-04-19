@@ -44,11 +44,21 @@ object CanonicalStrokeLoader {
         if (mean.isEmpty()) {
             return Result(loaded.frames, loaded.intervalMs, strokeCount = detection.strokes.size, meanStrokeLength = loaded.frames.size)
         }
+        // Trim leading setup frames — the detector's stroke boundary includes a
+        // brief stance before the backswing really begins, which reads as an
+        // awkward pose in the editor preview.
+        val trimmed = if (mean.size > FOREHAND_DRIVE_TRIM_LEADING) {
+            mean.drop(FOREHAND_DRIVE_TRIM_LEADING)
+        } else {
+            mean
+        }
         return Result(
-            frames = mean,
+            frames = trimmed,
             intervalMs = loaded.intervalMs,
             strokeCount = detection.strokes.size,
-            meanStrokeLength = mean.size
+            meanStrokeLength = trimmed.size
         )
     }
+
+    private const val FOREHAND_DRIVE_TRIM_LEADING = 5
 }
