@@ -59,7 +59,7 @@ object CanonicalStrokeLoader {
         //      MediaPipe knee/ankle noise is too high for useful averaging and
         //      the editor's job is to show the reference shape, not leg motion.
         val smoothed = UpperBodySmoother.smooth(trimmed)
-        val cleaned = LegCanonicalizer.canonicalize(smoothed, targetKneeAngleDeg = 145f)
+        val cleaned = LegCanonicalizer.canonicalize(smoothed, targetKneeAngleDeg = 150f)
         // Blend the last few frames toward frame 0 so looped playback wraps
         // without a visible jump between follow-through and ready stance.
         val looped = LoopBlender.blend(cleaned)

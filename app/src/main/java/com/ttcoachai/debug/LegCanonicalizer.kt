@@ -2,10 +2,8 @@ package com.ttcoachai.debug
 
 import com.ttcoachai.shared.models.Landmark3D
 import com.ttcoachai.shared.models.PoseFrame
-import kotlin.math.abs
-import kotlin.math.atan2
+import kotlin.math.acos
 import kotlin.math.cos
-import kotlin.math.sign
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -13,11 +11,17 @@ import kotlin.math.sqrt
  * Freezes lower-body landmarks to a single canonical static stance for the
  * drill-shape editor preview.
  *
- * Why: time-normalized averaging across 5 real reps produces jittery legs —
- * MediaPipe knee/ankle noise is amplified because foot contacts don't line up
- * between reps. Locking the stance + enforcing a target knee angle gives a
- * clean reference pose. Default 145° matches the athletic "ready" stance
- * commonly taught for a forehand drive.
+ * Takes the FIRST frame of the (already trimmed + smoothed) mean stroke as the
+ * reference stance — not the per-frame average, because averaging hip
+ * positions across a stroke where the torso tilts forward puts the averaged
+ * hip close to the knee height and collapses the thigh geometry.
+ *
+ * Post-processing on that reference stance:
+ *   1. Scale thigh (hip→knee) length by [THIGH_SCALE] so the leg reads longer
+ *      visually.
+ *   2. Rotate shin + foot around the knee so the hip-knee-ankle interior
+ *      angle becomes [targetKneeAngleDeg] (default 150° = slight bend, the
+ *      ready-stance baseline for a forehand drive).
  */
 object LegCanonicalizer {
 
@@ -36,35 +40,65 @@ object LegCanonicalizer {
         *LEFT_FOOT, *RIGHT_FOOT
     )
 
+    private const val THIGH_SCALE = 1.3f
+
     fun canonicalize(
         frames: List<PoseFrame>,
-        targetKneeAngleDeg: Float = 145f
+        targetKneeAngleDeg: Float = 150f
     ): List<PoseFrame> {
         if (frames.isEmpty()) return frames
-        if (frames.any { it.landmarks.size < 33 }) return frames
+        val reference = frames.first()
+        if (reference.landmarks.size < 33) return frames
 
-        val avgLeg = LEG_INDICES.associateWith { idx ->
-            val xs = frames.map { it.landmarks[idx].x.toDouble() }
-            val ys = frames.map { it.landmarks[idx].y.toDouble() }
-            val zs = frames.map { it.landmarks[idx].z.toDouble() }
-            val vs = frames.map { it.landmarks[idx].visibility.toDouble() }
-            val ps = frames.map { it.landmarks[idx].presence.toDouble() }
-            Landmark3D(
-                x = xs.average().toFloat(),
-                y = ys.average().toFloat(),
-                z = zs.average().toFloat(),
-                visibility = vs.average().toFloat(),
-                presence = ps.average().toFloat()
-            )
-        }.toMutableMap()
+        val legMap = LEG_INDICES.associateWith { reference.landmarks[it] }.toMutableMap()
 
-        adjustKneeAngle(avgLeg, LEFT_HIP, LEFT_KNEE, LEFT_ANKLE, LEFT_FOOT, targetKneeAngleDeg)
-        adjustKneeAngle(avgLeg, RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE, RIGHT_FOOT, targetKneeAngleDeg)
+        scaleThigh(legMap, LEFT_HIP, LEFT_KNEE, LEFT_ANKLE, LEFT_FOOT, THIGH_SCALE)
+        scaleThigh(legMap, RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE, RIGHT_FOOT, THIGH_SCALE)
+
+        adjustKneeAngle(legMap, LEFT_HIP, LEFT_KNEE, LEFT_ANKLE, LEFT_FOOT, targetKneeAngleDeg)
+        adjustKneeAngle(legMap, RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE, RIGHT_FOOT, targetKneeAngleDeg)
 
         return frames.map { frame ->
             val next = frame.landmarks.toMutableList()
-            for ((idx, lm) in avgLeg) next[idx] = lm
+            for ((idx, lm) in legMap) next[idx] = lm
             frame.copy(landmarks = next)
+        }
+    }
+
+    /** Extends hip→knee along its current direction by [scale] and moves shin+foot rigidly. */
+    private fun scaleThigh(
+        landmarks: MutableMap<Int, Landmark3D>,
+        hipIdx: Int, kneeIdx: Int, ankleIdx: Int, footIndices: IntArray,
+        scale: Float
+    ) {
+        val hip = landmarks[hipIdx] ?: return
+        val knee = landmarks[kneeIdx] ?: return
+        val ankle = landmarks[ankleIdx] ?: return
+
+        val newKneeX = hip.x + (knee.x - hip.x) * scale
+        val newKneeY = hip.y + (knee.y - hip.y) * scale
+        val newKneeZ = hip.z + (knee.z - hip.z) * scale
+
+        val shinDx = ankle.x - knee.x
+        val shinDy = ankle.y - knee.y
+        val shinDz = ankle.z - knee.z
+        val newAnkleX = newKneeX + shinDx
+        val newAnkleY = newKneeY + shinDy
+        val newAnkleZ = newKneeZ + shinDz
+
+        landmarks[kneeIdx] = knee.copy(x = newKneeX, y = newKneeY, z = newKneeZ)
+        landmarks[ankleIdx] = ankle.copy(x = newAnkleX, y = newAnkleY, z = newAnkleZ)
+
+        for (fidx in footIndices) {
+            val foot = landmarks[fidx] ?: continue
+            val offX = foot.x - ankle.x
+            val offY = foot.y - ankle.y
+            val offZ = foot.z - ankle.z
+            landmarks[fidx] = foot.copy(
+                x = newAnkleX + offX,
+                y = newAnkleY + offY,
+                z = newAnkleZ + offZ
+            )
         }
     }
 
@@ -84,17 +118,20 @@ object LegCanonicalizer {
         val shinLen = sqrt(v2x * v2x + v2y * v2y)
         if (thighLen < 1e-4f || shinLen < 1e-4f) return
 
-        val cross = (v1x * v2y - v1y * v2x).toDouble()
-        val dot = (v1x * v2x + v1y * v2y).toDouble()
-        val signedCurrent = atan2(cross, dot)
-        if (signedCurrent == 0.0) return
+        val cosAng = ((v1x * v2x + v1y * v2y) / (thighLen * shinLen)).coerceIn(-1f, 1f)
+        val currentRad = acos(cosAng.toDouble())
 
-        val signedTarget = Math.toRadians(targetDeg.toDouble()) * sign(signedCurrent)
-        val deltaRad = signedTarget - signedCurrent
-        if (abs(deltaRad) < 1e-4) return
+        // Cross-product sign determines which side the ankle is on. If near
+        // zero (colinear hip/knee/ankle), default to +1 so the shin bends
+        // consistently relative to the thigh.
+        val cross = v1x * v2y - v1y * v2x
+        val direction = if (cross >= 0f) 1.0 else -1.0
 
-        val c = cos(deltaRad).toFloat()
-        val s = sin(deltaRad).toFloat()
+        val targetRad = Math.toRadians(targetDeg.toDouble())
+        val rotationRad = (targetRad - currentRad) * direction
+
+        val c = cos(rotationRad).toFloat()
+        val s = sin(rotationRad).toFloat()
 
         val rotateIndices = intArrayOf(ankleIdx) + footIndices
         for (idx in rotateIndices) {
