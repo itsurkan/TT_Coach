@@ -82,16 +82,18 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Baseline Debug Screen (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
+        <!-- Baseline Debug Screen (dev-only, runtime FLAG_DEBUGGABLE gate protects release).
+             Exported so `adb shell am start` can launch it directly. -->
         <activity
             android:name=".debug.BaselineDebugActivity"
-            android:exported="false"
+            android:exported="true"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Baseline Parameter Editor (Phase 7, dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
+        <!-- Baseline Parameter Editor (Phase 7, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
+             Exported so `adb shell am start` can launch it directly. -->
         <activity
             android:name=".debug.BaselinePreviewActivity"
-            android:exported="false"
+            android:exported="true"
             android:parentActivityName=".MainActivity" />
 
         <!-- Baseline Dump Receiver (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
