@@ -718,7 +718,7 @@
     <string name="preview_export">Export JSON</string>
     <string name="preview_saved_toast">Drill overrides saved.</string>
     <string name="preview_exported_toast">Overrides copied to clipboard + logcat (BaselineDump tag).</string>
-    <string name="preview_camera_hint">Camera: 7:30 (%.0f° yaw)</string>
+    <string name="preview_camera_hint">Camera yaw %.0f°</string>
     <string name="calibration_review_save">Save baseline</string>
     <string name="calibration_review_redo">Redo</string>
     <string name="calibration_saved_toast">Baseline saved.</string>

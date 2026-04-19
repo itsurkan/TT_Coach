@@ -28,8 +28,8 @@ import kotlin.math.sin
  */
 object PoseTransformer {
 
-    /** Default display-camera yaw: ~45° counterclockwise from 6 o'clock (7:30 view). */
-    const val DEFAULT_VIEW_CAMERA_YAW_DEG: Float = 45f
+    /** Default display-camera yaw: 0° = 6 o'clock (flat frontal view). */
+    const val DEFAULT_VIEW_CAMERA_YAW_DEG: Float = 0f
 
     data class EditableParams(
         val bodyRotationDeltaDeg: Float = 0f,
