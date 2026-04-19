@@ -60,11 +60,14 @@ object CanonicalStrokeLoader {
         //      the editor's job is to show the reference shape, not leg motion.
         val smoothed = UpperBodySmoother.smooth(trimmed)
         val cleaned = LegCanonicalizer.canonicalize(smoothed, targetKneeAngleDeg = 145f)
+        // Blend the last few frames toward frame 0 so looped playback wraps
+        // without a visible jump between follow-through and ready stance.
+        val looped = LoopBlender.blend(cleaned)
         return Result(
-            frames = cleaned,
+            frames = looped,
             intervalMs = loaded.intervalMs,
             strokeCount = detection.strokes.size,
-            meanStrokeLength = cleaned.size
+            meanStrokeLength = looped.size
         )
     }
 
