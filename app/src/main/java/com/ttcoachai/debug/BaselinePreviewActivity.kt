@@ -8,8 +8,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
@@ -215,18 +215,14 @@ class BaselinePreviewActivity : BaseActivity() {
         val parent = binding.llParamSliders
         parent.removeAllViews()
         for ((i, spec) in sliderSpecs.withIndex()) {
-            val row = LayoutInflater.from(this)
-                .inflate(android.R.layout.simple_list_item_2, parent, false) as android.view.ViewGroup
-
-            // Discard the default text1/text2 setup — we need a TextView + SeekBar.
-            row.removeAllViews()
-            row.layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            (row as LinearLayout).orientation = LinearLayout.VERTICAL
-            row.setPadding(0, 8, 0, 8)
-
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                setPadding(0, 8, 0, 8)
+            }
             val label = TextView(this).apply {
                 id = View.generateViewId()
                 textSize = 13f
@@ -253,7 +249,6 @@ class BaselinePreviewActivity : BaseActivity() {
             row.addView(bar)
             parent.addView(row)
         }
-        // Populate initial labels after views are in the tree.
         for (i in sliderSpecs.indices) refreshSliderLabel(i)
     }
 
