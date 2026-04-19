@@ -45,18 +45,26 @@ object CanonicalStrokeLoader {
             return Result(loaded.frames, loaded.intervalMs, strokeCount = detection.strokes.size, meanStrokeLength = loaded.frames.size)
         }
         // Trim leading setup frames — the detector's stroke boundary includes a
-        // brief stance before the backswing really begins, which reads as an
-        // awkward pose in the editor preview.
+        // brief stance before the backswing really begins.
         val trimmed = if (mean.size > FOREHAND_DRIVE_TRIM_LEADING) {
             mean.drop(FOREHAND_DRIVE_TRIM_LEADING)
         } else {
             mean
         }
+        // Post-process the averaged stroke:
+        //   1. Smooth upper body with a 5-frame centered moving average so the
+        //      loop reads as continuous motion (rep-averaging alone leaves kinks
+        //      where reps don't align frame-by-frame).
+        //   2. Freeze legs to a canonical static stance with a 145° knee angle —
+        //      MediaPipe knee/ankle noise is too high for useful averaging and
+        //      the editor's job is to show the reference shape, not leg motion.
+        val smoothed = UpperBodySmoother.smooth(trimmed)
+        val cleaned = LegCanonicalizer.canonicalize(smoothed, targetKneeAngleDeg = 145f)
         return Result(
-            frames = trimmed,
+            frames = cleaned,
             intervalMs = loaded.intervalMs,
             strokeCount = detection.strokes.size,
-            meanStrokeLength = trimmed.size
+            meanStrokeLength = cleaned.size
         )
     }
 
