@@ -29,6 +29,17 @@ export interface BoneLengthsOverride {
   shin?: number
   footForward?: number
   headToShoulder?: number
+  /** Per-side overrides (take precedence over the symmetric fallback above). */
+  leftThigh?: number
+  rightThigh?: number
+  leftShin?: number
+  rightShin?: number
+  leftUpperArm?: number
+  rightUpperArm?: number
+  leftForearm?: number
+  rightForearm?: number
+  leftFootForward?: number
+  rightFootForward?: number
 }
 
 type V3 = [number, number, number]
@@ -263,33 +274,41 @@ export function reconstructFromAnchor(
     return normalize(rotAroundAxis(thighDir, across, kneeBend))
   }
 
+  // Per-side bone lengths — fall back to symmetric `B.thigh`/`B.shin` when not set.
+  const Brt = bonesOverride?.rightThigh ?? B.thigh
+  const Blt = bonesOverride?.leftThigh ?? B.thigh
+  const Brs = bonesOverride?.rightShin ?? B.shin
+  const Bls = bonesOverride?.leftShin ?? B.shin
+  const Brf = bonesOverride?.rightFootForward ?? B.footForward
+  const Blf = bonesOverride?.leftFootForward ?? B.footForward
+
   // Right leg ───────────────────────────────────────────────────────────────
   const rThighDir: V3 = thighDirFor('R')
-  const rKnee: V3 = add(rHip, scale(rThighDir, B.thigh))
+  const rKnee: V3 = add(rHip, scale(rThighDir, Brt))
   const rShinDir: V3 = shinDirFor('R', rThighDir, effRightKnee)
-  const rAnkle: V3 = add(rKnee, scale(rShinDir, B.shin))
+  const rAnkle: V3 = add(rKnee, scale(rShinDir, Brs))
   out[LM.R_KNEE]  = mkLm(LM.R_KNEE,  rKnee)
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
   const rFootDir: V3 = anchor.dirOverrides
     ? normalize(anchor.dirOverrides.rightFoot as V3)
     : normalize(rotY(forward, anchor.rightFootYawDeg))
-  const rFootTip: V3 = add(rAnkle, scale(rFootDir, B.footForward))
-  const rHeel:    V3 = add(rAnkle, scale(rFootDir, -B.footForward * 0.4))
+  const rFootTip: V3 = add(rAnkle, scale(rFootDir, Brf))
+  const rHeel:    V3 = add(rAnkle, scale(rFootDir, -Brf * 0.4))
   out[LM.R_HEEL] = mkLm(LM.R_HEEL, rHeel)
   out[LM.R_FOOT] = mkLm(LM.R_FOOT, rFootTip)
 
   // Left leg ────────────────────────────────────────────────────────────────
   const lThighDir: V3 = thighDirFor('L')
-  const lKnee: V3 = add(lHip, scale(lThighDir, B.thigh))
+  const lKnee: V3 = add(lHip, scale(lThighDir, Blt))
   const lShinDir: V3 = shinDirFor('L', lThighDir, effLeftKnee)
-  const lAnkle: V3 = add(lKnee, scale(lShinDir, B.shin))
+  const lAnkle: V3 = add(lKnee, scale(lShinDir, Bls))
   out[LM.L_KNEE]  = mkLm(LM.L_KNEE,  lKnee)
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)
   const lFootDir: V3 = anchor.dirOverrides
     ? normalize(anchor.dirOverrides.leftFoot as V3)
     : normalize(rotY(forward, anchor.leftFootYawDeg))
-  const lFootTip: V3 = add(lAnkle, scale(lFootDir, B.footForward))
-  const lHeel:    V3 = add(lAnkle, scale(lFootDir, -B.footForward * 0.4))
+  const lFootTip: V3 = add(lAnkle, scale(lFootDir, Blf))
+  const lHeel:    V3 = add(lAnkle, scale(lFootDir, -Blf * 0.4))
   out[LM.L_HEEL] = mkLm(LM.L_HEEL, lHeel)
   out[LM.L_FOOT] = mkLm(LM.L_FOOT, lFootTip)
 

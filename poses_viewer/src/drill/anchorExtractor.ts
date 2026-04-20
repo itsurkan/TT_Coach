@@ -83,16 +83,29 @@ export function extractBoneLengths(lms: Landmark[]): BoneLengthsOverride {
   const hipMid = { x: (lHip.x + rHip.x) / 2, y: (lHip.y + rHip.y) / 2, z: (lHip.z + rHip.z) / 2 }
   const shMid  = { x: (lSh.x + rSh.x) / 2,  y: (lSh.y + rSh.y) / 2,  z: (lSh.z + rSh.z) / 2 }
   const dist = (a: Landmark, b: Landmark) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z)
+  const leftThigh  = dist(lHip, lms[LM.L_KNEE])
+  const rightThigh = dist(rHip, lms[LM.R_KNEE])
+  const leftShin   = dist(lms[LM.L_KNEE], lms[LM.L_ANKLE])
+  const rightShin  = dist(lms[LM.R_KNEE], lms[LM.R_ANKLE])
+  const leftUpperArm  = dist(lSh, lms[LM.L_ELBOW])
+  const rightUpperArm = dist(rSh, lms[LM.R_ELBOW])
+  const leftForearm   = dist(lms[LM.L_ELBOW], lms[LM.L_WRIST])
+  const rightForearm  = dist(lms[LM.R_ELBOW], lms[LM.R_WRIST])
+  const leftFootForward  = dist(lms[LM.L_ANKLE], lms[LM.L_FOOT])
+  const rightFootForward = dist(lms[LM.R_ANKLE], lms[LM.R_FOOT])
   return {
     torso: Math.hypot(shMid.x - hipMid.x, shMid.y - hipMid.y, shMid.z - hipMid.z),
     shoulderWidth: dist(lSh, rSh),
     hipWidth: dist(lHip, rHip),
-    upperArm: (dist(lSh, lms[LM.L_ELBOW]) + dist(rSh, lms[LM.R_ELBOW])) / 2,
-    forearm:  (dist(lms[LM.L_ELBOW], lms[LM.L_WRIST]) + dist(lms[LM.R_ELBOW], lms[LM.R_WRIST])) / 2,
-    thigh:    (dist(lHip, lms[LM.L_KNEE]) + dist(rHip, lms[LM.R_KNEE])) / 2,
-    shin:     (dist(lms[LM.L_KNEE], lms[LM.L_ANKLE]) + dist(lms[LM.R_KNEE], lms[LM.R_ANKLE])) / 2,
-    footForward: (dist(lms[LM.L_ANKLE], lms[LM.L_FOOT]) + dist(lms[LM.R_ANKLE], lms[LM.R_FOOT])) / 2,
+    upperArm: (leftUpperArm + rightUpperArm) / 2,
+    forearm:  (leftForearm  + rightForearm)  / 2,
+    thigh:    (leftThigh    + rightThigh)    / 2,
+    shin:     (leftShin     + rightShin)     / 2,
+    footForward: (leftFootForward + rightFootForward) / 2,
     headToShoulder: dist(lms[LM.NOSE], { ...lSh, x: (lSh.x + rSh.x)/2, y: (lSh.y + rSh.y)/2, z: (lSh.z + rSh.z)/2 }),
+    leftThigh, rightThigh, leftShin, rightShin,
+    leftUpperArm, rightUpperArm, leftForearm, rightForearm,
+    leftFootForward, rightFootForward,
   }
 }
 

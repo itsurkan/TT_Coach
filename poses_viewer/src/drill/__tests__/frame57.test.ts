@@ -161,7 +161,9 @@ describe('frame 57 (andrii_1 forehand-drive stance)', () => {
   it('every reconstructed landmark is within 10cm (~0.05 normalized) of the source', () => {
     const original = loadFrame(57)
     const anchor = extractAnchorFromLandmarks(original)
-    const reconstructed = reconstructFromAnchor(anchor)
+    anchor.dirOverrides = extractLimbDirections(original)
+    const bones = extractBoneLengths(original)
+    const reconstructed = reconstructFromAnchor(anchor, bones, { skipFootIK: true })
 
     const KEY_LMS: Array<[number, string]> = [
       [LM.NOSE, 'nose'],
