@@ -63,8 +63,13 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 minBodyRotation = prefs.getInt("min_body_rotation", 45).toFloat(),
                 followThroughAngle = prefs.getInt("follow_through_angle", 120).toFloat()
             )
+            "forehand_andrii" -> ExerciseParameters.forehandDrive().copy(exerciseId = "forehand_andrii")
             "backhand_drive" -> ExerciseParameters.backhandDrive()
-            else -> ExerciseParameters.forehandDrive()
+            else -> if (exerciseId?.startsWith("custom_") == true) {
+                ExerciseParameters.forehandDrive().copy(exerciseId = exerciseId!!)
+            } else {
+                ExerciseParameters.forehandDrive()
+            }
         }
         
         poseAnalysisProcessor = PoseAnalysisProcessor(

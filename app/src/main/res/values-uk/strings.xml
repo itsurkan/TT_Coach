@@ -57,6 +57,8 @@
     <string name="exercise_locked_message">Ця вправа буде доступна у наступних версіях додатку.</string>
     <string name="exercise_forehand_name">Накат справа (Forehand Drive)</string>
     <string name="exercise_forehand_desc">Базовий удар справа з ротацією корпусу</string>
+    <string name="exercise_forehand_andrii_name">Накат справа (Андрій)</string>
+    <string name="exercise_forehand_andrii_desc">Форхенд за еталонним ударом Андрія</string>
     <string name="exercise_backhand_name">Накат зліва (Backhand Drive)</string>
     <string name="exercise_backhand_desc">Базовий удар зліва</string>
     <string name="exercise_topspin_name">Топ-спін справа</string>
@@ -552,4 +554,12 @@
     <string name="skill_tip_desc">Почніть з реалістичної цілі та поступово підвищуйте її. Стабільність важливіша за досконалість!</string>
     <string name="save_target">Зберегти ціль</string>
     <string name="target_saved">Ціль успішно збережено!</string>
+
+    <string name="drills_add_custom_cta">Додати свою вправу (калібрування)</string>
+    <string name="drills_custom_name_title">Назвіть вправу</string>
+    <string name="drills_custom_name_hint">напр., Мій форхенд</string>
+    <string name="drills_custom_name_save">Зберегти</string>
+    <string name="drills_custom_default_name">Своя вправа %1$d</string>
+    <string name="drills_custom_category">Своя</string>
+    <string name="drills_custom_saved_toast">Вправу збережено: %1$s</string>
 </resources>

@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.ttcoachai.models.CustomDrillEntity
 import com.ttcoachai.models.DrillConfigEntity
 import com.ttcoachai.models.PersonalBaselineEntity
 import com.ttcoachai.models.TrainingSession
@@ -15,9 +16,10 @@ import com.ttcoachai.models.UserProgress
         TrainingSession::class,
         UserProgress::class,
         PersonalBaselineEntity::class,
-        DrillConfigEntity::class
+        DrillConfigEntity::class,
+        CustomDrillEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(BaselineConverters::class)
@@ -26,6 +28,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun progressDao(): ProgressDao
     abstract fun personalBaselineDao(): PersonalBaselineDao
     abstract fun drillConfigDao(): DrillConfigDao
+    abstract fun customDrillDao(): CustomDrillDao
 
     companion object {
         @Volatile

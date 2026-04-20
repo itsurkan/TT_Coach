@@ -36,6 +36,7 @@ class ExerciseAdapter(
                 // Set icon, tint and background based on exercise ID
                 val (iconRes, iconTint, iconBackground) = when (exercise.id) {
                     "forehand_drive" -> Triple(R.drawable.ic_target, R.color.blue_500, R.drawable.bg_icon_container_blue)
+                    "forehand_andrii" -> Triple(R.drawable.ic_target, R.color.purple_500, R.drawable.bg_icon_container_purple)
                     "backhand_loop" -> Triple(R.drawable.ic_trending_up, R.color.green_500, R.drawable.bg_icon_container_green)
                     "serve_practice" -> Triple(R.drawable.ic_target, R.color.purple_500, R.drawable.bg_icon_container_purple)
                     "footwork_drill" -> Triple(R.drawable.ic_person, R.color.orange_500, R.drawable.bg_icon_container_orange)

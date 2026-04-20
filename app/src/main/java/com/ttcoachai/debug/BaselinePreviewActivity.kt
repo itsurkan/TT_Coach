@@ -4,6 +4,7 @@ import android.animation.ValueAnimator
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.os.Handler
@@ -16,9 +17,11 @@ import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.ttcoachai.BaseActivity
+import com.ttcoachai.MainActivity
 import com.ttcoachai.R
 import com.ttcoachai.databinding.ActivityBaselinePreviewBinding
 import com.ttcoachai.db.AppDatabase
@@ -55,6 +58,7 @@ class BaselinePreviewActivity : BaseActivity() {
     private var isPlaying: Boolean = false
     private var frameIntervalMs: Long = 33L
     private var params: PoseTransformer.EditableParams = PoseTransformer.EditableParams()
+    private var drillType: String = DEFAULT_DRILL_TYPE
 
     /** Target yaw (set by the rotation slider). The displayed yaw chases this via [yawAnimator]. */
     private var targetCameraYawDeg: Float = PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG
@@ -118,6 +122,8 @@ class BaselinePreviewActivity : BaseActivity() {
             return
         }
 
+        drillType = intent.getStringExtra(EXTRA_DRILL_TYPE) ?: DEFAULT_DRILL_TYPE
+
         binding.overlayView.setHumanizationEnabled(true)
         binding.overlayView.setPhaseColoringEnabled(false)
         binding.overlayView.post {
@@ -134,14 +140,18 @@ class BaselinePreviewActivity : BaseActivity() {
         wireRotationButtons()
         applyCameraYawUI(displayedCameraYawDeg)
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() = navigateBackToDrills()
+        })
+
         lifecycleScope.launch { loadAll() }
     }
 
     private suspend fun loadAll() {
         val loaded = runCatching {
-            CanonicalStrokeLoader.loadForehandDrive(this@BaselinePreviewActivity)
+            CanonicalStrokeLoader.load(this@BaselinePreviewActivity, drillType)
         }.getOrElse {
-            Log.e(TAG, "Failed to load canonical stroke", it)
+            Log.e(TAG, "Failed to load canonical stroke for drill=$drillType", it)
             return
         }
         meanStrokeFrames = loaded.frames
@@ -163,7 +173,7 @@ class BaselinePreviewActivity : BaseActivity() {
             binding.overlayView.setHumanizationEnabled(checked)
         }
 
-        params = drillConfigRepo.load(DRILL_TYPE)
+        params = drillConfigRepo.load(drillType)
         syncSlidersToParams()
         renderFrame(0)
         play()
@@ -178,7 +188,7 @@ class BaselinePreviewActivity : BaseActivity() {
         }
         binding.btnSave.setOnClickListener {
             lifecycleScope.launch {
-                withContext(Dispatchers.IO) { drillConfigRepo.save(DRILL_TYPE, params) }
+                withContext(Dispatchers.IO) { drillConfigRepo.save(drillType, params) }
                 Toast.makeText(this@BaselinePreviewActivity, R.string.preview_saved_toast, Toast.LENGTH_SHORT).show()
             }
         }
@@ -328,7 +338,7 @@ class BaselinePreviewActivity : BaseActivity() {
 
     private fun exportParams() {
         val json = JSONObject().apply {
-            put("drillType", DRILL_TYPE)
+            put("drillType", drillType)
             put("viewCameraYawDeg", targetCameraYawDeg.toDouble())
             put("bodyRotationDeltaDeg", params.bodyRotationDeltaDeg.toDouble())
             put("torsoTiltDeltaDeg", params.torsoTiltDeltaDeg.toDouble())
@@ -352,7 +362,18 @@ class BaselinePreviewActivity : BaseActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        finish(); return true
+        navigateBackToDrills(); return true
+    }
+
+    private fun navigateBackToDrills() {
+        if (isTaskRoot) {
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                }
+            )
+        }
+        finish()
     }
 
     private fun isDebuggable(): Boolean =
@@ -360,7 +381,8 @@ class BaselinePreviewActivity : BaseActivity() {
 
     companion object {
         private const val TAG = "BaselinePreview"
-        private const val DRILL_TYPE = "forehand_drive"
+        const val EXTRA_DRILL_TYPE = "drill_type"
+        private const val DEFAULT_DRILL_TYPE = "forehand_drive"
         // Fixture video was 720×1280 (portrait). These must match the fixture
         // header so OverlayView scales poses into the same coordinate system.
         private const val FIXTURE_IMAGE_WIDTH = 720

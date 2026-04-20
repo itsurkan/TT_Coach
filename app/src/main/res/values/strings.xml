@@ -59,6 +59,8 @@
     <string name="exercise_locked_message">This exercise will be available in future versions.</string>
     <string name="exercise_forehand_name">Forehand Drive</string>
     <string name="exercise_forehand_desc">Basic forehand stroke with body rotation</string>
+    <string name="exercise_forehand_andrii_name">Forehand Andrii</string>
+    <string name="exercise_forehand_andrii_desc">Forehand modeled on Andrii\'s captured stroke</string>
     <string name="exercise_backhand_name">Backhand Drive</string>
     <string name="exercise_backhand_desc">Basic backhand stroke</string>
     <string name="exercise_topspin_name">Forehand Topspin</string>
@@ -676,6 +678,13 @@
     <string name="calibration_title">Personal Baseline</string>
     <string name="drill_menu_calibrate">Calibrate</string>
     <string name="drill_menu_edit_ui_mode">Edit in UI mode</string>
+    <string name="drills_add_custom_cta">Add custom drill (calibrate)</string>
+    <string name="drills_custom_name_title">Name this drill</string>
+    <string name="drills_custom_name_hint">e.g. My forehand</string>
+    <string name="drills_custom_name_save">Save</string>
+    <string name="drills_custom_default_name">Custom drill %1$d</string>
+    <string name="drills_custom_category">Custom</string>
+    <string name="drills_custom_saved_toast">Drill saved: %1$s</string>
     <string name="calibration_cta_first_time">Calibrate: Forehand Shadow</string>
     <string name="calibration_cta_recalibrate">Recalibrate (current: %1$d reps, %2$d days old)</string>
     <string name="calibration_onboarding_headline">Set up your camera</string>

@@ -1,5 +1,7 @@
 package com.ttcoachai.calibration
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -46,19 +48,27 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
         PersonalBaselineRepository(AppDatabase.getDatabase(this).personalBaselineDao())
     }
 
-    val drillType: String = DRILL_FOREHAND_SHADOW
+    lateinit var drillType: String
+        private set
 
     companion object {
         private const val TAG = "CalibrationActivity"
 
         // MVP: hardcoded drill type per tasks.md T015 note — handedness selector deferred.
         const val DRILL_FOREHAND_SHADOW = "forehand_shadow"
+
+        /** Optional intent extra to calibrate a specific drill type (e.g. `custom_<ts>`). */
+        const val EXTRA_DRILL_TYPE = "drill_type"
+        /** Result extra: drill type that was saved (only on RESULT_OK). */
+        const val RESULT_EXTRA_DRILL_TYPE = "drill_type"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCalibrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        drillType = intent.getStringExtra(EXTRA_DRILL_TYPE) ?: DRILL_FOREHAND_SHADOW
 
         initializeAnalysis()
         setupToolbar()
@@ -141,6 +151,7 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
     fun exitAfterSave() {
         Toast.makeText(this, R.string.calibration_saved_toast, Toast.LENGTH_SHORT).show()
         calibrationStateManager.discardSession()
+        setResult(Activity.RESULT_OK, Intent().putExtra(RESULT_EXTRA_DRILL_TYPE, drillType))
         finish()
     }
 

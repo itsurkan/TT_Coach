@@ -24,6 +24,13 @@ class ExerciseSelectionActivity : BaseActivity() {
                 duration = getString(R.string.duration_10_15)
             ),
             Exercise(
+                id = "forehand_andrii",
+                name = getString(R.string.exercise_forehand_andrii_name),
+                description = getString(R.string.exercise_forehand_andrii_desc),
+                difficulty = getString(R.string.difficulty_beginner),
+                duration = getString(R.string.duration_10_15)
+            ),
+            Exercise(
                 id = "backhand_drive",
                 name = getString(R.string.exercise_backhand_name),
                 description = getString(R.string.exercise_backhand_desc),

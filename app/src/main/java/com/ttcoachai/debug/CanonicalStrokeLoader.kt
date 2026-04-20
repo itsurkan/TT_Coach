@@ -1,21 +1,18 @@
 package com.ttcoachai.debug
 
 import android.content.Context
-import com.ttcoachai.shared.analysis.MeanStrokeBuilder
+import com.ttcoachai.shared.analysis.CanonicalStrokeBuilder
 import com.ttcoachai.shared.detection.JsonStrokeDetector
 import com.ttcoachai.shared.models.PoseFrame
 
 /**
- * Extracts the canonical stroke for a drill from a bundled pose fixture.
+ * Loads the canonical stroke for a drill: fixture → JsonStrokeDetector →
+ * [CanonicalStrokeBuilder]. Falls back to the raw fixture if the detector
+ * finds no strokes (bad data / config mismatch) so the editor still boots.
  *
- * Per user direction (2026-04-19): calibration output isn't raw frames, it's
- * "one representative rep". Even with N=1 real strokes we build a mean stroke
- * via [MeanStrokeBuilder] so the path generalizes when real multi-rep
- * calibration lands — the editor just gets a time-normalized, averaged
- * sequence.
- *
- * Falls back to the untrimmed fixture if the detector doesn't find any stroke
- * (bad fixture / config mismatch) so the editor at least boots.
+ * Per-drill [CanonicalStrokeBuilder.Config] overrides are looked up by
+ * drillType and fall back to sensible universal defaults. Tune a drill by
+ * adding an entry to [DRILL_CONFIGS] rather than editing the core algorithm.
  */
 object CanonicalStrokeLoader {
 
@@ -23,53 +20,75 @@ object CanonicalStrokeLoader {
         val frames: List<PoseFrame>,
         val intervalMs: Long,
         val strokeCount: Int,
-        val meanStrokeLength: Int
+        val meanStrokeLength: Int,
+        val selectedStrokeIndex: Int?,
+        val motionAmplitude: Float
     )
 
-    fun loadForehandDrive(
+    fun loadForehandDrive(context: Context): Result = load(context, "forehand_drive")
+
+    fun load(
         context: Context,
-        targetLength: Int = MeanStrokeBuilder.DEFAULT_TARGET_LENGTH
+        drillType: String,
+        configOverride: CanonicalStrokeBuilder.Config? = null
     ): Result {
-        val loaded = AssetPoseFrameLoader.load(context, "fixtures/forehand_drive.json")
+        val loaded = AssetPoseFrameLoader.load(context, "fixtures/$drillType.json")
         val detection = JsonStrokeDetector().detect(loaded.frames)
         if (detection.strokes.isEmpty()) {
-            return Result(loaded.frames, loaded.intervalMs, strokeCount = 0, meanStrokeLength = loaded.frames.size)
+            return Result(
+                frames = loaded.frames,
+                intervalMs = loaded.intervalMs,
+                strokeCount = 0,
+                meanStrokeLength = loaded.frames.size,
+                selectedStrokeIndex = null,
+                motionAmplitude = 0f
+            )
         }
-        val mean = MeanStrokeBuilder.build(
-            strokes = detection.strokes,
+
+        val config = configOverride ?: DRILL_CONFIGS[drillType] ?: DEFAULT_CONFIG
+        val built = CanonicalStrokeBuilder.build(
             allFrames = loaded.frames,
-            targetLength = targetLength,
-            intervalMs = loaded.intervalMs
-        )
-        if (mean.isEmpty()) {
-            return Result(loaded.frames, loaded.intervalMs, strokeCount = detection.strokes.size, meanStrokeLength = loaded.frames.size)
-        }
-        // Trim leading setup frames — the detector's stroke boundary includes a
-        // brief stance before the backswing really begins.
-        val trimmed = if (mean.size > FOREHAND_DRIVE_TRIM_LEADING) {
-            mean.drop(FOREHAND_DRIVE_TRIM_LEADING)
-        } else {
-            mean
-        }
-        // Post-process the averaged stroke:
-        //   1. Smooth upper body with a 5-frame centered moving average so the
-        //      loop reads as continuous motion (rep-averaging alone leaves kinks
-        //      where reps don't align frame-by-frame).
-        //   2. Freeze legs to a canonical static stance with a 145° knee angle —
-        //      MediaPipe knee/ankle noise is too high for useful averaging and
-        //      the editor's job is to show the reference shape, not leg motion.
-        val smoothed = UpperBodySmoother.smooth(trimmed)
-        val cleaned = LegCanonicalizer.canonicalize(smoothed, targetKneeAngleDeg = 150f)
-        // Blend the last few frames toward frame 0 so looped playback wraps
-        // without a visible jump between follow-through and ready stance.
-        val looped = LoopBlender.blend(cleaned)
-        return Result(
-            frames = looped,
+            strokes = detection.strokes,
             intervalMs = loaded.intervalMs,
-            strokeCount = detection.strokes.size,
-            meanStrokeLength = looped.size
+            config = config
+        )
+        if (built.frames.isEmpty()) {
+            return Result(
+                frames = loaded.frames,
+                intervalMs = loaded.intervalMs,
+                strokeCount = detection.strokes.size,
+                meanStrokeLength = loaded.frames.size,
+                selectedStrokeIndex = null,
+                motionAmplitude = 0f
+            )
+        }
+        return Result(
+            frames = built.frames,
+            intervalMs = built.intervalMs,
+            strokeCount = built.strokeCount,
+            meanStrokeLength = built.frames.size,
+            selectedStrokeIndex = built.selectedStrokeIndex,
+            motionAmplitude = built.motionAmplitude
         )
     }
 
-    private const val FOREHAND_DRIVE_TRIM_LEADING = 5
+    private val DEFAULT_CONFIG = CanonicalStrokeBuilder.Config(
+        method = CanonicalStrokeBuilder.Method.BEST_REP,
+        phaseAlign = true,
+        smoothingRadius = 1,
+        loopBlend = true,
+        trimLeadingFrames = 0
+    )
+
+    private val DRILL_CONFIGS: Map<String, CanonicalStrokeBuilder.Config> = mapOf(
+        // Short fixture (~2 reps); trim leading ready stance to match the
+        // old-pipeline visual output.
+        "forehand_drive" to DEFAULT_CONFIG.copy(trimLeadingFrames = 5),
+        // Longer fixture (~10+ reps); pick the rep closest to the centroid
+        // and phase-align so timing jitter across reps doesn't wash out motion.
+        "forehand_andrii" to DEFAULT_CONFIG.copy(
+            method = CanonicalStrokeBuilder.Method.BEST_REP,
+            phaseAlign = true
+        )
+    )
 }
