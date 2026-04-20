@@ -1,0 +1,314 @@
+/**
+ * Extract a [PoseAnchor] from a raw MediaPipe 33-landmark pose.
+ *
+ * Used for bootstrapping a drill anchor from a recorded frame (e.g. pick
+ * frame 42 of andrii_1_poses.json as the START anchor). All measurements
+ * are done in the landmark's native normalized coordinate system, so the
+ * output plugs straight into [reconstructFromAnchor] without rescaling.
+ *
+ * Note: `rightForearmTwistDeg` is set to 0 — measuring twist reliably
+ * requires clean 3D finger geometry, which MediaPipe's Z-axis doesn't
+ * provide. Users adjust it manually after import.
+ */
+
+import type { PoseAnchor, LimbDirections } from './PoseAnchor'
+import type { Landmark } from '../types'
+import { LM } from './SkeletonModel'
+import type { BoneLengthsOverride } from './skeletonReconstructor'
+
+/** Compute a unit direction vector from the landmark at `fromIdx` to `toIdx`. */
+function unitDir(lms: Landmark[], fromIdx: number, toIdx: number): [number, number, number] {
+  const a = lms[fromIdx], b = lms[toIdx]
+  const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z
+  const len = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1e-9
+  return [dx / len, dy / len, dz / len]
+}
+
+/**
+ * Extract unit direction vectors for every major limb bone. Storing these
+ * alongside the angle-based anchor lets FK reproduce the source pose with
+ * near-zero error — no decomposition math, no trig loss.
+ */
+export function extractLimbDirections(lms: Landmark[]): LimbDirections {
+  const hipMid = { x: (lms[LM.L_HIP].x + lms[LM.R_HIP].x) / 2, y: (lms[LM.L_HIP].y + lms[LM.R_HIP].y) / 2, z: (lms[LM.L_HIP].z + lms[LM.R_HIP].z) / 2 }
+  const shMid  = { x: (lms[LM.L_SHOULDER].x + lms[LM.R_SHOULDER].x) / 2, y: (lms[LM.L_SHOULDER].y + lms[LM.R_SHOULDER].y) / 2, z: (lms[LM.L_SHOULDER].z + lms[LM.R_SHOULDER].z) / 2 }
+  const torsoVec = { x: shMid.x - hipMid.x, y: shMid.y - hipMid.y, z: shMid.z - hipMid.z }
+  const torsoLen = Math.hypot(torsoVec.x, torsoVec.y, torsoVec.z) || 1e-9
+  return {
+    leftThigh:     unitDir(lms, LM.L_HIP,      LM.L_KNEE),
+    rightThigh:    unitDir(lms, LM.R_HIP,      LM.R_KNEE),
+    leftShin:      unitDir(lms, LM.L_KNEE,     LM.L_ANKLE),
+    rightShin:     unitDir(lms, LM.R_KNEE,     LM.R_ANKLE),
+    leftUpperArm:  unitDir(lms, LM.L_SHOULDER, LM.L_ELBOW),
+    rightUpperArm: unitDir(lms, LM.R_SHOULDER, LM.R_ELBOW),
+    leftForearm:   unitDir(lms, LM.L_ELBOW,    LM.L_WRIST),
+    rightForearm:  unitDir(lms, LM.R_ELBOW,    LM.R_WRIST),
+    leftFoot:      unitDir(lms, LM.L_ANKLE,    LM.L_FOOT),
+    rightFoot:     unitDir(lms, LM.R_ANKLE,    LM.R_FOOT),
+    torsoUp:       [torsoVec.x / torsoLen, torsoVec.y / torsoLen, torsoVec.z / torsoLen],
+  }
+}
+
+const clamp = (v: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, v))
+
+type V3 = { x: number; y: number; z: number }
+
+const toV3 = (l: Landmark): V3 => ({ x: l.x, y: l.y, z: l.z })
+const sub = (a: V3, b: V3): V3 => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z })
+const mid = (a: V3, b: V3): V3 => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 })
+
+function length(v: V3): number {
+  return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z)
+}
+
+/** Angle between two vectors in degrees (unsigned, 0..180). */
+function angleBetween(a: V3, b: V3): number {
+  const dot = a.x * b.x + a.y * b.y + a.z * b.z
+  const m = length(a) * length(b)
+  if (m < 1e-9) return 0
+  const c = Math.max(-1, Math.min(1, dot / m))
+  return (Math.acos(c) * 180) / Math.PI
+}
+
+/**
+ * Compute bone-length overrides from raw landmarks so reconstructing with
+ * these lengths will MATCH the source pose's scale exactly. Used for tests
+ * and any "faithful replay" mode that wants the canonical FK math but with
+ * the player's actual bone proportions.
+ */
+export function extractBoneLengths(lms: Landmark[]): BoneLengthsOverride {
+  const lHip = lms[LM.L_HIP], rHip = lms[LM.R_HIP]
+  const lSh = lms[LM.L_SHOULDER], rSh = lms[LM.R_SHOULDER]
+  const hipMid = { x: (lHip.x + rHip.x) / 2, y: (lHip.y + rHip.y) / 2, z: (lHip.z + rHip.z) / 2 }
+  const shMid  = { x: (lSh.x + rSh.x) / 2,  y: (lSh.y + rSh.y) / 2,  z: (lSh.z + rSh.z) / 2 }
+  const dist = (a: Landmark, b: Landmark) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z)
+  return {
+    torso: Math.hypot(shMid.x - hipMid.x, shMid.y - hipMid.y, shMid.z - hipMid.z),
+    shoulderWidth: dist(lSh, rSh),
+    hipWidth: dist(lHip, rHip),
+    upperArm: (dist(lSh, lms[LM.L_ELBOW]) + dist(rSh, lms[LM.R_ELBOW])) / 2,
+    forearm:  (dist(lms[LM.L_ELBOW], lms[LM.L_WRIST]) + dist(lms[LM.R_ELBOW], lms[LM.R_WRIST])) / 2,
+    thigh:    (dist(lHip, lms[LM.L_KNEE]) + dist(rHip, lms[LM.R_KNEE])) / 2,
+    shin:     (dist(lms[LM.L_KNEE], lms[LM.L_ANKLE]) + dist(lms[LM.R_KNEE], lms[LM.R_ANKLE])) / 2,
+    footForward: (dist(lms[LM.L_ANKLE], lms[LM.L_FOOT]) + dist(lms[LM.R_ANKLE], lms[LM.R_FOOT])) / 2,
+    headToShoulder: dist(lms[LM.NOSE], { ...lSh, x: (lSh.x + rSh.x)/2, y: (lSh.y + rSh.y)/2, z: (lSh.z + rSh.z)/2 }),
+  }
+}
+
+export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
+  const get = (i: number): V3 => toV3(lms[i])
+
+  const lHip = get(LM.L_HIP); const rHip = get(LM.R_HIP)
+  const lSh  = get(LM.L_SHOULDER); const rSh = get(LM.R_SHOULDER)
+  const rElbow = get(LM.R_ELBOW); const rWrist = get(LM.R_WRIST); const rIndex = get(LM.R_INDEX)
+  const lElbow = get(LM.L_ELBOW); const lWrist = get(LM.L_WRIST); const lIndex = get(LM.L_INDEX)
+  const lKnee = get(LM.L_KNEE);  const rKnee = get(LM.R_KNEE)
+  const lAnkle = get(LM.L_ANKLE); const rAnkle = get(LM.R_ANKLE)
+  const lFootTip = get(LM.L_FOOT); const rFootTip = get(LM.R_FOOT)
+
+  const hipMid = mid(lHip, rHip)
+  const shMid  = mid(lSh, rSh)
+
+  // Body rotation: yaw in the XZ plane, averaged across hip and shoulder
+  // axes for robustness — MediaPipe z is noisy, so using only one axis
+  // amplifies that noise. The sign is also flipped vs the naive
+  // `atan2(hipAxis.z, hipAxis.x)`: FK's bodyRotation convention has positive
+  // values rotating the body so its L side goes TOWARD the camera (−z), which
+  // makes lHip.z < rHip.z, so hipAxis.z = lHip.z−rHip.z < 0 — we negate to
+  // match. Weighting by 2D magnitude down-weights axes that collapse (e.g.,
+  // torso bent far forward makes shoulder axis less reliable).
+  const hipAxis = sub(lHip, rHip)
+  const shAxis  = sub(lSh, rSh)
+  const hipMag2D = Math.hypot(hipAxis.x, hipAxis.z)
+  const shMag2D  = Math.hypot(shAxis.x, shAxis.z)
+  const totalMag = hipMag2D + shMag2D || 1
+  const hipYaw = Math.atan2(-hipAxis.z, hipAxis.x)
+  const shYaw  = Math.atan2(-shAxis.z,  shAxis.x)
+  const bodyRotationDeg = ((hipYaw * hipMag2D + shYaw * shMag2D) / totalMag) * 180 / Math.PI
+
+  // Torso tilt: angle between torso vector and body-up direction (world up is
+  // OK here since body up tracks world up up to small pitch/roll, and we
+  // separately measure yaw as bodyRotation). The z-component dominates for a
+  // heavy forward bend which over-estimates tilt due to MediaPipe z noise, so
+  // we dampen z to half weight — brings extracted tilt closer to what FK can
+  // reproduce in 2D projection.
+  const torso = sub(shMid, hipMid) // points upward from hip
+  const torsoDamped: V3 = { x: torso.x, y: torso.y, z: torso.z * 0.5 }
+  const upRef: V3 = { x: 0, y: -1, z: 0 }
+  let torsoTiltDeg = angleBetween(torsoDamped, upRef)
+  if (torso.z > 0) torsoTiltDeg = -torsoTiltDeg
+
+  // Arm chain (right side).
+  const rUpperArm = sub(rElbow, rSh)
+  const rForearm = sub(rWrist, rElbow)
+  const rWristToIndex = sub(rIndex, rWrist)
+
+  // Body-frame axes used for shoulder decomposition below.
+  // Duplicated on purpose — this block runs before `bodyRad`/`cosB`/`sinB`
+  // are defined for thighs. Keeping consts local so TS doesn't complain.
+  const _bodyRad = (bodyRotationDeg * Math.PI) / 180
+  const _cosB = Math.cos(_bodyRad), _sinB = Math.sin(_bodyRad)
+  const _forwardX = -_sinB, _forwardZ = -_cosB
+  const _acrossX = _cosB, _acrossZ = -_sinB
+
+  // MediaPipe z is noisy — dampen it by 50% in all limb decompositions so
+  // noisy depth doesn't inflate extracted flexion/abduction angles.
+  const Z_DAMP = 0.5
+
+  /**
+   * Decompose an upper-arm vector (shoulder → elbow) into forward flexion and
+   * sideways abduction angles. Mirrors the thigh decomposition below so the
+   * FK chain reproduces the correct 3D direction (not just a projected sum).
+   */
+  const decomposeArm = (arm: V3, abSignForAbduction: number) => {
+    const zDamped: V3 = { x: arm.x, y: arm.y, z: arm.z * Z_DAMP }
+    const L = length(zDamped) || 1e-9
+    const vert = zDamped.y / L
+    const fwd = (zDamped.x * _forwardX + zDamped.z * _forwardZ) / L
+    const acr = (zDamped.x * _acrossX + zDamped.z * _acrossZ) / L
+    // Inverse of FK rotation chain: v = (sin(ab), cos(ab)*cos(flex), −cos(ab)*sin(flex)).
+    // So ab = asin(acr) (abduction fully determines the across component),
+    // and flex = atan2(fwd, vert) (flex is independent of ab in the y/forward ratio).
+    const acrClamped = Math.max(-1, Math.min(1, abSignForAbduction * acr))
+    const abduct = (Math.asin(acrClamped) * 180) / Math.PI
+    const flex = (Math.atan2(fwd, vert) * 180) / Math.PI
+    return { flex, abduct }
+  }
+
+  const rArmDecomp = decomposeArm(rUpperArm, -1) // right: flip sign for -across
+  const lArmDecomp = decomposeArm(sub(lElbow, lSh), +1)
+  const rightShoulderAngleDeg     = rArmDecomp.flex
+  const rightShoulderAbductionDeg = rArmDecomp.abduct
+  const leftShoulderAngleDeg      = lArmDecomp.flex
+  const leftShoulderAbductionDeg  = lArmDecomp.abduct
+
+  // Elbow + wrist — interior angles.
+  const rightElbowAngleDeg = angleBetween(sub(rSh, rElbow), rForearm)
+  const rightWristAngleDeg = angleBetween(sub(rElbow, rWrist), rWristToIndex)
+  const leftElbowAngleDeg  = angleBetween(sub(lSh, lElbow), sub(lWrist, lElbow))
+  const leftWristAngleDeg  = angleBetween(sub(lElbow, lWrist), sub(lIndex, lWrist))
+
+  // Knee angles.
+  const leftKneeAngleDeg  = angleBetween(sub(lHip, lKnee), sub(lAnkle, lKnee))
+  const rightKneeAngleDeg = angleBetween(sub(rHip, rKnee), sub(rAnkle, rKnee))
+
+  // Thigh flexion + abduction — decomposed in the BODY FRAME. `forward` and
+  // `across` here mirror the FK's body-frame construction from bodyRotationDeg.
+  const bodyRad = (bodyRotationDeg * Math.PI) / 180
+  const cosB = Math.cos(bodyRad); const sinB = Math.sin(bodyRad)
+  // forward = rotY([0,0,-1], bodyRot)
+  const forwardX = -sinB, forwardZ = -cosB
+  // across = rotY([1,0,0], bodyRot)
+  const acrossX = cosB, acrossZ = -sinB
+
+  const decomposeThigh = (thigh: V3) => {
+    // Same z-dampening rationale as the arm decomposition above.
+    const z = thigh.z * Z_DAMP
+    const len = Math.sqrt(thigh.x * thigh.x + thigh.y * thigh.y + z * z) || 1e-9
+    const vert = thigh.y / len
+    const fwd = (thigh.x * forwardX + z * forwardZ) / len
+    const acr = (thigh.x * acrossX + z * acrossZ) / len
+    return { vert, fwd, acr }
+  }
+
+  const rD = decomposeThigh(sub(rKnee, rHip))
+  const lD = decomposeThigh(sub(lKnee, lHip))
+  // Forward flexion: how far the thigh tilts toward body-forward vs straight down.
+  const rightThighForwardDeg = (Math.atan2(rD.fwd, rD.vert) * 180) / Math.PI
+  const leftThighForwardDeg  = (Math.atan2(lD.fwd, lD.vert) * 180) / Math.PI
+  // Abduction: must use asin (not atan2), matching FK's rotation-chain math.
+  // atan2(acr, vert) over-estimates because vert shrinks as flex grows, but
+  // abduction is a pure "across" rotation — determined entirely by the
+  // across component of the unit direction. See decomposeArm above.
+  const rightThighAbductionDeg = (Math.asin(Math.max(-1, Math.min(1, -rD.acr))) * 180) / Math.PI
+  const leftThighAbductionDeg  = (Math.asin(Math.max(-1, Math.min(1,  lD.acr))) * 180) / Math.PI
+
+  // Foot yaws: direction of ankle→foot_tip in the horizontal (XZ) plane,
+  // relative to "body forward" (−z when bodyRotation = 0).
+  const leftFootDir  = sub(lFootTip, lAnkle)
+  const rightFootDir = sub(rFootTip, rAnkle)
+  const leftFootYawDeg  = (Math.atan2(leftFootDir.x, -leftFootDir.z)  * 180) / Math.PI
+  const rightFootYawDeg = (Math.atan2(rightFootDir.x, -rightFootDir.z) * 180) / Math.PI
+
+  const stanceWidthNorm = length(sub(lAnkle, rAnkle))
+
+  return {
+    bodyRotationDeg: clamp(bodyRotationDeg, -90, 90),
+    torsoTiltDeg: clamp(torsoTiltDeg, -90, 90),
+    rightShoulderAngleDeg: clamp(rightShoulderAngleDeg, -30, 180),
+    rightShoulderAbductionDeg: clamp(rightShoulderAbductionDeg, -30, 180),
+    rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),
+    rightWristAngleDeg: clamp(rightWristAngleDeg, 60, 180),
+    rightForearmTwistDeg: 0, // unreliable from MediaPipe
+    leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
+    leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
+    leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
+    leftWristAngleDeg: clamp(leftWristAngleDeg, 60, 180),
+    leftForearmTwistDeg: 0,
+    leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
+    rightThighForwardDeg: clamp(rightThighForwardDeg, -30, 120),
+    leftThighAbductionDeg: clamp(leftThighAbductionDeg, -30, 80),
+    rightThighAbductionDeg: clamp(rightThighAbductionDeg, -30, 80),
+    leftKneeAngleDeg: clamp(leftKneeAngleDeg, 30, 180),
+    rightKneeAngleDeg: clamp(rightKneeAngleDeg, 30, 180),
+    leftFootYawDeg: clamp(leftFootYawDeg, -90, 90),
+    rightFootYawDeg: clamp(rightFootYawDeg, -90, 90),
+    stanceWidthNorm: clamp(stanceWidthNorm, 0.05, 0.7),
+    hipMidX: clamp(hipMid.x, 0.2, 0.8),
+    hipMidY: clamp(hipMid.y, 0.2, 0.7),
+  }
+}
+
+export interface PoseFixtureFrame {
+  frameIndex: number
+  timestampMs: number
+  landmarks: Landmark[]
+}
+
+export interface PoseFixture {
+  intervalMs: number
+  totalFrames: number
+  frames: PoseFixtureFrame[]
+}
+
+/**
+ * Normalize a fixture-file JSON object into the shape we consume.
+ * Tolerates `landmarks` being either an array of {x,y,z,visibility,presence}
+ * objects or an array of [x,y,z,v,p] tuples — same rules as App.tsx.
+ */
+export function parsePoseFixture(raw: unknown): PoseFixture {
+  const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>
+  const intervalMs = Number(r.intervalMs ?? r.interval_ms ?? 100)
+  const totalFrames = Number(r.totalFrames ?? r.total_frames ?? 0)
+  const rawFrames = Array.isArray(r.frames) ? r.frames : []
+  const frames: PoseFixtureFrame[] = rawFrames.map((rf, idx) => {
+    const f = (rf && typeof rf === 'object' ? rf : {}) as Record<string, unknown>
+    const rawLms = (f.landmarks ?? f.poseLandmarks ?? []) as unknown
+    const landmarks = Array.isArray(rawLms) ? rawLms.map((item, i) => parseLm(item, i)) : []
+    return {
+      frameIndex: Number(f.frameIndex ?? f.frame_index ?? idx),
+      timestampMs: Number(f.timestampMs ?? f.timestamp_ms ?? idx * intervalMs),
+      landmarks,
+    }
+  })
+  return { intervalMs, totalFrames: totalFrames || frames.length, frames }
+}
+
+function parseLm(item: unknown, index: number): Landmark {
+  if (Array.isArray(item)) {
+    const [x, y, z, v, p] = item
+    return {
+      index,
+      x: Number(x), y: Number(y), z: Number(z),
+      visibility: Number(v ?? 1), presence: Number(p ?? 1),
+    }
+  }
+  const o = (item && typeof item === 'object' ? item : {}) as Record<string, unknown>
+  return {
+    index: Number(o.index ?? index),
+    x: Number(o.x ?? 0), y: Number(o.y ?? 0), z: Number(o.z ?? 0),
+    visibility: Number(o.visibility ?? 1),
+    presence: Number(o.presence ?? 1),
+  }
+}

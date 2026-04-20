@@ -22,6 +22,8 @@ import TableGridOverlay from './components/TableGridOverlay'
 import TableDetectOverlay from "./components/TableDetectOverlay"
 import TableLabelsOverlay from './components/TableLabelsOverlay'
 import DatasetBrowser from './components/DatasetBrowser'
+import DrillEditor from './components/DrillEditor'
+import Drill2Preview from './components/Drill2Preview'
 
 function toNumber(value: unknown, fallback = 0): number {
   const num = Number(value)
@@ -257,6 +259,8 @@ export default function App() {
   const [trajectory3D, setTrajectory3D] = useState<Trajectory3DResult | null>(null)
   const [videoList, setVideoList] = useState<{ name: string; ext: string }[]>([])
   const [showDatasetBrowser, setShowDatasetBrowser] = useState(false)
+  const [showDrillEditor, setShowDrillEditor] = useState(false)
+  const [showDrill2, setShowDrill2] = useState(false)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const isPanning = useRef(false)
@@ -1028,6 +1032,14 @@ export default function App() {
     return <DatasetBrowser onClose={() => setShowDatasetBrowser(false)} />
   }
 
+  if (showDrillEditor) {
+    return <DrillEditor onClose={() => setShowDrillEditor(false)} />
+  }
+
+  if (showDrill2) {
+    return <Drill2Preview onClose={() => setShowDrill2(false)} />
+  }
+
   return (
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col select-none overflow-hidden">
 
@@ -1040,6 +1052,22 @@ export default function App() {
           Open Video
           <input type="file" accept="video/*,.mp4,.MP4,.mov,.webm" className="hidden" onChange={handleVideoFile} />
         </label>
+
+        <button
+          className="bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded text-sm"
+          onClick={() => setShowDrillEditor(true)}
+          title="Create a new drill from scratch (anchor-based)"
+        >
+          + New Drill
+        </button>
+
+        <button
+          className="bg-fuchsia-700 hover:bg-fuchsia-600 px-3 py-1.5 rounded text-sm"
+          onClick={() => setShowDrill2(true)}
+          title="Animate frame 57 → 63 from andrii_1 poses"
+        >
+          + Add Drill 2
+        </button>
 
         {videoList.length > 0 && (
           <select
