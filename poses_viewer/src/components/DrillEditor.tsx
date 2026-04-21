@@ -120,13 +120,6 @@ export default function DrillEditor({ onClose }: Props) {
   // person doing a single stroke.
   const [bonesOverride, setBonesOverride] = useState<BoneLengthsOverride | null>(null)
 
-  // STABLE reference landmarks for figure-height calibration in the 3D
-  // mannequin. Computed once from the fixture's "tallest" (most upright)
-  // frame so mannequin bone lengths stay consistent across all frames —
-  // otherwise a bent pose's short nose-to-ankle Y span collapses H and
-  // produces comically short limbs on one frame and elongated on another.
-  const [stableReferenceLms, setStableReferenceLms] = useState<import('../types').Landmark[] | null>(null)
-
   const activeAnchor = activePhase === 'START' ? startAnchor : endAnchor
   const setActiveAnchor = (a: PoseAnchor) => {
     if (activePhase === 'START') setStartAnchor(a)
@@ -144,22 +137,6 @@ export default function DrillEditor({ onClose }: Props) {
         const resp = await fetch(FIXTURE_URL)
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
         fixtureCacheRef.current = parsePoseFixture(await resp.json())
-        // Pick the "tallest" frame (max nose-to-ankle Y span) as the stable
-        // reference for mannequin figure-height. Standing poses give the
-        // most reliable H; bent/crouched poses under-estimate it.
-        let bestIdx = 0, bestSpan = -Infinity
-        for (let i = 0; i < fixtureCacheRef.current.frames.length; i++) {
-          const f = fixtureCacheRef.current.frames[i]
-          const lms2 = f.landmarks
-          if (!lms2 || lms2.length < 33) continue
-          const nose = lms2[0]
-          const lAnk = lms2[27]; const rAnk = lms2[28]
-          if (!nose || !lAnk || !rAnk) continue
-          const span = Math.max(lAnk.y, rAnk.y) - nose.y
-          if (span > bestSpan) { bestSpan = span; bestIdx = i }
-        }
-        const ref = fixtureCacheRef.current.frames[bestIdx].landmarks
-        if (ref && ref.length >= 33) setStableReferenceLms(ref)
       }
       const fixture = fixtureCacheRef.current
       const total = fixture.frames.length
@@ -311,8 +288,9 @@ export default function DrillEditor({ onClose }: Props) {
             >
               {humanize && displayedLandmarks && displayedLandmarks.length >= 33 ? (
                 <Drill2Mannequin
-                  lms={displayedLandmarks}
-                  referenceLms={stableReferenceLms ?? displayedLandmarks}
+                  startLms={displayedLandmarks}
+                  endLms={displayedLandmarks}
+                  phase={0}
                   width={560}
                   height={760}
                 />

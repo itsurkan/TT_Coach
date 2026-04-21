@@ -3,22 +3,28 @@
 // in Dabral et al. "Learning 3D Human Pose from Structure and Motion"
 // (ECCV 2018): wooden posing-doll aesthetic, one directional light.
 //
-// Bone lengths are taken from a fixed anthropometric table (Drillis & Contini
-// 1966, adult mean) scaled by the reference pose's figure height, and applied
-// as a `fit_standard_skeleton` rebuild each frame. The lerped MediaPipe pose
-// only contributes joint *directions* — bone *lengths* never change, so the
-// knee always sits at the midpoint of the leg, shoulder width is constant, etc.
+// Bone lengths come from a fixed anthropometric table (Drillis & Contini 1966,
+// adult mean) scaled by a constant 1.7 m figure height, and applied as a
+// `fit_standard_skeleton` rebuild each frame. The lerped MediaPipe pose only
+// contributes joint *directions* — bone *lengths* never change. The skeleton
+// is hip-rooted (mid-hip at origin, every other joint grown outward), so
+// feet land wherever the rebuild puts them; proportions always win.
 
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { Grid, OrbitControls } from '@react-three/drei'
 import { useMemo } from 'react'
 import * as THREE from 'three'
 
 type Landmark = { x: number; y: number; z?: number; visibility?: number }
 
-const COLOR = '#ece8df'         // warm cream, matches the paper's mannequins
+// Doll stays uniformly matte-cream; joints are a touch darker in the same hue
+// family so articulation reads without introducing a decorative palette.
+const COLOR_BODY  = '#ece8df'   // warm cream — bones + head
+const COLOR_JOINT = '#cec2a9'   // same hue, ~10% darker — all joint spheres
 const ROUGHNESS = 0.7
-const WORLD_HEIGHT = 1.7        // world-space multiplier for normalized landmarks
+const H = 1.7                   // figure height in world units — also the scale
+                                // factor applied to normalized landmark coords.
+                                // Constant so body proportions are invariant.
 
 // MediaPipe indices we consume.
 const NOSE = 0
@@ -68,47 +74,96 @@ const RADIUS = {
 
 const UP = new THREE.Vector3(0, 1, 0)
 
-function toWorldLandmarks(lms: Landmark[]): THREE.Vector3[] {
+// Spherical linear interpolation between two direction vectors on the unit
+// sphere. Used to animate bone orientations along great-circle arcs so joints
+// rotate through arcs (what real anatomy does) instead of chord-lerping, which
+// would dip limbs through the body mid-sweep.
+function slerpDir(a: THREE.Vector3, b: THREE.Vector3, t: number): THREE.Vector3 {
+  const an = a.clone().normalize()
+  const bn = b.clone().normalize()
+  const dot = Math.max(-1, Math.min(1, an.dot(bn)))
+  if (dot > 0.9995) return an.lerp(bn, t).normalize()
+  if (dot < -0.9995) {
+    const ortho = Math.abs(an.x) < 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
+    const axis = new THREE.Vector3().crossVectors(an, ortho).normalize()
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, Math.PI * t)
+    return an.clone().applyQuaternion(q)
+  }
+  const omega = Math.acos(dot)
+  const sinOmega = Math.sin(omega)
+  const a0 = Math.sin((1 - t) * omega) / sinOmega
+  const b0 = Math.sin(t * omega) / sinOmega
+  return new THREE.Vector3(
+    an.x * a0 + bn.x * b0,
+    an.y * a0 + bn.y * b0,
+    an.z * a0 + bn.z * b0,
+  ).normalize()
+}
+
+// Returns the component of `kneeHint − hip` perpendicular to the hip→ankle
+// direction. This is the knee-bend perpendicular for one endpoint pose. Used
+// in `buildFixedSkeleton` to SLERP the bend plane between start and end so
+// knees rotate naturally without the thigh swinging through 180°.
+function kneePerpAt(
+  hip: THREE.Vector3,
+  ankle: THREE.Vector3,
+  kneeHint: THREE.Vector3,
+): THREE.Vector3 {
+  const along = ankle.clone().sub(hip)
+  const d = along.length()
+  if (d < 1e-6) return UP.clone().negate()
+  along.divideScalar(d)
+  const hint = kneeHint.clone().sub(hip)
+  const perp = hint.clone().sub(along.clone().multiplyScalar(hint.dot(along)))
+  if (perp.lengthSq() < 1e-8) {
+    const forward = new THREE.Vector3(0, 0, -1)
+    const tangent = forward.clone().sub(along.clone().multiplyScalar(forward.dot(along)))
+    return tangent.lengthSq() > 1e-10 ? tangent.normalize() : UP.clone().negate()
+  }
+  return perp.normalize()
+}
+
+function toWorldLandmarks(lms: Landmark[], zScale = 1): THREE.Vector3[] {
   // Center on hip midpoint, flip Y (MediaPipe y grows down), flip Z (camera
   // convention: +Z toward viewer in three.js, while MediaPipe z is negative
-  // toward camera).
+  // toward camera). Scale by H so normalized coords become metres.
+  // zScale < 1 suppresses noisy depth estimates (e.g. side-on camera views).
   const hipMidX = (lms[L_HIP].x + lms[R_HIP].x) / 2
   const hipMidY = (lms[L_HIP].y + lms[R_HIP].y) / 2
   const hipMidZ = ((lms[L_HIP].z ?? 0) + (lms[R_HIP].z ?? 0)) / 2
   return lms.map(l =>
     new THREE.Vector3(
-      (l.x - hipMidX) * WORLD_HEIGHT,
-      -(l.y - hipMidY) * WORLD_HEIGHT,
-      -((l.z ?? 0) - hipMidZ) * WORLD_HEIGHT,
+      (l.x - hipMidX) * H,
+      -(l.y - hipMidY) * H,
+      -((l.z ?? 0) - hipMidZ) * H * zScale,
     ),
   )
 }
 
-// Total figure height derived from a reference pose. Nose sits at ≈ 82% of
-// body height in adult anthropometry, so H = (nose-to-ankle Y) / 0.82.
-// Uses Y only — avoids the z-dominance issue we saw in this dataset.
-function deriveFigureHeight(ref: THREE.Vector3[]): number {
-  const topY = ref[NOSE].y
-  const bottomY = Math.min(ref[L_ANKLE].y, ref[R_ANKLE].y)
-  const span = Math.max(topY - bottomY, 1e-3)
-  return span / 0.82
-}
-
-// Rebuild the skeleton with fixed bone lengths, preserving only the directions
-// from the lerped pose. Ankle-rooted: both ankles stay pinned at the reference
-// positions, legs build UPWARD (ankle → knee → hip), hips derive mid-hip, and
-// the upper body builds from there. Feet therefore stay planted through the
-// whole animation; hip height follows naturally from leg flex (crouch = hip
-// drops, because the leg angles shorten the vertical reach of the chain).
+// Rebuild the skeleton with fixed anthropometric bone lengths. Bone
+// *orientations* are SLERPed between the start-pose and end-pose so joints
+// rotate through great-circle arcs (not chords through the body). Legs use
+// 2-link IK from each frame's moving hip to a **median-anchored ankle** —
+// stable across the whole pose file, immune to per-frame MediaPipe noise.
+// Knee direction and toe direction are derived from the body-forward vector
+// (perpendicular to the SLERPed hip line) so no raw knee/foot landmarks are
+// read at all.
 //
-// This is the `fit_standard_skeleton` idea from Dabral et al. ECCV 2018,
-// re-rooted at the feet to satisfy a "feet don't slide" constraint.
+// Hip-rooted: mid-hip stays at the origin and every other joint grows
+// outward along its SLERPed direction by its fixed bone length.
+type AnkleAnchors = { L: { x: number; y: number; z: number }; R: { x: number; y: number; z: number } } | null
 function buildFixedSkeleton(
-  lerped: THREE.Vector3[],
-  H: number,
-  pinnedAnkles: { L: THREE.Vector3; R: THREE.Vector3 },
+  startLms: Landmark[],
+  startW: THREE.Vector3[],
+  endW: THREE.Vector3[],
+  phase: number,
+  ankleAnchors: AnkleAnchors,
+  zScale = 1,
 ): THREE.Vector3[] {
-  const out: THREE.Vector3[] = lerped.map(v => v.clone())
+  // Default positions for landmarks the skeleton rebuild doesn't touch
+  // (eyes, ears, mouth, fingers): a simple position-lerp between endpoints.
+  // Every landmark used by `Mannequin` gets overwritten below.
+  const out: THREE.Vector3[] = startW.map((s, i) => s.clone().lerp(endW[i], phase))
 
   const dirOf = (from: THREE.Vector3, to: THREE.Vector3): THREE.Vector3 => {
     const d = new THREE.Vector3().subVectors(to, from)
@@ -117,59 +172,151 @@ function buildFixedSkeleton(
   }
   const placeAt = (parentNew: THREE.Vector3, dir: THREE.Vector3, len: number): THREE.Vector3 =>
     parentNew.clone().add(dir.clone().multiplyScalar(len))
+  // SLERPed bone orientation for a given (from, to) landmark pair.
+  const boneDir = (a: number, b: number): THREE.Vector3 =>
+    slerpDir(dirOf(startW[a], startW[b]), dirOf(endW[a], endW[b]), phase)
 
-  // Pinned ankles — anchor of the whole chain.
-  out[L_ANKLE] = pinnedAnkles.L.clone()
-  out[R_ANKLE] = pinnedAnkles.R.clone()
+  // Root: mid-hip at the origin.
+  const midHipR = new THREE.Vector3(0, 0, 0)
 
-  // Legs, going UP from the pinned ankles.
-  out[L_KNEE] = placeAt(out[L_ANKLE], dirOf(lerped[L_ANKLE], lerped[L_KNEE]), ANTHRO.shin * H)
-  out[R_KNEE] = placeAt(out[R_ANKLE], dirOf(lerped[R_ANKLE], lerped[R_KNEE]), ANTHRO.shin * H)
-  out[L_HIP]  = placeAt(out[L_KNEE],  dirOf(lerped[L_KNEE],  lerped[L_HIP]),  ANTHRO.thigh * H)
-  out[R_HIP]  = placeAt(out[R_KNEE],  dirOf(lerped[R_KNEE],  lerped[R_HIP]),  ANTHRO.thigh * H)
-
-  // Feet (toes): extend forward from the pinned ankles along the lerped
-  // foot direction. Ankles never move; only toe direction changes.
-  out[L_FOOT] = placeAt(out[L_ANKLE], dirOf(lerped[L_ANKLE], lerped[L_FOOT]), ANTHRO.foot * H)
-  out[R_FOOT] = placeAt(out[R_ANKLE], dirOf(lerped[R_ANKLE], lerped[R_FOOT]), ANTHRO.foot * H)
-
-  // Mid-hip from the two leg-chain hips, then re-place both hips symmetrically
-  // around it so the pelvis bar stays at the anthropometric hip width (0.191·H)
-  // no matter what the leg angles do. Thighs will render from these corrected
-  // hips to the leg-chain knees, so thigh length may drift by a tiny amount
-  // under very asymmetric stances — acceptable for the constant-torso goal.
-  const midHipR = out[L_HIP].clone().add(out[R_HIP]).multiplyScalar(0.5)
-  const hipLineDir = dirOf(lerped[R_HIP], lerped[L_HIP])
+  // Hips: mirror pair around mid-hip along the SLERPed hip-line direction.
+  const hipLineDir = boneDir(R_HIP, L_HIP)
   out[L_HIP] = placeAt(midHipR, hipLineDir, ANTHRO.hipHalf * H)
   out[R_HIP] = placeAt(midHipR, hipLineDir.clone().negate(), ANTHRO.hipHalf * H)
 
-  // Spine direction from the lerped pose (shoulders relative to hips).
-  const midHipL = lerped[L_HIP].clone().add(lerped[R_HIP]).multiplyScalar(0.5)
-  const midShL  = lerped[L_SHOULDER].clone().add(lerped[R_SHOULDER]).multiplyScalar(0.5)
-  const spineDir = dirOf(midHipL, midShL)
-  const midShR   = placeAt(midHipR, spineDir, ANTHRO.spine * H)
+  // Floor plane: lower of the two START-pose ankle y's. Anchors are always
+  // pinned to this Y so the floor doesn't slide as the animation progresses.
+  const floorY = Math.min(startW[L_ANKLE].y, startW[R_ANKLE].y)
 
-  // Shoulders: mirror pair around the rebuilt mid-shoulder, along the lerped
-  // shoulder-line direction so chest width stays exactly 2 × shoulderHalf × H.
-  const shLineDir = dirOf(lerped[R_SHOULDER], lerped[L_SHOULDER])
+  // Median ankle anchors from the whole pose file, transformed to skeleton
+  // world-space using the START pose's hip midpoint (the same centering
+  // `toWorldLandmarks` applied). Fall back to start-pose ankle when no
+  // anchor is available (low-visibility fixture).
+  const startHipMidX = (startLms[L_HIP].x + startLms[R_HIP].x) / 2
+  const startHipMidZ = ((startLms[L_HIP].z ?? 0) + (startLms[R_HIP].z ?? 0)) / 2
+  const anchorToWorld = (a: { x: number; y: number; z: number }): THREE.Vector3 =>
+    new THREE.Vector3(
+      (a.x - startHipMidX) * H,
+      floorY,
+      -(a.z - startHipMidZ) * H * zScale,
+    )
+  // Start-phase hip positions needed for ankle clamping (must come before frozen ankles).
+  const startHipLineDirRaw = dirOf(startW[R_HIP], startW[L_HIP])
+  const startHipL = placeAt(midHipR, startHipLineDirRaw,                 ANTHRO.hipHalf * H)
+  const startHipR = placeAt(midHipR, startHipLineDirRaw.clone().negate(), ANTHRO.hipHalf * H)
+
+  // Clamp the ankle's horizontal distance from its hip joint to prevent
+  // noisy MediaPipe depth values from placing the foot outside leg reach,
+  // which would force the IK to produce a near-horizontal thigh.
+  const MAX_HORIZ = 0.25 * H
+  const clampToHip = (ankle: THREE.Vector3, hip: THREE.Vector3): THREE.Vector3 => {
+    const dx = ankle.x - hip.x
+    const dz = ankle.z - hip.z
+    const horiz = Math.sqrt(dx * dx + dz * dz)
+    if (horiz <= MAX_HORIZ) return ankle
+    return new THREE.Vector3(hip.x + dx * MAX_HORIZ / horiz, ankle.y, hip.z + dz * MAX_HORIZ / horiz)
+  }
+
+  const ankleL_raw = ankleAnchors
+    ? anchorToWorld(ankleAnchors.L)
+    : new THREE.Vector3(startW[L_ANKLE].x, floorY, startW[L_ANKLE].z)
+  const ankleR_raw = ankleAnchors
+    ? anchorToWorld(ankleAnchors.R)
+    : new THREE.Vector3(startW[R_ANKLE].x, floorY, startW[R_ANKLE].z)
+  const ankleL_frozen = clampToHip(ankleL_raw, startHipL)
+  const ankleR_frozen = clampToHip(ankleR_raw, startHipR)
+
+  // Endpoint hip positions (phase=1) used to derive per-leg knee perpendiculars.
+  const endHipLineDirRaw = dirOf(endW[R_HIP], endW[L_HIP])
+  const endHipL   = placeAt(midHipR, endHipLineDirRaw,                         ANTHRO.hipHalf * H)
+  const endHipR   = placeAt(midHipR, endHipLineDirRaw.clone().negate(),        ANTHRO.hipHalf * H)
+
+  // Per-leg knee-bend perpendicular, SLERPed between endpoints.
+  const perpL = slerpDir(
+    kneePerpAt(startHipL, ankleL_frozen, startW[L_KNEE]),
+    kneePerpAt(endHipL,   ankleL_frozen, endW[L_KNEE]),
+    phase,
+  )
+  const perpR = slerpDir(
+    kneePerpAt(startHipR, ankleR_frozen, startW[R_KNEE]),
+    kneePerpAt(endHipR,   ankleR_frozen, endW[R_KNEE]),
+    phase,
+  )
+
+  // Per-leg toe direction in the floor plane, SLERPed between endpoints.
+  const toeDirOf = (lms: THREE.Vector3[], ankleI: number, footI: number): THREE.Vector3 => {
+    const raw = new THREE.Vector3(lms[footI].x - lms[ankleI].x, 0, lms[footI].z - lms[ankleI].z)
+    return raw.lengthSq() > 1e-10 ? raw.normalize() : new THREE.Vector3(0, 0, 1)
+  }
+  const toeDirL = slerpDir(toeDirOf(startW, L_ANKLE, L_FOOT), toeDirOf(endW, L_ANKLE, L_FOOT), phase)
+  const toeDirR = slerpDir(toeDirOf(startW, R_ANKLE, R_FOOT), toeDirOf(endW, R_ANKLE, R_FOOT), phase)
+
+  // 2-link IK from moving hip to frozen ankle. Ankle clamped to max reach
+  // in the rare case hip drift would overshoot it.
+  const placeLeg = (
+    h: THREE.Vector3,
+    ankle: THREE.Vector3,
+    perp: THREE.Vector3,
+    toeDir: THREE.Vector3,
+  ): { knee: THREE.Vector3; ankle: THREE.Vector3; foot: THREE.Vector3 } => {
+    const l1 = ANTHRO.thigh * H
+    const l2 = ANTHRO.shin  * H
+    let a = ankle.clone()
+    let delta = a.clone().sub(h)
+    let d = delta.length()
+    const reach = (l1 + l2) * 0.999
+    if (d > reach) {
+      a = h.clone().add(delta.setLength(reach))
+      delta = a.clone().sub(h)
+      d = reach
+    }
+    const along = delta.clone().divideScalar(Math.max(d, 1e-6))
+    const cosC = Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)))
+    const sinC = Math.sqrt(1 - cosC * cosC)
+    const knee = h.clone()
+      .add(along.clone().multiplyScalar(l1 * cosC))
+      .add(perp.clone().multiplyScalar(l1 * sinC))
+    const foot = a.clone().add(toeDir.clone().multiplyScalar(ANTHRO.foot * H))
+    return { knee, ankle: a, foot }
+  }
+
+  const legL = placeLeg(out[L_HIP], ankleL_frozen, perpL, toeDirL)
+  const legR = placeLeg(out[R_HIP], ankleR_frozen, perpR, toeDirR)
+  out[L_KNEE]  = legL.knee;  out[L_ANKLE] = legL.ankle; out[L_FOOT] = legL.foot
+  out[R_KNEE]  = legR.knee;  out[R_ANKLE] = legR.ankle; out[R_FOOT] = legR.foot
+
+  // Spine: mid-hip → mid-shoulder along the SLERPed spine direction.
+  const midShStart  = startW[L_SHOULDER].clone().add(startW[R_SHOULDER]).multiplyScalar(0.5)
+  const midShEnd    = endW[L_SHOULDER].clone().add(endW[R_SHOULDER]).multiplyScalar(0.5)
+  const midHipStart = startW[L_HIP].clone().add(startW[R_HIP]).multiplyScalar(0.5)
+  const midHipEnd   = endW[L_HIP].clone().add(endW[R_HIP]).multiplyScalar(0.5)
+  const spineDir = slerpDir(
+    dirOf(midHipStart, midShStart),
+    dirOf(midHipEnd,   midShEnd),
+    phase,
+  )
+  const midShR = placeAt(midHipR, spineDir, ANTHRO.spine * H)
+
+  // Shoulders: mirror pair around rebuilt mid-shoulder along SLERPed line dir.
+  const shLineDir = boneDir(R_SHOULDER, L_SHOULDER)
   out[L_SHOULDER] = placeAt(midShR, shLineDir, ANTHRO.shoulderHalf * H)
   out[R_SHOULDER] = placeAt(midShR, shLineDir.clone().negate(), ANTHRO.shoulderHalf * H)
 
-  // Arms: shoulder → elbow → wrist.
-  out[L_ELBOW] = placeAt(out[L_SHOULDER], dirOf(lerped[L_SHOULDER], lerped[L_ELBOW]), ANTHRO.upperArm * H)
-  out[R_ELBOW] = placeAt(out[R_SHOULDER], dirOf(lerped[R_SHOULDER], lerped[R_ELBOW]), ANTHRO.upperArm * H)
-  out[L_WRIST] = placeAt(out[L_ELBOW],    dirOf(lerped[L_ELBOW],    lerped[L_WRIST]), ANTHRO.forearm * H)
-  out[R_WRIST] = placeAt(out[R_ELBOW],    dirOf(lerped[R_ELBOW],    lerped[R_WRIST]), ANTHRO.forearm * H)
+  // Arms: shoulder → elbow → wrist, SLERPed.
+  out[L_ELBOW] = placeAt(out[L_SHOULDER], boneDir(L_SHOULDER, L_ELBOW), ANTHRO.upperArm * H)
+  out[R_ELBOW] = placeAt(out[R_SHOULDER], boneDir(R_SHOULDER, R_ELBOW), ANTHRO.upperArm * H)
+  out[L_WRIST] = placeAt(out[L_ELBOW],    boneDir(L_ELBOW,    L_WRIST), ANTHRO.forearm * H)
+  out[R_WRIST] = placeAt(out[R_ELBOW],    boneDir(R_ELBOW,    R_WRIST), ANTHRO.forearm * H)
 
-  // Head nose landmark (kept in sync for any downstream consumer).
+  // Head nose landmark.
   out[NOSE] = placeAt(midShR, spineDir, (ANTHRO.neck + ANTHRO.headR) * H)
 
   return out
 }
 
 function Capsule({
-  from, to, radius,
-}: { from: THREE.Vector3; to: THREE.Vector3; radius: number }) {
+  from, to, radius, color = COLOR_BODY,
+}: { from: THREE.Vector3; to: THREE.Vector3; radius: number; color?: string }) {
   const mid = new THREE.Vector3().addVectors(from, to).multiplyScalar(0.5)
   const delta = new THREE.Vector3().subVectors(to, from)
   // Capsule length is the cylinder segment only; hemispherical caps add 2*radius
@@ -180,34 +327,21 @@ function Capsule({
   return (
     <mesh position={mid} quaternion={quat} castShadow receiveShadow>
       <capsuleGeometry args={[radius, length, 4, 12]} />
-      <meshStandardMaterial color={COLOR} roughness={ROUGHNESS} metalness={0} />
+      <meshStandardMaterial color={color} roughness={ROUGHNESS} metalness={0} />
     </mesh>
   )
 }
 
-function Joint({ at, radius }: { at: THREE.Vector3; radius: number }) {
+function Joint({ at, radius, color = COLOR_JOINT }: { at: THREE.Vector3; radius: number; color?: string }) {
   return (
     <mesh position={at} castShadow receiveShadow>
       <sphereGeometry args={[radius, 20, 16]} />
-      <meshStandardMaterial color={COLOR} roughness={ROUGHNESS} metalness={0} />
+      <meshStandardMaterial color={color} roughness={ROUGHNESS} metalness={0} />
     </mesh>
   )
 }
 
-function Mannequin({
-  lms, H, pinnedAnkles,
-}: {
-  lms: Landmark[]
-  H: number
-  pinnedAnkles: { L: THREE.Vector3; R: THREE.Vector3 }
-}) {
-  // Convert to world, then rebuild with fixed anthropometric lengths. Feet
-  // stay pinned at reference positions so the mannequin doesn't slide.
-  const v = useMemo(
-    () => buildFixedSkeleton(toWorldLandmarks(lms), H, pinnedAnkles),
-    [lms, H, pinnedAnkles],
-  )
-
+function Mannequin({ v }: { v: THREE.Vector3[] }) {
   const headR = ANTHRO.headR * H
   const neckLen = ANTHRO.neck * H
 
@@ -223,107 +357,106 @@ function Mannequin({
     <group>
       {/* Neck + head. */}
       <Capsule from={midSh} to={neckTop} radius={RADIUS.neck * H} />
-      <Joint at={headCenter} radius={headR} />
+      <Joint at={headCenter} radius={headR} color={COLOR_BODY} />
 
-      {/* Spine. */}
+      {/* Spine + chest/pelvis bars. */}
       <Capsule from={midSh} to={midHip} radius={RADIUS.spine * H} />
-
-      {/* Chest bar — shoulder line. */}
       <Capsule from={v[L_SHOULDER]} to={v[R_SHOULDER]} radius={RADIUS.chestBar * H} />
-
-      {/* Pelvis bar — hip line. */}
       <Capsule from={v[L_HIP]} to={v[R_HIP]} radius={RADIUS.pelvisBar * H} />
 
-      {/* Shoulder joints */}
+      {/* Arm joints. */}
       <Joint at={v[L_SHOULDER]} radius={RADIUS.shoulder * H} />
       <Joint at={v[R_SHOULDER]} radius={RADIUS.shoulder * H} />
+      <Joint at={v[L_ELBOW]}    radius={RADIUS.elbow * H}    />
+      <Joint at={v[R_ELBOW]}    radius={RADIUS.elbow * H}    />
+      <Joint at={v[L_WRIST]}    radius={RADIUS.wrist * H}    />
+      <Joint at={v[R_WRIST]}    radius={RADIUS.wrist * H}    />
 
-      {/* Upper arms */}
+      {/* Arm bones. */}
       <Capsule from={v[L_SHOULDER]} to={v[L_ELBOW]} radius={RADIUS.upperArm * H} />
       <Capsule from={v[R_SHOULDER]} to={v[R_ELBOW]} radius={RADIUS.upperArm * H} />
+      <Capsule from={v[L_ELBOW]}    to={v[L_WRIST]} radius={RADIUS.forearm * H}  />
+      <Capsule from={v[R_ELBOW]}    to={v[R_WRIST]} radius={RADIUS.forearm * H}  />
 
-      {/* Elbow joints */}
-      <Joint at={v[L_ELBOW]} radius={RADIUS.elbow * H} />
-      <Joint at={v[R_ELBOW]} radius={RADIUS.elbow * H} />
-
-      {/* Forearms */}
-      <Capsule from={v[L_ELBOW]} to={v[L_WRIST]} radius={RADIUS.forearm * H} />
-      <Capsule from={v[R_ELBOW]} to={v[R_WRIST]} radius={RADIUS.forearm * H} />
-
-      {/* Hands */}
-      <Joint at={v[L_WRIST]} radius={RADIUS.wrist * H} />
-      <Joint at={v[R_WRIST]} radius={RADIUS.wrist * H} />
-
-      {/* Hip joints */}
-      <Joint at={v[L_HIP]} radius={RADIUS.hip * H} />
-      <Joint at={v[R_HIP]} radius={RADIUS.hip * H} />
-
-      {/* Thighs */}
-      <Capsule from={v[L_HIP]} to={v[L_KNEE]} radius={RADIUS.thigh * H} />
-      <Capsule from={v[R_HIP]} to={v[R_KNEE]} radius={RADIUS.thigh * H} />
-
-      {/* Knee joints */}
-      <Joint at={v[L_KNEE]} radius={RADIUS.knee * H} />
-      <Joint at={v[R_KNEE]} radius={RADIUS.knee * H} />
-
-      {/* Shins */}
-      <Capsule from={v[L_KNEE]} to={v[L_ANKLE]} radius={RADIUS.shin * H} />
-      <Capsule from={v[R_KNEE]} to={v[R_ANKLE]} radius={RADIUS.shin * H} />
-
-      {/* Ankle joints */}
+      {/* Leg joints. */}
+      <Joint at={v[L_HIP]}   radius={RADIUS.hip * H}   />
+      <Joint at={v[R_HIP]}   radius={RADIUS.hip * H}   />
+      <Joint at={v[L_KNEE]}  radius={RADIUS.knee * H}  />
+      <Joint at={v[R_KNEE]}  radius={RADIUS.knee * H}  />
       <Joint at={v[L_ANKLE]} radius={RADIUS.ankle * H} />
       <Joint at={v[R_ANKLE]} radius={RADIUS.ankle * H} />
 
-      {/* Feet: ankle → foot-index. */}
-      <Capsule from={v[L_ANKLE]} to={v[L_FOOT]} radius={RADIUS.foot * H} />
-      <Capsule from={v[R_ANKLE]} to={v[R_FOOT]} radius={RADIUS.foot * H} />
+      {/* Leg bones + feet. */}
+      <Capsule from={v[L_HIP]}   to={v[L_KNEE]}  radius={RADIUS.thigh * H} />
+      <Capsule from={v[R_HIP]}   to={v[R_KNEE]}  radius={RADIUS.thigh * H} />
+      <Capsule from={v[L_KNEE]}  to={v[L_ANKLE]} radius={RADIUS.shin * H}  />
+      <Capsule from={v[R_KNEE]}  to={v[R_ANKLE]} radius={RADIUS.shin * H}  />
+      <Capsule from={v[L_ANKLE]} to={v[L_FOOT]}  radius={RADIUS.foot * H}  />
+      <Capsule from={v[R_ANKLE]} to={v[R_FOOT]}  radius={RADIUS.foot * H}  />
     </group>
   )
 }
 
-function Ground({ y }: { y: number }) {
+function Floor({ y }: { y: number }) {
+  // Warm-matte base plus a faded grid overlay. The grid sits a hair above the
+  // base so it wins the z-fight; fadeDistance hides the hard edge of the plane.
   return (
-    <mesh rotation-x={-Math.PI / 2} position-y={y} receiveShadow>
-      <planeGeometry args={[8, 8]} />
-      <meshStandardMaterial color="#1f2937" roughness={1} metalness={0} />
-    </mesh>
+    <group>
+      <mesh rotation-x={-Math.PI / 2} position-y={y} receiveShadow>
+        <planeGeometry args={[12, 12]} />
+        <meshStandardMaterial color="#2a2620" roughness={1} metalness={0} />
+      </mesh>
+      <Grid
+        position={[0, y + 0.001, 0]}
+        args={[12, 12]}
+        cellSize={0.25}
+        cellThickness={0.6}
+        cellColor="#4a4238"
+        sectionSize={1}
+        sectionThickness={1.1}
+        sectionColor="#6b5f4c"
+        fadeDistance={6}
+        fadeStrength={1}
+        followCamera={false}
+        infiniteGrid={false}
+      />
+    </group>
   )
 }
 
 interface Props {
-  lms: Landmark[]
-  /** Stable reference pose used for figure-height calibration. */
-  referenceLms: Landmark[]
+  startLms: Landmark[]
+  endLms: Landmark[]
+  ankleAnchors?: AnkleAnchors
+  phase: number
   width: number
   height: number
+  zScale?: number
 }
 
-export default function Drill2Mannequin({ lms, referenceLms, width, height }: Props) {
-  // Figure height from the reference pose, used as the H multiplier for every
-  // anthropometric bone length. Computed once per reference identity.
-  const H = useMemo(() => {
-    return deriveFigureHeight(toWorldLandmarks(referenceLms))
-  }, [referenceLms])
+export default function Drill2Mannequin({ startLms, endLms, ankleAnchors = null, phase, width, height, zScale = 1 }: Props) {
+  // Rebuild the skeleton once per frame with fixed proportions. Bone
+  // orientations are SLERPed between the two endpoint poses, so the animation
+  // traces arcs instead of chords through the body. Camera and ground derive
+  // from the rebuilt ankle positions.
+  const v = useMemo(() => {
+    const startW = toWorldLandmarks(startLms, zScale)
+    const endW   = toWorldLandmarks(endLms, zScale)
+    return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale)
+  }, [startLms, endLms, ankleAnchors, phase, zScale])
 
-  // Ankle positions from the reference pose, pinned for the whole animation
-  // so the feet never slide. All other joints build upward from here.
-  const pinnedAnkles = useMemo(() => {
-    const r = toWorldLandmarks(referenceLms)
-    return { L: r[L_ANKLE].clone(), R: r[R_ANKLE].clone() }
-  }, [referenceLms])
+  // Ground sits just under the lower rebuilt ankle.
+  const groundY = useMemo(
+    () => Math.min(v[L_ANKLE].y, v[R_ANKLE].y) - ANTHRO.foot * H * 0.5,
+    [v],
+  )
 
-  // Ground Y: slightly below the pinned ankles so the floor sits right under
-  // the feet and stays put through the animation.
-  const groundY = useMemo(() => {
-    return Math.min(pinnedAnkles.L.y, pinnedAnkles.R.y) - ANTHRO.foot * H * 0.5
-  }, [pinnedAnkles, H])
-
-  // Orbit target = body mid-height (mid-way between ankles and head), so
-  // horizontal drag spins the figure around its own center instead of around
-  // the feet.
-  const targetY = useMemo(() => {
-    return Math.min(pinnedAnkles.L.y, pinnedAnkles.R.y) + H * 0.5
-  }, [pinnedAnkles, H])
+  // Orbit target = mid-body so horizontal drag pivots around the figure's
+  // center rather than its feet.
+  const targetY = useMemo(
+    () => Math.min(v[L_ANKLE].y, v[R_ANKLE].y) + H * 0.5,
+    [v],
+  )
 
   return (
     <div
@@ -344,18 +477,15 @@ export default function Drill2Mannequin({ lms, referenceLms, width, height }: Pr
           shadow-camera-top={2}
           shadow-camera-bottom={-2}
         />
-        <Mannequin lms={lms} H={H} pinnedAnkles={pinnedAnkles} />
-        <Ground y={groundY} />
-        {/* Horizontal drag orbits the camera around the body center.
-            Polar angle is locked so vertical drag can't tilt the view;
-            pan/zoom stay off so slider edits don't shift the framing. */}
+        <Mannequin v={v} />
+        <Floor y={groundY} />
+        {/* Full 3D orbit around the body center. Pan/zoom stay off so slider
+            edits don't shift the framing. */}
         <OrbitControls
           enablePan={false}
           enableRotate={true}
           enableZoom={false}
           target={[0, targetY, 0]}
-          minPolarAngle={Math.PI / 2}
-          maxPolarAngle={Math.PI / 2}
           makeDefault
         />
       </Canvas>

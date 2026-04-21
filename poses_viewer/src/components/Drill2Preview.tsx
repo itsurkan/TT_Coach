@@ -53,6 +53,32 @@ export default function Drill2Preview({ onClose }: Props) {
   const totalFramesRef = useRef(0)
   const dragRef = useRef<{ px: number; yaw: number } | null>(null)
 
+  // Median ankle anchor computed once across the whole pose file. Stable
+  // horizontal position (X/Z median, visibility-filtered) + floor contact
+  // Y (max, since MediaPipe y grows downward so higher y = lower on screen).
+  // Both MediaPipe ankle indices: 27 = L_ANKLE, 28 = R_ANKLE.
+  const ankleAnchors = useMemo(() => {
+    const frames = framesRef.current
+    if (!frames) return null
+    const collect = (idx: number) => {
+      const xs: number[] = [], zs: number[] = [], ys: number[] = []
+      for (const f of frames) {
+        const p = f.landmarks?.[idx]
+        if (!p || (p.visibility ?? 1) < 0.5) continue
+        xs.push(p.x); zs.push(p.z ?? 0); ys.push(p.y)
+      }
+      if (xs.length === 0) return null
+      const med = (arr: number[]) => {
+        const s = [...arr].sort((a, b) => a - b)
+        return s[Math.floor(s.length / 2)]
+      }
+      return { x: med(xs), y: Math.max(...ys), z: med(zs) }
+    }
+    const L = collect(27), R = collect(28)
+    if (!L || !R) return null
+    return { L, R }
+  }, [fixtureReady])
+
   // ---- Fetch fixture once, cache into ref. ----
   useEffect(() => {
     let cancelled = false
@@ -344,10 +370,13 @@ export default function Drill2Preview({ onClose }: Props) {
           </div>
         </div>
 
-        {humanizer && blended && startLms ? (
+        {humanizer && startLms && alignedEnd ? (
           <Drill2Mannequin
-            lms={blended}
-            referenceLms={startLms}
+            startLms={startLms}
+            endLms={alignedEnd}
+            ankleAnchors={ankleAnchors}
+            zScale={0.1}
+            phase={phase}
             width={CANVAS_W}
             height={CANVAS_H}
           />
