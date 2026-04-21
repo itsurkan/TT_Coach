@@ -42,17 +42,17 @@ export interface PoseAnchor {
 }
 
 export interface LimbDirections {
-  leftThigh: [number, number, number]
-  rightThigh: [number, number, number]
-  leftShin: [number, number, number]
-  rightShin: [number, number, number]
-  leftUpperArm: [number, number, number]
-  rightUpperArm: [number, number, number]
-  leftForearm: [number, number, number]
-  rightForearm: [number, number, number]
-  torsoUp: [number, number, number]
-  leftFoot: [number, number, number]
-  rightFoot: [number, number, number]
+  leftThigh?: [number, number, number]
+  rightThigh?: [number, number, number]
+  leftShin?: [number, number, number]
+  rightShin?: [number, number, number]
+  leftUpperArm?: [number, number, number]
+  rightUpperArm?: [number, number, number]
+  leftForearm?: [number, number, number]
+  rightForearm?: [number, number, number]
+  torsoUp?: [number, number, number]
+  leftFoot?: [number, number, number]
+  rightFoot?: [number, number, number]
 }
 
 export type AnchorPhase = 'START' | 'END'
@@ -81,7 +81,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     name: 'Torso',
     params: [
       { key: 'bodyRotationDeg', label: 'Body rotation',   min: -90, max: 90,  step: 1 },
-      { key: 'torsoTiltDeg',    label: 'Torso tilt',      min: -90, max: 90,  step: 1 },
+      { key: 'torsoTiltDeg',    label: 'Torso tilt',      min: 0,   max: 90,  step: 1 },
     ],
   },
   {
@@ -111,8 +111,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightThighForwardDeg',   label: 'R thigh forward',    min: -30, max: 120, step: 1 },
       { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 80,  step: 1 },
       { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 80,  step: 1 },
-      { key: 'leftKneeAngleDeg',       label: 'L knee',             min: 30,  max: 180, step: 1 },
-      { key: 'rightKneeAngleDeg',      label: 'R knee',             min: 30,  max: 180, step: 1 },
+      { key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
+      { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'leftFootYawDeg',         label: 'L foot yaw',         min: -60, max: 60,  step: 1 },
       { key: 'rightFootYawDeg',        label: 'R foot yaw',         min: -60, max: 60,  step: 1 },
       { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },

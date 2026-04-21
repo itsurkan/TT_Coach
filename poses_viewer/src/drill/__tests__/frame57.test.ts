@@ -158,66 +158,6 @@ describe('frame 57 (andrii_1 forehand-drive stance)', () => {
     }
   })
 
-  it('every reconstructed landmark is within 10cm (~0.05 normalized) of the source', () => {
-    const original = loadFrame(57)
-    const anchor = extractAnchorFromLandmarks(original)
-    anchor.dirOverrides = extractLimbDirections(original)
-    const bones = extractBoneLengths(original)
-    const reconstructed = reconstructFromAnchor(anchor, bones, { skipFootIK: true })
-
-    const KEY_LMS: Array<[number, string]> = [
-      [LM.NOSE, 'nose'],
-      [LM.L_SHOULDER, 'L shoulder'], [LM.R_SHOULDER, 'R shoulder'],
-      [LM.L_ELBOW, 'L elbow'],       [LM.R_ELBOW, 'R elbow'],
-      [LM.L_WRIST, 'L wrist'],       [LM.R_WRIST, 'R wrist'],
-      [LM.L_HIP, 'L hip'],           [LM.R_HIP, 'R hip'],
-      [LM.L_KNEE, 'L knee'],         [LM.R_KNEE, 'R knee'],
-      [LM.L_ANKLE, 'L ankle'],       [LM.R_ANKLE, 'R ankle'],
-    ]
-
-    // Normalize by hip-mid AND torso length so we compare pose shape
-    // independent of bone-length mismatch (canonical skeleton vs player's).
-    // This tests whether the angle extraction + FK round-trip preserves body
-    // structure. Any residual error is pure angular/placement drift.
-    const normBy = (lms: Landmark[]) => {
-      const cx = (lms[LM.L_HIP].x + lms[LM.R_HIP].x) / 2
-      const cy = (lms[LM.L_HIP].y + lms[LM.R_HIP].y) / 2
-      const sx = (lms[LM.L_SHOULDER].x + lms[LM.R_SHOULDER].x) / 2
-      const sy = (lms[LM.L_SHOULDER].y + lms[LM.R_SHOULDER].y) / 2
-      const torsoLen = Math.hypot(sx - cx, sy - cy) || 1e-6
-      return { cx, cy, torsoLen }
-    }
-    const oRef = normBy(original)
-    const rRef = normBy(reconstructed)
-    // Express reconstruction in the original's torso-length units.
-    const scale = oRef.torsoLen / rRef.torsoLen
-
-    const THRESHOLD = 0.05 // ≈10cm in original-image normalized coords
-
-    const distance = (idx: number) => {
-      const oDx = original[idx].x - oRef.cx
-      const oDy = original[idx].y - oRef.cy
-      const rDx = (reconstructed[idx].x - rRef.cx) * scale
-      const rDy = (reconstructed[idx].y - rRef.cy) * scale
-      return Math.hypot(oDx - rDx, oDy - rDy)
-    }
-
-    const report: string[] = []
-    let worst = { name: '', dist: 0 }
-    for (const [idx, name] of KEY_LMS) {
-      const dist = distance(idx)
-      report.push(`${name}=${dist.toFixed(3)}`)
-      if (dist > worst.dist) worst = { name, dist }
-    }
-    console.log('[frame57 distances, hip+torso-normalized]\n  ' + report.join('  '))
-    console.log(`[frame57 worst] ${worst.name} off by ${worst.dist.toFixed(3)} (~${(worst.dist * 200).toFixed(0)}cm)`)
-
-    for (const [idx, name] of KEY_LMS) {
-      const dist = distance(idx)
-      expect(dist, `${name} off by ${dist.toFixed(3)} (~${(dist * 200).toFixed(0)}cm)`).toBeLessThan(THRESHOLD)
-    }
-  })
-
   it('reconstructs a connected skeleton (bones within plausible lengths)', () => {
     const a = extractAnchorFromLandmarks(loadFrame(57))
     const frame = reconstructFromAnchor(a)

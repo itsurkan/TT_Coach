@@ -91,17 +91,13 @@ function mkLm(i: number, p: V3, vis = 1): Landmark {
 export const GROUND_ANCHOR_Y = 0.92
 
 /**
- * Auto-compensation constants. Kept mild so extracted anchors (which already
- * contain correct knee/hip values from the source pose) render faithfully.
- * Previous over-aggressive values (1.2 / 1.5) were double-counting posture
- * that's already baked into the anchor.
- *
- * For pure manual editing the slight nudge from torso tilt still produces a
- * visible "squat" feel, but it no longer dominates the extracted pose.
+ * Auto-compensation constants. Set to 0 — editor wants the knee slider to be
+ * LITERAL. Re-enable a small positive value if we want torso tilt to nudge
+ * knees in a "feels-natural" way during pure manual editing.
  */
-const TILT_TO_KNEE_BEND = 0.3
-const EFFECTIVE_KNEE_MIN_DEG = 60
-const TILT_TO_HIP_BACK = 0.3
+const TILT_TO_KNEE_BEND = 0
+const EFFECTIVE_KNEE_MIN_DEG = 30
+const TILT_TO_HIP_BACK = 0
 
 export function reconstructFromAnchor(
   anchor: PoseAnchor,
@@ -205,17 +201,18 @@ export function reconstructFromAnchor(
     const idxIndex  = side === 'L' ? LM.L_INDEX : LM.R_INDEX
     const idxThumb  = side === 'L' ? LM.L_THUMB : LM.R_THUMB
 
-    // Upper arm — override direct direction if available.
-    const o = anchor.dirOverrides
-    const upperArmDir = o
-      ? normalize((side === 'L' ? o.leftUpperArm : o.rightUpperArm) as V3)
+    // Upper arm — per-bone override (may be cleared by specific slider edits).
+    const impUpper = side === 'L' ? anchor.dirOverrides?.leftUpperArm : anchor.dirOverrides?.rightUpperArm
+    const upperArmDir = impUpper
+      ? normalize(impUpper as V3)
       : normalize(rotAroundAxis(rotAroundAxis(torsoDown, forward, abSign * shAbdDeg), across, -shFwdDeg))
     const elbow = add(shoulder, scale(upperArmDir, B.upperArm))
     out[idxElbow] = mkLm(idxElbow, elbow)
 
     const elbowBend = 180 - elbowDeg
-    const forearmDir = o
-      ? normalize((side === 'L' ? o.leftForearm : o.rightForearm) as V3)
+    const impForearm = side === 'L' ? anchor.dirOverrides?.leftForearm : anchor.dirOverrides?.rightForearm
+    const forearmDir = impForearm
+      ? normalize(impForearm as V3)
       : normalize(rotAroundAxis(upperArmDir, across, -elbowBend))
     const wrist = add(elbow, scale(forearmDir, B.forearm))
     out[idxWrist] = mkLm(idxWrist, wrist)
@@ -245,33 +242,47 @@ export function reconstructFromAnchor(
   const worldDown: V3 = [0, 1, 0]
 
   function thighDirFor(side: 'L' | 'R'): V3 {
-    // Fast path: if an exact direction was imported, use it verbatim — no
-    // angle-decomposition loss. This is how frame-imported anchors stay
-    // faithful to the source pose.
+    // Per-bone fast path: if the user imported a direction and hasn't cleared
+    // it (by editing the related slider), use it verbatim. Otherwise fall
+    // through to angle-based computation so that slider edits TAKE EFFECT.
     const o = anchor.dirOverrides
-    if (o) {
-      // Imported direction already encodes real orientation; don't double-yaw.
-      const v = side === 'L' ? o.leftThigh : o.rightThigh
-      return normalize(v as V3)
-    }
+    const imported = side === 'L' ? o?.leftThigh : o?.rightThigh
+    if (imported) return normalize(imported as V3)
     const flexDeg = side === 'L' ? anchor.leftThighForwardDeg  : anchor.rightThighForwardDeg
     const absDeg  = side === 'L' ? anchor.leftThighAbductionDeg : anchor.rightThighAbductionDeg
     const footYaw = side === 'L' ? anchor.leftFootYawDeg : anchor.rightFootYawDeg
-    // Right-leg abduction positive means swing to player's right (−across).
     const abSign = side === 'L' ? +1 : -1
     const abducted = rotAroundAxis(worldDown, forward, abSign * absDeg)
     const flexed = normalize(rotAroundAxis(abducted, across, -flexDeg))
-    // Foot yaw couples to HIP EXTERNAL ROTATION — rotating the leg around the
-    // vertical axis turns the whole chain (thigh → shin → ankle → foot). Without
-    // this, feet would appear to twist independent of the leg.
     return normalize(rotY(flexed, footYaw))
   }
 
   const shinDirFor = (side: 'L' | 'R', thighDir: V3, effKnee: number): V3 => {
-    const o = anchor.dirOverrides
-    if (o) return normalize((side === 'L' ? o.leftShin : o.rightShin) as V3)
+    const imported = side === 'L' ? anchor.dirOverrides?.leftShin : anchor.dirOverrides?.rightShin
+    if (imported) return normalize(imported as V3)
     const kneeBend = 180 - effKnee
-    return normalize(rotAroundAxis(thighDir, across, kneeBend))
+    // Knee hinge axis: horizontal and perpendicular to the thigh, in the
+    // body's across direction adjusted for the thigh's tilt. Using body.across
+    // directly breaks for abducted legs (shin swings sideways instead of
+    // back). Compute axis as the horizontal projection of (across × thighDir)
+    // → then cross with thigh to keep it perpendicular. Falls back to body
+    // across when thigh is nearly vertical (no ambiguity).
+    const thighHoriz: V3 = [thighDir[0], 0, thighDir[2]]
+    const thighHorizLen = Math.sqrt(thighHoriz[0]*thighHoriz[0] + thighHoriz[2]*thighHoriz[2])
+    let hinge: V3
+    if (thighHorizLen < 0.05) {
+      // Thigh nearly vertical — use body's across axis (the anatomical default).
+      hinge = across
+    } else {
+      // Knee bends in the vertical plane containing the thigh. Hinge axis is
+      // perpendicular to that plane: cross(thigh, worldUp).
+      const worldUp: V3 = [0, -1, 0]
+      const cx = thighDir[1] * worldUp[2] - thighDir[2] * worldUp[1]
+      const cy = thighDir[2] * worldUp[0] - thighDir[0] * worldUp[2]
+      const cz = thighDir[0] * worldUp[1] - thighDir[1] * worldUp[0]
+      hinge = normalize([cx, cy, cz])
+    }
+    return normalize(rotAroundAxis(thighDir, hinge, kneeBend))
   }
 
   // Per-side bone lengths — fall back to symmetric `B.thigh`/`B.shin` when not set.
@@ -289,7 +300,7 @@ export function reconstructFromAnchor(
   const rAnkle: V3 = add(rKnee, scale(rShinDir, Brs))
   out[LM.R_KNEE]  = mkLm(LM.R_KNEE,  rKnee)
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
-  const rFootDir: V3 = anchor.dirOverrides
+  const rFootDir: V3 = anchor.dirOverrides?.rightFoot
     ? normalize(anchor.dirOverrides.rightFoot as V3)
     : normalize(rotY(forward, anchor.rightFootYawDeg))
   const rFootTip: V3 = add(rAnkle, scale(rFootDir, Brf))
@@ -304,7 +315,7 @@ export function reconstructFromAnchor(
   const lAnkle: V3 = add(lKnee, scale(lShinDir, Bls))
   out[LM.L_KNEE]  = mkLm(LM.L_KNEE,  lKnee)
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)
-  const lFootDir: V3 = anchor.dirOverrides
+  const lFootDir: V3 = anchor.dirOverrides?.leftFoot
     ? normalize(anchor.dirOverrides.leftFoot as V3)
     : normalize(rotY(forward, anchor.leftFootYawDeg))
   const lFootTip: V3 = add(lAnkle, scale(lFootDir, Blf))
@@ -318,10 +329,24 @@ export function reconstructFromAnchor(
   // a 2-joint IK per leg: given hip + target ankle (x,z kept from FK, y
   // clamped to GROUND), compute a new knee position via cosine law such that
   // thigh and shin keep their canonical lengths.
-  if (!options?.skipFootIK) {
-    applyLegIK(out, LM.L_HIP, LM.L_KNEE, LM.L_ANKLE, LM.L_HEEL, LM.L_FOOT, forward, across, B.thigh, B.shin)
-    applyLegIK(out, LM.R_HIP, LM.R_KNEE, LM.R_ANKLE, LM.R_HEEL, LM.R_FOOT, forward, across, B.thigh, B.shin)
+  // Per-leg IK gate: run IK only when BOTH the thigh and shin direction
+  // overrides are absent — IK (cosine law) would otherwise override the
+  // knee implied by an imported direction or by the user's knee slider.
+  // Explicit options override auto-detection.
+  const forceRun = options?.skipFootIK === false
+  const forceSkip = options?.skipFootIK === true
+  const runLegIK = (side: 'L' | 'R') => {
+    if (forceRun) return true
+    if (forceSkip) return false
+    const o = anchor.dirOverrides
+    const hasThigh = !!(side === 'L' ? o?.leftThigh : o?.rightThigh)
+    const hasShin  = !!(side === 'L' ? o?.leftShin  : o?.rightShin)
+    // If user cleared either override (by moving a knee/thigh slider), we
+    // must NOT re-snap feet — IK would clobber the slider's effect.
+    return !hasThigh && !hasShin
   }
+  if (runLegIK('L')) applyLegIK(out, LM.L_HIP, LM.L_KNEE, LM.L_ANKLE, LM.L_HEEL, LM.L_FOOT, forward, across, B.thigh, B.shin)
+  if (runLegIK('R')) applyLegIK(out, LM.R_HIP, LM.R_KNEE, LM.R_ANKLE, LM.R_HEEL, LM.R_FOOT, forward, across, B.thigh, B.shin)
 
   return out
 }

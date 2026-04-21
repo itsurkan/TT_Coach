@@ -1,14 +1,99 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import type { PoseAnchor, AnchorPhase } from '../drill/PoseAnchor'
+import type { PoseAnchor, AnchorPhase, LimbDirections } from '../drill/PoseAnchor'
 import { NEUTRAL_POSE, cloneAnchor } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
+import type { BoneLengthsOverride } from '../drill/skeletonReconstructor'
 import { interpolateAnchors, lerpAnchor } from '../drill/anchorInterpolator'
-import { extractAnchorFromLandmarks, parsePoseFixture } from '../drill/anchorExtractor'
+import {
+  extractAnchorFromLandmarks,
+  extractLimbDirections,
+  extractBoneLengths,
+  parsePoseFixture,
+} from '../drill/anchorExtractor'
 import DrillSkeletonCanvas from './DrillSkeletonCanvas'
 import AnchorSliders from './AnchorSliders'
+import Drill2Mannequin from './Drill2Mannequin'
 
 const PLAYBACK_FRAMES = 10
 const PLAYBACK_INTERVAL_MS = 120
+
+/** First scalar anchor field whose value differs between `a` and `b`. */
+function diffKey(a: PoseAnchor, b: PoseAnchor): keyof PoseAnchor | null {
+  const keys = Object.keys(b) as (keyof PoseAnchor)[]
+  for (const k of keys) {
+    if (k === 'dirOverrides') continue
+    if ((a as Record<string, unknown>)[k] !== (b as Record<string, unknown>)[k]) return k
+  }
+  return null
+}
+
+/**
+ * Clear only the direction overrides whose implied bones are controlled by
+ * the slider that changed. Mapping follows FK's chain: e.g. editing the
+ * elbow angle only rotates the forearm; editing thigh forward/abduction
+ * rotates thigh AND implicitly shin (which is derived relative to thigh in
+ * the angle-path fallback).
+ */
+function clearRelatedOverrides(
+  o: LimbDirections | undefined,
+  changed: keyof PoseAnchor | null,
+): LimbDirections | undefined {
+  if (!o || !changed) return o
+  const out: LimbDirections = { ...o }
+  switch (changed) {
+    case 'torsoTiltDeg':
+    case 'bodyRotationDeg':
+      // Body frame pivots → all derived bones.
+      return undefined
+    case 'rightShoulderAngleDeg':
+    case 'rightShoulderAbductionDeg':
+      out.rightUpperArm = undefined
+      out.rightForearm = undefined
+      break
+    case 'rightElbowAngleDeg':
+      out.rightForearm = undefined
+      break
+    case 'leftShoulderAngleDeg':
+    case 'leftShoulderAbductionDeg':
+      out.leftUpperArm = undefined
+      out.leftForearm = undefined
+      break
+    case 'leftElbowAngleDeg':
+      out.leftForearm = undefined
+      break
+    case 'leftThighForwardDeg':
+    case 'leftThighAbductionDeg':
+      out.leftThigh = undefined
+      out.leftShin = undefined
+      break
+    case 'leftKneeAngleDeg':
+      out.leftShin = undefined
+      break
+    case 'leftFootYawDeg':
+      out.leftThigh = undefined
+      out.leftShin = undefined
+      out.leftFoot = undefined
+      break
+    case 'rightThighForwardDeg':
+    case 'rightThighAbductionDeg':
+      out.rightThigh = undefined
+      out.rightShin = undefined
+      break
+    case 'rightKneeAngleDeg':
+      out.rightShin = undefined
+      break
+    case 'rightFootYawDeg':
+      out.rightThigh = undefined
+      out.rightShin = undefined
+      out.rightFoot = undefined
+      break
+    // hipMidX / hipMidY / stanceWidthNorm / wrist / twist don't map to a
+    // direction vector; keep all overrides intact.
+    default:
+      return o
+  }
+  return out
+}
 
 interface Props {
   onClose: () => void
@@ -29,6 +114,19 @@ export default function DrillEditor({ onClose }: Props) {
   const fixtureCacheRef = useRef<ReturnType<typeof parsePoseFixture> | null>(null)
   const FIXTURE_URL = '/videos/andrii_1/andrii_1_poses.json'
 
+  // Per-session bone overrides — populated when the user imports a frame so
+  // FK reconstructs the player's actual skeleton proportions rather than the
+  // canonical defaults. Shared across START/END since both are the same
+  // person doing a single stroke.
+  const [bonesOverride, setBonesOverride] = useState<BoneLengthsOverride | null>(null)
+
+  // STABLE reference landmarks for figure-height calibration in the 3D
+  // mannequin. Computed once from the fixture's "tallest" (most upright)
+  // frame so mannequin bone lengths stay consistent across all frames —
+  // otherwise a bent pose's short nose-to-ankle Y span collapses H and
+  // produces comically short limbs on one frame and elongated on another.
+  const [stableReferenceLms, setStableReferenceLms] = useState<import('../types').Landmark[] | null>(null)
+
   const activeAnchor = activePhase === 'START' ? startAnchor : endAnchor
   const setActiveAnchor = (a: PoseAnchor) => {
     if (activePhase === 'START') setStartAnchor(a)
@@ -46,6 +144,22 @@ export default function DrillEditor({ onClose }: Props) {
         const resp = await fetch(FIXTURE_URL)
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
         fixtureCacheRef.current = parsePoseFixture(await resp.json())
+        // Pick the "tallest" frame (max nose-to-ankle Y span) as the stable
+        // reference for mannequin figure-height. Standing poses give the
+        // most reliable H; bent/crouched poses under-estimate it.
+        let bestIdx = 0, bestSpan = -Infinity
+        for (let i = 0; i < fixtureCacheRef.current.frames.length; i++) {
+          const f = fixtureCacheRef.current.frames[i]
+          const lms2 = f.landmarks
+          if (!lms2 || lms2.length < 33) continue
+          const nose = lms2[0]
+          const lAnk = lms2[27]; const rAnk = lms2[28]
+          if (!nose || !lAnk || !rAnk) continue
+          const span = Math.max(lAnk.y, rAnk.y) - nose.y
+          if (span > bestSpan) { bestSpan = span; bestIdx = i }
+        }
+        const ref = fixtureCacheRef.current.frames[bestIdx].landmarks
+        if (ref && ref.length >= 33) setStableReferenceLms(ref)
       }
       const fixture = fixtureCacheRef.current
       const total = fixture.frames.length
@@ -59,11 +173,15 @@ export default function DrillEditor({ onClose }: Props) {
         return null
       }
       const extracted = extractAnchorFromLandmarks(lms)
+      // Attach unit-vector overrides from the source landmarks — lets FK
+      // render the EXACT imported pose without decomposition loss.
+      extracted.dirOverrides = extractLimbDirections(lms)
       // Lock skeleton centering so scrubbing frames doesn't "jump" around —
       // only the pose shape updates, not the hip's 2D position on canvas.
       extracted.hipMidX = NEUTRAL_POSE.hipMidX
       extracted.hipMidY = NEUTRAL_POSE.hipMidY
       setActiveAnchor(extracted)
+      setBonesOverride(extractBoneLengths(lms))
       setIsPlaying(false)
       setLoadStatus({ kind: 'ok', msg: `frame ${frameIdx} / ${total - 1} → ${activePhase}` })
       return total
@@ -103,17 +221,17 @@ export default function DrillEditor({ onClose }: Props) {
       const cycleLen = (PLAYBACK_FRAMES - 1) * 2
       const pos = playFrame % cycleLen
       const idx = pos < PLAYBACK_FRAMES ? pos : cycleLen - pos
-      return reconstructFromAnchor(playbackFrames[idx])
+      return reconstructFromAnchor(playbackFrames[idx], bonesOverride ?? undefined)
     }
-    return reconstructFromAnchor(activeAnchor)
-  }, [isPlaying, playFrame, playbackFrames, activeAnchor])
+    return reconstructFromAnchor(activeAnchor, bonesOverride ?? undefined)
+  }, [isPlaying, playFrame, playbackFrames, activeAnchor, bonesOverride])
 
   // Ghost shows the OTHER anchor when editing; helps see the contrast.
   const ghostLandmarks = useMemo(() => {
     if (!showGhost || isPlaying) return null
     const other = activePhase === 'START' ? endAnchor : startAnchor
-    return reconstructFromAnchor(other)
-  }, [showGhost, isPlaying, activePhase, startAnchor, endAnchor])
+    return reconstructFromAnchor(other, bonesOverride ?? undefined)
+  }, [showGhost, isPlaying, activePhase, startAnchor, endAnchor, bonesOverride])
 
   // Playback timer.
   const rafRef = useRef<number | null>(null)
@@ -191,12 +309,21 @@ export default function DrillEditor({ onClose }: Props) {
               className="flex items-center justify-center"
               style={{ maxHeight: '85vh' }}
             >
-              <DrillSkeletonCanvas
-                landmarks={displayedLandmarks}
-                label={canvasLabel}
-                ghost={ghostLandmarks}
-                humanize={humanize}
-              />
+              {humanize && displayedLandmarks && displayedLandmarks.length >= 33 ? (
+                <Drill2Mannequin
+                  lms={displayedLandmarks}
+                  referenceLms={stableReferenceLms ?? displayedLandmarks}
+                  width={560}
+                  height={760}
+                />
+              ) : (
+                <DrillSkeletonCanvas
+                  landmarks={displayedLandmarks}
+                  label={canvasLabel}
+                  ghost={ghostLandmarks}
+                  humanize={false}
+                />
+              )}
             </div>
             <div className="flex gap-4 text-sm text-gray-400">
               <label className="flex items-center gap-2">
@@ -213,7 +340,7 @@ export default function DrillEditor({ onClose }: Props) {
                   checked={humanize}
                   onChange={e => setHumanize(e.target.checked)}
                 />
-                Humanize (3D depth)
+                Humanize (anthropomorphic 3D mannequin)
               </label>
             </div>
           </div>
@@ -265,7 +392,16 @@ export default function DrillEditor({ onClose }: Props) {
                 setIsPlaying(false)
               }}
               anchor={activeAnchor}
-              onChange={setActiveAnchor}
+              onChange={next => {
+                // Selectively clear the direction override for the specific
+                // bone the user just edited. Other bones keep their imported
+                // direction so, e.g., moving a leg slider doesn't shift the
+                // torso width (which would happen if we cleared all overrides
+                // and FK had to recompute torsoUp from the extracted tilt angle).
+                const changed = diffKey(activeAnchor, next)
+                const nextOverrides = clearRelatedOverrides(activeAnchor.dirOverrides, changed)
+                setActiveAnchor({ ...next, dirOverrides: nextOverrides })
+              }}
               onReset={reset}
             />
           </div>
