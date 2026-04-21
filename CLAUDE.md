@@ -111,6 +111,21 @@ Mockups/                     # UI mockups
 
 **Tests:** unit tests under `app/src/test/` and `shared/src/jvmTest/`; shared JSON fixtures in `shared/src/commonTest/resources/fixtures/`; load pose frames via `JsonTestUtils`. Instrumented tests under `app/src/androidTest/`.
 
+## File map (top-10 repeat-reads)
+
+Ranked by a mix of recent churn (last ~6 weeks) and centrality in the live/calibration pipelines. Start here when orienting on a new task.
+
+- **[PoseAnalysisProcessor](app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt)** — per-frame pipeline entrypoint. Two modes: `LIVE` (MotionAnalyzer → FeedbackGenerator → TrainingStateManager) and `CALIBRATION` (phase-boundary reconstruction → CalibrationStateManager). Owns phase-transition observation that reconstructs `DetectedStroke` at finalize time.
+- **[FeedbackGenerator](app/src/main/java/com/ttcoachai/services/FeedbackGenerator.kt)** — turns `AnalysisResult` into `FeedbackItem`s and fires tic/tac audio on phase transitions via `FeedbackAudioManager`. Reads user thresholds via `SettingsManager`.
+- **[TrainingActivity](app/src/main/java/com/ttcoachai/TrainingActivity.kt)** — live-session host; implements `PoseLandmarkerHelper.LandmarkerListener`, wires `TrainingStateManager` + `TrainingUIController` + `PoseAnalysisProcessor`, hosts `CameraFragment` (and is one of the carve-out activities in `CameraFragment.kt:164`).
+- **[PoseLandmarkerProcessor](app/src/main/java/com/ttcoachai/helpers/PoseLandmarkerProcessor.kt)** — MediaPipe wrapper (tasks-vision). Emits normalized `[0,1]` image-coord landmarks via `LandmarkerListener`; handles rotation/centering. Upstream of everything pose-related.
+- **[OverlayView](app/src/main/java/com/ttcoachai/OverlayView.kt)** — custom view that draws pose skeleton, ball, phase, and debug labels over the camera preview. Consumes `SynchronizedFrame` / `BallDetection`.
+- **[TrainingStateManager](app/src/main/java/com/ttcoachai/managers/TrainingStateManager.kt)** — volatile singleton for live session state (strokes, feedback log). Double-checked-locking init; **not safe for concurrent mutation** — use synchronized / coroutine-scoped updates.
+- **[BallDetectorV6](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt)** — current YOLOv11-nano detector. Requires top-half ROI crop (`ROIManager`), conf=0.25, dual coord transform (ROI→full-frame normalized). V5 is deprecated; don't call from live pipeline.
+- **[CalibrationActivity](app/src/main/java/com/ttcoachai/calibration/CalibrationActivity.kt)** — Stage 1 Phase 1 entry; three-fragment flow (onboarding → capture → review). Also a `LandmarkerListener`, so it's the second activity in the `CameraFragment` carve-out list.
+- **[CalibrationStateManager](app/src/main/java/com/ttcoachai/managers/CalibrationStateManager.kt)** — calibration session state; live 2σ outlier flagging via `outlierEvents`. Persists derived strokes + `AnalysisResult`s only — **no raw pose frames** (see Phase 7 editor gotcha).
+- **[BaselineDeriver](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineDeriver.kt)** — pure KMP object. `List<DetectedStroke> + List<AnalysisResult>` → `PersonalBaseline`. 2σ single-pass outlier exclusion (any metric flags the rep), qualityScore = `1 − mean(CV)` across technique metrics. Min-rep threshold checked **after** outlier exclusion.
+
 ## Gotchas
 
 - **BallDetectorV6 requires top-half ROI crop** — full-frame inference drops to 26.8% accuracy. Always crop via `ROIManager` before `detect()`. [app/.../tracking/BallDetectorV6.kt](app/src/main/java/com/ttcoachai/tracking/BallDetectorV6.kt), [README.md](README.md)
