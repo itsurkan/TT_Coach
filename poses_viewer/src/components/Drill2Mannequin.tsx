@@ -108,22 +108,30 @@ function kneePerpAt(
   hip: THREE.Vector3,
   ankle: THREE.Vector3,
   kneeHint: THREE.Vector3,
+  bodyForward: THREE.Vector3
 ): THREE.Vector3 {
   const along = ankle.clone().sub(hip)
   const d = along.length()
-  if (d < 1e-6) return UP.clone().negate()
+  if (d < 1e-6) return bodyForward.clone()
   along.divideScalar(d)
   const hint = kneeHint.clone().sub(hip)
-  const perp = hint.clone().sub(along.clone().multiplyScalar(hint.dot(along)))
+  let perp = hint.clone().sub(along.clone().multiplyScalar(hint.dot(along)))
   if (perp.lengthSq() < 1e-8) {
-    const forward = new THREE.Vector3(0, 0, -1)
-    const tangent = forward.clone().sub(along.clone().multiplyScalar(forward.dot(along)))
-    return tangent.lengthSq() > 1e-10 ? tangent.normalize() : UP.clone().negate()
+    const projectedForward = bodyForward.clone().sub(along.clone().multiplyScalar(bodyForward.dot(along)))
+    return projectedForward.lengthSq() > 1e-10 ? projectedForward.normalize() : UP.clone().negate()
   }
-  return perp.normalize()
+  perp.normalize()
+  
+  // Anatomical Knee Rule: knee must point into the forward hemisphere of the body.
+  // If the noisy MediaPipe hint pushes it backwards (flamingo leg), force it forward.
+  if (perp.dot(bodyForward) < 0) {
+    const projectedForward = bodyForward.clone().sub(along.clone().multiplyScalar(bodyForward.dot(along)))
+    return projectedForward.lengthSq() > 1e-10 ? projectedForward.normalize() : UP.clone().negate()
+  }
+  return perp
 }
 
-function toWorldLandmarks(lms: Landmark[], zScale = 1): THREE.Vector3[] {
+function toWorldLandmarks(lms: Landmark[], zScale = 1, cameraPitch = 0, cameraYaw = 0): THREE.Vector3[] {
   // Center on hip midpoint, flip Y (MediaPipe y grows down), flip Z (camera
   // convention: +Z toward viewer in three.js, while MediaPipe z is negative
   // toward camera). Scale by H so normalized coords become metres.
@@ -131,14 +139,19 @@ function toWorldLandmarks(lms: Landmark[], zScale = 1): THREE.Vector3[] {
   const hipMidX = (lms[L_HIP].x + lms[R_HIP].x) / 2
   const hipMidY = (lms[L_HIP].y + lms[R_HIP].y) / 2
   const hipMidZ = ((lms[L_HIP].z ?? 0) + (lms[R_HIP].z ?? 0)) / 2
-  return lms.map(l =>
-    new THREE.Vector3(
+  return lms.map(l => {
+    const v = new THREE.Vector3(
       (l.x - hipMidX) * H,
       -(l.y - hipMidY) * H,
       -((l.z ?? 0) - hipMidZ) * H * zScale,
-    ),
-  )
+    )
+    if (cameraPitch !== 0) v.applyAxisAngle(new THREE.Vector3(1, 0, 0), -cameraPitch)
+    if (cameraYaw !== 0)   v.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraYaw)
+    return v
+  })
 }
+
+
 
 // Rebuild the skeleton with fixed anthropometric bone lengths. Bone
 // *orientations* are SLERPed between the start-pose and end-pose so joints
@@ -159,6 +172,8 @@ function buildFixedSkeleton(
   phase: number,
   ankleAnchors: AnkleAnchors,
   zScale = 1,
+  cameraPitch = 0,
+  cameraYaw = 0,
 ): THREE.Vector3[] {
   // Default positions for landmarks the skeleton rebuild doesn't touch
   // (eyes, ears, mouth, fingers): a simple position-lerp between endpoints.
@@ -184,62 +199,40 @@ function buildFixedSkeleton(
   out[L_HIP] = placeAt(midHipR, hipLineDir, ANTHRO.hipHalf * H)
   out[R_HIP] = placeAt(midHipR, hipLineDir.clone().negate(), ANTHRO.hipHalf * H)
 
-  // Floor plane: lower of the two START-pose ankle y's. Anchors are always
-  // pinned to this Y so the floor doesn't slide as the animation progresses.
+  // Floor plane: Because the camera pitch is mathematically reversed, 
+  // the feet are at their true, un-squashed physical depth below the hips!
+  // We can safely place the floor at the lowest reconstructed ankle.
   const floorY = Math.min(startW[L_ANKLE].y, startW[R_ANKLE].y)
 
-  // Median ankle anchors from the whole pose file, transformed to skeleton
-  // world-space using the START pose's hip midpoint (the same centering
-  // `toWorldLandmarks` applied). Fall back to start-pose ankle when no
-  // anchor is available (low-visibility fixture).
-  const startHipMidX = (startLms[L_HIP].x + startLms[R_HIP].x) / 2
-  const startHipMidZ = ((startLms[L_HIP].z ?? 0) + (startLms[R_HIP].z ?? 0)) / 2
-  const anchorToWorld = (a: { x: number; y: number; z: number }): THREE.Vector3 =>
-    new THREE.Vector3(
-      (a.x - startHipMidX) * H,
-      floorY,
-      -(a.z - startHipMidZ) * H * zScale,
-    )
-  // Start-phase hip positions needed for ankle clamping (must come before frozen ankles).
+  // Lock the feet to their positions in the start pose for this frame.
+  // We completely ignore ankleAnchors because ping pong drills involve footwork,
+  // so taking a median position over the whole video glues the feet together.
+  const ankleL_frozen = new THREE.Vector3(startW[L_ANKLE].x, floorY, startW[L_ANKLE].z)
+  const ankleR_frozen = new THREE.Vector3(startW[R_ANKLE].x, floorY, startW[R_ANKLE].z)
+
+  // Start-phase hip positions needed for knee direction reference.
   const startHipLineDirRaw = dirOf(startW[R_HIP], startW[L_HIP])
   const startHipL = placeAt(midHipR, startHipLineDirRaw,                 ANTHRO.hipHalf * H)
   const startHipR = placeAt(midHipR, startHipLineDirRaw.clone().negate(), ANTHRO.hipHalf * H)
 
-  // Clamp the ankle's horizontal distance from its hip joint to prevent
-  // noisy MediaPipe depth values from placing the foot outside leg reach,
-  // which would force the IK to produce a near-horizontal thigh.
-  const MAX_HORIZ = 0.25 * H
-  const clampToHip = (ankle: THREE.Vector3, hip: THREE.Vector3): THREE.Vector3 => {
-    const dx = ankle.x - hip.x
-    const dz = ankle.z - hip.z
-    const horiz = Math.sqrt(dx * dx + dz * dz)
-    if (horiz <= MAX_HORIZ) return ankle
-    return new THREE.Vector3(hip.x + dx * MAX_HORIZ / horiz, ankle.y, hip.z + dz * MAX_HORIZ / horiz)
-  }
-
-  const ankleL_raw = ankleAnchors
-    ? anchorToWorld(ankleAnchors.L)
-    : new THREE.Vector3(startW[L_ANKLE].x, floorY, startW[L_ANKLE].z)
-  const ankleR_raw = ankleAnchors
-    ? anchorToWorld(ankleAnchors.R)
-    : new THREE.Vector3(startW[R_ANKLE].x, floorY, startW[R_ANKLE].z)
-  const ankleL_frozen = clampToHip(ankleL_raw, startHipL)
-  const ankleR_frozen = clampToHip(ankleR_raw, startHipR)
+  // Body forward vector: Right-to-Left cross UP points towards the front of the body.
+  const startBodyForward = startHipLineDirRaw.clone().cross(UP).normalize()
 
   // Endpoint hip positions (phase=1) used to derive per-leg knee perpendiculars.
   const endHipLineDirRaw = dirOf(endW[R_HIP], endW[L_HIP])
   const endHipL   = placeAt(midHipR, endHipLineDirRaw,                         ANTHRO.hipHalf * H)
   const endHipR   = placeAt(midHipR, endHipLineDirRaw.clone().negate(),        ANTHRO.hipHalf * H)
+  const endBodyForward = endHipLineDirRaw.clone().cross(UP).normalize()
 
   // Per-leg knee-bend perpendicular, SLERPed between endpoints.
   const perpL = slerpDir(
-    kneePerpAt(startHipL, ankleL_frozen, startW[L_KNEE]),
-    kneePerpAt(endHipL,   ankleL_frozen, endW[L_KNEE]),
+    kneePerpAt(startHipL, ankleL_frozen, startW[L_KNEE], startBodyForward),
+    kneePerpAt(endHipL,   ankleL_frozen, endW[L_KNEE], endBodyForward),
     phase,
   )
   const perpR = slerpDir(
-    kneePerpAt(startHipR, ankleR_frozen, startW[R_KNEE]),
-    kneePerpAt(endHipR,   ankleR_frozen, endW[R_KNEE]),
+    kneePerpAt(startHipR, ankleR_frozen, startW[R_KNEE], startBodyForward),
+    kneePerpAt(endHipR,   ankleR_frozen, endW[R_KNEE], endBodyForward),
     phase,
   )
 
@@ -290,11 +283,23 @@ function buildFixedSkeleton(
   const midShEnd    = endW[L_SHOULDER].clone().add(endW[R_SHOULDER]).multiplyScalar(0.5)
   const midHipStart = startW[L_HIP].clone().add(startW[R_HIP]).multiplyScalar(0.5)
   const midHipEnd   = endW[L_HIP].clone().add(endW[R_HIP]).multiplyScalar(0.5)
-  const spineDir = slerpDir(
+  let spineDir = slerpDir(
     dirOf(midHipStart, midShStart),
     dirOf(midHipEnd,   midShEnd),
     phase,
   )
+
+  // Anatomical Spine Rule: prevent limbo (severe backward bending).
+  // The human spine can flex forward naturally, but backward extension is limited.
+  const currentBodyForward = slerpDir(startBodyForward, endBodyForward, phase)
+  if (spineDir.dot(currentBodyForward) < -0.1) {
+    // If spine leans backwards (away from the body's forward direction), force it up/forward.
+    spineDir = slerpDir(spineDir, UP, 0.6).normalize()
+    if (spineDir.dot(currentBodyForward) < -0.1) {
+      spineDir = UP.clone() // Hard fallback to straight vertical
+    }
+  }
+
   const midShR = placeAt(midHipR, spineDir, ANTHRO.spine * H)
 
   // Shoulders: mirror pair around rebuilt mid-shoulder along SLERPed line dir.
@@ -427,23 +432,38 @@ function Floor({ y }: { y: number }) {
 interface Props {
   startLms: Landmark[]
   endLms: Landmark[]
-  ankleAnchors?: AnkleAnchors
+  ankleAnchors?: AnkleAnchors | null
   phase: number
   width: number
   height: number
   zScale?: number
+  cameraPitch?: number
+  cameraYaw?: number
 }
 
-export default function Drill2Mannequin({ startLms, endLms, ankleAnchors = null, phase, width, height, zScale = 1 }: Props) {
+export default function Drill2Mannequin({ 
+  startLms, 
+  endLms, 
+  ankleAnchors = null, 
+  phase, 
+  width, 
+  height, 
+  zScale = 1,
+  // Approximate camera pitch down based on typical ping-pong angles
+  cameraPitch = 15 * Math.PI / 180,
+  // 6:30 camera position means camera is slightly offset left or right.
+  // We can tune this later, start with a 15-degree yaw.
+  cameraYaw = 15 * Math.PI / 180,
+}: Props) {
   // Rebuild the skeleton once per frame with fixed proportions. Bone
   // orientations are SLERPed between the two endpoint poses, so the animation
   // traces arcs instead of chords through the body. Camera and ground derive
   // from the rebuilt ankle positions.
   const v = useMemo(() => {
-    const startW = toWorldLandmarks(startLms, zScale)
-    const endW   = toWorldLandmarks(endLms, zScale)
-    return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale)
-  }, [startLms, endLms, ankleAnchors, phase, zScale])
+    const startW = toWorldLandmarks(startLms, zScale, cameraPitch, cameraYaw)
+    const endW   = toWorldLandmarks(endLms, zScale, cameraPitch, cameraYaw)
+    return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale, cameraPitch, cameraYaw)
+  }, [startLms, endLms, ankleAnchors, phase, zScale, cameraPitch, cameraYaw])
 
   // Ground sits just under the lower rebuilt ankle.
   const groundY = useMemo(
