@@ -460,8 +460,34 @@ export default function Drill2Mannequin({
   // traces arcs instead of chords through the body. Camera and ground derive
   // from the rebuilt ankle positions.
   const v = useMemo(() => {
+    const applyCoMBalancer = (w: THREE.Vector3[]) => {
+      // Calculate depth of upper body (shoulders) and base of support (ankles)
+      const torsoZ = (w[L_SHOULDER].z + w[R_SHOULDER].z) / 2
+      const torsoY = (w[L_SHOULDER].y + w[R_SHOULDER].y) / 2
+      const baseZ = (w[L_ANKLE].z + w[R_ANKLE].z) / 2
+      const baseY = (w[L_ANKLE].y + w[R_ANKLE].y) / 2
+      
+      const currentDiff = torsoZ - baseZ
+      // Athletic stance: shoulders sit ~10% of height in front of toes
+      const targetDiff = -0.1 * H 
+      
+      const dy = torsoY - baseY
+      if (dy > 0.2 * H) {
+        // Mathematically shear the Z-axis around the hips (y=0)
+        // This shifts upper body back and lower body forward without crushing Y heights!
+        const shear = (targetDiff - currentDiff) / dy
+        w.forEach(p => {
+          p.z += p.y * shear
+        })
+      }
+    }
+
     const startW = toWorldLandmarks(startLms, zScale, cameraPitch, cameraYaw)
     const endW   = toWorldLandmarks(endLms, zScale, cameraPitch, cameraYaw)
+    
+    applyCoMBalancer(startW)
+    applyCoMBalancer(endW)
+    
     return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale, cameraPitch, cameraYaw)
   }, [startLms, endLms, ankleAnchors, phase, zScale, cameraPitch, cameraYaw])
 
