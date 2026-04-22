@@ -318,16 +318,24 @@ export default function Drill2Preview({ onClose }: Props) {
     ctx.fillText(`humanizer ${humanizer ? 'on' : 'off'}`, 12, 92)
   }, [blended, alignedEnd, startLms, yaw, startFrame, endFrame, reps, humanizer, phase])
 
-  const stepStart = (delta: number) =>
-    setStartFrame(f => {
-      const total = totalFramesRef.current || Number.MAX_SAFE_INTEGER
-      return Math.max(0, Math.min(total - 1, f + delta))
-    })
-  const stepEnd = (delta: number) =>
-    setEndFrame(f => {
-      const total = totalFramesRef.current || Number.MAX_SAFE_INTEGER
-      return Math.max(0, Math.min(total - 1, f + delta))
-    })
+  const clampFrame = (n: number) => {
+    const total = totalFramesRef.current || Number.MAX_SAFE_INTEGER
+    return Math.max(0, Math.min(total - 1, Math.trunc(n)))
+  }
+  const stepStart = (delta: number) => setStartFrame(f => clampFrame(f + delta))
+  const stepEnd = (delta: number) => setEndFrame(f => clampFrame(f + delta))
+  const onStartInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    if (v === '') return
+    const n = Number(v)
+    if (Number.isFinite(n)) setStartFrame(clampFrame(n))
+  }
+  const onEndInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value
+    if (v === '') return
+    const n = Number(v)
+    if (Number.isFinite(n)) setEndFrame(clampFrame(n))
+  }
 
   const resetView = () => setYaw(0)
 
@@ -400,7 +408,15 @@ export default function Drill2Preview({ onClose }: Props) {
               className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 font-mono"
               onClick={() => stepStart(-1)}
             >◀</button>
-            <span className="font-mono text-gray-200 w-10 text-center">{startFrame}</span>
+            <input
+              type="number"
+              min={0}
+              max={(totalFramesRef.current || 1) - 1}
+              step={1}
+              value={startFrame}
+              onChange={onStartInput}
+              className="font-mono text-gray-200 w-16 text-center bg-gray-800 border border-gray-700 rounded px-1 py-0.5"
+            />
             <button
               className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 font-mono"
               onClick={() => stepStart(+1)}
@@ -412,7 +428,15 @@ export default function Drill2Preview({ onClose }: Props) {
               className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 font-mono"
               onClick={() => stepEnd(-1)}
             >◀</button>
-            <span className="font-mono text-gray-200 w-10 text-center">{endFrame}</span>
+            <input
+              type="number"
+              min={0}
+              max={(totalFramesRef.current || 1) - 1}
+              step={1}
+              value={endFrame}
+              onChange={onEndInput}
+              className="font-mono text-gray-200 w-16 text-center bg-gray-800 border border-gray-700 rounded px-1 py-0.5"
+            />
             <button
               className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 font-mono"
               onClick={() => stepEnd(+1)}
