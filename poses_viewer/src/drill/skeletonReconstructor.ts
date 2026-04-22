@@ -125,7 +125,14 @@ export function reconstructFromAnchor(
   // Body axes ────────────────────────────────────────────────────────────────
   // Hip frame: horizontal yaw set by bodyRotationDeg. Hips and legs live here.
   const forward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg)
-  const across: V3 = rotY([1, 0, 0], anchor.bodyRotationDeg)
+  const acrossLevel: V3 = rotY([1, 0, 0], anchor.bodyRotationDeg)
+  // Pelvic roll: tilt the hip-across vector around forward. Positive lifts
+  // the player's right hip (weight onto left leg). Legs still attach to the
+  // rolled across so pelvic tilt propagates to leg positions, but the torso
+  // stays vertical — bending is done independently via torsoSideBendDeg.
+  const across: V3 = anchor.pelvicRollDeg !== 0
+    ? normalize(rotAroundAxis(acrossLevel, forward, anchor.pelvicRollDeg))
+    : acrossLevel
   // Shoulder frame: hip yaw + an independent corpus rotation. Shoulders and
   // arms live here. When shoulderRotationDeg = 0 the two frames coincide.
   const shoulderForward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg + anchor.shoulderRotationDeg)
@@ -133,10 +140,15 @@ export function reconstructFromAnchor(
 
   // Torso tilt (single segment): rotate the torso-up vector forward around
   // the hip line. The whole spine rotates rigidly — hips are the pivot,
-  // shoulders translate forward by sin(tilt)*torso.
-  const torsoUp: V3 = anchor.dirOverrides?.torsoUp
+  // shoulders translate forward by sin(tilt)*torso. Then apply side-bend
+  // around the body-forward axis so a relaxed/imbalanced posture can lean
+  // sideways without tipping the whole body.
+  const torsoUpFromTilt: V3 = anchor.dirOverrides?.torsoUp
     ? normalize(anchor.dirOverrides.torsoUp as V3)
-    : normalize(rotAroundAxis([0, -1, 0], across, anchor.torsoTiltDeg))
+    : normalize(rotAroundAxis([0, -1, 0], acrossLevel, anchor.torsoTiltDeg))
+  const torsoUp: V3 = anchor.torsoSideBendDeg !== 0
+    ? normalize(rotAroundAxis(torsoUpFromTilt, forward, anchor.torsoSideBendDeg))
+    : torsoUpFromTilt
   const torsoDown: V3 = scale(torsoUp, -1)
 
   // Automatic tilt compensation ────────────────────────────────────────────
@@ -168,7 +180,10 @@ export function reconstructFromAnchor(
   // along torsoUp. The shoulder LINE is oriented by `shoulderAcross`, which
   // carries the corpus rotation — so twisting the trunk pivots L/R shoulder
   // around shoulderMid without moving the spine base.
-  const shoulderMid: V3 = add(hipMid, scale(torsoUp, B.torso))
+  // Shoulder shrug raises/lowers the shoulder line along torsoUp without
+  // stretching the spine in the FK chain (head still rides on spineUp, so
+  // the head lifts with the shoulders — matches physical shrug motion).
+  const shoulderMid: V3 = add(hipMid, scale(torsoUp, B.torso + anchor.shoulderShrugNorm))
   const lShoulder: V3 = add(shoulderMid, scale(shoulderAcross,  B.shoulderWidth / 2))
   const rShoulder: V3 = add(shoulderMid, scale(shoulderAcross, -B.shoulderWidth / 2))
   out[LM.L_SHOULDER] = mkLm(LM.L_SHOULDER, lShoulder)

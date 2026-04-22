@@ -57,13 +57,13 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   },
   shoulderMid: {
     landmarkIdx: [LM.L_SHOULDER, LM.R_SHOULDER],
-    controlParams: ['torsoTiltDeg', 'bodyRotationDeg', 'shoulderRotationDeg'],
+    controlParams: ['torsoTiltDeg', 'bodyRotationDeg', 'shoulderRotationDeg', 'torsoSideBendDeg', 'shoulderShrugNorm'],
     bodyPart: 'torso',
     displayName: 'середина плечей',
   },
   hipMid: {
     landmarkIdx: [LM.L_HIP, LM.R_HIP],
-    controlParams: ['bodyRotationDeg', 'torsoTiltDeg', 'hipMidX', 'hipMidY'],
+    controlParams: ['bodyRotationDeg', 'pelvicRollDeg', 'torsoTiltDeg', 'hipMidX', 'hipMidY'],
     bodyPart: 'torso',
     displayName: 'таз',
   },

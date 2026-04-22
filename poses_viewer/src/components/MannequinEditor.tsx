@@ -2,14 +2,16 @@
 // linear-frolicking-crayon.md.
 //
 // Wraps Drill2Mannequin in a single-anchor editing context: no START/END
-// phases, no fixture playback. The anchor starts at NEUTRAL_POSE and the
-// user shapes it via sliders or direct joint selection. Built on top of
-// SelectionProvider so the canvas, sliders, HUD, and legend can all observe
-// the same selection without prop drilling.
+// phases, no fixture playback. The anchor starts at STANDING_POSE (relaxed
+// upright pose, distinct from the pre-loaded athletic crouch NEUTRAL_POSE
+// used by DrillEditor for drill playback) and the user shapes it via
+// sliders or direct joint selection. Built on top of SelectionProvider so
+// the canvas, sliders, HUD, and legend can all observe the same selection
+// without prop drilling.
 
 import { useMemo, useState } from 'react'
 import type { PoseAnchor } from '../drill/PoseAnchor'
-import { cloneAnchor, NEUTRAL_POSE } from '../drill/neutralPose'
+import { cloneAnchor, STANDING_POSE } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
 import { JOINT_MAP } from '../drill/jointMap'
 import { SelectionProvider, useSelection } from '../context/SelectionContext'
@@ -33,7 +35,7 @@ export default function MannequinEditor({ onClose }: Props) {
 
 function EditorShell({ onClose }: Props) {
   const { selectedJoint, setSelectedJoint } = useSelection()
-  const [anchor, setAnchor] = useState<PoseAnchor>(() => cloneAnchor(NEUTRAL_POSE))
+  const [anchor, setAnchor] = useState<PoseAnchor>(() => cloneAnchor(STANDING_POSE))
 
   // Single FK pass per anchor change. Re-runs only on anchor edits — selection
   // doesn't invalidate geometry.
@@ -52,7 +54,7 @@ function EditorShell({ onClose }: Props) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Mannequin Editor</h2>
           <div className="flex gap-2">
-            <ResetPoseButton anchor={anchor} onReset={setAnchor} />
+            <ResetPoseButton anchor={anchor} defaultPose={STANDING_POSE} onReset={setAnchor} />
             <button
               className="px-3 py-1.5 rounded bg-gray-700 text-sm hover:bg-gray-600"
               onClick={onClose}
@@ -97,7 +99,7 @@ function EditorShell({ onClose }: Props) {
             onPhaseChange={() => { /* editor is single-anchor; phase selector is inert */ }}
             anchor={anchor}
             onChange={setAnchor}
-            onReset={() => setAnchor(cloneAnchor(NEUTRAL_POSE))}
+            onReset={() => setAnchor(cloneAnchor(STANDING_POSE))}
             highlightedParams={highlightedParams}
             hidePhaseSelector
           />

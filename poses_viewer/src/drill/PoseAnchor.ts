@@ -17,6 +17,21 @@ export interface PoseAnchor {
    *  further back to the player's right; negative = further left. Arms
    *  follow the shoulder frame, so rotating shoulders sweeps both arms. */
   shoulderRotationDeg: number
+  /** Lateral pelvic tilt (roll around the body-forward axis). Positive =
+   *  player's right hip rises (weight shift onto left leg). Rotates the
+   *  hip-across vector but does NOT propagate into torsoUp — the torso is
+   *  side-bent independently via torsoSideBendDeg. */
+  pelvicRollDeg: number
+  /** Lateral torso bend (roll of torsoUp around the body-forward axis).
+   *  Positive = upper body leans to the player's right, so left shoulder
+   *  rises and right shoulder drops. Applied AFTER torsoTiltDeg so the
+   *  forward lean and side-bend compose cleanly. */
+  torsoSideBendDeg: number
+  /** Shoulder shrug: extra offset applied to the shoulder midpoint along
+   *  torsoUp, in H-normalized units. Positive raises both shoulders toward
+   *  the ears; negative depresses them. Separate from torsoTilt so you can
+   *  hunch without tilting the spine. */
+  shoulderShrugNorm: number
   rightShoulderAngleDeg: number     // forward flexion (0 = arm down, 90 = arm forward, 180 = arm up)
   rightShoulderAbductionDeg: number // sideways (0 = arm along torso, 90 = horizontal out to side)
   rightElbowAngleDeg: number
@@ -90,8 +105,11 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     name: 'Torso',
     params: [
       { key: 'bodyRotationDeg',     label: 'Hip rotation',       min: -90, max: 90, step: 1 },
+      { key: 'pelvicRollDeg',       label: 'Pelvic roll',        min: -30, max: 30, step: 1 },
       { key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
       { key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
+      { key: 'torsoSideBendDeg',    label: 'Torso side-bend',    min: -30, max: 30, step: 1 },
+      { key: 'shoulderShrugNorm',   label: 'Shoulder shrug',     min: -0.03, max: 0.06, step: 0.005 },
     ],
   },
   {

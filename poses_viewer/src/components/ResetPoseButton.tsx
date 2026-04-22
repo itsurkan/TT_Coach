@@ -1,23 +1,25 @@
-// Small header-bar button that returns the editor's anchor to NEUTRAL_POSE.
-// If the current anchor differs from the baseline a confirm dialog guards
-// against accidental loss of edits.
+// Small header-bar button that returns the editor's anchor to a caller-
+// supplied default pose. The button stays clickable even when the anchor is
+// already at the default — it's a no-op then, but showing it active makes
+// the control predictable (the user clicks it regardless of dirty state).
+// A confirm dialog only appears when the anchor differs from the default.
 
-import { cloneAnchor, NEUTRAL_POSE } from '../drill/neutralPose'
+import { cloneAnchor } from '../drill/neutralPose'
 import type { PoseAnchor } from '../drill/PoseAnchor'
 
 interface Props {
   anchor: PoseAnchor
+  defaultPose: PoseAnchor
   onReset: (next: PoseAnchor) => void
 }
 
-/** Deep-compares every scalar field in PoseAnchor against NEUTRAL_POSE.
- *  dirOverrides is ignored — NEUTRAL_POSE has none, so any overrides on
- *  `anchor` already count as edits via the fallback branch. */
-function isAtNeutral(anchor: PoseAnchor): boolean {
+/** Deep-compares every scalar field in PoseAnchor against the default.
+ *  dirOverrides is ignored — if set on `anchor`, that counts as an edit. */
+function isAtDefault(anchor: PoseAnchor, defaultPose: PoseAnchor): boolean {
   if (anchor.dirOverrides) return false
   const a = anchor as unknown as Record<string, unknown>
-  const n = NEUTRAL_POSE as unknown as Record<string, unknown>
-  const keys = Object.keys(NEUTRAL_POSE) as (keyof PoseAnchor)[]
+  const n = defaultPose as unknown as Record<string, unknown>
+  const keys = Object.keys(defaultPose) as (keyof PoseAnchor)[]
   for (const k of keys) {
     if (k === 'dirOverrides') continue
     if (a[k] !== n[k]) return false
@@ -25,26 +27,24 @@ function isAtNeutral(anchor: PoseAnchor): boolean {
   return true
 }
 
-export default function ResetPoseButton({ anchor, onReset }: Props) {
-  const dirty = !isAtNeutral(anchor)
+export default function ResetPoseButton({ anchor, defaultPose, onReset }: Props) {
+  const dirty = !isAtDefault(anchor, defaultPose)
   const handleClick = () => {
-    if (dirty) {
-      const ok = window.confirm('Відкинути незбережені зміни і повернутися до базової пози?')
-      if (!ok) return
-    }
-    onReset(cloneAnchor(NEUTRAL_POSE))
+    if (!dirty) return
+    const ok = window.confirm('Відкинути незбережені зміни і повернутися до базової пози?')
+    if (!ok) return
+    onReset(cloneAnchor(defaultPose))
   }
   return (
     <button
       onClick={handleClick}
-      disabled={!dirty}
       className={
         'px-3 py-1.5 rounded text-sm ' +
         (dirty
           ? 'bg-gray-700 hover:bg-gray-600 text-gray-100'
-          : 'bg-gray-800 text-gray-500 cursor-not-allowed')
+          : 'bg-gray-800 text-gray-500 hover:bg-gray-700')
       }
-      title={dirty ? 'Reset to NEUTRAL_POSE' : 'Already at NEUTRAL_POSE'}
+      title={dirty ? 'Reset to default pose' : 'Already at default pose'}
     >
       ↺ Reset
     </button>

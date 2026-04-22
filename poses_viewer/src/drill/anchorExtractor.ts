@@ -252,8 +252,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
 
   return {
     bodyRotationDeg: clamp(bodyRotationDeg, -90, 90),
+    // Pelvic roll / torso side-bend / shoulder shrug aren't reliably decomposable
+    // from a single-view MediaPipe pose; extractor leaves them at 0 and the
+    // dirOverrides path carries any implicit lean via torsoUp/hip vectors.
+    pelvicRollDeg: 0,
     shoulderRotationDeg: clamp(shoulderRotationDeg, -90, 90),
     torsoTiltDeg: clamp(torsoTiltDeg, 0, 75),
+    torsoSideBendDeg: 0,
+    shoulderShrugNorm: 0,
     rightShoulderAngleDeg: clamp(rightShoulderAngleDeg, -30, 180),
     rightShoulderAbductionDeg: clamp(rightShoulderAbductionDeg, -30, 180),
     rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),

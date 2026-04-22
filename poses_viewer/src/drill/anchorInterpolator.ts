@@ -5,8 +5,11 @@ export function lerpAnchor(a: PoseAnchor, b: PoseAnchor, t: number): PoseAnchor 
   const s = 1 - t
   return {
     bodyRotationDeg:        a.bodyRotationDeg        * s + b.bodyRotationDeg        * t,
+    pelvicRollDeg:          a.pelvicRollDeg          * s + b.pelvicRollDeg          * t,
     shoulderRotationDeg:    a.shoulderRotationDeg    * s + b.shoulderRotationDeg    * t,
     torsoTiltDeg:           a.torsoTiltDeg           * s + b.torsoTiltDeg           * t,
+    torsoSideBendDeg:       a.torsoSideBendDeg       * s + b.torsoSideBendDeg       * t,
+    shoulderShrugNorm:      a.shoulderShrugNorm      * s + b.shoulderShrugNorm      * t,
     rightShoulderAngleDeg:     a.rightShoulderAngleDeg     * s + b.rightShoulderAngleDeg     * t,
     rightShoulderAbductionDeg: a.rightShoulderAbductionDeg * s + b.rightShoulderAbductionDeg * t,
     rightElbowAngleDeg:        a.rightElbowAngleDeg        * s + b.rightElbowAngleDeg        * t,

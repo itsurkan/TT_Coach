@@ -22,7 +22,7 @@ function diffKey(a: PoseAnchor, b: PoseAnchor): keyof PoseAnchor | null {
   const keys = Object.keys(b) as (keyof PoseAnchor)[]
   for (const k of keys) {
     if (k === 'dirOverrides') continue
-    if ((a as Record<string, unknown>)[k] !== (b as Record<string, unknown>)[k]) return k
+    if ((a as unknown as Record<string, unknown>)[k] !== (b as unknown as Record<string, unknown>)[k]) return k
   }
   return null
 }
