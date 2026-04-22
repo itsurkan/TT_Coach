@@ -24,6 +24,7 @@ import TableLabelsOverlay from './components/TableLabelsOverlay'
 import DatasetBrowser from './components/DatasetBrowser'
 import DrillEditor from './components/DrillEditor'
 import Drill2Preview from './components/Drill2Preview'
+import MannequinEditor from './components/MannequinEditor'
 
 function toNumber(value: unknown, fallback = 0): number {
   const num = Number(value)
@@ -261,6 +262,7 @@ export default function App() {
   const [showDatasetBrowser, setShowDatasetBrowser] = useState(false)
   const [showDrillEditor, setShowDrillEditor] = useState(false)
   const [showDrill2, setShowDrill2] = useState(false)
+  const [showMannequinEditor, setShowMannequinEditor] = useState(false)
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const isPanning = useRef(false)
@@ -1032,14 +1034,6 @@ export default function App() {
     return <DatasetBrowser onClose={() => setShowDatasetBrowser(false)} />
   }
 
-  if (showDrillEditor) {
-    return <DrillEditor onClose={() => setShowDrillEditor(false)} />
-  }
-
-  if (showDrill2) {
-    return <Drill2Preview onClose={() => setShowDrill2(false)} />
-  }
-
   return (
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col select-none overflow-hidden">
 
@@ -1067,6 +1061,14 @@ export default function App() {
           title="Animate frame 57 → 63 from andrii_1 poses"
         >
           + Add Drill 2
+        </button>
+
+        <button
+          className="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded text-sm"
+          onClick={() => setShowMannequinEditor(true)}
+          title="Interactive 3D mannequin editor — click joints, coloured body parts"
+        >
+          + Mannequin Editor
         </button>
 
         {videoList.length > 0 && (
@@ -1158,6 +1160,14 @@ export default function App() {
         {error && <span className="text-red-400 text-sm truncate max-w-xs">{error}</span>}
       </header>
 
+      {showDrillEditor ? (
+        <DrillEditor onClose={() => setShowDrillEditor(false)} />
+      ) : showDrill2 ? (
+        <Drill2Preview onClose={() => setShowDrill2(false)} />
+      ) : showMannequinEditor ? (
+        <MannequinEditor onClose={() => setShowMannequinEditor(false)} />
+      ) : (
+      <>
       {/* Body */}
       {data ? (
         <div className="flex flex-1 min-h-0">
@@ -1758,6 +1768,8 @@ export default function App() {
           labels={showLabels ? labels : undefined}
           tableLabels={(showTableLabels || showTableView) ? tableLabels : undefined}
         />
+      )}
+      </>
       )}
     </div>
   )

@@ -10,10 +10,13 @@
 // is hip-rooted (mid-hip at origin, every other joint grown outward), so
 // feet land wherever the rebuild puts them; proportions always win.
 
-import { Canvas } from '@react-three/fiber'
+import { Canvas, type ThreeEvent } from '@react-three/fiber'
 import { Grid, OrbitControls } from '@react-three/drei'
 import { useMemo } from 'react'
 import * as THREE from 'three'
+
+import { COLOR_SCHEME, type BodyPartId } from '../drill/jointColorScheme'
+import type { JointId } from '../drill/jointMap'
 
 type Landmark = { x: number; y: number; z?: number; visibility?: number }
 
@@ -321,9 +324,20 @@ function buildFixedSkeleton(
   return out
 }
 
+interface MeshStyleProps {
+  /** Emissive overlay for selection/flag highlight. Omit for no glow. */
+  emissive?: string
+  /** Associates the mesh with a joint so clicks dispatch a known JointId. */
+  jointId?: JointId
+  onJointClick?: (id: JointId) => void
+}
+
 function Capsule({
   from, to, radius, color = COLOR_BODY,
-}: { from: THREE.Vector3; to: THREE.Vector3; radius: number; color?: string }) {
+  emissive, jointId, onJointClick,
+}: {
+  from: THREE.Vector3; to: THREE.Vector3; radius: number; color?: string
+} & MeshStyleProps) {
   const mid = new THREE.Vector3().addVectors(from, to).multiplyScalar(0.5)
   const delta = new THREE.Vector3().subVectors(to, from)
   // Capsule length is the cylinder segment only; hemispherical caps add 2*radius
@@ -331,24 +345,77 @@ function Capsule({
   const length = Math.max(delta.length() - radius * 2, 0.01)
   const dir = delta.lengthSq() > 1e-10 ? delta.clone().normalize() : UP
   const quat = new THREE.Quaternion().setFromUnitVectors(UP, dir)
+  const handleClick = jointId && onJointClick
+    ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onJointClick(jointId) }
+    : undefined
   return (
-    <mesh position={mid} quaternion={quat} castShadow receiveShadow>
+    <mesh
+      position={mid}
+      quaternion={quat}
+      castShadow
+      receiveShadow
+      onClick={handleClick}
+    >
       <capsuleGeometry args={[radius, length, 4, 12]} />
-      <meshStandardMaterial color={color} roughness={ROUGHNESS} metalness={0} />
+      <meshStandardMaterial
+        color={color}
+        emissive={emissive ?? '#000000'}
+        emissiveIntensity={emissive ? 0.55 : 0}
+        roughness={ROUGHNESS}
+        metalness={0}
+      />
     </mesh>
   )
 }
 
-function Joint({ at, radius, color = COLOR_JOINT }: { at: THREE.Vector3; radius: number; color?: string }) {
+function Joint({
+  at, radius, color = COLOR_JOINT,
+  emissive, jointId, onJointClick,
+}: {
+  at: THREE.Vector3; radius: number; color?: string
+} & MeshStyleProps) {
+  const handleClick = jointId && onJointClick
+    ? (e: ThreeEvent<MouseEvent>) => { e.stopPropagation(); onJointClick(jointId) }
+    : undefined
   return (
-    <mesh position={at} castShadow receiveShadow>
+    <mesh position={at} castShadow receiveShadow onClick={handleClick}>
       <sphereGeometry args={[radius, 20, 16]} />
-      <meshStandardMaterial color={color} roughness={ROUGHNESS} metalness={0} />
+      <meshStandardMaterial
+        color={color}
+        emissive={emissive ?? '#000000'}
+        emissiveIntensity={emissive ? 0.65 : 0}
+        roughness={ROUGHNESS}
+        metalness={0}
+      />
     </mesh>
   )
 }
 
-function Mannequin({ v }: { v: THREE.Vector3[] }) {
+interface MannequinInteractivity {
+  /** When true, each mesh uses its body-part colour from COLOR_SCHEME;
+   *  otherwise the legacy single-cream palette is used. */
+  useBodyColors?: boolean
+  /** Joint currently selected — its mesh gets an emissive highlight. */
+  selectedJoint?: JointId | null
+  /** Joints flagged by the constraint validator (Phase 6). Flagged meshes
+   *  get a yellow emissive overlay regardless of selection. */
+  flaggedJoints?: readonly JointId[]
+  /** Fires when the user clicks a joint-associated mesh. */
+  onJointClick?: (id: JointId) => void
+}
+
+// Hard-coded mesh → (body part, optional joint) table. Keeping it alongside
+// the JSX means a new mesh can only be added by filling in both fields,
+// so colour + click routing stay in sync with geometry.
+const SELECT_FLAG_COLOR = '#FFD84A'
+
+function Mannequin({
+  v,
+  useBodyColors = false,
+  selectedJoint = null,
+  flaggedJoints,
+  onJointClick,
+}: { v: THREE.Vector3[] } & MannequinInteractivity) {
   const headR = ANTHRO.headR * H
   const neckLen = ANTHRO.neck * H
 
@@ -360,46 +427,192 @@ function Mannequin({ v }: { v: THREE.Vector3[] }) {
   const neckTop = midSh.clone().add(spineUp.clone().multiplyScalar(neckLen))
   const headCenter = neckTop.clone().add(spineUp.clone().multiplyScalar(headR))
 
+  // Colour + emissive resolution. Legacy branch short-circuits to the old
+  // cream palette so existing callers (DrillEditor) see no visual change.
+  const colorFor = (bp: BodyPartId, legacy: string): string =>
+    useBodyColors ? COLOR_SCHEME[bp].color : legacy
+  const emissiveFor = (jointId: JointId | undefined, bp: BodyPartId): string | undefined => {
+    if (!jointId) return undefined
+    if (flaggedJoints && flaggedJoints.includes(jointId)) return SELECT_FLAG_COLOR
+    if (useBodyColors && jointId === selectedJoint) return COLOR_SCHEME[bp].emissiveHighlight
+    return undefined
+  }
+
   return (
     <group>
       {/* Neck + head. */}
-      <Capsule from={midSh} to={neckTop} radius={RADIUS.neck * H} />
-      <Joint at={headCenter} radius={headR} color={COLOR_BODY} />
+      <Capsule
+        from={midSh} to={neckTop} radius={RADIUS.neck * H}
+        color={colorFor('torso', COLOR_BODY)}
+        emissive={emissiveFor('neck', 'torso')}
+        jointId="neck" onJointClick={onJointClick}
+      />
+      <Joint
+        at={headCenter} radius={headR}
+        color={colorFor('head', COLOR_BODY)}
+        emissive={emissiveFor('head', 'head')}
+        jointId="head" onJointClick={onJointClick}
+      />
 
-      {/* Spine + chest/pelvis bars. */}
-      <Capsule from={midSh} to={midHip} radius={RADIUS.spine * H} />
-      <Capsule from={v[L_SHOULDER]} to={v[R_SHOULDER]} radius={RADIUS.chestBar * H} />
-      <Capsule from={v[L_HIP]} to={v[R_HIP]} radius={RADIUS.pelvisBar * H} />
+      {/* Spine + chest/pelvis bars — spine/chest route to shoulderMid, pelvis to hipMid. */}
+      <Capsule
+        from={midSh} to={midHip} radius={RADIUS.spine * H}
+        color={colorFor('torso', COLOR_BODY)}
+        emissive={emissiveFor('shoulderMid', 'torso')}
+        jointId="shoulderMid" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[L_SHOULDER]} to={v[R_SHOULDER]} radius={RADIUS.chestBar * H}
+        color={colorFor('torso', COLOR_BODY)}
+        emissive={emissiveFor('shoulderMid', 'torso')}
+        jointId="shoulderMid" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[L_HIP]} to={v[R_HIP]} radius={RADIUS.pelvisBar * H}
+        color={colorFor('torso', COLOR_BODY)}
+        emissive={emissiveFor('hipMid', 'torso')}
+        jointId="hipMid" onJointClick={onJointClick}
+      />
 
       {/* Arm joints. */}
-      <Joint at={v[L_SHOULDER]} radius={RADIUS.shoulder * H} />
-      <Joint at={v[R_SHOULDER]} radius={RADIUS.shoulder * H} />
-      <Joint at={v[L_ELBOW]}    radius={RADIUS.elbow * H}    />
-      <Joint at={v[R_ELBOW]}    radius={RADIUS.elbow * H}    />
-      <Joint at={v[L_WRIST]}    radius={RADIUS.wrist * H}    />
-      <Joint at={v[R_WRIST]}    radius={RADIUS.wrist * H}    />
+      <Joint
+        at={v[L_SHOULDER]} radius={RADIUS.shoulder * H}
+        color={colorFor('leftUpperArm', COLOR_JOINT)}
+        emissive={emissiveFor('leftShoulder', 'leftUpperArm')}
+        jointId="leftShoulder" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_SHOULDER]} radius={RADIUS.shoulder * H}
+        color={colorFor('rightUpperArm', COLOR_JOINT)}
+        emissive={emissiveFor('rightShoulder', 'rightUpperArm')}
+        jointId="rightShoulder" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[L_ELBOW]} radius={RADIUS.elbow * H}
+        color={colorFor('leftForearm', COLOR_JOINT)}
+        emissive={emissiveFor('leftElbow', 'leftForearm')}
+        jointId="leftElbow" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_ELBOW]} radius={RADIUS.elbow * H}
+        color={colorFor('rightForearm', COLOR_JOINT)}
+        emissive={emissiveFor('rightElbow', 'rightForearm')}
+        jointId="rightElbow" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[L_WRIST]} radius={RADIUS.wrist * H}
+        color={colorFor('leftHand', COLOR_JOINT)}
+        emissive={emissiveFor('leftWrist', 'leftHand')}
+        jointId="leftWrist" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_WRIST]} radius={RADIUS.wrist * H}
+        color={colorFor('rightHand', COLOR_JOINT)}
+        emissive={emissiveFor('rightWrist', 'rightHand')}
+        jointId="rightWrist" onJointClick={onJointClick}
+      />
 
-      {/* Arm bones. */}
-      <Capsule from={v[L_SHOULDER]} to={v[L_ELBOW]} radius={RADIUS.upperArm * H} />
-      <Capsule from={v[R_SHOULDER]} to={v[R_ELBOW]} radius={RADIUS.upperArm * H} />
-      <Capsule from={v[L_ELBOW]}    to={v[L_WRIST]} radius={RADIUS.forearm * H}  />
-      <Capsule from={v[R_ELBOW]}    to={v[R_WRIST]} radius={RADIUS.forearm * H}  />
+      {/* Arm bones — upper arm to shoulder joint, forearm to elbow joint. */}
+      <Capsule
+        from={v[L_SHOULDER]} to={v[L_ELBOW]} radius={RADIUS.upperArm * H}
+        color={colorFor('leftUpperArm', COLOR_BODY)}
+        emissive={emissiveFor('leftShoulder', 'leftUpperArm')}
+        jointId="leftShoulder" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[R_SHOULDER]} to={v[R_ELBOW]} radius={RADIUS.upperArm * H}
+        color={colorFor('rightUpperArm', COLOR_BODY)}
+        emissive={emissiveFor('rightShoulder', 'rightUpperArm')}
+        jointId="rightShoulder" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[L_ELBOW]} to={v[L_WRIST]} radius={RADIUS.forearm * H}
+        color={colorFor('leftForearm', COLOR_BODY)}
+        emissive={emissiveFor('leftElbow', 'leftForearm')}
+        jointId="leftElbow" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[R_ELBOW]} to={v[R_WRIST]} radius={RADIUS.forearm * H}
+        color={colorFor('rightForearm', COLOR_BODY)}
+        emissive={emissiveFor('rightElbow', 'rightForearm')}
+        jointId="rightElbow" onJointClick={onJointClick}
+      />
 
       {/* Leg joints. */}
-      <Joint at={v[L_HIP]}   radius={RADIUS.hip * H}   />
-      <Joint at={v[R_HIP]}   radius={RADIUS.hip * H}   />
-      <Joint at={v[L_KNEE]}  radius={RADIUS.knee * H}  />
-      <Joint at={v[R_KNEE]}  radius={RADIUS.knee * H}  />
-      <Joint at={v[L_ANKLE]} radius={RADIUS.ankle * H} />
-      <Joint at={v[R_ANKLE]} radius={RADIUS.ankle * H} />
+      <Joint
+        at={v[L_HIP]} radius={RADIUS.hip * H}
+        color={colorFor('leftThigh', COLOR_JOINT)}
+        emissive={emissiveFor('leftHip', 'leftThigh')}
+        jointId="leftHip" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_HIP]} radius={RADIUS.hip * H}
+        color={colorFor('rightThigh', COLOR_JOINT)}
+        emissive={emissiveFor('rightHip', 'rightThigh')}
+        jointId="rightHip" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[L_KNEE]} radius={RADIUS.knee * H}
+        color={colorFor('leftShin', COLOR_JOINT)}
+        emissive={emissiveFor('leftKnee', 'leftShin')}
+        jointId="leftKnee" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_KNEE]} radius={RADIUS.knee * H}
+        color={colorFor('rightShin', COLOR_JOINT)}
+        emissive={emissiveFor('rightKnee', 'rightShin')}
+        jointId="rightKnee" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[L_ANKLE]} radius={RADIUS.ankle * H}
+        color={colorFor('leftFoot', COLOR_JOINT)}
+        emissive={emissiveFor('leftAnkle', 'leftFoot')}
+        jointId="leftAnkle" onJointClick={onJointClick}
+      />
+      <Joint
+        at={v[R_ANKLE]} radius={RADIUS.ankle * H}
+        color={colorFor('rightFoot', COLOR_JOINT)}
+        emissive={emissiveFor('rightAnkle', 'rightFoot')}
+        jointId="rightAnkle" onJointClick={onJointClick}
+      />
 
       {/* Leg bones + feet. */}
-      <Capsule from={v[L_HIP]}   to={v[L_KNEE]}  radius={RADIUS.thigh * H} />
-      <Capsule from={v[R_HIP]}   to={v[R_KNEE]}  radius={RADIUS.thigh * H} />
-      <Capsule from={v[L_KNEE]}  to={v[L_ANKLE]} radius={RADIUS.shin * H}  />
-      <Capsule from={v[R_KNEE]}  to={v[R_ANKLE]} radius={RADIUS.shin * H}  />
-      <Capsule from={v[L_ANKLE]} to={v[L_FOOT]}  radius={RADIUS.foot * H}  />
-      <Capsule from={v[R_ANKLE]} to={v[R_FOOT]}  radius={RADIUS.foot * H}  />
+      <Capsule
+        from={v[L_HIP]} to={v[L_KNEE]} radius={RADIUS.thigh * H}
+        color={colorFor('leftThigh', COLOR_BODY)}
+        emissive={emissiveFor('leftHip', 'leftThigh')}
+        jointId="leftHip" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[R_HIP]} to={v[R_KNEE]} radius={RADIUS.thigh * H}
+        color={colorFor('rightThigh', COLOR_BODY)}
+        emissive={emissiveFor('rightHip', 'rightThigh')}
+        jointId="rightHip" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[L_KNEE]} to={v[L_ANKLE]} radius={RADIUS.shin * H}
+        color={colorFor('leftShin', COLOR_BODY)}
+        emissive={emissiveFor('leftKnee', 'leftShin')}
+        jointId="leftKnee" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[R_KNEE]} to={v[R_ANKLE]} radius={RADIUS.shin * H}
+        color={colorFor('rightShin', COLOR_BODY)}
+        emissive={emissiveFor('rightKnee', 'rightShin')}
+        jointId="rightKnee" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[L_ANKLE]} to={v[L_FOOT]} radius={RADIUS.foot * H}
+        color={colorFor('leftFoot', COLOR_BODY)}
+        emissive={emissiveFor('leftAnkle', 'leftFoot')}
+        jointId="leftAnkle" onJointClick={onJointClick}
+      />
+      <Capsule
+        from={v[R_ANKLE]} to={v[R_FOOT]} radius={RADIUS.foot * H}
+        color={colorFor('rightFoot', COLOR_BODY)}
+        emissive={emissiveFor('rightAnkle', 'rightFoot')}
+        jointId="rightAnkle" onJointClick={onJointClick}
+      />
     </group>
   )
 }
@@ -431,7 +644,7 @@ function Floor({ y }: { y: number }) {
   )
 }
 
-interface Props {
+interface Props extends MannequinInteractivity {
   startLms: Landmark[]
   endLms: Landmark[]
   ankleAnchors?: AnkleAnchors | null
@@ -441,21 +654,28 @@ interface Props {
   zScale?: number
   cameraPitch?: number
   cameraYaw?: number
+  /** Fires when a click lands outside any mesh — used to clear selection. */
+  onDeselect?: () => void
 }
 
-export default function Drill2Mannequin({ 
-  startLms, 
-  endLms, 
-  ankleAnchors = null, 
-  phase, 
-  width, 
-  height, 
+export default function Drill2Mannequin({
+  startLms,
+  endLms,
+  ankleAnchors = null,
+  phase,
+  width,
+  height,
   zScale = 1,
   // Approximate camera pitch down based on typical ping-pong angles
   cameraPitch = 15 * Math.PI / 180,
   // 6:30 camera position means camera is slightly offset left or right.
   // We can tune this later, start with a 15-degree yaw.
   cameraYaw = 15 * Math.PI / 180,
+  useBodyColors = false,
+  selectedJoint = null,
+  flaggedJoints,
+  onJointClick,
+  onDeselect,
 }: Props) {
   // Rebuild the skeleton once per frame with fixed proportions. Bone
   // orientations are SLERPed between the two endpoint poses, so the animation
@@ -511,7 +731,11 @@ export default function Drill2Mannequin({
       style={{ width, height }}
       className="border border-gray-800 rounded bg-gray-900 overflow-hidden"
     >
-      <Canvas shadows camera={{ position: [0, targetY, 4.5], fov: 32 }}>
+      <Canvas
+        shadows
+        camera={{ position: [0, targetY, 4.5], fov: 32 }}
+        onPointerMissed={onDeselect ? () => onDeselect() : undefined}
+      >
         <color attach="background" args={['#0A0F1A']} />
         <ambientLight intensity={0.55} />
         <directionalLight
@@ -525,7 +749,13 @@ export default function Drill2Mannequin({
           shadow-camera-top={2}
           shadow-camera-bottom={-2}
         />
-        <Mannequin v={v} />
+        <Mannequin
+          v={v}
+          useBodyColors={useBodyColors}
+          selectedJoint={selectedJoint}
+          flaggedJoints={flaggedJoints}
+          onJointClick={onJointClick}
+        />
         <Floor y={groundY} />
         {/* Full 3D orbit around the body center. Pan/zoom stay off so slider
             edits don't shift the framing. */}
