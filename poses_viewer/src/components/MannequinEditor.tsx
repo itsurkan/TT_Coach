@@ -11,10 +11,13 @@ import { useMemo, useState } from 'react'
 import type { PoseAnchor } from '../drill/PoseAnchor'
 import { cloneAnchor, NEUTRAL_POSE } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
+import { JOINT_MAP } from '../drill/jointMap'
 import { SelectionProvider, useSelection } from '../context/SelectionContext'
 import Drill2Mannequin from './Drill2Mannequin'
 import AnchorSliders from './AnchorSliders'
 import ResetPoseButton from './ResetPoseButton'
+import CoordinatesHUD from './CoordinatesHUD'
+import ColorLegend from './ColorLegend'
 
 interface Props {
   onClose: () => void
@@ -36,18 +39,18 @@ function EditorShell({ onClose }: Props) {
   // doesn't invalidate geometry.
   const landmarks = useMemo(() => reconstructFromAnchor(anchor), [anchor])
 
+  // Slider keys that rotate the currently selected joint — used by
+  // AnchorSliders to highlight and scroll to the relevant rows.
+  const highlightedParams = useMemo(
+    () => (selectedJoint ? JOINT_MAP[selectedJoint].controlParams : undefined),
+    [selectedJoint],
+  )
+
   return (
     <div className="flex-1 min-h-0 bg-gray-900 text-gray-100 overflow-auto">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">
-            Mannequin Editor
-            {selectedJoint && (
-              <span className="ml-3 text-sm text-gray-400 font-normal">
-                selected: <span className="font-mono text-gray-200">{selectedJoint}</span>
-              </span>
-            )}
-          </h2>
+          <h2 className="text-lg font-semibold">Mannequin Editor</h2>
           <div className="flex gap-2">
             <ResetPoseButton anchor={anchor} onReset={setAnchor} />
             <button
@@ -61,17 +64,29 @@ function EditorShell({ onClose }: Props) {
 
         <div className="flex gap-6 justify-center items-start">
           <div className="flex flex-col gap-2 items-center">
-            <Drill2Mannequin
-              startLms={landmarks}
-              endLms={landmarks}
-              phase={0}
-              width={620}
-              height={780}
-              useBodyColors
-              selectedJoint={selectedJoint}
-              onJointClick={setSelectedJoint}
-              onDeselect={() => setSelectedJoint(null)}
-            />
+            {/* Canvas + overlays. position:relative is required so the
+                absolutely-positioned HUD and legend anchor to the canvas. */}
+            <div className="relative">
+              <Drill2Mannequin
+                startLms={landmarks}
+                endLms={landmarks}
+                phase={0}
+                width={620}
+                height={780}
+                useBodyColors
+                selectedJoint={selectedJoint}
+                onJointClick={setSelectedJoint}
+                onDeselect={() => setSelectedJoint(null)}
+              />
+              <ColorLegend
+                selectedJoint={selectedJoint}
+                onSelectJoint={setSelectedJoint}
+              />
+              <CoordinatesHUD
+                selectedJoint={selectedJoint}
+                landmarks={landmarks}
+              />
+            </div>
             <div className="text-xs text-gray-500">
               Click a joint to select · click empty space to deselect · drag to orbit
             </div>
@@ -83,6 +98,8 @@ function EditorShell({ onClose }: Props) {
             anchor={anchor}
             onChange={setAnchor}
             onReset={() => setAnchor(cloneAnchor(NEUTRAL_POSE))}
+            highlightedParams={highlightedParams}
+            hidePhaseSelector
           />
         </div>
       </div>
