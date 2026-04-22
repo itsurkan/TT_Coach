@@ -360,7 +360,7 @@ function Capsule({
       <meshStandardMaterial
         color={color}
         emissive={emissive ?? '#000000'}
-        emissiveIntensity={emissive ? 0.55 : 0}
+        emissiveIntensity={emissive ? 0.22 : 0}
         roughness={ROUGHNESS}
         metalness={0}
       />
@@ -383,7 +383,7 @@ function Joint({
       <meshStandardMaterial
         color={color}
         emissive={emissive ?? '#000000'}
-        emissiveIntensity={emissive ? 0.65 : 0}
+        emissiveIntensity={emissive ? 0.28 : 0}
         roughness={ROUGHNESS}
         metalness={0}
       />
