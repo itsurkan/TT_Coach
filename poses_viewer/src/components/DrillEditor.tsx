@@ -252,7 +252,7 @@ export default function DrillEditor({ onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-900 text-gray-100 z-40 overflow-auto">
+    <div className="flex-1 min-h-0 bg-gray-900 text-gray-100 overflow-auto">
       <div className="p-4 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Drill Editor (anchor-based)</h2>

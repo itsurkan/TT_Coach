@@ -52,12 +52,15 @@ export const NEUTRAL_POSE: PoseAnchor = {
 }
 
 /**
- * Relaxed standing pose — default for the mannequin editor. Player faces the
- * camera, arms hang naturally at the sides with a small abduction so they
- * don't intersect the torso, knees almost locked (not hyper-extended), feet
- * shoulder-width apart. Used as the baseline new users shape FROM, rather
- * than the pre-loaded athletic crouch that NEUTRAL_POSE encodes for drill
- * playback.
+ * Relaxed standing pose — default for the mannequin editor. Player faces
+ * camera square-on so the figure reads as truly symmetric: arms hang
+ * naturally at the sides with a small abduction so they don't intersect the
+ * torso, knees almost locked (not hyper-extended), feet shoulder-width apart.
+ * Viewers orbit via the camera (OrbitControls) to inspect from a 3/4 angle —
+ * baking rotation into the pose creates perspective illusions that read as
+ * pelvic roll / floating-foot even though the FK output is symmetric.
+ * Used as the baseline new users shape FROM, rather than the pre-loaded
+ * athletic crouch that NEUTRAL_POSE encodes for drill playback.
  */
 export const STANDING_POSE: PoseAnchor = {
   // Torso — upright, facing camera, no coil.
@@ -81,6 +84,11 @@ export const STANDING_POSE: PoseAnchor = {
   leftForearmTwistDeg: 0,
 
   // Legs — standing tall, knees soft (175, not 180, to avoid lock-out).
+  // Symmetric abduction + mirrored foot yaw: both legs tilt slightly outward
+  // with feet pointed slightly away from each other, mimicking a relaxed
+  // stance. Kept symmetric so there's no lateral CoM offset — asymmetric
+  // values only looked right under a rotated camera and read as "falling"
+  // when the body faces straight ahead.
   leftThighForwardDeg: 0,
   rightThighForwardDeg: 0,
   leftThighAbductionDeg: 3,

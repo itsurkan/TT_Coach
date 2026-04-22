@@ -12,8 +12,9 @@
 
 import { Canvas, type ThreeEvent } from '@react-three/fiber'
 import { Grid, OrbitControls } from '@react-three/drei'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { COLOR_SCHEME, type BodyPartId } from '../drill/jointColorScheme'
 import type { JointId } from '../drill/jointMap'
@@ -656,6 +657,10 @@ interface Props extends MannequinInteractivity {
   cameraYaw?: number
   /** Fires when a click lands outside any mesh — used to clear selection. */
   onDeselect?: () => void
+  /** Monotonically-increasing counter. Each bump triggers OrbitControls.reset()
+   *  so parent-side "Reset" buttons can also restore the camera to its initial
+   *  front-on pose (without remounting the whole Canvas). */
+  cameraResetSignal?: number
 }
 
 export default function Drill2Mannequin({
@@ -676,7 +681,15 @@ export default function Drill2Mannequin({
   flaggedJoints,
   onJointClick,
   onDeselect,
+  cameraResetSignal,
 }: Props) {
+  const controlsRef = useRef<OrbitControlsImpl | null>(null)
+  // Bump the signal → snap the orbit camera back to its saved initial state.
+  // OrbitControls.reset() restores position, target, and zoom in one call.
+  useEffect(() => {
+    if (cameraResetSignal === undefined) return
+    controlsRef.current?.reset()
+  }, [cameraResetSignal])
   // Rebuild the skeleton once per frame with fixed proportions. Bone
   // orientations are SLERPed between the two endpoint poses, so the animation
   // traces arcs instead of chords through the body. Camera and ground derive
@@ -760,6 +773,7 @@ export default function Drill2Mannequin({
         {/* Full 3D orbit around the body center. Pan/zoom stay off so slider
             edits don't shift the framing. */}
         <OrbitControls
+          ref={controlsRef}
           enablePan={false}
           enableRotate={true}
           enableZoom={false}

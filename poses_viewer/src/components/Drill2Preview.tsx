@@ -340,7 +340,7 @@ export default function Drill2Preview({ onClose }: Props) {
   const resetView = () => setYaw(0)
 
   return (
-    <div className="fixed inset-0 bg-gray-950 text-gray-100 z-40 overflow-auto">
+    <div className="flex-1 min-h-0 bg-gray-950 text-gray-100 overflow-auto">
       <div className="p-4 flex flex-col gap-3 items-center">
         <div className="w-full flex items-center justify-between max-w-3xl">
           <h2 className="text-lg font-semibold">Drill 2 — frame {startFrame} → {endFrame}</h2>

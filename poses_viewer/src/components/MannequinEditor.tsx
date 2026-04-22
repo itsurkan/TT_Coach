@@ -36,6 +36,13 @@ export default function MannequinEditor({ onClose }: Props) {
 function EditorShell({ onClose }: Props) {
   const { selectedJoint, setSelectedJoint } = useSelection()
   const [anchor, setAnchor] = useState<PoseAnchor>(() => cloneAnchor(STANDING_POSE))
+  // Incremented by every Reset path — Drill2Mannequin watches this to also
+  // reset the OrbitControls camera, so a Reset visibly returns to front-on.
+  const [cameraResetSignal, setCameraResetSignal] = useState(0)
+  const resetAnchor = () => {
+    setAnchor(cloneAnchor(STANDING_POSE))
+    setCameraResetSignal(n => n + 1)
+  }
 
   // Single FK pass per anchor change. Re-runs only on anchor edits — selection
   // doesn't invalidate geometry.
@@ -54,7 +61,14 @@ function EditorShell({ onClose }: Props) {
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Mannequin Editor</h2>
           <div className="flex gap-2">
-            <ResetPoseButton anchor={anchor} defaultPose={STANDING_POSE} onReset={setAnchor} />
+            <ResetPoseButton
+              anchor={anchor}
+              defaultPose={STANDING_POSE}
+              onReset={next => {
+                setAnchor(next)
+                setCameraResetSignal(n => n + 1)
+              }}
+            />
             <button
               className="px-3 py-1.5 rounded bg-gray-700 text-sm hover:bg-gray-600"
               onClick={onClose}
@@ -79,6 +93,7 @@ function EditorShell({ onClose }: Props) {
                 selectedJoint={selectedJoint}
                 onJointClick={setSelectedJoint}
                 onDeselect={() => setSelectedJoint(null)}
+                cameraResetSignal={cameraResetSignal}
               />
               <ColorLegend
                 selectedJoint={selectedJoint}
@@ -99,7 +114,7 @@ function EditorShell({ onClose }: Props) {
             onPhaseChange={() => { /* editor is single-anchor; phase selector is inert */ }}
             anchor={anchor}
             onChange={setAnchor}
-            onReset={() => setAnchor(cloneAnchor(STANDING_POSE))}
+            onReset={resetAnchor}
             highlightedParams={highlightedParams}
             hidePhaseSelector
           />
