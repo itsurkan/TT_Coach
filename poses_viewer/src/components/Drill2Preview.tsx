@@ -375,6 +375,7 @@ export default function Drill2Preview({ onClose }: Props) {
             startLms={startLms}
             endLms={alignedEnd}
             ankleAnchors={ankleAnchors}
+            zScale={0.3}
             phase={phase}
             width={CANVAS_W}
             height={CANVAS_H}

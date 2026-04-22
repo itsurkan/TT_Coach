@@ -1,33 +1,51 @@
 import type { PoseAnchor } from './PoseAnchor'
 
 /**
- * Default "standing neutral" pose. Used as the initial value when starting
- * a new drill — user slides from this baseline to author START and END.
+ * Base table-tennis ready position (right-handed player).
+ *
+ * Athletic "receive-ready" crouch: weight on balls of feet, knees over toes,
+ * torso leaned forward at the hips. Hips face the three-quarter camera;
+ * shoulders add a little extra coil on top via `shoulderRotationDeg` so the
+ * right shoulder sits slightly more back than the hips alone would give
+ * (pre-loaded for a forehand).
+ *
+ * Used as the initial pose when opening the Drill Editor — every new drill
+ * starts from this baseline. "Reset" in the editor returns here.
  */
 export const NEUTRAL_POSE: PoseAnchor = {
-  bodyRotationDeg: 0,
-  torsoTiltDeg: 5,
-  rightShoulderAngleDeg: 10,
-  rightShoulderAbductionDeg: 10,
-  rightElbowAngleDeg: 170,
-  rightWristAngleDeg: 180,
+  // ── Torso ──────────────────────────────────────────────────────────────
+  bodyRotationDeg: 50,          // hips rotated right: right hip back
+  shoulderRotationDeg: 0,       // shoulders aligned with hips (no coil)
+  torsoTiltDeg: 25,             // clear forward lean — athletic crouch
+
+  // ── Right arm (playing / racket hand) ──────────────────────────────────
+  rightShoulderAngleDeg: 45,
+  rightShoulderAbductionDeg: 25,
+  rightElbowAngleDeg: 95,
+  rightWristAngleDeg: 160,
   rightForearmTwistDeg: 0,
-  leftShoulderAngleDeg: 10,
-  leftShoulderAbductionDeg: 10,
-  leftElbowAngleDeg: 170,
-  leftWristAngleDeg: 180,
+
+  // ── Left arm (free hand / balance) ─────────────────────────────────────
+  leftShoulderAngleDeg: 30,
+  leftShoulderAbductionDeg: 20,
+  leftElbowAngleDeg: 120,
+  leftWristAngleDeg: 165,
   leftForearmTwistDeg: 0,
-  leftThighForwardDeg: 0,
-  rightThighForwardDeg: 0,
-  leftThighAbductionDeg: 0,
-  rightThighAbductionDeg: 0,
-  leftKneeAngleDeg: 170,
-  rightKneeAngleDeg: 170,
-  leftFootYawDeg: 0,
-  rightFootYawDeg: 0,
-  stanceWidthNorm: 0.18,
-  hipMidX: 0.5,
-  hipMidY: 0.38,
+
+  // ── Legs ───────────────────────────────────────────────────────────────
+  leftThighForwardDeg: 28,
+  rightThighForwardDeg: 28,
+  leftThighAbductionDeg: 10,
+  rightThighAbductionDeg: 10,
+  leftKneeAngleDeg: 130,
+  rightKneeAngleDeg: 130,
+  leftFootYawDeg: 15,
+  rightFootYawDeg: -15,
+
+  // ── Stance / root ──────────────────────────────────────────────────────
+  stanceWidthNorm: 0.32,
+  hipMidX: 0.50,
+  hipMidY: 0.42,
 }
 
 export function cloneAnchor(a: PoseAnchor): PoseAnchor {

@@ -6,8 +6,17 @@
  * All angles in degrees. Positions in normalized [0, 1] screen coordinates.
  */
 export interface PoseAnchor {
+  /** Hip-line yaw (around vertical axis). Positive = right shoulder back. */
   bodyRotationDeg: number
+  /** Forward bend at the hips. Whole torso rotates rigidly around the hip line. */
   torsoTiltDeg: number
+  /** Corpus rotation: extra yaw applied to the SHOULDER line on top of
+   *  bodyRotationDeg (hips stay where bodyRotationDeg put them). Models the
+   *  shoulder-hip separation ("X-factor") used when coiling the trunk for a
+   *  stroke. 0 = shoulders aligned with hips; positive = shoulders rotate
+   *  further back to the player's right; negative = further left. Arms
+   *  follow the shoulder frame, so rotating shoulders sweeps both arms. */
+  shoulderRotationDeg: number
   rightShoulderAngleDeg: number     // forward flexion (0 = arm down, 90 = arm forward, 180 = arm up)
   rightShoulderAbductionDeg: number // sideways (0 = arm along torso, 90 = horizontal out to side)
   rightElbowAngleDeg: number
@@ -80,8 +89,9 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Torso',
     params: [
-      { key: 'bodyRotationDeg', label: 'Body rotation',   min: -90, max: 90,  step: 1 },
-      { key: 'torsoTiltDeg',    label: 'Torso tilt',      min: 0,   max: 90,  step: 1 },
+      { key: 'bodyRotationDeg',     label: 'Hip rotation',       min: -90, max: 90, step: 1 },
+      { key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
+      { key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
     ],
   },
   {

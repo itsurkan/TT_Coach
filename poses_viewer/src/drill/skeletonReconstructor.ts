@@ -91,11 +91,14 @@ function mkLm(i: number, p: V3, vis = 1): Landmark {
 export const GROUND_ANCHOR_Y = 0.92
 
 /**
- * Auto-compensation constants. Set to 0 — editor wants the knee slider to be
- * LITERAL. Re-enable a small positive value if we want torso tilt to nudge
- * knees in a "feels-natural" way during pure manual editing.
+ * Auto-compensation constants. Pelvis tilt (hip hinge) adds a touch of knee
+ * bend so a forward lean doesn't leave the legs rigidly straight. The
+ * old `TILT_TO_HIP_BACK` (shifting hips backward on tilt) is intentionally
+ * zero — an athletic TT ready stance drives the knees FORWARD over the feet,
+ * not the hips backward; CoM balance is controlled through anchor values
+ * (thighForwardDeg, stanceWidthNorm) rather than a synthetic shift.
  */
-const TILT_TO_KNEE_BEND = 0
+const TILT_TO_KNEE_BEND = 0.5
 const EFFECTIVE_KNEE_MIN_DEG = 30
 const TILT_TO_HIP_BACK = 0
 
@@ -120,20 +123,26 @@ export function reconstructFromAnchor(
   }
 
   // Body axes ────────────────────────────────────────────────────────────────
-  // Forward = where the trunk faces; positive bodyRotation yaws toward +z.
+  // Hip frame: horizontal yaw set by bodyRotationDeg. Hips and legs live here.
   const forward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg)
-  // Across = perpendicular, horizontal. Points from right hip to left hip.
   const across: V3 = rotY([1, 0, 0], anchor.bodyRotationDeg)
-  // Torso up — use imported direction if available, else compute from tilt.
+  // Shoulder frame: hip yaw + an independent corpus rotation. Shoulders and
+  // arms live here. When shoulderRotationDeg = 0 the two frames coincide.
+  const shoulderForward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg + anchor.shoulderRotationDeg)
+  const shoulderAcross:  V3 = rotY([1, 0, 0], anchor.bodyRotationDeg + anchor.shoulderRotationDeg)
+
+  // Torso tilt (single segment): rotate the torso-up vector forward around
+  // the hip line. The whole spine rotates rigidly — hips are the pivot,
+  // shoulders translate forward by sin(tilt)*torso.
   const torsoUp: V3 = anchor.dirOverrides?.torsoUp
     ? normalize(anchor.dirOverrides.torsoUp as V3)
     : normalize(rotAroundAxis([0, -1, 0], across, anchor.torsoTiltDeg))
   const torsoDown: V3 = scale(torsoUp, -1)
 
   // Automatic tilt compensation ────────────────────────────────────────────
-  // Forward tilt (|torsoTilt| > 0) should: (a) shift hips backward,
-  // (b) bend knees more, (c) keep feet on the ground. Below handles (a) and
-  // (b); (c) is enforced by a post-pass that snaps ankles to GROUND_ANCHOR_Y.
+  // Forward tilt lets the knees bend slightly so the legs don't lock
+  // straight when the torso leans. TILT_TO_HIP_BACK is 0 — balance comes
+  // from the anchor values (thighForward, stanceWidth), not a synthetic shift.
   const tiltRad = deg(anchor.torsoTiltDeg)
   const hipBackShift = Math.sin(tiltRad) * B.torso * TILT_TO_HIP_BACK
   const backward: V3 = scale(forward, -1)
@@ -141,11 +150,6 @@ export function reconstructFromAnchor(
     [anchor.hipMidX, anchor.hipMidY, 0],
     scale(backward, hipBackShift)
   )
-  // Auto-bend knees on torso tilt — but only if the knee still has "room" to
-  // bend (i.e., anchor knee angle is near straight). This avoids double-
-  // counting: imported anchors already carry their real knee bend, and
-  // blindly subtracting tilt*K would drive the knee below anatomical range
-  // and flip the shin upward.
   const clampKnee = (k: number) => Math.max(EFFECTIVE_KNEE_MIN_DEG, Math.min(180, k))
   const kneeRoom = (kneeDeg: number) => Math.max(0, (kneeDeg - 90) / 90)
   const kneeCompFor = (kneeDeg: number) =>
@@ -160,26 +164,32 @@ export function reconstructFromAnchor(
   out[LM.R_HIP] = mkLm(LM.R_HIP, rHip)
 
   // Shoulders (11 L, 12 R) ──────────────────────────────────────────────────
+  // Single-segment torso: shoulderMid sits one torso length above hipMid
+  // along torsoUp. The shoulder LINE is oriented by `shoulderAcross`, which
+  // carries the corpus rotation — so twisting the trunk pivots L/R shoulder
+  // around shoulderMid without moving the spine base.
   const shoulderMid: V3 = add(hipMid, scale(torsoUp, B.torso))
-  const lShoulder: V3 = add(shoulderMid, scale(across,  B.shoulderWidth / 2))
-  const rShoulder: V3 = add(shoulderMid, scale(across, -B.shoulderWidth / 2))
+  const lShoulder: V3 = add(shoulderMid, scale(shoulderAcross,  B.shoulderWidth / 2))
+  const rShoulder: V3 = add(shoulderMid, scale(shoulderAcross, -B.shoulderWidth / 2))
   out[LM.L_SHOULDER] = mkLm(LM.L_SHOULDER, lShoulder)
   out[LM.R_SHOULDER] = mkLm(LM.R_SHOULDER, rShoulder)
 
   // Head / face (0-10) ──────────────────────────────────────────────────────
+  // Head is part of the trunk — rides on torsoUp and follows shoulderAcross
+  // for the L/R face landmarks so a twisted trunk turns the head with it.
   const nose: V3 = add(shoulderMid, scale(torsoUp, B.headToShoulder * 0.75))
   const mouthOffset: V3 = scale(torsoDown, 0.02)
   out[LM.NOSE] = mkLm(LM.NOSE, nose)
-  out[LM.L_EYE_INNER] = mkLm(LM.L_EYE_INNER, add(nose, scale(across,  0.015)))
-  out[LM.L_EYE]       = mkLm(LM.L_EYE,       add(nose, scale(across,  0.030)))
-  out[LM.L_EYE_OUTER] = mkLm(LM.L_EYE_OUTER, add(nose, scale(across,  0.045)))
-  out[LM.R_EYE_INNER] = mkLm(LM.R_EYE_INNER, add(nose, scale(across, -0.015)))
-  out[LM.R_EYE]       = mkLm(LM.R_EYE,       add(nose, scale(across, -0.030)))
-  out[LM.R_EYE_OUTER] = mkLm(LM.R_EYE_OUTER, add(nose, scale(across, -0.045)))
-  out[LM.L_EAR] = mkLm(LM.L_EAR, add(nose, scale(across,  0.06)))
-  out[LM.R_EAR] = mkLm(LM.R_EAR, add(nose, scale(across, -0.06)))
-  out[LM.MOUTH_L] = mkLm(LM.MOUTH_L, add(add(nose, mouthOffset), scale(across,  0.015)))
-  out[LM.MOUTH_R] = mkLm(LM.MOUTH_R, add(add(nose, mouthOffset), scale(across, -0.015)))
+  out[LM.L_EYE_INNER] = mkLm(LM.L_EYE_INNER, add(nose, scale(shoulderAcross,  0.015)))
+  out[LM.L_EYE]       = mkLm(LM.L_EYE,       add(nose, scale(shoulderAcross,  0.030)))
+  out[LM.L_EYE_OUTER] = mkLm(LM.L_EYE_OUTER, add(nose, scale(shoulderAcross,  0.045)))
+  out[LM.R_EYE_INNER] = mkLm(LM.R_EYE_INNER, add(nose, scale(shoulderAcross, -0.015)))
+  out[LM.R_EYE]       = mkLm(LM.R_EYE,       add(nose, scale(shoulderAcross, -0.030)))
+  out[LM.R_EYE_OUTER] = mkLm(LM.R_EYE_OUTER, add(nose, scale(shoulderAcross, -0.045)))
+  out[LM.L_EAR] = mkLm(LM.L_EAR, add(nose, scale(shoulderAcross,  0.06)))
+  out[LM.R_EAR] = mkLm(LM.R_EAR, add(nose, scale(shoulderAcross, -0.06)))
+  out[LM.MOUTH_L] = mkLm(LM.MOUTH_L, add(add(nose, mouthOffset), scale(shoulderAcross,  0.015)))
+  out[LM.MOUTH_R] = mkLm(LM.MOUTH_R, add(add(nose, mouthOffset), scale(shoulderAcross, -0.015)))
 
   // Arm chains — same FK for both sides, parameterized per side ────────────
   // Shoulder has two DOF:
@@ -202,10 +212,13 @@ export function reconstructFromAnchor(
     const idxThumb  = side === 'L' ? LM.L_THUMB : LM.R_THUMB
 
     // Upper arm — per-bone override (may be cleared by specific slider edits).
+    // Arms attach to the SHOULDER frame: abduction pivots around shoulder-
+    // forward, flex pivots around shoulder-across. So a corpus rotation
+    // (shoulderRotationDeg) sweeps the arms with it.
     const impUpper = side === 'L' ? anchor.dirOverrides?.leftUpperArm : anchor.dirOverrides?.rightUpperArm
     const upperArmDir = impUpper
       ? normalize(impUpper as V3)
-      : normalize(rotAroundAxis(rotAroundAxis(torsoDown, forward, abSign * shAbdDeg), across, -shFwdDeg))
+      : normalize(rotAroundAxis(rotAroundAxis(torsoDown, shoulderForward, abSign * shAbdDeg), shoulderAcross, -shFwdDeg))
     const elbow = add(shoulder, scale(upperArmDir, B.upperArm))
     out[idxElbow] = mkLm(idxElbow, elbow)
 
@@ -213,15 +226,15 @@ export function reconstructFromAnchor(
     const impForearm = side === 'L' ? anchor.dirOverrides?.leftForearm : anchor.dirOverrides?.rightForearm
     const forearmDir = impForearm
       ? normalize(impForearm as V3)
-      : normalize(rotAroundAxis(upperArmDir, across, -elbowBend))
+      : normalize(rotAroundAxis(upperArmDir, shoulderAcross, -elbowBend))
     const wrist = add(elbow, scale(forearmDir, B.forearm))
     out[idxWrist] = mkLm(idxWrist, wrist)
 
     const wristBend = 180 - wristDeg
-    const handDir = normalize(rotAroundAxis(forearmDir, across, -wristBend))
+    const handDir = normalize(rotAroundAxis(forearmDir, shoulderAcross, -wristBend))
     const handCenter = add(wrist, scale(handDir, B.hand))
     // Twist rotates the finger fan around the forearm axis.
-    const fanSide = normalize(rotAroundAxis(across, forearmDir, twistDeg))
+    const fanSide = normalize(rotAroundAxis(shoulderAcross, forearmDir, twistDeg))
     out[idxPinky] = mkLm(idxPinky, add(handCenter, scale(fanSide, -B.hand * 0.3)))
     out[idxIndex] = mkLm(idxIndex, add(handCenter, scale(fanSide,  B.hand * 0.2)))
     out[idxThumb] = mkLm(idxThumb, add(handCenter, scale(fanSide,  B.hand * 0.4)))
@@ -261,27 +274,16 @@ export function reconstructFromAnchor(
     const imported = side === 'L' ? anchor.dirOverrides?.leftShin : anchor.dirOverrides?.rightShin
     if (imported) return normalize(imported as V3)
     const kneeBend = 180 - effKnee
-    // Knee hinge axis: horizontal and perpendicular to the thigh, in the
-    // body's across direction adjusted for the thigh's tilt. Using body.across
-    // directly breaks for abducted legs (shin swings sideways instead of
-    // back). Compute axis as the horizontal projection of (across × thighDir)
-    // → then cross with thigh to keep it perpendicular. Falls back to body
-    // across when thigh is nearly vertical (no ambiguity).
-    const thighHoriz: V3 = [thighDir[0], 0, thighDir[2]]
-    const thighHorizLen = Math.sqrt(thighHoriz[0]*thighHoriz[0] + thighHoriz[2]*thighHoriz[2])
-    let hinge: V3
-    if (thighHorizLen < 0.05) {
-      // Thigh nearly vertical — use body's across axis (the anatomical default).
-      hinge = across
-    } else {
-      // Knee bends in the vertical plane containing the thigh. Hinge axis is
-      // perpendicular to that plane: cross(thigh, worldUp).
-      const worldUp: V3 = [0, -1, 0]
-      const cx = thighDir[1] * worldUp[2] - thighDir[2] * worldUp[1]
-      const cy = thighDir[2] * worldUp[0] - thighDir[0] * worldUp[2]
-      const cz = thighDir[0] * worldUp[1] - thighDir[1] * worldUp[0]
-      hinge = normalize([cx, cy, cz])
-    }
+    // Knee-over-toe rule: the knee must bend in the vertical plane the foot
+    // points along. Hinge axis is horizontal and perpendicular to footForward
+    // (the direction the foot tip points, derived from `forward` yawed by
+    // `footYawDeg`). Without this coupling, foot-yaw edits the foot direction
+    // but the knee still bends toward the body's across-axis, producing
+    // knock-knee / splay mismatches.
+    const footYawDeg = side === 'L' ? anchor.leftFootYawDeg : anchor.rightFootYawDeg
+    const footForward: V3 = rotY(forward, footYawDeg)
+    // 90° horizontal rotation of footForward around Y (cross with world-up):
+    const hinge: V3 = normalize([-footForward[2], 0, footForward[0]])
     return normalize(rotAroundAxis(thighDir, hinge, kneeBend))
   }
 
@@ -323,115 +325,29 @@ export function reconstructFromAnchor(
   out[LM.L_HEEL] = mkLm(LM.L_HEEL, lHeel)
   out[LM.L_FOOT] = mkLm(LM.L_FOOT, lFootTip)
 
-  // Post-pass: per-leg IK so BOTH feet land on the ground, regardless of how
-  // differently each leg is flexed. The old "translate whole body by max
-  // ankle dy" put one foot on the ground and floated the other. This solves
-  // a 2-joint IK per leg: given hip + target ankle (x,z kept from FK, y
-  // clamped to GROUND), compute a new knee position via cosine law such that
-  // thigh and shin keep their canonical lengths.
-  // Per-leg IK gate: run IK only when BOTH the thigh and shin direction
-  // overrides are absent — IK (cosine law) would otherwise override the
-  // knee implied by an imported direction or by the user's knee slider.
-  // Explicit options override auto-detection.
-  const forceRun = options?.skipFootIK === false
-  const forceSkip = options?.skipFootIK === true
-  const runLegIK = (side: 'L' | 'R') => {
-    if (forceRun) return true
-    if (forceSkip) return false
-    const o = anchor.dirOverrides
-    const hasThigh = !!(side === 'L' ? o?.leftThigh : o?.rightThigh)
-    const hasShin  = !!(side === 'L' ? o?.leftShin  : o?.rightShin)
-    // If user cleared either override (by moving a knee/thigh slider), we
-    // must NOT re-snap feet — IK would clobber the slider's effect.
-    return !hasThigh && !hasShin
+  // Post-pass: ground the lowest foot by translating the whole body vertically.
+  //
+  // This REPLACES the old cosine-law per-leg IK. That IK snapped each ankle
+  // to GROUND and recomputed the knee from (hip, ankle, thighLen, shinLen).
+  // Problem: with hipMidY=0.42 and GROUND=0.92, hip-to-ground ≈ thigh+shin,
+  // so the cosine law always returned α≈0 — knees stayed straight no matter
+  // what the user's kneeAngleDeg slider said. Bending the knee had zero
+  // visible effect because IK immediately re-straightened the leg.
+  //
+  // New behaviour: honour the anchor's knee/thigh angles exactly, then shift
+  // the whole body so the lowest ankle (max y in MediaPipe convention) sits
+  // on GROUND_ANCHOR_Y. Bending knees → shorter vertical leg span → hips and
+  // torso drop naturally. In asymmetric stances (lunges) the higher foot
+  // floats; tune thigh-forward on the trail leg to plant it.
+  if (options?.skipFootIK !== true) {
+    const lowestAnkleY = Math.max(out[LM.L_ANKLE].y, out[LM.R_ANKLE].y)
+    const dy = GROUND_ANCHOR_Y - lowestAnkleY
+    if (Math.abs(dy) > 1e-9) {
+      for (let i = 0; i < out.length; i++) {
+        out[i].y += dy
+      }
+    }
   }
-  if (runLegIK('L')) applyLegIK(out, LM.L_HIP, LM.L_KNEE, LM.L_ANKLE, LM.L_HEEL, LM.L_FOOT, forward, across, B.thigh, B.shin)
-  if (runLegIK('R')) applyLegIK(out, LM.R_HIP, LM.R_KNEE, LM.R_ANKLE, LM.R_HEEL, LM.R_FOOT, forward, across, B.thigh, B.shin)
 
   return out
-}
-
-function lmV3(l: Landmark): V3 { return [l.x, l.y, l.z] }
-function sub(a: V3, b: V3): V3 { return [a[0]-b[0], a[1]-b[1], a[2]-b[2]] }
-function dot(a: V3, b: V3): number { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2] }
-function len(v: V3): number { return Math.sqrt(dot(v, v)) }
-
-/** Apply 2-joint IK to one leg so the ankle lands on GROUND_ANCHOR_Y. */
-function applyLegIK(
-  out: Landmark[],
-  hipIdx: number, kneeIdx: number, ankleIdx: number,
-  heelIdx: number, footIdx: number,
-  forward: V3, across: V3,
-  thighLen: number, shinLen: number,
-) {
-  const T = thighLen
-  const S = shinLen
-  const hip = lmV3(out[hipIdx])
-  const fkAnkle = lmV3(out[ankleIdx])
-  // Target: keep the FK-computed horizontal (x, z) direction, clamp Y to floor.
-  const target: V3 = [fkAnkle[0], GROUND_ANCHOR_Y, fkAnkle[2]]
-  const toTarget = sub(target, hip)
-  const Draw = len(toTarget)
-  if (Draw < 1e-5) return
-  const u: V3 = [toTarget[0] / Draw, toTarget[1] / Draw, toTarget[2] / Draw]
-
-  // Truly unreachable (>15% beyond full leg length) — clamp to max reach so
-  // the foot just floats above ground rather than producing a broken chain.
-  const HARD_MAX = (T + S) * 1.15
-  if (Draw > HARD_MAX) {
-    const knee: V3 = [hip[0] + u[0]*T, hip[1] + u[1]*T, hip[2] + u[2]*T]
-    const ankle: V3 = [hip[0] + u[0]*(T+S), hip[1] + u[1]*(T+S), hip[2] + u[2]*(T+S)]
-    applyKneeAnkle(out, kneeIdx, ankleIdx, heelIdx, footIdx, knee, ankle, sub(ankle, fkAnkle))
-    return
-  }
-
-  // Reachable (or minor stretch ≤15%): ankle lands exactly on target, bend at
-  // knee via cosine law. When Draw exceeds T+S the clamp below produces a
-  // straight leg (α=0) — imperceptible visual stretch, feet stay planted.
-  const D = Draw
-  const ankle: V3 = target
-  const cosA = Math.max(-1, Math.min(1, (T * T + D * D - S * S) / (2 * T * D)))
-  const alpha = Math.acos(cosA)
-  // Perpendicular direction in the sagittal plane so the knee points forward.
-  const fu = dot(forward, u)
-  let vPerp: V3 = [forward[0] - fu * u[0], forward[1] - fu * u[1], forward[2] - fu * u[2]]
-  let vLen = len(vPerp)
-  if (vLen < 1e-3) {
-    // Target colinear with body forward — fall back to across axis.
-    const au = dot(across, u)
-    vPerp = [across[0] - au * u[0], across[1] - au * u[1], across[2] - au * u[2]]
-    vLen = len(vPerp)
-    if (vLen < 1e-3) return
-  }
-  const vN: V3 = [vPerp[0] / vLen, vPerp[1] / vLen, vPerp[2] / vLen]
-  const kC = T * Math.cos(alpha)
-  const kS = T * Math.sin(alpha)
-  const knee: V3 = [
-    hip[0] + u[0] * kC + vN[0] * kS,
-    hip[1] + u[1] * kC + vN[1] * kS,
-    hip[2] + u[2] * kC + vN[2] * kS,
-  ]
-
-  applyKneeAnkle(out, kneeIdx, ankleIdx, heelIdx, footIdx, knee, ankle, sub(ankle, fkAnkle))
-}
-
-function applyKneeAnkle(
-  out: Landmark[],
-  kneeIdx: number, ankleIdx: number, heelIdx: number, footIdx: number,
-  knee: V3, ankle: V3, ankleDelta: V3
-) {
-  out[kneeIdx]  = { ...out[kneeIdx],  x: knee[0],  y: knee[1],  z: knee[2] }
-  out[ankleIdx] = { ...out[ankleIdx], x: ankle[0], y: ankle[1], z: ankle[2] }
-  out[heelIdx]  = {
-    ...out[heelIdx],
-    x: out[heelIdx].x + ankleDelta[0],
-    y: out[heelIdx].y + ankleDelta[1],
-    z: out[heelIdx].z + ankleDelta[2],
-  }
-  out[footIdx]  = {
-    ...out[footIdx],
-    x: out[footIdx].x + ankleDelta[0],
-    y: out[footIdx].y + ankleDelta[1],
-    z: out[footIdx].z + ankleDelta[2],
-  }
 }

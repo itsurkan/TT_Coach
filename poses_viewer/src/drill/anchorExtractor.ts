@@ -140,17 +140,21 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const shYaw  = Math.atan2(-shAxis.z,  shAxis.x)
   const bodyRotationDeg = ((hipYaw * hipMag2D + shYaw * shMag2D) / totalMag) * 180 / Math.PI
 
-  // Torso tilt: angle between torso vector and body-up direction (world up is
-  // OK here since body up tracks world up up to small pitch/roll, and we
-  // separately measure yaw as bodyRotation). The z-component dominates for a
-  // heavy forward bend which over-estimates tilt due to MediaPipe z noise, so
-  // we dampen z to half weight — brings extracted tilt closer to what FK can
-  // reproduce in 2D projection.
+  // Torso tilt: angle between torso vector and body-up direction (world up
+  // is OK here since body up tracks world up up to small pitch/roll, and we
+  // separately measure yaw as bodyRotation). The z-component dominates for
+  // a heavy forward bend which over-estimates tilt due to MediaPipe z noise,
+  // so we dampen z to half weight — brings extracted tilt closer to what FK
+  // can reproduce in 2D projection.
   const torso = sub(shMid, hipMid) // points upward from hip
   const torsoDamped: V3 = { x: torso.x, y: torso.y, z: torso.z * 0.5 }
   const upRef: V3 = { x: 0, y: -1, z: 0 }
   let torsoTiltDeg = angleBetween(torsoDamped, upRef)
   if (torso.z > 0) torsoTiltDeg = -torsoTiltDeg
+
+  // Corpus rotation: shoulder-line yaw minus hip-line yaw (the "X-factor").
+  // Using the 2D-weighted per-axis yaws already computed above.
+  const shoulderRotationDeg = ((shYaw - hipYaw) * 180) / Math.PI
 
   // Arm chain (right side).
   const rUpperArm = sub(rElbow, rSh)
@@ -248,7 +252,8 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
 
   return {
     bodyRotationDeg: clamp(bodyRotationDeg, -90, 90),
-    torsoTiltDeg: clamp(torsoTiltDeg, -90, 90),
+    shoulderRotationDeg: clamp(shoulderRotationDeg, -90, 90),
+    torsoTiltDeg: clamp(torsoTiltDeg, 0, 75),
     rightShoulderAngleDeg: clamp(rightShoulderAngleDeg, -30, 180),
     rightShoulderAbductionDeg: clamp(rightShoulderAbductionDeg, -30, 180),
     rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),

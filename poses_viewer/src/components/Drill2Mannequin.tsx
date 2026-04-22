@@ -283,9 +283,11 @@ function buildFixedSkeleton(
   const midShEnd    = endW[L_SHOULDER].clone().add(endW[R_SHOULDER]).multiplyScalar(0.5)
   const midHipStart = startW[L_HIP].clone().add(startW[R_HIP]).multiplyScalar(0.5)
   const midHipEnd   = endW[L_HIP].clone().add(endW[R_HIP]).multiplyScalar(0.5)
+  // Project shoulder midpoints to XY before computing spineDir — MediaPipe z
+  // is noisy for a side-on camera and would tilt the spine up to 79° without this.
   let spineDir = slerpDir(
-    dirOf(midHipStart, midShStart),
-    dirOf(midHipEnd,   midShEnd),
+    dirOf(midHipStart, new THREE.Vector3(midShStart.x, midShStart.y, 0)),
+    dirOf(midHipEnd,   new THREE.Vector3(midShEnd.x,   midShEnd.y,   0)),
     phase,
   )
 

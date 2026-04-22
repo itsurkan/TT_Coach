@@ -42,6 +42,7 @@ function clearRelatedOverrides(
   const out: LimbDirections = { ...o }
   switch (changed) {
     case 'torsoTiltDeg':
+    case 'shoulderRotationDeg':
     case 'bodyRotationDeg':
       // Body frame pivots → all derived bones.
       return undefined
