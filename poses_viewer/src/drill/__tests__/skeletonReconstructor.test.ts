@@ -185,4 +185,20 @@ describe('reconstructFromAnchor', () => {
     while (delta < -180) delta += 360
     expect(Math.abs(delta - 30)).toBeLessThan(1) // rotated by footYaw delta
   })
+
+  it('MIDPOINT_POSE honors defaultValue on param specs when present', async () => {
+    // Sanity: once specs set defaultValue for shoulder flex/abduction to 41/31,
+    // MIDPOINT_POSE must reflect those targets rather than raw (min+max)/2.
+    const { MIDPOINT_POSE } = await import('../neutralPose')
+    // These four will have defaultValue set by Task 2. Until then this test
+    // also asserts the current (min+max)/2 behaviour, which is (min=-30,
+    // max=112)/2 = 41 for flex and (min=0, max=62)/2 = 31 for abduction —
+    // so the test passes today AND after Task 2 widens the ranges.
+    expect(MIDPOINT_POSE.rightShoulderAngleDeg).toBe(41)
+    expect(MIDPOINT_POSE.leftShoulderAngleDeg).toBe(41)
+    expect(MIDPOINT_POSE.rightShoulderAbductionDeg).toBe(31)
+    expect(MIDPOINT_POSE.leftShoulderAbductionDeg).toBe(31)
+    expect(MIDPOINT_POSE.rightThighAbductionDeg).toBe(17)
+    expect(MIDPOINT_POSE.leftThighAbductionDeg).toBe(17)
+  })
 })

@@ -112,6 +112,10 @@ export interface AnchorParamSpec {
   min: number
   max: number
   step: number
+  /** Reset/MIDPOINT_POSE target. When omitted, MIDPOINT_POSE uses (min+max)/2.
+   *  Use this to decouple "slider reach" from "default pose" — e.g. shoulder
+   *  abduction goes up to 120° but the ready-position default sits at 31°. */
+  defaultValue?: number
 }
 
 export interface AnchorParamGroup {
