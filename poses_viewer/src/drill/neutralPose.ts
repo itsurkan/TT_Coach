@@ -113,9 +113,9 @@ export function cloneAnchor(a: PoseAnchor): PoseAnchor {
  * Mannequin Editor's Reset target ("middle = default"). Not anatomical —
  * e.g. torso tilts ~38°, knees sit mid-bend.
  *
- * To shift the midpoint for a specific slider, narrow that slider's [min, max]
- * in ANCHOR_PARAM_GROUPS so (min+max)/2 lands where you want. This pose has
- * no hand-tuned overrides — every value is mechanically (min+max)/2.
+ * To shift the Reset target for a specific slider independently of its
+ * range, set `defaultValue` on that entry in ANCHOR_PARAM_GROUPS. When
+ * absent, falls back to (min+max)/2.
  */
 export const MIDPOINT_POSE: PoseAnchor = buildMidpointPose()
 
