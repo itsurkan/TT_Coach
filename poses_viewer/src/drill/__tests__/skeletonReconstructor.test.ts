@@ -186,6 +186,57 @@ describe('reconstructFromAnchor', () => {
     expect(Math.abs(delta - 30)).toBeLessThan(1) // rotated by footYaw delta
   })
 
+  it('elbow bend on an abducted arm points the forearm toward the head', () => {
+    // Right arm abducted 90° (horizontal out to the player's right), elbow 90°.
+    // New hinge = cross(upperArm, torsoUp): the bend plane contains the upper
+    // arm and the spine, so the forearm rotates UP (toward the head/camera),
+    // not further sideways. Rendered Y is larger = lower on screen; wrist must
+    // be HIGHER on screen than the elbow.
+    const pose = {
+      ...NEUTRAL_POSE,
+      dirOverrides: undefined,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAngleDeg: 0,
+      rightShoulderAbductionDeg: 90,
+      rightElbowAngleDeg: 90,
+    }
+    const out = reconstructFromAnchor(pose)
+    const elbow = out[LM.R_ELBOW]
+    const wrist = out[LM.R_WRIST]
+    // Wrist is higher on screen than elbow (smaller y in MediaPipe convention).
+    expect(wrist.y).toBeLessThan(elbow.y)
+    // Forearm length ≈ BONES.forearm, and it's mostly vertical — so the
+    // vertical drop wrist→elbow is close to the full forearm length.
+    expect(elbow.y - wrist.y).toBeGreaterThan(BONES.forearm * 0.8)
+  })
+
+  it('elbow bend on a rest-down arm still points the forearm forward (regression guard)', () => {
+    // Arm hanging straight down, elbow 90°. Historical behaviour: forearm
+    // points forward (−z). New hinge = cross(down, torsoUp) = shoulderAcross,
+    // so forearm still bends around shoulderAcross — same result. Locks this.
+    const pose = {
+      ...NEUTRAL_POSE,
+      dirOverrides: undefined,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAngleDeg: 0,
+      rightShoulderAbductionDeg: 0,
+      rightElbowAngleDeg: 90,
+    }
+    const out = reconstructFromAnchor(pose)
+    const elbow = out[LM.R_ELBOW]
+    const wrist = out[LM.R_WRIST]
+    // Forearm points forward: wrist.z < elbow.z (forward is −z).
+    expect(wrist.z).toBeLessThan(elbow.z)
+    // Forearm is roughly horizontal, so vertical drop is small.
+    expect(Math.abs(wrist.y - elbow.y)).toBeLessThan(BONES.forearm * 0.2)
+  })
+
   it('MIDPOINT_POSE honors defaultValue on param specs when present', async () => {
     // Sanity: once specs set defaultValue for shoulder flex/abduction to 41/31,
     // MIDPOINT_POSE must reflect those targets rather than raw (min+max)/2.
