@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
 import type { PoseAnchor, AnchorPhase, LimbDirections } from '../drill/PoseAnchor'
-import { NEUTRAL_POSE, cloneAnchor } from '../drill/neutralPose'
+import { STANDING_POSE, cloneAnchor } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
 import type { BoneLengthsOverride } from '../drill/skeletonReconstructor'
 import { interpolateAnchors, lerpAnchor } from '../drill/anchorInterpolator'
@@ -44,6 +44,7 @@ function clearRelatedOverrides(
     case 'torsoTiltDeg':
     case 'shoulderRotationDeg':
     case 'bodyRotationDeg':
+    case 'figureYawDeg':
       // Body frame pivots → all derived bones.
       return undefined
     case 'rightShoulderAngleDeg':
@@ -70,9 +71,12 @@ function clearRelatedOverrides(
     case 'leftKneeAngleDeg':
       out.leftShin = undefined
       break
-    case 'leftFootYawDeg':
+    case 'leftKneeYawDeg':
       out.leftThigh = undefined
       out.leftShin = undefined
+      out.leftFoot = undefined
+      break
+    case 'leftFootYawDeg':
       out.leftFoot = undefined
       break
     case 'rightThighForwardDeg':
@@ -83,9 +87,12 @@ function clearRelatedOverrides(
     case 'rightKneeAngleDeg':
       out.rightShin = undefined
       break
-    case 'rightFootYawDeg':
+    case 'rightKneeYawDeg':
       out.rightThigh = undefined
       out.rightShin = undefined
+      out.rightFoot = undefined
+      break
+    case 'rightFootYawDeg':
       out.rightFoot = undefined
       break
     // hipMidX / hipMidY / stanceWidthNorm / wrist / twist don't map to a
@@ -101,8 +108,8 @@ interface Props {
 }
 
 export default function DrillEditor({ onClose }: Props) {
-  const [startAnchor, setStartAnchor] = useState<PoseAnchor>(() => cloneAnchor(NEUTRAL_POSE))
-  const [endAnchor, setEndAnchor] = useState<PoseAnchor>(() => cloneAnchor(NEUTRAL_POSE))
+  const [startAnchor, setStartAnchor] = useState<PoseAnchor>(() => cloneAnchor(STANDING_POSE))
+  const [endAnchor, setEndAnchor] = useState<PoseAnchor>(() => cloneAnchor(STANDING_POSE))
   const [activePhase, setActivePhase] = useState<AnchorPhase>('START')
   const [isPlaying, setIsPlaying] = useState(false)
   const [playFrame, setPlayFrame] = useState(0)
@@ -156,8 +163,8 @@ export default function DrillEditor({ onClose }: Props) {
       extracted.dirOverrides = extractLimbDirections(lms)
       // Lock skeleton centering so scrubbing frames doesn't "jump" around —
       // only the pose shape updates, not the hip's 2D position on canvas.
-      extracted.hipMidX = NEUTRAL_POSE.hipMidX
-      extracted.hipMidY = NEUTRAL_POSE.hipMidY
+      extracted.hipMidX = STANDING_POSE.hipMidX
+      extracted.hipMidY = STANDING_POSE.hipMidY
       setActiveAnchor(extracted)
       setBonesOverride(extractBoneLengths(lms))
       setIsPlaying(false)
@@ -234,7 +241,7 @@ export default function DrillEditor({ onClose }: Props) {
     ? `Playback  ${(playFrame % (PLAYBACK_FRAMES * 2 - 2)) + 1}/${PLAYBACK_FRAMES}`
     : activePhase
 
-  const reset = () => setActiveAnchor(cloneAnchor(NEUTRAL_POSE))
+  const reset = () => setActiveAnchor(cloneAnchor(STANDING_POSE))
 
   const exportJSON = () => {
     const payload = {

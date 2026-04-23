@@ -155,10 +155,11 @@ describe('reconstructFromAnchor', () => {
     expect(Math.abs(delta + 30)).toBeLessThan(1)
   })
 
-  it('foot yaw rotates the knee-bend plane (knee-over-toe)', () => {
+  it('knee yaw rotates the knee-bend plane (knee-over-toe)', () => {
     // With thigh straight down and knee bent, the shin's XZ offset from the
-    // knee lies in the vertical plane the foot points along. Changing footYaw
-    // rotates that plane by the same angle around Y.
+    // knee lies in the vertical plane the knee points along. Changing kneeYaw
+    // rotates that plane by the same angle around Y. (footYawDeg is now the
+    // foot-vs-shin angle and does NOT affect the knee plane.)
     const base = {
       ...NEUTRAL_POSE,
       dirOverrides: undefined,
@@ -168,9 +169,10 @@ describe('reconstructFromAnchor', () => {
       leftThighForwardDeg: 0,
       leftThighAbductionDeg: 0,
       leftKneeAngleDeg: 120, // 60° bend → meaningful shin offset
+      leftKneeYawDeg: 0,
       leftFootYawDeg: 0,
     }
-    const yawed = { ...base, leftFootYawDeg: 30 }
+    const yawed = { ...base, leftKneeYawDeg: 30 }
     const A = reconstructFromAnchor(base)
     const B = reconstructFromAnchor(yawed)
     const shinA = { x: A[LM.L_ANKLE].x - A[LM.L_KNEE].x, z: A[LM.L_ANKLE].z - A[LM.L_KNEE].z }

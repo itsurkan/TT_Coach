@@ -178,6 +178,7 @@ function buildFixedSkeleton(
   zScale = 1,
   cameraPitch = 0,
   cameraYaw = 0,
+  trustZ = false,
 ): THREE.Vector3[] {
   // Default positions for landmarks the skeleton rebuild doesn't touch
   // (eyes, ears, mouth, fingers): a simple position-lerp between endpoints.
@@ -287,11 +288,14 @@ function buildFixedSkeleton(
   const midShEnd    = endW[L_SHOULDER].clone().add(endW[R_SHOULDER]).multiplyScalar(0.5)
   const midHipStart = startW[L_HIP].clone().add(startW[R_HIP]).multiplyScalar(0.5)
   const midHipEnd   = endW[L_HIP].clone().add(endW[R_HIP]).multiplyScalar(0.5)
-  // Project shoulder midpoints to XY before computing spineDir — MediaPipe z
-  // is noisy for a side-on camera and would tilt the spine up to 79° without this.
+  // For detected MediaPipe poses, z is noisy on side-on cameras and would tilt
+  // the spine up to 79° — so project shoulder midpoints to XY. For FK-driven
+  // poses (editor), z is exact and the projection would hide the torsoTilt.
+  const projectedShStart = trustZ ? midShStart : new THREE.Vector3(midShStart.x, midShStart.y, 0)
+  const projectedShEnd   = trustZ ? midShEnd   : new THREE.Vector3(midShEnd.x,   midShEnd.y,   0)
   let spineDir = slerpDir(
-    dirOf(midHipStart, new THREE.Vector3(midShStart.x, midShStart.y, 0)),
-    dirOf(midHipEnd,   new THREE.Vector3(midShEnd.x,   midShEnd.y,   0)),
+    dirOf(midHipStart, projectedShStart),
+    dirOf(midHipEnd,   projectedShEnd),
     phase,
   )
 
@@ -661,6 +665,17 @@ interface Props extends MannequinInteractivity {
    *  so parent-side "Reset" buttons can also restore the camera to its initial
    *  front-on pose (without remounting the whole Canvas). */
   cameraResetSignal?: number
+  /** Skip the athletic-stance z-shear that tilts the body so shoulders sit
+   *  ~10% H in front of the ankles. Useful for the editor, where the user
+   *  expects edits to the anchor to render literally — and where the shear
+   *  amount otherwise changes with bodyRotationDeg, making the head drift
+   *  off-centre as the figure yaws. */
+  skipCoMBalancer?: boolean
+  /** Use the z component of landmarks for spine direction. Set true when the
+   *  input came from forward kinematics (exact z) rather than MediaPipe
+   *  detection (noisy z). Without this, FK torsoTilt is invisible because
+   *  the renderer projects shoulder midpoints to XY before computing spine. */
+  trustZ?: boolean
 }
 
 export default function Drill2Mannequin({
@@ -682,6 +697,8 @@ export default function Drill2Mannequin({
   onJointClick,
   onDeselect,
   cameraResetSignal,
+  skipCoMBalancer = false,
+  trustZ = false,
 }: Props) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null)
   // Bump the signal → snap the orbit camera back to its saved initial state.
@@ -719,12 +736,14 @@ export default function Drill2Mannequin({
 
     const startW = toWorldLandmarks(startLms, zScale, cameraPitch, cameraYaw)
     const endW   = toWorldLandmarks(endLms, zScale, cameraPitch, cameraYaw)
+
+    if (!skipCoMBalancer) {
+      applyCoMBalancer(startW)
+      applyCoMBalancer(endW)
+    }
     
-    applyCoMBalancer(startW)
-    applyCoMBalancer(endW)
-    
-    return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale, cameraPitch, cameraYaw)
-  }, [startLms, endLms, ankleAnchors, phase, zScale, cameraPitch, cameraYaw])
+    return buildFixedSkeleton(startLms, startW, endW, phase, ankleAnchors, zScale, cameraPitch, cameraYaw, trustZ)
+  }, [startLms, endLms, ankleAnchors, phase, zScale, cameraPitch, cameraYaw, skipCoMBalancer, trustZ])
 
   // Ground sits just under the lower rebuilt ankle.
   const groundY = useMemo(

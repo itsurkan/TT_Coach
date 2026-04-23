@@ -1,4 +1,5 @@
 import type { PoseAnchor } from './PoseAnchor'
+import { ANCHOR_PARAM_SPECS } from './PoseAnchor'
 
 /**
  * Base table-tennis ready position (right-handed player).
@@ -14,7 +15,8 @@ import type { PoseAnchor } from './PoseAnchor'
  */
 export const NEUTRAL_POSE: PoseAnchor = {
   // ── Torso ──────────────────────────────────────────────────────────────
-  bodyRotationDeg: 50,          // hips rotated right: right hip back
+  figureYawDeg: 50,             // entire figure faces three-quarter (right side toward camera)
+  bodyRotationDeg: 0,           // no extra pelvic twist on top of figure yaw
   pelvicRollDeg: 0,
   shoulderRotationDeg: 0,       // shoulders aligned with hips (no coil)
   torsoTiltDeg: 25,             // clear forward lean — athletic crouch
@@ -42,8 +44,10 @@ export const NEUTRAL_POSE: PoseAnchor = {
   rightThighAbductionDeg: 10,
   leftKneeAngleDeg: 130,
   rightKneeAngleDeg: 130,
-  leftFootYawDeg: 15,
-  rightFootYawDeg: -15,
+  leftKneeYawDeg: 15,           // knees splay outward over the toes
+  rightKneeYawDeg: -15,
+  leftFootYawDeg: 0,            // feet aligned with the knees
+  rightFootYawDeg: 0,
 
   // ── Stance / root ──────────────────────────────────────────────────────
   stanceWidthNorm: 0.32,
@@ -52,18 +56,18 @@ export const NEUTRAL_POSE: PoseAnchor = {
 }
 
 /**
- * Relaxed standing pose — default for the mannequin editor. Player faces
- * camera square-on so the figure reads as truly symmetric: arms hang
- * naturally at the sides with a small abduction so they don't intersect the
- * torso, knees almost locked (not hyper-extended), feet shoulder-width apart.
- * Viewers orbit via the camera (OrbitControls) to inspect from a 3/4 angle —
- * baking rotation into the pose creates perspective illusions that read as
- * pelvic roll / floating-foot even though the FK output is symmetric.
- * Used as the baseline new users shape FROM, rather than the pre-loaded
- * athletic crouch that NEUTRAL_POSE encodes for drill playback.
+ * Anatomical reference standing pose — default for the mannequin editor.
+ * Every segment is strictly perpendicular to the floor: spine, thighs,
+ * shins and arms are all vertical; knees and elbows fully extended; feet
+ * point straight ahead. Heels sit ~4cm behind the head line because the
+ * heel bone anatomically attaches behind the ankle joint — forcing heels
+ * directly under the head would require a forward thigh tilt, which reads
+ * as the figure leaning/falling.
+ * Kept as the blank-canvas pose new users shape FROM — distinct from the
+ * pre-loaded athletic crouch NEUTRAL_POSE used by DrillEditor.
  */
 export const STANDING_POSE: PoseAnchor = {
-  // Torso — upright, facing camera, no coil.
+  figureYawDeg: 0,
   bodyRotationDeg: 0,
   pelvicRollDeg: 0,
   shoulderRotationDeg: 0,
@@ -71,34 +75,28 @@ export const STANDING_POSE: PoseAnchor = {
   torsoSideBendDeg: 0,
   shoulderShrugNorm: 0,
 
-  // Arms — hanging down, tiny outward abduction so the capsules clear the torso.
-  rightShoulderAngleDeg: 5,
-  rightShoulderAbductionDeg: 8,
-  rightElbowAngleDeg: 170,
-  rightWristAngleDeg: 175,
+  rightShoulderAngleDeg: 0,
+  rightShoulderAbductionDeg: 0,
+  rightElbowAngleDeg: 180,
+  rightWristAngleDeg: 180,
   rightForearmTwistDeg: 0,
-  leftShoulderAngleDeg: 5,
-  leftShoulderAbductionDeg: 8,
-  leftElbowAngleDeg: 170,
-  leftWristAngleDeg: 175,
+  leftShoulderAngleDeg: 0,
+  leftShoulderAbductionDeg: 0,
+  leftElbowAngleDeg: 180,
+  leftWristAngleDeg: 180,
   leftForearmTwistDeg: 0,
 
-  // Legs — standing tall, knees soft (175, not 180, to avoid lock-out).
-  // Symmetric abduction + mirrored foot yaw: both legs tilt slightly outward
-  // with feet pointed slightly away from each other, mimicking a relaxed
-  // stance. Kept symmetric so there's no lateral CoM offset — asymmetric
-  // values only looked right under a rotated camera and read as "falling"
-  // when the body faces straight ahead.
   leftThighForwardDeg: 0,
   rightThighForwardDeg: 0,
-  leftThighAbductionDeg: 3,
-  rightThighAbductionDeg: 3,
-  leftKneeAngleDeg: 175,
-  rightKneeAngleDeg: 175,
-  leftFootYawDeg: 8,
-  rightFootYawDeg: -8,
+  leftThighAbductionDeg: 0,
+  rightThighAbductionDeg: 0,
+  leftKneeAngleDeg: 180,
+  rightKneeAngleDeg: 180,
+  leftKneeYawDeg: 0,
+  rightKneeYawDeg: 0,
+  leftFootYawDeg: 0,
+  rightFootYawDeg: 0,
 
-  // Narrow but steady stance.
   stanceWidthNorm: 0.20,
   hipMidX: 0.50,
   hipMidY: 0.42,
@@ -106,4 +104,30 @@ export const STANDING_POSE: PoseAnchor = {
 
 export function cloneAnchor(a: PoseAnchor): PoseAnchor {
   return { ...a }
+}
+
+/**
+ * Slider-midpoint pose — every numeric param sits at the middle of its
+ * [min, max] range, snapped to the slider's step grid. Derived from
+ * ANCHOR_PARAM_SPECS so it stays in sync if a range changes. Used as the
+ * Mannequin Editor's Reset target ("middle = default"). Not anatomical —
+ * e.g. torso tilts ~38°, knees sit mid-bend.
+ *
+ * To shift the midpoint for a specific slider, narrow that slider's [min, max]
+ * in ANCHOR_PARAM_GROUPS so (min+max)/2 lands where you want. This pose has
+ * no hand-tuned overrides — every value is mechanically (min+max)/2.
+ */
+export const MIDPOINT_POSE: PoseAnchor = buildMidpointPose()
+
+function buildMidpointPose(): PoseAnchor {
+  const out = cloneAnchor(STANDING_POSE)
+  for (const spec of ANCHOR_PARAM_SPECS) {
+    const mid = (spec.min + spec.max) / 2
+    const snapped = Math.round(mid / spec.step) * spec.step
+    // Trim float noise from step multiplication (e.g. 0.005 * 3 = 0.015000…2).
+    const decimals = spec.step >= 1 ? 0 : Math.max(0, -Math.floor(Math.log10(spec.step)))
+    ;(out as unknown as Record<string, number>)[spec.key as string] =
+      parseFloat(snapped.toFixed(decimals))
+  }
+  return out
 }

@@ -91,14 +91,13 @@ function mkLm(i: number, p: V3, vis = 1): Landmark {
 export const GROUND_ANCHOR_Y = 0.92
 
 /**
- * Auto-compensation constants. Pelvis tilt (hip hinge) adds a touch of knee
- * bend so a forward lean doesn't leave the legs rigidly straight. The
- * old `TILT_TO_HIP_BACK` (shifting hips backward on tilt) is intentionally
- * zero — an athletic TT ready stance drives the knees FORWARD over the feet,
- * not the hips backward; CoM balance is controlled through anchor values
- * (thighForwardDeg, stanceWidthNorm) rather than a synthetic shift.
+ * Auto-compensation constants. Both are zero: the reconstructor honours slider
+ * values literally. Earlier revisions added a touch of knee bend on forward
+ * tilt (athletic-crouch look) and a hip-back shift for CoM balance, but the
+ * interactive mannequin editor exposes every DOF explicitly — users would
+ * rather set knee/hip values directly than fight against an auto-shift.
  */
-const TILT_TO_KNEE_BEND = 0.5
+const TILT_TO_KNEE_BEND = 0
 const EFFECTIVE_KNEE_MIN_DEG = 30
 const TILT_TO_HIP_BACK = 0
 
@@ -123,9 +122,16 @@ export function reconstructFromAnchor(
   }
 
   // Body axes ────────────────────────────────────────────────────────────────
-  // Hip frame: horizontal yaw set by bodyRotationDeg. Hips and legs live here.
-  const forward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg)
-  const acrossLevel: V3 = rotY([1, 0, 0], anchor.bodyRotationDeg)
+  // Two yaw layers stacked around the vertical axis through hipMid:
+  //   figureYawDeg     — orients the entire figure (legs + hips + upper body)
+  //   bodyRotationDeg  — pelvic twist relative to the planted legs (upper body
+  //                      swings; legs stay where the figure yaw put them)
+  // Legs use the leg frame; hips/torso/arms/head use the hip frame.
+  const legForward: V3 = rotY([0, 0, -1], anchor.figureYawDeg)
+  const legAcross:  V3 = rotY([1, 0, 0], anchor.figureYawDeg)
+  const hipYawDeg = anchor.figureYawDeg + anchor.bodyRotationDeg
+  const forward: V3 = rotY([0, 0, -1], hipYawDeg)
+  const acrossLevel: V3 = rotY([1, 0, 0], hipYawDeg)
   // Pelvic roll: tilt the hip-across vector around forward. Positive lifts
   // the player's right hip (weight onto left leg). Legs still attach to the
   // rolled across so pelvic tilt propagates to leg positions, but the torso
@@ -135,8 +141,8 @@ export function reconstructFromAnchor(
     : acrossLevel
   // Shoulder frame: hip yaw + an independent corpus rotation. Shoulders and
   // arms live here. When shoulderRotationDeg = 0 the two frames coincide.
-  const shoulderForward: V3 = rotY([0, 0, -1], anchor.bodyRotationDeg + anchor.shoulderRotationDeg)
-  const shoulderAcross:  V3 = rotY([1, 0, 0], anchor.bodyRotationDeg + anchor.shoulderRotationDeg)
+  const shoulderForward: V3 = rotY([0, 0, -1], hipYawDeg + anchor.shoulderRotationDeg)
+  const shoulderAcross:  V3 = rotY([1, 0, 0], hipYawDeg + anchor.shoulderRotationDeg)
 
   // Torso tilt (single segment): rotate the torso-up vector forward around
   // the hip line. The whole spine rotates rigidly — hips are the pivot,
@@ -278,27 +284,27 @@ export function reconstructFromAnchor(
     if (imported) return normalize(imported as V3)
     const flexDeg = side === 'L' ? anchor.leftThighForwardDeg  : anchor.rightThighForwardDeg
     const absDeg  = side === 'L' ? anchor.leftThighAbductionDeg : anchor.rightThighAbductionDeg
-    const footYaw = side === 'L' ? anchor.leftFootYawDeg : anchor.rightFootYawDeg
+    const kneeYaw = side === 'L' ? anchor.leftKneeYawDeg : anchor.rightKneeYawDeg
     const abSign = side === 'L' ? +1 : -1
-    const abducted = rotAroundAxis(worldDown, forward, abSign * absDeg)
-    const flexed = normalize(rotAroundAxis(abducted, across, -flexDeg))
-    return normalize(rotY(flexed, footYaw))
+    // Legs live in the LEG frame (figureYawDeg only) so pelvic twist
+    // (bodyRotationDeg) doesn't sweep the planted feet. The thigh's yaw is
+    // controlled by kneeYawDeg (where the knee points) — footYawDeg only
+    // rotates the foot relative to the shin.
+    const abducted = rotAroundAxis(worldDown, legForward, abSign * absDeg)
+    const flexed = normalize(rotAroundAxis(abducted, legAcross, -flexDeg))
+    return normalize(rotY(flexed, kneeYaw))
   }
 
   const shinDirFor = (side: 'L' | 'R', thighDir: V3, effKnee: number): V3 => {
     const imported = side === 'L' ? anchor.dirOverrides?.leftShin : anchor.dirOverrides?.rightShin
     if (imported) return normalize(imported as V3)
     const kneeBend = 180 - effKnee
-    // Knee-over-toe rule: the knee must bend in the vertical plane the foot
-    // points along. Hinge axis is horizontal and perpendicular to footForward
-    // (the direction the foot tip points, derived from `forward` yawed by
-    // `footYawDeg`). Without this coupling, foot-yaw edits the foot direction
-    // but the knee still bends toward the body's across-axis, producing
-    // knock-knee / splay mismatches.
-    const footYawDeg = side === 'L' ? anchor.leftFootYawDeg : anchor.rightFootYawDeg
-    const footForward: V3 = rotY(forward, footYawDeg)
-    // 90° horizontal rotation of footForward around Y (cross with world-up):
-    const hinge: V3 = normalize([-footForward[2], 0, footForward[0]])
+    // The knee bends in the vertical plane that the knee points along —
+    // controlled by kneeYawDeg (independent of footYawDeg). Hinge axis is
+    // horizontal and perpendicular to that direction.
+    const kneeYawDeg = side === 'L' ? anchor.leftKneeYawDeg : anchor.rightKneeYawDeg
+    const kneeForward: V3 = rotY(legForward, kneeYawDeg)
+    const hinge: V3 = normalize([-kneeForward[2], 0, kneeForward[0]])
     return normalize(rotAroundAxis(thighDir, hinge, kneeBend))
   }
 
@@ -319,7 +325,7 @@ export function reconstructFromAnchor(
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
   const rFootDir: V3 = anchor.dirOverrides?.rightFoot
     ? normalize(anchor.dirOverrides.rightFoot as V3)
-    : normalize(rotY(forward, anchor.rightFootYawDeg))
+    : normalize(rotY(legForward, anchor.rightKneeYawDeg + anchor.rightFootYawDeg))
   const rFootTip: V3 = add(rAnkle, scale(rFootDir, Brf))
   const rHeel:    V3 = add(rAnkle, scale(rFootDir, -Brf * 0.4))
   out[LM.R_HEEL] = mkLm(LM.R_HEEL, rHeel)
@@ -334,7 +340,7 @@ export function reconstructFromAnchor(
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)
   const lFootDir: V3 = anchor.dirOverrides?.leftFoot
     ? normalize(anchor.dirOverrides.leftFoot as V3)
-    : normalize(rotY(forward, anchor.leftFootYawDeg))
+    : normalize(rotY(legForward, anchor.leftKneeYawDeg + anchor.leftFootYawDeg))
   const lFootTip: V3 = add(lAnkle, scale(lFootDir, Blf))
   const lHeel:    V3 = add(lAnkle, scale(lFootDir, -Blf * 0.4))
   out[LM.L_HEEL] = mkLm(LM.L_HEEL, lHeel)

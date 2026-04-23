@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { PoseAnchor, AnchorPhase } from '../drill/PoseAnchor'
 import { ANCHOR_PARAM_GROUPS } from '../drill/PoseAnchor'
 
@@ -15,6 +15,15 @@ interface Props {
   /** When true, hides the START/END phase buttons — used by single-anchor
    *  editors where the phase concept doesn't apply. */
   hidePhaseSelector?: boolean
+  /** Display name of the currently-selected joint (e.g. "правий лікоть").
+   *  When present, the per-row copy button for any highlighted row prefixes
+   *  the joint name so the clipboard carries both the joint and the param. */
+  selectedJointName?: string
+  /** English joint id of the currently-selected joint (e.g. "rightElbow").
+   *  When present alongside selectedJointName, the highlighted row copy
+   *  emits `${id} (${name}) · ${param}: ${value}` so chat references carry
+   *  a canonical code identifier plus the Ukrainian label for humans. */
+  selectedJointId?: string
 }
 
 export default function AnchorSliders({
@@ -25,6 +34,8 @@ export default function AnchorSliders({
   onReset,
   highlightedParams,
   hidePhaseSelector = false,
+  selectedJointName,
+  selectedJointId,
 }: Props) {
   const setKey = (k: keyof PoseAnchor, v: number) => {
     onChange({ ...anchor, [k]: v })
@@ -32,6 +43,28 @@ export default function AnchorSliders({
 
   // Stable refs per slider key so scrollIntoView doesn't fight re-renders.
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
+
+  // Tracks which row just got copied so the button can flash a checkmark.
+  const [copiedKey, setCopiedKey] = useState<keyof PoseAnchor | null>(null)
+  // When the row belongs to the selected joint, prefix with the joint reference
+  // so the clipboard carries both the joint and the param. Prefer the English id
+  // for code-side unambiguity and append the Ukrainian name for human context.
+  const jointPrefix = (): string | null => {
+    if (selectedJointId && selectedJointName) return `${selectedJointId} (${selectedJointName})`
+    if (selectedJointId) return selectedJointId
+    if (selectedJointName) return selectedJointName
+    return null
+  }
+
+  const copyRow = (k: keyof PoseAnchor, value: number, step: number, isJointParam: boolean) => {
+    const formatted = step >= 1 ? value.toFixed(0) : value.toFixed(2)
+    const prefix = isJointParam ? jointPrefix() : null
+    const text = prefix ? `${prefix} · ${k}: ${formatted}` : `${k}: ${formatted}`
+    void navigator.clipboard.writeText(text).then(() => {
+      setCopiedKey(k)
+      setTimeout(() => setCopiedKey(prev => (prev === k ? null : prev)), 900)
+    })
+  }
 
   // When the selection changes, bring the first highlighted row into view.
   // Running in useLayoutEffect avoids a visible flicker between the DOM
@@ -109,11 +142,31 @@ export default function AnchorSliders({
                         : '')
                     }
                   >
-                    <div className="flex justify-between text-xs text-gray-400">
+                    <div className="flex justify-between items-center text-xs text-gray-400">
                       <span className={highlighted ? 'text-yellow-200 font-medium' : ''}>
                         {spec.label}
                       </span>
-                      <span className="font-mono text-gray-200">{displayVal}</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-mono text-gray-200">{displayVal}</span>
+                        <button
+                          type="button"
+                          onClick={() => copyRow(spec.key, value, spec.step, highlighted)}
+                          title={(() => {
+                            const prefix = highlighted ? jointPrefix() : null
+                            return prefix
+                              ? `Copy "${prefix} · ${spec.key}: ${displayVal}"`
+                              : `Copy "${spec.key}: ${displayVal}"`
+                          })()}
+                          className={
+                            'px-1 py-0.5 rounded text-[10px] font-mono transition-colors ' +
+                            (copiedKey === spec.key
+                              ? 'bg-green-600/70 text-white'
+                              : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200')
+                          }
+                        >
+                          {copiedKey === spec.key ? '✓' : '⎘'}
+                        </button>
+                      </div>
                     </div>
                     <input
                       type="range"

@@ -4,6 +4,7 @@ import type { PoseAnchor } from './PoseAnchor'
 export function lerpAnchor(a: PoseAnchor, b: PoseAnchor, t: number): PoseAnchor {
   const s = 1 - t
   return {
+    figureYawDeg:           a.figureYawDeg           * s + b.figureYawDeg           * t,
     bodyRotationDeg:        a.bodyRotationDeg        * s + b.bodyRotationDeg        * t,
     pelvicRollDeg:          a.pelvicRollDeg          * s + b.pelvicRollDeg          * t,
     shoulderRotationDeg:    a.shoulderRotationDeg    * s + b.shoulderRotationDeg    * t,
@@ -26,6 +27,8 @@ export function lerpAnchor(a: PoseAnchor, b: PoseAnchor, t: number): PoseAnchor 
     rightThighAbductionDeg: a.rightThighAbductionDeg * s + b.rightThighAbductionDeg * t,
     leftKneeAngleDeg:       a.leftKneeAngleDeg       * s + b.leftKneeAngleDeg       * t,
     rightKneeAngleDeg:      a.rightKneeAngleDeg      * s + b.rightKneeAngleDeg      * t,
+    leftKneeYawDeg:         a.leftKneeYawDeg         * s + b.leftKneeYawDeg         * t,
+    rightKneeYawDeg:        a.rightKneeYawDeg        * s + b.rightKneeYawDeg        * t,
     leftFootYawDeg:         a.leftFootYawDeg         * s + b.leftFootYawDeg         * t,
     rightFootYawDeg:        a.rightFootYawDeg        * s + b.rightFootYawDeg        * t,
     stanceWidthNorm:        a.stanceWidthNorm        * s + b.stanceWidthNorm        * t,

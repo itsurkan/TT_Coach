@@ -63,7 +63,9 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   },
   hipMid: {
     landmarkIdx: [LM.L_HIP, LM.R_HIP],
-    controlParams: ['bodyRotationDeg', 'pelvicRollDeg', 'torsoTiltDeg', 'hipMidX', 'hipMidY'],
+    // Root joint: figureYawDeg rotates the entire figure; bodyRotationDeg
+    // twists the pelvis (and everything above it) relative to the legs.
+    controlParams: ['figureYawDeg', 'bodyRotationDeg', 'pelvicRollDeg', 'torsoTiltDeg', 'hipMidX', 'hipMidY'],
     bodyPart: 'torso',
     displayName: 'таз',
   },
@@ -111,19 +113,19 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   // Right leg.
   rightHip: {
     landmarkIdx: LM.R_HIP,
-    controlParams: ['rightThighForwardDeg', 'rightThighAbductionDeg', 'stanceWidthNorm', 'bodyRotationDeg'],
+    controlParams: ['rightThighForwardDeg', 'rightThighAbductionDeg', 'stanceWidthNorm', 'figureYawDeg'],
     bodyPart: 'rightThigh',
     displayName: 'правий кульшовий суглоб',
   },
   rightKnee: {
     landmarkIdx: LM.R_KNEE,
-    controlParams: ['rightKneeAngleDeg', 'rightThighForwardDeg'],
+    controlParams: ['rightKneeAngleDeg', 'rightKneeYawDeg', 'rightThighForwardDeg'],
     bodyPart: 'rightShin',
     displayName: 'праве коліно',
   },
   rightAnkle: {
     landmarkIdx: LM.R_ANKLE,
-    controlParams: ['rightFootYawDeg', 'rightKneeAngleDeg'],
+    controlParams: ['rightFootYawDeg', 'rightKneeYawDeg', 'rightKneeAngleDeg'],
     bodyPart: 'rightFoot',
     displayName: 'права щиколотка',
   },
@@ -131,19 +133,19 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   // Left leg.
   leftHip: {
     landmarkIdx: LM.L_HIP,
-    controlParams: ['leftThighForwardDeg', 'leftThighAbductionDeg', 'stanceWidthNorm', 'bodyRotationDeg'],
+    controlParams: ['leftThighForwardDeg', 'leftThighAbductionDeg', 'stanceWidthNorm', 'figureYawDeg'],
     bodyPart: 'leftThigh',
     displayName: 'лівий кульшовий суглоб',
   },
   leftKnee: {
     landmarkIdx: LM.L_KNEE,
-    controlParams: ['leftKneeAngleDeg', 'leftThighForwardDeg'],
+    controlParams: ['leftKneeAngleDeg', 'leftKneeYawDeg', 'leftThighForwardDeg'],
     bodyPart: 'leftShin',
     displayName: 'ліве коліно',
   },
   leftAnkle: {
     landmarkIdx: LM.L_ANKLE,
-    controlParams: ['leftFootYawDeg', 'leftKneeAngleDeg'],
+    controlParams: ['leftFootYawDeg', 'leftKneeYawDeg', 'leftKneeAngleDeg'],
     bodyPart: 'leftFoot',
     displayName: 'ліва щиколотка',
   },

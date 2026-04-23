@@ -2,16 +2,16 @@
 // linear-frolicking-crayon.md.
 //
 // Wraps Drill2Mannequin in a single-anchor editing context: no START/END
-// phases, no fixture playback. The anchor starts at STANDING_POSE (relaxed
-// upright pose, distinct from the pre-loaded athletic crouch NEUTRAL_POSE
-// used by DrillEditor for drill playback) and the user shapes it via
-// sliders or direct joint selection. Built on top of SelectionProvider so
-// the canvas, sliders, HUD, and legend can all observe the same selection
-// without prop drilling.
+// phases, no fixture playback. The anchor starts at MIDPOINT_POSE (every
+// slider at the middle of its range — the "zero-input" default, distinct
+// from the pre-loaded athletic crouch NEUTRAL_POSE used by DrillEditor)
+// and the user shapes it via sliders or direct joint selection. Built on
+// top of SelectionProvider so the canvas, sliders, HUD, and legend can all
+// observe the same selection without prop drilling.
 
 import { useMemo, useState } from 'react'
 import type { PoseAnchor } from '../drill/PoseAnchor'
-import { cloneAnchor, STANDING_POSE } from '../drill/neutralPose'
+import { cloneAnchor, MIDPOINT_POSE } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
 import { JOINT_MAP } from '../drill/jointMap'
 import { SelectionProvider, useSelection } from '../context/SelectionContext'
@@ -20,6 +20,7 @@ import AnchorSliders from './AnchorSliders'
 import ResetPoseButton from './ResetPoseButton'
 import CoordinatesHUD from './CoordinatesHUD'
 import ColorLegend from './ColorLegend'
+import SavedPosesList from './SavedPosesList'
 
 interface Props {
   onClose: () => void
@@ -35,12 +36,12 @@ export default function MannequinEditor({ onClose }: Props) {
 
 function EditorShell({ onClose }: Props) {
   const { selectedJoint, setSelectedJoint } = useSelection()
-  const [anchor, setAnchor] = useState<PoseAnchor>(() => cloneAnchor(STANDING_POSE))
+  const [anchor, setAnchor] = useState<PoseAnchor>(() => cloneAnchor(MIDPOINT_POSE))
   // Incremented by every Reset path — Drill2Mannequin watches this to also
   // reset the OrbitControls camera, so a Reset visibly returns to front-on.
   const [cameraResetSignal, setCameraResetSignal] = useState(0)
   const resetAnchor = () => {
-    setAnchor(cloneAnchor(STANDING_POSE))
+    setAnchor(cloneAnchor(MIDPOINT_POSE))
     setCameraResetSignal(n => n + 1)
   }
 
@@ -63,7 +64,7 @@ function EditorShell({ onClose }: Props) {
           <div className="flex gap-2">
             <ResetPoseButton
               anchor={anchor}
-              defaultPose={STANDING_POSE}
+              defaultPose={MIDPOINT_POSE}
               onReset={next => {
                 setAnchor(next)
                 setCameraResetSignal(n => n + 1)
@@ -94,6 +95,8 @@ function EditorShell({ onClose }: Props) {
                 onJointClick={setSelectedJoint}
                 onDeselect={() => setSelectedJoint(null)}
                 cameraResetSignal={cameraResetSignal}
+                skipCoMBalancer
+                trustZ
               />
               <ColorLegend
                 selectedJoint={selectedJoint}
@@ -117,6 +120,16 @@ function EditorShell({ onClose }: Props) {
             onReset={resetAnchor}
             highlightedParams={highlightedParams}
             hidePhaseSelector
+            selectedJointName={selectedJoint ? JOINT_MAP[selectedJoint].displayName : undefined}
+            selectedJointId={selectedJoint ?? undefined}
+          />
+
+          <SavedPosesList
+            currentAnchor={anchor}
+            onLoad={next => {
+              setAnchor(cloneAnchor(next))
+              setCameraResetSignal(n => n + 1)
+            }}
           />
         </div>
       </div>

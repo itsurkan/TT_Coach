@@ -6,7 +6,16 @@
  * All angles in degrees. Positions in normalized [0, 1] screen coordinates.
  */
 export interface PoseAnchor {
-  /** Hip-line yaw (around vertical axis). Positive = right shoulder back. */
+  /** Yaw of the entire figure around the vertical axis through hipMid.
+   *  Rotates legs, hips, torso, arms and head together — use this when you
+   *  want to face the figure differently relative to the camera. Positive
+   *  rotates toward +z (player's right swings back). Default 0 = facing
+   *  the camera straight on. */
+  figureYawDeg: number
+  /** Hip (pelvis) twist RELATIVE to the planted legs. Rotates the hip line,
+   *  torso, arms and head — but legs (thighs / shins / feet) stay where
+   *  figureYawDeg put them. Use this for the trunk-vs-legs torsion that
+   *  loads a stroke. Positive = right shoulder back. */
   bodyRotationDeg: number
   /** Forward bend at the hips. Whole torso rotates rigidly around the hip line. */
   torsoTiltDeg: number
@@ -50,6 +59,16 @@ export interface PoseAnchor {
   rightThighAbductionDeg: number// for right leg: positive = out to player's right
   leftKneeAngleDeg: number
   rightKneeAngleDeg: number
+  /**
+   * Yaw of the knee bend plane around the vertical axis through the hip
+   * socket — i.e. the direction the knee points when bent. Also yaws the
+   * thigh's projection on the ground. Independent of `footYawDeg`, which
+   * rotates the foot relative to the shin. The world-yaw of the foot is
+   * the SUM of `kneeYawDeg + footYawDeg`. Positive = knee swings to the
+   * player's right (right leg) / left (left leg, sign flips internally).
+   */
+  leftKneeYawDeg: number
+  rightKneeYawDeg: number
   leftFootYawDeg: number
   rightFootYawDeg: number
   stanceWidthNorm: number
@@ -104,7 +123,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Torso',
     params: [
-      { key: 'bodyRotationDeg',     label: 'Hip rotation',       min: -90, max: 90, step: 1 },
+      { key: 'figureYawDeg',        label: 'Figure yaw (whole body)', min: -180, max: 180, step: 1 },
+      { key: 'bodyRotationDeg',     label: 'Hip rotation (pelvis twist)', min: -90, max: 90, step: 1 },
       { key: 'pelvicRollDeg',       label: 'Pelvic roll',        min: -30, max: 30, step: 1 },
       { key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
       { key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
@@ -115,8 +135,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Right arm (stroking)',
     params: [
-      { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1 },
-      { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 180, step: 1 },
+      { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 112, step: 1 },
+      { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 62,  step: 1 },
       { key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'rightWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
@@ -125,8 +145,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Left arm',
     params: [
-      { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1 },
-      { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 180, step: 1 },
+      { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 112, step: 1 },
+      { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 62,  step: 1 },
       { key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'leftWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
@@ -137,12 +157,14 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     params: [
       { key: 'leftThighForwardDeg',    label: 'L thigh forward',    min: -30, max: 120, step: 1 },
       { key: 'rightThighForwardDeg',   label: 'R thigh forward',    min: -30, max: 120, step: 1 },
-      { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 80,  step: 1 },
-      { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 80,  step: 1 },
+      { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 64,  step: 1 },
+      { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1 },
       { key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
-      { key: 'leftFootYawDeg',         label: 'L foot yaw',         min: -60, max: 60,  step: 1 },
-      { key: 'rightFootYawDeg',        label: 'R foot yaw',         min: -60, max: 60,  step: 1 },
+      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -90, max: 90,  step: 1 },
+      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -90, max: 90,  step: 1 },
+      { key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
+      { key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
     ],
   },

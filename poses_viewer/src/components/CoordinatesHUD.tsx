@@ -53,7 +53,7 @@ export default function CoordinatesHUD({ selectedJoint, landmarks }: Props) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(def.displayName)
+      await navigator.clipboard.writeText(selectedJoint)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 1200)
     } catch {

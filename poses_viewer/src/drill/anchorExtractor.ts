@@ -251,7 +251,13 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const stanceWidthNorm = length(sub(lAnkle, rAnkle))
 
   return {
-    bodyRotationDeg: clamp(bodyRotationDeg, -90, 90),
+    // The old single-yaw model put the whole-figure yaw into bodyRotationDeg.
+    // New model splits this: figureYawDeg yaws everything, bodyRotationDeg is
+    // pelvis-vs-leg torsion only. Extractor puts the observed yaw into
+    // figureYawDeg so imported poses replay identically; bodyRotationDeg
+    // starts at 0 (no observable trunk/leg torsion from a single MediaPipe view).
+    figureYawDeg: clamp(bodyRotationDeg, -180, 180),
+    bodyRotationDeg: 0,
     // Pelvic roll / torso side-bend / shoulder shrug aren't reliably decomposable
     // from a single-view MediaPipe pose; extractor leaves them at 0 and the
     // dirOverrides path carries any implicit lean via torsoUp/hip vectors.
@@ -276,8 +282,16 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightThighAbductionDeg: clamp(rightThighAbductionDeg, -30, 80),
     leftKneeAngleDeg: clamp(leftKneeAngleDeg, 30, 180),
     rightKneeAngleDeg: clamp(rightKneeAngleDeg, 30, 180),
-    leftFootYawDeg: clamp(leftFootYawDeg, -90, 90),
-    rightFootYawDeg: clamp(rightFootYawDeg, -90, 90),
+    // Old extractor produced the entire ankle-direction yaw in footYawDeg.
+    // New model splits this: kneeYawDeg = knee bend plane yaw, footYawDeg =
+    // foot vs shin. From a single MediaPipe view we can't see the foot's
+    // axial twist, so put all the observed yaw into kneeYawDeg and zero
+    // footYawDeg — the rendered foot direction (kneeYaw + footYaw) matches
+    // the old behaviour exactly.
+    leftKneeYawDeg: clamp(leftFootYawDeg, -90, 90),
+    rightKneeYawDeg: clamp(rightFootYawDeg, -90, 90),
+    leftFootYawDeg: 0,
+    rightFootYawDeg: 0,
     stanceWidthNorm: clamp(stanceWidthNorm, 0.05, 0.7),
     hipMidX: clamp(hipMid.x, 0.2, 0.8),
     hipMidY: clamp(hipMid.y, 0.2, 0.7),
