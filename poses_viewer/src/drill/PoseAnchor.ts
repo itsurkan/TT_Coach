@@ -140,8 +140,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Right arm (stroking)',
     params: [
-      { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 112, step: 1 },
-      { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 62,  step: 1 },
+      { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
+      { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
       { key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'rightWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
@@ -150,8 +150,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Left arm',
     params: [
-      { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 112, step: 1 },
-      { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 62,  step: 1 },
+      { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
+      { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
       { key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'leftWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
@@ -162,12 +162,12 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     params: [
       { key: 'leftThighForwardDeg',    label: 'L thigh forward',    min: -30, max: 120, step: 1 },
       { key: 'rightThighForwardDeg',   label: 'R thigh forward',    min: -30, max: 120, step: 1 },
-      { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 64,  step: 1 },
-      { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1 },
+      { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
+      { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
       { key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
-      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -90, max: 90,  step: 1 },
-      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -90, max: 90,  step: 1 },
+      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -85, max: 85,  step: 1 },
+      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -85, max: 85,  step: 1 },
       { key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
