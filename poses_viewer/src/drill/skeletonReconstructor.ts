@@ -245,18 +245,17 @@ export function reconstructFromAnchor(
 
     const elbowBend = 180 - elbowDeg
     const impForearm = side === 'L' ? anchor.dirOverrides?.leftForearm : anchor.dirOverrides?.rightForearm
-    // Hinge axis = cross(upperArmDir, torsoUp). This keeps the forearm bend
-    // plane in the plane containing the upper arm and the spine, so an
-    // abducted/raised arm bends toward the face rather than sideways. When
-    // the upper arm is nearly parallel to the spine the cross degenerates,
-    // so fall back to shoulderAcross (the legacy hinge). forearmTwistDeg
-    // still independently rotates the hand fan around the forearm axis.
-    //
-    // Note: the cross is computed as (torsoUp × upperArmDir) so that the
-    // resulting axis, combined with the existing -elbowBend rotation sign,
-    // swings the forearm in the anatomically correct direction (toward the
-    // head when the arm is abducted, i.e. the elbow bends in the
-    // upper-arm+spine plane rather than the lateral plane).
+    // Hinge axis = torsoUp × upperArmDir. Keeps the forearm bend plane in
+    // the plane containing the upper arm and the spine, so an abducted/
+    // raised arm bends toward the face rather than sideways. The operand
+    // order (not the more intuitive upperArmDir × torsoUp) is required so
+    // that combined with the existing -elbowBend rotation sign, the
+    // forearm bends toward the head rather than away — the plane is
+    // identical either way; only the axis direction (and thus the bend
+    // direction) flips. When the upper arm is nearly parallel to the
+    // spine the cross degenerates, so fall back to shoulderAcross (the
+    // legacy hinge). forearmTwistDeg still independently rotates the
+    // hand fan around the forearm axis.
     const hingeRaw: V3 = [
       torsoUp[1]*upperArmDir[2] - torsoUp[2]*upperArmDir[1],
       torsoUp[2]*upperArmDir[0] - torsoUp[0]*upperArmDir[2],
