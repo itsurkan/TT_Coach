@@ -1,3 +1,5 @@
+import { polarToFlexAbd, flexAbdToPolar } from './polarShoulder'
+
 /**
  * Pose anchor — a single keyframe in a drill. A drill is defined by two of
  * these (START + END); everything in between is linearly interpolated and
@@ -170,6 +172,48 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     params: [
       { kind: 'direct', key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
       { kind: 'direct', key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: -40, max: 120, step: 1, defaultValue: 31 },
+      {
+        kind: 'computed',
+        id: 'rightShoulderElevationDeg',
+        keys: ['rightShoulderAngleDeg', 'rightShoulderAbductionDeg'],
+        label: 'Shoulder elevation',
+        min: 0, max: 180, step: 1,
+        read: a => flexAbdToPolar({
+          flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
+        }).elevation,
+        write: (a, v) => {
+          const polar = flexAbdToPolar({
+            flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
+          })
+          const rect = polarToFlexAbd({ elevation: v, plane: polar.plane })
+          return {
+            ...a,
+            rightShoulderAngleDeg: clamp(rect.flex, -30, 180),
+            rightShoulderAbductionDeg: clamp(rect.abd, -40, 120),
+          }
+        },
+      },
+      {
+        kind: 'computed',
+        id: 'rightShoulderPlaneDeg',
+        keys: ['rightShoulderAngleDeg', 'rightShoulderAbductionDeg'],
+        label: 'Shoulder plane',
+        min: -90, max: 180, step: 1,
+        read: a => flexAbdToPolar({
+          flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
+        }).plane,
+        write: (a, v) => {
+          const polar = flexAbdToPolar({
+            flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
+          })
+          const rect = polarToFlexAbd({ elevation: polar.elevation, plane: v })
+          return {
+            ...a,
+            rightShoulderAngleDeg: clamp(rect.flex, -30, 180),
+            rightShoulderAbductionDeg: clamp(rect.abd, -40, 120),
+          }
+        },
+      },
       { kind: 'direct', key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { kind: 'direct', key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
       { kind: 'direct', key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
@@ -182,6 +226,48 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     params: [
       { kind: 'direct', key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
       { kind: 'direct', key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
+      {
+        kind: 'computed',
+        id: 'leftShoulderElevationDeg',
+        keys: ['leftShoulderAngleDeg', 'leftShoulderAbductionDeg'],
+        label: 'Shoulder elevation',
+        min: 0, max: 180, step: 1,
+        read: a => flexAbdToPolar({
+          flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
+        }).elevation,
+        write: (a, v) => {
+          const polar = flexAbdToPolar({
+            flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
+          })
+          const rect = polarToFlexAbd({ elevation: v, plane: polar.plane })
+          return {
+            ...a,
+            leftShoulderAngleDeg: clamp(rect.flex, -30, 180),
+            leftShoulderAbductionDeg: clamp(rect.abd, 0, 120),
+          }
+        },
+      },
+      {
+        kind: 'computed',
+        id: 'leftShoulderPlaneDeg',
+        keys: ['leftShoulderAngleDeg', 'leftShoulderAbductionDeg'],
+        label: 'Shoulder plane',
+        min: -90, max: 180, step: 1,
+        read: a => flexAbdToPolar({
+          flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
+        }).plane,
+        write: (a, v) => {
+          const polar = flexAbdToPolar({
+            flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
+          })
+          const rect = polarToFlexAbd({ elevation: polar.elevation, plane: v })
+          return {
+            ...a,
+            leftShoulderAngleDeg: clamp(rect.flex, -30, 180),
+            leftShoulderAbductionDeg: clamp(rect.abd, 0, 120),
+          }
+        },
+      },
       { kind: 'direct', key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { kind: 'direct', key: 'leftWristAngleDeg',         label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
       { kind: 'direct', key: 'leftWristYawDeg',           label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
@@ -220,6 +306,10 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
     ],
   },
 ]
+
+function clamp(v: number, lo: number, hi: number): number {
+  return v < lo ? lo : v > hi ? hi : v
+}
 
 /** Flattened list of all param specs (preserves group ordering). */
 export const ANCHOR_PARAM_SPECS: AnchorParamSpec[] =
