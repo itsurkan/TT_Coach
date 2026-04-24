@@ -50,6 +50,8 @@ export const NEUTRAL_POSE: PoseAnchor = {
   rightKneeAngleDeg: 130,
   leftKneeYawDeg: 15,           // knees splay outward over the toes
   rightKneeYawDeg: -15,
+  leftKneeSwivelDeg: 0,
+  rightKneeSwivelDeg: 0,
   leftFootYawDeg: 0,            // feet aligned with the knees
   rightFootYawDeg: 0,
 
@@ -102,6 +104,8 @@ export const STANDING_POSE: PoseAnchor = {
   rightKneeAngleDeg: 180,
   leftKneeYawDeg: 0,
   rightKneeYawDeg: 0,
+  leftKneeSwivelDeg: 0,
+  rightKneeSwivelDeg: 0,
   leftFootYawDeg: 0,
   rightFootYawDeg: 0,
 

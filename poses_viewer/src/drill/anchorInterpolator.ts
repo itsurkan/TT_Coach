@@ -33,6 +33,8 @@ export function lerpAnchor(a: PoseAnchor, b: PoseAnchor, t: number): PoseAnchor 
     rightKneeAngleDeg:      a.rightKneeAngleDeg      * s + b.rightKneeAngleDeg      * t,
     leftKneeYawDeg:         a.leftKneeYawDeg         * s + b.leftKneeYawDeg         * t,
     rightKneeYawDeg:        a.rightKneeYawDeg        * s + b.rightKneeYawDeg        * t,
+    leftKneeSwivelDeg:      a.leftKneeSwivelDeg      * s + b.leftKneeSwivelDeg      * t,
+    rightKneeSwivelDeg:     a.rightKneeSwivelDeg     * s + b.rightKneeSwivelDeg     * t,
     leftFootYawDeg:         a.leftFootYawDeg         * s + b.leftFootYawDeg         * t,
     rightFootYawDeg:        a.rightFootYawDeg        * s + b.rightFootYawDeg        * t,
     stanceWidthNorm:        a.stanceWidthNorm        * s + b.stanceWidthNorm        * t,

@@ -276,14 +276,15 @@ describe('reconstructFromAnchor', () => {
     expect(MIDPOINT_POSE.leftThighAbductionDeg).toBe(17)
   })
 
-  it('rightElbowYawDeg default = 0 in all neutrals (pre-FK-wiring)', async () => {
-    const { NEUTRAL_POSE, STANDING_POSE, MIDPOINT_POSE } = await import('../neutralPose')
+  it('elbowYaw default = 0 in NEUTRAL/STANDING neutrals (swivel=0 invariance)', async () => {
+    // MIDPOINT_POSE intentionally uses the slider `defaultValue` (40° on the
+    // right), so it's not constrained here. NEUTRAL/STANDING must stay at 0 so
+    // fingerprint drift guards below keep their meaning.
+    const { NEUTRAL_POSE, STANDING_POSE } = await import('../neutralPose')
     expect(NEUTRAL_POSE.rightElbowYawDeg).toBe(0)
     expect(NEUTRAL_POSE.leftElbowYawDeg).toBe(0)
     expect(STANDING_POSE.rightElbowYawDeg).toBe(0)
     expect(STANDING_POSE.leftElbowYawDeg).toBe(0)
-    expect(MIDPOINT_POSE.rightElbowYawDeg).toBe(0)
-    expect(MIDPOINT_POSE.leftElbowYawDeg).toBe(0)
   })
 
   it('elbowSwivel orbits elbow around shoulder→wrist axis with wrist pinned (right arm)', () => {
@@ -341,6 +342,65 @@ describe('reconstructFromAnchor', () => {
       expect(Math.abs(Math.hypot(S.x - E.x, S.y - E.y, S.z - E.z) - L_upper)).toBeLessThan(1e-4)
       expect(Math.abs(Math.hypot(E.x - W.x, E.y - W.y, E.z - W.z) - L_forearm)).toBeLessThan(1e-4)
       expect(Math.hypot(E.x - E0.x, E.y - E0.y, E.z - E0.z)).toBeGreaterThan(0.01)
+    }
+  })
+
+  it('kneeSwivel orbits knee around hip→ankle axis with ankle pinned (both legs)', () => {
+    // Knee-bent stance so the hip→ankle triangle is non-degenerate (swivel
+    // circle has non-zero radius). Symmetric test covers both legs at once.
+    const baseAnchor = {
+      ...NEUTRAL_POSE,
+      figureYawDeg: 0,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      leftThighForwardDeg: 30,
+      rightThighForwardDeg: 30,
+      leftThighAbductionDeg: 10,
+      rightThighAbductionDeg: 10,
+      leftKneeAngleDeg: 120,
+      rightKneeAngleDeg: 120,
+      leftKneeYawDeg: 0,
+      rightKneeYawDeg: 0,
+    }
+    const baseline = reconstructFromAnchor({ ...baseAnchor, leftKneeSwivelDeg: 0, rightKneeSwivelDeg: 0 })
+    const rH0 = baseline[LM.R_HIP], rA0 = baseline[LM.R_ANKLE], rK0 = baseline[LM.R_KNEE]
+    const lH0 = baseline[LM.L_HIP], lA0 = baseline[LM.L_ANKLE], lK0 = baseline[LM.L_KNEE]
+    const thighLen = BONES.thigh, shinLen = BONES.shin
+
+    for (const swivel of [-60, -20, 20, 60, 90]) {
+      const out = reconstructFromAnchor({ ...baseAnchor, leftKneeSwivelDeg: swivel, rightKneeSwivelDeg: swivel })
+      for (const [H0, A0, K0, HI, AI, KI] of [
+        [rH0, rA0, rK0, LM.R_HIP, LM.R_ANKLE, LM.R_KNEE] as const,
+        [lH0, lA0, lK0, LM.L_HIP, LM.L_ANKLE, LM.L_KNEE] as const,
+      ]) {
+        const H = out[HI], A = out[AI], K = out[KI]
+        // Hip pinned (trivially — hips don't depend on knee FK).
+        expect(Math.hypot(H.x - H0.x, H.y - H0.y, H.z - H0.z)).toBeLessThan(1e-6)
+        // Ankle pinned (the new contract).
+        expect(Math.hypot(A.x - A0.x, A.y - A0.y, A.z - A0.z)).toBeLessThan(1e-4)
+        // Bone lengths preserved (knee stays on the swivel circle).
+        expect(Math.abs(Math.hypot(H.x - K.x, H.y - K.y, H.z - K.z) - thighLen)).toBeLessThan(1e-4)
+        expect(Math.abs(Math.hypot(K.x - A.x, K.y - A.y, K.z - A.z) - shinLen)).toBeLessThan(1e-4)
+        // Knee actually moves (otherwise the swivel did nothing).
+        expect(Math.hypot(K.x - K0.x, K.y - K0.y, K.z - K0.z)).toBeGreaterThan(0.01)
+      }
+    }
+  })
+
+  it('kneeSwivel=0 leaves every landmark byte-identical (leg-orbit neutral)', () => {
+    const poses: Partial<typeof NEUTRAL_POSE>[] = [
+      { leftKneeAngleDeg: 130, rightKneeAngleDeg: 130, leftThighForwardDeg: 28, rightThighForwardDeg: 28 },
+      { leftKneeAngleDeg: 80,  rightKneeAngleDeg: 80,  leftThighForwardDeg: 60, rightThighForwardDeg: 60 },
+      { leftKneeAngleDeg: 179, rightKneeAngleDeg: 179, leftThighForwardDeg: 5,  rightThighForwardDeg: 5  },
+    ]
+    for (const p of poses) {
+      const withSwivel = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p, leftKneeSwivelDeg: 0, rightKneeSwivelDeg: 0 })
+      const noSwivel   = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p })
+      for (let i = 0; i < 33; i++) {
+        expect(withSwivel[i].x).toBeCloseTo(noSwivel[i].x, 6)
+        expect(withSwivel[i].y).toBeCloseTo(noSwivel[i].y, 6)
+        expect(withSwivel[i].z).toBeCloseTo(noSwivel[i].z, 6)
+      }
     }
   })
 

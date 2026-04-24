@@ -119,7 +119,7 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   },
   rightKnee: {
     landmarkIdx: LM.R_KNEE,
-    controlParams: ['rightKneeAngleDeg', 'rightKneeYawDeg', 'rightThighForwardDeg'],
+    controlParams: ['rightKneeAngleDeg', 'rightKneeYawDeg', 'rightKneeSwivelDeg', 'rightThighForwardDeg'],
     bodyPart: 'rightShin',
     displayName: 'праве коліно',
   },
@@ -139,7 +139,7 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   },
   leftKnee: {
     landmarkIdx: LM.L_KNEE,
-    controlParams: ['leftKneeAngleDeg', 'leftKneeYawDeg', 'leftThighForwardDeg'],
+    controlParams: ['leftKneeAngleDeg', 'leftKneeYawDeg', 'leftKneeSwivelDeg', 'leftThighForwardDeg'],
     bodyPart: 'leftShin',
     displayName: 'ліве коліно',
   },

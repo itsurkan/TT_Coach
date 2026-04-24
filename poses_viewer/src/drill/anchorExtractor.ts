@@ -585,6 +585,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     // the old behaviour exactly.
     leftKneeYawDeg: clamp(leftFootYawDeg, -90, 90),
     rightKneeYawDeg: clamp(rightFootYawDeg, -90, 90),
+    // Knee swivel (hip+ankle pinned, knee orbits) is ambiguous from a single
+    // MediaPipe view: the observed knee position is produced by thigh fwd/abd
+    // + kneeYaw + swivel, and the extractor can't disambiguate swivel from
+    // the already-extracted thigh/kneeYaw. Leave at 0 (same rationale as
+    // pelvicRoll / shoulderShrug / torsoSideBend above) — round-trip holds
+    // when the source had swivel=0, which includes every current fixture.
+    leftKneeSwivelDeg: 0,
+    rightKneeSwivelDeg: 0,
     leftFootYawDeg: 0,
     rightFootYawDeg: 0,
     stanceWidthNorm: clamp(stanceWidthNorm, 0.05, 0.7),

@@ -406,11 +406,55 @@ export function reconstructFromAnchor(
   const Brf = bonesOverride?.rightFootForward ?? B.footForward
   const Blf = bonesOverride?.leftFootForward ?? B.footForward
 
+  /**
+   * Knee swivel — leg analog of arm elbow swivel.
+   * Pass 1 builds today's knee/ankle from thighDir+shinDir. Pass 2 (only when
+   * swivel ≠ 0) orbits the knee around the hip→ankle axis, keeping hip and
+   * ankle pinned and bone lengths exact. At swivel=0 the fast path returns the
+   * reference knee unchanged → byte-identical to today's output.
+   * Reference basis: u = knee0 projected ⊥ axis (guarantees identity at 0);
+   * v = abSign · normalize(axis × u) — +yaw = lateral (same sign convention
+   * as the arm swivel).
+   */
+  function orbitKnee(hip: V3, knee0: V3, ankle: V3, thighLen: number, shinLen: number, swivelDeg: number, abSign: number): V3 {
+    if (swivelDeg === 0) return knee0
+    const axisVec: V3 = [ankle[0] - hip[0], ankle[1] - hip[1], ankle[2] - hip[2]]
+    const d = Math.sqrt(axisVec[0]*axisVec[0] + axisVec[1]*axisVec[1] + axisVec[2]*axisVec[2])
+    if (d < 1e-6) return knee0
+    // Straight leg (ankle co-linear with hip+thigh+shin): no circle to orbit on.
+    if (d > thighLen + shinLen - 1e-4) return knee0
+    const axis: V3 = [axisVec[0]/d, axisVec[1]/d, axisVec[2]/d]
+    const t = (d*d + thighLen*thighLen - shinLen*shinLen) / (2*d*d)
+    const center: V3 = add(hip, scale(axisVec, t))
+    const radius = Math.sqrt(Math.max(0, thighLen*thighLen - (t*d)*(t*d)))
+    // u = (knee0 − center) projected ⊥ axis — points from circle center to today's knee.
+    const kRaw: V3 = [knee0[0] - center[0], knee0[1] - center[1], knee0[2] - center[2]]
+    const kDotAxis = kRaw[0]*axis[0] + kRaw[1]*axis[1] + kRaw[2]*axis[2]
+    const uRaw: V3 = [kRaw[0] - kDotAxis*axis[0], kRaw[1] - kDotAxis*axis[1], kRaw[2] - kDotAxis*axis[2]]
+    const uLen = Math.sqrt(uRaw[0]*uRaw[0] + uRaw[1]*uRaw[1] + uRaw[2]*uRaw[2])
+    if (uLen < 1e-6) return knee0
+    const u: V3 = [uRaw[0]/uLen, uRaw[1]/uLen, uRaw[2]/uLen]
+    const vRaw: V3 = [
+      axis[1]*u[2] - axis[2]*u[1],
+      axis[2]*u[0] - axis[0]*u[2],
+      axis[0]*u[1] - axis[1]*u[0],
+    ]
+    const v: V3 = scale(normalize(vRaw), abSign)
+    const theta = deg(swivelDeg)
+    const cosT = Math.cos(theta), sinT = Math.sin(theta)
+    return [
+      center[0] + radius*(cosT*u[0] + sinT*v[0]),
+      center[1] + radius*(cosT*u[1] + sinT*v[1]),
+      center[2] + radius*(cosT*u[2] + sinT*v[2]),
+    ]
+  }
+
   // Right leg ───────────────────────────────────────────────────────────────
   const rThighDir: V3 = thighDirFor('R')
-  const rKnee: V3 = add(rHip, scale(rThighDir, Brt))
-  const rShinDir: V3 = shinDirFor('R', rThighDir, effRightKnee)
-  const rAnkle: V3 = add(rKnee, scale(rShinDir, Brs))
+  const rKnee0: V3 = add(rHip, scale(rThighDir, Brt))
+  const rShinDir0: V3 = shinDirFor('R', rThighDir, effRightKnee)
+  const rAnkle: V3 = add(rKnee0, scale(rShinDir0, Brs))
+  const rKnee: V3 = orbitKnee(rHip, rKnee0, rAnkle, Brt, Brs, anchor.rightKneeSwivelDeg, -1)
   out[LM.R_KNEE]  = mkLm(LM.R_KNEE,  rKnee)
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
   const rFootDir: V3 = normalize(rotY(legForward, anchor.rightKneeYawDeg + anchor.rightFootYawDeg))
@@ -421,9 +465,10 @@ export function reconstructFromAnchor(
 
   // Left leg ────────────────────────────────────────────────────────────────
   const lThighDir: V3 = thighDirFor('L')
-  const lKnee: V3 = add(lHip, scale(lThighDir, Blt))
-  const lShinDir: V3 = shinDirFor('L', lThighDir, effLeftKnee)
-  const lAnkle: V3 = add(lKnee, scale(lShinDir, Bls))
+  const lKnee0: V3 = add(lHip, scale(lThighDir, Blt))
+  const lShinDir0: V3 = shinDirFor('L', lThighDir, effLeftKnee)
+  const lAnkle: V3 = add(lKnee0, scale(lShinDir0, Bls))
+  const lKnee: V3 = orbitKnee(lHip, lKnee0, lAnkle, Blt, Bls, anchor.leftKneeSwivelDeg, +1)
   out[LM.L_KNEE]  = mkLm(LM.L_KNEE,  lKnee)
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)
   const lFootDir: V3 = normalize(rotY(legForward, anchor.leftKneeYawDeg + anchor.leftFootYawDeg))

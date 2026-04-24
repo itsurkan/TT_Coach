@@ -81,6 +81,18 @@ export interface PoseAnchor {
    */
   leftKneeYawDeg: number
   rightKneeYawDeg: number
+  /**
+   * Knee swivel — the leg analog of arm `*ElbowYawDeg` (elbow swivel).
+   * Hip and ankle are pinned; the knee orbits on a circle around the
+   * hip→ankle axis. Swivel=0 places the knee in the plane containing the
+   * swivel=0 FK result (i.e. today's kneeYaw-free leg), so the DOF is
+   * additive: byte-identical at 0, orbits the knee at ≠0. Positive =
+   * lateral (knee swings outward, away from the midline); negative =
+   * medial (knock-kneed). Sign is mirrored internally between sides so
+   * the same sign convention feels symmetric.
+   */
+  leftKneeSwivelDeg: number
+  rightKneeSwivelDeg: number
   leftFootYawDeg: number
   rightFootYawDeg: number
   stanceWidthNorm: number
@@ -162,6 +174,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -85, max: 85,  step: 1 },
       { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -85, max: 85,  step: 1 },
+      { key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -90, max: 90, step: 1, defaultValue: 0 },
+      { key: 'rightKneeSwivelDeg',     label: 'R knee swivel (hip+ankle pinned)',  min: -90, max: 90, step: 1, defaultValue: 0 },
       { key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
