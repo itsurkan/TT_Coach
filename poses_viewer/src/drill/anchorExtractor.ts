@@ -137,6 +137,71 @@ export function extractBoneLengths(lms: Landmark[]): BoneLengthsOverride {
   }
 }
 
+/** Rodrigues rotation around `axis` by `degAngle` degrees (V3 object form). */
+function rotAroundAxisObj(v: V3, axis: V3, degAngle: number): V3 {
+  const aLen = Math.sqrt(axis.x*axis.x + axis.y*axis.y + axis.z*axis.z) || 1e-9
+  const k = { x: axis.x/aLen, y: axis.y/aLen, z: axis.z/aLen }
+  const rad = degAngle * Math.PI / 180
+  const c = Math.cos(rad), s = Math.sin(rad)
+  const d = k.x*v.x + k.y*v.y + k.z*v.z
+  const cx = k.y*v.z - k.z*v.y
+  const cy = k.z*v.x - k.x*v.z
+  const cz = k.x*v.y - k.y*v.x
+  return {
+    x: v.x*c + cx*s + k.x*d*(1-c),
+    y: v.y*c + cy*s + k.y*d*(1-c),
+    z: v.z*c + cz*s + k.z*d*(1-c),
+  }
+}
+
+/**
+ * Extract wrist yaw (ulnar/radial deviation) by inverting the FK hand-fan
+ * rotation. FK rotates the hand unit (bentHandDir + 0.2·fanSide) around
+ * handNormal = cross(forearmDir, fanSideBase) by abSign·yaw. The reference
+ * direction at yaw=0 and the observed wrist→index direction are both rotated
+ * by the same angle around handNormal, so the signed angle between them IS
+ * the yaw.
+ *
+ * Assumes forearm twist = 0 when constructing fanSideBase — fanSideBase at
+ * twist=0 is rot(shoulderAcross, forearmDir, 0) = shoulderAcross (unnormalized),
+ * which matches the FK identity case. Task 7 lifts this assumption.
+ */
+function computeWristYaw(
+  forearmUnit: V3,
+  shoulderAcross: V3,
+  wristAngleDeg: number,
+  wristToIndex: V3,
+  abSign: number,
+): number {
+  if (length(wristToIndex) < 1e-4) return 0
+  // bentHandDir at wristYaw=0 — mirrors FK's normalize(rot(forearmDir, shoulderAcross, -wristBend))
+  const wristBend = 180 - wristAngleDeg
+  const bentHandDir = rotAroundAxisObj(forearmUnit, shoulderAcross, -wristBend)
+  // fanSideBase at twist=0 — FK's normalize(rot(shoulderAcross, forearmDir, 0)) = shoulderAcross
+  const fanSideBase = rotAroundAxisObj(shoulderAcross, forearmUnit, 0)
+  // handNormal = cross(forearmDir, fanSideBase) — the axis that wristYaw rotates around
+  const handNormal: V3 = {
+    x: forearmUnit.y * fanSideBase.z - forearmUnit.z * fanSideBase.y,
+    y: forearmUnit.z * fanSideBase.x - forearmUnit.x * fanSideBase.z,
+    z: forearmUnit.x * fanSideBase.y - forearmUnit.y * fanSideBase.x,
+  }
+  const hnLen = length(handNormal)
+  if (hnLen < 1e-6) return 0
+  const handNormalU: V3 = { x: handNormal.x/hnLen, y: handNormal.y/hnLen, z: handNormal.z/hnLen }
+  // Reference direction at yaw=0: normalize(bentHandDir + 0.2 · fanSideBase)
+  const ref: V3 = {
+    x: bentHandDir.x + 0.2 * fanSideBase.x,
+    y: bentHandDir.y + 0.2 * fanSideBase.y,
+    z: bentHandDir.z + 0.2 * fanSideBase.z,
+  }
+  const rLen = length(ref) || 1e-9
+  const refU: V3 = { x: ref.x/rLen, y: ref.y/rLen, z: ref.z/rLen }
+  // Observed direction: wrist → index (from landmarks)
+  const oLen = length(wristToIndex) || 1e-9
+  const obsU: V3 = { x: wristToIndex.x/oLen, y: wristToIndex.y/oLen, z: wristToIndex.z/oLen }
+  return abSign * signedAngleAround(refU, obsU, handNormalU)
+}
+
 export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const get = (i: number): V3 => toV3(lms[i])
 
@@ -327,6 +392,15 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const rightElbowYawRaw = computeElbowYaw(rUpperArmUnit, rForearmUnit, -1, rightElbowAngleDeg)
   const leftElbowYawRaw  = computeElbowYaw(lUpperArmUnit, lForearmUnit, +1, leftElbowAngleDeg)
 
+  const bodyShoulderAcross: V3 = { x: _acrossX, y: 0, z: _acrossZ }
+  const rightWristYawRaw = computeWristYaw(
+    rForearmUnit, bodyShoulderAcross, rightWristAngleDeg, rWristToIndex, -1,
+  )
+  const lWristToIndexVec = sub(lIndex, lWrist)
+  const leftWristYawRaw = computeWristYaw(
+    lForearmUnit, bodyShoulderAcross, leftWristAngleDeg, lWristToIndexVec, +1,
+  )
+
   // Knee angles.
   const leftKneeAngleDeg  = angleBetween(sub(lHip, lKnee), sub(lAnkle, lKnee))
   const rightKneeAngleDeg = angleBetween(sub(rHip, rKnee), sub(rAnkle, rKnee))
@@ -391,14 +465,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightShoulderAbductionDeg: clamp(rightShoulderAbductionDeg, -30, 180),
     rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),
     rightWristAngleDeg: clamp(rightWristAngleDeg, 60, 180),
-    rightWristYawDeg: 0,
+    rightWristYawDeg: clamp(rightWristYawRaw, -30, 20),
     rightForearmTwistDeg: 0, // unreliable from MediaPipe
     rightElbowYawDeg: clamp(rightElbowYawRaw, -70, 90),
     leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
     leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
     leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
     leftWristAngleDeg: clamp(leftWristAngleDeg, 60, 180),
-    leftWristYawDeg: 0,
+    leftWristYawDeg: clamp(leftWristYawRaw, -30, 20),
     leftForearmTwistDeg: 0,
     leftElbowYawDeg:  clamp(leftElbowYawRaw,  -70, 90),
     leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
