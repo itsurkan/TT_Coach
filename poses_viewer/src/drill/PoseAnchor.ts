@@ -174,8 +174,10 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -85, max: 85,  step: 1 },
       { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -85, max: 85,  step: 1 },
-      { key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -90, max: 90, step: 1, defaultValue: 0 },
-      { key: 'rightKneeSwivelDeg',     label: 'R knee swivel (hip+ankle pinned)',  min: -90, max: 90, step: 1, defaultValue: 0 },
+      // Knee swivel is anatomically tiny — only a few very flexible people
+      // exceed ±5°, so keep the slider tight to the realistic range.
+      { key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
+      { key: 'rightKneeSwivelDeg',     label: 'R knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
       { key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
       { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
