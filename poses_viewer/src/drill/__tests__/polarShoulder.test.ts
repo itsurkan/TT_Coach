@@ -74,3 +74,32 @@ describe('flexAbdToPolar', () => {
     expect(out.plane).toBeCloseTo(-90, 6)
   })
 })
+
+describe('round-trip: polar → rect → polar', () => {
+  it('identity on 7x7 grid excluding the two poles', () => {
+    const elevations = [10, 30, 60, 90, 120, 150, 170]
+    const planes = [-60, -30, 0, 45, 90, 135, 170]
+    for (const elevation of elevations) {
+      for (const plane of planes) {
+        const rect = polarToFlexAbd({ elevation, plane })
+        const back = flexAbdToPolar(rect)
+        expect(back.elevation).toBeCloseTo(elevation, 4)
+        expect(back.plane).toBeCloseTo(plane, 4)
+      }
+    }
+  })
+  it('rect → polar → rect identity on 5x5 grid within the polar-reachable region', () => {
+    // abd is bounded to (-90, 90) because ±90 is the lateral pole where flex
+    // becomes indeterminate. flex can span the full rect-slider range.
+    const flexes = [-30, 0, 45, 90, 135, 180]
+    const abds = [-40, -20, 0, 30, 60, 85]
+    for (const flex of flexes) {
+      for (const abd of abds) {
+        const polar = flexAbdToPolar({ flex, abd })
+        const back = polarToFlexAbd(polar)
+        expect(back.flex).toBeCloseTo(flex, 4)
+        expect(back.abd).toBeCloseTo(abd, 4)
+      }
+    }
+  })
+})
