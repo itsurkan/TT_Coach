@@ -73,19 +73,19 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   // Right arm — joints belong to the body segment they move (shoulder → upper arm, etc.).
   rightShoulder: {
     landmarkIdx: LM.R_SHOULDER,
-    controlParams: ['rightShoulderAngleDeg', 'rightShoulderAbductionDeg', 'shoulderRotationDeg'],
+    controlParams: ['rightShoulderAngleDeg', 'rightShoulderAbductionDeg', 'rightElbowYawDeg', 'shoulderRotationDeg'],
     bodyPart: 'rightUpperArm',
     displayName: 'правий плечовий суглоб',
   },
   rightElbow: {
     landmarkIdx: LM.R_ELBOW,
-    controlParams: ['rightElbowAngleDeg', 'rightForearmTwistDeg'],
+    controlParams: ['rightElbowAngleDeg', 'rightElbowYawDeg', 'rightForearmTwistDeg'],
     bodyPart: 'rightForearm',
     displayName: 'правий лікоть',
   },
   rightWrist: {
     landmarkIdx: LM.R_WRIST,
-    controlParams: ['rightWristAngleDeg', 'rightForearmTwistDeg'],
+    controlParams: ['rightWristAngleDeg', 'rightWristYawDeg', 'rightForearmTwistDeg'],
     bodyPart: 'rightHand',
     displayName: "правий зап'ясток",
   },
@@ -93,19 +93,19 @@ export const JOINT_MAP: Record<JointId, JointDefinition> = {
   // Left arm.
   leftShoulder: {
     landmarkIdx: LM.L_SHOULDER,
-    controlParams: ['leftShoulderAngleDeg', 'leftShoulderAbductionDeg', 'shoulderRotationDeg'],
+    controlParams: ['leftShoulderAngleDeg', 'leftShoulderAbductionDeg', 'leftElbowYawDeg', 'shoulderRotationDeg'],
     bodyPart: 'leftUpperArm',
     displayName: 'лівий плечовий суглоб',
   },
   leftElbow: {
     landmarkIdx: LM.L_ELBOW,
-    controlParams: ['leftElbowAngleDeg', 'leftForearmTwistDeg'],
+    controlParams: ['leftElbowAngleDeg', 'leftElbowYawDeg', 'leftForearmTwistDeg'],
     bodyPart: 'leftForearm',
     displayName: 'лівий лікоть',
   },
   leftWrist: {
     landmarkIdx: LM.L_WRIST,
-    controlParams: ['leftWristAngleDeg', 'leftForearmTwistDeg'],
+    controlParams: ['leftWristAngleDeg', 'leftWristYawDeg', 'leftForearmTwistDeg'],
     bodyPart: 'leftHand',
     displayName: "лівий зап'ясток",
   },
