@@ -77,7 +77,7 @@ export function useSavedPoses() {
     const item: SavedPose = {
       id: crypto.randomUUID(),
       name,
-      anchor: { ...anchor, dirOverrides: anchor.dirOverrides ? { ...anchor.dirOverrides } : undefined },
+      anchor: { ...anchor },
       createdAt: Date.now(),
     }
     setList(prev => {

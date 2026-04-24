@@ -86,28 +86,6 @@ export interface PoseAnchor {
   stanceWidthNorm: number
   hipMidX: number
   hipMidY: number
-  /**
-   * Optional unit-vector overrides for each limb bone — when present, FK
-   * uses these directly instead of deriving from the angle fields above.
-   * Set by the extractor during import from raw landmarks so faithful
-   * replay doesn't depend on perfect angle-decomposition math.
-   * Angle fields are still kept in sync for slider UI.
-   */
-  dirOverrides?: LimbDirections
-}
-
-export interface LimbDirections {
-  leftThigh?: [number, number, number]
-  rightThigh?: [number, number, number]
-  leftShin?: [number, number, number]
-  rightShin?: [number, number, number]
-  leftUpperArm?: [number, number, number]
-  rightUpperArm?: [number, number, number]
-  leftForearm?: [number, number, number]
-  rightForearm?: [number, number, number]
-  torsoUp?: [number, number, number]
-  leftFoot?: [number, number, number]
-  rightFoot?: [number, number, number]
 }
 
 export type AnchorPhase = 'START' | 'END'

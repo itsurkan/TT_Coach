@@ -129,7 +129,6 @@ describe('reconstructFromAnchor', () => {
     // direction rotates by exactly shoulderRotationDeg around Y.
     const base = {
       ...NEUTRAL_POSE,
-      dirOverrides: undefined,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,
@@ -162,7 +161,6 @@ describe('reconstructFromAnchor', () => {
     // foot-vs-shin angle and does NOT affect the knee plane.)
     const base = {
       ...NEUTRAL_POSE,
-      dirOverrides: undefined,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,
@@ -194,7 +192,6 @@ describe('reconstructFromAnchor', () => {
     // be HIGHER on screen than the elbow.
     const pose = {
       ...NEUTRAL_POSE,
-      dirOverrides: undefined,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,
@@ -219,7 +216,6 @@ describe('reconstructFromAnchor', () => {
     // so forearm still bends around shoulderAcross — same result. Locks this.
     const pose = {
       ...NEUTRAL_POSE,
-      dirOverrides: undefined,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,
@@ -245,7 +241,6 @@ describe('reconstructFromAnchor', () => {
     // changes smoothly (no frame-to-frame jump > forearm length/3).
     const base = {
       ...NEUTRAL_POSE,
-      dirOverrides: undefined,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,

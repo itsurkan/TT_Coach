@@ -11,7 +11,7 @@
  * slider range [-90°, +90°] on return.
  */
 
-import type { PoseAnchor, LimbDirections } from './PoseAnchor'
+import type { PoseAnchor } from './PoseAnchor'
 import type { Landmark } from '../types'
 import { LM } from './SkeletonModel'
 import type { BoneLengthsOverride } from './skeletonReconstructor'
@@ -22,31 +22,6 @@ function unitDir(lms: Landmark[], fromIdx: number, toIdx: number): [number, numb
   const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z
   const len = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1e-9
   return [dx / len, dy / len, dz / len]
-}
-
-/**
- * Extract unit direction vectors for every major limb bone. Storing these
- * alongside the angle-based anchor lets FK reproduce the source pose with
- * near-zero error — no decomposition math, no trig loss.
- */
-export function extractLimbDirections(lms: Landmark[]): LimbDirections {
-  const hipMid = { x: (lms[LM.L_HIP].x + lms[LM.R_HIP].x) / 2, y: (lms[LM.L_HIP].y + lms[LM.R_HIP].y) / 2, z: (lms[LM.L_HIP].z + lms[LM.R_HIP].z) / 2 }
-  const shMid  = { x: (lms[LM.L_SHOULDER].x + lms[LM.R_SHOULDER].x) / 2, y: (lms[LM.L_SHOULDER].y + lms[LM.R_SHOULDER].y) / 2, z: (lms[LM.L_SHOULDER].z + lms[LM.R_SHOULDER].z) / 2 }
-  const torsoVec = { x: shMid.x - hipMid.x, y: shMid.y - hipMid.y, z: shMid.z - hipMid.z }
-  const torsoLen = Math.hypot(torsoVec.x, torsoVec.y, torsoVec.z) || 1e-9
-  return {
-    leftThigh:     unitDir(lms, LM.L_HIP,      LM.L_KNEE),
-    rightThigh:    unitDir(lms, LM.R_HIP,      LM.R_KNEE),
-    leftShin:      unitDir(lms, LM.L_KNEE,     LM.L_ANKLE),
-    rightShin:     unitDir(lms, LM.R_KNEE,     LM.R_ANKLE),
-    leftUpperArm:  unitDir(lms, LM.L_SHOULDER, LM.L_ELBOW),
-    rightUpperArm: unitDir(lms, LM.R_SHOULDER, LM.R_ELBOW),
-    leftForearm:   unitDir(lms, LM.L_ELBOW,    LM.L_WRIST),
-    rightForearm:  unitDir(lms, LM.R_ELBOW,    LM.R_WRIST),
-    leftFoot:      unitDir(lms, LM.L_ANKLE,    LM.L_FOOT),
-    rightFoot:     unitDir(lms, LM.R_ANKLE,    LM.R_FOOT),
-    torsoUp:       [torsoVec.x / torsoLen, torsoVec.y / torsoLen, torsoVec.z / torsoLen],
-  }
 }
 
 const clamp = (v: number, min: number, max: number) =>
@@ -512,7 +487,7 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     bodyRotationDeg: 0,
     // Pelvic roll / torso side-bend / shoulder shrug aren't reliably decomposable
     // from a single-view MediaPipe pose; extractor leaves them at 0 and the
-    // dirOverrides path carries any implicit lean via torsoUp/hip vectors.
+    // extractor leaves these fields at 0; FK uses the angle path unconditionally.
     pelvicRollDeg: 0,
     shoulderRotationDeg: clamp(shoulderRotationDeg, -90, 90),
     torsoTiltDeg: clamp(torsoTiltDeg, 0, 75),

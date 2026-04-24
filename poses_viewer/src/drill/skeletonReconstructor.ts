@@ -149,9 +149,7 @@ export function reconstructFromAnchor(
   // shoulders translate forward by sin(tilt)*torso. Then apply side-bend
   // around the body-forward axis so a relaxed/imbalanced posture can lean
   // sideways without tipping the whole body.
-  const torsoUpFromTilt: V3 = anchor.dirOverrides?.torsoUp
-    ? normalize(anchor.dirOverrides.torsoUp as V3)
-    : normalize(rotAroundAxis([0, -1, 0], acrossLevel, anchor.torsoTiltDeg))
+  const torsoUpFromTilt: V3 = normalize(rotAroundAxis([0, -1, 0], acrossLevel, anchor.torsoTiltDeg))
   const torsoUp: V3 = anchor.torsoSideBendDeg !== 0
     ? normalize(rotAroundAxis(torsoUpFromTilt, forward, anchor.torsoSideBendDeg))
     : torsoUpFromTilt
@@ -234,19 +232,14 @@ export function reconstructFromAnchor(
     const idxIndex  = side === 'L' ? LM.L_INDEX : LM.R_INDEX
     const idxThumb  = side === 'L' ? LM.L_THUMB : LM.R_THUMB
 
-    // Upper arm — per-bone override (may be cleared by specific slider edits).
-    // Arms attach to the SHOULDER frame: abduction pivots around shoulder-
-    // forward, flex pivots around shoulder-across. So a corpus rotation
+    // Upper arm — arms attach to the SHOULDER frame: abduction pivots around
+    // shoulder-forward, flex pivots around shoulder-across. So a corpus rotation
     // (shoulderRotationDeg) sweeps the arms with it.
-    const impUpper = side === 'L' ? anchor.dirOverrides?.leftUpperArm : anchor.dirOverrides?.rightUpperArm
-    const upperArmDir = impUpper
-      ? normalize(impUpper as V3)
-      : normalize(rotAroundAxis(rotAroundAxis(torsoDown, shoulderForward, abSign * shAbdDeg), shoulderAcross, -shFwdDeg))
+    const upperArmDir = normalize(rotAroundAxis(rotAroundAxis(torsoDown, shoulderForward, abSign * shAbdDeg), shoulderAcross, -shFwdDeg))
     const elbow = add(shoulder, scale(upperArmDir, B.upperArm))
     out[idxElbow] = mkLm(idxElbow, elbow)
 
     const elbowBend = 180 - elbowDeg
-    const impForearm = side === 'L' ? anchor.dirOverrides?.leftForearm : anchor.dirOverrides?.rightForearm
     // Elbow hinge — weighted combination that is continuous across the whole
     // (shAbd, shFwd) slider domain AND keeps the forearm bending into the
     // body's anterior half-space (toward the face/chest) for any arm pose.
@@ -283,9 +276,7 @@ export function reconstructFromAnchor(
     const twistedHinge: V3 = elbowYawDeg !== 0
       ? normalize(rotAroundAxis(elbowHinge, upperArmDir, abSign * elbowYawDeg))
       : elbowHinge
-    const forearmDir = impForearm
-      ? normalize(impForearm as V3)
-      : normalize(rotAroundAxis(upperArmDir, twistedHinge, -elbowBend))
+    const forearmDir = normalize(rotAroundAxis(upperArmDir, twistedHinge, -elbowBend))
     const wrist = add(elbow, scale(forearmDir, B.forearm))
     out[idxWrist] = mkLm(idxWrist, wrist)
 
@@ -332,12 +323,6 @@ export function reconstructFromAnchor(
   const worldDown: V3 = [0, 1, 0]
 
   function thighDirFor(side: 'L' | 'R'): V3 {
-    // Per-bone fast path: if the user imported a direction and hasn't cleared
-    // it (by editing the related slider), use it verbatim. Otherwise fall
-    // through to angle-based computation so that slider edits TAKE EFFECT.
-    const o = anchor.dirOverrides
-    const imported = side === 'L' ? o?.leftThigh : o?.rightThigh
-    if (imported) return normalize(imported as V3)
     const flexDeg = side === 'L' ? anchor.leftThighForwardDeg  : anchor.rightThighForwardDeg
     const absDeg  = side === 'L' ? anchor.leftThighAbductionDeg : anchor.rightThighAbductionDeg
     const kneeYaw = side === 'L' ? anchor.leftKneeYawDeg : anchor.rightKneeYawDeg
@@ -352,8 +337,6 @@ export function reconstructFromAnchor(
   }
 
   const shinDirFor = (side: 'L' | 'R', thighDir: V3, effKnee: number): V3 => {
-    const imported = side === 'L' ? anchor.dirOverrides?.leftShin : anchor.dirOverrides?.rightShin
-    if (imported) return normalize(imported as V3)
     const kneeBend = 180 - effKnee
     // The knee bends in the vertical plane that the knee points along —
     // controlled by kneeYawDeg (independent of footYawDeg). Hinge axis is
@@ -379,9 +362,7 @@ export function reconstructFromAnchor(
   const rAnkle: V3 = add(rKnee, scale(rShinDir, Brs))
   out[LM.R_KNEE]  = mkLm(LM.R_KNEE,  rKnee)
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
-  const rFootDir: V3 = anchor.dirOverrides?.rightFoot
-    ? normalize(anchor.dirOverrides.rightFoot as V3)
-    : normalize(rotY(legForward, anchor.rightKneeYawDeg + anchor.rightFootYawDeg))
+  const rFootDir: V3 = normalize(rotY(legForward, anchor.rightKneeYawDeg + anchor.rightFootYawDeg))
   const rFootTip: V3 = add(rAnkle, scale(rFootDir, Brf))
   const rHeel:    V3 = add(rAnkle, scale(rFootDir, -Brf * 0.4))
   out[LM.R_HEEL] = mkLm(LM.R_HEEL, rHeel)
@@ -394,9 +375,7 @@ export function reconstructFromAnchor(
   const lAnkle: V3 = add(lKnee, scale(lShinDir, Bls))
   out[LM.L_KNEE]  = mkLm(LM.L_KNEE,  lKnee)
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)
-  const lFootDir: V3 = anchor.dirOverrides?.leftFoot
-    ? normalize(anchor.dirOverrides.leftFoot as V3)
-    : normalize(rotY(legForward, anchor.leftKneeYawDeg + anchor.leftFootYawDeg))
+  const lFootDir: V3 = normalize(rotY(legForward, anchor.leftKneeYawDeg + anchor.leftFootYawDeg))
   const lFootTip: V3 = add(lAnkle, scale(lFootDir, Blf))
   const lHeel:    V3 = add(lAnkle, scale(lFootDir, -Blf * 0.4))
   out[LM.L_HEEL] = mkLm(LM.L_HEEL, lHeel)

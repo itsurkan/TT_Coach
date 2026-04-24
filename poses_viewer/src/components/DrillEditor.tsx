@@ -1,12 +1,11 @@
 import { useMemo, useState, useEffect, useRef } from 'react'
-import type { PoseAnchor, AnchorPhase, LimbDirections } from '../drill/PoseAnchor'
+import type { PoseAnchor, AnchorPhase } from '../drill/PoseAnchor'
 import { STANDING_POSE, cloneAnchor } from '../drill/neutralPose'
 import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
 import type { BoneLengthsOverride } from '../drill/skeletonReconstructor'
 import { interpolateAnchors, lerpAnchor } from '../drill/anchorInterpolator'
 import {
   extractAnchorFromLandmarks,
-  extractLimbDirections,
   extractBoneLengths,
   parsePoseFixture,
 } from '../drill/anchorExtractor'
@@ -17,91 +16,6 @@ import Drill2Mannequin from './Drill2Mannequin'
 const PLAYBACK_FRAMES = 10
 const PLAYBACK_INTERVAL_MS = 120
 
-/** First scalar anchor field whose value differs between `a` and `b`. */
-function diffKey(a: PoseAnchor, b: PoseAnchor): keyof PoseAnchor | null {
-  const keys = Object.keys(b) as (keyof PoseAnchor)[]
-  for (const k of keys) {
-    if (k === 'dirOverrides') continue
-    if ((a as unknown as Record<string, unknown>)[k] !== (b as unknown as Record<string, unknown>)[k]) return k
-  }
-  return null
-}
-
-/**
- * Clear only the direction overrides whose implied bones are controlled by
- * the slider that changed. Mapping follows FK's chain: e.g. editing the
- * elbow angle only rotates the forearm; editing thigh forward/abduction
- * rotates thigh AND implicitly shin (which is derived relative to thigh in
- * the angle-path fallback).
- */
-function clearRelatedOverrides(
-  o: LimbDirections | undefined,
-  changed: keyof PoseAnchor | null,
-): LimbDirections | undefined {
-  if (!o || !changed) return o
-  const out: LimbDirections = { ...o }
-  switch (changed) {
-    case 'torsoTiltDeg':
-    case 'shoulderRotationDeg':
-    case 'bodyRotationDeg':
-    case 'figureYawDeg':
-      // Body frame pivots → all derived bones.
-      return undefined
-    case 'rightShoulderAngleDeg':
-    case 'rightShoulderAbductionDeg':
-      out.rightUpperArm = undefined
-      out.rightForearm = undefined
-      break
-    case 'rightElbowAngleDeg':
-      out.rightForearm = undefined
-      break
-    case 'leftShoulderAngleDeg':
-    case 'leftShoulderAbductionDeg':
-      out.leftUpperArm = undefined
-      out.leftForearm = undefined
-      break
-    case 'leftElbowAngleDeg':
-      out.leftForearm = undefined
-      break
-    case 'leftThighForwardDeg':
-    case 'leftThighAbductionDeg':
-      out.leftThigh = undefined
-      out.leftShin = undefined
-      break
-    case 'leftKneeAngleDeg':
-      out.leftShin = undefined
-      break
-    case 'leftKneeYawDeg':
-      out.leftThigh = undefined
-      out.leftShin = undefined
-      out.leftFoot = undefined
-      break
-    case 'leftFootYawDeg':
-      out.leftFoot = undefined
-      break
-    case 'rightThighForwardDeg':
-    case 'rightThighAbductionDeg':
-      out.rightThigh = undefined
-      out.rightShin = undefined
-      break
-    case 'rightKneeAngleDeg':
-      out.rightShin = undefined
-      break
-    case 'rightKneeYawDeg':
-      out.rightThigh = undefined
-      out.rightShin = undefined
-      out.rightFoot = undefined
-      break
-    case 'rightFootYawDeg':
-      out.rightFoot = undefined
-      break
-    // hipMidX / hipMidY / stanceWidthNorm / wrist / twist don't map to a
-    // direction vector; keep all overrides intact.
-    default:
-      return o
-  }
-  return out
-}
 
 interface Props {
   onClose: () => void
@@ -158,9 +72,6 @@ export default function DrillEditor({ onClose }: Props) {
         return null
       }
       const extracted = extractAnchorFromLandmarks(lms)
-      // Attach unit-vector overrides from the source landmarks — lets FK
-      // render the EXACT imported pose without decomposition loss.
-      extracted.dirOverrides = extractLimbDirections(lms)
       // Lock skeleton centering so scrubbing frames doesn't "jump" around —
       // only the pose shape updates, not the hip's 2D position on canvas.
       extracted.hipMidX = STANDING_POSE.hipMidX
@@ -379,14 +290,7 @@ export default function DrillEditor({ onClose }: Props) {
               }}
               anchor={activeAnchor}
               onChange={next => {
-                // Selectively clear the direction override for the specific
-                // bone the user just edited. Other bones keep their imported
-                // direction so, e.g., moving a leg slider doesn't shift the
-                // torso width (which would happen if we cleared all overrides
-                // and FK had to recompute torsoUp from the extracted tilt angle).
-                const changed = diffKey(activeAnchor, next)
-                const nextOverrides = clearRelatedOverrides(activeAnchor.dirOverrides, changed)
-                setActiveAnchor({ ...next, dirOverrides: nextOverrides })
+                setActiveAnchor(next)
               }}
               onReset={reset}
             />

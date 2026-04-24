@@ -13,15 +13,12 @@ interface Props {
   onReset: (next: PoseAnchor) => void
 }
 
-/** Deep-compares every scalar field in PoseAnchor against the default.
- *  dirOverrides is ignored — if set on `anchor`, that counts as an edit. */
+/** Deep-compares every scalar field in PoseAnchor against the default. */
 function isAtDefault(anchor: PoseAnchor, defaultPose: PoseAnchor): boolean {
-  if (anchor.dirOverrides) return false
   const a = anchor as unknown as Record<string, unknown>
   const n = defaultPose as unknown as Record<string, unknown>
   const keys = Object.keys(defaultPose) as (keyof PoseAnchor)[]
   for (const k of keys) {
-    if (k === 'dirOverrides') continue
     if (a[k] !== n[k]) return false
   }
   return true
