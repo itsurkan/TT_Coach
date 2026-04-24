@@ -29,6 +29,7 @@ export const NEUTRAL_POSE: PoseAnchor = {
   rightElbowAngleDeg: 95,
   rightWristAngleDeg: 160,
   rightForearmTwistDeg: 0,
+  rightElbowYawDeg: 0,
 
   // ── Left arm (free hand / balance) ─────────────────────────────────────
   leftShoulderAngleDeg: 30,
@@ -36,6 +37,7 @@ export const NEUTRAL_POSE: PoseAnchor = {
   leftElbowAngleDeg: 120,
   leftWristAngleDeg: 165,
   leftForearmTwistDeg: 0,
+  leftElbowYawDeg: 0,
 
   // ── Legs ───────────────────────────────────────────────────────────────
   leftThighForwardDeg: 28,
@@ -80,11 +82,13 @@ export const STANDING_POSE: PoseAnchor = {
   rightElbowAngleDeg: 180,
   rightWristAngleDeg: 180,
   rightForearmTwistDeg: 0,
+  rightElbowYawDeg: 0,
   leftShoulderAngleDeg: 0,
   leftShoulderAbductionDeg: 0,
   leftElbowAngleDeg: 180,
   leftWristAngleDeg: 180,
   leftForearmTwistDeg: 0,
+  leftElbowYawDeg: 0,
 
   leftThighForwardDeg: 0,
   rightThighForwardDeg: 0,

@@ -271,11 +271,13 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),
     rightWristAngleDeg: clamp(rightWristAngleDeg, 60, 180),
     rightForearmTwistDeg: 0, // unreliable from MediaPipe
+    rightElbowYawDeg: 0,
     leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
     leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
     leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
     leftWristAngleDeg: clamp(leftWristAngleDeg, 60, 180),
     leftForearmTwistDeg: 0,
+    leftElbowYawDeg: 0,
     leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
     rightThighForwardDeg: clamp(rightThighForwardDeg, -30, 120),
     leftThighAbductionDeg: clamp(leftThighAbductionDeg, -30, 80),

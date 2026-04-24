@@ -46,11 +46,17 @@ export interface PoseAnchor {
   rightElbowAngleDeg: number
   rightWristAngleDeg: number
   rightForearmTwistDeg: number
+  /** Humeral twist / shoulder internal–external rotation. Rotates the elbow
+   *  on a circle around the shoulder→wrist axis WITHOUT moving the shoulder
+   *  or wrist. Positive = external rotation (for a right-hander's forehand
+   *  cocking motion). Mirrored sign convention for the left arm. */
+  rightElbowYawDeg: number
   leftShoulderAngleDeg: number
   leftShoulderAbductionDeg: number
   leftElbowAngleDeg: number
   leftWristAngleDeg: number
   leftForearmTwistDeg: number
+  leftElbowYawDeg: number
   // Hip joint angles (each thigh independently) — enables proper squat / lunge poses.
   // Without these, heavy knee flexion folds the shin backward unnaturally.
   leftThighForwardDeg: number   // hip flexion, positive = knee forward
@@ -145,6 +151,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'rightWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
+      { key: 'rightElbowYawDeg',          label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
     ],
   },
   {
@@ -155,6 +162,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
       { key: 'leftWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
       { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
+      { key: 'leftElbowYawDeg',           label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
     ],
   },
   {
