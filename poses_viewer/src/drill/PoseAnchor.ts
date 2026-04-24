@@ -177,7 +177,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
         id: 'rightShoulderElevationDeg',
         keys: ['rightShoulderAngleDeg', 'rightShoulderAbductionDeg'],
         label: 'Shoulder elevation',
-        min: 0, max: 180, step: 1,
+        min: 0, max: 120, step: 1,
         read: a => flexAbdToPolar({
           flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
         }).elevation,
@@ -185,7 +185,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
           const polar = flexAbdToPolar({
             flex: a.rightShoulderAngleDeg, abd: a.rightShoulderAbductionDeg,
           })
-          const rect = polarToFlexAbd({ elevation: v, plane: polar.plane })
+          const rect = polarToFlexAbd({ elevation: clamp(v, 0, 120), plane: polar.plane })
           return {
             ...a,
             rightShoulderAngleDeg: clamp(rect.flex, -30, 180),
@@ -231,7 +231,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
         id: 'leftShoulderElevationDeg',
         keys: ['leftShoulderAngleDeg', 'leftShoulderAbductionDeg'],
         label: 'Shoulder elevation',
-        min: 0, max: 180, step: 1,
+        min: 0, max: 120, step: 1,
         read: a => flexAbdToPolar({
           flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
         }).elevation,
@@ -239,7 +239,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
           const polar = flexAbdToPolar({
             flex: a.leftShoulderAngleDeg, abd: a.leftShoulderAbductionDeg,
           })
-          const rect = polarToFlexAbd({ elevation: v, plane: polar.plane })
+          const rect = polarToFlexAbd({ elevation: clamp(v, 0, 120), plane: polar.plane })
           return {
             ...a,
             leftShoulderAngleDeg: clamp(rect.flex, -30, 180),

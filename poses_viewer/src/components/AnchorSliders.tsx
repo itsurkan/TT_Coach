@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { PoseAnchor, AnchorPhase, AnchorParamSpec } from '../drill/PoseAnchor'
 import { ANCHOR_PARAM_GROUPS } from '../drill/PoseAnchor'
-import { clampRightShoulder, type ShoulderActiveKey } from '../drill/shoulderClamp'
+import { clampRightShoulder, clampRightShoulderElevation, type ShoulderActiveKey } from '../drill/shoulderClamp'
 
 interface Props {
   activePhase: AnchorPhase
@@ -48,12 +48,14 @@ export default function AnchorSliders({
     if (spec.kind === 'direct') {
       const next: PoseAnchor = { ...a, [spec.key]: v }
       if (spec.key === 'rightShoulderAngleDeg' || spec.key === 'rightShoulderAbductionDeg') {
-        const clamped = clampRightShoulder(
+        const activeKey = spec.key as ShoulderActiveKey
+        const c1 = clampRightShoulder(
           next.rightShoulderAngleDeg,
           next.rightShoulderAbductionDeg,
-          spec.key as ShoulderActiveKey,
+          activeKey,
         )
-        return { ...next, rightShoulderAngleDeg: clamped.flex, rightShoulderAbductionDeg: clamped.abd }
+        const c2 = clampRightShoulderElevation(c1.flex, c1.abd, activeKey)
+        return { ...next, rightShoulderAngleDeg: c2.flex, rightShoulderAbductionDeg: c2.abd }
       }
       return next
     }
