@@ -403,7 +403,7 @@ describe('reconstructFromAnchor', () => {
     }
   })
 
-  it('STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)', async () => {
+  it('STANDING_POSE + NEUTRAL_POSE fingerprints (FK drift guard)', async () => {
     const { STANDING_POSE } = await import('../neutralPose')
     const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>
       lms.map(l => [l.x, l.y, l.z])
@@ -411,14 +411,15 @@ describe('reconstructFromAnchor', () => {
         .map(n => Math.round(n * 10000) / 10000)
     const standingFp = fp(reconstructFromAnchor(STANDING_POSE))
     const neutralFp = fp(reconstructFromAnchor(NEUTRAL_POSE))
-    expect(standingFp.length).toBe(99)
+    expect(standingFp.length).toBe(99)  // 33 landmarks × (x, y, z)
     expect(neutralFp.length).toBe(99)
-    // Stored as a hash so this test flags unintentional FK drift but stays
-    // easy to update intentionally: print actualHash and paste back when the
-    // expected value changes on purpose.
+    // djb2 hash over all 99 coordinates rounded to 4 decimals. If FK output
+    // drifts for either pose, one of these expectations fails — print the
+    // actual hash from the test failure, verify the drift is intentional,
+    // and paste the new constant back here.
     const hash = (arr: number[]) =>
       arr.reduce((h, v) => (h * 33 + Math.round(v * 10000)) | 0, 5381)
-    expect(hash(standingFp)).toBe(hash(standingFp))    // self-check
-    expect(hash(neutralFp)).toBe(hash(neutralFp))      // self-check
+    expect(hash(standingFp)).toBe(1524744803)
+    expect(hash(neutralFp)).toBe(664668715)
   })
 })
