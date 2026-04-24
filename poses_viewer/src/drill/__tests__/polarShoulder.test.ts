@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { polarToFlexAbd, flexAbdToPolar } from '../polarShoulder'
+import { STANDING_POSE } from '../neutralPose'
+import { reconstructFromAnchor } from '../skeletonReconstructor'
+import { LM } from '../SkeletonModel'
 
 describe('polarToFlexAbd', () => {
   it('elevation=0 → arm straight down (flex=0, abd=0), plane irrelevant', () => {
@@ -101,5 +104,34 @@ describe('round-trip: polar → rect → polar', () => {
         expect(back.abd).toBeCloseTo(abd, 4)
       }
     }
+  })
+})
+
+describe('side-agnosticism: polar values mirror across midline when applied equally', () => {
+  it('polar(elevation=60, plane=45) on both shoulders → elbows mirrored in x around hipMidX', () => {
+    const rect = polarToFlexAbd({ elevation: 60, plane: 45 })
+    // Apply the same polar (= same rect) to both sides. Figure faces camera
+    // (figureYawDeg=0), torso upright. FK's internal abSign flip should do
+    // the visual mirroring.
+    const anchor = {
+      ...STANDING_POSE,
+      rightShoulderAngleDeg: rect.flex,
+      rightShoulderAbductionDeg: rect.abd,
+      leftShoulderAngleDeg: rect.flex,
+      leftShoulderAbductionDeg: rect.abd,
+    }
+    const lms = reconstructFromAnchor(anchor)
+    const rElbow = lms[LM.R_ELBOW]
+    const lElbow = lms[LM.L_ELBOW]
+    const rShoulder = lms[LM.R_SHOULDER]
+    const lShoulder = lms[LM.L_SHOULDER]
+    // Midline x is the midpoint of the two shoulders (figure faces camera,
+    // hips are symmetric, so shoulder midline ≈ hip midline in x).
+    const midX = (rShoulder.x + lShoulder.x) / 2
+    // Distance from the midline should match on both sides (mirrored).
+    expect(Math.abs(rElbow.x - midX)).toBeCloseTo(Math.abs(lElbow.x - midX), 4)
+    // And the y/z components should be identical (symmetric plane).
+    expect(rElbow.y).toBeCloseTo(lElbow.y, 4)
+    expect(rElbow.z).toBeCloseTo(lElbow.z, 4)
   })
 })
