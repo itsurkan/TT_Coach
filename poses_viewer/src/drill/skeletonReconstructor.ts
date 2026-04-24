@@ -225,6 +225,7 @@ export function reconstructFromAnchor(
     const wristDeg  = side === 'L' ? anchor.leftWristAngleDeg        : anchor.rightWristAngleDeg
     const twistDeg  = side === 'L' ? anchor.leftForearmTwistDeg      : anchor.rightForearmTwistDeg
     const elbowYawDeg = side === 'L' ? anchor.leftElbowYawDeg : anchor.rightElbowYawDeg
+    const wristYawDeg = side === 'L' ? anchor.leftWristYawDeg : anchor.rightWristYawDeg
     const abSign = side === 'L' ? +1 : -1
     const shoulder  = side === 'L' ? lShoulder : rShoulder
     const idxElbow  = side === 'L' ? LM.L_ELBOW : LM.R_ELBOW
@@ -289,10 +290,28 @@ export function reconstructFromAnchor(
     out[idxWrist] = mkLm(idxWrist, wrist)
 
     const wristBend = 180 - wristDeg
-    const handDir = normalize(rotAroundAxis(forearmDir, shoulderAcross, -wristBend))
-    const handCenter = add(wrist, scale(handDir, B.hand))
+    const bentHandDir = normalize(rotAroundAxis(forearmDir, shoulderAcross, -wristBend))
     // Twist rotates the finger fan around the forearm axis.
-    const fanSide = normalize(rotAroundAxis(shoulderAcross, forearmDir, twistDeg))
+    const fanSideBase = normalize(rotAroundAxis(shoulderAcross, forearmDir, twistDeg))
+    // Wrist yaw (ulnar/radial deviation) rotates the entire hand unit around
+    // the hand-normal axis = cross(forearmDir, fanSide). This axis is
+    // perpendicular to both the forearm and the finger-spread direction, so
+    // the rotation deflects the hand sideways even when the wrist is straight
+    // (bentHandDir == forearmDir). At wristYaw=0 the fast path is identity,
+    // so existing neutrals reconstruct byte-for-byte.
+    // abSign mirrors the sign so +yaw means radial deviation on both sides.
+    const handNormal: V3 = normalize([
+      forearmDir[1]*fanSideBase[2] - forearmDir[2]*fanSideBase[1],
+      forearmDir[2]*fanSideBase[0] - forearmDir[0]*fanSideBase[2],
+      forearmDir[0]*fanSideBase[1] - forearmDir[1]*fanSideBase[0],
+    ])
+    const handDir = wristYawDeg !== 0
+      ? normalize(rotAroundAxis(bentHandDir, handNormal, abSign * wristYawDeg))
+      : bentHandDir
+    const fanSide = wristYawDeg !== 0
+      ? normalize(rotAroundAxis(fanSideBase, handNormal, abSign * wristYawDeg))
+      : fanSideBase
+    const handCenter = add(wrist, scale(handDir, B.hand))
     out[idxPinky] = mkLm(idxPinky, add(handCenter, scale(fanSide, -B.hand * 0.3)))
     out[idxIndex] = mkLm(idxIndex, add(handCenter, scale(fanSide,  B.hand * 0.2)))
     out[idxThumb] = mkLm(idxThumb, add(handCenter, scale(fanSide,  B.hand * 0.4)))

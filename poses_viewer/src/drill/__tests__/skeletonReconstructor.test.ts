@@ -352,6 +352,62 @@ describe('reconstructFromAnchor', () => {
     expect(MIDPOINT_POSE.leftWristYawDeg).toBe(0)
   })
 
+  it('wristYaw deflects the hand sideways without changing wrist position', () => {
+    const pose = {
+      ...NEUTRAL_POSE,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAngleDeg: 0,
+      rightShoulderAbductionDeg: 0,
+      rightElbowAngleDeg: 180,
+      rightWristAngleDeg: 180,  // straight hand
+      rightWristYawDeg: 0,
+      rightForearmTwistDeg: 0,
+    }
+    const baseline = reconstructFromAnchor(pose)
+    const yawed = reconstructFromAnchor({ ...pose, rightWristYawDeg: 20 })
+    // Wrist position itself is unchanged (yaw rotates the hand fan, not the wrist).
+    expect(yawed[LM.R_WRIST].x).toBeCloseTo(baseline[LM.R_WRIST].x, 4)
+    expect(yawed[LM.R_WRIST].y).toBeCloseTo(baseline[LM.R_WRIST].y, 4)
+    expect(yawed[LM.R_WRIST].z).toBeCloseTo(baseline[LM.R_WRIST].z, 4)
+    // R_INDEX direction (wrist → index) rotated ~20° relative to the baseline.
+    const baseDir = {
+      x: baseline[LM.R_INDEX].x - baseline[LM.R_WRIST].x,
+      y: baseline[LM.R_INDEX].y - baseline[LM.R_WRIST].y,
+      z: baseline[LM.R_INDEX].z - baseline[LM.R_WRIST].z,
+    }
+    const yawDir = {
+      x: yawed[LM.R_INDEX].x - yawed[LM.R_WRIST].x,
+      y: yawed[LM.R_INDEX].y - yawed[LM.R_WRIST].y,
+      z: yawed[LM.R_INDEX].z - yawed[LM.R_WRIST].z,
+    }
+    const dot = baseDir.x * yawDir.x + baseDir.y * yawDir.y + baseDir.z * yawDir.z
+    const magB = Math.hypot(baseDir.x, baseDir.y, baseDir.z)
+    const magY = Math.hypot(yawDir.x, yawDir.y, yawDir.z)
+    const angleDeg = Math.acos(dot / (magB * magY)) * 180 / Math.PI
+    expect(angleDeg).toBeGreaterThan(18)
+    expect(angleDeg).toBeLessThan(22)
+  })
+
+  it('wristYaw=0 leaves every landmark byte-identical (hand-deflection neutral)', () => {
+    const poses: Partial<typeof NEUTRAL_POSE>[] = [
+      { rightWristAngleDeg: 180 },
+      { rightWristAngleDeg: 120, rightForearmTwistDeg: 30 },
+      { rightWristAngleDeg: 90,  leftWristAngleDeg: 110 },
+    ]
+    for (const p of poses) {
+      const withYaw = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p, rightWristYawDeg: 0, leftWristYawDeg: 0 })
+      const noYaw   = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p })
+      for (let i = 0; i < 33; i++) {
+        expect(withYaw[i].x).toBeCloseTo(noYaw[i].x, 6)
+        expect(withYaw[i].y).toBeCloseTo(noYaw[i].y, 6)
+        expect(withYaw[i].z).toBeCloseTo(noYaw[i].z, 6)
+      }
+    }
+  })
+
   it('STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)', async () => {
     const { STANDING_POSE } = await import('../neutralPose')
     const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>
