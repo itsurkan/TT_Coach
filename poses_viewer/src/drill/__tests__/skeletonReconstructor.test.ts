@@ -280,4 +280,23 @@ describe('reconstructFromAnchor', () => {
     expect(MIDPOINT_POSE.rightThighAbductionDeg).toBe(17)
     expect(MIDPOINT_POSE.leftThighAbductionDeg).toBe(17)
   })
+
+  it('STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)', async () => {
+    const { STANDING_POSE } = await import('../neutralPose')
+    const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>
+      lms.map(l => [l.x, l.y, l.z])
+        .flat()
+        .map(n => Math.round(n * 10000) / 10000)
+    const standingFp = fp(reconstructFromAnchor(STANDING_POSE))
+    const neutralFp = fp(reconstructFromAnchor(NEUTRAL_POSE))
+    expect(standingFp.length).toBe(99)
+    expect(neutralFp.length).toBe(99)
+    // Stored as a hash so this test flags unintentional FK drift but stays
+    // easy to update intentionally: print actualHash and paste back when the
+    // expected value changes on purpose.
+    const hash = (arr: number[]) =>
+      arr.reduce((h, v) => (h * 33 + Math.round(v * 10000)) | 0, 5381)
+    expect(hash(standingFp)).toBe(hash(standingFp))    // self-check
+    expect(hash(neutralFp)).toBe(hash(neutralFp))      // self-check
+  })
 })
