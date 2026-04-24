@@ -486,8 +486,8 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     figureYawDeg: clamp(bodyRotationDeg, -180, 180),
     bodyRotationDeg: 0,
     // Pelvic roll / torso side-bend / shoulder shrug aren't reliably decomposable
-    // from a single-view MediaPipe pose; extractor leaves them at 0 and the
-    // extractor leaves these fields at 0; FK uses the angle path unconditionally.
+    // from a single-view MediaPipe pose — left at 0. FK uses the angle path
+    // unconditionally.
     pelvicRollDeg: 0,
     shoulderRotationDeg: clamp(shoulderRotationDeg, -90, 90),
     torsoTiltDeg: clamp(torsoTiltDeg, 0, 75),
