@@ -286,38 +286,62 @@ describe('reconstructFromAnchor', () => {
     expect(MIDPOINT_POSE.leftElbowYawDeg).toBe(0)
   })
 
-  it('elbowYaw=+90° rotates the forearm around the upper arm (elbow unchanged, shoulder→wrist distance unchanged)', () => {
-    const pose = {
+  it('elbowSwivel orbits elbow around shoulder→wrist axis with wrist pinned (right arm)', () => {
+    const baseAnchor = {
       ...NEUTRAL_POSE,
       bodyRotationDeg: 0,
       torsoTiltDeg: 0,
       shoulderRotationDeg: 0,
       figureYawDeg: 0,
-      rightShoulderAngleDeg: 0,
-      rightShoulderAbductionDeg: 0,
+      rightShoulderAngleDeg: 45,
+      rightShoulderAbductionDeg: 20,
       rightElbowAngleDeg: 90,
-      rightElbowYawDeg: 0,
     }
-    const baseline = reconstructFromAnchor(pose)
-    const rotated = reconstructFromAnchor({ ...pose, rightElbowYawDeg: 90 })
-    // Elbow position unchanged (humeral twist pivots around the shoulder→elbow axis).
-    expect(rotated[LM.R_ELBOW].x).toBeCloseTo(baseline[LM.R_ELBOW].x, 4)
-    expect(rotated[LM.R_ELBOW].y).toBeCloseTo(baseline[LM.R_ELBOW].y, 4)
-    expect(rotated[LM.R_ELBOW].z).toBeCloseTo(baseline[LM.R_ELBOW].z, 4)
-    // Shoulder→wrist distance unchanged: the forearm swings around the upper
-    // arm, so the shoulder/elbow/wrist triangle's side lengths are preserved.
-    const d = (arr: ReturnType<typeof reconstructFromAnchor>) => {
-      const s = arr[LM.R_SHOULDER], w = arr[LM.R_WRIST]
-      return Math.hypot(s.x - w.x, s.y - w.y, s.z - w.z)
+    const baseline = reconstructFromAnchor({ ...baseAnchor, rightElbowYawDeg: 0 })
+    const S0 = baseline[LM.R_SHOULDER]
+    const W0 = baseline[LM.R_WRIST]
+    const E0 = baseline[LM.R_ELBOW]
+    const L_upper = 0.22, L_forearm = 0.20
+
+    for (const swivel of [-60, -30, 30, 60, 90]) {
+      const out = reconstructFromAnchor({ ...baseAnchor, rightElbowYawDeg: swivel })
+      const S = out[LM.R_SHOULDER], E = out[LM.R_ELBOW], W = out[LM.R_WRIST]
+      // Shoulder pinned (FK doesn't touch it)
+      expect(Math.hypot(S.x - S0.x, S.y - S0.y, S.z - S0.z)).toBeLessThan(1e-6)
+      // Wrist pinned — THE new contract
+      expect(Math.hypot(W.x - W0.x, W.y - W0.y, W.z - W0.z)).toBeLessThan(1e-4)
+      // Bone lengths preserved (elbow stays on the swivel circle)
+      expect(Math.abs(Math.hypot(S.x - E.x, S.y - E.y, S.z - E.z) - L_upper)).toBeLessThan(1e-4)
+      expect(Math.abs(Math.hypot(E.x - W.x, E.y - W.y, E.z - W.z) - L_forearm)).toBeLessThan(1e-4)
+      // Elbow actually moves (otherwise the swivel did nothing)
+      expect(Math.hypot(E.x - E0.x, E.y - E0.y, E.z - E0.z)).toBeGreaterThan(0.01)
     }
-    expect(d(rotated)).toBeCloseTo(d(baseline), 4)
-    // Wrist actually moves (otherwise the yaw didn't do anything).
-    const dw = Math.hypot(
-      rotated[LM.R_WRIST].x - baseline[LM.R_WRIST].x,
-      rotated[LM.R_WRIST].y - baseline[LM.R_WRIST].y,
-      rotated[LM.R_WRIST].z - baseline[LM.R_WRIST].z,
-    )
-    expect(dw).toBeGreaterThan(0.05)
+  })
+
+  it('elbowSwivel is symmetric for left arm (wrist pinned, elbow orbits)', () => {
+    const baseAnchor = {
+      ...NEUTRAL_POSE,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      leftShoulderAngleDeg: 45,
+      leftShoulderAbductionDeg: 20,
+      leftElbowAngleDeg: 90,
+    }
+    const baseline = reconstructFromAnchor({ ...baseAnchor, leftElbowYawDeg: 0 })
+    const W0 = baseline[LM.L_WRIST]
+    const E0 = baseline[LM.L_ELBOW]
+    const L_upper = 0.22, L_forearm = 0.20
+
+    for (const swivel of [-60, 60, 90]) {
+      const out = reconstructFromAnchor({ ...baseAnchor, leftElbowYawDeg: swivel })
+      const S = out[LM.L_SHOULDER], E = out[LM.L_ELBOW], W = out[LM.L_WRIST]
+      expect(Math.hypot(W.x - W0.x, W.y - W0.y, W.z - W0.z)).toBeLessThan(1e-4)
+      expect(Math.abs(Math.hypot(S.x - E.x, S.y - E.y, S.z - E.z) - L_upper)).toBeLessThan(1e-4)
+      expect(Math.abs(Math.hypot(E.x - W.x, E.y - W.y, E.z - W.z) - L_forearm)).toBeLessThan(1e-4)
+      expect(Math.hypot(E.x - E0.x, E.y - E0.y, E.z - E0.z)).toBeGreaterThan(0.01)
+    }
   })
 
   it('elbowYaw=0 leaves every landmark byte-identical (humeral-twist neutral)', () => {

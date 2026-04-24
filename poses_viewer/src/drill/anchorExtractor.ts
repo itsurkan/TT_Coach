@@ -410,8 +410,72 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const lUpperArmUnit = toUnit(lUpperArmVec)
   const lForearmUnit  = toUnit(lForearmVec)
 
-  const rightElbowYawRaw = computeElbowYaw(rUpperArmUnit, rForearmUnit, -1, rightElbowAngleDeg)
-  const leftElbowYawRaw  = computeElbowYaw(lUpperArmUnit, lForearmUnit, +1, leftElbowAngleDeg)
+  // Elbow swivel extraction (inverse of FK's wrist-pinned swivel geometry):
+  // parameterize the elbow on the circle around shoulder→wrist axis, measure
+  // the signed angle via atan2. Pure 2D geometry — no Rodrigues algebra.
+  const L_upperR = length(rUpperArm)
+  const L_forearmR = length(rForearm)
+  const L_upperL = length(lUpperArmVec)
+  const L_forearmL = length(lForearmVec)
+  const computeElbowSwivel = (
+    shoulderPt: V3,
+    elbowPt: V3,
+    wristPt: V3,
+    L_upper: number,
+    L_forearm: number,
+    abSign: number,
+  ): number => {
+    const axisVec = sub(wristPt, shoulderPt)
+    const d = length(axisVec)
+    // Straight-arm degenerate: the "swivel circle" collapses to a point.
+    if (d > L_upper + L_forearm - 0.01) return 0
+    if (d < 1e-6) return 0
+    const axis: V3 = { x: axisVec.x / d, y: axisVec.y / d, z: axisVec.z / d }
+    const t = (d*d + L_upper*L_upper - L_forearm*L_forearm) / (2*d*d)
+    const center: V3 = {
+      x: shoulderPt.x + t * axisVec.x,
+      y: shoulderPt.y + t * axisVec.y,
+      z: shoulderPt.z + t * axisVec.z,
+    }
+    const torsoUp: V3 = { x: 0, y: -1, z: 0 }
+    const tuDotAxis = torsoUp.x*axis.x + torsoUp.y*axis.y + torsoUp.z*axis.z
+    const upProj: V3 = {
+      x: torsoUp.x - tuDotAxis * axis.x,
+      y: torsoUp.y - tuDotAxis * axis.y,
+      z: torsoUp.z - tuDotAxis * axis.z,
+    }
+    const upProjLen = length(upProj)
+    let u: V3
+    if (upProjLen > 1e-4) {
+      u = { x: -upProj.x / upProjLen, y: -upProj.y / upProjLen, z: -upProj.z / upProjLen }
+    } else {
+      // Arm along torso axis — fall back to shoulderForward projection. The
+      // extractor uses body-frame axes from _forwardX/_forwardZ (bodyRot=0 at
+      // extraction time, so this is the world body frame).
+      const sf: V3 = { x: _forwardX, y: 0, z: _forwardZ }
+      const sfDot = sf.x*axis.x + sf.y*axis.y + sf.z*axis.z
+      const sfProj: V3 = { x: sf.x - sfDot*axis.x, y: sf.y - sfDot*axis.y, z: sf.z - sfDot*axis.z }
+      const sfLen = length(sfProj) || 1e-9
+      u = { x: sfProj.x / sfLen, y: sfProj.y / sfLen, z: sfProj.z / sfLen }
+    }
+    // v = abSign · (axis × u) — mirror handedness matches FK.
+    const vRaw: V3 = {
+      x: axis.y * u.z - axis.z * u.y,
+      y: axis.z * u.x - axis.x * u.z,
+      z: axis.x * u.y - axis.y * u.x,
+    }
+    const vLen = length(vRaw) || 1e-9
+    const v: V3 = { x: abSign * vRaw.x / vLen, y: abSign * vRaw.y / vLen, z: abSign * vRaw.z / vLen }
+    const ec = sub(elbowPt, center)
+    return Math.atan2(ec.x*v.x + ec.y*v.y + ec.z*v.z, ec.x*u.x + ec.y*u.y + ec.z*u.z) * 180 / Math.PI
+  }
+
+  const rightElbowYawRaw = computeElbowSwivel(rSh, rElbow, rWrist, L_upperR, L_forearmR, -1)
+  const leftElbowYawRaw  = computeElbowSwivel(lSh, lElbow, lWrist, L_upperL, L_forearmL, +1)
+  // Silence TS unused warnings for the now-stale Rodrigues helper. It stays in
+  // the file so git history is easy to audit; callers are gone.
+  void computeElbowYaw
+  void rUpperArmUnit; void rForearmUnit; void lUpperArmUnit; void lForearmUnit
 
   const bodyShoulderAcross: V3 = { x: _acrossX, y: 0, z: _acrossZ }
   const rightWristYawRaw = computeWristYaw(
@@ -499,14 +563,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightWristAngleDeg: clamp(rightWristAngleDeg, 90, 180),
     rightWristYawDeg: clamp(rightWristYawRaw, -30, 20),
     rightForearmTwistDeg: clamp(rightForearmTwistRaw, -90, 90),
-    rightElbowYawDeg: clamp(rightElbowYawRaw, -70, 90),
+    rightElbowYawDeg: clamp(rightElbowYawRaw, -90, 90),
     leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
     leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
     leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
     leftWristAngleDeg: clamp(leftWristAngleDeg, 90, 180),
     leftWristYawDeg: clamp(leftWristYawRaw, -30, 20),
     leftForearmTwistDeg: clamp(leftForearmTwistRaw, -90, 90),
-    leftElbowYawDeg:  clamp(leftElbowYawRaw,  -70, 90),
+    leftElbowYawDeg:  clamp(leftElbowYawRaw,  -90, 90),
     leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
     rightThighForwardDeg: clamp(rightThighForwardDeg, -30, 120),
     leftThighAbductionDeg: clamp(leftThighAbductionDeg, -30, 80),

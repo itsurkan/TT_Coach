@@ -237,7 +237,7 @@ export function reconstructFromAnchor(
     // (shoulderRotationDeg) sweeps the arms with it.
     const upperArmDir = normalize(rotAroundAxis(rotAroundAxis(torsoDown, shoulderForward, abSign * shAbdDeg), shoulderAcross, -shFwdDeg))
     const elbow = add(shoulder, scale(upperArmDir, B.upperArm))
-    out[idxElbow] = mkLm(idxElbow, elbow)
+    // NB: out[idxElbow] is written below after the swivel resolves elbowFinal.
 
     const elbowBend = 180 - elbowDeg
     // Elbow hinge — weighted combination that is continuous across the whole
@@ -269,15 +269,66 @@ export function reconstructFromAnchor(
         + shoulderAcross[2] + HINGE_ANTERIOR_BIAS*shoulderForward[2],
     ]
     const elbowHinge: V3 = normalize(hingeRaw)
-    // Humeral twist — rotate the bend plane around the upper arm axis. At
-    // elbowYaw = 0 this is the identity, so existing neutrals reconstruct
-    // byte-for-byte. abSign flips the sign for the left arm so that +yaw
-    // means "external rotation" on both sides anatomically.
-    const twistedHinge: V3 = elbowYawDeg !== 0
-      ? normalize(rotAroundAxis(elbowHinge, upperArmDir, abSign * elbowYawDeg))
-      : elbowHinge
-    const forearmDir = normalize(rotAroundAxis(upperArmDir, twistedHinge, -elbowBend))
-    const wrist = add(elbow, scale(forearmDir, B.forearm))
+    // Elbow swivel (7-DOF arm redundancy parameter): shoulder and wrist are
+    // pinned, elbow orbits the shoulder→wrist axis. Pass 1 computes the
+    // reference wrist using the swivel=0 bend plane. Pass 2 re-solves the
+    // elbow on the swivel circle around S→W at angle elbowYawDeg.
+    //
+    // At elbowYaw=0 the swivel circle places the elbow exactly at elbow0, so
+    // the fast path produces byte-identical landmarks — existing neutrals
+    // reconstruct unchanged. abSign mirrors the sign so +yaw means the elbow
+    // swings laterally (away from the body midline) on both sides.
+    const forearmDir0 = normalize(rotAroundAxis(upperArmDir, elbowHinge, -elbowBend))
+    const wristLocked: V3 = add(elbow, scale(forearmDir0, B.forearm))
+    let elbowFinal: V3 = elbow
+    let forearmDir: V3 = forearmDir0
+    if (elbowYawDeg !== 0) {
+      const axisVec: V3 = [wristLocked[0] - shoulder[0], wristLocked[1] - shoulder[1], wristLocked[2] - shoulder[2]]
+      const d = Math.sqrt(axisVec[0]*axisVec[0] + axisVec[1]*axisVec[1] + axisVec[2]*axisVec[2])
+      if (d > 1e-6) {
+        const axis: V3 = [axisVec[0]/d, axisVec[1]/d, axisVec[2]/d]
+        const t = (d*d + B.upperArm*B.upperArm - B.forearm*B.forearm) / (2*d*d)
+        const center: V3 = add(shoulder, scale(axisVec, t))
+        const radiusSq = B.upperArm*B.upperArm - (t*d)*(t*d)
+        const radius = Math.sqrt(Math.max(0, radiusSq))
+        // Reference u = -(torsoUp projected ⊥ axis). At swivel=0 this points
+        // from circle center toward elbow0 — so +θ/−θ rotate off that direction
+        // via standard Rodrigues. Degenerate guard (arm aligned with torsoUp):
+        // fall back to shoulderForward projection.
+        const tuDotAxis = torsoUp[0]*axis[0] + torsoUp[1]*axis[1] + torsoUp[2]*axis[2]
+        const upProj: V3 = [torsoUp[0] - tuDotAxis*axis[0], torsoUp[1] - tuDotAxis*axis[1], torsoUp[2] - tuDotAxis*axis[2]]
+        const upProjLen = Math.sqrt(upProj[0]*upProj[0] + upProj[1]*upProj[1] + upProj[2]*upProj[2])
+        let u: V3
+        if (upProjLen > 1e-4) {
+          u = [-upProj[0]/upProjLen, -upProj[1]/upProjLen, -upProj[2]/upProjLen]
+        } else {
+          const fDotAxis = shoulderForward[0]*axis[0] + shoulderForward[1]*axis[1] + shoulderForward[2]*axis[2]
+          const fProj: V3 = [shoulderForward[0] - fDotAxis*axis[0], shoulderForward[1] - fDotAxis*axis[1], shoulderForward[2] - fDotAxis*axis[2]]
+          u = normalize(fProj)
+        }
+        // v = axis × u; abSign flips handedness so +yaw is lateral on both sides.
+        const vRaw: V3 = [
+          axis[1]*u[2] - axis[2]*u[1],
+          axis[2]*u[0] - axis[0]*u[2],
+          axis[0]*u[1] - axis[1]*u[0],
+        ]
+        const v: V3 = scale(normalize(vRaw), abSign)
+        const theta = deg(elbowYawDeg)
+        const cosT = Math.cos(theta), sinT = Math.sin(theta)
+        elbowFinal = [
+          center[0] + radius*(cosT*u[0] + sinT*v[0]),
+          center[1] + radius*(cosT*u[1] + sinT*v[1]),
+          center[2] + radius*(cosT*u[2] + sinT*v[2]),
+        ]
+        forearmDir = normalize([
+          wristLocked[0] - elbowFinal[0],
+          wristLocked[1] - elbowFinal[1],
+          wristLocked[2] - elbowFinal[2],
+        ])
+      }
+    }
+    out[idxElbow] = mkLm(idxElbow, elbowFinal)
+    const wrist = add(elbowFinal, scale(forearmDir, B.forearm))
     out[idxWrist] = mkLm(idxWrist, wrist)
 
     const wristBend = 180 - wristDeg

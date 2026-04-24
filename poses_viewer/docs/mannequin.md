@@ -57,15 +57,15 @@ Ranges are taken from `ANCHOR_PARAM_GROUPS` in
 ### 2.2 Arms
 
 Both sides share the same seven DOFs. The left arm mirrors the sign convention
-so "positive = external rotation / radial deviation" means the same anatomical
-direction on both sides.
+so "positive = lateral elbow swivel / radial wrist deviation" means the same
+anatomical direction on both sides.
 
 | Field | Range | Meaning |
 |---|---|---|
 | `*ShoulderAngleDeg` | −30 … 180 | Forward flexion (sagittal plane). 0 = arm hanging down, 90 = arm pointing forward, 180 = arm overhead. Default 41°. |
 | `*ShoulderAbductionDeg` | 0 … 120 | Sideways abduction (coronal plane). 0 = arm along torso, 90 = arm horizontal out to the side. Default 31°. |
 | `*ElbowAngleDeg` | 30 … 180 | Interior elbow angle. 180 = straight, 30 = maximum bend. |
-| `*ElbowYawDeg` | −70 … 90 | Humeral twist — rotates the elbow on a circle around the shoulder→elbow axis without moving shoulder or elbow. Positive = external rotation. Default 0. Implemented as Tasks 5-6 of the lossless-pose-anchor plan. |
+| `*ElbowYawDeg` | −90 … 90 | Elbow swivel — the classic 7-DOF arm redundancy parameter. Shoulder AND wrist world positions are pinned; the elbow orbits the shoulder→wrist axis on a circle whose radius is fixed by the bone lengths and elbow bend. Positive = elbow swings laterally (away from body midline). Swivel=0 puts the elbow in the plane containing the body's `torsoUp` axis and the shoulder→wrist line — matches the "elbow below shoulder" neutral that the old humeral-twist formula also produced at yaw=0, so STANDING/NEUTRAL poses reconstruct byte-identically. Default 0. |
 | `*WristAngleDeg` | 90 … 180 | Interior wrist (palmar flexion) angle. 180 = straight. |
 | `*WristYawDeg` | −30 … 20 | Ulnar/radial deviation — lateral deflection of the hand at the wrist independent of palmar flex. Positive = radial deviation (thumb side). Default 0. |
 | `*ForearmTwistDeg` | −90 … 90 | Forearm pronation/supination. Rotates the finger-fan around the forearm axis. |
@@ -143,13 +143,24 @@ For each side (right then left):
    - `2 × shoulderForward` — anterior bias so the forearm always folds
      toward the face/chest half-space even for extreme overhead poses.
 
-3. **Humeral twist (elbowYawDeg)** — the 3rd shoulder DOF. Rodrigues-rotates
-   the canonical hinge around `upperArmDir` by `abSign × elbowYawDeg`. At
-   `elbowYawDeg = 0` this is the identity; the fast path is skipped entirely
-   so pre-existing neutrals reconstruct byte-for-byte.
+3. **Reference forearm (swivel=0)** — Rodrigues-rotate `upperArmDir` around
+   `elbowHinge` by `−(180 − elbowAngleDeg)`. This is `forearmDir0`. Then
+   `wristLocked = elbow0 + forearmDir0 × forearm` — the wrist position is
+   computed once, from the swivel=0 geometry, and never moves again.
 
-4. **Forearm direction** — Rodrigues-rotate `upperArmDir` around
-   `twistedHinge` by `−(180 − elbowAngleDeg)`. Wrist = elbow + forearmDir × forearm.
+4. **Elbow swivel (elbowYawDeg)** — the 3rd shoulder DOF. When `elbowYawDeg ≠ 0`,
+   re-solve the elbow on the circle around the `shoulder → wristLocked` axis:
+   - circle center `C = S + t·(W−S)` with `t = (d² + L_upper² − L_forearm²) / (2d²)`
+   - circle radius `r = √(L_upper² − (t·d)²)`
+   - reference basis `u = −(torsoUp projected ⊥ axis)`, `v = abSign · (axis × u)`
+   - `elbowFinal = C + r·(cos θ · u + sin θ · v)` with `θ = elbowYawDeg · π/180`
+   - `forearmDir = normalize(wristLocked − elbowFinal)`
+
+   At `elbowYawDeg = 0` the `if` branch is skipped, `elbowFinal = elbow0`,
+   `forearmDir = forearmDir0`, and downstream hand code gets byte-identical
+   inputs — neutrals are preserved. The degenerate case `axis ∥ torsoUp` (arm
+   lying along the body axis) falls back to `shoulderForward` as the reference.
+   `abSign` on `v` ensures positive swivel is lateral on both sides.
 
 5. **Wrist bend** — Rodrigues-rotate `forearmDir` around `shoulderAcross`
    by `−(180 − wristAngleDeg)`.
@@ -258,11 +269,15 @@ real MediaPipe inputs the noise it suppresses is of the same scale. The same
 
 **Elbow angle.** Interior angle `angle(shoulder→elbow, elbow→wrist)`.
 
-**Elbow yaw.** Inverts the FK humeral-twist layer using Rodrigues algebra:
-given `upperArmDir` and the observed `forearmDir`, recovers the direction of
-`twistedHinge` in the plane perpendicular to `upperArmDir`, then measures the
-signed angle from the canonical `elbowHinge` to that direction around
-`upperArmDir`. Returns 0 if `elbowAngleDeg ≥ 175°` (no bend plane).
+**Elbow swivel.** Inverts the FK swivel geometry with pure `atan2` — no
+Rodrigues algebra needed. Using the observed shoulder/elbow/wrist and the
+per-side upper-arm + forearm lengths (measured from the landmarks, not
+canonical), reconstruct the swivel circle (center `C`, reference basis
+`u = −(torsoUp ⊥ axis)`, `v = abSign·(axis × u)`), then measure
+`θ = atan2(ec · v, ec · u)` where `ec = E − C`. Returns 0 if the arm is
+straight (`|SW| > L_upper + L_forearm − 0.01`) — the swivel circle collapses
+to a point so there's no angle to recover. Round-trip is exact (tested to 1°
+tolerance for float noise only).
 
 **Wrist angle.** Interior angle `angle(elbow→wrist, wrist→index)`.
 
@@ -304,13 +319,13 @@ The following situations degrade round-trip fidelity.
 2. **Backward shoulder extension past 30°.** `*ShoulderAngleDeg` clamps to
    [−30, 180]. Negative values (arm behind the torso) beyond −30° are clamped.
 
-3. **Extreme humeral twist beyond slider range.** `*ElbowYawDeg` clamps to
-   [−70, 90]. External rotation beyond 90° or internal rotation beyond 70° is
-   clamped.
+3. **Elbow swivel beyond ±90°.** `*ElbowYawDeg` clamps to [−90, 90]. Natural
+   elbow swivel range for a typical stroke fits inside ±90°, so clipping loss
+   is minimal in practice.
 
-4. **Near-straight elbows (elbowAngleDeg ≥ 175°).** The bend plane degenerates
-   and `elbowYawDeg` defaults to 0. No attempt is made to infer humeral
-   rotation from a nearly-straight arm.
+4. **Near-straight arms (|SW| > L_upper + L_forearm − 0.01).** The swivel
+   circle collapses to a point (elbow on the shoulder→wrist line); there's no
+   angle to recover. `elbowYawDeg` defaults to 0 in this case.
 
 5. **Z-dampening (0.5×) on arm/thigh decomposition.** Real poses with deep
    z-motion have their flex/abduction under-estimated by up to ~20° on clean
@@ -337,7 +352,9 @@ The following situations degrade round-trip fidelity.
    fields are always set to 0 on import.
 
 Outside these edges, round-trip accuracy is typically within ±3° per angle for
-arm DOFs (locked by the `elbowYaw round-trip` test in `anchorExtractor.test.ts`).
+arm DOFs, and within ±1° for elbow swivel (the swivel round-trip is exact
+geometry — locked by the `elbowSwivel round-trip` test in
+`anchorExtractor.test.ts`, which covers both arms).
 
 ---
 
@@ -356,8 +373,10 @@ and
 | Test | File | What it locks |
 |---|---|---|
 | `STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)` | `skeletonReconstructor.test.ts` | Hash of all 99 xyz values for both reference poses. Flags any unintentional FK drift. |
-| `elbowYaw=0 leaves every landmark byte-identical (humeral-twist neutral)` | `skeletonReconstructor.test.ts` | `rightElbowYawDeg = 0` is a strict identity across 3 arm configurations — all 33 landmarks match to 6 decimal places. |
+| `elbowYaw=0 leaves every landmark byte-identical (humeral-twist neutral)` | `skeletonReconstructor.test.ts` | `rightElbowYawDeg = 0` is a strict identity across 3 arm configurations — all 33 landmarks match to 6 decimal places. Locks the swivel=0 fast path (no accidental drift vs the old humeral-twist FK). |
+| `elbowSwivel orbits elbow around shoulder→wrist axis with wrist pinned (right arm)` | `skeletonReconstructor.test.ts` | The new swivel contract: across 5 swivel angles ∈ [−60, 90], wrist position and bone lengths are preserved; the elbow moves. |
+| `elbowSwivel is symmetric for left arm (wrist pinned, elbow orbits)` | `skeletonReconstructor.test.ts` | Same contract for the left arm, verifying the `abSign`-mirrored swivel basis. |
 | `wristYaw=0 leaves every landmark byte-identical (hand-deflection neutral)` | `skeletonReconstructor.test.ts` | `rightWristYawDeg = 0` is a strict identity across 3 wrist configurations. |
-| `elbowYaw round-trip: extractor recovers yaw within 3° across diverse arm poses` | `anchorExtractor.test.ts` | The primary contract for the humeral-twist DOF: 5 arm configurations, signed error < 3°. |
+| `elbowSwivel round-trip: extractor recovers swivel within 1° across diverse arm poses` | `anchorExtractor.test.ts` | The primary contract for the swivel DOF: 10 arm configurations (5 per side), signed error < 1°. |
 | `elbow bend on an abducted arm points the forearm toward the head` | `skeletonReconstructor.test.ts` | FK anatomical guard: abducted arm, elbow 90° → forearm goes upward (wrist.y < elbow.y). |
 | `elbow bend on a rest-down arm still points the forearm forward (regression guard)` | `skeletonReconstructor.test.ts` | FK anatomical guard: arm hanging down, elbow 90° → forearm points forward (wrist.z < elbow.z). |

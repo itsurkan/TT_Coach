@@ -136,7 +136,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
       { key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
       { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
-      { key: 'rightElbowYawDeg',          label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
+      { key: 'rightElbowYawDeg',          label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 0 },
     ],
   },
   {
@@ -148,7 +148,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'leftWristAngleDeg',         label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
       { key: 'leftWristYawDeg',           label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
       { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
-      { key: 'leftElbowYawDeg',           label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
+      { key: 'leftElbowYawDeg',           label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 0 },
     ],
   },
   {

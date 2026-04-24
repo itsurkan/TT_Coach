@@ -92,17 +92,10 @@ describe('extractAnchorFromLandmarks — round-trip', () => {
     expect(round.rightForearmTwistDeg).toBeLessThan(55)
   })
 
-  it('elbowYaw round-trip: extractor recovers yaw within 3° across diverse arm poses', () => {
-    // Pure DOF test for the new 3rd-shoulder-DOF contract: for each of 5
-    // diverse arm configurations, reconstruct → extract and check that the
-    // extracted `*ElbowYawDeg` matches the source within 3° (signed).
-    //
-    // Other angle fields are NOT asserted here — the decomposition helpers
-    // for shFwd/shAbd apply a 50% Z-dampening for MediaPipe noise tolerance,
-    // which visibly distorts those two angles on clean FK outputs. Elbow
-    // yaw's extraction is Z-dampening-independent (it's a pure signed angle
-    // around upperArmDir), so it round-trips cleanly and IS the load-bearing
-    // contract this plan's Tasks 5-7 promised.
+  it('elbowSwivel round-trip: extractor recovers swivel within 1° across diverse arm poses', () => {
+    // Pure DOF test for the swivel contract: reconstruct → extract round-trip.
+    // The FK and extractor both solve on the same shoulder→wrist circle, so
+    // the math is exact — 1° tolerance accommodates float noise only.
     const trunkNeutral = {
       ...NEUTRAL_POSE,
       figureYawDeg: 0,
@@ -113,19 +106,34 @@ describe('extractAnchorFromLandmarks — round-trip', () => {
       pelvicRollDeg: 0,
       shoulderShrugNorm: 0,
     }
-    const posesToTest = [
+    const rightPoses = [
       { rightShoulderAngleDeg: 45,  rightShoulderAbductionDeg: 25,  rightElbowAngleDeg: 95,  rightElbowYawDeg: 30 },
       { rightShoulderAngleDeg: 90,  rightShoulderAbductionDeg: 60,  rightElbowAngleDeg: 120, rightElbowYawDeg: -40 },
       { rightShoulderAngleDeg: -20, rightShoulderAbductionDeg: 10,  rightElbowAngleDeg: 150, rightElbowYawDeg: 60 },
       { rightShoulderAngleDeg: 130, rightShoulderAbductionDeg: 40,  rightElbowAngleDeg: 80,  rightElbowYawDeg: -60 },
       { rightShoulderAngleDeg: 0,   rightShoulderAbductionDeg: 80,  rightElbowAngleDeg: 90,  rightElbowYawDeg: 20 },
     ]
-    for (const overrides of posesToTest) {
+    for (const overrides of rightPoses) {
       const source = { ...trunkNeutral, ...overrides }
       const lms = reconstructFromAnchor(source)
       const round = extractAnchorFromLandmarks(lms)
       const delta = Math.abs(round.rightElbowYawDeg - overrides.rightElbowYawDeg)
-      expect(delta, `elbowYaw delta for pose ${JSON.stringify(overrides)}`).toBeLessThan(3)
+      expect(delta, `R swivel delta for ${JSON.stringify(overrides)}`).toBeLessThan(1)
+    }
+    // Symmetric left-arm coverage — same poses mirrored.
+    const leftPoses = [
+      { leftShoulderAngleDeg: 45,  leftShoulderAbductionDeg: 25,  leftElbowAngleDeg: 95,  leftElbowYawDeg: 30 },
+      { leftShoulderAngleDeg: 90,  leftShoulderAbductionDeg: 60,  leftElbowAngleDeg: 120, leftElbowYawDeg: -40 },
+      { leftShoulderAngleDeg: -20, leftShoulderAbductionDeg: 10,  leftElbowAngleDeg: 150, leftElbowYawDeg: 60 },
+      { leftShoulderAngleDeg: 130, leftShoulderAbductionDeg: 40,  leftElbowAngleDeg: 80,  leftElbowYawDeg: -60 },
+      { leftShoulderAngleDeg: 0,   leftShoulderAbductionDeg: 80,  leftElbowAngleDeg: 90,  leftElbowYawDeg: 20 },
+    ]
+    for (const overrides of leftPoses) {
+      const source = { ...trunkNeutral, ...overrides }
+      const lms = reconstructFromAnchor(source)
+      const round = extractAnchorFromLandmarks(lms)
+      const delta = Math.abs(round.leftElbowYawDeg - overrides.leftElbowYawDeg)
+      expect(delta, `L swivel delta for ${JSON.stringify(overrides)}`).toBeLessThan(1)
     }
   })
 })
