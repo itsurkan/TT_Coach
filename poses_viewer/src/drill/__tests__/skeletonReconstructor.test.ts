@@ -237,6 +237,34 @@ describe('reconstructFromAnchor', () => {
     expect(Math.abs(wrist.y - elbow.y)).toBeLessThan(BONES.forearm * 0.2)
   })
 
+  it('forearm position is continuous as shoulder-fwd slider crosses zero (no 180° snap)', () => {
+    // Bug: dragging the Shoulder-fwd slider through 0 with abduction near 0
+    // used to flip the forearm 180° because cross(torsoUp, upperArmDir) flips
+    // sign as the upper arm passes through the spine axis. Sweep shFwd from
+    // -10° to +10° in 1° steps with shAbd=0 and assert the wrist position
+    // changes smoothly (no frame-to-frame jump > forearm length/3).
+    const base = {
+      ...NEUTRAL_POSE,
+      dirOverrides: undefined,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAbductionDeg: 0,
+      rightElbowAngleDeg: 90,
+    }
+    let prev: { x: number; y: number; z: number } | null = null
+    for (let shFwd = -10; shFwd <= 10; shFwd++) {
+      const out = reconstructFromAnchor({ ...base, rightShoulderAngleDeg: shFwd })
+      const w = out[LM.R_WRIST]
+      if (prev) {
+        const jump = Math.hypot(w.x - prev.x, w.y - prev.y, w.z - prev.z)
+        expect(jump).toBeLessThan(BONES.forearm / 3)
+      }
+      prev = { x: w.x, y: w.y, z: w.z }
+    }
+  })
+
   it('MIDPOINT_POSE honors defaultValue on param specs when present', async () => {
     // Sanity: once specs set defaultValue for shoulder flex/abduction to 41/31,
     // MIDPOINT_POSE must reflect those targets rather than raw (min+max)/2.

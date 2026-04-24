@@ -245,24 +245,35 @@ export function reconstructFromAnchor(
 
     const elbowBend = 180 - elbowDeg
     const impForearm = side === 'L' ? anchor.dirOverrides?.leftForearm : anchor.dirOverrides?.rightForearm
-    // Hinge axis = torsoUp × upperArmDir. Keeps the forearm bend plane in
-    // the plane containing the upper arm and the spine, so an abducted/
-    // raised arm bends toward the face rather than sideways. The operand
-    // order (not the more intuitive upperArmDir × torsoUp) is required so
-    // that combined with the existing -elbowBend rotation sign, the
-    // forearm bends toward the head rather than away — the plane is
-    // identical either way; only the axis direction (and thus the bend
-    // direction) flips. When the upper arm is nearly parallel to the
-    // spine the cross degenerates, so fall back to shoulderAcross (the
-    // legacy hinge). forearmTwistDeg still independently rotates the
-    // hand fan around the forearm axis.
+    // Elbow hinge — weighted combination that is continuous across the whole
+    // (shAbd, shFwd) slider domain AND keeps the forearm bending into the
+    // body's anterior half-space (toward the face/chest) for any arm pose.
+    //
+    // Three terms, all normalized together:
+    //   1. 3·cross(torsoUp, upperArmDir) — the anatomical "bend in the spine+
+    //      arm plane" axis. Strong when the arm is clearly abducted; vanishes
+    //      when the arm is parallel to the spine (both arm-down and overhead).
+    //   2. shoulderAcross — stable fallback for the arm-parallel-to-spine
+    //      cases. Without this, the cross's sign flips as the arm crosses the
+    //      spine pole, snapping the forearm 180°.
+    //   3. 2·shoulderForward — anterior bias. Pushes the hinge toward the
+    //      "forearm folds toward face/chest" half-space even for extreme poses
+    //      (shFwd>90° with modest shAbd — arm raised behind-and-above the
+    //      shoulder). Without this term, such poses let the hinge point
+    //      backward, and the forearm folds AWAY from the body, which reads as
+    //      anatomically impossible ("elbow bends the wrong way").
+    // forearmTwistDeg still rotates the hand fan around the forearm axis.
+    const HINGE_CROSS_WEIGHT = 3.0
+    const HINGE_ANTERIOR_BIAS = 2.0
     const hingeRaw: V3 = [
-      torsoUp[1]*upperArmDir[2] - torsoUp[2]*upperArmDir[1],
-      torsoUp[2]*upperArmDir[0] - torsoUp[0]*upperArmDir[2],
-      torsoUp[0]*upperArmDir[1] - torsoUp[1]*upperArmDir[0],
+      HINGE_CROSS_WEIGHT*(torsoUp[1]*upperArmDir[2] - torsoUp[2]*upperArmDir[1])
+        + shoulderAcross[0] + HINGE_ANTERIOR_BIAS*shoulderForward[0],
+      HINGE_CROSS_WEIGHT*(torsoUp[2]*upperArmDir[0] - torsoUp[0]*upperArmDir[2])
+        + shoulderAcross[1] + HINGE_ANTERIOR_BIAS*shoulderForward[1],
+      HINGE_CROSS_WEIGHT*(torsoUp[0]*upperArmDir[1] - torsoUp[1]*upperArmDir[0])
+        + shoulderAcross[2] + HINGE_ANTERIOR_BIAS*shoulderForward[2],
     ]
-    const hingeMag = Math.sqrt(hingeRaw[0]*hingeRaw[0] + hingeRaw[1]*hingeRaw[1] + hingeRaw[2]*hingeRaw[2])
-    const elbowHinge: V3 = hingeMag < 1e-6 ? shoulderAcross : normalize(hingeRaw)
+    const elbowHinge: V3 = normalize(hingeRaw)
     const forearmDir = impForearm
       ? normalize(impForearm as V3)
       : normalize(rotAroundAxis(upperArmDir, elbowHinge, -elbowBend))
