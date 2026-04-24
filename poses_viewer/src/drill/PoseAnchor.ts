@@ -45,6 +45,11 @@ export interface PoseAnchor {
   rightShoulderAbductionDeg: number // sideways (0 = arm along torso, 90 = horizontal out to side)
   rightElbowAngleDeg: number
   rightWristAngleDeg: number
+  /** Wrist ulnar/radial deviation — lateral deflection of the hand at the
+   *  wrist, independent of palmar flex (wristAngleDeg). Positive = radial
+   *  deviation (hand toward thumb side); negative = ulnar (toward pinky).
+   *  Sign mirrored for the left arm. */
+  rightWristYawDeg: number
   rightForearmTwistDeg: number
   /** Humeral twist / shoulder internal–external rotation. Rotates the elbow
    *  on a circle around the shoulder→wrist axis WITHOUT moving the shoulder
@@ -55,6 +60,7 @@ export interface PoseAnchor {
   leftShoulderAbductionDeg: number
   leftElbowAngleDeg: number
   leftWristAngleDeg: number
+  leftWristYawDeg: number
   leftForearmTwistDeg: number
   leftElbowYawDeg: number
   // Hip joint angles (each thigh independently) — enables proper squat / lunge poses.
@@ -149,7 +155,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
       { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
       { key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
-      { key: 'rightWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
+      { key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
+      { key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
       { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
       { key: 'rightElbowYawDeg',          label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
     ],
@@ -160,7 +167,8 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
       { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
       { key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
-      { key: 'leftWristAngleDeg',        label: 'Wrist',          min: 90,  max: 180, step: 1 },
+      { key: 'leftWristAngleDeg',         label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
+      { key: 'leftWristYawDeg',           label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
       { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
       { key: 'leftElbowYawDeg',           label: 'Elbow yaw (humeral twist)', min: -70, max: 90, step: 1, defaultValue: 0 },
     ],

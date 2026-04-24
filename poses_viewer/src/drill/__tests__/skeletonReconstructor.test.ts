@@ -342,6 +342,16 @@ describe('reconstructFromAnchor', () => {
     }
   })
 
+  it('rightWristYawDeg default = 0 in all neutrals (pre-FK-wiring)', async () => {
+    const { NEUTRAL_POSE, STANDING_POSE, MIDPOINT_POSE } = await import('../neutralPose')
+    expect(NEUTRAL_POSE.rightWristYawDeg).toBe(0)
+    expect(NEUTRAL_POSE.leftWristYawDeg).toBe(0)
+    expect(STANDING_POSE.rightWristYawDeg).toBe(0)
+    expect(STANDING_POSE.leftWristYawDeg).toBe(0)
+    expect(MIDPOINT_POSE.rightWristYawDeg).toBe(0)
+    expect(MIDPOINT_POSE.leftWristYawDeg).toBe(0)
+  })
+
   it('STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)', async () => {
     const { STANDING_POSE } = await import('../neutralPose')
     const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>

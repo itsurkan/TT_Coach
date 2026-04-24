@@ -28,6 +28,7 @@ export const NEUTRAL_POSE: PoseAnchor = {
   rightShoulderAbductionDeg: 25,
   rightElbowAngleDeg: 95,
   rightWristAngleDeg: 160,
+  rightWristYawDeg: 0,
   rightForearmTwistDeg: 0,
   rightElbowYawDeg: 0,
 
@@ -36,6 +37,7 @@ export const NEUTRAL_POSE: PoseAnchor = {
   leftShoulderAbductionDeg: 20,
   leftElbowAngleDeg: 120,
   leftWristAngleDeg: 165,
+  leftWristYawDeg: 0,
   leftForearmTwistDeg: 0,
   leftElbowYawDeg: 0,
 
@@ -81,12 +83,14 @@ export const STANDING_POSE: PoseAnchor = {
   rightShoulderAbductionDeg: 0,
   rightElbowAngleDeg: 180,
   rightWristAngleDeg: 180,
+  rightWristYawDeg: 0,
   rightForearmTwistDeg: 0,
   rightElbowYawDeg: 0,
   leftShoulderAngleDeg: 0,
   leftShoulderAbductionDeg: 0,
   leftElbowAngleDeg: 180,
   leftWristAngleDeg: 180,
+  leftWristYawDeg: 0,
   leftForearmTwistDeg: 0,
   leftElbowYawDeg: 0,
 
