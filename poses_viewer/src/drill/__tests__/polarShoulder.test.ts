@@ -3,6 +3,7 @@ import { polarToFlexAbd, flexAbdToPolar } from '../polarShoulder'
 import { STANDING_POSE } from '../neutralPose'
 import { reconstructFromAnchor } from '../skeletonReconstructor'
 import { LM } from '../SkeletonModel'
+import { ANCHOR_PARAM_GROUPS } from '../PoseAnchor'
 
 describe('polarToFlexAbd', () => {
   it('elevation=0 → arm straight down (flex=0, abd=0), plane irrelevant', () => {
@@ -133,5 +134,45 @@ describe('side-agnosticism: polar values mirror across midline when applied equa
     // And the y/z components should be identical (symmetric plane).
     expect(rElbow.y).toBeCloseTo(lElbow.y, 4)
     expect(rElbow.z).toBeCloseTo(lElbow.z, 4)
+  })
+})
+
+describe('ANCHOR_PARAM_GROUPS: polar shoulder entries', () => {
+  const all = ANCHOR_PARAM_GROUPS.flatMap(g => g.params)
+  const findById = (id: string) =>
+    all.find(p => p.kind === 'computed' && p.id === id)
+
+  it('adds four computed entries (2 per arm)', () => {
+    const computed = all.filter(p => p.kind === 'computed')
+    expect(computed).toHaveLength(4)
+    expect(computed.map(p => (p as any).id).sort()).toEqual([
+      'leftShoulderElevationDeg',
+      'leftShoulderPlaneDeg',
+      'rightShoulderElevationDeg',
+      'rightShoulderPlaneDeg',
+    ])
+  })
+
+  it('right-arm polar specs reference both right-shoulder anchor keys', () => {
+    const e = findById('rightShoulderElevationDeg')
+    const p = findById('rightShoulderPlaneDeg')
+    expect(e).toBeDefined()
+    expect(p).toBeDefined()
+    expect((e as any).keys).toEqual(['rightShoulderAngleDeg', 'rightShoulderAbductionDeg'])
+    expect((p as any).keys).toEqual(['rightShoulderAngleDeg', 'rightShoulderAbductionDeg'])
+  })
+
+  it('read/write round-trips through a sample anchor', () => {
+    const e = findById('rightShoulderElevationDeg') as any
+    const anchor = {
+      rightShoulderAngleDeg: 90,
+      rightShoulderAbductionDeg: 0,
+    } as any
+    // With flex=90, abd=0 the arm is horizontal forward → elevation=90.
+    expect(e.read(anchor)).toBeCloseTo(90, 4)
+    // Writing elevation=45 at plane=0 → flex=45, abd=0.
+    const updated = e.write(anchor, 45)
+    expect(updated.rightShoulderAngleDeg).toBeCloseTo(45, 4)
+    expect(updated.rightShoulderAbductionDeg).toBeCloseTo(0, 4)
   })
 })
