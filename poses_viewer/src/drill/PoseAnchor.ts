@@ -218,7 +218,7 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { kind: 'direct', key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
       { kind: 'direct', key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
       { kind: 'direct', key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
-      { kind: 'direct', key: 'rightElbowYawDeg',          label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 40 },
+      { kind: 'direct', key: 'rightElbowYawDeg',          label: 'Elbow swivel (shoulder+wrist pinned)', min: 30, max: 90, step: 1, defaultValue: 40 },
     ],
   },
   {
