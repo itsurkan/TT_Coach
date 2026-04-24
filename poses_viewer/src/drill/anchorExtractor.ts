@@ -6,9 +6,9 @@
  * are done in the landmark's native normalized coordinate system, so the
  * output plugs straight into [reconstructFromAnchor] without rescaling.
  *
- * Note: `rightForearmTwistDeg` is set to 0 — measuring twist reliably
- * requires clean 3D finger geometry, which MediaPipe's Z-axis doesn't
- * provide. Users adjust it manually after import.
+ * Note: `forearmTwistDeg` is now extracted from the pinky↔index fan
+ * direction. Accuracy depends on hand-landmark visibility; clamped to
+ * slider range [-90°, +90°] on return.
  */
 
 import type { PoseAnchor, LimbDirections } from './PoseAnchor'
@@ -200,6 +200,52 @@ function computeWristYaw(
   const oLen = length(wristToIndex) || 1e-9
   const obsU: V3 = { x: wristToIndex.x/oLen, y: wristToIndex.y/oLen, z: wristToIndex.z/oLen }
   return abSign * signedAngleAround(refU, obsU, handNormalU)
+}
+
+/**
+ * Extract forearm twist (pronation/supination) by inverting the FK's
+ * fan-rotation. FK rotates shoulderAcross around forearmDir by twistDeg to
+ * get fanSideBase, then optionally rotates by wristYaw around handNormal to
+ * get fanSide. Reversing:
+ *   fanSide_obs   = normalize(index - pinky)  // from landmarks
+ *   fanSideBase   = rot(fanSide_obs, handNormal, -abSign·wristYaw)
+ *   twistDeg      = signedAngleAround(shoulderAcross, fanSideBase, forearmDir)
+ *
+ * handNormal is approximated as cross(forearmDir, shoulderAcross) — matches
+ * FK exactly at twist=0 and drifts slightly for larger twist. Acceptable
+ * within the [-90°, +90°] slider range because slider clamp + round-trip
+ * tolerance absorb the residual error.
+ */
+function computeForearmTwist(
+  forearmUnit: V3,
+  shoulderAcross: V3,
+  wristYawDeg: number,
+  indexLm: V3,
+  pinkyLm: V3,
+  abSign: number,
+): number {
+  const fanSideObs: V3 = {
+    x: indexLm.x - pinkyLm.x,
+    y: indexLm.y - pinkyLm.y,
+    z: indexLm.z - pinkyLm.z,
+  }
+  const fsLen = length(fanSideObs)
+  if (fsLen < 1e-4) return 0
+  const fanSideObsU: V3 = { x: fanSideObs.x/fsLen, y: fanSideObs.y/fsLen, z: fanSideObs.z/fsLen }
+  // Approximated handNormal at twist=0: cross(forearmDir, shoulderAcross).
+  // Degenerate only if forearmDir ∥ shoulderAcross (anatomically rare).
+  const handNormal: V3 = {
+    x: forearmUnit.y * shoulderAcross.z - forearmUnit.z * shoulderAcross.y,
+    y: forearmUnit.z * shoulderAcross.x - forearmUnit.x * shoulderAcross.z,
+    z: forearmUnit.x * shoulderAcross.y - forearmUnit.y * shoulderAcross.x,
+  }
+  const hnLen = length(handNormal) || 1e-9
+  const handNormalU: V3 = { x: handNormal.x/hnLen, y: handNormal.y/hnLen, z: handNormal.z/hnLen }
+  // Undo wristYaw to recover fanSideBase.
+  const fanSideBase = wristYawDeg !== 0
+    ? rotAroundAxisObj(fanSideObsU, handNormalU, -abSign * wristYawDeg)
+    : fanSideObsU
+  return signedAngleAround(shoulderAcross, fanSideBase, forearmUnit)
 }
 
 export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
@@ -401,6 +447,17 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     lForearmUnit, bodyShoulderAcross, leftWristAngleDeg, lWristToIndexVec, +1,
   )
 
+  const rPinkyVec: V3 = toV3(lms[LM.R_PINKY])
+  const lPinkyVec: V3 = toV3(lms[LM.L_PINKY])
+  const rightForearmTwistRaw = computeForearmTwist(
+    rForearmUnit, bodyShoulderAcross, rightWristYawRaw,
+    rIndex, rPinkyVec, -1,
+  )
+  const leftForearmTwistRaw = computeForearmTwist(
+    lForearmUnit, bodyShoulderAcross, leftWristYawRaw,
+    lIndex, lPinkyVec, +1,
+  )
+
   // Knee angles.
   const leftKneeAngleDeg  = angleBetween(sub(lHip, lKnee), sub(lAnkle, lKnee))
   const rightKneeAngleDeg = angleBetween(sub(rHip, rKnee), sub(rAnkle, rKnee))
@@ -466,14 +523,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightElbowAngleDeg: clamp(rightElbowAngleDeg, 30, 180),
     rightWristAngleDeg: clamp(rightWristAngleDeg, 60, 180),
     rightWristYawDeg: clamp(rightWristYawRaw, -30, 20),
-    rightForearmTwistDeg: 0, // unreliable from MediaPipe
+    rightForearmTwistDeg: clamp(rightForearmTwistRaw, -90, 90),
     rightElbowYawDeg: clamp(rightElbowYawRaw, -70, 90),
     leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
     leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
     leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
     leftWristAngleDeg: clamp(leftWristAngleDeg, 60, 180),
     leftWristYawDeg: clamp(leftWristYawRaw, -30, 20),
-    leftForearmTwistDeg: 0,
+    leftForearmTwistDeg: clamp(leftForearmTwistRaw, -90, 90),
     leftElbowYawDeg:  clamp(leftElbowYawRaw,  -70, 90),
     leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
     rightThighForwardDeg: clamp(rightThighForwardDeg, -30, 120),

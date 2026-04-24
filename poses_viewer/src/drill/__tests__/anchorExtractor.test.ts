@@ -70,4 +70,24 @@ describe('extractAnchorFromLandmarks — round-trip', () => {
     expect(round.leftWristYawDeg).toBeGreaterThan(11)
     expect(round.leftWristYawDeg).toBeLessThan(19)
   })
+
+  it('recovers rightForearmTwistDeg within 10° from a pronated hand (twist=0 wristYaw)', () => {
+    const source = {
+      ...NEUTRAL_POSE,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAngleDeg: 20,
+      rightShoulderAbductionDeg: 10,
+      rightElbowAngleDeg: 90,
+      rightWristAngleDeg: 170,
+      rightWristYawDeg: 0,
+      rightForearmTwistDeg: 45,
+    }
+    const lms = reconstructFromAnchor(source)
+    const round = extractAnchorFromLandmarks(lms)
+    expect(round.rightForearmTwistDeg).toBeGreaterThan(35)
+    expect(round.rightForearmTwistDeg).toBeLessThan(55)
+  })
 })
