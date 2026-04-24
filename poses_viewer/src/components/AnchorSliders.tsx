@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { PoseAnchor, AnchorPhase, AnchorParamSpec } from '../drill/PoseAnchor'
 import { ANCHOR_PARAM_GROUPS } from '../drill/PoseAnchor'
+import { clampRightShoulder, type ShoulderActiveKey } from '../drill/shoulderClamp'
 
 interface Props {
   activePhase: AnchorPhase
@@ -43,8 +44,21 @@ export default function AnchorSliders({
   const specRead = (spec: AnchorParamSpec, a: PoseAnchor): number =>
     spec.kind === 'direct' ? (a[spec.key] as number) : spec.read(a)
 
-  const specWrite = (spec: AnchorParamSpec, a: PoseAnchor, v: number): PoseAnchor =>
-    spec.kind === 'direct' ? { ...a, [spec.key]: v } : spec.write(a, v)
+  const specWrite = (spec: AnchorParamSpec, a: PoseAnchor, v: number): PoseAnchor => {
+    if (spec.kind === 'direct') {
+      const next: PoseAnchor = { ...a, [spec.key]: v }
+      if (spec.key === 'rightShoulderAngleDeg' || spec.key === 'rightShoulderAbductionDeg') {
+        const clamped = clampRightShoulder(
+          next.rightShoulderAngleDeg,
+          next.rightShoulderAbductionDeg,
+          spec.key as ShoulderActiveKey,
+        )
+        return { ...next, rightShoulderAngleDeg: clamped.flex, rightShoulderAbductionDeg: clamped.abd }
+      }
+      return next
+    }
+    return spec.write(a, v)
+  }
 
   // Stable refs per slider id so scrollIntoView doesn't fight re-renders.
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
