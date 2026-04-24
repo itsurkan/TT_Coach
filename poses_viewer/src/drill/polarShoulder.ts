@@ -35,7 +35,14 @@ export function polarToFlexAbd(p: Polar): FlexAbd {
 }
 
 export function flexAbdToPolar(r: FlexAbd): Polar {
-  throw new Error('not implemented')
+  const f = r.flex * DEG
+  const a = r.abd * DEG
+  const dDown = Math.cos(f) * Math.cos(a)
+  const dForward = Math.sin(f) * Math.cos(a)
+  const dAcross = Math.sin(a)
+  const elevation = Math.acos(clamp(dDown, -1, 1)) * RAD
+  const plane = Math.atan2(dAcross, dForward) * RAD
+  return { elevation, plane }
 }
 
 function clamp(v: number, lo: number, hi: number): number {

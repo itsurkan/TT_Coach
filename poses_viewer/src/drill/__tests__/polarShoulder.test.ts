@@ -46,3 +46,31 @@ describe('polarToFlexAbd', () => {
     expect(out.abd).toBeCloseTo(30, 3)
   })
 })
+
+describe('flexAbdToPolar', () => {
+  it('flex=0, abd=0 → elevation=0 (pole), plane=0', () => {
+    const out = flexAbdToPolar({ flex: 0, abd: 0 })
+    expect(out.elevation).toBeCloseTo(0, 6)
+    expect(out.plane).toBeCloseTo(0, 6)
+  })
+  it('flex=180, abd=0 → elevation=180 (pole), plane=0', () => {
+    const out = flexAbdToPolar({ flex: 180, abd: 0 })
+    expect(out.elevation).toBeCloseTo(180, 6)
+    expect(out.plane).toBeCloseTo(0, 6)
+  })
+  it('flex=90, abd=0 → elevation=90, plane=0 (sagittal forward)', () => {
+    const out = flexAbdToPolar({ flex: 90, abd: 0 })
+    expect(out.elevation).toBeCloseTo(90, 6)
+    expect(out.plane).toBeCloseTo(0, 6)
+  })
+  it('flex=0, abd=90 → elevation=90, plane=90 (pure lateral)', () => {
+    const out = flexAbdToPolar({ flex: 0, abd: 90 })
+    expect(out.elevation).toBeCloseTo(90, 6)
+    expect(out.plane).toBeCloseTo(90, 6)
+  })
+  it('flex=0, abd=-90 → elevation=90, plane=-90 (cross-body)', () => {
+    const out = flexAbdToPolar({ flex: 0, abd: -90 })
+    expect(out.elevation).toBeCloseTo(90, 6)
+    expect(out.plane).toBeCloseTo(-90, 6)
+  })
+})
