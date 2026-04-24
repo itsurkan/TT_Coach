@@ -72,6 +72,34 @@ function angleBetween(a: V3, b: V3): number {
 }
 
 /**
+ * Signed rotation angle from vector `from` to vector `to` around `axis` —
+ * all inputs treated as directions (magnitude ignored). Result in degrees,
+ * positive = right-hand-rule around axis. Returns 0 if either vector
+ * projects to near-zero length in the plane perpendicular to axis
+ * (degenerate — no bend-plane to measure against).
+ */
+function signedAngleAround(from: V3, to: V3, axis: V3): number {
+  const projectPerp = (v: V3): V3 => {
+    const d = v.x * axis.x + v.y * axis.y + v.z * axis.z
+    return { x: v.x - d * axis.x, y: v.y - d * axis.y, z: v.z - d * axis.z }
+  }
+  const a = projectPerp(from)
+  const b = projectPerp(to)
+  const aLen = length(a)
+  const bLen = length(b)
+  if (aLen < 1e-4 || bLen < 1e-4) return 0
+  const ax = { x: a.x / aLen, y: a.y / aLen, z: a.z / aLen }
+  const bx = { x: b.x / bLen, y: b.y / bLen, z: b.z / bLen }
+  const dot = Math.max(-1, Math.min(1, ax.x * bx.x + ax.y * bx.y + ax.z * bx.z))
+  // Signed via axis dotted with (ax × bx).
+  const cx = ax.y * bx.z - ax.z * bx.y
+  const cy = ax.z * bx.x - ax.x * bx.z
+  const cz = ax.x * bx.y - ax.y * bx.x
+  const sign = Math.sign(cx * axis.x + cy * axis.y + cz * axis.z) || 1
+  return sign * Math.acos(dot) * 180 / Math.PI
+}
+
+/**
  * Compute bone-length overrides from raw landmarks so reconstructing with
  * these lengths will MATCH the source pose's scale exactly. Used for tests
  * and any "faithful replay" mode that wants the canonical FK math but with
@@ -206,6 +234,99 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const leftElbowAngleDeg  = angleBetween(sub(lSh, lElbow), sub(lWrist, lElbow))
   const leftWristAngleDeg  = angleBetween(sub(lElbow, lWrist), sub(lIndex, lWrist))
 
+  // Humeral twist (elbowYaw) extraction.
+  //
+  // FK places the forearm at:
+  //   forearmDir = rot(upperArmDir, twistedHinge, -(180 − elbowDeg))
+  //   twistedHinge = rot(elbowHinge, upperArmDir, abSign * elbowYaw)
+  //   elbowHinge = normalize(3·cross(torsoUp, upperArmDir)
+  //                        + shoulderAcross + 2·shoulderForward)
+  //
+  // To invert: recover the component of twistedHinge ⊥ to upperArmDir from
+  // the observed forearmDir and upperArmDir, then measure the signed angle
+  // from elbowHinge to that component around upperArmDir. The elbowHinge is
+  // NOT generally ⊥ to upperArmDir, so a simple cross-product proxy is
+  // inaccurate — see the inline derivation inside computeElbowYaw for the
+  // exact Rodrigues-based formula.
+  //
+  // Skips when the elbow is nearly straight (elbowDeg ≥ 175°) — the bend
+  // plane degenerates and the extracted yaw becomes meaningless noise.
+  const computeElbowYaw = (
+    upperArmDir: V3,
+    forearmDir: V3,
+    abSign: number,
+    elbowDeg: number,
+  ): number => {
+    if (elbowDeg >= 175) return 0
+    // Body-frame axes — the extractor puts all the observed yaw into
+    // figureYawDeg with bodyRotationDeg = 0 (see the return below), so
+    // _forwardX/_forwardZ/_acrossX/_acrossZ are the body frame here.
+    const shoulderAcross: V3 = { x: _acrossX,  y: 0, z: _acrossZ  }
+    const shoulderForward: V3 = { x: _forwardX, y: 0, z: _forwardZ }
+    const torsoUp: V3 = { x: 0, y: -1, z: 0 }
+    const crossTU_UA: V3 = {
+      x: torsoUp.y * upperArmDir.z - torsoUp.z * upperArmDir.y,
+      y: torsoUp.z * upperArmDir.x - torsoUp.x * upperArmDir.z,
+      z: torsoUp.x * upperArmDir.y - torsoUp.y * upperArmDir.x,
+    }
+    const hingeRaw: V3 = {
+      x: 3 * crossTU_UA.x + shoulderAcross.x + 2 * shoulderForward.x,
+      y: 3 * crossTU_UA.y + shoulderAcross.y + 2 * shoulderForward.y,
+      z: 3 * crossTU_UA.z + shoulderAcross.z + 2 * shoulderForward.z,
+    }
+    const hLen = length(hingeRaw) || 1e-9
+    const elbowHinge: V3 = {
+      x: hingeRaw.x / hLen,
+      y: hingeRaw.y / hLen,
+      z: hingeRaw.z / hLen,
+    }
+    // Recover the direction of twistedHinge in the plane ⊥ to upperArmDir.
+    //
+    // FK: forearmDir = rot(upperArmDir, twistedHinge, -elbowBend)  [Rodrigues]
+    // Let p = elbowHinge·upperArmDir (preserved by twist rotation around upperArmDir).
+    // Let elbowB = 180 − elbowDeg, c = cos(elbowB), β = sin(elbowB).
+    // Decomposing the Rodrigues formula in the ⊥-to-upperArmDir plane gives:
+    //   forearmDir_perp = (c(1−p²)+p²)·upperArmDir subtracted from forearmDir
+    //   twistedHinge_perp ∝ α·forearmDir_perp − β·(upperArmDir × forearmDir_perp)
+    // where α = p·(1−c).
+    // signedAngleAround projects both elbowHinge and the recovered direction
+    // onto the ⊥-plane, so the parallel component of twistedHinge cancels out.
+    const elbowBRad = (180 - elbowDeg) * Math.PI / 180
+    const c = Math.cos(elbowBRad)
+    const beta = Math.sin(elbowBRad)
+    if (Math.abs(beta) < 1e-6) return 0  // degenerate (elbow nearly fully extended)
+
+    const p = elbowHinge.x * upperArmDir.x + elbowHinge.y * upperArmDir.y + elbowHinge.z * upperArmDir.z
+    const alpha = p * (1 - c)
+    const faParallelComp = c * (1 - p * p) + p * p
+    const faPerpX = forearmDir.x - faParallelComp * upperArmDir.x
+    const faPerpY = forearmDir.y - faParallelComp * upperArmDir.y
+    const faPerpZ = forearmDir.z - faParallelComp * upperArmDir.z
+    const uaXfpX = upperArmDir.y * faPerpZ - upperArmDir.z * faPerpY
+    const uaXfpY = upperArmDir.z * faPerpX - upperArmDir.x * faPerpZ
+    const uaXfpZ = upperArmDir.x * faPerpY - upperArmDir.y * faPerpX
+    const thPerpX = alpha * faPerpX - beta * uaXfpX
+    const thPerpY = alpha * faPerpY - beta * uaXfpY
+    const thPerpZ = alpha * faPerpZ - beta * uaXfpZ
+    const thPerpLen = Math.sqrt(thPerpX * thPerpX + thPerpY * thPerpY + thPerpZ * thPerpZ) || 1e-9
+    const twistedHingePerp: V3 = { x: thPerpX / thPerpLen, y: thPerpY / thPerpLen, z: thPerpZ / thPerpLen }
+    return abSign * signedAngleAround(elbowHinge, twistedHingePerp, upperArmDir)
+  }
+
+  const toUnit = (v: V3): V3 => {
+    const l = length(v) || 1e-9
+    return { x: v.x / l, y: v.y / l, z: v.z / l }
+  }
+  const rUpperArmUnit = toUnit(rUpperArm)
+  const rForearmUnit  = toUnit(rForearm)
+  const lUpperArmVec  = sub(lElbow, lSh)
+  const lForearmVec   = sub(lWrist, lElbow)
+  const lUpperArmUnit = toUnit(lUpperArmVec)
+  const lForearmUnit  = toUnit(lForearmVec)
+
+  const rightElbowYawRaw = computeElbowYaw(rUpperArmUnit, rForearmUnit, -1, rightElbowAngleDeg)
+  const leftElbowYawRaw  = computeElbowYaw(lUpperArmUnit, lForearmUnit, +1, leftElbowAngleDeg)
+
   // Knee angles.
   const leftKneeAngleDeg  = angleBetween(sub(lHip, lKnee), sub(lAnkle, lKnee))
   const rightKneeAngleDeg = angleBetween(sub(rHip, rKnee), sub(rAnkle, rKnee))
@@ -272,14 +393,14 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
     rightWristAngleDeg: clamp(rightWristAngleDeg, 60, 180),
     rightWristYawDeg: 0,
     rightForearmTwistDeg: 0, // unreliable from MediaPipe
-    rightElbowYawDeg: 0,
+    rightElbowYawDeg: clamp(rightElbowYawRaw, -70, 90),
     leftShoulderAngleDeg: clamp(leftShoulderAngleDeg, -30, 180),
     leftShoulderAbductionDeg: clamp(leftShoulderAbductionDeg, -30, 180),
     leftElbowAngleDeg: clamp(leftElbowAngleDeg, 30, 180),
     leftWristAngleDeg: clamp(leftWristAngleDeg, 60, 180),
     leftWristYawDeg: 0,
     leftForearmTwistDeg: 0,
-    leftElbowYawDeg: 0,
+    leftElbowYawDeg:  clamp(leftElbowYawRaw,  -70, 90),
     leftThighForwardDeg: clamp(leftThighForwardDeg, -30, 120),
     rightThighForwardDeg: clamp(rightThighForwardDeg, -30, 120),
     leftThighAbductionDeg: clamp(leftThighAbductionDeg, -30, 80),
