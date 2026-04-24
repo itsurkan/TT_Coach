@@ -224,6 +224,7 @@ export function reconstructFromAnchor(
     const elbowDeg  = side === 'L' ? anchor.leftElbowAngleDeg        : anchor.rightElbowAngleDeg
     const wristDeg  = side === 'L' ? anchor.leftWristAngleDeg        : anchor.rightWristAngleDeg
     const twistDeg  = side === 'L' ? anchor.leftForearmTwistDeg      : anchor.rightForearmTwistDeg
+    const elbowYawDeg = side === 'L' ? anchor.leftElbowYawDeg : anchor.rightElbowYawDeg
     const abSign = side === 'L' ? +1 : -1
     const shoulder  = side === 'L' ? lShoulder : rShoulder
     const idxElbow  = side === 'L' ? LM.L_ELBOW : LM.R_ELBOW
@@ -274,9 +275,16 @@ export function reconstructFromAnchor(
         + shoulderAcross[2] + HINGE_ANTERIOR_BIAS*shoulderForward[2],
     ]
     const elbowHinge: V3 = normalize(hingeRaw)
+    // Humeral twist — rotate the bend plane around the upper arm axis. At
+    // elbowYaw = 0 this is the identity, so existing neutrals reconstruct
+    // byte-for-byte. abSign flips the sign for the left arm so that +yaw
+    // means "external rotation" on both sides anatomically.
+    const twistedHinge: V3 = elbowYawDeg !== 0
+      ? normalize(rotAroundAxis(elbowHinge, upperArmDir, abSign * elbowYawDeg))
+      : elbowHinge
     const forearmDir = impForearm
       ? normalize(impForearm as V3)
-      : normalize(rotAroundAxis(upperArmDir, elbowHinge, -elbowBend))
+      : normalize(rotAroundAxis(upperArmDir, twistedHinge, -elbowBend))
     const wrist = add(elbow, scale(forearmDir, B.forearm))
     out[idxWrist] = mkLm(idxWrist, wrist)
 

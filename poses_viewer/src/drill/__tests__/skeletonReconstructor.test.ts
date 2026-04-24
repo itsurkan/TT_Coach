@@ -291,6 +291,57 @@ describe('reconstructFromAnchor', () => {
     expect(MIDPOINT_POSE.leftElbowYawDeg).toBe(0)
   })
 
+  it('elbowYaw=+90° rotates the forearm around the upper arm (elbow unchanged, shoulder→wrist distance unchanged)', () => {
+    const pose = {
+      ...NEUTRAL_POSE,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      figureYawDeg: 0,
+      rightShoulderAngleDeg: 0,
+      rightShoulderAbductionDeg: 0,
+      rightElbowAngleDeg: 90,
+      rightElbowYawDeg: 0,
+    }
+    const baseline = reconstructFromAnchor(pose)
+    const rotated = reconstructFromAnchor({ ...pose, rightElbowYawDeg: 90 })
+    // Elbow position unchanged (humeral twist pivots around the shoulder→elbow axis).
+    expect(rotated[LM.R_ELBOW].x).toBeCloseTo(baseline[LM.R_ELBOW].x, 4)
+    expect(rotated[LM.R_ELBOW].y).toBeCloseTo(baseline[LM.R_ELBOW].y, 4)
+    expect(rotated[LM.R_ELBOW].z).toBeCloseTo(baseline[LM.R_ELBOW].z, 4)
+    // Shoulder→wrist distance unchanged: the forearm swings around the upper
+    // arm, so the shoulder/elbow/wrist triangle's side lengths are preserved.
+    const d = (arr: ReturnType<typeof reconstructFromAnchor>) => {
+      const s = arr[LM.R_SHOULDER], w = arr[LM.R_WRIST]
+      return Math.hypot(s.x - w.x, s.y - w.y, s.z - w.z)
+    }
+    expect(d(rotated)).toBeCloseTo(d(baseline), 4)
+    // Wrist actually moves (otherwise the yaw didn't do anything).
+    const dw = Math.hypot(
+      rotated[LM.R_WRIST].x - baseline[LM.R_WRIST].x,
+      rotated[LM.R_WRIST].y - baseline[LM.R_WRIST].y,
+      rotated[LM.R_WRIST].z - baseline[LM.R_WRIST].z,
+    )
+    expect(dw).toBeGreaterThan(0.05)
+  })
+
+  it('elbowYaw=0 leaves every landmark byte-identical (humeral-twist neutral)', () => {
+    const poses: Partial<typeof NEUTRAL_POSE>[] = [
+      { rightShoulderAngleDeg: 41, rightShoulderAbductionDeg: 31, rightElbowAngleDeg: 90 },
+      { rightShoulderAngleDeg: -20, rightShoulderAbductionDeg: 0,  rightElbowAngleDeg: 150 },
+      { rightShoulderAngleDeg: 170, rightShoulderAbductionDeg: 90, rightElbowAngleDeg: 60 },
+    ]
+    for (const p of poses) {
+      const withYaw = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p, rightElbowYawDeg: 0, leftElbowYawDeg: 0 })
+      const noYaw   = reconstructFromAnchor({ ...NEUTRAL_POSE, ...p })
+      for (let i = 0; i < 33; i++) {
+        expect(withYaw[i].x).toBeCloseTo(noYaw[i].x, 6)
+        expect(withYaw[i].y).toBeCloseTo(noYaw[i].y, 6)
+        expect(withYaw[i].z).toBeCloseTo(noYaw[i].z, 6)
+      }
+    }
+  })
+
   it('STANDING_POSE + NEUTRAL_POSE fingerprints (pre-lossless baseline)', async () => {
     const { STANDING_POSE } = await import('../neutralPose')
     const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>
