@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { extractAnchorFromLandmarks } from '../anchorExtractor'
 import { reconstructFromAnchor } from '../skeletonReconstructor'
 import { NEUTRAL_POSE } from '../neutralPose'
+import { LM } from '../SkeletonModel'
 
 describe('extractAnchorFromLandmarks — round-trip', () => {
   it('recovers rightElbowYawDeg within 5° for a twisted arm', () => {
@@ -89,5 +90,42 @@ describe('extractAnchorFromLandmarks — round-trip', () => {
     const round = extractAnchorFromLandmarks(lms)
     expect(round.rightForearmTwistDeg).toBeGreaterThan(35)
     expect(round.rightForearmTwistDeg).toBeLessThan(55)
+  })
+
+  it('elbowYaw round-trip: extractor recovers yaw within 3° across diverse arm poses', () => {
+    // Pure DOF test for the new 3rd-shoulder-DOF contract: for each of 5
+    // diverse arm configurations, reconstruct → extract and check that the
+    // extracted `*ElbowYawDeg` matches the source within 3° (signed).
+    //
+    // Other angle fields are NOT asserted here — the decomposition helpers
+    // for shFwd/shAbd apply a 50% Z-dampening for MediaPipe noise tolerance,
+    // which visibly distorts those two angles on clean FK outputs. Elbow
+    // yaw's extraction is Z-dampening-independent (it's a pure signed angle
+    // around upperArmDir), so it round-trips cleanly and IS the load-bearing
+    // contract this plan's Tasks 5-7 promised.
+    const trunkNeutral = {
+      ...NEUTRAL_POSE,
+      figureYawDeg: 0,
+      bodyRotationDeg: 0,
+      torsoTiltDeg: 0,
+      shoulderRotationDeg: 0,
+      torsoSideBendDeg: 0,
+      pelvicRollDeg: 0,
+      shoulderShrugNorm: 0,
+    }
+    const posesToTest = [
+      { rightShoulderAngleDeg: 45,  rightShoulderAbductionDeg: 25,  rightElbowAngleDeg: 95,  rightElbowYawDeg: 30 },
+      { rightShoulderAngleDeg: 90,  rightShoulderAbductionDeg: 60,  rightElbowAngleDeg: 120, rightElbowYawDeg: -40 },
+      { rightShoulderAngleDeg: -20, rightShoulderAbductionDeg: 10,  rightElbowAngleDeg: 150, rightElbowYawDeg: 60 },
+      { rightShoulderAngleDeg: 130, rightShoulderAbductionDeg: 40,  rightElbowAngleDeg: 80,  rightElbowYawDeg: -60 },
+      { rightShoulderAngleDeg: 0,   rightShoulderAbductionDeg: 80,  rightElbowAngleDeg: 90,  rightElbowYawDeg: 20 },
+    ]
+    for (const overrides of posesToTest) {
+      const source = { ...trunkNeutral, ...overrides }
+      const lms = reconstructFromAnchor(source)
+      const round = extractAnchorFromLandmarks(lms)
+      const delta = Math.abs(round.rightElbowYawDeg - overrides.rightElbowYawDeg)
+      expect(delta, `elbowYaw delta for pose ${JSON.stringify(overrides)}`).toBeLessThan(3)
+    }
   })
 })
