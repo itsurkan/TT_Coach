@@ -107,9 +107,8 @@ export interface StrokeAnchorSet {
   end: PoseAnchor
 }
 
-/** Slider spec for the editor UI. */
-export interface AnchorParamSpec {
-  key: keyof PoseAnchor
+/** Common fields shared by all slider spec kinds. */
+interface AnchorParamSpecBase {
   label: string
   min: number
   max: number
@@ -117,9 +116,36 @@ export interface AnchorParamSpec {
   /** Reset/MIDPOINT_POSE target. When omitted, MIDPOINT_POSE uses (min+max)/2.
    *  Use this to decouple "slider reach" from "default pose" — e.g. shoulder
    *  abduction goes up to 120° but the ready-position default sits at 31°.
-   *  Value is snapped to `step` before use. */
+   *  Value is snapped to `step` before use.
+   *  Not applicable to computed specs (polar sliders re-derive from the
+   *  underlying anchor on every render). */
   defaultValue?: number
 }
+
+/** A slider that reads and writes a single `PoseAnchor` field directly. */
+export interface DirectAnchorParamSpec extends AnchorParamSpecBase {
+  kind: 'direct'
+  key: keyof PoseAnchor
+}
+
+/** A slider that exposes a *computed view* over one or more anchor fields.
+ *  Used for the polar shoulder sliders (elevation + plane) which are a
+ *  reparameterization of `*ShoulderAngleDeg` + `*ShoulderAbductionDeg`. */
+export interface ComputedAnchorParamSpec extends AnchorParamSpecBase {
+  kind: 'computed'
+  /** Stable id used for row refs, clipboard copy, and highlight matching.
+   *  Must be unique across all specs (direct or computed). */
+  id: string
+  /** Underlying anchor keys this view touches. Joint-highlighting marks
+   *  this spec as highlighted when any of these keys is in
+   *  `highlightedParams`. Does not restrict reads/writes — the closures
+   *  below are authoritative for that. */
+  keys: readonly (keyof PoseAnchor)[]
+  read: (anchor: PoseAnchor) => number
+  write: (anchor: PoseAnchor, value: number) => PoseAnchor
+}
+
+export type AnchorParamSpec = DirectAnchorParamSpec | ComputedAnchorParamSpec
 
 export interface AnchorParamGroup {
   name: string
@@ -130,67 +156,67 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Torso',
     params: [
-      { key: 'figureYawDeg',        label: 'Figure yaw (whole body)', min: -180, max: 180, step: 1 },
-      { key: 'bodyRotationDeg',     label: 'Hip rotation (pelvis twist)', min: -90, max: 90, step: 1 },
-      { key: 'pelvicRollDeg',       label: 'Pelvic roll',        min: -30, max: 30, step: 1 },
-      { key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
-      { key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
-      { key: 'torsoSideBendDeg',    label: 'Torso side-bend',    min: -30, max: 30, step: 1 },
-      { key: 'shoulderShrugNorm',   label: 'Shoulder shrug',     min: -0.03, max: 0.06, step: 0.005 },
+      { kind: 'direct', key: 'figureYawDeg',        label: 'Figure yaw (whole body)', min: -180, max: 180, step: 1 },
+      { kind: 'direct', key: 'bodyRotationDeg',     label: 'Hip rotation (pelvis twist)', min: -90, max: 90, step: 1 },
+      { kind: 'direct', key: 'pelvicRollDeg',       label: 'Pelvic roll',        min: -30, max: 30, step: 1 },
+      { kind: 'direct', key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
+      { kind: 'direct', key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
+      { kind: 'direct', key: 'torsoSideBendDeg',    label: 'Torso side-bend',    min: -30, max: 30, step: 1 },
+      { kind: 'direct', key: 'shoulderShrugNorm',   label: 'Shoulder shrug',     min: -0.03, max: 0.06, step: 0.005 },
     ],
   },
   {
     name: 'Right arm (stroking)',
     params: [
-      { key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
-      { key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: -40, max: 120, step: 1, defaultValue: 31 },
-      { key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
-      { key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
-      { key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
-      { key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
-      { key: 'rightElbowYawDeg',          label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 40 },
+      { kind: 'direct', key: 'rightShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
+      { kind: 'direct', key: 'rightShoulderAbductionDeg', label: 'Shoulder side',  min: -40, max: 120, step: 1, defaultValue: 31 },
+      { kind: 'direct', key: 'rightElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
+      { kind: 'direct', key: 'rightWristAngleDeg',        label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
+      { kind: 'direct', key: 'rightWristYawDeg',          label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
+      { kind: 'direct', key: 'rightForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
+      { kind: 'direct', key: 'rightElbowYawDeg',          label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 40 },
     ],
   },
   {
     name: 'Left arm',
     params: [
-      { key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
-      { key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
-      { key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
-      { key: 'leftWristAngleDeg',         label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
-      { key: 'leftWristYawDeg',           label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
-      { key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
-      { key: 'leftElbowYawDeg',           label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 0 },
+      { kind: 'direct', key: 'leftShoulderAngleDeg',     label: 'Shoulder fwd',   min: -30, max: 180, step: 1, defaultValue: 41 },
+      { kind: 'direct', key: 'leftShoulderAbductionDeg', label: 'Shoulder side',  min: 0,   max: 120, step: 1, defaultValue: 31 },
+      { kind: 'direct', key: 'leftElbowAngleDeg',        label: 'Elbow',          min: 30,  max: 180, step: 1 },
+      { kind: 'direct', key: 'leftWristAngleDeg',         label: 'Wrist bend',     min: 90,  max: 180, step: 1 },
+      { kind: 'direct', key: 'leftWristYawDeg',           label: 'Wrist yaw (ulnar/radial)', min: -30, max: 20, step: 1, defaultValue: 0 },
+      { kind: 'direct', key: 'leftForearmTwistDeg',      label: 'Forearm twist',  min: -90, max: 90,  step: 1 },
+      { kind: 'direct', key: 'leftElbowYawDeg',           label: 'Elbow swivel (shoulder+wrist pinned)', min: -90, max: 90, step: 1, defaultValue: 0 },
     ],
   },
   {
     name: 'Legs',
     params: [
-      { key: 'leftThighForwardDeg',    label: 'L thigh forward',    min: -30, max: 120, step: 1 },
-      { key: 'rightThighForwardDeg',   label: 'R thigh forward',    min: -30, max: 120, step: 1 },
-      { key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
-      { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
-      { key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
-      { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
+      { kind: 'direct', key: 'leftThighForwardDeg',    label: 'L thigh forward',    min: -30, max: 120, step: 1 },
+      { kind: 'direct', key: 'rightThighForwardDeg',   label: 'R thigh forward',    min: -30, max: 120, step: 1 },
+      { kind: 'direct', key: 'leftThighAbductionDeg',  label: 'L thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
+      { kind: 'direct', key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
+      { kind: 'direct', key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
+      { kind: 'direct', key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       // Past ~82° the kneeYaw interacts with kneeSwivel in a visually off
       // way (swivel offsets the knee past the hip-ankle projection). Keep
       // slider shy of that zone so (yaw, swivel) combinations stay clean.
-      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -82, max: 82,  step: 1 },
-      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -82, max: 82,  step: 1 },
+      { kind: 'direct', key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -82, max: 82,  step: 1 },
+      { kind: 'direct', key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -82, max: 82,  step: 1 },
       // Knee swivel is anatomically tiny — only a few very flexible people
       // exceed ±5°, so keep the slider tight to the realistic range.
-      { key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
-      { key: 'rightKneeSwivelDeg',     label: 'R knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
-      { key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
-      { key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
-      { key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
+      { kind: 'direct', key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
+      { kind: 'direct', key: 'rightKneeSwivelDeg',     label: 'R knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
+      { kind: 'direct', key: 'leftFootYawDeg',         label: 'L foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
+      { kind: 'direct', key: 'rightFootYawDeg',        label: 'R foot yaw (vs shin)',  min: -60, max: 60,  step: 1 },
+      { kind: 'direct', key: 'stanceWidthNorm',        label: 'Stance width',       min: 0.10, max: 0.70, step: 0.01 },
     ],
   },
   {
     name: 'Position (root)',
     params: [
-      { key: 'hipMidX', label: 'Hip X', min: 0.30, max: 0.70, step: 0.005 },
-      { key: 'hipMidY', label: 'Hip Y', min: 0.25, max: 0.55, step: 0.005 },
+      { kind: 'direct', key: 'hipMidX', label: 'Hip X', min: 0.30, max: 0.70, step: 0.005 },
+      { kind: 'direct', key: 'hipMidY', label: 'Hip Y', min: 0.25, max: 0.55, step: 0.005 },
     ],
   },
 ]

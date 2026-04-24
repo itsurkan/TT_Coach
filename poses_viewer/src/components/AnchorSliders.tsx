@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import type { PoseAnchor, AnchorPhase } from '../drill/PoseAnchor'
+import type { PoseAnchor, AnchorPhase, AnchorParamSpec } from '../drill/PoseAnchor'
 import { ANCHOR_PARAM_GROUPS } from '../drill/PoseAnchor'
 
 interface Props {
@@ -37,15 +37,20 @@ export default function AnchorSliders({
   selectedJointName,
   selectedJointId,
 }: Props) {
-  const setKey = (k: keyof PoseAnchor, v: number) => {
-    onChange({ ...anchor, [k]: v })
-  }
+  const specIdentity = (spec: AnchorParamSpec): string =>
+    spec.kind === 'direct' ? (spec.key as string) : spec.id
 
-  // Stable refs per slider key so scrollIntoView doesn't fight re-renders.
+  const specRead = (spec: AnchorParamSpec, a: PoseAnchor): number =>
+    spec.kind === 'direct' ? (a[spec.key] as number) : spec.read(a)
+
+  const specWrite = (spec: AnchorParamSpec, a: PoseAnchor, v: number): PoseAnchor =>
+    spec.kind === 'direct' ? { ...a, [spec.key]: v } : spec.write(a, v)
+
+  // Stable refs per slider id so scrollIntoView doesn't fight re-renders.
   const rowRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   // Tracks which row just got copied so the button can flash a checkmark.
-  const [copiedKey, setCopiedKey] = useState<keyof PoseAnchor | null>(null)
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   // When the row belongs to the selected joint, prefix with the joint reference
   // so the clipboard carries both the joint and the param. Prefer the English id
   // for code-side unambiguity and append the Ukrainian name for human context.
@@ -56,13 +61,14 @@ export default function AnchorSliders({
     return null
   }
 
-  const copyRow = (k: keyof PoseAnchor, value: number, step: number, isJointParam: boolean) => {
-    const formatted = step >= 1 ? value.toFixed(0) : value.toFixed(2)
+  const copyRow = (spec: AnchorParamSpec, value: number, isJointParam: boolean) => {
+    const id = specIdentity(spec)
+    const formatted = spec.step >= 1 ? value.toFixed(0) : value.toFixed(2)
     const prefix = isJointParam ? jointPrefix() : null
-    const text = prefix ? `${prefix} · ${k}: ${formatted}` : `${k}: ${formatted}`
+    const text = prefix ? `${prefix} · ${id}: ${formatted}` : `${id}: ${formatted}`
     void navigator.clipboard.writeText(text).then(() => {
-      setCopiedKey(k)
-      setTimeout(() => setCopiedKey(prev => (prev === k ? null : prev)), 900)
+      setCopiedId(id)
+      setTimeout(() => setCopiedId(prev => (prev === id ? null : prev)), 900)
     })
   }
 
@@ -72,12 +78,21 @@ export default function AnchorSliders({
   useLayoutEffect(() => {
     if (!highlightedParams || highlightedParams.length === 0) return
     const first = highlightedParams[0]
-    const el = rowRefs.current[first]
+    // Find the first spec (direct or computed) that claims this key.
+    const allSpecs = ANCHOR_PARAM_GROUPS.flatMap(g => g.params)
+    const match = allSpecs.find(s =>
+      s.kind === 'direct' ? s.key === first : s.keys.includes(first),
+    )
+    if (!match) return
+    const el = rowRefs.current[specIdentity(match)]
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [highlightedParams])
 
-  const isHighlighted = (k: keyof PoseAnchor): boolean =>
-    highlightedParams?.includes(k) ?? false
+  const isHighlighted = (spec: AnchorParamSpec): boolean => {
+    if (!highlightedParams) return false
+    if (spec.kind === 'direct') return highlightedParams.includes(spec.key)
+    return spec.keys.some(k => highlightedParams.includes(k))
+  }
 
   return (
     <div className="flex flex-col gap-3 min-w-72 max-h-[85vh] overflow-y-auto pr-1">
@@ -123,18 +138,16 @@ export default function AnchorSliders({
             </div>
             <div className="flex flex-col gap-2 pl-1">
               {group.params.map(spec => {
-                // ANCHOR_PARAM_SPECS only contains number-valued keys by
-                // construction; cast keeps the branch-free arithmetic below
-                // without threading a runtime guard through every row.
-                const value = anchor[spec.key] as number
+                const id = specIdentity(spec)
+                const value = specRead(spec, anchor)
                 const displayVal = spec.step >= 1
                   ? value.toFixed(0)
                   : value.toFixed(2)
-                const highlighted = isHighlighted(spec.key)
+                const highlighted = isHighlighted(spec)
                 return (
                   <div
-                    key={spec.key}
-                    ref={el => { rowRefs.current[spec.key] = el }}
+                    key={id}
+                    ref={el => { rowRefs.current[id] = el }}
                     className={
                       'flex flex-col gap-0.5 rounded transition-colors ' +
                       (highlighted
@@ -150,21 +163,21 @@ export default function AnchorSliders({
                         <span className="font-mono text-gray-200">{displayVal}</span>
                         <button
                           type="button"
-                          onClick={() => copyRow(spec.key, value, spec.step, highlighted)}
+                          onClick={() => copyRow(spec, value, highlighted)}
                           title={(() => {
                             const prefix = highlighted ? jointPrefix() : null
                             return prefix
-                              ? `Copy "${prefix} · ${spec.key}: ${displayVal}"`
-                              : `Copy "${spec.key}: ${displayVal}"`
+                              ? `Copy "${prefix} · ${id}: ${displayVal}"`
+                              : `Copy "${id}: ${displayVal}"`
                           })()}
                           className={
                             'px-1 py-0.5 rounded text-[10px] font-mono transition-colors ' +
-                            (copiedKey === spec.key
+                            (copiedId === id
                               ? 'bg-green-600/70 text-white'
                               : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200')
                           }
                         >
-                          {copiedKey === spec.key ? '✓' : '⎘'}
+                          {copiedId === id ? '✓' : '⎘'}
                         </button>
                       </div>
                     </div>
@@ -174,7 +187,7 @@ export default function AnchorSliders({
                       max={spec.max}
                       step={spec.step}
                       value={value}
-                      onChange={e => setKey(spec.key, parseFloat(e.target.value))}
+                      onChange={e => onChange(specWrite(spec, anchor, parseFloat(e.target.value)))}
                       className="w-full"
                     />
                   </div>

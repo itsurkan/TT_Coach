@@ -134,6 +134,9 @@ export const MIDPOINT_POSE: PoseAnchor = buildMidpointPose()
 function buildMidpointPose(): PoseAnchor {
   const out = cloneAnchor(STANDING_POSE)
   for (const spec of ANCHOR_PARAM_SPECS) {
+    // Computed specs (polar shoulder sliders) are views over other anchor
+    // keys — they don't own any field to set here.
+    if (spec.kind !== 'direct') continue
     const raw = spec.defaultValue ?? (spec.min + spec.max) / 2
     const snapped = Math.round(raw / spec.step) * spec.step
     // Trim float noise from step multiplication (e.g. 0.005 * 3 = 0.015000…2).
