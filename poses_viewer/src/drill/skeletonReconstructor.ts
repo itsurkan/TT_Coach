@@ -232,10 +232,34 @@ export function reconstructFromAnchor(
     const idxIndex  = side === 'L' ? LM.L_INDEX : LM.R_INDEX
     const idxThumb  = side === 'L' ? LM.L_THUMB : LM.R_THUMB
 
-    // Upper arm — arms attach to the SHOULDER frame: abduction pivots around
-    // shoulder-forward, flex pivots around shoulder-across. So a corpus rotation
-    // (shoulderRotationDeg) sweeps the arms with it.
-    const upperArmDir = normalize(rotAroundAxis(rotAroundAxis(torsoDown, shoulderForward, abSign * shAbdDeg), shoulderAcross, -shFwdDeg))
+    // Upper arm — two anatomical plane angles, composed as direct projections
+    // onto the shoulder-frame axes (not sequential rotations). Sequential
+    // rotations are order-dependent and gimbal-couple, so moving `flex` with
+    // `abd` nonzero would sweep the arm along a curve instead of a meridian.
+    //
+    //   flex (shFwdDeg)  — angle in the sagittal plane (torsoDown↔shoulderForward)
+    //   abd  (shAbdDeg)  — angle in the frontal plane (torsoDown↔shoulderAcross),
+    //                      signed by side via abSign so +abd is lateral on both sides
+    //
+    // Properties:
+    //   (0, 0)       → torsoDown (arm straight down)
+    //   (90, 0)      → shoulderForward (pure sagittal forward)
+    //   (180, 0)     → -torsoDown (overhead via front)
+    //   (0, ±90)     → ±shoulderAcross (pure lateral)
+    //   (0, 180)     → -torsoDown (overhead via side)
+    // At abd = ±90° flex becomes a rotation around the arm's own axis — that's
+    // an anatomical truth; fine orientation falls to elbow swivel / forearm twist.
+    const fRad = deg(shFwdDeg)
+    const aRad = deg(abSign * shAbdDeg)
+    const cosA = Math.cos(aRad)
+    const dDown    = Math.cos(fRad) * cosA
+    const dForward = Math.sin(fRad) * cosA
+    const dAcross  = Math.sin(aRad)
+    const upperArmDir = normalize([
+      dDown * torsoDown[0] + dForward * shoulderForward[0] + dAcross * shoulderAcross[0],
+      dDown * torsoDown[1] + dForward * shoulderForward[1] + dAcross * shoulderAcross[1],
+      dDown * torsoDown[2] + dForward * shoulderForward[2] + dAcross * shoulderAcross[2],
+    ])
     const elbow = add(shoulder, scale(upperArmDir, B.upperArm))
     // NB: out[idxElbow] is written below after the swivel resolves elbowFinal.
 

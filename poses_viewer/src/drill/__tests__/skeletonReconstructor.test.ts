@@ -487,6 +487,124 @@ describe('reconstructFromAnchor', () => {
     }
   })
 
+  // ─ Shoulder decomposition (plane-projection FK) ─────────────────────────
+  // The shoulder FK treats rightShoulderAngleDeg (flex) and
+  // rightShoulderAbductionDeg (abd) as independent anatomical plane angles:
+  //   upperArmDir = dDown·torsoDown + dForward·shoulderForward + dAcross·shoulderAcross
+  //   where dDown=cos(flex)cos(abd), dForward=sin(flex)cos(abd), dAcross=sin(abd)
+  // These tests pin that behaviour (single-plane sweeps, independence of the
+  // two sliders, round-trip through the extractor).
+
+  const flatPose = {
+    ...NEUTRAL_POSE,
+    torsoTiltDeg: 0,
+    torsoSideBendDeg: 0,
+    pelvicRollDeg: 0,
+    figureYawDeg: 0,
+    bodyRotationDeg: 0,
+    shoulderRotationDeg: 0,
+    rightElbowAngleDeg: 180,
+    rightElbowYawDeg: 0,
+    rightWristAngleDeg: 180,
+    rightWristYawDeg: 0,
+    rightForearmTwistDeg: 0,
+  }
+
+  it('shoulder: pure sagittal sweep — elbow stays on the shoulder plane (no lateral drift)', () => {
+    // flex varies, abd=0. The elbow's x must match the shoulder's x at every step
+    // (sagittal plane has zero lateral component). The (y, z) offset must trace
+    // a circle of radius upperArm around the shoulder.
+    for (const flex of [0, 45, 90, 135, 180]) {
+      const out = reconstructFromAnchor({
+        ...flatPose,
+        rightShoulderAngleDeg: flex,
+        rightShoulderAbductionDeg: 0,
+      })
+      const sh = out[LM.R_SHOULDER]
+      const el = out[LM.R_ELBOW]
+      expect(el.x).toBeCloseTo(sh.x, 4)
+      const dy = el.y - sh.y
+      const dz = el.z - sh.z
+      expect(Math.hypot(dy, dz)).toBeCloseTo(BONES.upperArm, 4)
+    }
+  })
+
+  it('shoulder: pure frontal sweep — elbow stays on the shoulder plane (no forward drift)', () => {
+    // abd varies, flex=0. The elbow's z must match the shoulder's z (frontal
+    // plane has zero forward component). The (x, y) offset must trace the
+    // upperArm circle.
+    for (const abd of [0, 45, 90, 135, 180]) {
+      const out = reconstructFromAnchor({
+        ...flatPose,
+        rightShoulderAngleDeg: 0,
+        rightShoulderAbductionDeg: abd,
+      })
+      const sh = out[LM.R_SHOULDER]
+      const el = out[LM.R_ELBOW]
+      expect(el.z).toBeCloseTo(sh.z, 4)
+      const dx = el.x - sh.x
+      const dy = el.y - sh.y
+      expect(Math.hypot(dx, dy)).toBeCloseTo(BONES.upperArm, 4)
+    }
+  })
+
+  it('shoulder: independence — changing flex with abd fixed keeps the across-component constant', () => {
+    // shoulderAcross at figureYaw=0, shoulderRotation=0 is (+1, 0, 0). The
+    // across projection of (elbow − shoulder) should stay at sin(abd)*upperArm
+    // for every value of flex. This is what "meridian, not curve" means.
+    for (const abd of [-20, 30, 60, 90]) {
+      const expectedAcross = Math.sin(abd * Math.PI / 180) * BONES.upperArm
+      // Right-side sign: FK uses abSign=-1, so across projection onto +x is -sin(abd)
+      for (const flex of [0, 30, 60, 90, 120, 150, 180]) {
+        const out = reconstructFromAnchor({
+          ...flatPose,
+          rightShoulderAngleDeg: flex,
+          rightShoulderAbductionDeg: abd,
+        })
+        const acrossComp = out[LM.R_ELBOW].x - out[LM.R_SHOULDER].x
+        expect(acrossComp).toBeCloseTo(-expectedAcross, 3)
+      }
+    }
+  })
+
+  it('shoulder: round-trip through extractor — pure-axis inputs round-trip cleanly', async () => {
+    // The extractor dampens MediaPipe z by 50% (noise filter for real captures),
+    // so a synthetic combined (flex, abd) pose does NOT round-trip exactly —
+    // z-damping distorts whichever angle ends up along the camera's z axis.
+    // We therefore test the clean cases: pure-flex at a yaw where flex lives
+    // in x (no z damping), and pure-abd at the default yaw where abd lives in
+    // x. Both should round-trip within 1°.
+    const { extractAnchorFromLandmarks } = await import('../anchorExtractor')
+
+    // Pure abduction at figureYaw=0: shoulderAcross=(+1,0,0) — x only.
+    // Range restricted to (−90°, 90°) because dAcross=sin(abd) is ambiguous
+    // past ±90° (the FK collapses abd=100° and abd=80° onto the same point).
+    // The UI slider allows up to 120°, but that region is only uniquely
+    // resolvable with a 3rd DOF (elbow swivel) — not in scope here.
+    for (const abd of [-30, -10, 0, 15, 40, 70, 85]) {
+      const pose = { ...flatPose, rightShoulderAngleDeg: 0, rightShoulderAbductionDeg: abd }
+      const lms = reconstructFromAnchor(pose)
+      const extracted = extractAnchorFromLandmarks(lms)
+      expect(extracted.rightShoulderAbductionDeg).toBeCloseTo(abd, 0) // tolerance 1°
+      expect(extracted.rightShoulderAngleDeg).toBeCloseTo(0, 0)
+    }
+
+    // Pure flexion at figureYaw=90°: shoulderForward becomes (-1,0,0) — x only,
+    // so flex lives in x and isn't z-damped either.
+    for (const flex of [-20, 0, 30, 75, 120, 170]) {
+      const pose = {
+        ...flatPose,
+        figureYawDeg: 90,
+        rightShoulderAngleDeg: flex,
+        rightShoulderAbductionDeg: 0,
+      }
+      const lms = reconstructFromAnchor(pose)
+      const extracted = extractAnchorFromLandmarks(lms)
+      expect(extracted.rightShoulderAngleDeg).toBeCloseTo(flex, 0)
+      expect(extracted.rightShoulderAbductionDeg).toBeCloseTo(0, 0)
+    }
+  })
+
   it('STANDING_POSE + NEUTRAL_POSE fingerprints (FK drift guard)', async () => {
     const { STANDING_POSE } = await import('../neutralPose')
     const fp = (lms: ReturnType<typeof reconstructFromAnchor>): number[] =>
@@ -504,6 +622,11 @@ describe('reconstructFromAnchor', () => {
     const hash = (arr: number[]) =>
       arr.reduce((h, v) => (h * 33 + Math.round(v * 10000)) | 0, 5381)
     expect(hash(standingFp)).toBe(1524744803)
-    expect(hash(neutralFp)).toBe(664668715)
+    // Bumped 2026-04-24 (was 664668715): shoulder FK switched from
+    // sequential rotation to plane-projection (sagittal/frontal decomposition),
+    // which changes upperArmDir for any pose with simultaneously nonzero
+    // shoulder flex + abduction. See
+    // docs/superpowers/specs/2026-04-24-shoulder-dof-decoupling-design.md.
+    expect(hash(neutralFp)).toBe(653999345)
   })
 })
