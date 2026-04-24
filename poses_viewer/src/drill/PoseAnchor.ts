@@ -172,8 +172,11 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
       { key: 'rightThighAbductionDeg', label: 'R thigh abduction',  min: -30, max: 64,  step: 1, defaultValue: 17 },
       { key: 'leftKneeAngleDeg',       label: 'L knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
       { key: 'rightKneeAngleDeg',      label: 'R knee bend (180=straight, 30=deep)',   min: 30,  max: 180, step: 1 },
-      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -85, max: 85,  step: 1 },
-      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -85, max: 85,  step: 1 },
+      // Past ~82° the kneeYaw interacts with kneeSwivel in a visually off
+      // way (swivel offsets the knee past the hip-ankle projection). Keep
+      // slider shy of that zone so (yaw, swivel) combinations stay clean.
+      { key: 'leftKneeYawDeg',         label: 'L knee yaw',         min: -82, max: 82,  step: 1 },
+      { key: 'rightKneeYawDeg',        label: 'R knee yaw',         min: -82, max: 82,  step: 1 },
       // Knee swivel is anatomically tiny — only a few very flexible people
       // exceed ±5°, so keep the slider tight to the realistic range.
       { key: 'leftKneeSwivelDeg',      label: 'L knee swivel (hip+ankle pinned)',  min: -5, max: 5, step: 1, defaultValue: 0 },
