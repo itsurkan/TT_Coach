@@ -22,7 +22,6 @@ import TableGridOverlay from './components/TableGridOverlay'
 import TableDetectOverlay from "./components/TableDetectOverlay"
 import TableLabelsOverlay from './components/TableLabelsOverlay'
 import DatasetBrowser from './components/DatasetBrowser'
-import DrillEditor from './components/DrillEditor'
 import Drill2Preview from './components/Drill2Preview'
 import MannequinEditor from './components/MannequinEditor'
 
@@ -260,7 +259,6 @@ export default function App() {
   const [trajectory3D, setTrajectory3D] = useState<Trajectory3DResult | null>(null)
   const [videoList, setVideoList] = useState<{ name: string; ext: string }[]>([])
   const [showDatasetBrowser, setShowDatasetBrowser] = useState(false)
-  const [showDrillEditor, setShowDrillEditor] = useState(false)
   const [showDrill2, setShowDrill2] = useState(false)
   const [showMannequinEditor, setShowMannequinEditor] = useState(false)
   const [zoom, setZoom] = useState(1)
@@ -1048,14 +1046,6 @@ export default function App() {
         </label>
 
         <button
-          className="bg-indigo-700 hover:bg-indigo-600 px-3 py-1.5 rounded text-sm"
-          onClick={() => setShowDrillEditor(true)}
-          title="Create a new drill from scratch (anchor-based)"
-        >
-          + New Drill
-        </button>
-
-        <button
           className="bg-fuchsia-700 hover:bg-fuchsia-600 px-3 py-1.5 rounded text-sm"
           onClick={() => setShowDrill2(true)}
           title="Animate frame 57 → 63 from andrii_1 poses"
@@ -1160,9 +1150,7 @@ export default function App() {
         {error && <span className="text-red-400 text-sm truncate max-w-xs">{error}</span>}
       </header>
 
-      {showDrillEditor ? (
-        <DrillEditor onClose={() => setShowDrillEditor(false)} />
-      ) : showDrill2 ? (
+      {showDrill2 ? (
         <Drill2Preview onClose={() => setShowDrill2(false)} />
       ) : showMannequinEditor ? (
         <MannequinEditor onClose={() => setShowMannequinEditor(false)} />

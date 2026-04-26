@@ -24,6 +24,7 @@ import {
   parsePoseFixture,
   type PoseFixtureFrame,
 } from '../drill/anchorExtractor'
+import { clampAnchor } from '../drill/shoulderClamp'
 import { lerpAnchor } from '../drill/anchorInterpolator'
 import { SelectionProvider, useSelection } from '../context/SelectionContext'
 import Drill2Mannequin from './Drill2Mannequin'
@@ -75,6 +76,12 @@ function EditorShell({ onClose }: Props) {
   const [speedMult, setSpeedMult] = useState(1)
   const speedRef = useRef(speedMult)
   speedRef.current = speedMult
+
+  // ───── constraint toggles ─────────────────────────────────────────────
+  const [freezeFeet, setFreezeFeet] = useState(true)
+  const [applySliderClamps, setApplySliderClamps] = useState(true)
+  const [computeBodyRotation, setComputeBodyRotation] = useState(true)
+  const [stanceWidth2D, setStanceWidth2D] = useState(true)
 
   const stopAnim = () => setIsAnimating(false)
 
@@ -134,14 +141,23 @@ function EditorShell({ onClose }: Props) {
     if (!frames || startIdx < 0 || startIdx >= frames.length) return null
     const lms = frames[startIdx].landmarks
     if (lms.length < 33) return null
-    return extractAnchorFromLandmarks(lms)
-  }, [frames, startIdx])
+    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
+    return applySliderClamps ? clampAnchor(raw) : raw
+  }, [frames, startIdx, computeBodyRotation, stanceWidth2D, applySliderClamps])
   const endAnchor = useMemo<PoseAnchor | null>(() => {
     if (!frames || endIdx < 0 || endIdx >= frames.length) return null
     const lms = frames[endIdx].landmarks
     if (lms.length < 33) return null
-    return extractAnchorFromLandmarks(lms)
-  }, [frames, endIdx])
+    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
+    return applySliderClamps ? clampAnchor(raw) : raw
+  }, [frames, endIdx, computeBodyRotation, stanceWidth2D, applySliderClamps])
+
+  // Raw start landmarks for frozen-feet: pin feet to start-pose ankles.
+  const startLmsRaw = useMemo(() => {
+    if (!frames || startIdx < 0 || startIdx >= frames.length) return null
+    const lms = frames[startIdx].landmarks
+    return lms.length >= 33 ? lms : null
+  }, [frames, startIdx])
 
   // RAF-driven ping-pong with pause-at-both-ends. Speed scales elapsed
   // time via speedRef so the slider doesn't restart the effect.
@@ -178,7 +194,13 @@ function EditorShell({ onClose }: Props) {
 
   // Single FK pass per anchor change. Re-runs only on anchor edits — selection
   // doesn't invalidate geometry.
-  const landmarks = useMemo(() => reconstructFromAnchor(anchor), [anchor])
+  const landmarks = useMemo(() => {
+    const lms = reconstructFromAnchor(anchor)
+    if (!freezeFeet || !startLmsRaw) return lms
+    // Pin feet to start-pose landmarks (indices 27-32: ankles, heels, foot tips).
+    const FOOT_IDX = [27, 28, 29, 30, 31, 32]
+    return lms.map((pt, i) => FOOT_IDX.includes(i) ? startLmsRaw[i] : pt)
+  }, [anchor, freezeFeet, startLmsRaw])
 
   // Slider keys that rotate the currently selected joint — used by
   // AnchorSliders to highlight and scroll to the relevant rows.
@@ -249,6 +271,14 @@ function EditorShell({ onClose }: Props) {
           onSpeedChange={setSpeedMult}
           haveStart={!!startAnchor}
           haveEnd={!!endAnchor}
+          freezeFeet={freezeFeet}
+          onFreezeFeet={setFreezeFeet}
+          applySliderClamps={applySliderClamps}
+          onApplySliderClamps={setApplySliderClamps}
+          computeBodyRotation={computeBodyRotation}
+          onComputeBodyRotation={setComputeBodyRotation}
+          stanceWidth2D={stanceWidth2D}
+          onStanceWidth2D={setStanceWidth2D}
         />
 
         <div className="flex gap-6 justify-center items-start">
@@ -331,6 +361,14 @@ interface FrameSourcePanelProps {
   onSpeedChange: (n: number) => void
   haveStart: boolean
   haveEnd: boolean
+  freezeFeet: boolean
+  onFreezeFeet: (v: boolean) => void
+  applySliderClamps: boolean
+  onApplySliderClamps: (v: boolean) => void
+  computeBodyRotation: boolean
+  onComputeBodyRotation: (v: boolean) => void
+  stanceWidth2D: boolean
+  onStanceWidth2D: (v: boolean) => void
 }
 
 function FrameSourcePanel({
@@ -354,6 +392,14 @@ function FrameSourcePanel({
   onSpeedChange,
   haveStart,
   haveEnd,
+  freezeFeet,
+  onFreezeFeet,
+  applySliderClamps,
+  onApplySliderClamps,
+  computeBodyRotation,
+  onComputeBodyRotation,
+  stanceWidth2D,
+  onStanceWidth2D,
 }: FrameSourcePanelProps) {
   const status =
     loadStatus === 'loading' ? 'loading…' :
@@ -429,6 +475,26 @@ function FrameSourcePanel({
       </label>
 
       <div className="text-xs text-gray-400 font-mono ml-auto">{status}</div>
+
+      <div className="w-full border-t border-gray-700/50 pt-2 flex flex-wrap gap-x-4 gap-y-1">
+        <span className="text-[11px] uppercase tracking-wider text-gray-500 self-center">Обмеження</span>
+        {([
+          ['Фіксація стоп', freezeFeet, onFreezeFeet],
+          ['Slider clamps', applySliderClamps, onApplySliderClamps],
+          ['Ротація корпусу', computeBodyRotation, onComputeBodyRotation],
+          ['2D stance width', stanceWidth2D, onStanceWidth2D],
+        ] as [string, boolean, (v: boolean) => void][]).map(([label, val, set]) => (
+          <label key={label} className="flex items-center gap-1.5 text-xs text-gray-300 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={val}
+              onChange={e => set(e.target.checked)}
+              className="accent-yellow-400"
+            />
+            {label}
+          </label>
+        ))}
+      </div>
     </section>
   )
 }

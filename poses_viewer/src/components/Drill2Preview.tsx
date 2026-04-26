@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Drill2Mannequin from './Drill2Mannequin'
+import { extractAnchorFromLandmarks } from '../drill/anchorExtractor'
+import type { Landmark as FullLandmark } from '../types'
+import { clampAnchor } from '../drill/shoulderClamp'
+import { reconstructFromAnchor } from '../drill/skeletonReconstructor'
 
-// Standalone "Drill 2" preview: loads a start and end frame from andrii_1 poses
-// and animates a ping-pong linear transition between them on a fresh canvas.
+// Standalone "Drill 2" preview: loads a start and end frame from a selected
+// video's poses JSON and animates a ping-pong linear transition between them.
 // Deliberately does NOT share any code with the anchor-based drill editor.
 
-const POSES_URL = '/videos/andrii_1/andrii_1_poses.json'
+const DEFAULT_VIDEO = 'andrii_1'
 const DEFAULT_START_FRAME = 57
 const DEFAULT_END_FRAME = 63
 const LOOP_FRAMES = 24              // 12 forward + 12 back (ping-pong)
@@ -35,6 +39,8 @@ interface Props {
 }
 
 export default function Drill2Preview({ onClose }: Props) {
+  const [videoBase, setVideoBase] = useState(DEFAULT_VIDEO)
+  const [videoList, setVideoList] = useState<{ name: string; ext: string }[]>([])
   const [status, setStatus] = useState<string>('Loading…')
   const [startFrame, setStartFrame] = useState(DEFAULT_START_FRAME)
   const [endFrame, setEndFrame] = useState(DEFAULT_END_FRAME)
@@ -46,6 +52,7 @@ export default function Drill2Preview({ onClose }: Props) {
   const [yaw, setYaw] = useState(0)       // rotation around vertical axis (radians)
   const [fixtureReady, setFixtureReady] = useState(0)
   const [humanizer, setHumanizer] = useState(true)
+  const [anchorBased, setAnchorBased] = useState(false)
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const rafRef = useRef<number | null>(null)
@@ -79,12 +86,29 @@ export default function Drill2Preview({ onClose }: Props) {
     return { L, R }
   }, [fixtureReady])
 
-  // ---- Fetch fixture once, cache into ref. ----
+  // ---- Fetch available videos once. ----
+  useEffect(() => {
+    fetch('/api/videos')
+      .then(r => r.ok ? r.json() : [])
+      .then((list: { name: string; ext: string }[]) => setVideoList(list))
+      .catch(() => {})
+  }, [])
+
+  // ---- Fetch fixture whenever videoBase changes, cache into ref. ----
+  useEffect(() => {
+    framesRef.current = null
+    totalFramesRef.current = 0
+    setStartLms(null)
+    setEndLms(null)
+    setStatus('Loading…')
+  }, [videoBase])
+
   useEffect(() => {
     let cancelled = false
+    const posesUrl = `/videos/${videoBase}/${videoBase}_poses.json`
     ;(async () => {
       try {
-        const resp = await fetch(POSES_URL)
+        const resp = await fetch(posesUrl)
         if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
         const raw = (await resp.json()) as PoseFile
         const frames = Array.isArray(raw) ? raw : raw.frames ?? []
@@ -97,7 +121,7 @@ export default function Drill2Preview({ onClose }: Props) {
       }
     })()
     return () => { cancelled = true }
-  }, [])
+  }, [videoBase])
 
   // ---- Resolve start / end landmarks whenever frame indices change. ----
   useEffect(() => {
@@ -211,6 +235,21 @@ export default function Drill2Preview({ onClose }: Props) {
       }
     })
   }, [startLms, alignedEnd, phase])
+
+  // ---- Anchor-based path: IK→FK applied once per endpoint, not per tick.
+  // startLms and alignedEnd are each round-tripped through the anchor pipeline
+  // so that Drill2Mannequin still SLERPs between two poses, still pins ankles
+  // to the start-frame floor, and still receives the live phase.
+  const startAnchorLms = useMemo(() => {
+    if (!startLms) return null
+    const a = clampAnchor(extractAnchorFromLandmarks(startLms as unknown as FullLandmark[]))
+    return reconstructFromAnchor(a)
+  }, [startLms])
+  const endAnchorLms = useMemo(() => {
+    if (!alignedEnd) return null
+    const a = clampAnchor(extractAnchorFromLandmarks(alignedEnd as unknown as FullLandmark[]))
+    return reconstructFromAnchor(a)
+  }, [alignedEnd])
 
   // ---- 2D stick-view draw. Skipped when humanizer is on (3D view takes over).
   useEffect(() => {
@@ -345,6 +384,17 @@ export default function Drill2Preview({ onClose }: Props) {
         <div className="w-full flex items-center justify-between max-w-3xl">
           <h2 className="text-lg font-semibold">Drill 2 — frame {startFrame} → {endFrame}</h2>
           <div className="flex gap-2 items-center">
+            {videoList.length > 0 && (
+              <select
+                className="bg-gray-800 text-sm text-gray-300 rounded px-2 py-1.5 border border-gray-700 max-w-48"
+                value={videoBase}
+                onChange={e => setVideoBase(e.target.value)}
+              >
+                {videoList.map(v => (
+                  <option key={v.name} value={v.name}>{v.name}</option>
+                ))}
+              </select>
+            )}
             <label
               className="px-3 py-1.5 rounded bg-gray-700 text-sm flex items-center gap-2 cursor-pointer select-none hover:bg-gray-600"
               title="Easing + dwell + anatomical fit + breathing jitter"
@@ -355,6 +405,18 @@ export default function Drill2Preview({ onClose }: Props) {
                 onChange={e => setHumanizer(e.target.checked)}
               />
               Humanizer
+            </label>
+            <label
+              className="px-3 py-1.5 rounded bg-gray-700 text-sm flex items-center gap-2 cursor-pointer select-none hover:bg-gray-600"
+              title="IK → lerpAnchor → FK reconstruction (MannequinEditor pipeline)"
+            >
+              <input
+                type="checkbox"
+                checked={anchorBased}
+                onChange={e => setAnchorBased(e.target.checked)}
+                disabled={!humanizer}
+              />
+              Anchor-based
             </label>
             <button
               className="px-3 py-1.5 rounded bg-gray-700 text-sm hover:bg-gray-600"
@@ -379,15 +441,27 @@ export default function Drill2Preview({ onClose }: Props) {
         </div>
 
         {humanizer && startLms && alignedEnd ? (
-          <Drill2Mannequin
-            startLms={startLms}
-            endLms={alignedEnd}
-            ankleAnchors={ankleAnchors}
-            zScale={0.3}
-            phase={phase}
-            width={CANVAS_W}
-            height={CANVAS_H}
-          />
+          anchorBased && startAnchorLms && endAnchorLms ? (
+            <Drill2Mannequin
+              startLms={startAnchorLms}
+              endLms={endAnchorLms}
+              ankleAnchors={ankleAnchors}
+              zScale={0.3}
+              phase={phase}
+              width={CANVAS_W}
+              height={CANVAS_H}
+            />
+          ) : (
+            <Drill2Mannequin
+              startLms={startLms}
+              endLms={alignedEnd}
+              ankleAnchors={ankleAnchors}
+              zScale={0.3}
+              phase={phase}
+              width={CANVAS_W}
+              height={CANVAS_H}
+            />
+          )
         ) : (
           <canvas
             ref={canvasRef}

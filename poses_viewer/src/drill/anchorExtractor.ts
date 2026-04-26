@@ -223,7 +223,14 @@ function computeForearmTwist(
   return signedAngleAround(shoulderAcross, fanSideBase, forearmUnit)
 }
 
-export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
+export interface ExtractAnchorOptions {
+  /** When true, compute bodyRotationDeg as hip-vs-leg torsion instead of leaving it 0. Default false. */
+  computeBodyRotation?: boolean
+  /** When true, stanceWidthNorm uses XY (2D) distance instead of full 3D. Default false. */
+  stanceWidth2D?: boolean
+}
+
+export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorOptions = {}): PoseAnchor {
   const get = (i: number): V3 => toV3(lms[i])
 
   const lHip = get(LM.L_HIP); const rHip = get(LM.R_HIP)
@@ -539,16 +546,26 @@ export function extractAnchorFromLandmarks(lms: Landmark[]): PoseAnchor {
   const leftFootYawDeg  = (Math.atan2(leftFootDir.x, -leftFootDir.z)  * 180) / Math.PI
   const rightFootYawDeg = (Math.atan2(rightFootDir.x, -rightFootDir.z) * 180) / Math.PI
 
-  const stanceWidthNorm = length(sub(lAnkle, rAnkle))
+  const ankleVec = sub(lAnkle, rAnkle)
+  const stanceWidthNorm = opts.stanceWidth2D
+    ? Math.hypot(ankleVec.x, ankleVec.y)
+    : length(ankleVec)
+
+  // Hip-vs-leg torsion: signed angle between hip axis and ankle axis in XZ plane.
+  // Positive = hips rotated so left side is toward camera vs foot stance.
+  const hipVec = sub(lHip, rHip)
+  const pelvisTorsionDeg = opts.computeBodyRotation
+    ? (Math.atan2(-hipVec.z, hipVec.x) - Math.atan2(-ankleVec.z, ankleVec.x)) * 180 / Math.PI
+    : 0
 
   return {
     // The old single-yaw model put the whole-figure yaw into bodyRotationDeg.
     // New model splits this: figureYawDeg yaws everything, bodyRotationDeg is
     // pelvis-vs-leg torsion only. Extractor puts the observed yaw into
     // figureYawDeg so imported poses replay identically; bodyRotationDeg
-    // starts at 0 (no observable trunk/leg torsion from a single MediaPipe view).
+    // is now optionally computed from hip-vs-ankle axis torsion.
     figureYawDeg: clamp(bodyRotationDeg, -180, 180),
-    bodyRotationDeg: 0,
+    bodyRotationDeg: clamp(pelvisTorsionDeg, -90, 90),
     // Pelvic roll / torso side-bend / shoulder shrug aren't reliably decomposable
     // from a single-view MediaPipe pose — left at 0. FK uses the angle path
     // unconditionally.

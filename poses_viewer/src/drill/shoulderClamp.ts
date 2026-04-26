@@ -1,3 +1,5 @@
+import type { PoseAnchor } from './PoseAnchor'
+
 /**
  * Right-shoulder anatomical reachability envelope.
  *
@@ -101,4 +103,21 @@ export function clampRightShoulderElevation(
   }
   // Active = abd → keep abd, yield flex back to the capped value.
   return { flex: flexCapped, abd }
+}
+
+/**
+ * Apply right-shoulder envelope clamps to a PoseAnchor (same rules as
+ * AnchorSliders write path, but usable on extracted anchors).
+ * Also floors both elbow-yaw params to 30° to match slider minimums.
+ */
+export function clampAnchor(a: PoseAnchor): PoseAnchor {
+  const c1 = clampRightShoulder(a.rightShoulderAngleDeg, a.rightShoulderAbductionDeg, 'rightShoulderAngleDeg')
+  const c2 = clampRightShoulderElevation(c1.flex, c1.abd, 'rightShoulderAngleDeg')
+  return {
+    ...a,
+    rightShoulderAngleDeg: c2.flex,
+    rightShoulderAbductionDeg: c2.abd,
+    rightElbowYawDeg: Math.max(30, a.rightElbowYawDeg),
+    leftElbowYawDeg: Math.max(30, a.leftElbowYawDeg),
+  }
 }
