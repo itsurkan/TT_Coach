@@ -36,11 +36,11 @@ Instead: the app **calibrates to the individual player's technique** (their coac
 | Phase | Title | Status | Spec |
 |-------|-------|--------|------|
 | **Phase 1** | Calibration — personal baseline capture | 🟡 IN PROGRESS | [specs/003-stage1-calibration/](../specs/003-stage1-calibration/) |
-| Phase 2 | Rule engine extension (temporal aggregation + `RepResult`) | ⚪ Planned | TBD |
-| Phase 3 | Live feedback UI (red/green per rule, rule overlay) | ⚪ Planned | TBD |
+| Phase 2 | Rule evaluator — `RuleEvaluator` (shared), `RuleEvaluation` model, baseline wired into training pipeline, audio ack/nack per rep | ⚪ Planned | TBD |
+| Phase 3 | Audio feedback per rep — rule-based ack/nack tone, no UI | ⚪ Planned | TBD |
 | Phase 4 | Preset drill library (5 drills using engine) | ⚪ Planned | TBD |
-| Phase 5 | Camera onboarding + session summary | ⚪ Planned | TBD |
-| Phase 6 | Play Store internal testing track | ⚪ Planned | TBD |
+| Phase 5 | Camera onboarding + post-session summary UI (per-rule ✓/✗ across session, joint tinting on saved poses) | ⚪ Planned | TBD |
+| Phase 6 | Play Store internal testing track — signing, AAB upload, store listing, privacy policy | 🟡 IN PROGRESS | — |
 
 **Why calibration is Phase 1:** every subsequent phase depends on having a personal baseline to compare against. Rule engine needs something to aggregate against; feedback UI needs thresholds; drills need per-user parameters.
 
