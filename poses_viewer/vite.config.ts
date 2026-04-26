@@ -19,6 +19,7 @@ const MIME: Record<string, string> = {
 export default defineConfig({
   test: {
     environment: 'node',
+    globals: true,
   },
   plugins: [
     react(),
