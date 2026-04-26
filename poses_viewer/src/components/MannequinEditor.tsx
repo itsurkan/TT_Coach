@@ -24,9 +24,12 @@ import {
   parsePoseFixture,
   type PoseFixtureFrame,
 } from '../drill/anchorExtractor'
+import { BONES } from '../drill/SkeletonModel'
+import { GROUND_ANCHOR_Y } from '../drill/skeletonReconstructor'
 import { clampAnchor } from '../drill/shoulderClamp'
 import { lerpAnchor } from '../drill/anchorInterpolator'
 import { SelectionProvider, useSelection } from '../context/SelectionContext'
+import { useParamLimits } from '../hooks/useParamLimits'
 import Drill2Mannequin from './Drill2Mannequin'
 import AnchorSliders from './AnchorSliders'
 import ResetPoseButton from './ResetPoseButton'
@@ -64,6 +67,8 @@ function EditorShell({ onClose }: Props) {
   // reset the OrbitControls camera, so a Reset visibly returns to front-on.
   const [cameraResetSignal, setCameraResetSignal] = useState(0)
 
+  const { getLimits, setLimits, resetLimits } = useParamLimits()
+
   // ───── frame-source state ───────────────────────────────────────────
   const [bases, setBases] = useState<VideoEntry[]>([])
   const [selectedBase, setSelectedBase] = useState<string>(DEFAULT_BASE)
@@ -82,6 +87,142 @@ function EditorShell({ onClose }: Props) {
   const [applySliderClamps, setApplySliderClamps] = useState(true)
   const [computeBodyRotation, setComputeBodyRotation] = useState(true)
   const [stanceWidth2D, setStanceWidth2D] = useState(true)
+
+  // ───── hardcoded biomechanical presets ─────────────────────────────────
+  // Hip height as a fraction of leg length (0.5–1.0, default 0.8).
+  // hipMidY alone is cancelled by foot-IK; the real lever is knee bend:
+  // deeper bend shortens vertical leg span → hips drop after IK.
+  // Solve: cos(180-k) = (ratio*LEG_LEN - thigh) / shin
+  const LEG_LEN = BONES.thigh + BONES.shin
+  const [hipHeightRatio, setHipHeightRatio] = useState(0.8)
+  const hipHeightRatioRef = useRef(hipHeightRatio)
+  hipHeightRatioRef.current = hipHeightRatio
+
+  const kneeFromHipRatio = (ratio: number) => {
+    const cosArg = Math.max(-1, Math.min(1, (ratio * LEG_LEN - BONES.thigh) / BONES.shin))
+    return Math.round(180 - (Math.acos(cosArg) * 180) / Math.PI)
+  }
+
+  // Left hand preset: TT neutral receive position (arm forward, elbow lateral).
+  const LEFT_HAND_PRESET = {
+    leftShoulderAngleDeg: 41,
+    leftShoulderAbductionDeg: 5,
+    leftElbowYawDeg: 37,
+  } as const
+
+  // Stance multiplier: controls ankle lateral separation as N × hipWidth.
+  // Also drives staggered fore-aft placement (left forward, right back).
+  // The abduction angle is solved so that the total ankle separation
+  //   hipWidth + 2·sin(abd)·LEG_LEN  =  stanceMult × hipWidth
+  // → abd = asin((stanceMult-1)·hipWidth / (2·LEG_LEN))
+  const [stanceMult, setStanceMult] = useState(1.7)
+  const stanceMultRef = useRef(stanceMult)
+  stanceMultRef.current = stanceMult
+
+  const feetFromMult = (mult: number) => {
+    const sinAbd = Math.max(0, (mult - 1) * BONES.hipWidth / (2 * LEG_LEN))
+    const abd = Math.round((Math.asin(Math.min(sinAbd, 1)) * 180) / Math.PI)
+    // Fore-aft stagger scales with stance width: at 1.7× → ±12°.
+    const stagger = Math.round(mult * 7)
+    return {
+      leftThighAbductionDeg:  abd,
+      rightThighAbductionDeg: abd,
+      leftThighForwardDeg:    stagger,
+      rightThighForwardDeg:   -Math.round(stagger * 0.6),
+      leftKneeYawDeg:         Math.round(abd * 1.2),
+      rightKneeYawDeg:        -Math.round(abd * 1.2),
+    }
+  }
+
+  const [lockHipHeight, setLockHipHeight] = useState(false)
+  const [lockFeet, setLockFeet] = useState(false)
+  const [lockLeftHand, setLockLeftHand] = useState(false)
+  const lockHipHeightRef = useRef(lockHipHeight)
+  lockHipHeightRef.current = lockHipHeight
+  const lockFeetRef = useRef(lockFeet)
+  lockFeetRef.current = lockFeet
+  const lockLeftHandRef = useRef(lockLeftHand)
+  lockLeftHandRef.current = lockLeftHand
+
+  type LockedFeet = Pick<PoseAnchor,
+    'leftThighForwardDeg'   | 'rightThighForwardDeg'   |
+    'leftThighAbductionDeg' | 'rightThighAbductionDeg' |
+    'leftKneeAngleDeg'      | 'rightKneeAngleDeg'      |
+    'leftKneeYawDeg'        | 'rightKneeYawDeg'        |
+    'leftKneeSwivelDeg'     | 'rightKneeSwivelDeg'     |
+    'leftFootYawDeg'        | 'rightFootYawDeg'        |
+    'stanceWidthNorm'>
+  const lockedFeetRef = useRef<LockedFeet | null>(null)
+
+  const applyPresets = (next: PoseAnchor): PoseAnchor => {
+    const a = { ...next }
+    if (lockHipHeightRef.current) {
+      const k = kneeFromHipRatio(hipHeightRatioRef.current)
+      a.leftKneeAngleDeg  = k
+      a.rightKneeAngleDeg = k
+    }
+    if (lockFeetRef.current) {
+      Object.assign(a, lockedFeetRef.current ?? feetFromMult(stanceMultRef.current))
+    }
+    if (lockLeftHandRef.current) {
+      a.leftShoulderAngleDeg     = LEFT_HAND_PRESET.leftShoulderAngleDeg
+      a.leftShoulderAbductionDeg = LEFT_HAND_PRESET.leftShoulderAbductionDeg
+      a.leftElbowYawDeg          = LEFT_HAND_PRESET.leftElbowYawDeg
+    }
+    return a
+  }
+
+  const toggleLockHipHeight = (v: boolean) => {
+    setLockHipHeight(v)
+    if (v) {
+      const k = kneeFromHipRatio(hipHeightRatioRef.current)
+      setAnchor(prev => ({ ...prev, leftKneeAngleDeg: k, rightKneeAngleDeg: k }))
+    }
+  }
+
+  const onHipHeightRatioChange = (v: number) => {
+    setHipHeightRatio(v)
+    if (lockHipHeightRef.current) {
+      const k = kneeFromHipRatio(v)
+      setAnchor(prev => ({ ...prev, leftKneeAngleDeg: k, rightKneeAngleDeg: k }))
+    }
+  }
+
+  const toggleLockFeet = (v: boolean) => {
+    setLockFeet(v)
+    if (v) {
+      setAnchor(prev => {
+        lockedFeetRef.current = {
+          leftThighForwardDeg:    prev.leftThighForwardDeg,
+          rightThighForwardDeg:   prev.rightThighForwardDeg,
+          leftThighAbductionDeg:  prev.leftThighAbductionDeg,
+          rightThighAbductionDeg: prev.rightThighAbductionDeg,
+          leftKneeAngleDeg:       prev.leftKneeAngleDeg,
+          rightKneeAngleDeg:      prev.rightKneeAngleDeg,
+          leftKneeYawDeg:         prev.leftKneeYawDeg,
+          rightKneeYawDeg:        prev.rightKneeYawDeg,
+          leftKneeSwivelDeg:      prev.leftKneeSwivelDeg,
+          rightKneeSwivelDeg:     prev.rightKneeSwivelDeg,
+          leftFootYawDeg:         prev.leftFootYawDeg,
+          rightFootYawDeg:        prev.rightFootYawDeg,
+          stanceWidthNorm:        prev.stanceWidthNorm,
+        }
+        return prev
+      })
+    } else {
+      lockedFeetRef.current = null
+    }
+  }
+
+  const onStanceMultChange = (v: number) => {
+    setStanceMult(v)
+    if (lockFeetRef.current) setAnchor(prev => ({ ...prev, ...feetFromMult(v) }))
+  }
+
+  const toggleLockLeftHand = (v: boolean) => {
+    setLockLeftHand(v)
+    if (v) setAnchor(prev => ({ ...prev, ...LEFT_HAND_PRESET }))
+  }
 
   const stopAnim = () => setIsAnimating(false)
 
@@ -184,7 +325,7 @@ function EditorShell({ onClose }: Props) {
         t = 0
         if (elapsed >= PAUSE_MS) next = 'fwd'
       }
-      setAnchor(lerpAnchor(startAnchor, endAnchor, t))
+      setAnchor(applyPresets(lerpAnchor(startAnchor, endAnchor, t)))
       if (next !== phase) { phase = next; phaseStart = now }
       raf = requestAnimationFrame(step)
     }
@@ -223,7 +364,7 @@ function EditorShell({ onClose }: Props) {
 
   const onSliderChange = (next: PoseAnchor) => {
     stopAnim()
-    setAnchor(next)
+    setAnchor(applyPresets(next))
   }
 
   return (
@@ -279,6 +420,16 @@ function EditorShell({ onClose }: Props) {
           onComputeBodyRotation={setComputeBodyRotation}
           stanceWidth2D={stanceWidth2D}
           onStanceWidth2D={setStanceWidth2D}
+          lockHipHeight={lockHipHeight}
+          onLockHipHeight={toggleLockHipHeight}
+          hipHeightRatio={hipHeightRatio}
+          onHipHeightRatio={onHipHeightRatioChange}
+          lockFeet={lockFeet}
+          onLockFeet={toggleLockFeet}
+          stanceMult={stanceMult}
+          onStanceMult={onStanceMultChange}
+          lockLeftHand={lockLeftHand}
+          onLockLeftHand={toggleLockLeftHand}
         />
 
         <div className="flex gap-6 justify-center items-start">
@@ -324,6 +475,9 @@ function EditorShell({ onClose }: Props) {
             hidePhaseSelector
             selectedJointName={selectedJoint ? JOINT_MAP[selectedJoint].displayName : undefined}
             selectedJointId={selectedJoint ?? undefined}
+            getLimits={getLimits}
+            setLimits={setLimits}
+            resetLimits={resetLimits}
           />
 
           <SavedPosesList
@@ -369,6 +523,16 @@ interface FrameSourcePanelProps {
   onComputeBodyRotation: (v: boolean) => void
   stanceWidth2D: boolean
   onStanceWidth2D: (v: boolean) => void
+  lockHipHeight: boolean
+  onLockHipHeight: (v: boolean) => void
+  hipHeightRatio: number
+  onHipHeightRatio: (v: number) => void
+  lockFeet: boolean
+  onLockFeet: (v: boolean) => void
+  stanceMult: number
+  onStanceMult: (v: number) => void
+  lockLeftHand: boolean
+  onLockLeftHand: (v: boolean) => void
 }
 
 function FrameSourcePanel({
@@ -400,6 +564,16 @@ function FrameSourcePanel({
   onComputeBodyRotation,
   stanceWidth2D,
   onStanceWidth2D,
+  lockHipHeight,
+  onLockHipHeight,
+  hipHeightRatio,
+  onHipHeightRatio,
+  lockFeet,
+  onLockFeet,
+  stanceMult,
+  onStanceMult,
+  lockLeftHand,
+  onLockLeftHand,
 }: FrameSourcePanelProps) {
   const status =
     loadStatus === 'loading' ? 'loading…' :
@@ -494,6 +668,57 @@ function FrameSourcePanel({
             {label}
           </label>
         ))}
+        <span className="text-[11px] uppercase tracking-wider text-gray-500 self-center ml-4 pl-4 border-l border-gray-700">Пресети</span>
+
+        <label className="flex items-center gap-1.5 text-xs text-emerald-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={lockHipHeight}
+            onChange={e => onLockHipHeight(e.target.checked)}
+            className="accent-emerald-400"
+          />
+          Висота тазу
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-gray-400">{(hipHeightRatio * 100).toFixed(0)}% ноги</span>
+          <input
+            type="range"
+            min={0.5} max={1.0} step={0.01}
+            value={hipHeightRatio}
+            onChange={e => onHipHeightRatio(Number(e.target.value))}
+            className="w-24"
+          />
+        </label>
+
+        <label className="flex items-center gap-1.5 text-xs text-emerald-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={lockFeet}
+            onChange={e => onLockFeet(e.target.checked)}
+            className="accent-emerald-400"
+          />
+          Стопи
+        </label>
+        <label className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-gray-400">{stanceMult.toFixed(2)}× таз</span>
+          <input
+            type="range"
+            min={0.8} max={3.0} step={0.05}
+            value={stanceMult}
+            onChange={e => onStanceMult(Number(e.target.value))}
+            className="w-24"
+          />
+        </label>
+
+        <label className="flex items-center gap-1.5 text-xs text-emerald-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={lockLeftHand}
+            onChange={e => onLockLeftHand(e.target.checked)}
+            className="accent-emerald-400"
+          />
+          Ліва рука
+        </label>
       </div>
     </section>
   )
