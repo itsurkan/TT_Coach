@@ -9,22 +9,16 @@ interface Props {
   anchor: PoseAnchor
   onChange: (next: PoseAnchor) => void
   onReset: () => void
-  /** When provided, wraps matching rows in a yellow ring and scrolls the
-   *  first match into view. Used by MannequinEditor to surface the sliders
-   *  that rotate the currently selected joint. */
   highlightedParams?: readonly (keyof PoseAnchor)[]
-  /** When true, hides the START/END phase buttons — used by single-anchor
-   *  editors where the phase concept doesn't apply. */
   hidePhaseSelector?: boolean
-  /** Display name of the currently-selected joint (e.g. "правий лікоть").
-   *  When present, the per-row copy button for any highlighted row prefixes
-   *  the joint name so the clipboard carries both the joint and the param. */
   selectedJointName?: string
-  /** English joint id of the currently-selected joint (e.g. "rightElbow").
-   *  When present alongside selectedJointName, the highlighted row copy
-   *  emits `${id} (${name}) · ${param}: ${value}` so chat references carry
-   *  a canonical code identifier plus the Ukrainian label for humans. */
   selectedJointId?: string
+  /** Returns effective limits for a param row. Falls back to spec min/max when absent. */
+  getLimits?: (jointId: string, paramKey: string, specMin: number, specMax: number) => { min: number; max: number }
+  /** Persists a custom limit override for a joint×param pair. */
+  setLimits?: (jointId: string, paramKey: string, min: number, max: number) => void
+  /** Removes the override for a joint×param pair, reverting to spec defaults. */
+  resetLimits?: (jointId: string, paramKey: string) => void
 }
 
 export default function AnchorSliders({
@@ -37,6 +31,9 @@ export default function AnchorSliders({
   hidePhaseSelector = false,
   selectedJointName,
   selectedJointId,
+  getLimits,
+  setLimits,
+  resetLimits,
 }: Props) {
   const specIdentity = (spec: AnchorParamSpec): string =>
     spec.kind === 'direct' ? (spec.key as string) : spec.id
@@ -160,6 +157,13 @@ export default function AnchorSliders({
                   ? value.toFixed(0)
                   : value.toFixed(2)
                 const highlighted = isHighlighted(spec)
+
+                // Compute effective limits — custom override when available, else spec defaults.
+                const showLimitEditor = highlighted && !!selectedJointId && !!getLimits
+                const effectiveLimits = showLimitEditor
+                  ? getLimits!(selectedJointId!, id, spec.min, spec.max)
+                  : { min: spec.min, max: spec.max }
+
                 return (
                   <div
                     key={id}
@@ -199,13 +203,59 @@ export default function AnchorSliders({
                     </div>
                     <input
                       type="range"
-                      min={spec.min}
-                      max={spec.max}
+                      min={effectiveLimits.min}
+                      max={effectiveLimits.max}
                       step={spec.step}
-                      value={value}
+                      value={Math.max(effectiveLimits.min, Math.min(effectiveLimits.max, value))}
                       onChange={e => onChange(specWrite(spec, anchor, parseFloat(e.target.value)))}
                       className="w-full"
                     />
+                    {showLimitEditor && (
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[10px] text-gray-500">min</span>
+                        <input
+                          type="number"
+                          step={spec.step}
+                          value={effectiveLimits.min}
+                          onChange={e => {
+                            const newMin = parseFloat(e.target.value)
+                            if (isNaN(newMin)) return
+                            const newMax = Math.max(newMin, effectiveLimits.max)
+                            setLimits!(selectedJointId!, id, newMin, newMax)
+                            const clamped = Math.max(newMin, Math.min(newMax, value))
+                            if (clamped !== value) onChange(specWrite(spec, anchor, clamped))
+                          }}
+                          className="w-16 text-[10px] font-mono text-gray-300 bg-gray-800 border border-gray-700 rounded px-1 py-0.5"
+                        />
+                        <span className="text-[10px] text-gray-500">max</span>
+                        <input
+                          type="number"
+                          step={spec.step}
+                          value={effectiveLimits.max}
+                          onChange={e => {
+                            const newMax = parseFloat(e.target.value)
+                            if (isNaN(newMax)) return
+                            const newMin = Math.min(effectiveLimits.min, newMax)
+                            setLimits!(selectedJointId!, id, newMin, newMax)
+                            const clamped = Math.max(newMin, Math.min(newMax, value))
+                            if (clamped !== value) onChange(specWrite(spec, anchor, clamped))
+                          }}
+                          className="w-16 text-[10px] font-mono text-gray-300 bg-gray-800 border border-gray-700 rounded px-1 py-0.5"
+                        />
+                        <button
+                          type="button"
+                          title="Reset limits to spec defaults"
+                          onClick={() => {
+                            resetLimits!(selectedJointId!, id)
+                            const clamped = Math.max(spec.min, Math.min(spec.max, value))
+                            if (clamped !== value) onChange(specWrite(spec, anchor, clamped))
+                          }}
+                          className="px-1 py-0.5 rounded text-[10px] bg-gray-800 text-gray-500 hover:text-gray-200 hover:bg-gray-700"
+                        >
+                          ↺
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )
               })}
