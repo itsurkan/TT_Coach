@@ -159,7 +159,7 @@ export default function AnchorSliders({
                 const highlighted = isHighlighted(spec)
 
                 // Compute effective limits — custom override when available, else spec defaults.
-                const showLimitEditor = highlighted && !!selectedJointId && !!getLimits
+                const showLimitEditor = highlighted && !!selectedJointId && !!getLimits && !!setLimits && !!resetLimits
                 const effectiveLimits = showLimitEditor
                   ? getLimits!(selectedJointId!, id, spec.min, spec.max)
                   : { min: spec.min, max: spec.max }
