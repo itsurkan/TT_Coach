@@ -87,7 +87,6 @@ function EditorShell({ onClose }: Props) {
   speedRef.current = speedMult
 
   // ───── constraint toggles ─────────────────────────────────────────────
-  const [freezeFeet, setFreezeFeet] = useState(false)
   const [applySliderClamps, setApplySliderClamps] = useState(false)
   const [computeBodyRotation, setComputeBodyRotation] = useState(false)
   const [stanceWidth2D, setStanceWidth2D] = useState(false)
@@ -114,32 +113,29 @@ function EditorShell({ onClose }: Props) {
     leftElbowYawDeg: 37,
   } as const
 
-  // Stance multiplier: controls ankle lateral separation as N × hipWidth.
-  // Also drives staggered fore-aft placement (left forward, right back).
-  // The abduction angle is solved so that the total ankle separation
-  //   hipWidth + 2·sin(abd)·LEG_LEN  =  stanceMult × hipWidth
-  // → abd = asin((stanceMult-1)·hipWidth / (2·LEG_LEN))
-  const [stanceMult, setStanceMult] = useState(1.7)
+  // Stance multiplier: at the default value (1.7×) the legs match
+  // MIDPOINT_POSE exactly. Other values linearly scale every leg-related
+  // param (thigh forward / abduction / knee yaw) toward 0 as the multiplier
+  // approaches 1.0, so wider/narrower stances slide off the same baseline
+  // the user sees after Reset.
+  const STANCE_DEFAULT = 1.7
+  const [stanceMult, setStanceMult] = useState(STANCE_DEFAULT)
   const stanceMultRef = useRef(stanceMult)
   stanceMultRef.current = stanceMult
 
   const feetFromMult = (mult: number) => {
-    const sinAbd = Math.max(0, (mult - 1) * BONES.hipWidth / (2 * LEG_LEN))
-    const abd = Math.round((Math.asin(Math.min(sinAbd, 1)) * 180) / Math.PI)
-    // Fore-aft stagger scales with stance width: at 1.7× → ±12°.
-    const stagger = Math.round(mult * 7)
+    const k = (mult - 1) / (STANCE_DEFAULT - 1)
+    const scale = (v: number) => Math.round(v * k)
     return {
-      leftThighAbductionDeg:  abd,
-      rightThighAbductionDeg: abd,
-      leftThighForwardDeg:    stagger,
-      rightThighForwardDeg:   -Math.round(stagger * 0.6),
-      leftKneeYawDeg:         Math.round(abd * 1.2),
-      rightKneeYawDeg:        -Math.round(abd * 1.2),
+      leftThighAbductionDeg:  scale(MIDPOINT_POSE.leftThighAbductionDeg),
+      rightThighAbductionDeg: scale(MIDPOINT_POSE.rightThighAbductionDeg),
+      leftKneeYawDeg:         scale(MIDPOINT_POSE.leftKneeYawDeg),
+      rightKneeYawDeg:        scale(MIDPOINT_POSE.rightKneeYawDeg),
     }
   }
 
-  const [lockHipHeight, setLockHipHeight] = useState(false)
-  const [lockFeet, setLockFeet] = useState(false)
+  const [lockHipHeight, setLockHipHeight] = useState(true)
+  const [lockFeet, setLockFeet] = useState(true)
   const [lockLeftHand, setLockLeftHand] = useState(false)
   const lockHipHeightRef = useRef(lockHipHeight)
   lockHipHeightRef.current = lockHipHeight
@@ -151,19 +147,36 @@ function EditorShell({ onClose }: Props) {
   type LockedFeet = Pick<PoseAnchor,
     'leftThighForwardDeg'   | 'rightThighForwardDeg'   |
     'leftThighAbductionDeg' | 'rightThighAbductionDeg' |
-    'leftKneeAngleDeg'      | 'rightKneeAngleDeg'      |
     'leftKneeYawDeg'        | 'rightKneeYawDeg'        |
     'leftKneeSwivelDeg'     | 'rightKneeSwivelDeg'     |
     'leftFootYawDeg'        | 'rightFootYawDeg'        |
     'stanceWidthNorm'>
-  const lockedFeetRef = useRef<LockedFeet | null>(null)
+  const buildLockedFeet = (): LockedFeet => ({
+    leftThighForwardDeg:    MIDPOINT_POSE.leftThighForwardDeg,
+    rightThighForwardDeg:   MIDPOINT_POSE.rightThighForwardDeg,
+    leftThighAbductionDeg:  MIDPOINT_POSE.leftThighAbductionDeg,
+    rightThighAbductionDeg: MIDPOINT_POSE.rightThighAbductionDeg,
+    leftKneeYawDeg:         MIDPOINT_POSE.leftKneeYawDeg,
+    rightKneeYawDeg:        MIDPOINT_POSE.rightKneeYawDeg,
+    leftKneeSwivelDeg:      MIDPOINT_POSE.leftKneeSwivelDeg,
+    rightKneeSwivelDeg:     MIDPOINT_POSE.rightKneeSwivelDeg,
+    leftFootYawDeg:         MIDPOINT_POSE.leftFootYawDeg,
+    rightFootYawDeg:        MIDPOINT_POSE.rightFootYawDeg,
+    stanceWidthNorm:        MIDPOINT_POSE.stanceWidthNorm,
+  })
+  const lockedFeetRef = useRef<LockedFeet | null>(lockFeet ? buildLockedFeet() : null)
 
   const applyPresetsRef = useRef<(next: PoseAnchor) => PoseAnchor>(a => a)
 
   const applyPresets = (next: PoseAnchor): PoseAnchor => {
     const a = { ...next }
+    // Pelvic roll is decoupled from hip rotation by user request: the body
+    // can twist (bodyRotationDeg) without the pelvis tilting sideways.
+    a.pelvicRollDeg = 0
     if (lockFeetRef.current) {
-      Object.assign(a, lockedFeetRef.current ?? feetFromMult(stanceMultRef.current))
+      // Foot orientation comes from the stance slider; knee yaw/swivel and
+      // foot yaw stay at MIDPOINT defaults so the pose's leg twist is ignored.
+      Object.assign(a, buildLockedFeet(), feetFromMult(stanceMultRef.current))
     }
     // Hip height runs after feet so it can override knee angles even when feet are locked.
     if (lockHipHeightRef.current) {
@@ -197,37 +210,26 @@ function EditorShell({ onClose }: Props) {
   }
 
   const toggleLockFeet = (v: boolean) => {
+    lockFeetRef.current = v
     setLockFeet(v)
     if (v) {
-      lockedFeetRef.current = {
-        leftThighForwardDeg:    MIDPOINT_POSE.leftThighForwardDeg,
-        rightThighForwardDeg:   MIDPOINT_POSE.rightThighForwardDeg,
-        leftThighAbductionDeg:  MIDPOINT_POSE.leftThighAbductionDeg,
-        rightThighAbductionDeg: MIDPOINT_POSE.rightThighAbductionDeg,
-        leftKneeAngleDeg:       MIDPOINT_POSE.leftKneeAngleDeg,
-        rightKneeAngleDeg:      MIDPOINT_POSE.rightKneeAngleDeg,
-        leftKneeYawDeg:         MIDPOINT_POSE.leftKneeYawDeg,
-        rightKneeYawDeg:        MIDPOINT_POSE.rightKneeYawDeg,
-        leftKneeSwivelDeg:      MIDPOINT_POSE.leftKneeSwivelDeg,
-        rightKneeSwivelDeg:     MIDPOINT_POSE.rightKneeSwivelDeg,
-        leftFootYawDeg:         MIDPOINT_POSE.leftFootYawDeg,
-        rightFootYawDeg:        MIDPOINT_POSE.rightFootYawDeg,
-        stanceWidthNorm:        MIDPOINT_POSE.stanceWidthNorm,
-      }
-      setAnchor(prev => ({ ...prev, ...lockedFeetRef.current! }))
+      lockedFeetRef.current = buildLockedFeet()
+      setAnchor(prev => applyPresetsRef.current(prev))
     } else {
       lockedFeetRef.current = null
     }
   }
 
   const onStanceMultChange = (v: number) => {
+    stanceMultRef.current = v
     setStanceMult(v)
-    if (lockFeetRef.current) setAnchor(prev => ({ ...prev, ...feetFromMult(v) }))
+    if (lockFeetRef.current) setAnchor(prev => applyPresetsRef.current(prev))
   }
 
   const toggleLockLeftHand = (v: boolean) => {
+    lockLeftHandRef.current = v
     setLockLeftHand(v)
-    if (v) setAnchor(prev => ({ ...prev, ...LEFT_HAND_PRESET }))
+    if (v) setAnchor(prev => applyPresetsRef.current(prev))
   }
 
   const stopAnim = () => setIsAnimating(false)
@@ -237,6 +239,13 @@ function EditorShell({ onClose }: Props) {
     setAnchor(cloneAnchor(MIDPOINT_POSE))
     setCameraResetSignal(n => n + 1)
   }
+
+  // One-time: bake the default presets (lockFeet + lockHipHeight) into the
+  // initial anchor so the mannequin spawns in the locked stance/crouch.
+  useEffect(() => {
+    setAnchor(prev => applyPresetsRef.current(prev))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // One-time: list available video bases.
   useEffect(() => {
@@ -300,13 +309,6 @@ function EditorShell({ onClose }: Props) {
     return applySliderClamps ? clampAnchor(raw) : raw
   }, [frames, endIdx, computeBodyRotation, stanceWidth2D, applySliderClamps])
 
-  // Raw start landmarks for frozen-feet: pin feet to start-pose ankles.
-  const startLmsRaw = useMemo(() => {
-    if (!frames || startIdx < 0 || startIdx >= frames.length) return null
-    const lms = frames[startIdx].landmarks
-    return lms.length >= 33 ? lms : null
-  }, [frames, startIdx])
-
   // When not animating, immediately reflect index changes in the viewport.
   useEffect(() => {
     if (isAnimating || !startAnchor) return
@@ -348,13 +350,7 @@ function EditorShell({ onClose }: Props) {
 
   // Single FK pass per anchor change. Re-runs only on anchor edits — selection
   // doesn't invalidate geometry.
-  const landmarks = useMemo(() => {
-    const lms = reconstructFromAnchor(anchor)
-    if (!freezeFeet || !startLmsRaw) return lms
-    // Pin feet to start-pose landmarks (indices 27-32: ankles, heels, foot tips).
-    const FOOT_IDX = [27, 28, 29, 30, 31, 32]
-    return lms.map((pt, i) => FOOT_IDX.includes(i) ? startLmsRaw[i] : pt)
-  }, [anchor, freezeFeet, startLmsRaw])
+  const landmarks = useMemo(() => reconstructFromAnchor(anchor), [anchor])
 
   // Slider keys that rotate the currently selected joint — used by
   // AnchorSliders to highlight and scroll to the relevant rows.
@@ -371,7 +367,7 @@ function EditorShell({ onClose }: Props) {
   const applyAnchor = (a: PoseAnchor | null) => {
     if (!a) return
     stopAnim()
-    setAnchor(cloneAnchor(a))
+    setAnchor(applyPresetsRef.current(cloneAnchor(a)))
     setCameraResetSignal(n => n + 1)
   }
 
@@ -425,8 +421,6 @@ function EditorShell({ onClose }: Props) {
           onSpeedChange={setSpeedMult}
           haveStart={!!startAnchor}
           haveEnd={!!endAnchor}
-          freezeFeet={freezeFeet}
-          onFreezeFeet={setFreezeFeet}
           applySliderClamps={applySliderClamps}
           onApplySliderClamps={setApplySliderClamps}
           computeBodyRotation={computeBodyRotation}
@@ -528,8 +522,6 @@ interface FrameSourcePanelProps {
   onSpeedChange: (n: number) => void
   haveStart: boolean
   haveEnd: boolean
-  freezeFeet: boolean
-  onFreezeFeet: (v: boolean) => void
   applySliderClamps: boolean
   onApplySliderClamps: (v: boolean) => void
   computeBodyRotation: boolean
@@ -569,8 +561,6 @@ function FrameSourcePanel({
   onSpeedChange,
   haveStart,
   haveEnd,
-  freezeFeet,
-  onFreezeFeet,
   applySliderClamps,
   onApplySliderClamps,
   computeBodyRotation,
@@ -666,7 +656,6 @@ function FrameSourcePanel({
       <div className="w-full border-t border-gray-700/50 pt-2 flex flex-wrap gap-x-4 gap-y-1">
         <span className="text-[11px] uppercase tracking-wider text-gray-500 self-center">Обмеження</span>
         {([
-          ['Фіксація стоп', freezeFeet, onFreezeFeet],
           ['Slider clamps', applySliderClamps, onApplySliderClamps],
           ['Ротація корпусу', computeBodyRotation, onComputeBodyRotation],
           ['2D stance width', stanceWidth2D, onStanceWidth2D],

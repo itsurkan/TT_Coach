@@ -24,6 +24,7 @@ import TableLabelsOverlay from './components/TableLabelsOverlay'
 import DatasetBrowser from './components/DatasetBrowser'
 import Drill2Preview from './components/Drill2Preview'
 import MannequinEditor from './components/MannequinEditor'
+import { useHashRoute } from './hooks/useHashRoute'
 
 function toNumber(value: unknown, fallback = 0): number {
   const num = Number(value)
@@ -258,9 +259,7 @@ export default function App() {
   const [tablePredictData, setTablePredictData] = useState<{ keypoints: Array<{ x: number; y: number; confidence: number }> } | null>(null)
   const [trajectory3D, setTrajectory3D] = useState<Trajectory3DResult | null>(null)
   const [videoList, setVideoList] = useState<{ name: string; ext: string }[]>([])
-  const [showDatasetBrowser, setShowDatasetBrowser] = useState(false)
-  const [showDrill2, setShowDrill2] = useState(false)
-  const [showMannequinEditor, setShowMannequinEditor] = useState(false)
+  const { route, navigate } = useHashRoute()
   const [zoom, setZoom] = useState(1)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const isPanning = useRef(false)
@@ -1028,8 +1027,14 @@ export default function App() {
 
   const cbClass = 'flex items-center gap-1.5 cursor-pointer select-none text-sm text-gray-300'
 
-  if (showDatasetBrowser) {
-    return <DatasetBrowser onClose={() => setShowDatasetBrowser(false)} />
+  if (route === 'dataset') {
+    return <DatasetBrowser onClose={() => navigate('main')} />
+  }
+  if (route === 'mannequin') {
+    return <MannequinEditor onClose={() => navigate('main')} />
+  }
+  if (route === 'drill2') {
+    return <Drill2Preview onClose={() => navigate('main')} />
   }
 
   return (
@@ -1047,7 +1052,7 @@ export default function App() {
 
         <button
           className="bg-fuchsia-700 hover:bg-fuchsia-600 px-3 py-1.5 rounded text-sm"
-          onClick={() => setShowDrill2(true)}
+          onClick={() => navigate('drill2')}
           title="Animate frame 57 → 63 from andrii_1 poses"
         >
           + Add Drill 2
@@ -1055,7 +1060,7 @@ export default function App() {
 
         <button
           className="bg-emerald-700 hover:bg-emerald-600 px-3 py-1.5 rounded text-sm"
-          onClick={() => setShowMannequinEditor(true)}
+          onClick={() => navigate('mannequin')}
           title="Interactive 3D mannequin editor — click joints, coloured body parts"
         >
           + Mannequin Editor
@@ -1123,7 +1128,7 @@ export default function App() {
         ]} />
         <button
           className="px-3 py-1.5 rounded text-sm bg-purple-800 hover:bg-purple-700 transition-colors text-purple-200"
-          onClick={() => setShowDatasetBrowser(true)}
+          onClick={() => navigate('dataset')}
         >
           Dataset
         </button>
@@ -1150,11 +1155,6 @@ export default function App() {
         {error && <span className="text-red-400 text-sm truncate max-w-xs">{error}</span>}
       </header>
 
-      {showDrill2 ? (
-        <Drill2Preview onClose={() => setShowDrill2(false)} />
-      ) : showMannequinEditor ? (
-        <MannequinEditor onClose={() => setShowMannequinEditor(false)} />
-      ) : (
       <>
       {/* Body */}
       {data ? (
@@ -1758,7 +1758,6 @@ export default function App() {
         />
       )}
       </>
-      )}
     </div>
   )
 }
