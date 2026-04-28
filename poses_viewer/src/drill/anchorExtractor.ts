@@ -259,7 +259,37 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
   const totalMag = hipMag2D + shMag2D || 1
   const hipYaw = Math.atan2(-hipAxis.z, hipAxis.x)
   const shYaw  = Math.atan2(-shAxis.z,  shAxis.x)
-  const bodyRotationDeg = ((hipYaw * hipMag2D + shYaw * shMag2D) / totalMag) * 180 / Math.PI
+  let bodyRotationDeg = ((hipYaw * hipMag2D + shYaw * shMag2D) / totalMag) * 180 / Math.PI
+
+  // Facing-away detection.
+  // The hip-yaw above is taken from the L→R hip axis projected onto image XZ.
+  // It collapses by 180° when the player turns their back to camera, because
+  // MediaPipe keeps anatomical L/R labels — so the axis flips even though the
+  // player's stance hasn't physically rotated 180°. We disambiguate using
+  // `cross(hipUp, hipAxis)` which (in MediaPipe coords with y=down) points
+  // OUT THE BACK of the body. So cross.z>0 → back at +z → chest faces −z
+  // (toward camera, no flip); cross.z<0 → back at −z → chest faces +z (away,
+  // flip). Falls back to nose.z vs hipMid.z when the cross is degenerate
+  // (perfectly side-on).
+  const hipUp = sub(shMid, hipMid)
+  const backwardNormal: V3 = {
+    x: hipUp.y * hipAxis.z - hipUp.z * hipAxis.y,
+    y: hipUp.z * hipAxis.x - hipUp.x * hipAxis.z,
+    z: hipUp.x * hipAxis.y - hipUp.y * hipAxis.x,
+  }
+  const bnMag = Math.hypot(backwardNormal.x, backwardNormal.z)
+  let facingAway: boolean
+  if (bnMag > 0.02) {
+    facingAway = backwardNormal.z < 0
+  } else {
+    const nose = get(LM.NOSE)
+    facingAway = nose.z > hipMid.z
+  }
+  if (facingAway) {
+    bodyRotationDeg = bodyRotationDeg > 0
+      ? bodyRotationDeg - 180
+      : bodyRotationDeg + 180
+  }
 
   // Torso tilt: angle between torso vector and body-up direction (world up
   // is OK here since body up tracks world up up to small pitch/roll, and we

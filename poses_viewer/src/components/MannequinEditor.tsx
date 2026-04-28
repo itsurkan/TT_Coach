@@ -91,6 +91,27 @@ function EditorShell({ onClose }: Props) {
   const [computeBodyRotation, setComputeBodyRotation] = useState(false)
   const [stanceWidth2D, setStanceWidth2D] = useState(false)
 
+  // Per-base camera yaw offset: extracted poses get `figureYawDeg += offset`
+  // to compensate for the camera angle. Persisted in localStorage so each
+  // video remembers its calibration. The "Snap" button auto-fills it from
+  // the current Start frame so the figure lands at a canonical orientation.
+  const CAMERA_YAW_KEY = 'poses_viewer_camera_yaw_offsets'
+  const SNAP_TARGET_YAW = 50  // canonical three-quarter (matches NEUTRAL_POSE)
+  const readYawOffsets = (): Record<string, number> => {
+    try {
+      const raw = localStorage.getItem(CAMERA_YAW_KEY)
+      return raw ? JSON.parse(raw) : {}
+    } catch { return {} }
+  }
+  const writeYawOffset = (base: string, deg: number) => {
+    try {
+      const cur = readYawOffsets()
+      cur[base] = deg
+      localStorage.setItem(CAMERA_YAW_KEY, JSON.stringify(cur))
+    } catch { /* localStorage full / disabled — fall through */ }
+  }
+  const [cameraYawOffsetDeg, setCameraYawOffsetDeg] = useState(0)
+
   // ───── hardcoded biomechanical presets ─────────────────────────────────
   // Hip height as a fraction of leg length (0.5–1.0, default 0.8).
   // hipMidY alone is cancelled by foot-IK; the real lever is knee bend:
@@ -176,6 +197,7 @@ function EditorShell({ onClose }: Props) {
     // accumulate from extracted poses.
     a.bodyRotationDeg = 0
     a.pelvicRollDeg = 0
+    a.figureYawDeg = Math.max(-65, Math.min(65, a.figureYawDeg))
     if (lockFeetRef.current) {
       // Foot orientation comes from the stance slider; knee yaw/swivel and
       // foot yaw stay at MIDPOINT defaults so the pose's leg twist is ignored.
@@ -237,6 +259,33 @@ function EditorShell({ onClose }: Props) {
 
   const stopAnim = () => setIsAnimating(false)
 
+  // Wrap the player's image-frame yaw to (-180, 180] so + offset doesn't
+  // accumulate past one revolution.
+  const wrapYaw = (d: number) => {
+    let v = ((d + 180) % 360 + 360) % 360 - 180
+    if (v <= -180) v += 360
+    return v
+  }
+  const applyYawOffset = (a: PoseAnchor, offset: number): PoseAnchor =>
+    offset === 0 ? a : { ...a, figureYawDeg: wrapYaw(a.figureYawDeg + offset) }
+
+  const onCameraYawOffsetChange = (v: number) => {
+    setCameraYawOffsetDeg(v)
+    writeYawOffset(selectedBase, v)
+  }
+
+  // Auto-calibrate: pick the offset that drives the current Start frame's
+  // extracted figureYawDeg to SNAP_TARGET_YAW (canonical three-quarter).
+  // Re-runs the raw extractor (without offset) to read the camera-relative
+  // yaw, then stores `target − raw`.
+  const snapCameraYawFromStart = () => {
+    if (!frames || startIdx < 0 || startIdx >= frames.length) return
+    const lms = frames[startIdx].landmarks
+    if (lms.length < 33) return
+    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
+    onCameraYawOffsetChange(wrapYaw(SNAP_TARGET_YAW - raw.figureYawDeg))
+  }
+
   const resetAnchor = () => {
     stopAnim()
     setAnchor(cloneAnchor(MIDPOINT_POSE))
@@ -270,6 +319,9 @@ function EditorShell({ onClose }: Props) {
     setLoadStatus('loading')
     setLoadError(null)
     setFrames(null)
+    // Restore the stored yaw offset for this base — different cameras need
+    // different offsets and we don't want one bleeding into another.
+    setCameraYawOffsetDeg(readYawOffsets()[selectedBase] ?? 0)
     fetch(`/videos/${selectedBase}/${selectedBase}_poses.json`)
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(raw => {
@@ -302,15 +354,17 @@ function EditorShell({ onClose }: Props) {
     const lms = frames[startIdx].landmarks
     if (lms.length < 33) return null
     const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
-    return applySliderClamps ? clampAnchor(raw) : raw
-  }, [frames, startIdx, computeBodyRotation, stanceWidth2D, applySliderClamps])
+    const calibrated = applyYawOffset(raw, cameraYawOffsetDeg)
+    return applySliderClamps ? clampAnchor(calibrated) : calibrated
+  }, [frames, startIdx, computeBodyRotation, stanceWidth2D, applySliderClamps, cameraYawOffsetDeg])
   const endAnchor = useMemo<PoseAnchor | null>(() => {
     if (!frames || endIdx < 0 || endIdx >= frames.length) return null
     const lms = frames[endIdx].landmarks
     if (lms.length < 33) return null
     const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
-    return applySliderClamps ? clampAnchor(raw) : raw
-  }, [frames, endIdx, computeBodyRotation, stanceWidth2D, applySliderClamps])
+    const calibrated = applyYawOffset(raw, cameraYawOffsetDeg)
+    return applySliderClamps ? clampAnchor(calibrated) : calibrated
+  }, [frames, endIdx, computeBodyRotation, stanceWidth2D, applySliderClamps, cameraYawOffsetDeg])
 
   // When not animating, immediately reflect index changes in the viewport.
   useEffect(() => {
@@ -443,6 +497,10 @@ function EditorShell({ onClose }: Props) {
           onStanceMult={onStanceMultChange}
           lockLeftHand={lockLeftHand}
           onLockLeftHand={toggleLockLeftHand}
+          cameraYawOffsetDeg={cameraYawOffsetDeg}
+          onCameraYawOffset={onCameraYawOffsetChange}
+          onSnapCameraYaw={snapCameraYawFromStart}
+          canSnapCameraYaw={isReady && !!startAnchor}
         />
 
         <div className="flex gap-6 justify-center items-start">
@@ -544,6 +602,10 @@ interface FrameSourcePanelProps {
   onStanceMult: (v: number) => void
   lockLeftHand: boolean
   onLockLeftHand: (v: boolean) => void
+  cameraYawOffsetDeg: number
+  onCameraYawOffset: (v: number) => void
+  onSnapCameraYaw: () => void
+  canSnapCameraYaw: boolean
 }
 
 function FrameSourcePanel({
@@ -583,6 +645,10 @@ function FrameSourcePanel({
   onStanceMult,
   lockLeftHand,
   onLockLeftHand,
+  cameraYawOffsetDeg,
+  onCameraYawOffset,
+  onSnapCameraYaw,
+  canSnapCameraYaw,
 }: FrameSourcePanelProps) {
   const status =
     loadStatus === 'loading' ? 'loading…' :
@@ -658,6 +724,36 @@ function FrameSourcePanel({
       </label>
 
       <div className="text-xs text-gray-400 font-mono ml-auto">{status}</div>
+
+      <div className="w-full border-t border-gray-700/50 pt-2 flex flex-wrap gap-x-4 gap-y-1 items-center">
+        <span className="text-[11px] uppercase tracking-wider text-gray-500 self-center">Камера</span>
+        <label className="flex flex-col gap-0.5">
+          <span className="text-[10px] text-gray-400">
+            Yaw offset: {cameraYawOffsetDeg.toFixed(0)}°
+          </span>
+          <input
+            type="range"
+            min={-180} max={180} step={1}
+            value={cameraYawOffsetDeg}
+            onChange={e => onCameraYawOffset(Number(e.target.value))}
+            className="w-48"
+          />
+        </label>
+        <button
+          className="px-2 py-1 rounded bg-cyan-700 hover:bg-cyan-600 disabled:bg-gray-700 disabled:text-gray-500 text-xs"
+          onClick={onSnapCameraYaw}
+          disabled={!canSnapCameraYaw}
+          title="Auto-fit offset so the Start frame faces canonical three-quarter (50°)"
+        >
+          Snap to start
+        </button>
+        <button
+          className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs"
+          onClick={() => onCameraYawOffset(0)}
+        >
+          0°
+        </button>
+      </div>
 
       <div className="w-full border-t border-gray-700/50 pt-2 flex flex-wrap gap-x-4 gap-y-1">
         <span className="text-[11px] uppercase tracking-wider text-gray-500 self-center">Обмеження</span>
