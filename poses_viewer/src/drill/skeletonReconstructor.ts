@@ -104,7 +104,16 @@ const TILT_TO_HIP_BACK = 0
 export function reconstructFromAnchor(
   anchor: PoseAnchor,
   bonesOverride?: BoneLengthsOverride,
-  options?: { skipFootIK?: boolean },
+  options?: {
+    skipFootIK?: boolean
+    /** When true, ankles stay at the same world XZ position regardless of
+     *  figureYawDeg. The pelvis still rotates and the foot orientation
+     *  follows the rotation, but the ankle anchor is taken from the
+     *  figureYawDeg=0 reference pose and the thigh/shin are 2-bone IK'd
+     *  to reach it. Used by MannequinEditor's hip-rotation slider so the
+     *  feet remain planted while the body twists. */
+    plantAnkles?: boolean
+  },
 ): Landmark[] {
   const out: Landmark[] = new Array(LANDMARK_COUNT)
   // Resolve bone lengths: override → canonical.
@@ -473,11 +482,88 @@ export function reconstructFromAnchor(
     ]
   }
 
+  // ── plantAnkles target computation ─────────────────────────────────────
+  // When the hip-rotation slider is moved we want ankles to stay at the
+  // same world XZ they had at figureYawDeg=0. Compute that reference once
+  // here using a yaw-free leg frame; the actual leg build below will then
+  // 2-bone IK the thigh/shin to reach it.
+  let rAnkleTarget: V3 | null = null
+  let lAnkleTarget: V3 | null = null
+  if (options?.plantAnkles && anchor.figureYawDeg !== 0) {
+    const legForward0: V3 = [0, 0, -1]
+    const legAcross0:  V3 = [1, 0, 0]
+    const acrossLevel0: V3 = rotY([1, 0, 0], anchor.bodyRotationDeg)
+    const across0 = anchor.pelvicRollDeg !== 0
+      ? normalize(rotAroundAxis(acrossLevel0, rotY([0,0,-1], anchor.bodyRotationDeg), anchor.pelvicRollDeg))
+      : acrossLevel0
+    const lHip0: V3 = add(hipMid, scale(across0,  B.hipWidth / 2))
+    const rHip0: V3 = add(hipMid, scale(across0, -B.hipWidth / 2))
+    const thighDir0 = (side: 'L' | 'R'): V3 => {
+      const flexDeg = side === 'L' ? anchor.leftThighForwardDeg  : anchor.rightThighForwardDeg
+      const absDeg  = side === 'L' ? anchor.leftThighAbductionDeg : anchor.rightThighAbductionDeg
+      const kneeYaw = side === 'L' ? anchor.leftKneeYawDeg : anchor.rightKneeYawDeg
+      const abSign = side === 'L' ? +1 : -1
+      const abducted = rotAroundAxis([0, 1, 0], legForward0, abSign * absDeg)
+      const flexed = normalize(rotAroundAxis(abducted, legAcross0, -flexDeg))
+      return normalize(rotY(flexed, kneeYaw))
+    }
+    const shinDir0 = (side: 'L' | 'R', thighDir: V3, effKnee: number): V3 => {
+      const kneeBend = 180 - effKnee
+      const kneeYawDeg = side === 'L' ? anchor.leftKneeYawDeg : anchor.rightKneeYawDeg
+      const kneeForward: V3 = rotY(legForward0, kneeYawDeg)
+      const hinge: V3 = normalize([-kneeForward[2], 0, kneeForward[0]])
+      return normalize(rotAroundAxis(thighDir, hinge, kneeBend))
+    }
+    const rT0 = thighDir0('R'); const rK0 = add(rHip0, scale(rT0, Brt))
+    rAnkleTarget = add(rK0, scale(shinDir0('R', rT0, effRightKnee), Brs))
+    const lT0 = thighDir0('L'); const lK0 = add(lHip0, scale(lT0, Blt))
+    lAnkleTarget = add(lK0, scale(shinDir0('L', lT0, effLeftKnee), Bls))
+  }
+
+  /**
+   * 2-bone IK: given a hip and a target ankle position, return the knee
+   * that places thigh+shin to reach the target. Knee bends in the vertical
+   * plane containing the hip→ankle axis (forward bend, knee points the
+   * direction the slider's kneeYaw says), with the bend opening forward.
+   * If the target is unreachable (distance > thigh+shin), the leg stretches
+   * straight toward it.
+   */
+  function ikKnee(hip: V3, ankle: V3, thighLen: number, shinLen: number, kneeYawDegSide: number): V3 {
+    const dx = ankle[0] - hip[0]
+    const dy = ankle[1] - hip[1]
+    const dz = ankle[2] - hip[2]
+    const d = Math.sqrt(dx*dx + dy*dy + dz*dz)
+    if (d < 1e-6) return hip
+    // Cosine law: distance from hip to knee along hip→ankle axis.
+    const dClamped = Math.min(d, thighLen + shinLen - 1e-4)
+    const t = (dClamped*dClamped + thighLen*thighLen - shinLen*shinLen) / (2*dClamped*dClamped)
+    const center: V3 = [hip[0] + dx*t, hip[1] + dy*t, hip[2] + dz*t]
+    const radius = Math.sqrt(Math.max(0, thighLen*thighLen - (t*dClamped)*(t*dClamped)))
+    if (radius < 1e-6) return center
+    // Bend direction: the knee points in the leg-frame forward direction,
+    // rotated by the slider's kneeYaw.
+    const bendDir: V3 = rotY(legForward, kneeYawDegSide)
+    // Project bendDir perpendicular to the hip→ankle axis.
+    const axis: V3 = [dx/d, dy/d, dz/d]
+    const dot = bendDir[0]*axis[0] + bendDir[1]*axis[1] + bendDir[2]*axis[2]
+    const bendPerp: V3 = [bendDir[0] - dot*axis[0], bendDir[1] - dot*axis[1], bendDir[2] - dot*axis[2]]
+    const bpLen = Math.sqrt(bendPerp[0]*bendPerp[0] + bendPerp[1]*bendPerp[1] + bendPerp[2]*bendPerp[2])
+    if (bpLen < 1e-6) return center
+    const u: V3 = [bendPerp[0]/bpLen, bendPerp[1]/bpLen, bendPerp[2]/bpLen]
+    return [center[0] + radius*u[0], center[1] + radius*u[1], center[2] + radius*u[2]]
+  }
+
   // Right leg ───────────────────────────────────────────────────────────────
-  const rThighDir: V3 = thighDirFor('R')
-  const rKnee0: V3 = add(rHip, scale(rThighDir, Brt))
-  const rShinDir0: V3 = shinDirFor('R', rThighDir, effRightKnee)
-  const rAnkle: V3 = add(rKnee0, scale(rShinDir0, Brs))
+  let rKnee0: V3, rAnkle: V3
+  if (rAnkleTarget) {
+    rAnkle = rAnkleTarget
+    rKnee0 = ikKnee(rHip, rAnkle, Brt, Brs, anchor.rightKneeYawDeg)
+  } else {
+    const rThighDir: V3 = thighDirFor('R')
+    rKnee0 = add(rHip, scale(rThighDir, Brt))
+    const rShinDir0: V3 = shinDirFor('R', rThighDir, effRightKnee)
+    rAnkle = add(rKnee0, scale(rShinDir0, Brs))
+  }
   const rKnee: V3 = orbitKnee(rHip, rKnee0, rAnkle, Brt, Brs, anchor.rightKneeSwivelDeg, -1)
   out[LM.R_KNEE]  = mkLm(LM.R_KNEE,  rKnee)
   out[LM.R_ANKLE] = mkLm(LM.R_ANKLE, rAnkle)
@@ -488,10 +574,16 @@ export function reconstructFromAnchor(
   out[LM.R_FOOT] = mkLm(LM.R_FOOT, rFootTip)
 
   // Left leg ────────────────────────────────────────────────────────────────
-  const lThighDir: V3 = thighDirFor('L')
-  const lKnee0: V3 = add(lHip, scale(lThighDir, Blt))
-  const lShinDir0: V3 = shinDirFor('L', lThighDir, effLeftKnee)
-  const lAnkle: V3 = add(lKnee0, scale(lShinDir0, Bls))
+  let lKnee0: V3, lAnkle: V3
+  if (lAnkleTarget) {
+    lAnkle = lAnkleTarget
+    lKnee0 = ikKnee(lHip, lAnkle, Blt, Bls, anchor.leftKneeYawDeg)
+  } else {
+    const lThighDir: V3 = thighDirFor('L')
+    lKnee0 = add(lHip, scale(lThighDir, Blt))
+    const lShinDir0: V3 = shinDirFor('L', lThighDir, effLeftKnee)
+    lAnkle = add(lKnee0, scale(lShinDir0, Bls))
+  }
   const lKnee: V3 = orbitKnee(lHip, lKnee0, lAnkle, Blt, Bls, anchor.leftKneeSwivelDeg, +1)
   out[LM.L_KNEE]  = mkLm(LM.L_KNEE,  lKnee)
   out[LM.L_ANKLE] = mkLm(LM.L_ANKLE, lAnkle)

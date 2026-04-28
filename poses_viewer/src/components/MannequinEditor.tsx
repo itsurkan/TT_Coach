@@ -170,8 +170,11 @@ function EditorShell({ onClose }: Props) {
 
   const applyPresets = (next: PoseAnchor): PoseAnchor => {
     const a = { ...next }
-    // Pelvic roll is decoupled from hip rotation by user request: the body
-    // can twist (bodyRotationDeg) without the pelvis tilting sideways.
+    // Hip rotation is authored via figureYawDeg (whole-figure yaw, legs
+    // included). The legacy hip-vs-leg torsion (bodyRotationDeg) and the
+    // sideways pelvic tilt (pelvicRollDeg) are forced to 0 so they cannot
+    // accumulate from extracted poses.
+    a.bodyRotationDeg = 0
     a.pelvicRollDeg = 0
     if (lockFeetRef.current) {
       // Foot orientation comes from the stance slider; knee yaw/swivel and
@@ -350,7 +353,10 @@ function EditorShell({ onClose }: Props) {
 
   // Single FK pass per anchor change. Re-runs only on anchor edits — selection
   // doesn't invalidate geometry.
-  const landmarks = useMemo(() => reconstructFromAnchor(anchor), [anchor])
+  const landmarks = useMemo(
+    () => reconstructFromAnchor(anchor, undefined, { plantAnkles: true }),
+    [anchor],
+  )
 
   // Slider keys that rotate the currently selected joint — used by
   // AnchorSliders to highlight and scroll to the relevant rows.
@@ -685,7 +691,7 @@ function FrameSourcePanel({
           <span className="text-[10px] text-gray-400">{(hipHeightRatio * 100).toFixed(0)}% ноги</span>
           <input
             type="range"
-            min={0.5} max={1.0} step={0.01}
+            min={0.4} max={1.0} step={0.01}
             value={hipHeightRatio}
             onChange={e => onHipHeightRatio(Number(e.target.value))}
             className="w-24"

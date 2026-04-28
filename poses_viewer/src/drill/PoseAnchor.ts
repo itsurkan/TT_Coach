@@ -158,8 +158,11 @@ export const ANCHOR_PARAM_GROUPS: AnchorParamGroup[] = [
   {
     name: 'Torso',
     params: [
-      { kind: 'direct', key: 'figureYawDeg',        label: 'Figure yaw (whole body)', min: -180, max: 180, step: 1 },
-      { kind: 'direct', key: 'bodyRotationDeg',     label: 'Hip rotation (pelvis twist)', min: -90, max: 90, step: 1 },
+      // Hip rotation now sweeps the whole figure (legs included) by writing
+      // figureYawDeg directly. The legacy `bodyRotationDeg` (hip-vs-leg
+      // torsion) is no longer authored from this UI; extraction still emits
+      // it for round-trip with capture pipelines.
+      { kind: 'direct', key: 'figureYawDeg',        label: 'Hip rotation (whole figure)', min: -180, max: 180, step: 1 },
       { kind: 'direct', key: 'pelvicRollDeg',       label: 'Pelvic roll',        min: -30, max: 30, step: 1 },
       { kind: 'direct', key: 'shoulderRotationDeg', label: 'Corpus rotation',    min: -90, max: 90, step: 1 },
       { kind: 'direct', key: 'torsoTiltDeg',        label: 'Torso tilt forward', min: 0,   max: 75, step: 1 },
