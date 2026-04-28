@@ -4,7 +4,7 @@ React + Vite debug/labeling tool for TT_Coach. Overlays pose, ball, contact, and
 
 - Dev server: `npm run dev` → http://localhost:5780
 - Stack: React 18, TypeScript, Vite 6, Tailwind v4, three/@react-three/fiber/drei 0.184, vitest 4
-- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. No hash routing; `App.tsx` mounts `DrillEditor`, `Drill2Preview`, or `DatasetBrowser` as full-screen overlays.
+- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. Hash routing via `src/hooks/useHashRoute.ts`: `#/main`, `#/mannequin` (default), `#/drill2`, `#/dataset`. `App.tsx` early-returns the matching component for non-`main` routes.
 
 Update this file when you change a listed file.
 

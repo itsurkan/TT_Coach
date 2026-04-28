@@ -91,25 +91,11 @@ function EditorShell({ onClose }: Props) {
   const [computeBodyRotation, setComputeBodyRotation] = useState(false)
   const [stanceWidth2D, setStanceWidth2D] = useState(false)
 
-  // Per-base camera yaw offset: extracted poses get `figureYawDeg += offset`
-  // to compensate for the camera angle. Persisted in localStorage so each
-  // video remembers its calibration. The "Snap" button auto-fills it from
-  // the current Start frame so the figure lands at a canonical orientation.
-  const CAMERA_YAW_KEY = 'poses_viewer_camera_yaw_offsets'
+  // Camera yaw offset: extracted poses get `figureYawDeg += offset` to
+  // compensate for the camera angle. Auto-fit from the Start frame on every
+  // base load (see effect further down). The slider lets the user nudge it;
+  // those nudges are session-only and reset on the next base switch.
   const SNAP_TARGET_YAW = 50  // canonical three-quarter (matches NEUTRAL_POSE)
-  const readYawOffsets = (): Record<string, number> => {
-    try {
-      const raw = localStorage.getItem(CAMERA_YAW_KEY)
-      return raw ? JSON.parse(raw) : {}
-    } catch { return {} }
-  }
-  const writeYawOffset = (base: string, deg: number) => {
-    try {
-      const cur = readYawOffsets()
-      cur[base] = deg
-      localStorage.setItem(CAMERA_YAW_KEY, JSON.stringify(cur))
-    } catch { /* localStorage full / disabled — fall through */ }
-  }
   const [cameraYawOffsetDeg, setCameraYawOffsetDeg] = useState(0)
 
   // ───── hardcoded biomechanical presets ─────────────────────────────────
@@ -197,7 +183,7 @@ function EditorShell({ onClose }: Props) {
     // accumulate from extracted poses.
     a.bodyRotationDeg = 0
     a.pelvicRollDeg = 0
-    a.figureYawDeg = Math.max(-65, Math.min(65, a.figureYawDeg))
+    a.figureYawDeg = Math.max(-40, Math.min(40, a.figureYawDeg))
     if (lockFeetRef.current) {
       // Foot orientation comes from the stance slider; knee yaw/swivel and
       // foot yaw stay at MIDPOINT defaults so the pose's leg twist is ignored.
@@ -271,7 +257,6 @@ function EditorShell({ onClose }: Props) {
 
   const onCameraYawOffsetChange = (v: number) => {
     setCameraYawOffsetDeg(v)
-    writeYawOffset(selectedBase, v)
   }
 
   // Auto-calibrate: pick the offset that drives the current Start frame's
@@ -313,15 +298,15 @@ function EditorShell({ onClose }: Props) {
   }, [])
 
   // Whenever the selected base changes, fetch and parse its poses fixture.
+  // Yaw offset is auto-snapped from the Start frame in the effect below
+  // once the fixture is parsed — we don't restore from storage here so the
+  // figure always spawns at canonical orientation regardless of camera.
   useEffect(() => {
     let cancelled = false
     setIsAnimating(false)
     setLoadStatus('loading')
     setLoadError(null)
     setFrames(null)
-    // Restore the stored yaw offset for this base — different cameras need
-    // different offsets and we don't want one bleeding into another.
-    setCameraYawOffsetDeg(readYawOffsets()[selectedBase] ?? 0)
     fetch(`/videos/${selectedBase}/${selectedBase}_poses.json`)
       .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
       .then(raw => {
@@ -345,6 +330,20 @@ function EditorShell({ onClose }: Props) {
       })
     return () => { cancelled = true }
   }, [selectedBase])
+
+  // Auto-snap yaw offset on base change. Re-runs once per `(selectedBase,
+  // frames)` pair: extracts the raw figureYawDeg from the start frame and
+  // sets the offset that lands the figure at SNAP_TARGET_YAW. The user can
+  // still nudge the slider afterward (which writes to storage); the next
+  // base switch will re-auto-snap from that base's start frame.
+  useEffect(() => {
+    if (!frames || startIdx < 0 || startIdx >= frames.length) return
+    const lms = frames[startIdx].landmarks
+    if (lms.length < 33) return
+    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
+    onCameraYawOffsetChange(wrapYaw(SNAP_TARGET_YAW - raw.figureYawDeg))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBase, frames])
 
   // Extract once per index change. Skip frames whose landmarks array is
   // incomplete — the FK extractor assumes 33 MediaPipe points and will
@@ -743,9 +742,9 @@ function FrameSourcePanel({
           className="px-2 py-1 rounded bg-cyan-700 hover:bg-cyan-600 disabled:bg-gray-700 disabled:text-gray-500 text-xs"
           onClick={onSnapCameraYaw}
           disabled={!canSnapCameraYaw}
-          title="Auto-fit offset so the Start frame faces canonical three-quarter (50°)"
+          title="Re-fit offset from current Start frame"
         >
-          Snap to start
+          Re-snap
         </button>
         <button
           className="px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 text-xs"
