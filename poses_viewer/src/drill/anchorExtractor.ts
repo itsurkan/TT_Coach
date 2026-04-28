@@ -351,10 +351,17 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
   const leftShoulderAngleDeg      = lArmDecomp.flex
   const leftShoulderAbductionDeg  = lArmDecomp.abduct
 
-  // Elbow + wrist — interior angles.
-  const rightElbowAngleDeg = angleBetween(sub(rSh, rElbow), rForearm)
+  // Elbow interior angle — apply the same Z_DAMP as the shoulder decomposition.
+  // MediaPipe z noise dominates the bone vector on frontal arm extensions and
+  // partial occlusions (e.g. low-visibility racket arm), inflating extracted
+  // flexion. Damping both sides of angleBetween keeps the interior angle
+  // consistent with the damped upper-arm direction the FK chain will rebuild.
+  // Wrist interior angle is left untouched: it feeds computeWristYaw, and the
+  // round-trip extractor tests pin recovered yaw within tight bounds.
+  const dampZ = (v: V3): V3 => ({ x: v.x, y: v.y, z: v.z * Z_DAMP })
+  const rightElbowAngleDeg = angleBetween(dampZ(sub(rSh, rElbow)), dampZ(rForearm))
   const rightWristAngleDeg = angleBetween(sub(rElbow, rWrist), rWristToIndex)
-  const leftElbowAngleDeg  = angleBetween(sub(lSh, lElbow), sub(lWrist, lElbow))
+  const leftElbowAngleDeg  = angleBetween(dampZ(sub(lSh, lElbow)), dampZ(sub(lWrist, lElbow)))
   const leftWristAngleDeg  = angleBetween(sub(lElbow, lWrist), sub(lIndex, lWrist))
 
   // Humeral twist (elbowYaw) extraction.
