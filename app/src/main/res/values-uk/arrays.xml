@@ -5,4 +5,9 @@
         <item>Середня (збалансовано)</item>
         <item>Висока (точніше)</item>
     </string-array>
+    <string-array name="coaching_styles">
+        <item>Іван - Мотиваційний та Енергійний</item>
+        <item>Андрій - Точний та прискіпливий до техніки</item>
+        <item>Вадим - Коротко та спокійно</item>
+    </string-array>
 </resources>

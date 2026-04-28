@@ -1,41 +1,167 @@
-# MediaPipe Tasks Pose Landmark Detection Android Demo
+# TT Coach AI
 
-### Overview
+AI-powered table tennis coaching app for Android. Combines pose detection, ball tracking, and audio analysis to provide real-time training feedback.
 
-This is a camera app that can detects landmarks on a person either from continuous camera frames seen by your device's back camera, an image, or a video from the device's gallery using a custom **task** file.
+## Architecture
 
-The task file is downloaded by a Gradle script when you build and run the app. You don't need to do any additional steps to download task files into the project explicitly unless you wish to use your own landmark detection task. If you do use your own task file, place it into the app's *assets* directory.
+```
+Camera (120fps) → Pose Detection (MediaPipe) → Stroke Analysis → Voice Feedback
+                → Ball Detection (YOLOv11)    → Trajectory     → Contact Sync
+Video Audio     → Contact Detection (librosa) → Table/Racket Classification
+```
 
-This application should be run on a physical Android device to take advantage of the camera.
+## Detection Pipeline
 
-![Pose Landmarker Demo](pose_landmarker.png?raw=true "Pose Landmarker Demo")
-[Public domain video from Lance Foss](https://www.youtube.com/watch?v=KALIKOd1pbA)
+### Ball Detection — YOLOv11-nano (recommended)
 
-## Build the demo using Android Studio
+Trained on 969 labeled 320x320 crops from TT match videos. Evaluated on IMG_6330 (345 frames, 243 ball-present, 82 no-ball).
 
-### Prerequisites
+| Metric | V5 Regressor | YOLO |
+|---|---|---|
+| Accuracy | 6.6% | **86.3%** |
+| Precision | 10.3% | **89.3%** |
+| Recall | 13.6% | **92.6%** |
+| F1 | 11.7% | **90.9%** |
+| Mean position error | 0.309 | **0.006** |
 
-*   The **[Android Studio](https://developer.android.com/studio/index.html)** IDE. This sample has been tested on Android Studio Dolphin.
+**Key findings:**
+- Must crop frame to top half before inference — full-frame inference drops to 26.8% (ball too small at 320px downscale)
+- YOLO confidence threshold 0.25 works well; 24/82 FP on no-ball frames
+- Position accuracy is essentially pixel-perfect (median error 0.26% of frame)
+- V5 regressor (MobileNetV3-Small) is deprecated — couldn't discriminate ball/no-ball (conf always high)
 
-*   A physical Android device with a minimum OS version of SDK 24 (Android 7.0 -
-    Nougat) with developer mode enabled. The process of enabling developer mode
-    may vary by device.
+**Models tried for paddle/table detection:**
+- COCO YOLOv11n — only detects persons, TT table/paddle too small/unusual
+- YOLO-World (open vocabulary, "table tennis paddle/table") — also only finds persons
+- Conclusion: paddle/table detection requires fine-tuning with custom annotations
 
-### Building
+### Audio Contact Detection
 
-*   Open Android Studio. From the Welcome screen, select Open an existing
-    Android Studio project.
+Detects ball-table and ball-racket hits from the audio track using onset detection + spectral classification.
 
-*   From the Open File or Project window that appears, navigate to and select
-    the mediapipe/examples/pose_landmarker/android directory. Click OK. You may
-    be asked if you trust the project. Select Trust.
+- **Table hits**: lower spectral centroid (1-3 kHz), higher low/high band ratio
+- **Racket hits**: higher spectral centroid (3-8 kHz), lower low/high band ratio
+- Sensitivity presets: low, medium, high
+- Filters: sharpness ratio, energy threshold, silence rejection
 
-*   If it asks you to do a Gradle Sync, click OK.
+### Pose Detection
 
-*   With your Android device connected to your computer and developer mode
-    enabled, click on the green Run arrow in Android Studio.
+MediaPipe Pose Landmarker for body tracking. Used for stroke analysis, coaching feedback, and contact filtering (wrist velocity near audio contacts).
 
-### Models used
+## Android App
 
-Downloading, extraction, and placing the models into the *assets* folder is
-managed automatically by the **download.gradle** file.
+### Ball Detectors
+
+| Class | Model | Status |
+|---|---|---|
+| `BallDetector` | OpenCV color/shape | Legacy |
+| `BallDetectorV2` | OpenCV improved | Legacy |
+| `BallDetectorV3` | Motion + OpenCV | Legacy |
+| `BallDetectorV5` | Motion + MobileNetV3 TFLite regressor | Deprecated (6.6% accuracy) |
+| `BallDetectorV6` | YOLOv11-nano TFLite + GPU delegate | **Current** (86.3% accuracy) |
+
+### Settings
+
+- **Ball Detection FPS**: 10 / 30 / 60 / 120 (configurable in Settings)
+- Default 30 FPS (33ms interval), 120 FPS needs GPU delegate (~8ms budget)
+- GPU delegate auto-enabled with CPU fallback
+
+### Build
+
+```bash
+./gradlew :app:assembleDebug
+```
+
+Requires Android SDK 24+, tested on Samsung Galaxy S23 (Adreno 740 GPU).
+
+## Scripts
+
+All scripts in `scripts/`, videos in `app/src/main/assets/Videos/`.
+
+### YOLO Ball Detector
+
+Requires `trained/best_yolo.pt` (YOLOv11-nano).
+
+```bash
+# Detection + JSON export
+python scripts/run_ball_yolo.py                                     # all videos
+python scripts/run_ball_yolo.py IMG_6330                             # single video
+python scripts/run_ball_yolo.py IMG_6330 --evaluate                  # + compare with labels
+python scripts/run_ball_yolo.py IMG_6330 --frames 30 50              # frame range
+python scripts/run_ball_yolo.py IMG_6330 --region top                # top half (default)
+python scripts/run_ball_yolo.py IMG_6330 --region bottom|center|full # other regions
+
+# Debug — annotated frames with bboxes + result montage
+python scripts/run_ball_yolo_debug.py IMG_6330                          # ball model, top region
+python scripts/run_ball_yolo_debug.py IMG_6330 --frames 30 50           # frame range
+python scripts/run_ball_yolo_debug.py IMG_6330 --region full            # full frame
+python scripts/run_ball_yolo_debug.py IMG_6330 --coco                   # COCO 80-class model
+python scripts/run_ball_yolo_debug.py IMG_6330 --world                  # YOLO-World open vocabulary
+```
+
+### Audio Contact Detection
+
+```bash
+python scripts/detect_contacts.py app/src/main/assets/Videos/IMG_6330/IMG_6330.MOV
+python scripts/detect_contacts.py <video> --sensitivity high           # more contacts
+python scripts/detect_contacts.py <video> --interval 33                # 30fps frame mapping
+
+# Filter contacts by wrist velocity from pose data
+python scripts/filter_contacts_by_pose.py app/src/main/assets/Videos/IMG_6330
+```
+
+### V5 Regressor (legacy)
+
+```bash
+python scripts/run_ball_detector_v5.py IMG_6330 --evaluate
+python scripts/run_ball_detector_v5_debug_frames.py IMG_6330 --frames 30 50
+```
+
+### Training (Google Colab)
+
+Upload `data_regressor.zip` to Google Drive, then run:
+
+- `scripts/train_ball_yolo.ipynb` — YOLOv11-nano (100 epochs, ~10min on T4 GPU)
+- `scripts/train_ball_regressor.ipynb` — MobileNetV3-Small regressor (legacy)
+
+Training data: 969 train + 243 val images (320x320 motion crops with center-point labels).
+
+## Poses Viewer
+
+Visualization tool at `../poses_viewer/` (React + Vite).
+
+```bash
+cd ../poses_viewer && npm run dev     # http://localhost:5780
+```
+
+Overlay toggles:
+- **Poses** (blue) — skeleton from `_poses.json`
+- **Ball** (yellow) — primary ball detection
+- **Ball V5** (cyan) — regressor results from `_ball_v5.json`
+- **Ball YOLO** (lime) — YOLO results from `_ball_yolo.json`
+- **Contacts** (orange) — audio contacts from `_contacts.json`
+- **Labels** (green) — ground truth labels from `_labels.json`
+
+Labeling: click to place corrected ball positions, export training data.
+
+## Data Format
+
+Per-video folder in `app/src/main/assets/Videos/<name>/`:
+
+| File | Content |
+|---|---|
+| `<name>.MOV` | Source video |
+| `<name>_poses.json` | Pose landmarks per frame |
+| `<name>_ball_v5.json` | V5 regressor ball detections |
+| `<name>_ball_yolo.json` | YOLO ball detections |
+| `<name>_contacts.json` | Audio contact events (table/racket) |
+| `<name>_labels.json` | Ground truth ball labels (no_ball / corrected position) |
+
+## Trained Models
+
+| File | Model | Size | Use |
+|---|---|---|---|
+| `trained/best_yolo.pt` | YOLOv11-nano | ~5 MB | Python inference |
+| `trained/best_model.pth` | MobileNetV3-Small | ~10 MB | Legacy Python |
+| `app/src/main/assets/ball_yolo.tflite` | YOLOv11-nano TFLite | ~5 MB | Android V6 detector |
+| `app/src/main/assets/ball_regressor.tflite` | MobileNetV3 TFLite | ~4 MB | Android V5 detector |

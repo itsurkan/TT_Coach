@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".DebugActivity">
+
+    <!-- Top Bar: Video Info -->
+    <LinearLayout
+        android:id="@+id/topBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="8dp"
+        android:background="@color/design_default_color_primary"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tvVideoInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/status_no_video"
+            android:textColor="@android:color/white"
+            android:textSize="12sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btnLoadVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/btn_load_video"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnLogPoses"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/btn_log_poses"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp"
+                android:enabled="false" />
+
+
+
+            <Button
+                android:id="@+id/btnToggleViewMode"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/btn_portrait_mode"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Main Content: Split Screen -->
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        app:layout_constraintTop_toBottomOf="@id/topBar"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Left Panel: Video Player with Overlay -->
+        <FrameLayout
+            android:id="@+id/videoContainer"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@android:color/black">
+
+            <VideoView
+                android:id="@+id/videoView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center" />
+
+            <!-- ImageView for displaying frames when seeking (VideoView can't do this) -->
+            <ImageView
+                android:id="@+id/frameImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                android:visibility="gone" />
+
+            <com.ttcoachai.OverlayView
+                android:id="@+id/overlayView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <!-- Right Panel: Analysis Results -->
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/analysisPanel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/background_surface_alt"
+            android:padding="12dp"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Portrait Mode Top Controls (hidden by default) -->
+                <LinearLayout
+                    android:id="@+id/portraitTopControls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/tvVideoInfoPortrait"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="No video loaded"
+                        android:textColor="@android:color/black"
+                        android:textSize="11sp"
+                        android:paddingBottom="4dp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnLoadVideoPortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_load"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnLogPosesPortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_log"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp"
+                            android:enabled="false" />
+
+                        <Button
+                            android:id="@+id/btnToggleViewModePortrait"
+                            android:layout_width="0dp"
+                            android:layout_height="36dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_landscape"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@android:color/darker_gray"
+                        android:layout_marginVertical="8dp" />
+                </LinearLayout>
+
+                <!-- Current Frame Analysis -->
+                <TextView
+                    android:id="@+id/headerCurrentFrame"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_current_frame"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentCurrentFrame"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvFrameNumber"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_frame_counter"
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvPhase"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_phase_ready"
+                        android:textSize="14sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvScore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_score_placeholder"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Current Feedback -->
+                <TextView
+                    android:id="@+id/headerFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_video_feedback"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvFeedbackHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp"
+                        android:clipToPadding="false"
+                        android:scrollbars="vertical" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Session Summary -->
+                <TextView
+                    android:id="@+id/headerSessionSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_session_summary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentSessionSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvTotalFrames"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_total_frames"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvStrokesDetected"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_strokes_detected"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvAvgScore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_avg_score"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvGoodStrokes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_good_strokes"
+                        android:textSize="13sp"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:id="@+id/tvPhaseDistribution"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_phase_distribution"
+                        android:textSize="12sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="8dp" />
+
+                    <Button
+                        android:id="@+id/btnReset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/btn_reset_analysis" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Playback Controls -->
+                <TextView
+                    android:id="@+id/headerPlayback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_playback_controls"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentPlayback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="8dp">
+
+                    <!-- Frame Scrubber -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_frame"
+                            android:textSize="12sp"
+                            android:paddingEnd="8dp" />
+
+                        <SeekBar
+                            android:id="@+id/seekBarFrame"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:max="100" />
+                    </LinearLayout>
+
+                    <!-- Play/Pause and Step Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="8dp">
+
+                        <Button
+                            android:id="@+id/btnStepBack"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_step_back"
+                            android:textSize="18sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnPlayPause"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="2"
+                            android:text="@string/btn_play"
+                            android:textSize="14sp"
+                            android:layout_marginHorizontal="4dp" />
+
+                        <Button
+                            android:id="@+id/btnStepForward"
+                            android:layout_width="0dp"
+                            android:layout_height="48dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_step_forward"
+                            android:textSize="18sp"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+
+                    <!-- Speed Controls -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginTop="4dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_speed"
+                            android:textSize="12sp"
+                            android:paddingEnd="8dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed025x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="@string/speed_025x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed05x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="@string/speed_05x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed1x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="@string/speed_1x"
+                            android:textSize="11sp"
+                            android:layout_marginEnd="4dp" />
+
+                        <Button
+                            android:id="@+id/btnSpeed2x"
+                            android:layout_width="0dp"
+                            android:layout_height="40dp"
+                            android:layout_weight="1"
+                            android:text="@string/speed_2x"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Technical Parameters -->
+                <TextView
+                    android:id="@+id/headerTechnical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_technical_parameters"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentTechnical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/tvWristAngle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_wrist_angle_placeholder"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvBodyRotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_body_rotation_placeholder"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvFollowThrough"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_follow_through_placeholder"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvContactHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_contact_height_placeholder"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvElbowDistance"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_elbow_distance_placeholder"
+                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:paddingBottom="4dp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray"
+                    android:layout_marginVertical="4dp" />
+
+                <!-- Feedback Settings -->
+                <TextView
+                    android:id="@+id/headerFeedbackSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/header_feedback_settings_debug"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingVertical="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/contentFeedbackSettings"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_frequency_n"
+                        android:textSize="13sp"
+                        android:paddingBottom="4dp" />
+
+                    <Spinner
+                        android:id="@+id/spinnerFrequency"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/feedback_frequencies"
+                        android:paddingBottom="8dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_enabled_corrections"
+                        android:textSize="13sp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="4dp" />
+
+                    <CheckBox
+                        android:id="@+id/cbWrist"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_wrist_angle"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbBodyRotation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_body_rotation"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbFollowThrough"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_follow_through"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbContactHeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_contact_height"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbElbowPosition"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_elbow_position"
+                        android:textSize="12sp" />
+
+                    <CheckBox
+                        android:id="@+id/cbStrokeSpeed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/correction_stroke_speed"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

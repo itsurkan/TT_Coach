@@ -14,3 +14,16 @@
 .cxx
 local.properties
 *.wav
+main-poselandmaker/*
+shared/build/*
+data_regressor/val/images/*
+data_regressor/train/images/*
+data_regressor.zip
+/Videos/
+
+datasets/*
+tthq_annotations/*
+*.zip
+build_log.txt
+scripts/**/__pycache__/
+/tmp/screenshots/

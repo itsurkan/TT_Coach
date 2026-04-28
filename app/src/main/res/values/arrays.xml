@@ -5,4 +5,10 @@
         <item>Medium (balanced)</item>
         <item>High (accurate)</item>
     </string-array>
+    
+    <string-array name="coaching_styles">
+        <item>Ivan - Motivational &amp; Energetic</item>
+        <item>Andriy - Precise and sticky to technique</item>
+        <item>Vadym - Short and soft</item>
+    </string-array>
 </resources>

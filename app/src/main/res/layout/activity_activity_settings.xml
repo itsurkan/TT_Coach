@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="?attr/colorSurface">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Toolbar -->
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorSurface"
+            android:elevation="0dp"
+            app:titleTextColor="?attr/colorOnSurface"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tv_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/activity_settings_title"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar" />
+
+        <!-- Inference Time Display -->
+        <TextView
+            android:id="@+id/tv_inference_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_inference_time"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/tv_inference_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_header" />
+
+        <TextView
+            android:id="@+id/tv_inference_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_ms"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_inference_label" />
+
+        <!-- Detection Threshold -->
+        <TextView
+            android:id="@+id/tv_detection_threshold_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_pose_detection_confidence_threshold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/tv_detection_threshold_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_inference_label" />
+
+        <TextView
+            android:id="@+id/tv_detection_threshold_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_threshold"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_detection_threshold_label" />
+
+        <LinearLayout
+            android:id="@+id/layout_detection_controls"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_detection_threshold_label">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_detection_minus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Decrease detection threshold"
+                android:src="@drawable/ic_minus" />
+
+            <SeekBar
+                android:id="@+id/seekbar_detection_threshold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_detection_plus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Increase detection threshold"
+                android:src="@drawable/ic_plus" />
+        </LinearLayout>
+
+        <!-- Tracking Threshold -->
+        <TextView
+            android:id="@+id/tv_tracking_threshold_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_pose_tracking_confidence_threshold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/tv_tracking_threshold_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_detection_controls" />
+
+        <TextView
+            android:id="@+id/tv_tracking_threshold_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_threshold"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_tracking_threshold_label" />
+
+        <LinearLayout
+            android:id="@+id/layout_tracking_controls"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_tracking_threshold_label">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_tracking_minus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Decrease tracking threshold"
+                android:src="@drawable/ic_minus" />
+
+            <SeekBar
+                android:id="@+id/seekbar_tracking_threshold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_tracking_plus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Increase tracking threshold"
+                android:src="@drawable/ic_plus" />
+        </LinearLayout>
+
+        <!-- Presence Threshold -->
+        <TextView
+            android:id="@+id/tv_presence_threshold_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_pose_presence_confidence_threshold"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@id/tv_presence_threshold_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_tracking_controls" />
+
+        <TextView
+            android:id="@+id/tv_presence_threshold_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/placeholder_threshold"
+            android:textColor="@android:color/holo_blue_dark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tv_presence_threshold_label" />
+
+        <LinearLayout
+            android:id="@+id/layout_presence_controls"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_presence_threshold_label">
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_presence_minus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Decrease presence threshold"
+                android:src="@drawable/ic_minus" />
+
+            <SeekBar
+                android:id="@+id/seekbar_presence_threshold"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_presence_plus"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Increase presence threshold"
+                android:src="@drawable/ic_plus" />
+        </LinearLayout>
+
+        <!-- Model Selection -->
+        <TextView
+            android:id="@+id/tv_model_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_models"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layout_presence_controls" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner_model"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:entries="@array/models_spinner_titles"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_model_label" />
+
+        <!-- Delegate Selection -->
+        <TextView
+            android:id="@+id/tv_delegate_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/label_delegate"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/spinner_model" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner_delegate"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:entries="@array/delegate_spinner_titles"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_delegate_label" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

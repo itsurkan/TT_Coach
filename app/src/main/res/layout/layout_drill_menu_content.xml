@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <!-- Drag Handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp"
+        android:background="?attr/colorOutlineVariant" />
+
+    <!-- Control Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pause_resume"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:layout_weight="1"
+            android:text="@string/btn_resume"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            app:icon="@android:drawable/ic_media_play"
+            app:iconGravity="textStart"
+            android:layout_marginEnd="8dp"
+            style="?attr/materialButtonOutlinedStyle"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_end_session"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:minHeight="56dp"
+            android:layout_weight="1"
+            android:text="@string/btn_end_session"
+            android:textAppearance="?attr/textAppearanceTitleMedium"
+            android:layout_marginStart="8dp"
+            android:textColor="?attr/colorOnError"
+            app:backgroundTint="?attr/colorError"/>
+
+    </LinearLayout>
+
+    <!-- Stats Cards -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/green_500"
+            android:layout_marginEnd="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_target"
+                    app:tint="@android:color/holo_green_dark"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_total_hits"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_hits"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_total_hits"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_muted"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="@color/orange_500"
+            android:layout_marginStart="8dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_target"
+                    app:tint="@android:color/holo_orange_dark"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/tv_accuracy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_percent"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_accuracy"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_muted"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <!-- Current Drill Info -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/blue_500"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/ic_target"
+                    app:tint="@android:color/holo_blue_dark"
+                    android:layout_marginEnd="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_drill_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/training_session_title"
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_focus_consistency"
+                        android:textSize="12sp"
+                        android:textColor="@color/text_muted"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progress_drill"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:layout_marginBottom="8dp"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:progress="0"/>
+
+            <TextView
+                android:id="@+id/tv_drill_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hits_progress_format"
+                android:textSize="12sp"
+                android:textColor="@color/text_muted"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- AI Coach Tip -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?attr/materialCardViewFilledStyle"
+        app:cardBackgroundColor="?attr/colorTertiaryContainer"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tip_title_ai_coach"
+                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnTertiaryContainer"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_ai_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tip_camera_position"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnTertiaryContainer"
+                android:alpha="0.8"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Real-time Feedback List -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_realtime_feedback"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_feedback_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false"
+        android:descendantFocusability="blocksDescendants"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Feedback Settings -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/header_feedback_settings_debug"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/colorOutlineVariant"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_frequency_n"
+                android:textSize="13sp"
+                android:paddingBottom="4dp" />
+
+            <Spinner
+                android:id="@+id/spinner_frequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/feedback_frequencies"
+                android:paddingBottom="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/label_enabled_corrections"
+                android:textSize="13sp"
+                android:paddingTop="8dp"
+                android:paddingBottom="4dp" />
+
+            <CheckBox
+                android:id="@+id/cb_wrist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_wrist_angle"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_body_rotation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_body_rotation"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_follow_through"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_follow_through"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_contact_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_contact_height"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_elbow_position"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_elbow_position"
+                android:textSize="12sp" />
+
+            <CheckBox
+                android:id="@+id/cb_stroke_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/correction_stroke_speed"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

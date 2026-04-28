@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
+    android:padding="20dp">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tv_drills_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_drills_header"
+        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_drills_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/subtitle_drills"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_drills_title" />
+
+    <!-- Featured Drill -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_featured_drill"
+        style="@style/Widget.Material3.CardView.Elevated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="?attr/colorPrimary"
+        app:layout_constraintTop_toBottomOf="@id/tv_drills_subtitle">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp">
+
+            <TextView
+                android:id="@+id/tv_featured_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/section_recommended"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:background="@drawable/bg_card_rounded"
+                android:backgroundTint="@color/white_20"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageView
+                android:id="@+id/iv_featured_icon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_target"
+                app:tint="@color/white"
+                android:alpha="0.3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/tv_featured_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/exercise_forehand_name"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginTop="12dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_featured_badge" />
+
+            <TextView
+                android:id="@+id/tv_featured_desc"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/exercise_forehand_desc_short"
+                android:textColor="@color/blue_100_70"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_featured_title" />
+                
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_featured"
+                style="@style/Widget.Material3.Button.TonalButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="56dp"
+                android:text="@string/btn_start_drill"
+                android:textColor="?attr/colorPrimary"
+                app:backgroundTint="?attr/colorOnPrimary"
+                android:layout_marginTop="20dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_featured_desc"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Filter Chips -->
+    <HorizontalScrollView
+        android:id="@+id/scroll_chips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/card_featured_drill">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_all"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/section_all_drills"
+                android:checked="true"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_beginner"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_beginner"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_intermediate"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_intermediate"
+                android:layout_marginEnd="8dp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_advanced"
+                style="@style/Widget.Material3.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_advanced"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Drills RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_drills"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/scroll_chips"
+        app:layout_constraintBottom_toTopOf="@id/btn_add_custom_drill" />
+
+    <!-- Add Custom Drill (runs calibration and creates a new local drill) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_add_custom_drill"
+        style="@style/Widget.Material3.Button.TonalButton.Icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/drills_add_custom_cta"
+        app:icon="@drawable/ic_plus"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

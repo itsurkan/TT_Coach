@@ -1,0 +1,5 @@
+---
+description: install
+---
+
+.\gradlew installDebug

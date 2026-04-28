@@ -1,0 +1,46 @@
+=== Phase Timing Trace for forehand_drive_poses.json ===
+Total detection: 5 strokes
+Frame 0 - 10 (0ms - 1000ms): READY (1000 ms)
+  -> Transition to BACKSWING inside Stroke 1
+Frame 10 - 17 (1000ms - 1700ms): BACKSWING (700 ms)
+  -> Transition to FORWARD_SWING inside Stroke 1
+Frame 17 - 19 (1700ms - 1900ms): FORWARD_SWING (200 ms)
+  -> Transition to CONTACT inside Stroke 1
+Frame 19 - 21 (1900ms - 2100ms): CONTACT (200 ms)
+  -> Transition to FOLLOW_THROUGH inside Stroke 1
+Frame 21 - 22 (2100ms - 2200ms): FOLLOW_THROUGH (100 ms)
+  -> Transition to BACKSWING inside Stroke 1
+Frame 22 - 26 (2200ms - 2600ms): BACKSWING (400 ms)
+  -> Transition to FORWARD_SWING inside Stroke 2
+Frame 26 - 29 (2600ms - 2900ms): FORWARD_SWING (300 ms)
+  -> Transition to CONTACT inside Stroke 2
+Frame 29 - 30 (2900ms - 3000ms): CONTACT (100 ms)
+  -> Transition to FOLLOW_THROUGH inside Stroke 2
+Frame 30 - 31 (3000ms - 3100ms): FOLLOW_THROUGH (100 ms)
+  -> Transition to BACKSWING inside Stroke 2
+Frame 31 - 35 (3100ms - 3500ms): BACKSWING (400 ms)
+  -> Transition to FORWARD_SWING inside Stroke 3
+Frame 35 - 37 (3500ms - 3700ms): FORWARD_SWING (200 ms)
+  -> Transition to CONTACT inside Stroke 3
+Frame 37 - 39 (3700ms - 3900ms): CONTACT (200 ms)
+  -> Transition to FOLLOW_THROUGH inside Stroke 3
+Frame 39 - 40 (3900ms - 4000ms): FOLLOW_THROUGH (100 ms)
+  -> Transition to BACKSWING inside Stroke 3
+Frame 40 - 43 (4000ms - 4300ms): BACKSWING (300 ms)
+  -> Transition to FORWARD_SWING inside Stroke 4
+Frame 43 - 46 (4300ms - 4600ms): FORWARD_SWING (300 ms)
+  -> Transition to CONTACT inside Stroke 4
+Frame 46 - 48 (4600ms - 4800ms): CONTACT (200 ms)
+  -> Transition to FOLLOW_THROUGH inside Stroke 4
+Frame 48 - 49 (4800ms - 4900ms): FOLLOW_THROUGH (100 ms)
+  -> Transition to BACKSWING inside Stroke 4
+Frame 49 - 53 (4900ms - 5300ms): BACKSWING (400 ms)
+  -> Transition to FORWARD_SWING inside Stroke 5
+Frame 53 - 55 (5300ms - 5500ms): FORWARD_SWING (200 ms)
+  -> Transition to CONTACT inside Stroke 5
+Frame 55 - 57 (5500ms - 5700ms): CONTACT (200 ms)
+  -> Transition to FOLLOW_THROUGH inside Stroke 5
+Frame 57 - 58 (5700ms - 5800ms): FOLLOW_THROUGH (100 ms)
+  -> Transition to BACKSWING inside Stroke 5
+Frame 58 - 73 (5800ms - 7300ms): BACKSWING
+=== End Trace ===

@@ -26,12 +26,18 @@
         android:layout_height="match_parent"
         app:scaleType="fillStart" />
 
-    <com.google.mediapipe.examples.poselandmarker.OverlayView
+    <com.ttcoachai.OverlayView
         android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="10dp"/>
+
+    <!-- Training Overlays (Timer, Hits, Accuracy, Pause/Play) -->
+    <include
+        android:id="@+id/training_overlays"
+        layout="@layout/layout_training_overlays"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <include
-        android:id="@+id/bottom_sheet_layout"
-        layout="@layout/info_bottom_sheet" />
+    <!-- Drill Menu moved to TrainingActivity -->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
