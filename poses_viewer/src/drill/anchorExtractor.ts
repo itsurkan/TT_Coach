@@ -235,11 +235,45 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
 
   const lHip = get(LM.L_HIP); const rHip = get(LM.R_HIP)
   const lSh  = get(LM.L_SHOULDER); const rSh = get(LM.R_SHOULDER)
-  const rElbow = get(LM.R_ELBOW); const rWrist = get(LM.R_WRIST); const rIndex = get(LM.R_INDEX)
-  const lElbow = get(LM.L_ELBOW); const lWrist = get(LM.L_WRIST); const lIndex = get(LM.L_INDEX)
+  let rElbow = get(LM.R_ELBOW); let rWrist = get(LM.R_WRIST); let rIndex = get(LM.R_INDEX)
+  let lElbow = get(LM.L_ELBOW); let lWrist = get(LM.L_WRIST); let lIndex = get(LM.L_INDEX)
   const lKnee = get(LM.L_KNEE);  const rKnee = get(LM.R_KNEE)
   const lAnkle = get(LM.L_ANKLE); const rAnkle = get(LM.R_ANKLE)
   const lFootTip = get(LM.L_FOOT); const rFootTip = get(LM.R_FOOT)
+
+  // Visibility-z-fallback for the arm chains.
+  //
+  // MediaPipe z on low-confidence landmarks (e.g. racket-arm grip occluded
+  // against torso, frontal arm extension where the depth net flips sign) is
+  // unreliable and tends to dominate the bone vector — see ivan_1 frame 320,
+  // where R-wrist v=0.74 produces a forearm 99% of whose length sits in z and
+  // is 2.1× the upper-arm length. For any joint along R-shoulder→elbow→wrist→
+  // index (and mirrored for left) below VIS_Z_FALLBACK, inherit z from the
+  // closest upstream high-visibility joint. This collapses the affected bone
+  // toward the image plane instead of letting it project a phantom depth.
+  // Torso, legs, and face landmarks are not touched — z noise on those is
+  // already handled by the existing torsoDamped / Z_DAMP paths.
+  const VIS_Z_FALLBACK = 0.85
+  const propagateZ = (
+    baseZ: number,
+    joints: Array<[V3, number]>,
+  ): V3[] => {
+    let goodZ = baseZ
+    return joints.map(([p, idx]) => {
+      const v = lms[idx]?.visibility ?? 1
+      if (v >= VIS_Z_FALLBACK) {
+        goodZ = p.z
+        return p
+      }
+      return { x: p.x, y: p.y, z: goodZ }
+    })
+  }
+  ;[rElbow, rWrist, rIndex] = propagateZ(rSh.z, [
+    [rElbow, LM.R_ELBOW], [rWrist, LM.R_WRIST], [rIndex, LM.R_INDEX],
+  ]) as [V3, V3, V3]
+  ;[lElbow, lWrist, lIndex] = propagateZ(lSh.z, [
+    [lElbow, LM.L_ELBOW], [lWrist, LM.L_WRIST], [lIndex, LM.L_INDEX],
+  ]) as [V3, V3, V3]
 
   const hipMid = mid(lHip, rHip)
   const shMid  = mid(lSh, rSh)
