@@ -38,6 +38,10 @@ function migrateAnchor(raw: unknown): PoseAnchor {
     out.rightKneeYawDeg = typeof out.rightFootYawDeg === 'number' ? out.rightFootYawDeg : 0
     out.rightFootYawDeg = 0
   }
+  if (typeof out.leftKneeSwivelDeg  !== 'number') out.leftKneeSwivelDeg  = 0
+  if (typeof out.rightKneeSwivelDeg !== 'number') out.rightKneeSwivelDeg = 0
+  if (typeof out.leftWristYawDeg    !== 'number') out.leftWristYawDeg    = 0
+  if (typeof out.rightWristYawDeg   !== 'number') out.rightWristYawDeg   = 0
   return out
 }
 

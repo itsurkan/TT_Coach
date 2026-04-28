@@ -44,6 +44,10 @@ interface Props {
 interface VideoEntry { name: string; ext: string }
 
 const DEFAULT_BASE = 'andrii_1'
+const DEFAULT_INDICES: Record<string, [number, number]> = {
+  andrii_1: [57, 63],
+  ivan_1:   [315, 320],
+}
 // Animation timing — one-way duration and end-of-pong pause, both at 1×
 // speed. The user's speed multiplier scales elapsed time, so changing
 // speed feels instant without restarting the loop.
@@ -83,10 +87,10 @@ function EditorShell({ onClose }: Props) {
   speedRef.current = speedMult
 
   // ───── constraint toggles ─────────────────────────────────────────────
-  const [freezeFeet, setFreezeFeet] = useState(true)
-  const [applySliderClamps, setApplySliderClamps] = useState(true)
-  const [computeBodyRotation, setComputeBodyRotation] = useState(true)
-  const [stanceWidth2D, setStanceWidth2D] = useState(true)
+  const [freezeFeet, setFreezeFeet] = useState(false)
+  const [applySliderClamps, setApplySliderClamps] = useState(false)
+  const [computeBodyRotation, setComputeBodyRotation] = useState(false)
+  const [stanceWidth2D, setStanceWidth2D] = useState(false)
 
   // ───── hardcoded biomechanical presets ─────────────────────────────────
   // Hip height as a fraction of leg length (0.5–1.0, default 0.8).
@@ -154,15 +158,18 @@ function EditorShell({ onClose }: Props) {
     'stanceWidthNorm'>
   const lockedFeetRef = useRef<LockedFeet | null>(null)
 
+  const applyPresetsRef = useRef<(next: PoseAnchor) => PoseAnchor>(a => a)
+
   const applyPresets = (next: PoseAnchor): PoseAnchor => {
     const a = { ...next }
+    if (lockFeetRef.current) {
+      Object.assign(a, lockedFeetRef.current ?? feetFromMult(stanceMultRef.current))
+    }
+    // Hip height runs after feet so it can override knee angles even when feet are locked.
     if (lockHipHeightRef.current) {
       const k = kneeFromHipRatio(hipHeightRatioRef.current)
       a.leftKneeAngleDeg  = k
       a.rightKneeAngleDeg = k
-    }
-    if (lockFeetRef.current) {
-      Object.assign(a, lockedFeetRef.current ?? feetFromMult(stanceMultRef.current))
     }
     if (lockLeftHandRef.current) {
       a.leftShoulderAngleDeg     = LEFT_HAND_PRESET.leftShoulderAngleDeg
@@ -171,44 +178,43 @@ function EditorShell({ onClose }: Props) {
     }
     return a
   }
+  applyPresetsRef.current = applyPresets
 
   const toggleLockHipHeight = (v: boolean) => {
+    lockHipHeightRef.current = v
     setLockHipHeight(v)
     if (v) {
-      const k = kneeFromHipRatio(hipHeightRatioRef.current)
-      setAnchor(prev => ({ ...prev, leftKneeAngleDeg: k, rightKneeAngleDeg: k }))
+      setAnchor(prev => applyPresetsRef.current(prev))
     }
   }
 
   const onHipHeightRatioChange = (v: number) => {
+    hipHeightRatioRef.current = v
     setHipHeightRatio(v)
     if (lockHipHeightRef.current) {
-      const k = kneeFromHipRatio(v)
-      setAnchor(prev => ({ ...prev, leftKneeAngleDeg: k, rightKneeAngleDeg: k }))
+      setAnchor(prev => applyPresetsRef.current(prev))
     }
   }
 
   const toggleLockFeet = (v: boolean) => {
     setLockFeet(v)
     if (v) {
-      setAnchor(prev => {
-        lockedFeetRef.current = {
-          leftThighForwardDeg:    prev.leftThighForwardDeg,
-          rightThighForwardDeg:   prev.rightThighForwardDeg,
-          leftThighAbductionDeg:  prev.leftThighAbductionDeg,
-          rightThighAbductionDeg: prev.rightThighAbductionDeg,
-          leftKneeAngleDeg:       prev.leftKneeAngleDeg,
-          rightKneeAngleDeg:      prev.rightKneeAngleDeg,
-          leftKneeYawDeg:         prev.leftKneeYawDeg,
-          rightKneeYawDeg:        prev.rightKneeYawDeg,
-          leftKneeSwivelDeg:      prev.leftKneeSwivelDeg,
-          rightKneeSwivelDeg:     prev.rightKneeSwivelDeg,
-          leftFootYawDeg:         prev.leftFootYawDeg,
-          rightFootYawDeg:        prev.rightFootYawDeg,
-          stanceWidthNorm:        prev.stanceWidthNorm,
-        }
-        return prev
-      })
+      lockedFeetRef.current = {
+        leftThighForwardDeg:    MIDPOINT_POSE.leftThighForwardDeg,
+        rightThighForwardDeg:   MIDPOINT_POSE.rightThighForwardDeg,
+        leftThighAbductionDeg:  MIDPOINT_POSE.leftThighAbductionDeg,
+        rightThighAbductionDeg: MIDPOINT_POSE.rightThighAbductionDeg,
+        leftKneeAngleDeg:       MIDPOINT_POSE.leftKneeAngleDeg,
+        rightKneeAngleDeg:      MIDPOINT_POSE.rightKneeAngleDeg,
+        leftKneeYawDeg:         MIDPOINT_POSE.leftKneeYawDeg,
+        rightKneeYawDeg:        MIDPOINT_POSE.rightKneeYawDeg,
+        leftKneeSwivelDeg:      MIDPOINT_POSE.leftKneeSwivelDeg,
+        rightKneeSwivelDeg:     MIDPOINT_POSE.rightKneeSwivelDeg,
+        leftFootYawDeg:         MIDPOINT_POSE.leftFootYawDeg,
+        rightFootYawDeg:        MIDPOINT_POSE.rightFootYawDeg,
+        stanceWidthNorm:        MIDPOINT_POSE.stanceWidthNorm,
+      }
+      setAnchor(prev => ({ ...prev, ...lockedFeetRef.current! }))
     } else {
       lockedFeetRef.current = null
     }
@@ -263,8 +269,9 @@ function EditorShell({ onClose }: Props) {
           return
         }
         setFrames(fixture.frames)
-        setStartIdx(0)
-        setEndIdx(fixture.frames.length - 1)
+        const [defStart, defEnd] = DEFAULT_INDICES[selectedBase] ?? [0, fixture.frames.length - 1]
+        setStartIdx(Math.min(defStart, fixture.frames.length - 1))
+        setEndIdx(Math.min(defEnd, fixture.frames.length - 1))
         setLoadStatus('ready')
       })
       .catch(err => {
@@ -300,6 +307,12 @@ function EditorShell({ onClose }: Props) {
     return lms.length >= 33 ? lms : null
   }, [frames, startIdx])
 
+  // When not animating, immediately reflect index changes in the viewport.
+  useEffect(() => {
+    if (isAnimating || !startAnchor) return
+    setAnchor(applyPresetsRef.current(cloneAnchor(startAnchor)))
+  }, [startAnchor, isAnimating])
+
   // RAF-driven ping-pong with pause-at-both-ends. Speed scales elapsed
   // time via speedRef so the slider doesn't restart the effect.
   useEffect(() => {
@@ -325,7 +338,7 @@ function EditorShell({ onClose }: Props) {
         t = 0
         if (elapsed >= PAUSE_MS) next = 'fwd'
       }
-      setAnchor(applyPresets(lerpAnchor(startAnchor, endAnchor, t)))
+      setAnchor(applyPresetsRef.current(lerpAnchor(startAnchor, endAnchor, t)))
       if (next !== phase) { phase = next; phaseStart = now }
       raf = requestAnimationFrame(step)
     }
