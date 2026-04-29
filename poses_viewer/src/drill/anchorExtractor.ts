@@ -556,24 +556,40 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
   void rUpperArmUnit; void rForearmUnit; void lUpperArmUnit; void lForearmUnit
 
   const bodyShoulderAcross: V3 = { x: _acrossX, y: 0, z: _acrossZ }
-  const rightWristYawRaw = computeWristYaw(
-    rForearmUnit, bodyShoulderAcross, rightWristAngleDeg, rWristToIndex, -1,
-  )
+  // When the hand chain falls back to synthetic z (Fix B), wristYaw is unobservable:
+  // computeWristYaw's reference direction (forearm rotated around shoulderAcross)
+  // carries real z, but the observed wrist→index vector is now purely 2D, so the
+  // signed angle inflates yaw. forearmTwist additionally compares the Fix-B-corrected
+  // index against the raw pinky (not in propagateZ's chain) — heterogeneous z sources
+  // produce garbage. Skip when any input joint is below VIS_Z_FALLBACK; default 0
+  // matches the existing "ambiguous from single view" pattern (kneeSwivel, pelvicRoll).
+  const rWristVis = lms[LM.R_WRIST]?.visibility ?? 1
+  const rIndexVis = lms[LM.R_INDEX]?.visibility ?? 1
+  const rPinkyVis = lms[LM.R_PINKY]?.visibility ?? 1
+  const lWristVis = lms[LM.L_WRIST]?.visibility ?? 1
+  const lIndexVis = lms[LM.L_INDEX]?.visibility ?? 1
+  const lPinkyVis = lms[LM.L_PINKY]?.visibility ?? 1
+  const rWristYawObservable = rWristVis >= VIS_Z_FALLBACK && rIndexVis >= VIS_Z_FALLBACK
+  const lWristYawObservable = lWristVis >= VIS_Z_FALLBACK && lIndexVis >= VIS_Z_FALLBACK
+  const rForearmTwistObservable = rWristYawObservable && rPinkyVis >= VIS_Z_FALLBACK
+  const lForearmTwistObservable = lWristYawObservable && lPinkyVis >= VIS_Z_FALLBACK
+
+  const rightWristYawRaw = rWristYawObservable
+    ? computeWristYaw(rForearmUnit, bodyShoulderAcross, rightWristAngleDeg, rWristToIndex, -1)
+    : 0
   const lWristToIndexVec = sub(lIndex, lWrist)
-  const leftWristYawRaw = computeWristYaw(
-    lForearmUnit, bodyShoulderAcross, leftWristAngleDeg, lWristToIndexVec, +1,
-  )
+  const leftWristYawRaw = lWristYawObservable
+    ? computeWristYaw(lForearmUnit, bodyShoulderAcross, leftWristAngleDeg, lWristToIndexVec, +1)
+    : 0
 
   const rPinkyVec: V3 = toV3(lms[LM.R_PINKY])
   const lPinkyVec: V3 = toV3(lms[LM.L_PINKY])
-  const rightForearmTwistRaw = computeForearmTwist(
-    rForearmUnit, bodyShoulderAcross, rightWristYawRaw,
-    rIndex, rPinkyVec, -1,
-  )
-  const leftForearmTwistRaw = computeForearmTwist(
-    lForearmUnit, bodyShoulderAcross, leftWristYawRaw,
-    lIndex, lPinkyVec, +1,
-  )
+  const rightForearmTwistRaw = rForearmTwistObservable
+    ? computeForearmTwist(rForearmUnit, bodyShoulderAcross, rightWristYawRaw, rIndex, rPinkyVec, -1)
+    : 0
+  const leftForearmTwistRaw = lForearmTwistObservable
+    ? computeForearmTwist(lForearmUnit, bodyShoulderAcross, leftWristYawRaw, lIndex, lPinkyVec, +1)
+    : 0
 
   // Knee angles.
   const leftKneeAngleDeg  = angleBetween(sub(lHip, lKnee), sub(lAnkle, lKnee))
