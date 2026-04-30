@@ -2,7 +2,7 @@ import type { PoseAnchor } from './PoseAnchor'
 import type { Landmark } from '../types'
 import { LM } from './SkeletonModel'
 import type { BoneLengthsOverride } from './skeletonReconstructor'
-import { type V3, toV3, sub, length, toUnit, dampZ, angleBetween, clamp, bodyFrameFromRotDeg } from './vec3'
+import { type V3, toV3, sub, length, toUnit, dampZ, angleBetween, clamp, bodyFrameFromRotDeg, torsoDownFromYawTilt } from './vec3'
 import {
   VIS_Z_FALLBACK, propagateZ, decomposeArm,
   computeWristYaw, computeForearmTwist, computeElbowSwivel,
@@ -92,6 +92,13 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
 
   const bodyShoulderAcross: V3 = { x: decompFrame.acrossX, y: 0, z: decompFrame.acrossZ }
 
+  // Torso-down direction for the decomposition frame (accounts for forward tilt).
+  // decomposeArm uses this to exactly invert the FK's tilted arm formula instead
+  // of approximating with world-down, which causes large flex errors at 45°+ tilt.
+  const armDecompYawDeg = opts.overrideBodyFrameYaw !== undefined ? opts.overrideBodyFrameYaw : bodyRotationDeg
+  const torsoTiltClamped = clamp(torsoTiltDeg, 0, 75)
+  const torsoDown = torsoDownFromYawTilt(armDecompYawDeg, torsoTiltClamped)
+
   // Arm vectors.
   const rUpperArm    = sub(rElbow, rSh)
   const rForearm     = sub(rWrist, rElbow)
@@ -99,8 +106,8 @@ export function extractAnchorFromLandmarks(lms: Landmark[], opts: ExtractAnchorO
   const lUpperArmVec = sub(lElbow, lSh)
   const lForearmVec  = sub(lWrist, lElbow)
 
-  const rArmDecomp = decomposeArm(rUpperArm, -1, decompFrame)
-  const lArmDecomp = decomposeArm(lUpperArmVec, +1, decompFrame)
+  const rArmDecomp = decomposeArm(rUpperArm, -1, decompFrame, torsoDown)
+  const lArmDecomp = decomposeArm(lUpperArmVec, +1, decompFrame, torsoDown)
 
   // Elbow interior angles — z dampened to match FK decomposition.
   const rightElbowAngleDeg = angleBetween(dampZ(sub(rSh, rElbow)), dampZ(rForearm))
