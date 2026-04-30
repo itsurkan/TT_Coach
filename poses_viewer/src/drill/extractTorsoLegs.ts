@@ -49,10 +49,12 @@ export function computeBodyFrame(
 
   // Torso tilt: angle between torso vector and world up (-y). z dampened to
   // half weight — reduces over-estimation from MediaPipe z noise on forward bend.
+  // Always non-negative: the slider range is [0,75°] (no backward lean), so the
+  // previous z-sign flip just created a noise-driven step from 0° → ~50° when
+  // shoulder/hip z crossed each other in MediaPipe noise on lateral-facing poses.
   const torso = sub(shMid, hipMid)
   const torsoDamped: V3 = { x: torso.x, y: torso.y, z: torso.z * 0.5 }
-  let torsoTiltDeg = angleBetween(torsoDamped, { x: 0, y: -1, z: 0 })
-  if (torso.z > 0) torsoTiltDeg = -torsoTiltDeg
+  const torsoTiltDeg = angleBetween(torsoDamped, { x: 0, y: -1, z: 0 })
 
   const shoulderRotationDeg = ((shYaw - hipYaw) * 180) / Math.PI
 
