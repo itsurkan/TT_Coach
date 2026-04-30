@@ -183,7 +183,7 @@ function EditorShell({ onClose }: Props) {
     // accumulate from extracted poses.
     a.bodyRotationDeg = 0
     a.pelvicRollDeg = 0
-    a.figureYawDeg = Math.max(-40, Math.min(40, a.figureYawDeg))
+    a.figureYawDeg = Math.max(-90, Math.min(90, a.figureYawDeg))
     if (lockFeetRef.current) {
       // Foot orientation comes from the stance slider; knee yaw/swivel and
       // foot yaw stay at MIDPOINT defaults so the pose's leg twist is ignored.
@@ -345,24 +345,37 @@ function EditorShell({ onClose }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBase, frames])
 
-  // Extract once per index change. Skip frames whose landmarks array is
-  // incomplete — the FK extractor assumes 33 MediaPipe points and will
-  // produce garbage otherwise.
+  // Extract arm/thigh angles at the TARGET yaw (raw + camera offset) so that
+  // decompositions are consistent with the FK body frame used at display time.
+  // Without this, a 119° camera offset would rotate the body frame by 119° but
+  // leave the arm angles measured in the original (wrong) frame, placing the
+  // hand completely in the wrong position.
+  const extractWithOffset = (lms: PoseFixtureFrame['landmarks']) => {
+    const baseOpts = { computeBodyRotation, stanceWidth2D }
+    if (cameraYawOffsetDeg === 0) {
+      return extractAnchorFromLandmarks(lms, baseOpts)
+    }
+    const rawYaw = extractAnchorFromLandmarks(lms, baseOpts).figureYawDeg
+    const targetYaw = wrapYaw(rawYaw + cameraYawOffsetDeg)
+    const raw = extractAnchorFromLandmarks(lms, { ...baseOpts, overrideBodyFrameYaw: targetYaw })
+    return { ...raw, figureYawDeg: targetYaw }
+  }
+
   const startAnchor = useMemo<PoseAnchor | null>(() => {
     if (!frames || startIdx < 0 || startIdx >= frames.length) return null
     const lms = frames[startIdx].landmarks
     if (lms.length < 33) return null
-    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
-    const calibrated = applyYawOffset(raw, cameraYawOffsetDeg)
+    const calibrated = extractWithOffset(lms)
     return applySliderClamps ? clampAnchor(calibrated) : calibrated
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frames, startIdx, computeBodyRotation, stanceWidth2D, applySliderClamps, cameraYawOffsetDeg])
   const endAnchor = useMemo<PoseAnchor | null>(() => {
     if (!frames || endIdx < 0 || endIdx >= frames.length) return null
     const lms = frames[endIdx].landmarks
     if (lms.length < 33) return null
-    const raw = extractAnchorFromLandmarks(lms, { computeBodyRotation, stanceWidth2D })
-    const calibrated = applyYawOffset(raw, cameraYawOffsetDeg)
+    const calibrated = extractWithOffset(lms)
     return applySliderClamps ? clampAnchor(calibrated) : calibrated
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frames, endIdx, computeBodyRotation, stanceWidth2D, applySliderClamps, cameraYawOffsetDeg])
 
   // When not animating, immediately reflect index changes in the viewport.
