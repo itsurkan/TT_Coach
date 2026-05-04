@@ -19,7 +19,9 @@ shared/build/*
 data_regressor/val/images/*
 data_regressor/train/images/*
 data_regressor.zip
-/Videos/
+/Videos/**
+!/Videos/*/
+!/Videos/*/*_anchor_fixtures.json
 
 datasets/*
 tthq_annotations/*
