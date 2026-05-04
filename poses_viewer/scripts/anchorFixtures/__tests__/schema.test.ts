@@ -88,4 +88,19 @@ describe('loadAnchorFixture', () => {
       expect(() => loadAnchorFixture('demo', videosDir)).toThrow(/schemaVersion/)
     })
   })
+
+  it('throws on videoBase mismatch', () => {
+    withTempVideosDir(videosDir => {
+      const baseDir = path.join(videosDir, 'actual_name')
+      fs.mkdirSync(baseDir, { recursive: true })
+      fs.writeFileSync(
+        path.join(baseDir, 'actual_name_anchor_fixtures.json'),
+        JSON.stringify({
+          videoBase: 'different_name', schemaVersion: 1,
+          rubricVersion: 1, rendererVersion: 1, frames: {},
+        }),
+      )
+      expect(() => loadAnchorFixture('actual_name', videosDir)).toThrow(/videoBase/)
+    })
+  })
 })
