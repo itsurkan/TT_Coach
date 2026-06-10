@@ -12,7 +12,8 @@ class PoseSchemaException(message: String) : IllegalArgumentException(message)
  * Parser for pose JSON schema v2 (docs/pose_json_schema_v2.md), the format written by
  * scripts/poses/export_poses_rtmpose.py. Pure Kotlin, no dependencies (shared-module
  * convention). Regex-anchored extraction is safe here because the exporter controls
- * the format; all structural assumptions are validated explicitly.
+ * the format; structural assumptions are validated explicitly (schema version, topology,
+ * landmark counts, and a landmark-entry tripwire against field-order drift).
  */
 object PoseJsonV2Parser {
 
@@ -30,6 +31,9 @@ object PoseJsonV2Parser {
     private val LANDMARK_RE = Regex(
         """"index"\s*:\s*(\d+)\s*,\s*"x"\s*:\s*([-\d.Ee]+)\s*,\s*"y"\s*:\s*([-\d.Ee]+)\s*,\s*"score"\s*:\s*([-\d.Ee]+)"""
     )
+
+    /** Counts landmark objects by their `"index":` key; note `"frameIndex"` has capital I so it never matches. */
+    private val INDEX_KEY_RE = Regex(""""index"\s*:""")
 
     fun parse(json: String): PoseSequence2D {
         val version = SCHEMA_VERSION_RE.find(json)?.groupValues?.get(1)?.toInt()
@@ -90,6 +94,14 @@ object PoseJsonV2Parser {
                     score = m.groupValues[4].toFloat()
                 )
             }.toList()
+
+            val landmarkEntryCount = INDEX_KEY_RE.findAll(section).count()
+            if (landmarkEntryCount != keypoints.size) {
+                throw PoseSchemaException(
+                    "Frame $frameIndex: found $landmarkEntryCount landmark entries but parsed ${keypoints.size} — " +
+                        "landmark field order/format drifted from schema v2"
+                )
+            }
 
             if (keypoints.isNotEmpty() && keypoints.size != topology.keypointCount) {
                 throw PoseSchemaException(

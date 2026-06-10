@@ -93,4 +93,58 @@ class PoseJsonV2ParserTest {
             PoseJsonV2Parser.parse(v2Json().replace("\"schemaVersion\": 2", "\"schemaVersion\": 3"))
         }
     }
+
+    @Test
+    fun rejectsReorderedLandmarkFields() {
+        // Field-order drift must throw, never silently parse as "no person" frames
+        val reordered = (0 until 17).joinToString(",") {
+            """{ "index": $it, "y": 0.25, "x": 0.5, "score": 0.9 }"""
+        }
+        val json = v2Json().replace(landmarksJson(17), reordered)
+        val ex = assertFailsWith<PoseSchemaException> { PoseJsonV2Parser.parse(json) }
+        assertTrue(ex.message!!.contains("drifted"), "must report format drift: ${ex.message}")
+    }
+
+    @Test
+    fun parsesRealExporterMultilineFormat() {
+        // json.dump(indent=2) puts every field on its own line — \s* must absorb it
+        val json = """
+            {
+              "schemaVersion": 2,
+              "topology": "coco17",
+              "model": "rtmpose-m",
+              "videoName": "clip.mp4",
+              "intervalMs": 100,
+              "totalFrames": 1,
+              "videoDurationMs": 100,
+              "videoWidth": 712,
+              "videoHeight": 1280,
+              "frames": [
+                {
+                  "frameIndex": 0,
+                  "timestampMs": 0,
+                  "landmarks": [
+            ${(0 until 17).joinToString(",\n") { """        {
+                      "index": $it,
+                      "x": 0.5,
+                      "y": 0.25,
+                      "score": 0.9
+                    }""" }}
+                  ]
+                }
+              ]
+            }
+        """.trimIndent()
+        val seq = PoseJsonV2Parser.parse(json)
+        assertEquals(17, seq.frames[0].keypoints.size)
+    }
+
+    @Test
+    fun parsesNegativeAndExponentCoordinates() {
+        // RTMPose can place keypoints slightly off-frame
+        val custom = landmarksJson(17).replaceFirst(""""x": 0.5""", """"x": -1.25E-2""")
+        val json = v2Json().replace(landmarksJson(17), custom)
+        val seq = PoseJsonV2Parser.parse(json)
+        assertEquals(-0.0125f, seq.frames[0].keypoints[0].x, 1e-6f)
+    }
 }
