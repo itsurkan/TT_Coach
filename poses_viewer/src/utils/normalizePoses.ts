@@ -23,14 +23,15 @@ export function normalizeLandmarks(input: unknown): Landmark[] {
       }
 
       if (item && typeof item === 'object') {
-        const lm = item as Partial<Landmark>
+        const lm = item as Partial<Landmark> & { score?: number }
+        const score = toNumber(lm.score, 1)
         return {
           index: typeof lm.index === 'number' ? lm.index : index,
           x: toNumber(lm.x),
           y: toNumber(lm.y),
           z: toNumber(lm.z),
-          visibility: toNumber(lm.visibility, 1),
-          presence: toNumber(lm.presence, 1),
+          visibility: lm.visibility !== undefined ? toNumber(lm.visibility, 1) : score,
+          presence: lm.presence !== undefined ? toNumber(lm.presence, 1) : score,
         }
       }
 
@@ -81,6 +82,7 @@ export function normalizeData(input: unknown): PosesBallData {
   return {
     videoUri: typeof root.videoUri === 'string' ? root.videoUri : undefined,
     videoName: typeof root.videoName === 'string' ? root.videoName : undefined,
+    topology: root.topology === 'coco17' ? 'coco17' : 'mediapipe33',
     intervalMs,
     totalFrames: toNumber(root.totalFrames ?? root.total_frames, frames.length),
     videoDurationMs: toNumber(root.videoDurationMs ?? root.video_duration_ms, frames.length * intervalMs),

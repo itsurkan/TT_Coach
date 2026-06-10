@@ -784,6 +784,7 @@ export default function App() {
       ball: null,
     }))
     setData({
+      topology: 'mediapipe33',
       intervalMs,
       totalFrames,
       videoDurationMs: durationMs,

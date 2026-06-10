@@ -36,3 +36,38 @@ describe('normalizeData (legacy v1)', () => {
     expect(lm.visibility).toBeCloseTo(0.95)
   })
 })
+
+const v2File = {
+  schemaVersion: 2,
+  topology: 'coco17',
+  model: 'rtmpose-m',
+  videoName: 'video_2.mp4',
+  intervalMs: 100,
+  totalFrames: 1,
+  videoDurationMs: 100,
+  videoWidth: 712,
+  videoHeight: 1280,
+  exportTimestamp: 123,
+  frames: [
+    {
+      frameIndex: 0,
+      timestampMs: 0,
+      landmarks: [{ index: 5, x: 0.31, y: 0.42, score: 0.93 }],
+    },
+  ],
+}
+
+describe('normalizeData (schema v2 / coco17)', () => {
+  it('detects coco17 topology', () => {
+    expect(normalizeData(v2File).topology).toBe('coco17')
+  })
+
+  it('defaults legacy files to mediapipe33', () => {
+    expect(normalizeData(legacyFile).topology).toBe('mediapipe33')
+  })
+
+  it('maps score to visibility/presence and z to 0', () => {
+    const lm = normalizeData(v2File).frames[0].landmarks[0]
+    expect(lm).toEqual({ index: 5, x: 0.31, y: 0.42, z: 0, visibility: 0.93, presence: 0.93 })
+  })
+})

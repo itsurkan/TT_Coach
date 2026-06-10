@@ -1,3 +1,5 @@
+export type PoseTopology = 'mediapipe33' | 'coco17'
+
 export interface Landmark {
   index: number
   x: number
@@ -25,6 +27,7 @@ export interface Frame {
 export interface PosesBallData {
   videoUri?: string
   videoName?: string
+  topology: PoseTopology
   intervalMs: number
   totalFrames: number
   videoDurationMs: number
