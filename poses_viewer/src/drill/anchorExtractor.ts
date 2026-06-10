@@ -1,3 +1,5 @@
+// MediaPipe-33 landmark indices only (LM.R_WRIST=16 etc.) — do NOT feed coco17
+// (schema v2 / _poses_rtm.json) frames here: index 16 is an ankle in COCO-17.
 import type { PoseAnchor } from './PoseAnchor'
 import type { Landmark } from '../types'
 import { LM } from './SkeletonModel'

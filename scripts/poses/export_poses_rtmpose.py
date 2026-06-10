@@ -120,10 +120,11 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
     }
 
     dest_dir = out_dir if out_dir else os.path.dirname(os.path.abspath(video_path))
+    os.makedirs(dest_dir, exist_ok=True)
     out_path = os.path.join(dest_dir, base + "_poses_rtm.json")
 
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+        json.dump(data, f, indent=2, allow_nan=False)
 
     n_detected = sum(1 for fr in frames if fr["landmarks"])
     print(f"\n-> {out_path}")
