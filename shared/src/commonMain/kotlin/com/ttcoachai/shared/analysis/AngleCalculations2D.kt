@@ -107,8 +107,10 @@ object AngleCalculations2D {
      * Head x is compared to shoulder-mid x: head protrusion relative to the
      * shoulders is lean-invariant, whereas hip-mid would be confounded by the
      * very lean this sign is meant to orient.
+     *
+     * Internal: also used by drill-level direction filtering (ForwardStrokeFilter).
      */
-    private fun facingSign(kp: List<Keypoint2D>, shoulderMidX: Float, minScore: Float): Float? {
+    internal fun facingSign(kp: List<Keypoint2D>, shoulderMidX: Float, minScore: Float): Float? {
         val headX = scored(kp, Coco17.NOSE, minScore)?.x
             ?: run {
                 val le = scored(kp, Coco17.LEFT_EAR, minScore)
