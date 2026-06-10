@@ -64,8 +64,19 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_fe
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     duration_ms = int(frame_count / fps * 1000)
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # L-08: take dimensions from the DECODED frame, not header props — rotation
+    # metadata (portrait phone video) can swap them, which would invert the
+    # aspect-ratio correction all downstream angle math depends on.
+    ok, probe = cap.read()
+    if not ok:
+        print(f"ERROR: cannot decode first frame: {video_path}", file=sys.stderr)
+        sys.exit(1)
+    height, width = probe.shape[:2]
+    header_w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    header_h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    if (width, height) != (header_w, header_h):
+        print(f"NOTE: rotation metadata applied: header {header_w}x{header_h} -> decoded {width}x{height}")
+    cap.set(cv2.CAP_PROP_POS_MSEC, 0)  # rewind after the probe read
 
     print(f"Video: {video_name}  {width}x{height}  {duration_ms} ms  ({fps:.1f} fps)")
 
@@ -92,7 +103,7 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_fe
                     "index": i,
                     "x": round(float(person_kpts[i][0]) / width, 4),
                     "y": round(float(person_kpts[i][1]) / height, 4),
-                    "score": round(float(person_scores[i]), 4),
+                    "score": round(min(1.0, max(0.0, float(person_scores[i]))), 4),
                 })
 
         frames.append({
