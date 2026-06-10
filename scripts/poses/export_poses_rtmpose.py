@@ -101,8 +101,8 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_fe
             for i in range(num_keypoints):
                 landmarks.append({
                     "index": i,
-                    "x": round(float(person_kpts[i][0]) / width, 4),
-                    "y": round(float(person_kpts[i][1]) / height, 4),
+                    "x": round(min(1.0, max(0.0, float(person_kpts[i][0]) / width)), 4),
+                    "y": round(min(1.0, max(0.0, float(person_kpts[i][1]) / height)), 4),
                     "score": round(min(1.0, max(0.0, float(person_scores[i]))), 4),
                 })
 
