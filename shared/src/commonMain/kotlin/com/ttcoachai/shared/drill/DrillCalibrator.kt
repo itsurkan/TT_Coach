@@ -20,9 +20,10 @@ import kotlin.math.roundToInt
  *
  * Camera yaw is resolved PER REP (the player moves their feet): [cameraYawDeg]
  * override if given, else CameraAngleEstimator.estimateYawForStroke. Reps beyond
- * [maxCameraYawDeg] are excluded; [CameraPlacementException] fires only when those
- * exclusions leave fewer than [minRepCount] reps — a baseline built from a badly
- * placed camera would poison every later feedback session.
+ * [maxCameraYawDeg] are excluded; [CameraPlacementException] fires only when placement
+ * exclusions are what drops the count below [minRepCount] (if even the unfiltered stroke
+ * count was short, deriveFromMetrics reports "Insufficient valid reps" instead) — a
+ * baseline built from a badly placed camera would poison every later feedback session.
  */
 object DrillCalibrator {
 
@@ -60,7 +61,7 @@ object DrillCalibrator {
             stroke to yaw
         }
         val placed = strokesWithYaw.filter { (_, yaw) -> abs(yaw) <= maxCameraYawDeg }
-        if (placed.size < minRepCount && placed.size < strokes.size) {
+        if (placed.size < minRepCount && placed.size < strokes.size && strokes.size >= minRepCount) {
             throw CameraPlacementException(
                 "Only ${placed.size} of ${strokes.size} reps had the camera within " +
                     "${maxCameraYawDeg.roundToInt()}° of the side view (need $minRepCount) — " +

@@ -35,7 +35,7 @@ data class DrillAnalysisReport(
     val reps: List<RepAnalysis>,
     val feedback: List<SpokenFeedback>,
     /**
-     * Session summary: false → at least half the reps had bad camera placement;
+     * Session summary: false → more than half the reps had bad camera placement;
      * the UI should surface a "reposition camera" prompt. Per-rep detail is on
      * [RepAnalysis.placementOk].
      */
@@ -64,6 +64,8 @@ class ForehandDriveDrillAnalyzer(
 ) {
 
     fun analyze(sequence: PoseSequence2D): DrillAnalysisReport {
+        // analyze() is self-contained: a reused analyzer must not inherit the previous run's window
+        cadence.reset()
         // Detection on plain aspect; per-rep corrected xScale below. ForwardStrokeFilter
         // keeps recovery swings out of feedback; RepFilter drops junk peaks (L-03).
         val detected = detector.detect(sequence.frames, handedness, sequence.aspectRatio, sequence.intervalMs)
