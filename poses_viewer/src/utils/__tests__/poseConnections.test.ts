@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { POSE_CONNECTIONS, COCO17_CONNECTIONS, getConnections } from '../poseConnections'
+import { POSE_CONNECTIONS, COCO17_CONNECTIONS, HALPE26_CONNECTIONS, getConnections } from '../poseConnections'
 
 describe('COCO17_CONNECTIONS', () => {
   it('has 16 edges, all indices within 0..16', () => {
@@ -26,9 +26,29 @@ describe('COCO17_CONNECTIONS', () => {
   })
 })
 
+describe('HALPE26_CONNECTIONS', () => {
+  it('extends COCO-17 with 6 foot edges and skips head/neck/hip-mid (17–19)', () => {
+    expect(HALPE26_CONNECTIONS).toHaveLength(22)
+    for (const conn of COCO17_CONNECTIONS) {
+      expect(HALPE26_CONNECTIONS).toContainEqual(conn)
+    }
+    const used = new Set(HALPE26_CONNECTIONS.flatMap(([a, b]) => [a, b]))
+    expect(used.has(17)).toBe(false) // head — intentionally not drawn
+    expect(used.has(18)).toBe(false) // neck
+    expect(used.has(19)).toBe(false) // hip-mid
+    expect(HALPE26_CONNECTIONS).toContainEqual([15, 24, 'left'])   // l-ankle → l-heel
+    expect(HALPE26_CONNECTIONS).toContainEqual([24, 20, 'left'])   // l-heel → l-big-toe
+    expect(HALPE26_CONNECTIONS).toContainEqual([20, 22, 'left'])   // l-big-toe → l-small-toe
+    expect(HALPE26_CONNECTIONS).toContainEqual([16, 25, 'right'])  // r-ankle → r-heel
+    expect(HALPE26_CONNECTIONS).toContainEqual([25, 21, 'right'])  // r-heel → r-big-toe
+    expect(HALPE26_CONNECTIONS).toContainEqual([21, 23, 'right'])  // r-big-toe → r-small-toe
+  })
+})
+
 describe('getConnections', () => {
   it('selects edge list by topology', () => {
     expect(getConnections('mediapipe33')).toBe(POSE_CONNECTIONS)
     expect(getConnections('coco17')).toBe(COCO17_CONNECTIONS)
+    expect(getConnections('halpe26')).toBe(HALPE26_CONNECTIONS)
   })
 })

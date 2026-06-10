@@ -3,11 +3,12 @@
 export_poses_rtmpose.py
 
 Runs RTMPose-m (via rtmlib + ONNX Runtime) on a video file and exports a
-*_poses_rtm.json with COCO-17 keypoints — pose JSON schema v2.
+*_poses_rtm.json — pose JSON schema v2. Default topology is COCO-17;
+--feet switches to Halpe26 (COCO-17 + head/neck/hip-mid + 6 foot keypoints).
 Schema reference: docs/pose_json_schema_v2.md
 
 Usage:
-    python scripts/poses/export_poses_rtmpose.py <video_path> [--interval 100] [--out-dir <dir>]
+    python scripts/poses/export_poses_rtmpose.py <video_path> [--interval 100] [--out-dir <dir>] [--feet]
 
 Output:
     <video_name>_poses_rtm.json  written next to the video (or to --out-dir)
@@ -30,15 +31,12 @@ except ImportError:
 
 try:
     import numpy as np
-    from rtmlib import Body
+    from rtmlib import Body, BodyWithFeet
 except ImportError:
     print("ERROR: rtmlib not installed. Run: pip install rtmlib onnxruntime", file=sys.stderr)
     sys.exit(1)
 
 SCHEMA_VERSION = 2
-TOPOLOGY = "coco17"
-MODEL_NAME = "rtmpose-m"
-NUM_KEYPOINTS = 17
 
 
 def best_person(keypoints, scores):
@@ -49,7 +47,12 @@ def best_person(keypoints, scores):
     return keypoints[idx], scores[idx]
 
 
-def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
+def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_feet: bool = False) -> str:
+    if with_feet:
+        topology, model_name, num_keypoints = "halpe26", "rtmpose-m-halpe26", 26
+    else:
+        topology, model_name, num_keypoints = "coco17", "rtmpose-m", 17
+
     video_name = os.path.basename(video_path)
     base = video_name.rsplit(".", 1)[0]
 
@@ -66,7 +69,8 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
 
     print(f"Video: {video_name}  {width}x{height}  {duration_ms} ms  ({fps:.1f} fps)")
 
-    body = Body(mode="balanced", backend="onnxruntime", device="cpu")
+    model_cls = BodyWithFeet if with_feet else Body
+    body = model_cls(mode="balanced", backend="onnxruntime", device="cpu")
 
     frames = []
     frame_index = 0
@@ -83,7 +87,7 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
 
         landmarks = []
         if person_kpts is not None:
-            for i in range(NUM_KEYPOINTS):
+            for i in range(num_keypoints):
                 landmarks.append({
                     "index": i,
                     "x": round(float(person_kpts[i][0]) / width, 4),
@@ -107,8 +111,8 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
 
     data = {
         "schemaVersion":   SCHEMA_VERSION,
-        "topology":        TOPOLOGY,
-        "model":           MODEL_NAME,
+        "topology":        topology,
+        "model":           model_name,
         "videoName":       video_name,
         "intervalMs":      interval_ms,
         "totalFrames":     frame_index,
@@ -139,13 +143,15 @@ def main():
                         help="Sampling interval in milliseconds (default: 100)")
     parser.add_argument("--out-dir", default=None,
                         help="Output directory (default: same folder as video)")
+    parser.add_argument("--feet", action="store_true",
+                        help="Use the Halpe26 model: COCO-17 plus 6 foot keypoints (heels + toes)")
     args = parser.parse_args()
 
     if not os.path.isfile(args.video):
         print(f"ERROR: file not found: {args.video}", file=sys.stderr)
         sys.exit(1)
 
-    export_poses(args.video, args.interval, args.out_dir)
+    export_poses(args.video, args.interval, args.out_dir, args.feet)
 
 
 if __name__ == "__main__":

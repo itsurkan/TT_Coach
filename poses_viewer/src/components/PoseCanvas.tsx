@@ -13,9 +13,10 @@ interface Props {
   videoHeight: number
   /** Which skeleton edge list to draw. Defaults to legacy MediaPipe-33. */
   topology?: PoseTopology
-  /** RTMPose COCO-17 overlay (separate _poses_rtm.json data) */
+  /** RTMPose overlay (separate _poses_rtm.json data) */
   showRtmPoses?: boolean
   rtmFrame?: Frame | null
+  rtmTopology?: PoseTopology
   transparent?: boolean
   showPoses?: boolean
   showBall?: boolean
@@ -59,7 +60,7 @@ const TRAIL_MAX_GAP = 2
 export default function PoseCanvas({
   frame, frames, frameIndex, videoWidth, videoHeight,
   topology = 'mediapipe33',
-  showRtmPoses = false, rtmFrame,
+  showRtmPoses = false, rtmFrame, rtmTopology = 'coco17',
   transparent, showPoses = true, showBall = true,
   showBallV5 = false, ballV5Frame, ballV5Frames, ballV5FrameIdx = -1,
   showBallYolo = false, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx = -1,
@@ -134,24 +135,29 @@ export default function PoseCanvas({
         ctx.stroke()
       }
 
-      for (const lm of lms) {
-        if (!lm) continue
-        if (lm.visibility < MIN_VISIBILITY) continue
+      // Only draw joints that participate in an edge — e.g. Halpe26's
+      // head/neck/hip-mid points are exported but intentionally not rendered.
+      const usedIndices = new Set<number>()
+      for (const [a, b] of connections) { usedIndices.add(a); usedIndices.add(b) }
+
+      lms.forEach((lm, i) => {
+        if (!lm || !usedIndices.has(i)) return
+        if (lm.visibility < MIN_VISIBILITY) return
         ctx.beginPath()
         ctx.arc(lm.x * CANVAS_W, lm.y * CANVAS_H, 3, 0, Math.PI * 2)
         ctx.fillStyle = jointColor
         ctx.fill()
-      }
+      })
     }
 
     if (showPoses) {
       drawSkeleton(Array.isArray(frame.landmarks) ? frame.landmarks : [], getConnections(topology), '#ffffff')
     }
 
-    // RTMPose COCO-17 overlay — fuchsia/amber/lime palette + yellow joints,
+    // RTMPose overlay — fuchsia/amber/lime palette + yellow joints,
     // visually distinct from the MediaPipe skeleton's blue/red/green
     if (showRtmPoses && rtmFrame) {
-      drawSkeleton(Array.isArray(rtmFrame.landmarks) ? rtmFrame.landmarks : [], getConnections('coco17'), '#facc15', RTM_SIDE_COLORS)
+      drawSkeleton(Array.isArray(rtmFrame.landmarks) ? rtmFrame.landmarks : [], getConnections(rtmTopology), '#facc15', RTM_SIDE_COLORS)
     }
 
     // ── Ball trail + ball ────────────────────────────────────────────────────
@@ -514,7 +520,7 @@ export default function PoseCanvas({
       ctx.strokeRect(2, 2, CANVAS_W - 4, CANVAS_H - 4)
       ctx.setLineDash([])
     }
-  }, [frame, frames, frameIndex, videoWidth, videoHeight, topology, showRtmPoses, rtmFrame, showPoses, showBall, showBallV5, ballV5Frame, ballV5Frames, ballV5FrameIdx, showBallYolo, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx, isContactFrame, contactType, frameLabel, placingBall, placingKeypoint, showTableLabels, tableFrameLabel,  showTrajectory, trajectoryMode, trajectorySegments, predictiveTrajectory])
+  }, [frame, frames, frameIndex, videoWidth, videoHeight, topology, showRtmPoses, rtmFrame, rtmTopology, showPoses, showBall, showBallV5, ballV5Frame, ballV5Frames, ballV5FrameIdx, showBallYolo, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx, isContactFrame, contactType, frameLabel, placingBall, placingKeypoint, showTableLabels, tableFrameLabel,  showTrajectory, trajectoryMode, trajectorySegments, predictiveTrajectory])
 
   return (
     <canvas

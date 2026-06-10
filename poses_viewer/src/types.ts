@@ -1,4 +1,4 @@
-export type PoseTopology = 'mediapipe33' | 'coco17'
+export type PoseTopology = 'mediapipe33' | 'coco17' | 'halpe26'
 
 export interface Landmark {
   index: number

@@ -66,6 +66,10 @@ describe('normalizeData (schema v2 / coco17)', () => {
     expect(normalizeData(legacyFile).topology).toBe('mediapipe33')
   })
 
+  it('detects halpe26 topology', () => {
+    expect(normalizeData({ ...v2File, topology: 'halpe26' }).topology).toBe('halpe26')
+  })
+
   it('maps score to visibility/presence and z to 0', () => {
     const lm = normalizeData(v2File).frames[0].landmarks[0]
     expect(lm).toEqual({ index: 5, x: 0.31, y: 0.42, z: 0, visibility: 0.93, presence: 0.93 })

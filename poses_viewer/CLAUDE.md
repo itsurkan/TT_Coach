@@ -20,7 +20,7 @@ Update this file when you change a listed file.
 
 ### `src/App.tsx` (~1776 lines)
 
-Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball, contacts, labels, crop config, trajectory results (V1–V3, 3D, 3Dv2). Settings in `localStorage` key `poses_viewer_settings`. Logic lives in components and `utils/trajectoryPipeline*`. Pose JSON: schema v2 (`topology: 'coco17'`, see `docs/pose_json_schema_v2.md`) supported alongside legacy MediaPipe-33; normalization lives in `src/utils/normalizePoses.ts`. RTMPose overlay is a separate "RTM" header toggle (`showRtmPoses`) that fetches `{base}_poses_rtm.json` independently and draws a COCO-17 skeleton in a distinct fuchsia/amber/lime palette (`RTM_SIDE_COLORS`) with yellow joints on top of the legacy blue/red/green one — the "Poses" layer stays MediaPipe-only.
+Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball, contacts, labels, crop config, trajectory results (V1–V3, 3D, 3Dv2). Settings in `localStorage` key `poses_viewer_settings`. Logic lives in components and `utils/trajectoryPipeline*`. Pose JSON: schema v2 (`topology: 'coco17'`, see `docs/pose_json_schema_v2.md`) supported alongside legacy MediaPipe-33; normalization lives in `src/utils/normalizePoses.ts`. RTMPose overlay is a separate "RTM" header toggle (`showRtmPoses`) that fetches `{base}_poses_rtm.json` independently and draws the RTM skeleton (COCO-17, or Halpe26 with feet when exported via `--feet`; head/neck/hip-mid never drawn) in a distinct fuchsia/amber/lime palette (`RTM_SIDE_COLORS`) with yellow joints on top of the legacy blue/red/green one — the "Poses" layer stays MediaPipe-only.
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 

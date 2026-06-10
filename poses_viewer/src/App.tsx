@@ -1176,6 +1176,7 @@ export default function App() {
                   showPoses={showPoses}
                   showRtmPoses={showRtmPoses}
                   rtmFrame={rtmFrame}
+                  rtmTopology={rtmData?.topology ?? 'coco17'}
                   showBall={showBall}
                   showBallV5={showBallV5}
                   ballV5Frame={ballV5Frame}

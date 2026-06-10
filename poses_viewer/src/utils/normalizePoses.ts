@@ -82,7 +82,7 @@ export function normalizeData(input: unknown): PosesBallData {
   return {
     videoUri: typeof root.videoUri === 'string' ? root.videoUri : undefined,
     videoName: typeof root.videoName === 'string' ? root.videoName : undefined,
-    topology: root.topology === 'coco17' ? 'coco17' : 'mediapipe33',
+    topology: root.topology === 'coco17' || root.topology === 'halpe26' ? root.topology : 'mediapipe33',
     intervalMs,
     totalFrames: toNumber(root.totalFrames ?? root.total_frames, frames.length),
     videoDurationMs: toNumber(root.videoDurationMs ?? root.video_duration_ms, frames.length * intervalMs),

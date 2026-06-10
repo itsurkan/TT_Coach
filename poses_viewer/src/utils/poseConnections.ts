@@ -62,6 +62,18 @@ export const COCO17_CONNECTIONS: Connection[] = [
   [12, 14, 'right'], [14, 16, 'right'],
 ]
 
+// Halpe26 = COCO-17 (indices 0–16) + 17=head 18=neck 19=hip-mid +
+// 20=l-big-toe 21=r-big-toe 22=l-small-toe 23=r-small-toe 24=l-heel 25=r-heel.
+// Head/neck/hip-mid (17–19) are intentionally not drawn — feet are the point.
+export const HALPE26_CONNECTIONS: Connection[] = [
+  ...COCO17_CONNECTIONS,
+  // Left foot
+  [15, 24, 'left'], [24, 20, 'left'], [20, 22, 'left'],
+  // Right foot
+  [16, 25, 'right'], [25, 21, 'right'], [21, 23, 'right'],
+]
+
 export function getConnections(topology: PoseTopology): Connection[] {
+  if (topology === 'halpe26') return HALPE26_CONNECTIONS
   return topology === 'coco17' ? COCO17_CONNECTIONS : POSE_CONNECTIONS
 }

@@ -59,6 +59,24 @@
 | 15 | left_ankle |
 | 16 | right_ankle |
 
+## Halpe26 Topology (`--feet`)
+
+`scripts/poses/export_poses_rtmpose.py --feet` uses the RTMPose-m Halpe26 model and emits `"topology": "halpe26"`, `"model": "rtmpose-m-halpe26"` with 26 landmarks per detected frame. Indices 0–16 are identical to COCO-17 above; the additions:
+
+| Index | Name |
+|-------|------|
+| 17 | head |
+| 18 | neck |
+| 19 | hip (mid) |
+| 20 | left_big_toe |
+| 21 | right_big_toe |
+| 22 | left_small_toe |
+| 23 | right_small_toe |
+| 24 | left_heel |
+| 25 | right_heel |
+
+All 26 points are exported (standard Halpe26 ordering — consumers index positionally), but poses_viewer intentionally does not render head/neck/hip-mid (17–19); only the foot points extend the drawn skeleton.
+
 ## Compatibility
 
 - **v1 (legacy MediaPipe-33):** The legacy MediaPipe-33 format (`x/y/z/visibility/presence` per landmark, no `schemaVersion` field) remains valid and is not converted.
