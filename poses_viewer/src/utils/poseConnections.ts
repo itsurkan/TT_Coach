@@ -1,3 +1,5 @@
+import type { PoseTopology } from '../types'
+
 export type Side = 'left' | 'right' | 'center'
 export type Connection = [number, number, Side]
 
@@ -31,4 +33,27 @@ export const SIDE_COLORS: Record<Side, string> = {
   left: '#3b82f6',   // blue-500
   right: '#ef4444',  // red-500
   center: '#22c55e', // green-500
+}
+
+// COCO-17 keypoint indices (RTMPose / schema v2):
+//  0=nose  1=l-eye  2=r-eye  3=l-ear  4=r-ear
+//  5=l-shoulder  6=r-shoulder  7=l-elbow  8=r-elbow  9=l-wrist  10=r-wrist
+// 11=l-hip  12=r-hip  13=l-knee  14=r-knee  15=l-ankle  16=r-ankle
+export const COCO17_CONNECTIONS: Connection[] = [
+  // Face
+  [0, 1, 'left'], [0, 2, 'right'], [1, 3, 'left'], [2, 4, 'right'],
+  // Torso
+  [5, 6, 'center'], [5, 11, 'left'], [6, 12, 'right'], [11, 12, 'center'],
+  // Left arm
+  [5, 7, 'left'], [7, 9, 'left'],
+  // Right arm
+  [6, 8, 'right'], [8, 10, 'right'],
+  // Left leg
+  [11, 13, 'left'], [13, 15, 'left'],
+  // Right leg
+  [12, 14, 'right'], [14, 16, 'right'],
+]
+
+export function getConnections(topology: PoseTopology): Connection[] {
+  return topology === 'coco17' ? COCO17_CONNECTIONS : POSE_CONNECTIONS
 }
