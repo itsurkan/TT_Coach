@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback } from 'react'
 import { Frame, FrameLabel, TableFrameLabel, PoseTopology, Landmark } from '../types'
 import type { TrajectorySegment, PredictiveTrajectory } from '../utils/trajectoryPipeline'
 import { evaluateFit } from '../utils/trajectoryPipeline'
-import { getConnections, SIDE_COLORS, type Connection } from '../utils/poseConnections'
+import { getConnections, SIDE_COLORS, RTM_SIDE_COLORS, type Connection, type Side } from '../utils/poseConnections'
 import { LABEL_COLORS } from './LabelPanel'
 
 interface Props {
@@ -112,7 +112,7 @@ export default function PoseCanvas({
     if (!frame) return
 
     // ── Pose skeleton ────────────────────────────────────────────────────────
-    const drawSkeleton = (lms: Landmark[], connections: Connection[], jointColor: string) => {
+    const drawSkeleton = (lms: Landmark[], connections: Connection[], jointColor: string, sideColors: Record<Side, string> = SIDE_COLORS) => {
       for (const [a, b, side] of connections) {
         const la = lms[a]
         const lb = lms[b]
@@ -129,7 +129,7 @@ export default function PoseCanvas({
         ctx.beginPath()
         ctx.moveTo(la.x * CANVAS_W, la.y * CANVAS_H)
         ctx.lineTo(lb.x * CANVAS_W, lb.y * CANVAS_H)
-        ctx.strokeStyle = SIDE_COLORS[side]
+        ctx.strokeStyle = sideColors[side]
         ctx.lineWidth = 2
         ctx.stroke()
       }
@@ -148,9 +148,10 @@ export default function PoseCanvas({
       drawSkeleton(Array.isArray(frame.landmarks) ? frame.landmarks : [], getConnections(topology), '#ffffff')
     }
 
-    // RTMPose COCO-17 overlay — yellow joints distinguish it from the main skeleton
+    // RTMPose COCO-17 overlay — fuchsia/amber/lime palette + yellow joints,
+    // visually distinct from the MediaPipe skeleton's blue/red/green
     if (showRtmPoses && rtmFrame) {
-      drawSkeleton(Array.isArray(rtmFrame.landmarks) ? rtmFrame.landmarks : [], getConnections('coco17'), '#facc15')
+      drawSkeleton(Array.isArray(rtmFrame.landmarks) ? rtmFrame.landmarks : [], getConnections('coco17'), '#facc15', RTM_SIDE_COLORS)
     }
 
     // ── Ball trail + ball ────────────────────────────────────────────────────

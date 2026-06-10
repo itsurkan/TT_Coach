@@ -1026,7 +1026,7 @@ export default function App() {
           Poses
         </label>
         <label className={cbClass} title="RTMPose COCO-17 skeleton (_poses_rtm.json)">
-          <input type="checkbox" checked={showRtmPoses} onChange={e => setShowRtmPoses(e.target.checked)} className="accent-emerald-400" />
+          <input type="checkbox" checked={showRtmPoses} onChange={e => setShowRtmPoses(e.target.checked)} className="accent-amber-400" />
           RTM
         </label>
         <label className={cbClass}>

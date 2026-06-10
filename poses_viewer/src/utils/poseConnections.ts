@@ -35,6 +35,14 @@ export const SIDE_COLORS: Record<Side, string> = {
   center: '#22c55e', // green-500
 }
 
+// Distinct palette for the RTMPose overlay so it can't be confused with the
+// MediaPipe skeleton (blue/red/green) when both are shown at once.
+export const RTM_SIDE_COLORS: Record<Side, string> = {
+  left: '#e879f9',   // fuchsia-400
+  right: '#fbbf24',  // amber-400
+  center: '#a3e635', // lime-400
+}
+
 // COCO-17 keypoint indices (RTMPose / schema v2):
 //  0=nose  1=l-eye  2=r-eye  3=l-ear  4=r-ear
 //  5=l-shoulder  6=r-shoulder  7=l-elbow  8=r-elbow  9=l-wrist  10=r-wrist
