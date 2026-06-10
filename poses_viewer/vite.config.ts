@@ -20,6 +20,14 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    exclude: [
+      '**/node_modules/**',
+      // Frozen ball-tracking suites (2D pivot): they read IMG_6330 ball data from a
+      // hardcoded path on the original dev machine and cannot run here or in CI.
+      '**/__tests__/segmentTrajectoryV1.test.ts',
+      '**/__tests__/segmentTrajectoryV4.test.ts',
+      '**/__tests__/analyzeArcsV2.test.ts',
+    ],
   },
   plugins: [
     react(),
