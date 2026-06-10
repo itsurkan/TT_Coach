@@ -29,14 +29,14 @@
       "frameIndex": 0,
       "timestampMs": 0,
       "landmarks": [
-        { "index": 0, "x": 0.69163567, "y": 0.38953972, "score": 0.93 }
+        { "index": 0, "x": 0.6916, "y": 0.3895, "score": 0.93 }
       ]
     }
   ]
 }
 ```
 
-- `x`, `y` normalized `[0,1]` (pixel / videoWidth|videoHeight), rounded to 8 decimals — same convention as legacy, so the viewer's `lm.x * CANVAS_W` scaling works unchanged.
+- `x`, `y` normalized `[0,1]` (pixel / videoWidth|videoHeight), rounded to **4 decimals** (1e-4 ≈ 0.13 px at 1280 px — far below model noise; legacy v1 used 8, v2 deliberately trims JSON size). Viewer's `lm.x * CANVAS_W` scaling works unchanged.
 - `score` = raw model keypoint confidence `[0,1]`. No `z`, no `visibility`/`presence`.
 - Legacy files (no `schemaVersion`/`topology`) are implicitly v1 / `mediapipe33` and stay valid.
 - COCO-17 indices: 0 nose, 1 l-eye, 2 r-eye, 3 l-ear, 4 r-ear, 5 l-shoulder, 6 r-shoulder, 7 l-elbow, 8 r-elbow, 9 l-wrist, 10 r-wrist, 11 l-hip, 12 r-hip, 13 l-knee, 14 r-knee, 15 l-ankle, 16 r-ankle.
@@ -201,9 +201,9 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None) -> str:
             for i in range(NUM_KEYPOINTS):
                 landmarks.append({
                     "index": i,
-                    "x": round(float(person_kpts[i][0]) / width, 8),
-                    "y": round(float(person_kpts[i][1]) / height, 8),
-                    "score": round(float(person_scores[i]), 8),
+                    "x": round(float(person_kpts[i][0]) / width, 4),
+                    "y": round(float(person_kpts[i][1]) / height, 4),
+                    "score": round(float(person_scores[i]), 4),
                 })
 
         frames.append({
