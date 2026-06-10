@@ -29,3 +29,6 @@ tthq_annotations/*
 build_log.txt
 scripts/**/__pycache__/
 /tmp/screenshots/
+# Build artifacts (never track)
+node_modules/
+*.tsbuildinfo
