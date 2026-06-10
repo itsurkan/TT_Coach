@@ -6,11 +6,18 @@ package com.ttcoachai.shared.drill
  * [maxIntervalMs] of silence so corrections always have priority for the voice channel.
  *
  * Stateful and single-session: create one per drill run, [reset] between runs.
+ * Callers must supply monotonically increasing timestamps.
  */
 class FeedbackCadencePolicy(
     private val minIntervalMs: Long = 3000,
     private val maxIntervalMs: Long = 5000
 ) {
+
+    init {
+        require(minIntervalMs >= 0 && maxIntervalMs >= minIntervalMs) {
+            "invalid cadence intervals: min=$minIntervalMs max=$maxIntervalMs"
+        }
+    }
 
     private var lastEmittedMs: Long? = null
 

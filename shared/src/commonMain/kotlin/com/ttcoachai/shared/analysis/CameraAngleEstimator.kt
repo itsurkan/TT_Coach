@@ -25,6 +25,9 @@ import kotlin.math.hypot
  * correction (ViewGeometry.xScale) is sign-independent anyway.
  *
  * NOTE: takes the raw aspectRatio (NOT xScale) — this runs BEFORE any yaw is known.
+ *
+ * Limitation: forward lean at intermediate yaw overestimates yaw slightly (≤2° for
+ * ready-stance lean ≤20°); negligible for the 30° gate.
  */
 object CameraAngleEstimator {
 

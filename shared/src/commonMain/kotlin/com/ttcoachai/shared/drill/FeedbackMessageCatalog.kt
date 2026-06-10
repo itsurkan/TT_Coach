@@ -35,8 +35,8 @@ object FeedbackMessageCatalog {
             DrillMetrics.METRIC_KNEE_BEND -> when {
                 high && lang == FeedbackLang.EN -> withDeg("Legs straighter than your usual — bend the knees more", d, precise, lang)
                 high -> withDeg("Ноги пряміші, ніж зазвичай — зігни коліна більше", d, precise, lang)
-                lang == FeedbackLang.EN -> withDeg("Knees more bent than your usual stance", d, precise, lang)
-                else -> withDeg("Коліна зігнуті більше, ніж у твоїй звичній стійці", d, precise, lang)
+                lang == FeedbackLang.EN -> withDeg("Knees more bent than your usual stance — rise a little", d, precise, lang)
+                else -> withDeg("Коліна зігнуті більше, ніж зазвичай — підведись трохи", d, precise, lang)
             }
             DrillMetrics.METRIC_TORSO_LEAN -> when {
                 high && lang == FeedbackLang.EN -> withDeg("Leaning further than your usual — straighten up a bit", d, precise, lang)
@@ -47,13 +47,13 @@ object FeedbackMessageCatalog {
             DrillMetrics.METRIC_SHOULDER_TILT -> when {
                 high && lang == FeedbackLang.EN -> withDeg("Shoulders more tilted than your usual — level them", d, precise, lang)
                 high -> withDeg("Плечі нахилені більше, ніж зазвичай — вирівняй їх", d, precise, lang)
-                lang == FeedbackLang.EN -> withDeg("Shoulder line flatter than your usual", d, precise, lang)
-                else -> withDeg("Лінія плечей рівніша, ніж зазвичай", d, precise, lang)
+                lang == FeedbackLang.EN -> withDeg("Shoulder line flatter than your usual — let the playing shoulder drop a touch", d, precise, lang)
+                else -> withDeg("Лінія плечей рівніша, ніж зазвичай — дай ігровому плечу трохи опуститись", d, precise, lang)
             }
             // Unknown metric (e.g. future rotational cues): qualitative-only, never degrees.
             else -> when (lang) {
                 FeedbackLang.EN -> if (high) "A bit more than your usual on that move — ease off" else "A bit less than your usual on that move"
-                FeedbackLang.UA -> if (high) "Трохи більше, ніж зазвичай у цьому русі — послаб" else "Трохи менше, ніж зазвичай у цьому русі"
+                FeedbackLang.UA -> if (high) "Трохи більше, ніж зазвичай у цьому русі — стримай" else "Трохи менше, ніж зазвичай у цьому русі"
             }
         }
     }

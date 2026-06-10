@@ -6,6 +6,7 @@ import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.shared.models.PoseFrame2D
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -105,6 +106,17 @@ class DrillMetricsTest {
         )
         val m = DrillMetrics.extractAtPeak(frames, peakFrame = 2, Handedness.RIGHT, 1f, intervalMs = 33L)
         assertEquals(90.0, m[DrillMetrics.METRIC_ELBOW_ANGLE]!!, 1.0)
+    }
+
+    @Test
+    fun outOfBoundsPeakFrameThrows() {
+        val frames = listOf(goodArmFrame(0), goodArmFrame(1))
+        assertFailsWith<IllegalArgumentException> {
+            DrillMetrics.extractAtPeak(frames, peakFrame = frames.size, Handedness.RIGHT, 1f, intervalMs = 33L)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            DrillMetrics.extractAtPeak(emptyList(), peakFrame = 0, Handedness.RIGHT, 1f, intervalMs = 33L)
+        }
     }
 
     @Test

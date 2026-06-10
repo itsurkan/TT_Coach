@@ -40,6 +40,13 @@ class FeedbackMessageCatalogTest {
             assertFalse("°" in msg, "qualitative cue must not show degrees: $msg")
             assertTrue(msg.isNotBlank())
         }
+        // A KNOWN key demoted to QUALITATIVE must equally suppress degrees.
+        val known = cue(DrillMetrics.METRIC_ELBOW_ANGLE, precision = MetricPrecision.QUALITATIVE)
+        for (lang in FeedbackLang.entries) {
+            val msg = FeedbackMessageCatalog.format(known, lang)
+            assertFalse("°" in msg, "qualitative known-metric cue must not show degrees: $msg")
+            assertTrue(msg.isNotBlank())
+        }
     }
 
     @Test

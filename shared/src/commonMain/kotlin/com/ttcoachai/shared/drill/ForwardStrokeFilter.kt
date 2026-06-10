@@ -36,6 +36,13 @@ object ForwardStrokeFilter {
      */
     const val SPEED_DOMINANCE_RATIO = 1.2f
 
+    /**
+     * Each dx-direction group must hold at least this many strokes before the
+     * speed-dominance vote may decide the session facing — a single junk detection
+     * must not be able to flip the session's facing vote.
+     */
+    const val MIN_GROUP_SIZE = 2
+
     fun filter(
         strokes: List<Stroke2D>,
         frames: List<PoseFrame2D>,
@@ -74,12 +81,13 @@ object ForwardStrokeFilter {
     /**
      * Session facing from speed asymmetry: +1/−1 when the corresponding dx-sign
      * group's median peak speed dominates the other by [SPEED_DOMINANCE_RATIO];
-     * null when either group is empty or neither dominates.
+     * null when either group has fewer than [MIN_GROUP_SIZE] strokes (covers the
+     * empty/single-direction case) or neither dominates.
      */
     private fun speedDominantFacing(verified: List<Pair<Stroke2D, Float>>): Float? {
         val posSpeeds = verified.filter { it.second > 0f }.map { it.first.peakSpeed }
         val negSpeeds = verified.filter { it.second < 0f }.map { it.first.peakSpeed }
-        if (posSpeeds.isEmpty() || negSpeeds.isEmpty()) return null
+        if (posSpeeds.size < MIN_GROUP_SIZE || negSpeeds.size < MIN_GROUP_SIZE) return null
         val posMed = median(posSpeeds)
         val negMed = median(negSpeeds)
         return when {

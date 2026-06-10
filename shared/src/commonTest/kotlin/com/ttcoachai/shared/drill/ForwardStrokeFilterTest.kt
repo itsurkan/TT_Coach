@@ -27,6 +27,28 @@ class ForwardStrokeFilterTest {
     private fun stroke(start: Int, peak: Int, end: Int) =
         Stroke2D(strokeIndex = 0, startFrame = start, peakFrame = peak, endFrame = end, peakSpeed = 2.4f)
 
+    /**
+     * Builds a session of strokes with controlled dx sign + peakSpeed: stroke i owns
+     * frames [3i, 3i+2], the wrist sweeping 0.5 → 0.5 + sign·0.1 → 0.5 so that
+     * dx(start→peak) carries exactly the requested sign.
+     */
+    private fun session(
+        specs: List<Pair<Float, Float>>, // (dxSign, peakSpeed)
+        noseX: Float
+    ): Pair<List<PoseFrame2D>, List<Stroke2D>> {
+        val xs = mutableListOf<Float>()
+        val strokes = mutableListOf<Stroke2D>()
+        specs.forEachIndexed { i, (sign, speed) ->
+            val base = 3 * i
+            xs += listOf(0.5f, 0.5f + sign * 0.1f, 0.5f)
+            strokes += Stroke2D(
+                strokeIndex = i, startFrame = base, peakFrame = base + 1,
+                endFrame = base + 2, peakSpeed = speed
+            )
+        }
+        return frames(xs, noseX) to strokes
+    }
+
     @Test
     fun keepsForwardStrokeDropsRecoverySwing() {
         // wrist sweeps +x (forward, facing +x) then back -x (recovery)
@@ -55,6 +77,54 @@ class ForwardStrokeFilterTest {
         val f = frames(xs, noseX = 0.50f)
         val s = stroke(start = 0, peak = 3, end = 4)
         assertTrue(ForwardStrokeFilter.filter(listOf(s), f, Handedness.RIGHT).isEmpty())
+    }
+
+    @Test
+    fun speedDominanceKeepsFastGroupPositiveX() {
+        // 3 fast dx>0 strokes (~8f) vs 2 slow dx<0 (~6f) → ratio ~1.33 > 1.2.
+        // Head facing CONTRADICTS (nose on the -x side): dominance must override it.
+        val (f, strokes) = session(
+            specs = listOf(1f to 8.0f, 1f to 8.2f, 1f to 7.9f, -1f to 6.0f, -1f to 6.1f),
+            noseX = 0.45f
+        )
+        val kept = ForwardStrokeFilter.filter(strokes, f, Handedness.RIGHT)
+        assertEquals(strokes.take(3), kept)
+    }
+
+    @Test
+    fun speedDominanceKeepsFastGroupNegativeX() {
+        // Mirror polarity: fast group moves -x, head facing contradicts (+x side).
+        val (f, strokes) = session(
+            specs = listOf(-1f to 8.0f, -1f to 8.2f, -1f to 7.9f, 1f to 6.0f, 1f to 6.1f),
+            noseX = 0.55f
+        )
+        val kept = ForwardStrokeFilter.filter(strokes, f, Handedness.RIGHT)
+        assertEquals(strokes.take(3), kept)
+    }
+
+    @Test
+    fun speedTieFallsBackToHeadFacing() {
+        // Near-equal medians (6.55/6.05 ≈ 1.08 < 1.2) → no dominance → head facing
+        // (+x) decides and keeps the (slightly slower!) positive group.
+        val (f, strokes) = session(
+            specs = listOf(1f to 6.0f, 1f to 6.1f, -1f to 6.5f, -1f to 6.6f),
+            noseX = 0.55f
+        )
+        val kept = ForwardStrokeFilter.filter(strokes, f, Handedness.RIGHT)
+        assertEquals(strokes.take(2), kept)
+    }
+
+    @Test
+    fun singleJunkSpikeCannotFlipTheVote() {
+        // 4 forward strokes dx>0 @6f plus ONE dx<0 junk spike @9f: minority group
+        // size 1 < MIN_GROUP_SIZE → no dominance verdict → fallback to head facing
+        // (nose +x) → the 4 forward strokes kept, junk dropped.
+        val (f, strokes) = session(
+            specs = listOf(1f to 6.0f, 1f to 6.0f, 1f to 6.0f, 1f to 6.0f, -1f to 9.0f),
+            noseX = 0.55f
+        )
+        val kept = ForwardStrokeFilter.filter(strokes, f, Handedness.RIGHT)
+        assertEquals(strokes.take(4), kept)
     }
 
     @Test

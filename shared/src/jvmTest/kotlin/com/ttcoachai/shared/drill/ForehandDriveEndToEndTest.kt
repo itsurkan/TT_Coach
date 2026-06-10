@@ -16,6 +16,8 @@ class ForehandDriveEndToEndTest {
     // drop peaks before calibration/analysis. Update if detector tuning changes.
     private val RAW_DETECTOR_COUNT = 23
 
+    private val MAX_FORWARD_REPS = 16 // 15 observed + 1 headroom; update if detector tuning or fixtures change
+
     // The fixture predates the camera-placement protocol, so its true yaw is unknown —
     // tests pin cameraYawDeg = 0f (treat fixture geometry as reference) instead of
     // letting the estimator gate feedback on footage we can't re-shoot.
@@ -35,6 +37,11 @@ class ForehandDriveEndToEndTest {
             baseline.repCount + baseline.excludedRepIndices.size < RAW_DETECTOR_COUNT,
             "filters must drop recovery swings/junk: ${baseline.repCount}+${baseline.excludedRepIndices.size} " +
                 "vs raw $RAW_DETECTOR_COUNT — if equal, ForwardStrokeFilter is dead on real footage"
+        )
+        assertTrue(
+            baseline.repCount + baseline.excludedRepIndices.size <= MAX_FORWARD_REPS,
+            "forward-rep count ${baseline.repCount}+${baseline.excludedRepIndices.size} — " +
+                "if this exceeds $MAX_FORWARD_REPS, ForwardStrokeFilter stopped dropping recovery swings"
         )
         assertTrue(baseline.repCount >= 3)
         assertTrue(baseline.metricStats.isNotEmpty(), "at least some in-plane metrics must derive")

@@ -64,6 +64,7 @@ object DrillMetrics {
         radiusMs: Long = DEFAULT_PEAK_RADIUS_MS
     ): Map<String, Double> {
         require(intervalMs > 0) { "intervalMs must be > 0, got $intervalMs" }
+        require(peakFrame in frames.indices) { "peakFrame $peakFrame out of bounds for ${frames.size} frames" }
         val radius = (radiusMs / intervalMs).toInt()
         val lo = (peakFrame - radius).coerceAtLeast(0)
         val hi = (peakFrame + radius).coerceAtMost(frames.lastIndex)
