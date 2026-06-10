@@ -101,4 +101,83 @@ class StrokeDetector2DTest {
         val b = StrokeDetector2D().detect(frames, Handedness.RIGHT, 1f, 100L)
         assertEquals(a, b)
     }
+
+    // ---- Finding 1: keep-max NMS ----
+
+    @Test
+    fun refractoryKeepsTheTallerOfTwoNearbyPeaks() {
+        // Two local maxima 400 ms apart (gap=4 < minGap=5 frames): a small backswing
+        // bump at idx 4 (smoothed ~1.4 torso/s) and the true stroke peak at idx 8
+        // (smoothed ~1.73 torso/s). The old greedy code admits only the FIRST (bump)
+        // and drops the taller stroke; keep-max NMS must REPLACE the admitted bump.
+        // Stroke deceleration after idx 8 makes sm[8] > sm[9] so idx 8 is the f32 peak.
+        val xs = listOf(
+            0.50f, 0.50f, 0.50f,          // still prefix
+            0.54f, 0.58f, 0.605f, 0.610f, // ramp bump: raw ~1.6,1.6,1.0,0.2 → sm[4]≈1.4
+            0.63f, 0.70f, 0.74f,          // dip then stroke: raw 0.8,2.8,1.6 → sm[8]≈1.73
+            0.75f, 0.75f, 0.75f
+        )
+        val strokes = StrokeDetector2D().detect(framesFromWristXs(xs), Handedness.RIGHT, 1f, 100L)
+        assertEquals(1, strokes.size, "one stroke expected, got $strokes")
+        assertTrue(strokes[0].peakFrame >= 8, "must keep the taller late peak, got ${strokes[0]}")
+    }
+
+    // ---- Finding 2: adjacent strokes never overlap ----
+
+    @Test
+    fun adjacentStrokesNeverOverlap() {
+        // Continuous rally: forward stroke then immediate return swing with no
+        // still gap — valley speed stays above 30%-of-peak floor, so boundary walks
+        // overlap without the valley-clamping fix.
+        // Symmetric signal: peak1 at idx 3, peak2 at idx 9 (gap=6 >= minGap=5),
+        // valley at idx 6 speed ~1.07 torso/s (well above floor ~0.64). Pre-fix:
+        // end1=11, start2=1 (overlap). Post-fix: both clamped to valley frame 6.
+        val xs = listOf(0.50f, 0.52f, 0.56f, 0.62f, 0.68f, 0.72f, 0.72f, 0.68f, 0.62f, 0.56f, 0.52f, 0.50f)
+        val strokes = StrokeDetector2D().detect(framesFromWristXs(xs), Handedness.RIGHT, 1f, 100L)
+        assertEquals(2, strokes.size, "expected two strokes, got $strokes")
+        assertTrue(strokes[0].endFrame <= strokes[1].startFrame,
+            "strokes must not overlap: $strokes")
+    }
+
+    // ---- Finding 3: fps-invariance of stroke count via ms-based refractory ----
+
+    @Test
+    fun msBasedRefractoryGivesSameStrokeCountAtAnyFps() {
+        // Two strokes ~1000 ms apart (peak to peak): well outside the 500 ms gap → TWO
+        // strokes at every fps. A wobble is placed ~300 ms after stroke 1 peak:
+        //   - ms-based gap=500ms: wobble is 300ms from peak < 500ms → suppressed at BOTH fps
+        //   - frame-const gap=5 frames: at 50ms the wobble is 6 frames from peak ≥ 5 → ADMITTED
+        // so a frame-constant mutation would return 3 strokes at 50ms but 2 at 100ms.
+        val xs100 = listOf(
+            0.50f, 0.52f, 0.56f, 0.62f,                     // 0-3: ramp, peak at idx 3
+            0.62f, 0.645f, 0.675f, 0.660f, 0.640f,           // 4-8: wobble at idx 6 (~300ms after peak)
+            0.650f, 0.670f, 0.720f, 0.790f, 0.830f,          // 9-13: stroke 2, peak ~idx 12
+            0.830f, 0.830f
+        )
+        val xs50 = xs100.flatMapIndexed { i, x ->
+            if (i == xs100.lastIndex) listOf(x) else listOf(x, (x + xs100[i + 1]) / 2f)
+        }
+        val at100 = StrokeDetector2D().detect(framesFromWristXs(xs100), Handedness.RIGHT, 1f, 100L)
+        val at50 = StrokeDetector2D().detect(framesFromWristXs(xs50, intervalMs = 50L), Handedness.RIGHT, 1f, 50L)
+        assertEquals(at100.size, at50.size,
+            "stroke count must be fps-invariant: 100ms→${at100.size}, 50ms→${at50.size}")
+        assertEquals(2, at100.size)
+    }
+
+    // ---- Minor: occlusion test ----
+
+    @Test
+    fun briefMidStrokeOcclusionDoesNotSplitTheStroke() {
+        // 2 low-score wrist frames inside the swing: smoothing must bridge the
+        // zero-speed gap so one stroke stays one stroke.
+        val frames = framesFromWristXs(singleStrokeXs).mapIndexed { i, f ->
+            if (i in 6..7) {
+                val kp = f.keypoints.toMutableList()
+                kp[Coco17.RIGHT_WRIST] = kp[Coco17.RIGHT_WRIST].copy(score = 0.1f)
+                f.copy(keypoints = kp)
+            } else f
+        }
+        val strokes = StrokeDetector2D().detect(frames, Handedness.RIGHT, 1f, 100L)
+        assertTrue(strokes.size <= 1, "occlusion must not create extra strokes: $strokes")
+    }
 }

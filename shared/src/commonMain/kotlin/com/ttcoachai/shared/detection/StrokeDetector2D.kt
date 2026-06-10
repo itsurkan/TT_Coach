@@ -23,12 +23,26 @@ class StrokeDetector2D(
     private val minScore: Float = 0.3f,
     private val smoothingWindowMs: Long = 300,
     private val peakWindowRadiusMs: Long = 300,
-    /** Torso-lengths per second. */
+    /**
+     * Torso-lengths per second. Threshold applies to the SMOOTHED signal —
+     * a raw peak of 2.4 torso/s smooths to ~2.0 with a 3-frame window.
+     */
     private val minPeakSpeed: Float = 1.0f,
     private val boundaryFraction: Float = 0.3f,
     private val minPeakGapMs: Long = 500
 ) {
 
+    /**
+     * Detects strokes from the wrist-speed signal of [frames].
+     *
+     * Adjacent strokes never overlap: when boundary walks meet, both are clamped
+     * at the inter-peak valley (they may share that single boundary frame).
+     *
+     * NOTE: [intervalMs] is integer milliseconds. At 120 fps (true 8.33 ms/frame),
+     * truncation to 8 ms inflates computed speeds by ~4 %. Phase 3 live loop should
+     * derive dt from actual frame timestamps rather than a fixed interval (deferred,
+     * registry follow-up).
+     */
     fun detect(
         frames: List<PoseFrame2D>,
         handedness: Handedness,
@@ -48,7 +62,7 @@ class StrokeDetector2D(
             radius = framesFor(peakWindowRadiusMs, intervalMs),
             minGap = framesFor(minPeakGapMs, intervalMs)
         )
-        return peaks.mapIndexed { idx, p ->
+        val strokes = peaks.mapIndexedTo(mutableListOf()) { idx, p ->
             val floor = speed[p] * boundaryFraction
             var start = p
             while (start > 0 && speed[start - 1] > floor) start--
@@ -62,6 +76,21 @@ class StrokeDetector2D(
                 peakSpeed = speed[p]
             )
         }
+        // Valley-clamp: ensure adjacent strokes never overlap.
+        for (i in 0 until strokes.size - 1) {
+            val a = strokes[i]
+            val b = strokes[i + 1]
+            if (a.endFrame >= b.startFrame) {
+                // Find minimum smoothed speed in the open interval (a.peakFrame, b.peakFrame).
+                var valley = a.peakFrame + 1
+                for (j in a.peakFrame + 1..b.peakFrame) {
+                    if (speed[j] < speed[valley]) valley = j
+                }
+                strokes[i] = a.copy(endFrame = valley)
+                strokes[i + 1] = b.copy(startFrame = valley)
+            }
+        }
+        return strokes
     }
 
     /** ms → frame count at the given interval, never below 1. */
@@ -114,6 +143,10 @@ class StrokeDetector2D(
         return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2f
     }
 
+    /**
+     * Centered box-average. The effective window is always odd: an even [window]
+     * widens by one (e.g. window=2 behaves as 3, using half=1 on each side).
+     */
     private fun smooth(raw: FloatArray, window: Int): FloatArray {
         if (window <= 1) return raw
         val half = window / 2
@@ -128,6 +161,14 @@ class StrokeDetector2D(
         return out
     }
 
+    /**
+     * Local-maximum peak finding with keep-max NMS refractory.
+     *
+     * Candidates are admitted left-to-right. When a new candidate [i] is within
+     * [minGap] of the previously admitted peak but [speed[i] > speed[peaks.last()]],
+     * the previous peak is REPLACED by [i] (keep-max NMS) rather than [i] being
+     * dropped. This prevents a small early bump from blocking a taller stroke peak.
+     */
     private fun findPeaks(speed: FloatArray, radius: Int, minGap: Int): List<Int> {
         val peaks = mutableListOf<Int>()
         for (i in speed.indices) {
@@ -140,8 +181,12 @@ class StrokeDetector2D(
                 if (j < i && speed[j] >= speed[i]) { isPeak = false; break }
                 if (j > i && speed[j] > speed[i]) { isPeak = false; break }
             }
-            if (isPeak && (peaks.isEmpty() || i - peaks.last() >= minGap)) {
+            if (!isPeak) continue
+            if (peaks.isEmpty() || i - peaks.last() >= minGap) {
                 peaks.add(i)
+            } else if (speed[i] > speed[peaks.last()]) {
+                // Keep-max NMS: replace the nearer but shorter peak with this taller one.
+                peaks[peaks.lastIndex] = i
             }
         }
         return peaks
