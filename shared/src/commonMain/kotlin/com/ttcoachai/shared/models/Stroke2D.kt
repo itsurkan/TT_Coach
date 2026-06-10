@@ -1,7 +1,7 @@
 package com.ttcoachai.shared.models
 
 /**
- * One detected stroke from the wrist-speed signal. All values are frame indices
+ * One detected stroke from the wrist-speed signal. Frame fields are indices
  * into the source frame list; durations are derived by the caller via intervalMs.
  */
 data class Stroke2D(
