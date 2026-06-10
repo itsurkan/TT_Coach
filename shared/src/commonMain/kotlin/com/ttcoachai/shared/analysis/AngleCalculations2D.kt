@@ -79,8 +79,9 @@ object AngleCalculations2D {
      * lean), independent of which way they face on screen (DESIGN_LIMITATIONS L-04:
      * an image-relative sign would give the opposite cue to a player standing the
      * other way). Facing comes from the nose (fallback: ear midpoint) relative to
-     * hip-mid; returns null when facing is indeterminate (head keypoints gated or
-     * dead-centered over the hips) — no measurement beats a possibly-flipped one.
+     * shoulder-mid (lean-invariant, unlike hip-mid which is confounded by the lean
+     * itself); returns null when facing is indeterminate (head keypoints gated or
+     * dead-centered over the shoulders) — no measurement beats a possibly-flipped one.
      */
     fun torsoLean(
         kp: List<Keypoint2D>,
@@ -92,16 +93,22 @@ object AngleCalculations2D {
         val lh = scored(kp, Coco17.LEFT_HIP, minScore) ?: return null
         val rh = scored(kp, Coco17.RIGHT_HIP, minScore) ?: return null
         val hipMidX = (lh.x + rh.x) / 2f
-        val facing = facingSign(kp, hipMidX, minScore) ?: return null
-        val dx = ((ls.x + rs.x) / 2f - hipMidX) * xScale
+        val shoulderMidX = (ls.x + rs.x) / 2f
+        val facing = facingSign(kp, shoulderMidX, minScore) ?: return null
+        val dx = (shoulderMidX - hipMidX) * xScale
         // image y grows downward; -(shY - hpY) makes "up" positive
         val dy = -((ls.y + rs.y) / 2f - (lh.y + rh.y) / 2f)
         if (hypot(dx, dy) < EPSILON) return null
         return atan2(dx * facing, dy) * RAD_TO_DEG
     }
 
-    /** +1 = facing +x, -1 = facing -x, null = indeterminate (L-04 sign normalizer). */
-    private fun facingSign(kp: List<Keypoint2D>, hipMidX: Float, minScore: Float): Float? {
+    /**
+     * +1 = facing +x, -1 = facing -x, null = indeterminate (L-04 sign normalizer).
+     * Head x is compared to shoulder-mid x: head protrusion relative to the
+     * shoulders is lean-invariant, whereas hip-mid would be confounded by the
+     * very lean this sign is meant to orient.
+     */
+    private fun facingSign(kp: List<Keypoint2D>, shoulderMidX: Float, minScore: Float): Float? {
         val headX = scored(kp, Coco17.NOSE, minScore)?.x
             ?: run {
                 val le = scored(kp, Coco17.LEFT_EAR, minScore)
@@ -109,14 +116,16 @@ object AngleCalculations2D {
                 if (le != null && re != null) (le.x + re.x) / 2f else null
             }
             ?: return null
-        val offset = headX - hipMidX
+        val offset = headX - shoulderMidX
         if (abs(offset) < FACING_EPSILON) return null
         return if (offset > 0f) 1f else -1f
     }
 
     /**
-     * Shoulder tilt vs horizon, folded to (-90°, 90°] so the result is independent
-     * of which way the player faces. 0 = level shoulders.
+     * Shoulder tilt vs horizon, folded to (-90°, 90°]; the MAGNITUDE is robust to
+     * left/right label swaps, but the SIGN follows image x — compare tilts only
+     * within a session where the player faces one way (fixed-drill assumption).
+     * 0 = level shoulders.
      */
     fun shoulderTilt(
         kp: List<Keypoint2D>,
@@ -145,6 +154,10 @@ object AngleCalculations2D {
         val a = scored(kp, aIdx, minScore) ?: return null
         val b = scored(kp, bIdx, minScore) ?: return null
         val c = scored(kp, cIdx, minScore) ?: return null
+        // Degenerate geometry (coincident keypoints) is unmeasurable — null, not
+        // angleDeg's 0f, which downstream would read as "joint folded shut".
+        if (hypot((a.x - b.x) * xScale, a.y - b.y) < EPSILON) return null
+        if (hypot((c.x - b.x) * xScale, c.y - b.y) < EPSILON) return null
         return angleDeg(a, b, c, xScale)
     }
 

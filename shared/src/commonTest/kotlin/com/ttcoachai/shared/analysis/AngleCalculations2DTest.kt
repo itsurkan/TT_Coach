@@ -172,11 +172,74 @@ class AngleCalculations2DTest {
         )
         assertEquals(26.57f, AngleCalculations2D.shoulderTilt(tilted, 1f)!!, 0.5f)
 
-        // reversed direction (player facing other way): left→right (-0.2, -0.1) → raw -153.43° → folds to 26.57°
+        // reversed direction (left/right label swap (point reflection) — guards the
+        // fold, not a real turn-around): left→right (-0.2, -0.1) → raw -153.43° → folds to 26.57°
         val reversed = kps(
             Coco17.LEFT_SHOULDER to Keypoint2D(0.6f, 0.5f, 1f),
             Coco17.RIGHT_SHOULDER to Keypoint2D(0.4f, 0.4f, 1f)
         )
         assertEquals(26.57f, AngleCalculations2D.shoulderTilt(reversed, 1f)!!, 0.5f)
+    }
+
+    @Test
+    fun torsoLeanBackwardIsNegative() {
+        // L-04 regression guard: facing +x (nose ahead of SHOULDERS), shoulders
+        // BEHIND the hips → backward lean must be negative, not flipped positive.
+        // shoulder-mid (0.45, 0.2), hip-mid (0.5, 0.6) → atan2(-0.05, 0.4) = -7.13°
+        val kp = kps(
+            Coco17.NOSE to Keypoint2D(0.5f, 0.15f, 1f), // ahead of shoulder-mid (0.45), but behind hip-mid!
+            Coco17.LEFT_SHOULDER to Keypoint2D(0.40f, 0.2f, 1f),
+            Coco17.RIGHT_SHOULDER to Keypoint2D(0.50f, 0.2f, 1f),
+            Coco17.LEFT_HIP to Keypoint2D(0.45f, 0.6f, 1f),
+            Coco17.RIGHT_HIP to Keypoint2D(0.55f, 0.6f, 1f)
+        )
+        assertEquals(-7.13f, AngleCalculations2D.torsoLean(kp, 1f)!!, 0.5f)
+    }
+
+    @Test
+    fun coincidentJointKeypointsGateToNull() {
+        // Degenerate geometry (wrist on top of elbow) is unmeasurable, not "0° = folded shut"
+        val kp = kps(
+            Coco17.RIGHT_SHOULDER to Keypoint2D(0.5f, 0.2f, 1f),
+            Coco17.RIGHT_ELBOW to Keypoint2D(0.5f, 0.4f, 1f),
+            Coco17.RIGHT_WRIST to Keypoint2D(0.5f, 0.4f, 1f)
+        )
+        assertNull(AngleCalculations2D.elbowAngle(kp, Handedness.RIGHT, 1f))
+    }
+
+    @Test
+    fun xScaleAffectsTorsoLeanAndShoulderTilt() {
+        // deleting `* xScale` in either function must fail this test
+        val lean = kps(
+            Coco17.NOSE to Keypoint2D(0.65f, 0.15f, 1f),
+            Coco17.LEFT_SHOULDER to Keypoint2D(0.55f, 0.2f, 1f),
+            Coco17.RIGHT_SHOULDER to Keypoint2D(0.65f, 0.2f, 1f),
+            Coco17.LEFT_HIP to Keypoint2D(0.45f, 0.6f, 1f),
+            Coco17.RIGHT_HIP to Keypoint2D(0.55f, 0.6f, 1f)
+        )
+        // xScale 0.5: atan2(0.05, 0.4) = 7.13° (vs 14.04° at 1.0)
+        assertEquals(7.13f, AngleCalculations2D.torsoLean(lean, 0.5f)!!, 0.5f)
+
+        val tilt = kps(
+            Coco17.LEFT_SHOULDER to Keypoint2D(0.4f, 0.5f, 1f),
+            Coco17.RIGHT_SHOULDER to Keypoint2D(0.6f, 0.6f, 1f)
+        )
+        // xScale 0.5: atan2(0.1, 0.1) = 45° (vs 26.57° at 1.0)
+        assertEquals(45f, AngleCalculations2D.shoulderTilt(tilt, 0.5f)!!, 0.5f)
+    }
+
+    @Test
+    fun facingFallsBackToEarsWhenNoseGated() {
+        // Side view often occludes the nose; both ears carry the facing signal
+        val kp = kps(
+            Coco17.NOSE to Keypoint2D(0.6f, 0.15f, 0.1f), // gated
+            Coco17.LEFT_EAR to Keypoint2D(0.58f, 0.18f, 1f),
+            Coco17.RIGHT_EAR to Keypoint2D(0.62f, 0.18f, 1f),
+            Coco17.LEFT_SHOULDER to Keypoint2D(0.45f, 0.2f, 1f),
+            Coco17.RIGHT_SHOULDER to Keypoint2D(0.55f, 0.2f, 1f),
+            Coco17.LEFT_HIP to Keypoint2D(0.45f, 0.6f, 1f),
+            Coco17.RIGHT_HIP to Keypoint2D(0.55f, 0.6f, 1f)
+        )
+        assertEquals(0f, AngleCalculations2D.torsoLean(kp, 1f)!!, 0.1f)
     }
 }
