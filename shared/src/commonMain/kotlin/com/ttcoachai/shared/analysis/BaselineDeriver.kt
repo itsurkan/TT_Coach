@@ -70,8 +70,36 @@ object BaselineDeriver {
         }
         require(frameIntervalMs > 0) { "frameIntervalMs must be > 0, got $frameIntervalMs" }
 
-        val repMetrics = analyses.map { extractMetricValues(it) }
-        val repPhaseDurations = strokes.map { extractPhaseDurations(it, frameIntervalMs) }
+        return deriveFromMetrics(
+            repMetrics = analyses.map { extractMetricValues(it) },
+            repPhaseDurations = strokes.map { extractPhaseDurations(it, frameIntervalMs) },
+            drillType = drillType,
+            createdAtMs = createdAtMs,
+            drillerHandedness = drillerHandedness,
+            minRepCount = minRepCount,
+            outlierSigmaThreshold = outlierSigmaThreshold
+        )
+    }
+
+    /**
+     * Source-agnostic core of baseline derivation: one metric map + one phase-duration
+     * map per rep. The 2D drill pipeline (2D pivot Phase 2) feeds this directly;
+     * the legacy 003 path feeds it via [derive].
+     */
+    fun deriveFromMetrics(
+        repMetrics: List<Map<String, Double>>,
+        repPhaseDurations: List<Map<String, Double>>,
+        drillType: String,
+        createdAtMs: Long,
+        drillerHandedness: String? = null,
+        minRepCount: Int = DEFAULT_MIN_REPS,
+        outlierSigmaThreshold: Double = DEFAULT_OUTLIER_SIGMA
+    ): PersonalBaseline {
+        require(repMetrics.isNotEmpty()) { "Cannot derive baseline from zero reps" }
+        require(repMetrics.size == repPhaseDurations.size) {
+            "repMetrics (${repMetrics.size}) and repPhaseDurations (${repPhaseDurations.size}) " +
+                "must be parallel lists"
+        }
 
         val initialMetricStats = computeStatsPerKey(repMetrics)
         val initialPhaseStats = computeStatsPerKey(repPhaseDurations)
@@ -82,18 +110,16 @@ object BaselineDeriver {
             outlierSigmaThreshold
         )
 
-        val keptIndices = strokes.indices.filter { it !in outlierIndices }
+        val keptIndices = repMetrics.indices.filter { it !in outlierIndices }
         if (keptIndices.size < minRepCount) {
             throw IllegalArgumentException(
                 "Insufficient valid reps after outlier exclusion: " +
-                    "${keptIndices.size} < $minRepCount (input=${strokes.size}, excluded=${outlierIndices.size})"
+                    "${keptIndices.size} < $minRepCount (input=${repMetrics.size}, excluded=${outlierIndices.size})"
             )
         }
 
         val finalMetricStats = computeStatsPerKey(keptIndices.map { repMetrics[it] })
         val finalPhaseStats = computeStatsPerKey(keptIndices.map { repPhaseDurations[it] })
-
-        val qualityScore = computeQualityScore(finalMetricStats)
 
         return PersonalBaseline(
             drillType = drillType,
@@ -101,7 +127,7 @@ object BaselineDeriver {
             phaseDurationsMs = finalPhaseStats,
             repCount = keptIndices.size,
             excludedRepIndices = outlierIndices.toList().sorted(),
-            qualityScore = qualityScore,
+            qualityScore = computeQualityScore(finalMetricStats),
             createdAtMs = createdAtMs,
             drillerHandedness = drillerHandedness
         )
