@@ -20,7 +20,7 @@ Update this file when you change a listed file.
 
 ### `src/App.tsx` (~1776 lines)
 
-Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball, contacts, labels, crop config, trajectory results (V1–V3, 3D, 3Dv2). Settings in `localStorage` key `poses_viewer_settings`. Logic lives in components and `utils/trajectoryPipeline*`.
+Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball, contacts, labels, crop config, trajectory results (V1–V3, 3D, 3Dv2). Settings in `localStorage` key `poses_viewer_settings`. Logic lives in components and `utils/trajectoryPipeline*`. Pose JSON: schema v2 (`topology: 'coco17'`, see `docs/pose_json_schema_v2.md`) supported alongside legacy MediaPipe-33; `_poses_rtm.json` preferred over `_poses.json` when present; normalization lives in `src/utils/normalizePoses.ts`.
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 

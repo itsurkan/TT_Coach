@@ -1,8 +1,8 @@
 import { useRef, useEffect, useCallback } from 'react'
-import { Frame, FrameLabel, TableFrameLabel } from '../types'
+import { Frame, FrameLabel, TableFrameLabel, PoseTopology } from '../types'
 import type { TrajectorySegment, PredictiveTrajectory } from '../utils/trajectoryPipeline'
 import { evaluateFit } from '../utils/trajectoryPipeline'
-import { POSE_CONNECTIONS, SIDE_COLORS } from '../utils/poseConnections'
+import { getConnections, SIDE_COLORS } from '../utils/poseConnections'
 import { LABEL_COLORS } from './LabelPanel'
 
 interface Props {
@@ -11,6 +11,8 @@ interface Props {
   frameIndex: number
   videoWidth: number
   videoHeight: number
+  /** Which skeleton edge list to draw. Defaults to legacy MediaPipe-33. */
+  topology?: PoseTopology
   transparent?: boolean
   showPoses?: boolean
   showBall?: boolean
@@ -53,6 +55,7 @@ const TRAIL_MAX_GAP = 2
 
 export default function PoseCanvas({
   frame, frames, frameIndex, videoWidth, videoHeight,
+  topology = 'mediapipe33',
   transparent, showPoses = true, showBall = true,
   showBallV5 = false, ballV5Frame, ballV5Frames, ballV5FrameIdx = -1,
   showBallYolo = false, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx = -1,
@@ -108,7 +111,7 @@ export default function PoseCanvas({
     if (showPoses) {
       const lms = Array.isArray(frame.landmarks) ? frame.landmarks : []
 
-      for (const [a, b, side] of POSE_CONNECTIONS) {
+      for (const [a, b, side] of getConnections(topology)) {
         const la = lms[a]
         const lb = lms[b]
         if (!la || !lb) continue
@@ -499,7 +502,7 @@ export default function PoseCanvas({
       ctx.strokeRect(2, 2, CANVAS_W - 4, CANVAS_H - 4)
       ctx.setLineDash([])
     }
-  }, [frame, frames, frameIndex, videoWidth, videoHeight, showPoses, showBall, showBallV5, ballV5Frame, ballV5Frames, ballV5FrameIdx, showBallYolo, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx, isContactFrame, contactType, frameLabel, placingBall, placingKeypoint, showTableLabels, tableFrameLabel,  showTrajectory, trajectoryMode, trajectorySegments, predictiveTrajectory])
+  }, [frame, frames, frameIndex, videoWidth, videoHeight, topology, showPoses, showBall, showBallV5, ballV5Frame, ballV5Frames, ballV5FrameIdx, showBallYolo, ballYoloFrame, ballYoloFrames, ballYoloFrameIdx, isContactFrame, contactType, frameLabel, placingBall, placingKeypoint, showTableLabels, tableFrameLabel,  showTrajectory, trajectoryMode, trajectorySegments, predictiveTrajectory])
 
   return (
     <canvas

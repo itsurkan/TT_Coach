@@ -29,8 +29,8 @@ import { toNumber, normalizeData } from './utils/normalizePoses'
 
 /** Ordered list of JSON suffixes to try, based on which layers are enabled. */
 function jsonSuffixes(wantPoses: boolean, wantBall: boolean): string[] {
-  if (wantPoses && wantBall)  return ['_poses_ball.json', '_poses.json', '_ball.json']
-  if (wantPoses && !wantBall) return ['_poses.json', '_poses_ball.json']
+  if (wantPoses && wantBall)  return ['_poses_ball.json', '_poses_rtm.json', '_poses.json', '_ball.json']
+  if (wantPoses && !wantBall) return ['_poses_rtm.json', '_poses.json', '_poses_ball.json']
   if (!wantPoses && wantBall) return ['_ball.json', '_poses_ball.json']
   return ['_poses_ball.json', '_poses.json', '_ball.json']
 }
@@ -1131,6 +1131,7 @@ export default function App() {
                 : {}
               }>
                 <PoseCanvas
+                  topology={data?.topology ?? 'mediapipe33'}
                   frame={frame}
                   frames={data.frames}
                   frameIndex={frameIndex}
