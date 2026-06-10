@@ -139,15 +139,18 @@ class StrokeDetector2DTest {
             "strokes must not overlap: $strokes")
     }
 
-    // ---- Finding 3: fps-invariance of stroke count via ms-based refractory ----
+    // ---- Finding 3: fps-invariance of stroke count via ms-based smoothing window ----
 
     @Test
-    fun msBasedRefractoryGivesSameStrokeCountAtAnyFps() {
+    fun msBasedSmoothingGivesSameStrokeCountAtAnyFps() {
         // Two strokes ~1000 ms apart (peak to peak): well outside the 500 ms gap → TWO
         // strokes at every fps. A wobble is placed ~300 ms after stroke 1 peak:
-        //   - ms-based gap=500ms: wobble is 300ms from peak < 500ms → suppressed at BOTH fps
-        //   - frame-const gap=5 frames: at 50ms the wobble is 6 frames from peak ≥ 5 → ADMITTED
-        // so a frame-constant mutation would return 3 strokes at 50ms but 2 at 100ms.
+        //   - ms-based smoothing (300 ms → 6 frames at 50 ms): wobble smoothed to 0.91
+        //     torso/s, below the 1.0 threshold → suppressed at BOTH fps
+        //   - frame-constant smoothing (3 frames at any fps): at 50 ms the wobble
+        //     smooths to 1.00 torso/s, remains at threshold → admitted → extra stroke
+        // The refractory is NOT the kill mechanism here: the wobble peak is >500 ms
+        // from stroke 1 (600 ms at 50 ms) and would survive a frame-fixed minGap=5.
         val xs100 = listOf(
             0.50f, 0.52f, 0.56f, 0.62f,                     // 0-3: ramp, peak at idx 3
             0.62f, 0.645f, 0.675f, 0.660f, 0.640f,           // 4-8: wobble at idx 6 (~300ms after peak)
@@ -162,6 +165,31 @@ class StrokeDetector2DTest {
         assertEquals(at100.size, at50.size,
             "stroke count must be fps-invariant: 100ms→${at100.size}, 50ms→${at50.size}")
         assertEquals(2, at100.size)
+    }
+
+    // ---- Finding 4: fps-invariance of stroke count via ms-based minGap conversion ----
+
+    @Test
+    fun msBasedMinGapSuppressesSubGapPeaksAtAnyFps() {
+        // Two peaks 400 ms apart, BOTH above threshold post-smoothing; a tiny
+        // 100 ms peak radius makes each a local maximum, so only the 500 ms
+        // refractory suppresses the smaller second one → exactly 1 stroke at any
+        // fps. Frame-based minGap (5 frames) = 500 ms at 100 ms but only 250 ms
+        // at 50 ms sampling: the 400 ms-late bump would be admitted → 2 strokes.
+        val detector = StrokeDetector2D(peakWindowRadiusMs = 100)
+        // displacements (torso 0.25, 100 ms): stroke 3.2 torso/s at idx 3,
+        // bump 2.0 torso/s at idx 7 — smoothed ≈1.87 and ≈1.47, both ≥ 1.0
+        val xs100 = listOf(
+            0.50f, 0.50f, 0.53f, 0.61f, 0.64f, 0.655f, 0.685f, 0.735f,
+            0.765f, 0.765f, 0.765f, 0.765f
+        )
+        val xs50 = xs100.flatMapIndexed { i, x ->
+            if (i == xs100.lastIndex) listOf(x) else listOf(x, (x + xs100[i + 1]) / 2f)
+        }
+        val at100 = detector.detect(framesFromWristXs(xs100), Handedness.RIGHT, 1f, 100L)
+        val at50 = detector.detect(framesFromWristXs(xs50, intervalMs = 50L), Handedness.RIGHT, 1f, 50L)
+        assertEquals(1, at100.size, "100ms: refractory must suppress the 400ms-late bump, got $at100")
+        assertEquals(1, at50.size, "50ms: ms-based gap must still suppress it, got $at50")
     }
 
     // ---- Minor: occlusion test ----
