@@ -10,56 +10,24 @@ entries (move resolved ones to the bottom section with the resolving commit/doc)
 - `ACCEPTED` — known and consciously deferred (record why and the revisit trigger)
 - `RESOLVED` — fixed; entry moved to the Resolved section
 
-Last updated: 2026-06-10
+Last updated: 2026-06-11
 
 ---
 
 ## 1. 2D pose pipeline (Phase 1–2, branch `2d`)
 
-### L-01 · Wrist speed is not body-size normalized — `OPEN`
-`StrokeDetector2D.minPeakSpeed` (0.03f) is in xScale-corrected normalized image
-coords, so it depends on camera distance/zoom. A threshold tuned on one video does
-not transfer to another, nor from calibration footage to a live session.
-**Fix direction:** divide speed by torso length (shoulder-mid → hip-mid) — already
-computed for yaw estimation, scale-invariant.
-**Refs:** plan `2026-06-10-phase2-drill-logic-shared-kmp.md` Task 5; gap analysis 2026-06-10.
-
-### L-02 · 10 fps fixtures are too coarse for stroke-peak detection — `OPEN`
-Phase 1 exports use `intervalMs: 100` (10 fps). A forehand-drive forward swing is
-~150–250 ms → 2–3 samples per swing: peak wrist speed is systematically
-underestimated and the "angle at peak frame" is effectively a random nearby frame.
-Detector params tuned on 10 fps will not transfer to live capture (Phase 3), which
-is planned as **configurable 30/60/120 fps** — so detector params (peak gap,
-smoothing window, boundary walk) must be parameterized in **milliseconds, not frame
-counts**, or they silently change meaning with every fps setting.
-**Fix direction:** re-export fixtures at full video fps before TDD cements thresholds
-(Phase 2 Task 5); express all `StrokeDetector2D` tuning in ms and derive frame
-counts from `intervalMs`.
-**Refs:** `pose_json_schema_v2.md`; plan design note "revisit when interval changes".
-
-### L-03 · Every wrist-speed peak is treated as a drill rep — `OPEN`
-`StrokeDetector2D` has no stroke/non-stroke discrimination; `DrillCalibrator`
-assumes every detected peak is a rep. Picking up a ball, wiping a hand, walking all
-produce local maxima. `BaselineDeriver`'s single-pass 2σ exclusion partially helps,
-but several junk "reps" shift the mean before exclusion.
-**Fix direction:** minimal rep filter (peak-speed/duration clustering) and/or
-calibration UX rule "only strokes during the capture window".
-**Refs:** plan Tasks 5, 11.
-
-### L-04 · Torso-lean sign is image-relative, not player-relative — `OPEN`
-`AngleCalculations2D.torsoLean` sign convention is "positive = shoulders toward +x".
-A player facing the other way inverts the sign, so a baseline rule would give the
-opposite cue ("lean forward" → "lean back"). `shoulderTilt` is folded to a
-half-plane for exactly this reason; `torsoLean` is not.
-**Fix direction:** normalize sign by facing direction (e.g. nose/ear x relative to
-hip-mid).
-**Refs:** plan Task 4.
-
-### L-05 · Rep metrics come from a single peak frame, keypoints unsmoothed — `OPEN`
-Only the wrist-speed signal is smoothed (window 3); keypoint coordinates and angles
-are not. RTMPose per-frame jitter feeds straight into the baseline.
-**Fix direction:** average angles over ±1–2 frames around the peak (near-free).
-**Refs:** plan Task 11 (`DrillMetrics.extractAtFrame`).
+### L-04 · Torso-lean sign normalization relies on per-frame head facing, which is noise on real footage — `OPEN`
+The sign normalization itself **is** implemented: `AngleCalculations2D.torsoLean`
+normalizes by facing direction via nose x relative to shoulder-mid (shoulder-mid
+chosen over hip-mid because hip-mid is confounded by the lean being measured) —
+commit `c6dc78e`. **But** Task 14 E2E diagnostics measured the per-frame
+head-facing signal as ~45/55 noise on real footage (475 frames +1 vs 628 −1 on
+andrii_1_rtm, and anti-correlated with swing phase at stroke starts) — so the
+torso-lean **sign** is unreliable on real footage despite correct math.
+**Fix direction:** derive a session-level facing (e.g. the speed-dominance vote
+already used by `ForwardStrokeFilter`, commit `85b0ef2`) and feed it into
+`torsoLean` instead of per-frame head reads.
+**Refs:** `AngleCalculations2D.kt`; `ForwardStrokeFilter.kt`; Task 14 E2E diagnostics.
 
 ### L-06 · Table occludes knees/ankles in side view → knee-bend may silently vanish — `OPEN`
 Score gating returns `null` for occluded joints, so on protocol footage the
@@ -69,7 +37,7 @@ defined. (Context doc flags table occlusion only for footwork, but forehand-driv
 side view has the same problem.)
 **Fix direction:** report per-metric coverage after calibration; define drill
 behavior when a metric has no baseline.
-**Refs:** context doc §3 (open design issue); plan Task 11.
+**Refs:** context doc §3 (open design issue); plan Task 7 (`DrillMetrics`).
 
 ### L-07 · Multi-person: best-score person picked per frame, no identity continuity — `OPEN`
 `export_poses_rtmpose.py` keeps the highest-mean-score person independently each
@@ -77,14 +45,6 @@ frame. With an opponent/coach in frame, identity can flip between frames → pha
 wrist-speed spikes the stroke detector reads as strokes. Acceptable for fixtures
 (visual check in poses_viewer) but must be solved for live (Phase 3 bbox tracking).
 **Refs:** `export_poses_rtmpose.py` (`best_person()`); `pose_json_schema_v2.md`.
-
-### L-08 · Exporter ignores video rotation metadata — `OPEN`
-`export_poses_rtmpose.py` reads width/height via OpenCV and does not check the
-rotation flag. Portrait phone videos may come in sideways, inverting the
-aspect-ratio correction that all angle math depends on (correctness-critical).
-**Fix direction:** one-line rotation check in the exporter; schema v2 has no
-rotation field by design — bake rotation in before export.
-**Refs:** `export_poses_rtmpose.py`.
 
 ### L-09 · Camera yaw correction is first-order, |yaw| only, ≤~30° — `ACCEPTED`
 Shoulder-foreshortening estimation can't recover yaw sign (cos is even — correction
@@ -123,6 +83,28 @@ labels. Real tuning waits for protocol footage (founder task).
 explicit selection at calibration/analysis entry. Fine for MVP onboarding; revisit
 if onboarding friction shows up in beta.
 **Refs:** plan Tasks 1, 11.
+
+### L-25 · Camera-yaw estimator saturates on non-protocol footage — `OPEN`
+`CameraAngleEstimator.estimateSideViewYawDeg` returns 90.0° (the ceiling) on
+andrii_1_rtm — the shoulder-foreshortening model needs validation on
+protocol-compliant side-view footage before auto-estimation can gate real sessions.
+Until then, orchestrator callers pin `cameraYawDeg` overrides in tests.
+**Refs:** `CameraAngleEstimator.kt`; `ForehandDriveEndToEndTest.kt`; commit `ed2c739`.
+
+### L-26 · Integer intervalMs truncation inflates speeds at high fps — `ACCEPTED` (revisit in Phase 3)
+`StrokeDetector2D.detect` takes integer ms; at 120 fps (true 8.33 ms) truncation to
+8 ms inflates torso/s speeds ~4%, shifting the tuned `minPeakSpeed` meaning. The
+Phase 3 live loop should derive dt from per-frame timestamps
+(`PoseFrame2D.timestampMs` already exists).
+**Refs:** `StrokeDetector2D.kt` kdoc; Task 5 review.
+
+### L-27 · Forward-stroke detection assumes drives are faster than recoveries — `ACCEPTED` (revisit per drill)
+`ForwardStrokeFilter`'s session-level speed-dominance vote (median peak speed by
+wrist-dx group, ratio ≥ 1.2, minority group ≥ 2) was validated on ONE fixture
+(ratio 1.33). Holds for drive/topspin-class drills; weakens for touch/block/push.
+Below the ratio it falls back to head facing, which is measured noise on real
+footage (L-04) → conservative mass-drop → loud calibration failure.
+**Refs:** `ForwardStrokeFilter.kt`; commits `85b0ef2`, `f3be865`.
 
 ## 2. Live capture & Android runtime (Phase 3 relevant)
 
@@ -198,4 +180,38 @@ Stage 2 of the staged roadmap.
 
 ## Resolved
 
-*(none yet — move entries here with the resolving commit hash)*
+### L-01 · Wrist speed is not body-size normalized — `RESOLVED`
+`StrokeDetector2D.minPeakSpeed` (0.03f) was in xScale-corrected normalized image
+coords, so it depended on camera distance/zoom; a threshold tuned on one video did
+not transfer to another, nor from calibration footage to a live session.
+**Resolved by:** `8dbd635` — wrist speed expressed in torso-lengths/sec in
+`StrokeDetector2D` (torso length = shoulder-mid → hip-mid, scale-invariant).
+
+### L-02 · 10 fps fixtures are too coarse for stroke-peak detection — `RESOLVED`
+Phase 1 exports used `intervalMs: 100` (10 fps) — 2–3 samples per forward swing,
+systematically underestimated peaks; detector params tuned in frame counts silently
+changed meaning with every fps setting.
+**Resolved by:** `e00d038` — fixtures re-exported at full video fps (andrii_1 @17ms,
+video_2 @20ms); `8dbd635` — all `StrokeDetector2D` tuning windows expressed in
+milliseconds, frame counts derived from `intervalMs`.
+
+### L-03 · Every wrist-speed peak is treated as a drill rep — `RESOLVED`
+`StrokeDetector2D` had no stroke/non-stroke discrimination; junk peaks (ball pickup,
+hand wipe, walking) shifted the baseline mean before 2σ exclusion.
+**Resolved by:** `5754a3a` — `RepFilter` bands peaks against the session's median
+peak speed and duration; `23890ba`/`85b0ef2` — `ForwardStrokeFilter` direction
+filter drops backward/recovery swings via session-level speed-dominance vote.
+
+### L-05 · Rep metrics come from a single peak frame, keypoints unsmoothed — `RESOLVED`
+Only the wrist-speed signal was smoothed; RTMPose per-frame jitter fed straight
+into the baseline through the single peak frame.
+**Resolved by:** `8c7b6a7` — `DrillMetrics.extractAtPeak` takes the median over a
+±70 ms window around the speed peak (degrades gracefully to the single peak frame
+on coarse fixtures).
+
+### L-08 · Exporter ignores video rotation metadata — `RESOLVED`
+`export_poses_rtmpose.py` read width/height via OpenCV header props without
+checking the rotation flag — portrait phone videos could invert the aspect-ratio
+correction all angle math depends on.
+**Resolved by:** `e00d038` — exporter takes width/height from the *decoded* frame,
+so rotation is baked in before export; follow-up `629c46a` clamps x/y to `[0,1]`.

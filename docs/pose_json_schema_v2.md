@@ -80,4 +80,4 @@ All 26 points are exported (standard Halpe26 ordering — consumers index positi
 ## Compatibility
 
 - **v1 (legacy MediaPipe-33):** The legacy MediaPipe-33 format (`x/y/z/visibility/presence` per landmark, no `schemaVersion` field) remains valid and is not converted.
-- **Consumer dispatch:** Consumers (poses_viewer now, the KMP loader in Phase 2) must dispatch on `topology`, defaulting to `mediapipe33` when the field is absent.
+- **Consumer dispatch:** Consumers must dispatch on `topology`, defaulting to `mediapipe33` when the field is absent. Implemented consumers: poses_viewer (renders coco17/halpe26) and the shared KMP loader `com.ttcoachai.shared.io.PoseJsonV2Parser` (accepts coco17/halpe26, rejects legacy v1 explicitly with `PoseSchemaException`, tripwires on landmark field-order drift).
