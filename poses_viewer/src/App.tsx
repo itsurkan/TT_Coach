@@ -29,8 +29,8 @@ import { toNumber, normalizeData } from './utils/normalizePoses'
 
 /** Ordered list of JSON suffixes to try, based on which layers are enabled. */
 function jsonSuffixes(wantPoses: boolean, wantBall: boolean): string[] {
-  if (wantPoses && wantBall)  return ['_poses_ball.json', '_poses_rtm.json', '_poses.json', '_ball.json']
-  if (wantPoses && !wantBall) return ['_poses_rtm.json', '_poses.json', '_poses_ball.json']
+  if (wantPoses && wantBall)  return ['_poses_ball.json', '_poses.json', '_ball.json']
+  if (wantPoses && !wantBall) return ['_poses.json', '_poses_ball.json']
   if (!wantPoses && wantBall) return ['_ball.json', '_poses_ball.json']
   return ['_poses_ball.json', '_poses.json', '_ball.json']
 }
@@ -98,14 +98,14 @@ function MultiSelect({ label, items, footer }: { label: string; items: MultiSele
 const SETTINGS_KEY = 'poses_viewer_settings'
 
 interface PersistedSettings {
-  showPoses: boolean; showBall: boolean; showBallV5: boolean; showBallYolo: boolean
+  showPoses: boolean; showRtmPoses: boolean; showBall: boolean; showBallV5: boolean; showBallYolo: boolean
   showContacts: boolean; muted: boolean; placingBall: boolean; showLabels: boolean
   showTrajectory: boolean; showTrajectoryV2: boolean; showTrajectoryV3: boolean; showTrajectoryV4: boolean; showTrajectory3D: boolean; showTrajectory3Dv2: boolean
   showTableLabels: boolean; showTableView: boolean; showTableYolo: boolean; showTablePredict: boolean; showTableGrid: boolean; showTableGridMarked: boolean
 }
 
 const DEFAULT_SETTINGS: PersistedSettings = {
-  showPoses: false, showBall: false, showBallV5: false, showBallYolo: false,
+  showPoses: false, showRtmPoses: false, showBall: false, showBallV5: false, showBallYolo: false,
   showContacts: false, muted: false, placingBall: false, showLabels: false,
   showTrajectory: false, showTrajectoryV2: false, showTrajectoryV3: false, showTrajectoryV4: false, showTrajectory3D: false, showTrajectory3Dv2: false,
   showTableLabels: false, showTableView: false, showTableYolo: false, showTablePredict: true, showTableGrid: true, showTableGridMarked: false,
@@ -132,6 +132,8 @@ export default function App() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
   const saved = useRef(loadSettings())
   const [showPoses, setShowPoses] = useState(saved.current.showPoses)
+  const [showRtmPoses, setShowRtmPoses] = useState(saved.current.showRtmPoses)
+  const [rtmData, setRtmData] = useState<PosesBallData | null>(null)
   const [showBall, setShowBall] = useState(saved.current.showBall)
   const [showBallV5, setShowBallV5] = useState(saved.current.showBallV5)
   const [ballV5Data, setBallV5Data] = useState<PosesBallData | null>(null)
@@ -178,11 +180,11 @@ export default function App() {
 
   useEffect(() => {
     saveSettings({
-      showPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
+      showPoses, showRtmPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
       placingBall, showLabels, showTrajectory, showTrajectoryV2, showTrajectoryV3,
       showTrajectoryV4, showTrajectory3D, showTrajectory3Dv2, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked,
     })
-  }, [showPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
+  }, [showPoses, showRtmPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
       placingBall, showLabels, showTrajectory, showTrajectoryV2, showTrajectoryV3,
       showTrajectoryV4, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked])
 
@@ -403,6 +405,20 @@ export default function App() {
       if (json.crop) setCropConfig(json.crop)
     } catch {
       // labels file is optional
+    }
+  }, [])
+
+  /** Fetch RTMPose schema-v2 poses JSON (silently ignores if missing). */
+  const fetchRtmPoses = useCallback(async (base: string) => {
+    setRtmData(null)
+    const url = `/videos/${base}/${base}_poses_rtm.json`
+    try {
+      const res = await fetch(url)
+      if (!res.ok) return
+      const json: unknown = await res.json()
+      setRtmData(normalizeData(json))
+    } catch {
+      // rtm poses file is optional
     }
   }, [])
 
@@ -710,6 +726,7 @@ export default function App() {
       .catch(() => setTablePredictData(null))
     fetchBallV5(base)
     fetchBallYolo(base)
+    fetchRtmPoses(base)
 
     e.target.value = ''
   }
@@ -757,6 +774,7 @@ export default function App() {
       .catch(() => setTablePredictData(null))
     fetchBallV5(base)
     fetchBallYolo(base)
+    fetchRtmPoses(base)
   }
 
   /** Re-fetch JSON when checkboxes change (if a video is already loaded). */
@@ -910,6 +928,19 @@ export default function App() {
   const currentContact = contacts?.contacts.find(c => c.frameIndex === frameIndex) ?? null
   const ball  = frame?.ball ?? null
 
+  // Find matching RTM pose frame index by timestampMs
+  const rtmFrameIdx = (() => {
+    if (!rtmData || !frame) return -1
+    let best = 0
+    let bestDiff = Infinity
+    for (let i = 0; i < rtmData.frames.length; i++) {
+      const diff = Math.abs(rtmData.frames[i].timestampMs - frame.timestampMs)
+      if (diff < bestDiff) { bestDiff = diff; best = i }
+    }
+    return bestDiff < (rtmData.intervalMs ?? 200) ? best : -1
+  })()
+  const rtmFrame = rtmFrameIdx >= 0 ? rtmData!.frames[rtmFrameIdx] : null
+
   // Find matching Ball V5 frame index by timestampMs
   const ballV5FrameIdx = (() => {
     if (!ballV5Data || !frame) return -1
@@ -993,6 +1024,10 @@ export default function App() {
         <label className={cbClass}>
           <input type="checkbox" checked={showPoses} onChange={e => handleShowPoses(e.target.checked)} className="accent-blue-500" />
           Poses
+        </label>
+        <label className={cbClass} title="RTMPose COCO-17 skeleton (_poses_rtm.json)">
+          <input type="checkbox" checked={showRtmPoses} onChange={e => setShowRtmPoses(e.target.checked)} className="accent-emerald-400" />
+          RTM
         </label>
         <label className={cbClass}>
           <input type="checkbox" checked={showContacts} onChange={e => setShowContacts(e.target.checked)} className="accent-orange-500" />
@@ -1139,6 +1174,8 @@ export default function App() {
                   videoHeight={data.videoHeight}
                   transparent={!!videoSrc}
                   showPoses={showPoses}
+                  showRtmPoses={showRtmPoses}
+                  rtmFrame={rtmFrame}
                   showBall={showBall}
                   showBallV5={showBallV5}
                   ballV5Frame={ballV5Frame}
