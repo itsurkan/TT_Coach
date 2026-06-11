@@ -11,6 +11,8 @@ interface Props {
   durationMs: number
   currentMs: number
   onSeek: (ms: number) => void
+  selectedIndex?: number | null
+  onSelect?: (index: number) => void
 }
 
 const BAND_CLASS: Record<TimelineEntry['kind'], string> = {
@@ -19,7 +21,7 @@ const BAND_CLASS: Record<TimelineEntry['kind'], string> = {
   'raw-dropped': 'bg-neutral-500/50 hover:bg-neutral-400',
 }
 
-export function StrokeTimeline({ entries, durationMs, currentMs, onSeek }: Props) {
+export function StrokeTimeline({ entries, durationMs, currentMs, onSeek, selectedIndex, onSelect }: Props) {
   if (durationMs <= 0) return null
   const pct = (ms: number) => `${(Math.min(ms, durationMs) / durationMs) * 100}%`
 
@@ -35,9 +37,13 @@ export function StrokeTimeline({ entries, durationMs, currentMs, onSeek }: Props
         <div
           key={i}
           title={en.label}
-          className={`absolute top-1 bottom-1 rounded-sm ${BAND_CLASS[en.kind]}`}
+          className={`absolute top-1 bottom-1 rounded-sm ${BAND_CLASS[en.kind]}${selectedIndex === i ? ' ring-2 ring-white z-10' : ''}`}
           style={{ left: pct(en.startMs), width: `max(calc(${pct(en.endMs)} - ${pct(en.startMs)}), 3px)` }}
-          onClick={ev => { ev.stopPropagation(); onSeek(en.peakMs) }}
+          onClick={ev => {
+            ev.stopPropagation()
+            if (onSelect) onSelect(i)
+            else onSeek(en.peakMs)
+          }}
         >
           {/* peak tick */}
           <div

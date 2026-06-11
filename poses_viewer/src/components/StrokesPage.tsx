@@ -17,6 +17,7 @@ export default function StrokesPage() {
   const [minPeakSpeed, setMinPeakSpeed] = useState(DETECTOR_DEFAULTS.minPeakSpeed)
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
   const [currentMs, setCurrentMs] = useState(0)
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function StrokesPage() {
     if (!base) { setSeq(null); return }
     setError('')
     setSeq(null)
+    setSelectedIdx(null)
     fetch(`/videos/${base}/${base}_poses_rtm.json`)
       .then(r => {
         if (!r.ok) throw new Error(`немає ${base}_poses_rtm.json — спершу запусти export_poses_rtmpose.py`)
@@ -63,6 +65,9 @@ export default function StrokesPage() {
     }))
   }, [seq, result])
 
+  // Selection indexes into entries; drop it when the knobs rebuild the stroke list.
+  useEffect(() => { setSelectedIdx(null) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs])
+
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
 
@@ -70,6 +75,28 @@ export default function StrokesPage() {
     const v = videoRef.current
     if (v) v.currentTime = ms / 1000
   }
+
+  // ←/→ = ±1 кадр, Shift = ±10 кадрів (пауза перед кроком, щоб кадр не "втікав")
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+      const t = e.target as HTMLElement | null
+      if (t && ['INPUT', 'SELECT', 'TEXTAREA'].includes(t.tagName)) return
+      const v = videoRef.current
+      if (!v || !seq) return
+      e.preventDefault()
+      v.pause()
+      const stepSec = (seq.intervalMs * (e.shiftKey ? 10 : 1)) / 1000
+      const next = e.key === 'ArrowRight' ? v.currentTime + stepSec : v.currentTime - stepSec
+      v.currentTime = Math.min(Math.max(next, 0), seq.videoDurationMs / 1000)
+      setCurrentMs(v.currentTime * 1000)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [seq])
+
+  const selected = selectedIdx !== null ? entries[selectedIdx] : null
+  const currentFrame = seq ? Math.min(Math.round(currentMs / seq.intervalMs), seq.frames.length - 1) : 0
 
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4">
@@ -113,8 +140,45 @@ export default function StrokesPage() {
                 durationMs={seq.videoDurationMs}
                 currentMs={currentMs}
                 onSeek={seek}
+                selectedIndex={selectedIdx}
+                onSelect={i => { setSelectedIdx(i); seek(entries[i].startMs) }}
               />
               <TimelineLegend />
+              <div className="text-xs text-neutral-400">
+                Кадр: <b className="text-neutral-200">{currentFrame}</b> / {seq.frames.length - 1}
+                {' · '}{(currentMs / 1000).toFixed(2)} с
+                {' · '}←/→ — ±1 кадр, Shift — ±10
+              </div>
+              {selected && (
+                <div className="flex items-center gap-3 flex-wrap text-sm bg-neutral-800 rounded p-2">
+                  <span className="font-semibold">{selected.label}</span>
+                  <button
+                    className="px-2 py-1 rounded bg-neutral-700 hover:bg-neutral-600"
+                    onClick={() => seek(selected.startMs)}
+                  >
+                    Початок руху · {(selected.startMs / 1000).toFixed(2)} с
+                  </button>
+                  <button
+                    className="px-2 py-1 rounded bg-neutral-700 hover:bg-neutral-600"
+                    onClick={() => seek(selected.peakMs)}
+                  >
+                    Пік · {(selected.peakMs / 1000).toFixed(2)} с
+                  </button>
+                  <button
+                    className="px-2 py-1 rounded bg-neutral-700 hover:bg-neutral-600"
+                    onClick={() => seek(selected.endMs)}
+                  >
+                    Кінець · {(selected.endMs / 1000).toFixed(2)} с
+                  </button>
+                  <button
+                    className="px-2 py-1 rounded text-neutral-400 hover:text-neutral-200"
+                    onClick={() => setSelectedIdx(null)}
+                    title="Зняти вибір"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
