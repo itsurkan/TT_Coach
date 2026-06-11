@@ -1137,6 +1137,13 @@ export default function App() {
         </button>
 
         <button
+          className="px-3 py-1.5 rounded text-sm bg-emerald-800 hover:bg-emerald-700 transition-colors text-emerald-100"
+          onClick={() => navigate('strokes')}
+        >
+          Удари
+        </button>
+
+        <button
           className="p-1.5 rounded hover:bg-gray-800 transition-colors text-gray-400 hover:text-gray-200"
           onClick={() => setMuted(m => !m)}
           title={muted ? 'Unmute (M)' : 'Mute (M)'}

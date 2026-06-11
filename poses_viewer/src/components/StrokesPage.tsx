@@ -72,9 +72,15 @@ export default function StrokesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4 space-y-4">
+    <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4">
+      <div className="mx-auto w-full max-w-4xl space-y-4">
       <header className="flex items-center gap-4 flex-wrap">
-        <a href="#/main" className="text-sky-400 hover:underline">← Viewer</a>
+        <a
+          href="#/main"
+          className="px-3 py-1.5 rounded text-sm bg-sky-800 hover:bg-sky-700 transition-colors text-sky-100"
+        >
+          ← Poses Viewer
+        </a>
         <h1 className="text-lg font-semibold">Підрахунок ударів (M0)</h1>
         <label className="flex items-center gap-2">
           <span>Відео:</span>
@@ -101,12 +107,15 @@ export default function StrokesPage() {
             onTimeUpdate={e => setCurrentMs(e.currentTarget.currentTime * 1000)}
           />
           {seq && result && (
-            <StrokeTimeline
-              entries={entries}
-              durationMs={seq.videoDurationMs}
-              currentMs={currentMs}
-              onSeek={seek}
-            />
+            <>
+              <StrokeTimeline
+                entries={entries}
+                durationMs={seq.videoDurationMs}
+                currentMs={currentMs}
+                onSeek={seek}
+              />
+              <TimelineLegend />
+            </>
           )}
         </div>
       )}
@@ -159,11 +168,37 @@ export default function StrokesPage() {
             onChange={e => setMinPeakGapMs(Number(e.target.value))}
           />
         </label>
-        <p className="text-neutral-400">
-          Зелені смуги — повтори; жовті — форвардні, відкинуті RepFilter; сірі — піки,
-          відкинуті ForwardStrokeFilter (замахи назад/шум). Клік по смузі — перехід до піка.
-        </p>
+        <p className="text-neutral-400">Клік по смузі — перехід до піка удару.</p>
       </fieldset>
+      </div>
+    </div>
+  )
+}
+
+/** Color key for the timeline bands (matches StrokeTimeline BAND_CLASS). */
+function TimelineLegend() {
+  return (
+    <div className="flex items-center gap-x-5 gap-y-1 flex-wrap text-xs text-neutral-300">
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3.5 h-3.5 rounded-sm bg-emerald-500/80" />
+        Повтори (зараховані удари)
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3.5 h-3.5 rounded-sm bg-amber-500/70" />
+        Форвардні, відкинуті RepFilter (швидкість/тривалість поза смугою)
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3.5 h-3.5 rounded-sm bg-neutral-500/50" />
+        Відкинуті ForwardStrokeFilter (замах назад / шум)
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-px h-3.5 bg-white/90" />
+        Пік (макс. швидкість)
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-0.5 h-3.5 bg-red-500" />
+        Поточна позиція відео
+      </span>
     </div>
   )
 }

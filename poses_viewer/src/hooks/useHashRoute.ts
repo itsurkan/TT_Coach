@@ -4,7 +4,7 @@ export type Route = 'main' | 'mannequin' | 'drill2' | 'dataset' | 'strokes'
 
 export const ROUTES: readonly Route[] = ['main', 'mannequin', 'drill2', 'dataset', 'strokes']
 
-const DEFAULT_ROUTE: Route = 'main'
+const DEFAULT_ROUTE: Route = 'strokes'
 
 const ROUTE_TITLES: Record<Route, string> = {
   'main': 'Poses Viewer',
