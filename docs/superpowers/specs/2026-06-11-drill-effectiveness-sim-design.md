@@ -2,7 +2,7 @@
 
 Date: 2026-06-11
 Branch: `2d`
-Status: Approved (brainstorming) → rescoped 2026-06-11: M0 (stroke counting) first, analysis milestones deferred — see Milestones
+Status: Approved (brainstorming) → rescoped 2026-06-11: M0 (stroke counting) IMPLEMENTED (plan: docs/superpowers/plans/2026-06-11-m0-stroke-counting-viewer.md); M1+ analysis milestones deferred — see Milestones
 
 ## Purpose
 

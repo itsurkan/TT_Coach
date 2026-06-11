@@ -4,7 +4,7 @@ React + Vite debug/labeling tool for TT_Coach. Overlays pose, ball, contact, and
 
 - Dev server: `npm run dev` → http://localhost:5780
 - Stack: React 18, TypeScript, Vite 6, Tailwind v4, three/@react-three/fiber/drei 0.184, vitest 4
-- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. Hash routing via `src/hooks/useHashRoute.ts`: `#/main` (default), `#/mannequin`, `#/drill2`, `#/dataset`. `App.tsx` early-returns the matching component for non-`main` routes.
+- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. Hash routing via `src/hooks/useHashRoute.ts`: `#/main` (default), `#/mannequin`, `#/drill2`, `#/dataset`, `#/strokes`. `App.tsx` early-returns the matching component for non-`main` routes.
 
 Update this file when you change a listed file.
 
@@ -21,6 +21,20 @@ Update this file when you change a listed file.
 ### `src/App.tsx` (~1776 lines)
 
 Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball, contacts, labels, crop config, trajectory results (V1–V3, 3D, 3Dv2). Overlay-toggle settings in `localStorage` key `poses_viewer_settings`; last-opened video + frame in `poses_viewer_session` (auto-resumes on reload once `/api/videos` resolves). Header `?` button / `?` key opens a keyboard-shortcuts modal; `R` resets zoom/pan. Save failures surface a transient toast; JSON fetch shows a `Loading…` state. Logic lives in components and `utils/trajectoryPipeline*`. Pose JSON: schema v2 (`topology: 'coco17'`, see `docs/pose_json_schema_v2.md`) supported alongside legacy MediaPipe-33; normalization lives in `src/utils/normalizePoses.ts`. RTMPose overlay is a separate "RTM" header toggle (`showRtmPoses`) that fetches `{base}_poses_rtm.json` independently and draws the RTM skeleton (COCO-17, or Halpe26 with feet when exported via `--feet`; head/neck/hip-mid never drawn) in a distinct fuchsia/amber/lime palette (`RTM_SIDE_COLORS`) with yellow joints on top of the legacy blue/red/green one — the "Poses" layer stays MediaPipe-only.
+
+### `src/drill2d/` + `src/components/StrokesPage.tsx` / `StrokeTimeline.tsx`
+
+M0 stroke-counting debug harness (spec: docs/superpowers/specs/2026-06-11-drill-effectiveness-sim-design.md).
+`drill2d/` is a 1:1 TS mirror of the Kotlin shared/ detection chain — `strokeDetector2d.ts`,
+`forwardStrokeFilter.ts`, `repFilter.ts`, plus `geometry.ts` (xScale), `facing.ts`, `parsePoseV2.ts`,
+`countStrokes.ts` (pipeline order detect → forward → rep is MANDATORY). NOT related to `src/drill/`
+(3D mannequin FK). **Binding fix-flow rule: Kotlin is source of truth — any behavioral fix lands in
+shared/ Kotlin first, then is mirrored here; goldens updated in both suites in the same change.**
+Golden parity test (`drill2d/__tests__/golden.test.ts`): 23 raw / 15 forward / 15 reps on
+andrii_1_rtm — reads fixtures from `shared/src/commonTest/resources/fixtures/` via repo-relative path.
+`#/strokes` UI: video + color-coded stroke bands (emerald reps / amber RepFilter-dropped / gray
+recovery), click-to-seek, knobs for handedness / manual camera yaw (estimator not ported, L-25) /
+minPeakSpeed / minPeakGapMs.
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 
