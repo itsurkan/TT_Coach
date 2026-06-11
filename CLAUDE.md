@@ -42,6 +42,7 @@ Docs dated April 2026 and earlier (ball tracking, MediaPipe calibration UI, MVP 
 - `./gradlew connectedAndroidTest` — instrumented (device required; frozen-pipeline coverage)
 
 **Desktop pose pipeline (Phase 1)**
+- `.venv/bin/python scripts/poses/export_new.py` — new-clip flow: tidies loose `Videos/*.mp4` into `Videos/<base>/`, exports full-fps `_poses_rtm.json` (see `video-added` skill)
 - `.venv/bin/python scripts/poses/export_poses_rtmpose.py <video>` — RTMPose video→JSON schema v2 (COCO-17); `--feet` → Halpe26
 - `cd poses_viewer && npm run dev` — http://localhost:5780, overlays pose JSON on video frames; RTM header toggle for schema-v2 exports
 
