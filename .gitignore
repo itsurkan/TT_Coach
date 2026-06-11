@@ -32,3 +32,5 @@ scripts/**/__pycache__/
 # Build artifacts (never track)
 node_modules/
 *.tsbuildinfo
+.kotlin/errors/*
+tmp/*
