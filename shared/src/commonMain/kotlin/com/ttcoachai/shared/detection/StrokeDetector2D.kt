@@ -1,5 +1,6 @@
 package com.ttcoachai.shared.detection
 
+import com.ttcoachai.shared.analysis.AngleCalculations2D
 import com.ttcoachai.shared.models.Coco17
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.PoseFrame2D
@@ -20,7 +21,7 @@ import kotlin.math.hypot
  *    frame-count tuning would silently change meaning with every fps setting.
  */
 class StrokeDetector2D(
-    private val minScore: Float = 0.3f,
+    private val minScore: Float = AngleCalculations2D.DEFAULT_MIN_SCORE,
     private val smoothingWindowMs: Long = 300,
     private val peakWindowRadiusMs: Long = 300,
     /**

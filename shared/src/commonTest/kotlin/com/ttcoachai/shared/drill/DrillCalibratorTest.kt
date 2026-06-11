@@ -10,6 +10,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class DrillCalibratorTest {
@@ -18,8 +19,16 @@ class DrillCalibratorTest {
      * One rep = 4 still frames + 7 swing frames. wristYAtPeak controls the elbow
      * angle at the speed peak. shoulderSepX controls apparent stance vs camera:
      * 0.02 ≈ 5° yaw (passes the gate), 0.22 ≈ 78° (gated — player turned).
+     * hipScore below the 0.3 gate makes camera yaw UNMEASURABLE for the rep
+     * (CameraAngleEstimator needs shoulders AND hips) while wrist-based stroke
+     * detection and the shoulder/nose-based ForwardStrokeFilter keep working.
      */
-    private fun repFrames(startIndex: Int, wristYAtPeak: Float, shoulderSepX: Float = 0.02f): List<PoseFrame2D> {
+    private fun repFrames(
+        startIndex: Int,
+        wristYAtPeak: Float,
+        shoulderSepX: Float = 0.02f,
+        hipScore: Float = 1f
+    ): List<PoseFrame2D> {
         val wristXs = listOf(0.50f, 0.50f, 0.50f, 0.50f, 0.51f, 0.53f, 0.57f, 0.63f, 0.68f, 0.71f, 0.72f)
         return wristXs.mapIndexed { i, wx ->
             val kp = MutableList(17) { Keypoint2D(0.5f, 0.5f, 1f) }
@@ -27,8 +36,8 @@ class DrillCalibratorTest {
             kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.44f - shoulderSepX / 2, 0.30f, 1f)
             kp[Coco17.RIGHT_ELBOW] = Keypoint2D(0.50f, 0.42f, 1f)
             kp[Coco17.RIGHT_WRIST] = Keypoint2D(wx, wristYAtPeak, 1f)
-            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.45f, 0.55f, 1f)
-            kp[Coco17.LEFT_HIP] = Keypoint2D(0.43f, 0.55f, 1f)
+            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.45f, 0.55f, hipScore)
+            kp[Coco17.LEFT_HIP] = Keypoint2D(0.43f, 0.55f, hipScore)
             kp[Coco17.RIGHT_KNEE] = Keypoint2D(0.46f, 0.72f, 1f)
             kp[Coco17.RIGHT_ANKLE] = Keypoint2D(0.48f, 0.90f, 1f)
             PoseFrame2D(startIndex + i, (startIndex + i) * 100L, kp)
@@ -37,10 +46,11 @@ class DrillCalibratorTest {
 
     private fun sequenceOf(
         wristYs: List<Float>,
-        shoulderSeps: List<Float> = List(wristYs.size) { 0.02f }
+        shoulderSeps: List<Float> = List(wristYs.size) { 0.02f },
+        hipScores: List<Float> = List(wristYs.size) { 1f }
     ): PoseSequence2D {
         val frames = mutableListOf<PoseFrame2D>()
-        wristYs.forEachIndexed { i, y -> frames += repFrames(frames.size, y, shoulderSeps[i]) }
+        wristYs.forEachIndexed { i, y -> frames += repFrames(frames.size, y, shoulderSeps[i], hipScores[i]) }
         return PoseSequence2D(
             topology = Topology.COCO17, model = "synthetic", videoName = "synthetic.mp4",
             intervalMs = 100L, totalFrames = frames.size, videoDurationMs = frames.size * 100L,
@@ -138,8 +148,91 @@ class DrillCalibratorTest {
         assertTrue(report.reps.isNotEmpty())
         report.reps.forEach { rep ->
             assertTrue(rep.placementOk, "synthetic ~5° yaw must pass the 30° gate")
-            assertTrue(rep.cameraYawDeg in 0f..30f, "per-rep yaw out of range: ${rep.cameraYawDeg}")
+            val yaw = rep.cameraYawDeg
+            assertTrue(yaw != null && yaw in 0f..30f, "per-rep yaw out of range: $yaw")
         }
+    }
+
+    @Test
+    fun calibrateRejectsMaxYawBeyondViewGeometryLimit() {
+        val seq = sequenceOf(listOf(0.40f, 0.401f, 0.399f, 0.4005f, 0.3995f))
+        val ex = assertFailsWith<IllegalArgumentException> {
+            DrillCalibrator.calibrate(
+                seq, "forehand_drive", 1L, Handedness.RIGHT, minRepCount = 3,
+                maxCameraYawDeg = 61f // beyond ViewGeometry.MAX_YAW_DEG
+            )
+        }
+        assertTrue(
+            "maxCameraYawDeg" in (ex.message ?: ""),
+            "guard must fire at the orchestrator entry, not inside ViewGeometry: ${ex.message}"
+        )
+    }
+
+    @Test
+    fun analyzerRejectsMaxYawBeyondViewGeometryLimit() {
+        val seq = sequenceOf(listOf(0.40f, 0.401f, 0.399f, 0.4005f, 0.3995f))
+        val baseline = DrillCalibrator.calibrate(seq, "forehand_drive", 1L, Handedness.RIGHT, minRepCount = 3)
+        val ex = assertFailsWith<IllegalArgumentException> {
+            ForehandDriveDrillAnalyzer(baseline = baseline, maxCameraYawDeg = 61f)
+        }
+        assertTrue(
+            "maxCameraYawDeg" in (ex.message ?: ""),
+            "guard must fire at the orchestrator entry, not inside ViewGeometry: ${ex.message}"
+        )
+    }
+
+    @Test
+    fun unmeasurableYawRepIsExcludedFromCalibration() {
+        // Blocks 0-2 measurable; blocks 3-5 have score-gated hips. Rep 3 still gets a
+        // yaw from its pre-stroke lookback (reaches block 2's good frames), but reps
+        // 4 and 5 have NO measurable shoulders+hips in either the lookback or the
+        // stroke window → yaw null → must be excluded (unverifiable placement must
+        // not enter a baseline), leaving exactly 4 reps in derivation.
+        val seq = sequenceOf(
+            wristYs = listOf(0.40f, 0.401f, 0.399f, 0.4005f, 0.3995f, 0.40f),
+            hipScores = listOf(1f, 1f, 1f, 0.1f, 0.1f, 0.1f)
+        )
+        val baseline = DrillCalibrator.calibrate(seq, "forehand_drive", 1L, Handedness.RIGHT, minRepCount = 3)
+        assertEquals(
+            4, baseline.repCount + baseline.excludedRepIndices.size,
+            "null-yaw reps must not reach derivation: repCount=${baseline.repCount}, " +
+                "outliers=${baseline.excludedRepIndices}"
+        )
+    }
+
+    @Test
+    fun unmeasurableYawCountsTowardCameraPlacementException() {
+        // Same sequence; with minRepCount = 6 the two null-yaw exclusions are what
+        // drop the count below the minimum → CameraPlacementException, same as the
+        // |yaw| > max path.
+        val seq = sequenceOf(
+            wristYs = listOf(0.40f, 0.401f, 0.399f, 0.4005f, 0.3995f, 0.40f),
+            hipScores = listOf(1f, 1f, 1f, 0.1f, 0.1f, 0.1f)
+        )
+        assertFailsWith<DrillCalibrator.CameraPlacementException> {
+            DrillCalibrator.calibrate(seq, "forehand_drive", 1L, Handedness.RIGHT, minRepCount = 6)
+        }
+    }
+
+    @Test
+    fun unmeasurableYawRepFailsPlacementInAnalyzer() {
+        val calib = sequenceOf(listOf(0.40f, 0.401f, 0.399f, 0.4005f, 0.3995f))
+        val baseline = DrillCalibrator.calibrate(calib, "forehand_drive", 1L, Handedness.RIGHT, minRepCount = 3)
+        // Last two reps have score-gated hips; the final rep's lookback AND stroke
+        // window are both unmeasurable → yaw null → placementOk must be false.
+        val drill = sequenceOf(
+            wristYs = listOf(0.40f, 0.401f, 0.399f, 0.4005f),
+            hipScores = listOf(1f, 1f, 0.1f, 0.1f)
+        )
+        val report = ForehandDriveDrillAnalyzer(baseline = baseline).analyze(drill)
+        assertEquals(4, report.reps.size)
+        assertTrue(report.reps[0].placementOk && report.reps[1].placementOk,
+            "measurable reps must keep getting feedback")
+        // reps[2] is the transition rep (lookback mixes good and gated frames) — unasserted.
+        val last = report.reps[3]
+        assertFalse(last.placementOk, "unmeasurable yaw must fail the placement gate, not pass as 0°")
+        assertNull(last.cameraYawDeg, "unmeasurable yaw must be reported as null, not a fake 0°")
+        assertTrue(last.cues.isEmpty(), "no cues on an unverifiable rep")
     }
 
     @Test

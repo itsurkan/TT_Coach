@@ -20,7 +20,9 @@ import kotlin.math.roundToInt
  *
  * Camera yaw is resolved PER REP (the player moves their feet): [cameraYawDeg]
  * override if given, else CameraAngleEstimator.estimateYawForStroke. Reps beyond
- * [maxCameraYawDeg] are excluded; [CameraPlacementException] fires only when placement
+ * [maxCameraYawDeg] — or whose yaw is UNMEASURABLE (estimator returned null: no
+ * scored shoulders+hips in the pre-stroke or stroke window; an unverifiable rep
+ * must not enter a baseline) — are excluded; [CameraPlacementException] fires only when placement
  * exclusions are what drops the count below [minRepCount] (if even the unfiltered stroke
  * count was short, deriveFromMetrics reports "Insufficient valid reps" instead) — a
  * baseline built from a badly placed camera would poison every later feedback session.
@@ -45,6 +47,10 @@ object DrillCalibrator {
         cameraYawDeg: Float? = null,
         maxCameraYawDeg: Float = DEFAULT_MAX_CAMERA_YAW_DEG
     ): PersonalBaseline {
+        require(maxCameraYawDeg <= ViewGeometry.MAX_YAW_DEG) {
+            "maxCameraYawDeg must be <= ViewGeometry.MAX_YAW_DEG (${ViewGeometry.MAX_YAW_DEG}°), " +
+                "got $maxCameraYawDeg — the 1/cos xScale correction is undefined beyond it"
+        }
         // Detection on plain aspect: peak finding tolerates uncorrected ≤30° yaw
         // (≤15% speed-magnitude error); metrics below use per-rep corrected xScale.
         val detected = detector.detect(sequence.frames, handedness, sequence.aspectRatio, sequence.intervalMs)
@@ -53,14 +59,16 @@ object DrillCalibrator {
         )
 
         val strokesWithYaw = strokes.map { stroke ->
-            val yaw = cameraYawDeg
+            stroke to (cameraYawDeg
                 ?: CameraAngleEstimator.estimateYawForStroke(
                     sequence.frames, stroke, sequence.aspectRatio, sequence.intervalMs
-                )
-                ?: 0f
-            stroke to yaw
+                ))
         }
-        val placed = strokesWithYaw.filter { (_, yaw) -> abs(yaw) <= maxCameraYawDeg }
+        // Null yaw = placement unverifiable → excluded exactly like over-yaw
+        // (conservatism: an unverifiable rep must not enter a baseline).
+        val placed = strokesWithYaw.mapNotNull { (stroke, yaw) ->
+            if (yaw != null && abs(yaw) <= maxCameraYawDeg) stroke to yaw else null
+        }
         if (placed.size < minRepCount && placed.size < strokes.size && strokes.size >= minRepCount) {
             throw CameraPlacementException(
                 "Only ${placed.size} of ${strokes.size} reps had the camera within " +

@@ -15,8 +15,12 @@ data class RepAnalysis(
     val stroke: Stroke2D,
     val metrics: Map<String, Double>,
     val cues: List<FeedbackCue>,
-    /** Camera yaw used for THIS rep (pre-stroke estimate or the override), degrees. */
-    val cameraYawDeg: Float,
+    /**
+     * Camera yaw used for THIS rep (pre-stroke estimate or the override), degrees.
+     * null = yaw was unmeasurable (no scored shoulders+hips in the pre-stroke or
+     * stroke window) → placement unverifiable → [placementOk] is false.
+     */
+    val cameraYawDeg: Float?,
     /**
      * false → camera was too far off the required side view at this rep: cues and
      * spoken feedback were skipped (trust rule); metrics are diagnostics only.
@@ -63,6 +67,13 @@ class ForehandDriveDrillAnalyzer(
     private val maxCameraYawDeg: Float = DrillCalibrator.DEFAULT_MAX_CAMERA_YAW_DEG
 ) {
 
+    init {
+        require(maxCameraYawDeg <= ViewGeometry.MAX_YAW_DEG) {
+            "maxCameraYawDeg must be <= ViewGeometry.MAX_YAW_DEG (${ViewGeometry.MAX_YAW_DEG}°), " +
+                "got $maxCameraYawDeg — the 1/cos xScale correction is undefined beyond it"
+        }
+    }
+
     fun analyze(sequence: PoseSequence2D): DrillAnalysisReport {
         // analyze() is self-contained: a reused analyzer must not inherit the previous run's window
         cadence.reset()
@@ -78,11 +89,12 @@ class ForehandDriveDrillAnalyzer(
                 ?: CameraAngleEstimator.estimateYawForStroke(
                     sequence.frames, stroke, sequence.aspectRatio, sequence.intervalMs
                 )
-                ?: 0f
-            val placementOk = abs(yaw) <= maxCameraYawDeg
-            // Beyond the gate the 1/cos model is unreliable: fall back to plain aspect
-            // (this rep's metrics become diagnostics only; no cues evaluated from them).
-            val view = if (placementOk) ViewGeometry(sequence.aspectRatio, yaw)
+            // Null yaw = placement unverifiable → fails the gate (conservatism: an
+            // unverifiable rep must not trigger feedback), same handling as over-yaw.
+            val placementOk = yaw != null && abs(yaw) <= maxCameraYawDeg
+            // Beyond the gate (or unmeasurable) the 1/cos model is unreliable: fall back
+            // to plain aspect (this rep's metrics become diagnostics only; no cues).
+            val view = if (yaw != null && placementOk) ViewGeometry(sequence.aspectRatio, yaw)
                        else ViewGeometry(sequence.aspectRatio)
             val metrics = DrillMetrics.extractAtPeak(
                 sequence.frames, stroke.peakFrame, handedness, view.xScale, sequence.intervalMs
