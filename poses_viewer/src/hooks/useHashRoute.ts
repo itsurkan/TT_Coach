@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 
-export type Route = 'main' | 'mannequin' | 'drill2' | 'dataset'
+export type Route = 'main' | 'mannequin' | 'drill2' | 'dataset' | 'strokes'
 
-export const ROUTES: readonly Route[] = ['main', 'mannequin', 'drill2', 'dataset']
+export const ROUTES: readonly Route[] = ['main', 'mannequin', 'drill2', 'dataset', 'strokes']
 
 const DEFAULT_ROUTE: Route = 'main'
 
@@ -11,6 +11,7 @@ const ROUTE_TITLES: Record<Route, string> = {
   'mannequin': 'Mannequin Editor — Poses Viewer',
   'drill2': 'Drill 2 Preview — Poses Viewer',
   'dataset': 'Dataset Browser — Poses Viewer',
+  'strokes': 'Підрахунок ударів — Poses Viewer',
 }
 
 function parseHash(hash: string): Route {

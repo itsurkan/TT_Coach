@@ -24,6 +24,7 @@ import TableLabelsOverlay from './components/TableLabelsOverlay'
 import DatasetBrowser from './components/DatasetBrowser'
 import Drill2Preview from './components/Drill2Preview'
 import MannequinEditor from './components/MannequinEditor'
+import StrokesPage from './components/StrokesPage'
 import { useHashRoute } from './hooks/useHashRoute'
 import { toNumber, normalizeData } from './utils/normalizePoses'
 
@@ -1022,6 +1023,9 @@ export default function App() {
 
   const cbClass = 'flex items-center gap-1.5 cursor-pointer select-none text-sm text-gray-300'
 
+  if (route === 'strokes') {
+    return <StrokesPage />
+  }
   if (route === 'dataset') {
     return <DatasetBrowser onClose={() => navigate('main')} />
   }
