@@ -104,7 +104,24 @@ wrist-dx group, ratio ≥ 1.2, minority group ≥ 2) was validated on ONE fixtur
 (ratio 1.33). Holds for drive/topspin-class drills; weakens for touch/block/push.
 Below the ratio it falls back to head facing, which is measured noise on real
 footage (L-04) → conservative mass-drop → loud calibration failure.
+Shadow play is a confirmed below-ratio case: on video_4 the unsigned backswing
+peak speeds match the drives (4.58 vs 4.50 torso/s) — without a ball there is no
+acceleration-into-contact asymmetry, so classification rides on the fallback.
 **Refs:** `ForwardStrokeFilter.kt`; commits `85b0ef2`, `f3be865`.
+
+### L-28 · Stroke direction measured start→peak misreads continuous play — `OPEN`
+`ForwardStrokeFilter.wristDx` takes wrist x-displacement startFrame→peakFrame. On
+continuous shadow play (video_4, 12 visually-verified right-hand drives) the
+smoothed speed never falls below the 0.3 boundary floor between swings, so
+startFrame bleeds back into the previous follow-through where x is already
+forward — 7 of 12 true drives measure dx ≤ 0 and are dropped (4 reps from 12
+drives). Detection itself is sound: every one of the 12 forward-motion runs
+contains a raw detector peak; only the direction read is wrong. Fix validated in
+a TS prototype: measure displacement over the ~100 ms APPROACH into the peak
+(`x[peak] − x[peak−100ms]`, clamped to startFrame) — restores 12/12 forward on
+video_4 (9 reps after banding) and preserves the andrii_1 23-raw/15-rep golden.
+**Refs:** `ForwardStrokeFilter.kt` wristDx; plan
+`docs/superpowers/plans/2026-06-11-forward-dx-peak-approach.md`.
 
 ## 2. Live capture & Android runtime (Phase 3 relevant)
 
