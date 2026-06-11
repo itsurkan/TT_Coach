@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react'
 import { Film, Volume2, VolumeX } from 'lucide-react'
 import { Landmark, PosesBallData, Contact, ContactsData, FrameLabel, LabelStatus, LabelsData, CropConfig, TrajectorySegment, TableFrameLabel, TableLabelsData, TABLE_KEYPOINT_COUNT } from './types'
 import { segmentTrajectory, predictTrajectory, type PredictiveTrajectory } from './utils/trajectoryPipeline'
@@ -123,10 +123,25 @@ function saveSettings(s: PersistedSettings) {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s))
 }
 
+/** Last-opened video + frame, so a reload resumes where you left off. */
+const SESSION_KEY = 'poses_viewer_session'
+interface SessionState { videoBase: string; frameIndex: number }
+function loadSession(): SessionState | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch { /* ignore */ }
+  return null
+}
+
 export default function App() {
   const [data, setData] = useState<PosesBallData | null>(null)
   const [videoBase, setVideoBase] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const pendingRestoreFrame = useRef<number | null>(null)
   const [frameIndex, setFrameIndex] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [videoSrc, setVideoSrc] = useState<string | null>(null)
@@ -187,6 +202,20 @@ export default function App() {
   }, [showPoses, showRtmPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
       placingBall, showLabels, showTrajectory, showTrajectoryV2, showTrajectoryV3,
       showTrajectoryV4, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked])
+
+  // Auto-dismiss transient toast
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 2200)
+    return () => clearTimeout(t)
+  }, [toast])
+
+  // Remember the open video + frame so a reload resumes where we left off
+  // (skip writes mid-playback; the effect re-runs and persists when playback stops)
+  useEffect(() => {
+    if (!videoBase || playing) return
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify({ videoBase, frameIndex })) } catch { /* ignore */ }
+  }, [videoBase, frameIndex, playing])
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -334,6 +363,7 @@ export default function App() {
     // Always clear stale data from the previous video immediately
     setData(null)
     setError(null)
+    setLoading(true)
 
     const suffixes = jsonSuffixes(wantPoses, wantBall)
     for (const suffix of suffixes) {
@@ -345,6 +375,7 @@ export default function App() {
         setData(normalizeData(json))
         setFrameIndex(0)
         setPlaying(false)
+        setLoading(false)
         return
       } catch {
         continue
@@ -352,7 +383,8 @@ export default function App() {
     }
 
     // All suffixes failed
-    setError(`No JSON found for "${base}" (tried: ${suffixes.join(', ')})`)
+    setLoading(false)
+    setError(`No pose JSON for "${base}" — empty frames loaded for labeling. (tried: ${suffixes.join(', ')})`)
   }, [])
 
   /** Fetch and normalize contacts JSON (silently ignores if missing). */
@@ -459,13 +491,14 @@ export default function App() {
       ...(cropConfig ? { crop: cropConfig } : {}),
     }
     try {
-      await fetch(`/api/labels/${encodeURIComponent(base)}`, {
+      const res = await fetch(`/api/labels/${encodeURIComponent(base)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
+      if (!res.ok) setToast('⚠ Save failed — labels not persisted')
     } catch {
-      // silent save failure
+      setToast('⚠ Save failed — labels not persisted')
     }
   }, [data, cropConfig])
 
@@ -540,13 +573,14 @@ export default function App() {
       labels: newLabels,
     }
     try {
-      await fetch(`/api/table-labels/${encodeURIComponent(base)}`, {
+      const res = await fetch(`/api/table-labels/${encodeURIComponent(base)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
+      if (!res.ok) setToast('⚠ Save failed — table labels not persisted')
     } catch {
-      // silent save failure
+      setToast('⚠ Save failed — table labels not persisted')
     }
   }, [data])
 
@@ -749,6 +783,12 @@ export default function App() {
 
     // Fetch all associated data — await so data loads before video element switches
     await fetchJson(base, showPoses, showBall)
+    // Resume at the last-viewed frame if this select came from a session restore
+    if (pendingRestoreFrame.current != null) {
+      const target = Math.max(0, pendingRestoreFrame.current)
+      pendingRestoreFrame.current = null
+      setFrameIndex(target)
+    }
     fetchContacts(base)
     fetchLabels(base)
     fetchTableLabels(base)
@@ -776,6 +816,17 @@ export default function App() {
     fetchBallYolo(base)
     fetchRtmPoses(base)
   }
+
+  // On first load, resume the last-opened video once the server list is known
+  useEffect(() => {
+    if (videoList.length === 0 || videoBase) return
+    const sess = loadSession()
+    if (sess?.videoBase && videoList.some(v => v.name === sess.videoBase)) {
+      pendingRestoreFrame.current = sess.frameIndex ?? 0
+      handleSelectVideo(sess.videoBase)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoList])
 
   /** Re-fetch JSON when checkboxes change (if a video is already loaded). */
   const handleShowPoses = (next: boolean) => {
@@ -887,6 +938,8 @@ export default function App() {
         })
       }
       if (e.code === 'KeyM') setMuted(m => !m)
+      if (e.code === 'KeyR' && !e.shiftKey && !e.ctrlKey && !e.metaKey) { e.preventDefault(); setZoom(1); setPan({ x: 0, y: 0 }) }
+      if (e.key === '?') { e.preventDefault(); setShowHelp(h => !h) }
       // Label shortcuts
       if (e.code === 'KeyC') { e.preventDefault(); handleLabel('correct') }
       if (e.code === 'KeyW') { e.preventDefault(); handleLabel('wrong') }
@@ -1021,13 +1074,13 @@ export default function App() {
           </select>
         )}
 
-        <label className={cbClass}>
-          <input type="checkbox" checked={showPoses} onChange={e => handleShowPoses(e.target.checked)} className="accent-blue-500" />
-          Poses
-        </label>
-        <label className={cbClass} title="RTMPose COCO-17 skeleton (_poses_rtm.json)">
+        <label className={cbClass} title="RTMPose COCO-17 skeleton (_poses_rtm.json) — current 2D pipeline">
           <input type="checkbox" checked={showRtmPoses} onChange={e => setShowRtmPoses(e.target.checked)} className="accent-amber-400" />
           RTM
+        </label>
+        <label className={cbClass} title="Legacy MediaPipe-33 skeleton (_poses.json) — frozen pre-pivot pipeline">
+          <input type="checkbox" checked={showPoses} onChange={e => handleShowPoses(e.target.checked)} className="accent-blue-500" />
+          <span className="opacity-60">Poses<span className="text-[10px] ml-0.5 align-super">legacy</span></span>
         </label>
         <label className={cbClass}>
           <input type="checkbox" checked={showContacts} onChange={e => setShowContacts(e.target.checked)} className="accent-orange-500" />
@@ -1045,12 +1098,12 @@ export default function App() {
         ]} />
 
         <MultiSelect label="Trajectory" items={[
-          { label: 'Trajectory', checked: showTrajectory, onChange: setShowTrajectory, accent: 'accent-fuchsia-400' },
-          { label: 'V2', checked: showTrajectoryV2, onChange: setShowTrajectoryV2, accent: 'accent-emerald-400' },
-          { label: 'V3', checked: showTrajectoryV3, onChange: setShowTrajectoryV3, accent: 'accent-cyan-400' },
-          { label: 'V4', checked: showTrajectoryV4, onChange: setShowTrajectoryV4, accent: 'accent-amber-400' },
-          { label: '3D', checked: showTrajectory3D, onChange: setShowTrajectory3D, accent: 'accent-pink-400' },
-          { label: '3Dv2', checked: showTrajectory3Dv2, onChange: setShowTrajectory3Dv2, accent: 'accent-violet-400' },
+          { label: 'V1 (parabolic fit)', checked: showTrajectory, onChange: setShowTrajectory, accent: 'accent-fuchsia-400' },
+          { label: 'V2 (+ bounce)', checked: showTrajectoryV2, onChange: setShowTrajectoryV2, accent: 'accent-emerald-400' },
+          { label: 'V3 (+ spin)', checked: showTrajectoryV3, onChange: setShowTrajectoryV3, accent: 'accent-cyan-400' },
+          { label: 'V4 (physics)', checked: showTrajectoryV4, onChange: setShowTrajectoryV4, accent: 'accent-amber-400' },
+          { label: '3D (homography)', checked: showTrajectory3D, onChange: setShowTrajectory3D, accent: 'accent-pink-400' },
+          { label: '3Dv2 (arc fit)', checked: showTrajectory3Dv2, onChange: setShowTrajectory3Dv2, accent: 'accent-violet-400' },
         ]} footer={showTrajectory ? (
           <div className="px-3 py-1.5 border-t border-gray-700">
             <select
@@ -1065,12 +1118,12 @@ export default function App() {
         ) : undefined} />
 
         <MultiSelect label="Table" items={[
-          { label: 'Table(Markup)', checked: showTableLabels, onChange: setShowTableLabels, accent: 'accent-purple-500' },
-          { label: 'Table (Markup View)', checked: showTableView, onChange: setShowTableView, accent: 'accent-purple-400' },
-          { label: 'Table YOLO', checked: showTableYolo, onChange: setShowTableYolo, accent: 'accent-violet-500' },
-          { label: 'Table(predict)', checked: showTablePredict, onChange: setShowTablePredict, accent: 'accent-teal-500' },
-          { label: 'Table Grid', checked: showTableGrid, onChange: setShowTableGrid, accent: 'accent-emerald-500' },
-          { label: 'Grid(Marked)', checked: showTableGridMarked, onChange: setShowTableGridMarked, accent: 'accent-lime-500' },
+          { label: 'Edit keypoints (manual)', checked: showTableLabels, onChange: setShowTableLabels, accent: 'accent-purple-500' },
+          { label: 'View manual labels', checked: showTableView, onChange: setShowTableView, accent: 'accent-purple-400' },
+          { label: 'YOLO detection', checked: showTableYolo, onChange: setShowTableYolo, accent: 'accent-violet-500' },
+          { label: 'YOLO prediction', checked: showTablePredict, onChange: setShowTablePredict, accent: 'accent-teal-500' },
+          { label: 'Grid (from detection)', checked: showTableGrid, onChange: setShowTableGrid, accent: 'accent-emerald-500' },
+          { label: 'Grid (from manual)', checked: showTableGridMarked, onChange: setShowTableGridMarked, accent: 'accent-lime-500' },
         ]} />
         <button
           className="px-3 py-1.5 rounded text-sm bg-purple-800 hover:bg-purple-700 transition-colors text-purple-200"
@@ -1092,13 +1145,23 @@ export default function App() {
           <button className="px-1.5 py-0.5 rounded hover:bg-gray-800" onClick={() => setZoom(z => Math.max(0.5, z / 1.15))} title="Zoom out">−</button>
           <span className="w-10 text-center font-mono">{Math.round(zoom * 100)}%</span>
           <button className="px-1.5 py-0.5 rounded hover:bg-gray-800" onClick={() => setZoom(z => Math.min(5, z * 1.15))} title="Zoom in">+</button>
-          {(zoom !== 1 || pan.x !== 0 || pan.y !== 0) && (
-            <button className="px-1.5 py-0.5 rounded hover:bg-gray-800" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} title="Reset zoom">Reset</button>
-          )}
+          <button
+            className="px-1.5 py-0.5 rounded hover:bg-gray-800 disabled:opacity-30"
+            onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }}
+            disabled={zoom === 1 && pan.x === 0 && pan.y === 0}
+            title="Reset zoom/pan (R)"
+          >Reset</button>
         </div>
 
+        <button
+          className="p-1.5 rounded hover:bg-gray-800 transition-colors text-gray-400 hover:text-gray-200 text-sm font-bold w-7"
+          onClick={() => setShowHelp(h => !h)}
+          title="Keyboard shortcuts (?)"
+        >?</button>
+
         <span className="text-gray-400 text-sm truncate">{videoBase ?? ''}</span>
-        {error && <span className="text-red-400 text-sm truncate max-w-xs">{error}</span>}
+        {loading && <span className="text-blue-400 text-sm animate-pulse">Loading…</span>}
+        {error && <span className="text-amber-400 text-sm truncate max-w-xs" title={error}>{error}</span>}
       </header>
 
       <>
@@ -1287,7 +1350,10 @@ export default function App() {
                 <span className="text-2xl font-bold">{frameIndex}</span>
                 <span className="text-gray-500"> / {data.totalFrames - 1}</span>
               </div>
-              <div className="text-gray-400 text-xs mt-1">{frame?.timestampMs} ms</div>
+              <div className="text-gray-400 text-xs mt-1 font-mono">
+                {((frame?.timestampMs ?? 0) / 1000).toFixed(2)}s / {(data.videoDurationMs / 1000).toFixed(2)}s
+                <span className="text-gray-600"> · {frame?.timestampMs} ms</span>
+              </div>
             </div>
 
             <div>
@@ -1639,6 +1705,7 @@ export default function App() {
             <div>
               <div className="text-gray-500 text-xs uppercase tracking-wider mb-1.5">Legend</div>
               <div className="text-xs space-y-1">
+                <div className="text-gray-600 text-[10px]">MediaPipe (legacy)</div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-4 h-0.5 bg-blue-500 shrink-0" />
                   <span className="text-gray-400">Left side</span>
@@ -1650,6 +1717,19 @@ export default function App() {
                 <div className="flex items-center gap-1.5">
                   <span className="w-4 h-0.5 bg-green-500 shrink-0" />
                   <span className="text-gray-400">Center</span>
+                </div>
+                <div className="text-gray-600 text-[10px] pt-1">RTM (current)</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-0.5 bg-fuchsia-400 shrink-0" />
+                  <span className="text-gray-400">Left side</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-0.5 bg-amber-400 shrink-0" />
+                  <span className="text-gray-400">Right side</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-4 h-0.5 bg-lime-400 shrink-0" />
+                  <span className="text-gray-400">Center · <span className="text-yellow-300">joints</span></span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-4 h-0.5 bg-yellow-400 shrink-0" />
@@ -1664,9 +1744,11 @@ export default function App() {
 
             <div className="mt-auto text-xs text-gray-600 space-y-0.5">
               <div>Space — play/pause</div>
-              <div>← → — prev/next</div>
+              <div>← → — prev/next frame</div>
+              <div>⇧← ⇧→ — ±100 frames</div>
               <div>[ ] — prev/next contact</div>
-              <div>M — mute/unmute</div>
+              <div>M — mute · R — reset zoom</div>
+              <button className="text-gray-500 hover:text-gray-300 underline" onClick={() => setShowHelp(true)}>? — all shortcuts</button>
             </div>
           </aside>
         </div>
@@ -1686,10 +1768,14 @@ export default function App() {
           ) : (
             <>
               <Film size={32} className="text-gray-700" />
-              <span>Open a video file to get started</span>
+              {loading ? (
+                <span className="text-blue-400 animate-pulse">Loading pose data…</span>
+              ) : (
+                <span>Pick a video from the list above, or “Open Video” to load a local file</span>
+              )}
             </>
           )}
-          {error && <span className="text-red-400 text-xs max-w-sm text-center">{error}</span>}
+          {error && <span className="text-amber-400 text-xs max-w-sm text-center">{error}</span>}
         </div>
       )}
 
@@ -1706,6 +1792,63 @@ export default function App() {
           labels={showLabels ? labels : undefined}
           tableLabels={(showTableLabels || showTableView) ? tableLabels : undefined}
         />
+      )}
+
+      {/* Transient toast (save failures, etc.) */}
+      {toast && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 bg-gray-800 border border-gray-600 text-amber-300 text-sm px-4 py-2 rounded-lg shadow-lg z-[60]">
+          {toast}
+        </div>
+      )}
+
+      {/* Keyboard shortcuts help modal */}
+      {showHelp && (
+        <div
+          className="fixed inset-0 bg-black/60 z-[70] flex items-center justify-center"
+          onClick={() => setShowHelp(false)}
+        >
+          <div
+            className="bg-gray-900 border border-gray-700 rounded-xl p-6 w-[460px] max-w-[90vw] shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-white">Keyboard shortcuts</h2>
+              <button className="text-gray-400 hover:text-white text-xl leading-none" onClick={() => setShowHelp(false)}>×</button>
+            </div>
+            <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
+              {([
+                ['Playback', ''],
+                ['Space', 'Play / pause'],
+                ['← / →', 'Previous / next frame'],
+                ['⇧← / ⇧→', 'Skip ±100 frames'],
+                ['[ / ]', 'Previous / next contact'],
+                ['M', 'Mute / unmute'],
+                ['View', ''],
+                ['Scroll', 'Zoom at cursor'],
+                ['Middle-drag / ⌥-drag', 'Pan'],
+                ['R', 'Reset zoom / pan'],
+                ['?', 'Toggle this help'],
+                ['Labeling', ''],
+                ['C', 'Mark correct (auto-advance)'],
+                ['W', 'Mark wrong'],
+                ['N', 'Mark no-ball (auto-advance)'],
+                ['Esc', 'Cancel placement mode'],
+                ['Table keypoints', ''],
+                ['T', 'Toggle keypoint edit mode'],
+                ['1–6', 'Select keypoint to place'],
+              ] as const).map(([k, desc], i) =>
+                desc === '' ? (
+                  <div key={i} className="col-span-2 text-gray-500 text-xs uppercase tracking-wider mt-2 first:mt-0">{k}</div>
+                ) : (
+                  <Fragment key={i}>
+                    <kbd className="font-mono text-xs bg-gray-800 border border-gray-700 rounded px-1.5 py-0.5 text-gray-200 justify-self-start">{k}</kbd>
+                    <span className="text-gray-300">{desc}</span>
+                  </Fragment>
+                ),
+              )}
+            </div>
+          </div>
+        </div>
       )}
       </>
     </div>
