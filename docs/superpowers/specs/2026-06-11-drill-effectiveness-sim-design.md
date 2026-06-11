@@ -2,16 +2,52 @@
 
 Date: 2026-06-11
 Branch: `2d`
-Status: Approved (brainstorming) → ready for implementation plan
+Status: Approved (brainstorming) → rescoped 2026-06-11: M0 (stroke counting) first, analysis milestones deferred — see Milestones
+
+## Purpose
+
+This tool is a **debug & review harness** for the drill pipeline, run in the browser inside `poses_viewer` — not a product feature. The pipeline of record is the Kotlin `shared/` module: every behavioral fix discovered while reviewing in the browser **must be implemented in `shared/` Kotlin** (and covered by tests there); the TS side is a mirror for visual debugging. Kotlin is the source of truth on any disagreement.
 
 ## Goal
 
-A desktop tool that simulates how the mobile app analyzes a table-tennis drill, run inside `poses_viewer`. Playing a clip, the user sees:
+A desktop tool that mirrors how the mobile app analyzes a table-tennis drill. Playing a clip, the user sees (by milestone):
 
-- **Stroke splits** (start / peak / end) drawn on the video timeline.
-- **Per-rep analysis results** (the 5 in-plane metrics + feedback cues).
-- **Spoken feedback** surfaced during playback at the live cadence (3–5 s), audible by default.
-- **Configurable analysis**, like the mobile app — which metrics to evaluate, drill type, and detector/threshold knobs.
+- **M0 — stroke counting (current scope):** stroke splits (start / peak / end) drawn on the video timeline, forward vs recovery color-coded, raw-peak and forward-rep counts, detector knobs.
+- **M1+ — deferred:** per-rep analysis results (the 5 in-plane metrics + feedback cues), spoken feedback at the live cadence (3–5 s), metric/drill-type configuration.
+
+## Milestones
+
+### M0 — stroke counting debug harness (current)
+
+Port **only the detection chain**, not the analysis layer. Verified port surface (~440 lines of Kotlin total):
+
+| TS module | Mirrors (Kotlin) | Lines |
+|---|---|---|
+| `strokeDetector2d.ts` | `StrokeDetector2D` | 199 |
+| `forwardStrokeFilter.ts` | `ForwardStrokeFilter` | 116 |
+| `repFilter.ts` | `RepFilter` | 39 |
+| `geometry.ts` | `ViewGeometry` (xScale) | 34 |
+| `types.ts` | `Stroke2D`, `Coco17` indices | ~43 |
+| `facing.ts` | `AngleCalculations2D.facingSign` + `DEFAULT_MIN_SCORE` only | ~12 |
+
+Not ported in M0: the rest of `AngleCalculations2D`, `CameraAngleEstimator`, `DrillMetrics`, feedback engine / message catalog / cadence policy, `referenceStandard`. No pose-JSON parser needed — the viewer already loads `*_poses_rtm.json`.
+
+M0 config: handedness (default right), camera yaw as a manual number (default 0 → `xScale = aspectRatio`; the estimator is not ported — it saturates on non-protocol footage, L-25), detector knobs (min peak speed, NMS window).
+
+Pipeline order is mandatory even in M0 — raw wrist-speed peaks ≠ reps (23 raw vs 15 forward on andrii_1): `detect → ForwardStrokeFilter → RepFilter`.
+
+### M1+ — analysis & feedback (deferred, design below retained)
+
+The sections below (metrics, reference ideal, spoken feedback, full config panel) describe the deferred milestones. They are kept as approved design context, to be re-planned when M0 review of detection quality is done.
+
+## Fix flow (binding rule)
+
+1. Observe a detection problem in the browser (M0 UI).
+2. Reproduce / fix it in **Kotlin `shared/`** with a test (fixture-driven where possible).
+3. Mirror the fix in the TS port.
+4. Update the golden parity numbers in both test suites in the same change.
+
+A TS-only fix is never done — it would silently diverge the harness from the app.
 
 ## Explicit decisions (and a deliberate departure)
 
@@ -81,9 +117,10 @@ Reuses the viewer's video element + `PoseCanvas` skeleton overlay and pose-JSON 
 
 ## Testing (vitest, in `poses_viewer`)
 
-1. **Parity / golden** — run `andrii_1_rtm.json` and `video_2_rtm.json` through the TS pipeline and assert against the Kotlin E2E golden: **15 forward reps from 23 raw peaks on andrii_1**. This is the primary anti-drift guardrail.
-2. **Unit** — `angles2d` xScale correctness (x-deltas scaled before trig; synthetic `xScale = 1`), score-gating returns null below 0.3, stroke boundary valley-clamping, `cadencePolicy` 3–5 s gating.
-3. **Reference ranges** — `referenceStandard.ts` validated for shape/units; numbers are pluggable and may start as placeholders.
+1. **Parity / golden (M0)** — run `andrii_1_rtm.json` and `video_2_rtm.json` through the TS pipeline and assert against the Kotlin E2E golden: **15 forward reps from 23 raw peaks on andrii_1**. This is the primary anti-drift guardrail and the M0 exit gate.
+2. **Unit (M0)** — xScale applied to x-deltas before speed computation (synthetic `xScale = 1`), score-gating below 0.3, stroke boundary valley-clamping, keep-max NMS.
+3. **Unit (M1+)** — `angles2d` metric correctness, `cadencePolicy` 3–5 s gating.
+4. **Reference ranges (M1+)** — `referenceStandard.ts` validated for shape/units; numbers are pluggable and may start as placeholders.
 
 ## Reference-ideal sourcing
 
