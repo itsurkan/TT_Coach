@@ -119,19 +119,22 @@ struct YoloxDetector {
         return boxes
     }
 
-    /// Identify the `dets` output by name/shape (do not assume index): prefer an
-    /// output whose name contains "det"; otherwise the first float-typed output whose
-    /// last dimension is 5. `labels` (int64) is ignored.
+    /// Identify the `dets` output by name/shape (do not assume index): the boxes tensor
+    /// is the float-typed output whose last dim is 5 ([x1,y1,x2,y2,score]). A name
+    /// containing "det" is only a tiebreaker — it must still pass the float+lastDim==5
+    /// check, so a renamed/extra int64 output (e.g. "det_labels") can never be picked
+    /// and reinterpreted as Float. `labels` (int64) is ignored.
     private static func selectDetsValue(_ outputs: [String: ORTValue]) throws -> ORTValue? {
-        if let named = outputs.first(where: { $0.key.lowercased().contains("det") })?.value {
+        func isBoxes(_ value: ORTValue) throws -> Bool {
+            let info = try value.tensorTypeAndShapeInfo()
+            return info.elementType == .float && info.shape.map { $0.intValue }.last == 5
+        }
+        if let named = outputs.first(where: { $0.key.lowercased().contains("det") })?.value,
+           try isBoxes(named) {
             return named
         }
-        for (_, value) in outputs {
-            let info = try value.tensorTypeAndShapeInfo()
-            let shape = info.shape.map { $0.intValue }
-            if info.elementType == .float, let last = shape.last, last == 5 {
-                return value
-            }
+        for (_, value) in outputs where try isBoxes(value) {
+            return value
         }
         return nil
     }

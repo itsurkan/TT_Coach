@@ -52,10 +52,12 @@ func clamp01(_ v: Float) -> Float {
 
 // MARK: - Frame extraction (keeps CVPixelBuffer; mirrors VisionPoseExport sorting)
 
-/// Extracts all frames from a video using AVAssetReader as 32BGRA CVPixelBuffers.
-/// Sorts by presentation time, then renumbers with a uniform synthetic time base
-/// (frameIndex * intervalMs) — same convention as VisionPoseExport, required for
-/// stroke-detector time parity with the RTM golden.
+/// Extracts all frames from a video using AVAssetReader as 32BGRA CVPixelBuffers,
+/// sorted by presentation time, each tagged with its REAL presentation timestamp (ms).
+/// (An earlier version used a synthetic `frameIndex * intervalMs` time base; that drifts
+/// on videos whose fps doesn't divide the interval evenly — e.g. andrii_1 @59.27fps — so
+/// we keep the true PTS the decoder reports. The stroke detector consumes per-frame
+/// timestamps + a median intervalMs, both honest under real PTS.)
 func extractFrames(from videoPath: String) -> [(buffer: CVPixelBuffer, timestampMs: Int64)] {
     let url = URL(fileURLWithPath: videoPath)
     let asset = AVAsset(url: url)
@@ -100,16 +102,10 @@ func extractFrames(from videoPath: String) -> [(buffer: CVPixelBuffer, timestamp
     }
     reader.cancelReading()
 
-    // Sort by PTS (decode order != presentation order with B-frames), renumber with
-    // a uniform synthetic time base.
+    // Sort by PTS (decode order != presentation order with B-frames). Keep the real
+    // presentation timestamp for each frame — no synthetic resampling.
     raw.sort { $0.ptsMs < $1.ptsMs }
-    let durationMs = raw.last?.ptsMs ?? 0
-    let intervalMs: Int64 = raw.count > 1
-        ? Int64((Double(durationMs) / Double(raw.count - 1)).rounded())
-        : 1
-    return raw.enumerated().map { (i, f) in
-        (buffer: f.buffer, timestampMs: Int64(i) * intervalMs)
-    }
+    return raw.map { (buffer: $0.buffer, timestampMs: $0.ptsMs) }
 }
 
 /// Makes an independent 32BGRA copy of a pixel buffer (the reader recycles the source).
