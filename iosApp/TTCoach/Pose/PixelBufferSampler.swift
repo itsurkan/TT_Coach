@@ -112,6 +112,29 @@ enum PixelBufferSampler {
         meanBGR: [Float],
         stdBGR: [Float]
     ) throws -> ORTValue {
+        let chw = try affineWarpToCHW(
+            pixelBuffer: pixelBuffer, warpMatrix: warpMatrix,
+            outputW: outputW, outputH: outputH, meanBGR: meanBGR, stdBGR: stdBGR)
+        return try makeFloatTensor(chw, shape: [1, 3, outputH, outputW])
+    }
+
+    /// Pure pixel core of `affineWarpToTensor` (no ORT types — unit-testable): produces
+    /// the flat CHW float32 buffer (BGR, normalized, length `3*outputW*outputH`).
+    ///
+    /// MATRIX CONVENTION (same as `affineWarpToTensor`): `warpMatrix` maps **output
+    /// (destination) coords -> source (image) coords** (the inverse/sampling map). For
+    /// each output pixel `(ox, oy)`, `RTMPoseMath.affine2x3Apply(warpMatrix, (ox, oy))`
+    /// gives the source read location. Out-of-bounds reads return 0 (OpenCV
+    /// BORDER_CONSTANT default) BEFORE normalization. Callers produce the matrix with
+    /// `RTMPoseMath.getWarpMatrix(..., inverse: true)`.
+    static func affineWarpToCHW(
+        pixelBuffer: CVPixelBuffer,
+        warpMatrix: simd_float2x3,
+        outputW: Int,
+        outputH: Int,
+        meanBGR: [Float],
+        stdBGR: [Float]
+    ) throws -> [Float] {
         precondition(meanBGR.count == 3 && stdBGR.count == 3, "meanBGR/stdBGR must have 3 elements")
         return try withLockedBGRA(pixelBuffer) { src in
             let plane = outputW * outputH
@@ -131,7 +154,7 @@ enum PixelBufferSampler {
                     chw[2 * plane + p] = (bgr.2 - mR) / sR
                 }
             }
-            return try makeFloatTensor(chw, shape: [1, 3, outputH, outputW])
+            return chw
         }
     }
 
