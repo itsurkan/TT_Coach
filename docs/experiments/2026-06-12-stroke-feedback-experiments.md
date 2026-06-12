@@ -36,6 +36,17 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 | IMG_6370 | ❌ no mp4 | — | no | empty dir |
 | IMG_6414 | ❌ no mp4 | — | no | empty dir |
 
+## Resume state (for fresh-context continuation)
+- Branch `2d-experiments`. Done & committed: **EXP-1..5** (all feedback-layer, viewer-only TS in
+  `poses_viewer/src/drill2d/` + `components/`). Detection verified solid (counts match goldens,
+  robust to ±yaw) — value is in feedback, so the series leans feedback.
+- Env: Vite dev on **5782**, headed Chrome CDP on **9222**. Tools: `tmp/analyze.mjs <port> <video> <yaw> <hand> <shot>` (counts + per-rep table + spoken log, deterministic), `tmp/triage.mjs` (yaw sweep + screenshot). Both have select-verify; Videos/ is gitignored.
+- Usable videos: andrii_1, video_3, video_4, ivan_1 (all ~side-on). Marginal: video_2, IMG_6330, table_12, table_v7.
+- **Next-up candidates:** (a) research-ground the coach_opinion torso_lean(5–25)/shoulder_tilt(0–20)
+  ranges in `referenceStandard.ts` — both flag heavily; (b) validate improved feedback on marginal
+  footage + non-zero yaw; (c) positive-message variety; (d) detection spot-check on ivan_1/video_4 bands.
+- Each experiment = own commit + a log entry here. Keep going; user is away for the 12h run.
+
 ## Experiments
 
 (chronological; each entry: hypothesis, change, commit, visual result, verdict)
