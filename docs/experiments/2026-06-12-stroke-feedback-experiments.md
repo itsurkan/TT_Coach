@@ -44,11 +44,12 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 - Net effect across the 4 usable clips: scattered single-metric nagging → varied, trust-gated
   coaching with a session focus, honest noisy-metric marking, no sub-5° nitpicks, varied positives,
   and research-grounded lean range (normal forward lean no longer falsely flagged).
-- **Done batch 3:** EXP-9 post-set report + validations (camera-angle adaptation, marginal footage,
-  266/266 tests, goldens intact). **The core feedback overhaul is substantially COMPLETE.**
-- **Next-up (lower priority, avoid churn):** EXP-7 per-video calibration persistence; a
-  `requesting-code-review` pass over the 9 experiments; or wind down to consolidation. Prefer
-  genuine value over inventing marginal experiments.
+- **Done batch 3:** EXP-9 post-set report + validations. **Done batch 4:** code-review pass +
+  22 unit tests for the EXP helpers + review comments (288/288 pass). **The feedback overhaul is
+  COMPLETE, reviewed, and tested.**
+- **Remaining (genuinely low backlog — do NOT churn):** EXP-7 per-video calibration persistence
+  (low payoff, all usable footage ~0°); a top-of-log executive summary for the user's return; else
+  graceful wind-down with light verification each heartbeat. The high-value work is done.
 - Env: Vite dev on **5782**, headed Chrome CDP on **9222**. Tools: `tmp/analyze.mjs <port> <video> <yaw> <hand> <shot>` (counts + per-rep table + spoken log, deterministic), `tmp/triage.mjs` (yaw sweep + screenshot). Both have select-verify; Videos/ is gitignored.
 - Usable videos: andrii_1, video_3, video_4, ivan_1 (all ~side-on). Marginal: video_2, IMG_6330, table_12, table_v7.
 - **Next-up candidates:** (a) research-ground the coach_opinion torso_lean(5–25)/shoulder_tilt(0–20)
