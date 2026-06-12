@@ -1054,11 +1054,12 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [data, contacts, handlePlayPause, handleLabel, showTableLabels])
 
+  // Always use primary data for frame reference to maintain video sync
+  const frame = data?.frames[frameIndex] ?? null
+
   // Determine which pose data to display based on poseSource
   const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : mediapipeData
   const activeTopology = activePoseData?.topology ?? 'mediapipe33'
-
-  const frame = (activePoseData ?? data)?.frames[frameIndex] ?? null
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
   const currentContact = contacts?.contacts.find(c => c.frameIndex === frameIndex) ?? null
