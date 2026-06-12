@@ -51,4 +51,14 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     // eslint-disable-next-line no-console
     console.log(`video_2: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
+
+  it('video_4: shadow play — 18 raw → 12 forward → 9 reps (mirrors Kotlin)', () => {
+    const seq = load('video_4_rtm.json')
+    const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
+    expect(r.rawStrokes).toHaveLength(18)
+    expect(r.forwardStrokes).toHaveLength(12) // 12 drives, visually verified
+    expect(r.reps).toHaveLength(9)
+    // eslint-disable-next-line no-console
+    console.log(`video_4: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
+  })
 })

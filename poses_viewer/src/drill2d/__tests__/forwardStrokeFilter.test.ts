@@ -85,4 +85,12 @@ describe('filterForwardStrokes (mirrors ForwardStrokeFilterTest)', () => {
     }))
     expect(filterForwardStrokes([stroke(0, 3, 4)], f, 'right')).toEqual([])
   })
+
+  it('continuous play: bled start boundary still reads forward (L-28)', () => {
+    // x: follow-through 0.72 → backswing trough 0.50 → drive up to 0.71
+    const xs = [0.72, 0.60, 0.50, 0.55, 0.65, 0.70, 0.71]
+    const f = frames(xs) // nose +x
+    const drive = stroke(0, 4, 6) // x[4]−x[0] < 0 — old start→peak read backward
+    expect(filterForwardStrokes([drive], f, 'right')).toEqual([drive])
+  })
 })

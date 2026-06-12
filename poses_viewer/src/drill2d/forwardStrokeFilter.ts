@@ -7,9 +7,14 @@ import { median } from './median'
  * strokes (~half of all peaks on real footage are recovery swings). Session
  * facing comes from the speed-dominance vote over wrist-dx groups; the noisy
  * per-frame head read is only the fallback. Unverifiable strokes are dropped.
+ * Direction is read over the ~100 ms approach into the peak, not start→peak
+ * (L-28 — bled boundaries on continuous play).
  */
 export const SPEED_DOMINANCE_RATIO = 1.2
 export const MIN_GROUP_SIZE = 2
+
+/** Direction is read over this window of APPROACH into the peak (L-28). */
+export const PEAK_APPROACH_WINDOW_MS = 100
 
 export function filterForwardStrokes(
   strokes: Stroke2D[],
@@ -34,7 +39,15 @@ export function filterForwardStrokes(
     .map(v => v.stroke)
 }
 
-/** Wrist x-displacement start→peak; null when the wrist is gated at either end. */
+/**
+ * Wrist x-displacement over the ~100 ms approach INTO the peak: x[peak] −
+ * x[approach], where approach is the earliest frame still within ~100 ms of the
+ * peak (walk back while each step stays inside the window), clamped to startFrame;
+ * null when the wrist is gated at either end. Mirrors
+ * ForwardStrokeFilter.wristDx (L-28): start→peak is NOT used — on continuous
+ * play startFrame bleeds into the previous follow-through and true drives
+ * read backward.
+ */
 function wristDx(
   stroke: Stroke2D,
   frames: PoseFrame2D[],
@@ -42,13 +55,14 @@ function wristDx(
   minScore: number,
 ): number | null {
   const wristIdx = Coco17.wrist(handedness)
-  const startKp = frames[stroke.startFrame]?.keypoints
-  const peakKp = frames[stroke.peakFrame]?.keypoints
-  if (startKp === undefined || peakKp === undefined) return null
-  const start = scored(startKp, wristIdx, minScore)
-  const peak = scored(peakKp, wristIdx, minScore)
-  if (start === null || peak === null) return null
-  return peak.x - start.x
+  const peakFrame = frames[stroke.peakFrame]
+  if (peakFrame === undefined) return null
+  let a = stroke.peakFrame
+  while (a > stroke.startFrame && peakFrame.timestampMs - frames[a - 1].timestampMs <= PEAK_APPROACH_WINDOW_MS) a--
+  const approachKp = frames[a] !== undefined ? scored(frames[a].keypoints, wristIdx, minScore) : null
+  const peakKp = scored(peakFrame.keypoints, wristIdx, minScore)
+  if (approachKp === null || peakKp === null) return null
+  return peakKp.x - approachKp.x
 }
 
 /**
