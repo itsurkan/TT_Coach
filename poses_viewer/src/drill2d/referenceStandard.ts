@@ -61,15 +61,22 @@ export const FOREHAND_DRIVE_STANDARD: ReferenceStandard = {
       lo: 110, hi: 145, evidence: 'measured',
       source: 'PMC7238326 + PMC10177840; clinical flexion→interior, unverified',
     },
-    // No measured source — coaching consensus is a slight forward lean.
+    // EXP-8 (2026-06-12 research pass): NO TT study measures trunk-from-vertical at
+    // contact. Nearest same-convention anchor = tennis-serve trophy 25±7° from
+    // vertical (PMC11260724/PMC3445225); TT contact is MORE flexed. Skilled players
+    // in our own footage sit at 33–39°. Old 5–25° falsely flagged normal attacking
+    // lean on every rep, so widened to 15–40° (centred ~28). Still provisional: 2D
+    // lean is inflated by axial rotation/camera-yaw, so re-tune on protocol footage.
     torso_lean: {
-      lo: 5, hi: 25, evidence: 'coach_opinion',
-      source: 'coach heuristic; no biomechanics source measured trunk lean',
+      lo: 15, hi: 40, evidence: 'coach_opinion',
+      source: 'research-informed (tennis-serve 25±7° anchor + own footage 33–39°); no direct TT measure; provisional',
     },
-    // No measured source — playing shoulder drops slightly for FH topspin.
+    // EXP-8: nearest proxy = lumbar lateral-bending 20–28° in 3D mocap (FBioE 2023,
+    // 1185177); maps indirectly to shoulder-line tilt. Nudged upper 20→25 so the
+    // playing-shoulder drop of an aggressive FH topspin isn't over-flagged.
     shoulder_tilt: {
-      lo: 0, hi: 20, evidence: 'coach_opinion',
-      source: 'coach heuristic; no biomechanics source measured shoulder-line tilt',
+      lo: 0, hi: 25, evidence: 'coach_opinion',
+      source: 'research-informed (lumbar lateral-bending 20–28°, FBioE 2023 1185177, indirect); provisional',
     },
   },
 }

@@ -145,6 +145,27 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   "Clean technique, keep it going", "That's the shape — repeat it". ✅
 - Commit: `feat(viewer): EXP-6 positive-message variety`.
 
+### EXP-7 — (deferred) per-video camera-angle persistence
+- Idea: remember yaw+handedness per video in localStorage so calibration sticks. Deferred —
+  all usable footage is ~0° so low visible payoff; revisit if angled footage matters.
+
+### EXP-8 — Research-grounded torso_lean / shoulder_tilt ranges ✅ KEEP
+- **File:** `referenceStandard.ts`. Background research (cited, see commit) found NO TT study
+  measures trunk-from-vertical at contact; the "35°" web claim is **unverified**. Nearest
+  same-convention anchor = tennis-serve trophy **25±7°** (TT contact is more flexed); our own
+  footage shows skilled players at 33–39°. Old `torso_lean 5–25°` falsely flagged normal
+  attacking lean on EVERY rep.
+- **Change:** `torso_lean` 5–25 → **15–40°**; `shoulder_tilt` upper 20 → **25°**. Kept
+  `coach_opinion` (no direct measure) with research-informed provenance + provisional caveat
+  (2D lean is inflated by axial rotation/yaw; re-tune on protocol footage).
+- **Visual result:**
+  - video_3: torso_lean flagged 16/16 → **0**; 12 reps now clean, focus shifts to elbow (4/16). ✅
+  - video_4: lean cues 7 → 1. ✅
+  - andrii: gains a defensible "lean in more" cue (genuinely upright at 3°, below the 25–40° norm).
+- **Verdict:** stops false-coaching of normal forward lean — the single biggest false-positive in
+  the corpus — with honest, cited grounding. Detection untouched.
+- Commit: `feat(viewer): EXP-8 research-grounded torso_lean/shoulder_tilt ranges`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").
