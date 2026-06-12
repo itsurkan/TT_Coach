@@ -27,29 +27,37 @@ matches. Do NOT swap to RGB.
 
 ## Stage 1 — YOLOX detector
 
-Model `yolox_m_...onnx`, input 640×640. Defaults from rtmlib: `score_thr = 0.7`, `nms_thr = 0.45`,
-mode `human`.
+Model `yolox_m_...onnx`, input 640×640. **This is an mmdeploy export with NMS baked into the
+graph** (verified by inspecting the ONNX). Its outputs are:
+- `dets`: `[1, N, 5]` float — each row `[x1, y1, x2, y2, score]` in **640-input pixel space**,
+  already NMS-filtered, sorted by score descending. `N` is dynamic.
+- `labels`: `[1, N]` int64 — class id per box. **rtmlib ignores `labels` entirely** (the model is
+  person-trained HumanArt); the Swift port must ignore it too for parity.
+
+Because NMS is in the model, rtmlib's `YOLOX.postprocess` takes its `shape[-1] == 5` branch — **no
+grid decode, no manual multiclass-NMS, no 0.7 threshold.** Do NOT implement grid decoding or NMS.
 
 **Preprocess (`YOLOX.preprocess`):**
 - `ratio = min(640 / imgH, 640 / imgW)`.
-- Resize image to `(round? -> int(imgW*ratio), int(imgH*ratio))` with **bilinear** (`cv2.INTER_LINEAR`).
+- Resize image to `(int(imgW*ratio), int(imgH*ratio))` with **bilinear** (`cv2.INTER_LINEAR`).
 - Create a `640×640×3` canvas filled with **114** (uint8), paste the resized image at the
   **top-left** `[0:rh, 0:rw]`. No centering.
 - Channel order BGR, **no** mean/std, values stay 0–255.
 - Tensor: HWC→CHW, float32, shape `(1, 3, 640, 640)`.
 
-**Postprocess (`YOLOX.postprocess`, "onnx without nms" branch — output last-dim is 85):**
-- Strides `[8, 16, 32]`; for each, grid of size `(640/stride)²`. Build per-anchor `grid (x,y)`
-  and `expanded_stride`. Concatenate across the three strides (8400 anchors total).
-- `outputs[..., 0:2] = (raw_xy + grid) * stride` → box center cx,cy (in 640-space).
-- `outputs[..., 2:4] = exp(raw_wh) * stride` → box w,h.
-- `boxes_xyxy = [cx - w/2, cy - h/2, cx + w/2, cy + h/2]`, then `/= ratio` (back to image px).
-- `scores = obj_conf (col 4) * class_probs (cols 5:)` → shape (8400, 80).
-- `multiclass_nms(score_thr=0.7, nms_thr=0.45)`: per class, mask `score > 0.7`, run single-class
-  IoU NMS (`nms_thr=0.45`; **note rtmlib's `+1` in area/overlap: `area=(x2-x1+1)*(y2-y1+1)`,
-  `w=max(0, xx2-xx1+1)`**). Keep boxes; for `human` mode return all kept boxes (xyxy, image px).
+**Postprocess (`shape[-1] == 5` / "onnx contains nms module" branch):**
+- Take only the `dets` output. For each row: `box = [x1, y1, x2, y2] / ratio` (back to image px),
+  `score = dets[...,4]`.
+- Keep boxes with `score > 0.3` (rtmlib's `isscore = final_scores > 0.3`). Ignore `labels`.
+- Returns the kept boxes (xyxy, image px), still score-descending.
 
-If no detection clears threshold → no person → estimatePose returns `[]`.
+If no detection clears 0.3 → no person → `estimatePose` returns `[]`.
+
+**Execution provider — IMPORTANT:** the baked-in NMS has a dynamic-shape node that the **CoreML
+EP rejects** (observed: hard failure when N=0, i.e. no detections — a common case on real
+footage). Run the **YOLOX session on the CPU Execution Provider**. RTMPose runs fine on the
+CoreML EP. So: detector = CPU EP, pose = CoreML EP (with CPU fallback). YOLOX-m on CPU is the
+latency suspect measured in Milestone 5; the lighter-detector fallback exists for that.
 
 ## Stage 2 — RTMPose
 
