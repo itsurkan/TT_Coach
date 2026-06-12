@@ -24,8 +24,11 @@ public struct VisionCoco17Mapper {
     /// 5: leftElbow, 6: rightElbow, 7: leftWrist, 8: rightWrist,
     /// 9: leftHip, 10: rightHip, 11: leftKnee, 12: rightKnee,
     /// 13: leftAnkle, 14: rightAnkle, 15: sternum, 16: spine, 17: pelvis, 18: (unused)
+    ///
+    /// COCO-17 has eye/ear landmarks (indices 1-4) which Vision doesn't provide.
+    /// We drop those and map Vision's body joints to COCO's body indices.
     private static let VISION_TO_COCO: [Int?] = [
-        nil,        // 0: head → dropped (Halpe26 only; COCO-17 uses eye/ear landmarks)
+        nil,        // 0: head → dropped (Halpe26 only; COCO-17 uses eye/ear)
         nil,        // 1: neck → dropped
         0,          // 2: nose → COCO 0
         5,          // 3: leftShoulder → COCO 5
@@ -56,6 +59,11 @@ public struct VisionCoco17Mapper {
     /// Coordinate transform:
     /// - Vision: x,y in [0,1], y=0 at bottom, y=1 at top (bottom-left origin)
     /// - Output: x,y in [0,1], y=0 at top, y=1 at bottom (top-left origin) — y' = 1 - y
+    ///
+    /// Eye/ear placeholders: Vision doesn't provide facial landmarks. COCO-17 indices 1-4
+    /// (left_eye, right_eye, left_ear, right_ear) are synthesized at zero confidence
+    /// to satisfy schema v2 (must have exactly 17 keypoints). The shared drill pipeline
+    /// ignores zero-confidence points in angle calculations.
     public static func mapToCoco17(
         visionKeypoints: [VisionKeypoint],
         frameWidth: Int,
@@ -67,7 +75,7 @@ public struct VisionCoco17Mapper {
             return []
         }
 
-        // Build COCO-17 array with nil placeholders.
+        // Build COCO-17 array. Start with nil to mark unfilled indices.
         var coco17: [VisionKeypoint?] = Array(repeating: nil, count: 17)
 
         // Map Vision joints to COCO indices, applying y-flip.
@@ -83,7 +91,15 @@ public struct VisionCoco17Mapper {
             )
         }
 
-        // All 17 COCO indices must be mapped (no nils).
+        // Fill in missing eye/ear landmarks (COCO indices 1-4) with zero-confidence placeholders.
+        // This satisfies schema v2 requirement of exactly 17 keypoints while ensuring
+        // the shared pipeline's angle functions ignore them (score < 0.3 gate).
+        if coco17[1] == nil { coco17[1] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // left_eye
+        if coco17[2] == nil { coco17[2] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // right_eye
+        if coco17[3] == nil { coco17[3] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // left_ear
+        if coco17[4] == nil { coco17[4] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // right_ear
+
+        // Ensure all 17 COCO indices are now populated.
         guard coco17.allSatisfy({ $0 != nil }) else { return [] }
 
         return coco17.compactMap { $0 }

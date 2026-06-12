@@ -95,6 +95,7 @@ final class VisionCoco17MapperTests: XCTestCase {
     }
 
     /// Test that all 17 COCO indices are populated (no skipped indices).
+    /// Eye/ear indices (1-4) are synthesized with zero confidence if Vision doesn't provide them.
     func testAllCocoIndicesPresent() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
         for _ in 0..<19 {
@@ -108,6 +109,29 @@ final class VisionCoco17MapperTests: XCTestCase {
         )
 
         XCTAssertEqual(result.count, 17, "All 17 COCO indices must be present")
+    }
+
+    /// Test that eye/ear placeholders are synthesized with zero confidence.
+    func testEyeEarPlaceholders() {
+        var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
+        // Build 19-joint skeleton with high confidence for body, but
+        // we'll verify eye/ear get synthesized even with high input confidence.
+        for _ in 0..<19 {
+            visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9))
+        }
+
+        let result = VisionCoco17Mapper.mapToCoco17(
+            visionKeypoints: visionKps,
+            frameWidth: 1920,
+            frameHeight: 1080
+        )
+
+        XCTAssertEqual(result.count, 17, "Should have all 17 indices")
+        // Eye/ear indices (1-4) in the result should have zero confidence
+        // because Vision doesn't provide them natively.
+        for idx in [1, 2, 3, 4] {
+            XCTAssertEqual(result[idx].confidence, 0, "Eye/ear (index \(idx)) should have zero confidence")
+        }
     }
 
     /// Test multi-person detection: highest mean confidence wins.
