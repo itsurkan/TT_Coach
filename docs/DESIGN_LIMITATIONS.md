@@ -10,7 +10,7 @@ entries (move resolved ones to the bottom section with the resolving commit/doc)
 - `ACCEPTED` — known and consciously deferred (record why and the revisit trigger)
 - `RESOLVED` — fixed; entry moved to the Resolved section
 
-Last updated: 2026-06-11
+Last updated: 2026-06-12
 
 ---
 
@@ -108,6 +108,17 @@ Shadow play is a confirmed below-ratio case: on video_4 the unsigned backswing
 peak speeds match the drives (4.58 vs 4.50 torso/s) — without a ball there is no
 acceleration-into-contact asymmetry, so classification rides on the fallback.
 **Refs:** `ForwardStrokeFilter.kt`; commits `85b0ef2`, `f3be865`.
+
+### L-29 · Drill-simulator ideal ranges are provisional — `OPEN`
+`poses_viewer/src/drill2d/referenceStandard.ts` ranges are provisional. The 2026-06-12
+deep-research pass hit a session limit before adversarial verification ran (votes were 0-0,
+i.e. unverified, NOT refuted). Measured biomechanics exist only for elbow/shoulder/knee, in
+clinical flexion convention at slightly different stroke instants (converted to interior angles
+here); torso lean and shoulder tilt have NO measured source and are coach-opinion. Re-run the
+deep-research skill after the limit resets, verify the numbers, and tighten the bands +
+evidence tags. Until then the UI surfaces the `evidence` flag so users see these are an
+external provisional standard, not a calibrated target.
+**Refs:** `poses_viewer/src/drill2d/referenceStandard.ts`; deep-research pass 2026-06-12.
 
 ## 2. Live capture & Android runtime (Phase 3 relevant)
 
