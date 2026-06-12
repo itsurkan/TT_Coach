@@ -44,6 +44,8 @@ enum RTMPoseMath {
     // MARK: - 1. YOLOX letterbox (preprocess `ratio` only — no NMS/decode, that is baked in)
 
     /// `ratio = min(target / h, target / w)`. Mirrors `YOLOX.preprocess`.
+    /// Assumes a SQUARE model input (640x640) — uses one `target` for both axes,
+    /// matching rtmlib's `min(input[0]/h, input[1]/w)` only because input is square.
     static func letterboxRatio(imageWidth: Int, imageHeight: Int, target: Int = 640) -> Float {
         let t = Float(target)
         return min(t / Float(imageHeight), t / Float(imageWidth))

@@ -86,6 +86,16 @@ final class RTMPoseMathTests: XCTestCase {
         assertFlat(RTMPoseMath.affine2x3Flat(m), [0.768, 0.0, -149.76, 0.0, 0.768, -56.32])
     }
 
+    func testGetWarpMatrixRotated() {
+        // Exercises the rotDeg != 0 path (rotatePoint sin/cos). Oracle from rtmlib
+        // get_warp_matrix(center=(400,300), scale=(360,480), rot=30, out=(192,256)).
+        let m = RTMPoseMath.getWarpMatrix(
+            center: SIMD2<Float>(400, 300), scale: SIMD2<Float>(360, 480),
+            rotDeg: 30, outputW: 192, outputH: 256, inverse: false)
+        assertFlat(RTMPoseMath.affine2x3Flat(m),
+                   [0.46188, 0.26667, -168.75207, -0.26667, 0.46188, 96.10259])
+    }
+
     func testGetWarpMatrixInverseRoundTrips() {
         // inverse=True should map dst-space back to src-space: forward(inverse(p)) == p.
         let center = SIMD2<Float>(200, 250)
@@ -127,6 +137,15 @@ final class RTMPoseMathTests: XCTestCase {
             assertSIMD2(r.locs[k], Float((k * 7) % Wx), Float((k * 11) % Wy))
             XCTAssertEqual(r.vals[k], 0.7 + 0.01 * Float(k), accuracy: tol)
         }
+    }
+
+    func testSimccMaximumTieTakesFirstIndex() {
+        // numpy argmax returns the FIRST maximal index. Locks in the strict-`>`
+        // semantics (a `>=` regression would pick the last index instead).
+        let sx: [[Float]] = [[0.2, 0.8, 0.8, 0.3]]   // tie at idx 1 and 2 -> expect 1
+        let sy: [[Float]] = [[0.9, 0.9, 0.1]]        // tie at idx 0 and 1 -> expect 0
+        let r = RTMPoseMath.simccMaximum(simccX: sx, simccY: sy)
+        assertSIMD2(r.locs[0], 1, 0)
     }
 
     func testSimccMaximumAllZeroIsExcluded() {
