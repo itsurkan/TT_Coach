@@ -85,6 +85,18 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   `DrillResultsTable` so the displayed 43° elbow doesn't read as a trustworthy measurement.
 - Commit: `feat(viewer): EXP-2 reliability/trust gating`.
 
+### EXP-3 — Session "main focus" summary ✅ KEEP
+- **Files:** `analyzeDrill.ts` (`sessionFocus` + `report.focus`), `StrokesPage.tsx` (🎯 banner).
+- **Change:** compute the dominant reliable fault across the set (metric flagged on the most
+  reps, ties → higher severity) and present ONE actionable takeaway, or praise when clean.
+- **Visual result:**
+  - andrii: "🎯 Main focus: bend the knees more (about 30° off) — 15/15 reps" (legit: player stands tall). ✅
+  - ivan: "🎯 Main focus: open the elbow (about 9° off) — 14/23 reps". ✅
+  - clean set → green "Great set — close to the standard."
+- **Verdict:** turns 15 scattered nags into one focus the player can actually act on — the
+  "don't re-teach, give a clear focus" positioning. Additive; per-rep table/feedback unchanged.
+- Commit: `feat(viewer): EXP-3 session focus summary`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").

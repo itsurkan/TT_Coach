@@ -297,6 +297,16 @@ export default function StrokesPage() {
       {report && report.reps.length > 0 && (
         <div className="space-y-2">
           <h2 className="text-sm font-semibold">Аналіз повторів</h2>
+          {report.placementOk && (
+            <div className={`rounded p-2 text-sm border ${report.focus.metricKey
+              ? 'bg-amber-900/40 border-amber-700 text-amber-100'
+              : 'bg-emerald-900/40 border-emerald-700 text-emerald-100'}`}>
+              🎯 {report.focus.message}
+              {report.focus.metricKey && (
+                <span className="text-amber-300/80"> — {report.focus.count}/{report.focus.total} повторів</span>
+              )}
+            </div>
+          )}
           {!report.placementOk && (
             <div className="text-amber-400 text-xs">
               ⚠ Більшість повторів зняті не збоку — підказки приглушені. Виправ кут камери.

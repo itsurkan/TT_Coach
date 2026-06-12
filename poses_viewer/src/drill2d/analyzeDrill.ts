@@ -100,6 +100,17 @@ export interface SpokenFeedback {
   cue: FeedbackCue | null
 }
 
+/** EXP-3: the single actionable takeaway for the whole set. */
+export interface SessionFocus {
+  /** Dominant metric to work on, or null when the set was clean. */
+  metricKey: string | null
+  /** Coaching message — the focus, or praise when clean. */
+  message: string
+  /** Reps where this fault appeared / coachable reps. */
+  count: number
+  total: number
+}
+
 export interface DrillAnalysisReport {
   reps: RepAnalysis[]
   feedback: SpokenFeedback[]
@@ -107,6 +118,8 @@ export interface DrillAnalysisReport {
   placementOk: boolean
   rawPeakCount: number
   forwardRepCount: number
+  /** EXP-3: one-line "what to work on" for the whole set. */
+  focus: SessionFocus
 }
 
 export interface DrillAnalysisConfig {
@@ -205,5 +218,44 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     placementOk: repAnalyses.length === 0 || okCount * 2 >= repAnalyses.length,
     rawPeakCount: rawStrokes.length,
     forwardRepCount: reps.length,
+    focus: sessionFocus(repAnalyses),
   }
+}
+
+function medianSeverity(cues: FeedbackCue[]): number {
+  if (cues.length === 0) return 0
+  const s = cues.map(c => c.severity).sort((a, b) => a - b)
+  return s[Math.floor(s.length / 2)]
+}
+
+/**
+ * EXP-3: one actionable takeaway for the whole set. The dominant fault is the
+ * (reliable, post-EXP-2) metric flagged on the most reps; ties break toward the more
+ * severe one. A representative (median-severity) cue supplies the wording. When no
+ * rep was flagged, return praise.
+ */
+export function sessionFocus(reps: RepAnalysis[]): SessionFocus {
+  const coached = reps.filter(r => r.placementOk)
+  const total = coached.length
+  if (total === 0) {
+    return { metricKey: null, message: 'No coachable reps — fix the camera placement and retry.', count: 0, total: 0 }
+  }
+  const flaggedReps: Record<string, number> = {}
+  const cuesByKey: Record<string, FeedbackCue[]> = {}
+  for (const rep of coached) {
+    const seen = new Set<string>()
+    for (const c of rep.cues) {
+      ;(cuesByKey[c.metricKey] ??= []).push(c)
+      if (!seen.has(c.metricKey)) { flaggedReps[c.metricKey] = (flaggedReps[c.metricKey] ?? 0) + 1; seen.add(c.metricKey) }
+    }
+  }
+  const keys = Object.keys(flaggedReps)
+  if (keys.length === 0) {
+    return { metricKey: null, message: 'Great set — your technique stayed close to the standard.', count: 0, total }
+  }
+  keys.sort((a, b) => (flaggedReps[b] - flaggedReps[a]) || (medianSeverity(cuesByKey[b]) - medianSeverity(cuesByKey[a])))
+  const top = keys[0]
+  const cues = [...cuesByKey[top]].sort((a, b) => a.severity - b.severity)
+  const representative = cues[Math.floor(cues.length / 2)]
+  return { metricKey: top, message: `Main focus: ${formatCue(representative)}`, count: flaggedReps[top], total }
 }
