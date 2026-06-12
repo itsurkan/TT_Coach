@@ -6,8 +6,8 @@ import Foundation
 /// Usage: VisionPoseExport <video_path>
 /// Output: <video_base>_poses_vision.json in the same directory
 
-let SCHEMA_VERSION = 2
-let COCO17_NUM_KEYPOINTS = 17
+let schemaVersion = 2
+let coco17NumKeypoints = 17
 
 struct PoseFrame {
     let frameIndex: Int
@@ -138,7 +138,7 @@ func buildPoseJSON(
     frames: [PoseFrame]
 ) -> [String: Any] {
     var data: [String: Any] = [
-        "schemaVersion": SCHEMA_VERSION,
+        "schemaVersion": schemaVersion,
         "topology": "coco17",
         "model": "vision-bodypose",
         "videoName": videoName,
@@ -212,7 +212,7 @@ for (index, frameData) in frames.enumerated() {
             frameHeight: videoHeight
         )
 
-        if mapped.count == COCO17_NUM_KEYPOINTS {
+        if mapped.count == coco17NumKeypoints {
             landmarks = mapped.enumerated().map { (idx, kp) -> [String: Any] in
                 [
                     "index": idx,
