@@ -59,6 +59,16 @@ targets:
         outputFiles:
           - $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/TTCoachShared.framework
 
+  TTCoachTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TTCoach/Pose
+        includes:
+          - "*Tests.swift"
+    dependencies:
+      - target: TTCoach
+
   VisionPoseExport:
     type: tool
     platform: macOS
