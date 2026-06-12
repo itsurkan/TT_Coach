@@ -1,0 +1,76 @@
+import { Coco17, PoseFrame2D, Stroke2D } from './types'
+import { scored } from './facing'
+
+/**
+ * Locomotion gate (EXPERIMENTAL, viewer-first prototype — NOT yet mirrored in
+ * Kotlin StrokeDetector2D; see DESIGN_LIMITATIONS L-30). A real forehand drive
+ * keeps the base (hip-mid) roughly planted — weight transfers, the feet don't
+ * travel. Walking/stepping slides the whole torso sideways, yet still swings the
+ * arm forward fast enough to clear the detector + ForwardStrokeFilter + RepFilter.
+ * This measures hip-mid horizontal excursion over a stroke's window, normalized
+ * by torso-length (camera-distance invariant), so such strokes can be rejected.
+ *
+ * Off by default (the viewer passes a 0 / disabled threshold); only the count
+ * goldens' behavior is unchanged until a threshold is set.
+ */
+
+const MIN_TORSO_LEN = 1e-4
+
+/**
+ * Peak-to-peak horizontal travel of hip-mid over [startFrame, endFrame], in
+ * torso-lengths. x-deltas are xScale-corrected (schema v2 normalizes x by width,
+ * y by height). null when hip-mid or torso-length is never measurable in-window.
+ */
+export function hipMidTravelTorso(
+  frames: PoseFrame2D[],
+  stroke: Stroke2D,
+  xScale: number,
+  minScore: number,
+): number | null {
+  const xs: number[] = []
+  const torsos: number[] = []
+  for (let i = stroke.startFrame; i <= stroke.endFrame; i++) {
+    const kp = frames[i]?.keypoints
+    if (kp === undefined) continue
+    const lh = scored(kp, Coco17.LEFT_HIP, minScore)
+    const rh = scored(kp, Coco17.RIGHT_HIP, minScore)
+    if (lh === null || rh === null) continue
+    xs.push((lh.x + rh.x) / 2)
+    const ls = scored(kp, Coco17.LEFT_SHOULDER, minScore)
+    const rs = scored(kp, Coco17.RIGHT_SHOULDER, minScore)
+    if (ls === null || rs === null) continue
+    const len = Math.hypot(
+      ((ls.x + rs.x - (lh.x + rh.x)) / 2) * xScale,
+      (ls.y + rs.y - (lh.y + rh.y)) / 2,
+    )
+    if (len >= MIN_TORSO_LEN) torsos.push(len)
+  }
+  if (xs.length === 0 || torsos.length === 0) return null
+  const torsoLen = median(torsos)
+  const travel = (Math.max(...xs) - Math.min(...xs)) * xScale
+  return travel / torsoLen
+}
+
+/**
+ * Drops strokes whose hip-mid travels more than maxTravelTorso torso-lengths
+ * (locomotion). Strokes whose travel can't be measured are KEPT — the gate can
+ * never prove locomotion, so it doesn't reject on absence of evidence.
+ */
+export function filterStationaryStrokes(
+  strokes: Stroke2D[],
+  frames: PoseFrame2D[],
+  xScale: number,
+  maxTravelTorso: number,
+  minScore: number,
+): Stroke2D[] {
+  return strokes.filter(s => {
+    const travel = hipMidTravelTorso(frames, s, xScale, minScore)
+    return travel === null || travel <= maxTravelTorso
+  })
+}
+
+function median(values: number[]): number {
+  const sorted = [...values].sort((a, b) => a - b)
+  const mid = Math.floor(sorted.length / 2)
+  return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2
+}

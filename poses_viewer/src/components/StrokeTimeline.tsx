@@ -1,5 +1,5 @@
 export interface TimelineEntry {
-  kind: 'rep' | 'forward-dropped' | 'raw-dropped'
+  kind: 'rep' | 'forward-dropped' | 'raw-dropped' | 'locomotion-dropped'
   startMs: number
   peakMs: number
   endMs: number
@@ -19,6 +19,7 @@ const BAND_CLASS: Record<TimelineEntry['kind'], string> = {
   'rep': 'bg-emerald-500/80 hover:bg-emerald-400',
   'forward-dropped': 'bg-amber-500/70 hover:bg-amber-400',
   'raw-dropped': 'bg-neutral-500/50 hover:bg-neutral-400',
+  'locomotion-dropped': 'bg-rose-500/80 hover:bg-rose-400',
 }
 
 export function StrokeTimeline({ entries, durationMs, currentMs, onSeek, selectedIndex, onSelect }: Props) {

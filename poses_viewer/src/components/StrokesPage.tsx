@@ -22,6 +22,7 @@ export default function StrokesPage() {
   const [yawDeg, setYawDeg] = useState(0)
   const [minPeakSpeed, setMinPeakSpeed] = useState(DETECTOR_DEFAULTS.minPeakSpeed)
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
+  const [hipTravelMaxTorso, setHipTravelMaxTorso] = useState(0) // 0 = locomotion gate off (L-30)
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [loop, setLoop] = useState(false)
@@ -55,11 +56,12 @@ export default function StrokesPage() {
         handedness,
         cameraYawDeg: yawDeg,
         detector: { minPeakSpeed, minPeakGapMs },
+        hipTravelMaxTorso,
       })
     } catch {
       return null // xScaleFor throws beyond ±60°; inputs are clamped, but stay safe
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, hipTravelMaxTorso])
 
   const report = useMemo<DrillAnalysisReport | null>(() => {
     if (!seq) return null
@@ -73,11 +75,12 @@ export default function StrokesPage() {
         enabledMetrics,
         cameraYawDeg: yawDeg,
         detector: { minPeakSpeed, minPeakGapMs },
+        hipTravelMaxTorso,
       })
     } catch {
       return null
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics, hipTravelMaxTorso])
 
   const feed = useMemo(() => report?.feedback ?? [], [report])
   const spoken = useSpokenFeedback(feed, feedbackMode)
@@ -85,10 +88,14 @@ export default function StrokesPage() {
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
     const repPeaks = new Set(result.reps.map(s => s.peakFrame))
+    const locoPeaks = new Set(result.locomotionStrokes.map(s => s.peakFrame))
     const fwdPeaks = new Set(result.forwardStrokes.map(s => s.peakFrame))
     const ms = (frame: number) => seq.frames[frame]?.timestampMs ?? frame * seq.intervalMs
     return result.rawStrokes.map((s, i) => ({
-      kind: repPeaks.has(s.peakFrame) ? 'rep' : fwdPeaks.has(s.peakFrame) ? 'forward-dropped' : 'raw-dropped',
+      kind: repPeaks.has(s.peakFrame) ? 'rep'
+        : locoPeaks.has(s.peakFrame) ? 'locomotion-dropped'
+        : fwdPeaks.has(s.peakFrame) ? 'forward-dropped'
+        : 'raw-dropped',
       startMs: ms(s.startFrame),
       peakMs: ms(s.peakFrame),
       endMs: ms(s.endFrame),
@@ -97,7 +104,7 @@ export default function StrokesPage() {
   }, [seq, result])
 
   // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
+  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics, hipTravelMaxTorso])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -266,6 +273,9 @@ export default function StrokesPage() {
           <span>Сирі піки: <b>{result.rawStrokes.length}</b></span>
           <span className="text-amber-400">Форвардні: <b>{result.forwardStrokes.length}</b></span>
           <span className="text-emerald-400">Повтори: <b>{result.reps.length}</b></span>
+          {result.locomotionStrokes.length > 0 && (
+            <span className="text-rose-400">Хода (відкинуто): <b>{result.locomotionStrokes.length}</b></span>
+          )}
         </div>
       )}
 
@@ -331,6 +341,19 @@ export default function StrokesPage() {
             onChange={e => setMinPeakGapMs(Number(e.target.value))}
           />
         </label>
+        <label className="flex items-center gap-2">
+          <span className="w-56">Гейт ходьби (зсув таза, торс; 0 = вимк):</span>
+          <input
+            type="number" min={0} max={2} step={0.1}
+            className="bg-neutral-800 rounded px-2 py-1 w-20"
+            value={hipTravelMaxTorso}
+            onChange={e => setHipTravelMaxTorso(Number(e.target.value))}
+          />
+        </label>
+        <p className="text-neutral-400">
+          Експериментально (L-30): відкидає «повтори», де таз їде вбік (хода). ~0.4 ловить ходьбу,
+          лишаючи справжні удари (зсув 0.1–0.25 торса). 0 = вимкнено.
+        </p>
         <p className="text-neutral-400">Клік по смузі — перехід до піка удару.</p>
         <label className="flex items-center gap-2">
           <span className="w-56">Вправа:</span>
@@ -393,6 +416,10 @@ function TimelineLegend() {
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-3.5 h-3.5 rounded-sm bg-neutral-500/50" />
         Відкинуті ForwardStrokeFilter (замах назад / шум)
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block w-3.5 h-3.5 rounded-sm bg-rose-500/80" />
+        Хода (гейт зсуву таза, L-30)
       </span>
       <span className="flex items-center gap-1.5">
         <span className="inline-block w-px h-3.5 bg-white/90" />

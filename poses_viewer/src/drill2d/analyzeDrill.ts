@@ -12,6 +12,7 @@ import { xScaleFor, MAX_YAW_DEG } from './geometry'
 import { detectStrokes, StrokeDetectorOptions } from './strokeDetector2d'
 import { filterForwardStrokes } from './forwardStrokeFilter'
 import { filterReps } from './repFilter'
+import { filterStationaryStrokes } from './locomotionFilter'
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak } from './drillMetrics'
@@ -61,6 +62,9 @@ export interface DrillAnalysisConfig {
   maxCameraYawDeg?: number
   detector?: StrokeDetectorOptions
   cadence?: { minIntervalMs: number; maxIntervalMs: number }
+  /** EXPERIMENTAL locomotion gate (L-30): drop reps whose hip-mid travels more
+   *  than this many torso-lengths (walking). 0/undefined = off. */
+  hipTravelMaxTorso?: number
 }
 
 export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): DrillAnalysisReport {
@@ -73,7 +77,10 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   const detectXScale = xScaleFor(seq.aspectRatio, 0)
   const rawStrokes = detectStrokes(seq.frames, config.handedness, detectXScale, seq.intervalMs, config.detector)
   const forwardStrokes = filterForwardStrokes(rawStrokes, seq.frames, config.handedness, minScore)
-  const reps = filterReps(forwardStrokes)
+  const repped = filterReps(forwardStrokes)
+  const reps = config.hipTravelMaxTorso && config.hipTravelMaxTorso > 0
+    ? filterStationaryStrokes(repped, seq.frames, detectXScale, config.hipTravelMaxTorso, minScore)
+    : repped
 
   const cadence = new FeedbackCadencePolicy(
     config.cadence?.minIntervalMs ?? 3000,

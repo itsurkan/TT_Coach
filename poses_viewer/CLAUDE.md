@@ -51,6 +51,15 @@ Clicking a stroke band loops its `start→end` segment (`strokeLoop.ts` `loopBac
 the video `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without
 deselecting. Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
+**Locomotion gate (`drill2d/locomotionFilter.ts`, EXPERIMENTAL — L-30):** walking is otherwise
+counted as a rep (wrist swings forward fast while the body translates). `hipMidTravelTorso` measures
+hip-mid horizontal excursion over a stroke window in torso-lengths; `filterStationaryStrokes` drops
+reps above a threshold. Wired into `countStrokes`/`analyzeDrill` behind the «Гейт ходьби» knob,
+**default 0 (off)** so the count goldens hold; rose timeline band + «Хода (відкинуто)» counter show
+what it removed. **Viewer-first prototype — NOT yet mirrored in Kotlin `StrokeDetector2D`** (the
+binding fix-flow rule's Kotlin-first step is a tracked follow-up); ~0.4-torso threshold is tuned on
+non-protocol footage, not frozen.
+
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 
 3D mannequin via react-three-fiber. SLERPs bone **directions** between start/end poses; bone **lengths** are fixed (Drillis & Contini 1966, 1.7 m scale) — noise can't distort proportions. Feet frozen to start pose.
