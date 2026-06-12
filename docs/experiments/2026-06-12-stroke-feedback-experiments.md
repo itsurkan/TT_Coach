@@ -69,12 +69,13 @@ camera-protocol footage); feedback layer is viewer-only by design (no Kotlin por
 - Net effect across the 4 usable clips: scattered single-metric nagging → varied, trust-gated
   coaching with a session focus, honest noisy-metric marking, no sub-5° nitpicks, varied positives,
   and research-grounded lean range (normal forward lean no longer falsely flagged).
-- **Done batch 3:** EXP-9 post-set report + validations. **Done batch 4:** code-review pass +
-  22 unit tests for the EXP helpers + review comments (288/288 pass). **The feedback overhaul is
-  COMPLETE, reviewed, and tested.**
-- **Remaining (genuinely low backlog — do NOT churn):** EXP-7 per-video calibration persistence
-  (low payoff, all usable footage ~0°); a top-of-log executive summary for the user's return; else
-  graceful wind-down with light verification each heartbeat. The high-value work is done.
+- **Done batch 3:** EXP-9 + validations. **batch 4:** code-review + 22 tests. **batch 5:** EXP-7
+  per-video calibration persistence + TL;DR executive summary. **The series is COMPLETE** — 10
+  experiments, reviewed, tested (288/288), goldens intact, documented.
+- **No genuine backlog remains.** Future heartbeats = WIND-DOWN: a light health check only
+  (`cd poses_viewer && npx vitest run` should be 288/288; andrii analyze 23/15/15). If green and
+  nothing changed, just confirm and yield — do NOT invent experiments. Only act if a regression or
+  a NEW user request appears.
 - Env: Vite dev on **5782**, headed Chrome CDP on **9222**. Tools: `tmp/analyze.mjs <port> <video> <yaw> <hand> <shot>` (counts + per-rep table + spoken log, deterministic), `tmp/triage.mjs` (yaw sweep + screenshot). Both have select-verify; Videos/ is gitignored.
 - Usable videos: andrii_1, video_3, video_4, ivan_1 (all ~side-on). Marginal: video_2, IMG_6330, table_12, table_v7.
 - **Next-up candidates:** (a) research-ground the coach_opinion torso_lean(5–25)/shoulder_tilt(0–20)
