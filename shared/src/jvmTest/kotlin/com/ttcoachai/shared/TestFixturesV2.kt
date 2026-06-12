@@ -12,6 +12,10 @@ object TestFixturesV2 {
 
     fun loadVideo4Rtm(): PoseSequence2D = parse("fixtures/video_4_rtm.json")
 
+    fun loadAndriiVision(): PoseSequence2D = parse("fixtures/andrii_1_vision.json")
+
+    fun loadVideo2Vision(): PoseSequence2D = parse("fixtures/video_2_vision.json")
+
     private fun parse(path: String): PoseSequence2D = PoseJsonV2Parser.parse(loadResource(path))
 
     private fun loadResource(path: String): String {
