@@ -77,7 +77,8 @@ export default function StrokesPage() {
     }
   }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
 
-  const spoken = useSpokenFeedback(report?.feedback ?? [], feedbackMode)
+  const feed = useMemo(() => report?.feedback ?? [], [report])
+  const spoken = useSpokenFeedback(feed, feedbackMode)
 
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
