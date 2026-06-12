@@ -38,6 +38,17 @@ video_4_rtm (shadow play) 18 / 12 / 9 — fixtures read from
 recovery), click-to-seek, knobs for handedness / manual camera yaw (estimator not ported, L-25) /
 minPeakSpeed / minPeakGapMs.
 
+**M1 (metrics + feedback) extends the same page (no new route):** measurement modules
+`angles2d.ts`, `cameraYaw.ts`, `drillMetrics.ts`, `sanityBounds.ts`, `metricPrecision.ts` are
+1:1 Kotlin mirrors (golden-parity); the feedback half — `referenceStandard.ts` (external IDEAL
+ranges, NOT personal baseline — spec decision #2), `feedbackEngine.ts` (range-based severity),
+`messageCatalog.ts` (EN, "vs ideal" wording), `cadencePolicy.ts`, `analyzeDrill.ts` — deliberately
+diverges from Kotlin and has NO shared/ counterpart to golden against. `analyzeDrill` preserves the
+M0 count-golden (detection on plain aspect). `#/strokes` now also shows a per-rep results table
+(`DrillResultsTable.tsx`), metric on/off toggles, a drill-type selector, and `speechSynthesis`
+spoken-feedback playback (`useSpokenFeedback.ts`, EN voice, audio default + text-only mode).
+Reference ranges are PROVISIONAL (see referenceStandard.ts header).
+
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 
 3D mannequin via react-three-fiber. SLERPs bone **directions** between start/end poses; bone **lengths** are fixed (Drillis & Contini 1966, 1.7 m scale) — noise can't distort proportions. Feet frozen to start pose.

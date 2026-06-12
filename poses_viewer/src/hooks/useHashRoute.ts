@@ -11,7 +11,7 @@ const ROUTE_TITLES: Record<Route, string> = {
   'mannequin': 'Mannequin Editor — Poses Viewer',
   'drill2': 'Drill 2 Preview — Poses Viewer',
   'dataset': 'Dataset Browser — Poses Viewer',
-  'strokes': 'Підрахунок ударів — Poses Viewer',
+  'strokes': 'Симулятор ефективності вправи — Poses Viewer',
 }
 
 function parseHash(hash: string): Route {

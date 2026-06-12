@@ -138,7 +138,7 @@ export default function StrokesPage() {
         >
           ← Poses Viewer
         </a>
-        <h1 className="text-lg font-semibold">Підрахунок ударів (M0)</h1>
+        <h1 className="text-lg font-semibold">Симулятор ефективності вправи</h1>
         <label className="flex items-center gap-2">
           <span>Відео:</span>
           <select
