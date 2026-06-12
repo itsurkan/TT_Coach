@@ -47,7 +47,22 @@ export const Coco17 = {
   RIGHT_KNEE: 14,
   LEFT_ANKLE: 15,
   RIGHT_ANKLE: 16,
+  shoulder(h: Handedness): number {
+    return h === 'right' ? Coco17.RIGHT_SHOULDER : Coco17.LEFT_SHOULDER
+  },
+  elbow(h: Handedness): number {
+    return h === 'right' ? Coco17.RIGHT_ELBOW : Coco17.LEFT_ELBOW
+  },
   wrist(h: Handedness): number {
     return h === 'right' ? Coco17.RIGHT_WRIST : Coco17.LEFT_WRIST
+  },
+  hip(h: Handedness): number {
+    return h === 'right' ? Coco17.RIGHT_HIP : Coco17.LEFT_HIP
+  },
+  knee(h: Handedness): number {
+    return h === 'right' ? Coco17.RIGHT_KNEE : Coco17.LEFT_KNEE
+  },
+  ankle(h: Handedness): number {
+    return h === 'right' ? Coco17.RIGHT_ANKLE : Coco17.LEFT_ANKLE
   },
 } as const
