@@ -43,10 +43,19 @@ enum ORTSessionFactory {
         }
     }()
 
-    /// Builds session options, appending the CoreML Execution Provider when available.
-    /// Falls back to plain CPU (the ORT default) if CoreML EP cannot be appended.
-    private static func makeSessionOptions(modelLabel: String) throws -> ORTSessionOptions {
+    /// Builds session options. When `coreML` is true, appends the CoreML Execution
+    /// Provider (falling back to plain CPU if it cannot be appended). When `coreML`
+    /// is false, the CoreML EP is skipped entirely and the session runs CPU-only.
+    ///
+    /// CPU-only matters for the YOLOX detector: its baked-in NMS has a dynamic-shape
+    /// node the CoreML EP rejects (hard-fails when there are zero detections — common
+    /// on real footage). See RTMPOSE_PARITY.md "Execution provider".
+    private static func makeSessionOptions(modelLabel: String, coreML: Bool) throws -> ORTSessionOptions {
         let options = try ORTSessionOptions()
+        guard coreML else {
+            print("[ORTSessionFactory] \(modelLabel): CPU-only (CoreML EP skipped by request).")
+            return options
+        }
         do {
             let coreMLOptions = ORTCoreMLExecutionProviderOptions()
             try options.appendCoreMLExecutionProvider(with: coreMLOptions)
@@ -60,12 +69,13 @@ enum ORTSessionFactory {
     }
 
     /// Creates a session for a model at an absolute file path (used by the macOS CLI).
-    static func makeSession(modelPath: String, modelLabel: String? = nil) throws -> ORTSession {
+    /// Pass `coreML: false` for a CPU-only session (required for the YOLOX detector).
+    static func makeSession(modelPath: String, modelLabel: String? = nil, coreML: Bool = true) throws -> ORTSession {
         let label = modelLabel ?? (modelPath as NSString).lastPathComponent
         guard FileManager.default.fileExists(atPath: modelPath) else {
             throw ORTSessionFactoryError.modelFileMissing(path: modelPath)
         }
-        let options = try makeSessionOptions(modelLabel: label)
+        let options = try makeSessionOptions(modelLabel: label, coreML: coreML)
         do {
             return try ORTSession(env: sharedEnv, modelPath: modelPath, sessionOptions: options)
         } catch {
@@ -74,19 +84,20 @@ enum ORTSessionFactory {
     }
 
     /// Creates a session for a model file URL.
-    static func makeSession(modelURL: URL, modelLabel: String? = nil) throws -> ORTSession {
-        try makeSession(modelPath: modelURL.path, modelLabel: modelLabel)
+    static func makeSession(modelURL: URL, modelLabel: String? = nil, coreML: Bool = true) throws -> ORTSession {
+        try makeSession(modelPath: modelURL.path, modelLabel: modelLabel, coreML: coreML)
     }
 
     /// Creates a session from an app-bundle resource (used by the iOS app backend).
     static func makeSession(
         bundleResource name: String,
         extension ext: String = "onnx",
-        in bundle: Bundle = .main
+        in bundle: Bundle = .main,
+        coreML: Bool = true
     ) throws -> ORTSession {
         guard let url = bundle.url(forResource: name, withExtension: ext) else {
             throw ORTSessionFactoryError.modelFileMissing(path: "\(name).\(ext) (in bundle \(bundle.bundlePath))")
         }
-        return try makeSession(modelURL: url, modelLabel: name)
+        return try makeSession(modelURL: url, modelLabel: name, coreML: coreML)
     }
 }
