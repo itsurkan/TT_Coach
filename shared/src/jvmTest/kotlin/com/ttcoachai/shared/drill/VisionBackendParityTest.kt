@@ -120,6 +120,19 @@ class VisionBackendParityTest {
             println("| ${source.padEnd(17)} | ${baseline.repCount.toString().padEnd(4)} | ${baseline.excludedRepIndices.size.toString().padEnd(8)} | %.3f |".format(baseline.qualityScore))
         }
 
+        // Assert rep count parity like the other gate tests
+        val diffAndrii = abs(visionAndrii.repCount - rtmAndrii.repCount)
+        assertTrue(
+            diffAndrii <= REP_COUNT_TOLERANCE,
+            "andrii_1 Vision rep count (${visionAndrii.repCount}) must be within ±$REP_COUNT_TOLERANCE of RTM (${rtmAndrii.repCount}), diff=$diffAndrii"
+        )
+
+        val diffVideo2 = abs(visionVideo2.repCount - rtmVideo2.repCount)
+        assertTrue(
+            diffVideo2 <= REP_COUNT_TOLERANCE,
+            "video_2 Vision rep count (${visionVideo2.repCount}) must be within ±$REP_COUNT_TOLERANCE of RTM (${rtmVideo2.repCount}), diff=$diffVideo2"
+        )
+
         // Verify all fixtures yield metrics (exact metric names depend on detection quality)
         assertTrue(visionAndrii.metricStats.isNotEmpty(), "andrii_1_vision must derive metrics")
         assertTrue(rtmAndrii.metricStats.isNotEmpty(), "andrii_1_rtm must derive metrics")
