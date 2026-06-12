@@ -58,3 +58,13 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/TTCoachShared.framework
+
+  VisionPoseExport:
+    type: tool
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - VisionPoseExport
+      - path: TTCoach/Pose
+        includes:
+          - VisionCoco17Mapper.swift
