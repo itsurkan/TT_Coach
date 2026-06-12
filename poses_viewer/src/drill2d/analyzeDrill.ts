@@ -29,6 +29,38 @@ export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
  *  instead of repeating it every rep. */
 export const REMINDER_INTERVAL_MS = 8000
 
+/** EXP-2: a metric whose cross-rep IQR exceeds this (degrees) is treated as
+ *  unreliable (measurement noise) and not coached. ~20° cleanly separates blur
+ *  artifacts (andrii elbow IQR≈28) from real systematic faults (video_3 lean IQR≈1). */
+export const UNRELIABLE_IQR_DEG = 20
+/** Need at least this many measured reps before judging a metric's reliability. */
+export const MIN_REPS_FOR_RELIABILITY = 4
+
+function quantile(sorted: number[], p: number): number {
+  if (sorted.length === 0) return NaN
+  return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))]
+}
+
+/**
+ * EXP-2: keys of metrics whose value is too inconsistent across the player's reps
+ * to coach on. Uses the inter-quartile range (robust to the odd glitch frame).
+ */
+export function unreliableMetricKeys(reps: RepAnalysis[]): Set<string> {
+  const byKey: Record<string, number[]> = {}
+  for (const rep of reps) {
+    if (!rep.placementOk) continue
+    for (const [key, value] of Object.entries(rep.metrics)) (byKey[key] ??= []).push(value)
+  }
+  const unreliable = new Set<string>()
+  for (const [key, values] of Object.entries(byKey)) {
+    if (values.length < MIN_REPS_FOR_RELIABILITY) continue
+    const sorted = [...values].sort((a, b) => a - b)
+    const iqr = quantile(sorted, 0.75) - quantile(sorted, 0.25)
+    if (iqr > UNRELIABLE_IQR_DEG) unreliable.add(key)
+  }
+  return unreliable
+}
+
 /**
  * EXP-1 cue selection: prefer the most-severe cue for an issue OTHER than the one
  * just spoken (variety). If the only cues are the same metric as last time, only
@@ -129,6 +161,20 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     const cues = placementOk ? evaluateRep(metrics, config.standard, config.enabledMetrics) : []
     return { stroke, metrics, cues, cameraYawDeg: yaw, placementOk }
   })
+
+  // EXP-2 (reliability/trust gating): a metric whose value swings wildly across the
+  // player's reps is not a stable coaching signal — it's measurement noise (e.g.
+  // RTMPose mis-locates the fast-swinging forearm at the wrist-speed peak: andrii's
+  // elbow reads 35–124° across reps). The CLAUDE.md trust rule says only coach precise
+  // degrees we can stand behind, so we DROP cues for any metric whose cross-rep IQR
+  // exceeds UNRELIABLE_IQR_DEG. Consistent-but-off metrics (video_3 lean, IQR≈1) are
+  // untouched — they're real systematic faults worth coaching.
+  const unreliable = unreliableMetricKeys(repAnalyses)
+  if (unreliable.size > 0) {
+    for (const rep of repAnalyses) {
+      rep.cues = rep.cues.filter(c => !unreliable.has(c.metricKey))
+    }
+  }
 
   // EXP-1 (variety-aware feedback): a real coach surfaces different faults across a
   // set instead of repeating the same line every rep. We (a) prefer the most-severe

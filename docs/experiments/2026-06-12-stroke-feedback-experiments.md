@@ -66,6 +66,25 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   one repeated line. Detection/counts untouched. Aligns with "don't re-teach" positioning.
 - Commit: `feat(viewer): EXP-1 variety-aware feedback`.
 
+### EXP-2 — Reliability / trust gating (suppress unstable-metric cues) ✅ KEEP
+- **File:** `poses_viewer/src/drill2d/analyzeDrill.ts` (`unreliableMetricKeys` + cue filter).
+- **Rationale:** a metric whose value swings across the player's reps is measurement noise,
+  not a coachable fault. Root-caused on andrii: RTMPose is confident-but-wrong on the
+  fast-swinging forearm at the wrist-speed peak (elbow collapses 116°→37°→0° in 1–2 frames,
+  scores stay 0.6–0.9), so the elbow reads 35–124° across reps yet is coached as "79° off".
+- **Cross-rep IQR (measured):** andrii elbow **28**, ivan shoulder_tilt **25** (artifacts) vs
+  video_3 lean **1**, video_4 ≤9, everything-real ≤14. Threshold `UNRELIABLE_IQR_DEG = 20`
+  cleanly separates them. Drop cues for metrics with IQR > 20 (≥4 reps required).
+- **Visual result:**
+  - andrii: false `elbow ×13` cue **gone** → coaches reliable `knee_bend` ("bend your knees", legs at 175°). ✅
+  - ivan: noisy `shoulder_tilt` (IQR 25) suppressed → elbow corrections **+ 7 "Good rep" positives** (reps whose only fault was the noisy metric are now correctly clean). ✅
+  - video_3 / video_4: real consistent signals untouched (IQR low). ✅
+- **Verdict:** kills false coaching on tracking artifacts while preserving every real fault.
+  Directly implements the CLAUDE.md trust rule. Detection/counts untouched.
+- **Follow-up idea (EXP-2b):** visually gray out suppressed/unreliable metric values in
+  `DrillResultsTable` so the displayed 43° elbow doesn't read as a trustworthy measurement.
+- Commit: `feat(viewer): EXP-2 reliability/trust gating`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").
