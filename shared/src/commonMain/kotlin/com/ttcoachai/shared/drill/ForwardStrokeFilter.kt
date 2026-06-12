@@ -10,8 +10,9 @@ import com.ttcoachai.shared.models.Stroke2D
  * Drops wrist-speed peaks that are NOT forward strokes. Real footage shows ~half of
  * all speed peaks are recovery swings (return to ready) — same speed/duration class
  * as strokes, so RepFilter's banding cannot separate them. A forehand-drive forward
- * stroke moves the wrist in the player's FACING direction between startFrame and
- * peakFrame; recovery moves opposite.
+ * stroke moves the wrist in the player's FACING direction during the final
+ * ~100 ms approach into the speed peak; recovery moves opposite. (Direction is
+ * NOT read start→peak — see [wristDx] and DESIGN_LIMITATIONS L-28.)
  *
  * Facing is resolved at the SESSION level, not per stroke: on real footage the
  * per-frame head read (AngleCalculations2D.facingSign, nose vs shoulder-mid) is
@@ -43,6 +44,14 @@ object ForwardStrokeFilter {
      */
     const val MIN_GROUP_SIZE = 2
 
+    /**
+     * Direction is read over this window of APPROACH into the peak. ~100 ms is
+     * long enough to span RTMPose jitter at any supported fps (≥1 frame even at
+     * 10 fps fixtures) and short enough to stay inside the drive's final
+     * acceleration regardless of where the start boundary landed (L-28).
+     */
+    const val PEAK_APPROACH_WINDOW_MS = 100L
+
     fun filter(
         strokes: List<Stroke2D>,
         frames: List<PoseFrame2D>,
@@ -63,7 +72,18 @@ object ForwardStrokeFilter {
         }
     }
 
-    /** Wrist x-displacement start→peak; null when the wrist is gated at either end. */
+    /**
+     * Wrist x-displacement over the ~[PEAK_APPROACH_WINDOW_MS] approach INTO the
+     * peak: x[peak] − x[approach], where approach is reached by walking back
+     * from the peak while each step stays within [PEAK_APPROACH_WINDOW_MS] of it
+     * (the earliest frame still inside that window), clamped to startFrame; null
+     * when the wrist is gated at
+     * either end. Start→peak displacement is deliberately NOT used: on continuous
+     * play the smoothed speed never drops below the boundary floor between swings,
+     * startFrame bleeds into the previous follow-through, and true drives read
+     * backward (L-28 — video_4 dropped 7 of 12 drives). The drive accelerates
+     * into the peak, so the approach direction IS the stroke direction.
+     */
     private fun wristDx(
         stroke: Stroke2D,
         frames: List<PoseFrame2D>,
@@ -71,11 +91,16 @@ object ForwardStrokeFilter {
         minScore: Float
     ): Float? {
         val wristIdx = Coco17.wrist(handedness)
-        val start = frames.getOrNull(stroke.startFrame)?.keypoints?.getOrNull(wristIdx)
+        val peakFrame = frames.getOrNull(stroke.peakFrame) ?: return null
+        var a = stroke.peakFrame
+        while (a > stroke.startFrame &&
+            peakFrame.timestampMs - frames[a - 1].timestampMs <= PEAK_APPROACH_WINDOW_MS
+        ) a--
+        val approach = frames.getOrNull(a)?.keypoints?.getOrNull(wristIdx)
             ?.takeIf { it.score >= minScore } ?: return null
-        val peak = frames.getOrNull(stroke.peakFrame)?.keypoints?.getOrNull(wristIdx)
+        val peak = peakFrame.keypoints.getOrNull(wristIdx)
             ?.takeIf { it.score >= minScore } ?: return null
-        return peak.x - start.x
+        return peak.x - approach.x
     }
 
     /**

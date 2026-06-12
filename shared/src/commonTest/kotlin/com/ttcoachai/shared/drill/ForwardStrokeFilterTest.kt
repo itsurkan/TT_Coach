@@ -138,4 +138,18 @@ class ForwardStrokeFilterTest {
         val s = stroke(start = 0, peak = 3, end = 4)
         assertTrue(ForwardStrokeFilter.filter(listOf(s), f, Handedness.RIGHT).isEmpty())
     }
+
+    @Test
+    fun continuousPlayBledStartBoundaryStillReadsForward() {
+        // L-28: on continuous play the boundary walk bleeds startFrame back into
+        // the previous follow-through (x already forward of the backswing trough),
+        // so start→peak displacement reads BACKWARD on a true forward drive.
+        // The ~100 ms approach INTO the peak must read forward instead.
+        // x: follow-through 0.72 → backswing trough 0.50 → drive up to 0.71
+        val xs = listOf(0.72f, 0.60f, 0.50f, 0.55f, 0.65f, 0.70f, 0.71f)
+        val f = frames(xs) // nose +x (facing forward = +x)
+        val drive = stroke(start = 0, peak = 4, end = 6) // x[4]−x[0] = −0.07 < 0
+        val kept = ForwardStrokeFilter.filter(listOf(drive), f, Handedness.RIGHT)
+        assertEquals(listOf(drive), kept)
+    }
 }
