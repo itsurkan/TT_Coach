@@ -44,8 +44,11 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 - Net effect across the 4 usable clips: scattered single-metric nagging → varied, trust-gated
   coaching with a session focus, honest noisy-metric marking, no sub-5° nitpicks, varied positives,
   and research-grounded lean range (normal forward lean no longer falsely flagged).
-- **Next-up candidates:** detection spot-check on ivan_1/video_4 bands; validate on marginal
-  footage + non-zero yaw; EXP-7 per-video calibration persistence; a holistic post-set report.
+- **Done batch 3:** EXP-9 post-set report + validations (camera-angle adaptation, marginal footage,
+  266/266 tests, goldens intact). **The core feedback overhaul is substantially COMPLETE.**
+- **Next-up (lower priority, avoid churn):** EXP-7 per-video calibration persistence; a
+  `requesting-code-review` pass over the 9 experiments; or wind down to consolidation. Prefer
+  genuine value over inventing marginal experiments.
 - Env: Vite dev on **5782**, headed Chrome CDP on **9222**. Tools: `tmp/analyze.mjs <port> <video> <yaw> <hand> <shot>` (counts + per-rep table + spoken log, deterministic), `tmp/triage.mjs` (yaw sweep + screenshot). Both have select-verify; Videos/ is gitignored.
 - Usable videos: andrii_1, video_3, video_4, ivan_1 (all ~side-on). Marginal: video_2, IMG_6330, table_12, table_v7.
 - **Next-up candidates:** (a) research-ground the coach_opinion torso_lean(5–25)/shoulder_tilt(0–20)
@@ -182,6 +185,16 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 - **Verdict:** completes the coaching loop (praise + focus + counts), reusing existing data.
   Additive; detection/per-rep feedback unchanged.
 - Commit: `feat(viewer): EXP-9 holistic post-set report`.
+
+### Batch-3 validations (no code change)
+- **Camera-angle adaptation confirmed:** table_v7 at its true yaw=45° → `placementWarn: true` and
+  feedback **suppressed** ("fix the camera angle"). The "adapt to camera angle" deliverable holds —
+  I defined per-video angles; the system correctly declines to coach off-axis footage when told the
+  angle. (Auto-estimation stays the documented L-25 limitation; angle is manual.)
+- **Marginal footage** (video_2 4-rep, table_v7 5-rep) behaves sensibly at yaw 0 — thin coaching,
+  not over-confident, no crashes.
+- **Regression check:** detection goldens intact (andrii 23/15/15, video_4 18/12/9; golden vitest
+  5/5). **Full viewer suite 266/266 pass** — all 9 feedback experiments are clean, no test breakage.
 
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
