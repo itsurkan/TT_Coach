@@ -4,7 +4,7 @@ import TTCoachShared
 import os.log
 
 /// On-device pose inference using Apple Vision Framework's VNDetectHumanBodyPoseRequest.
-/// Returns COCO-17 keypoints mapped from Vision's 18 joint output via VisionCoco17Mapper.
+/// Returns COCO-17 keypoints mapped from Vision's 19-joint output via VisionCoco17Mapper.
 ///
 /// Synchronous execution on the camera frame queue; backpressure (frame drops)
 /// is handled upstream by CameraSession. One reusable VNDetectHumanBodyPoseRequest
@@ -57,31 +57,29 @@ final class VisionPoseBackend: PoseBackend {
         }
 
         // Extract Vision observations and map to COCO-17.
-        guard let observations = poseRequest.results as? [VNRecognizedPointsObservation],
-              !observations.isEmpty else {
+        guard let observations = poseRequest.results, !observations.isEmpty else {
             // No person detected — empty array satisfies PoseBackend contract.
             logLatency(Date().timeIntervalSince(startTime))
             return []
         }
 
         // Multi-person: select the one with highest mean confidence.
-        // (For MVP single-person drills, this is usually just one, but the
-        // mapper handles multiple detections correctly per its bestPerson logic.)
-        let allDetections = observations.compactMap { observation in
+        let allDetections = observations.map { observation in
             extractVisionKeypoints(from: observation)
         }
 
-        guard let bestDetection = selectBestPerson(allDetections) else {
+        guard let bestDetection = VisionCoco17Mapper.bestPerson(from: allDetections) else {
             logLatency(Date().timeIntervalSince(startTime))
             return []
         }
 
-        // Map Vision's 18 joints to COCO-17, apply y-flip, fill placeholders.
-        guard let coco17 = VisionCoco17Mapper.mapToCoco17(
+        // Map Vision's 19 joints to COCO-17 (y-flip applied by the mapper).
+        let coco17 = VisionCoco17Mapper.mapToCoco17(
             visionKeypoints: bestDetection,
             frameWidth: frameWidth,
             frameHeight: frameHeight
-        ) else {
+        )
+        guard !coco17.isEmpty else {
             logLatency(Date().timeIntervalSince(startTime))
             return []
         }
@@ -95,78 +93,24 @@ final class VisionPoseBackend: PoseBackend {
         return keypoints
     }
 
-    /// Extracts Vision's 18 joint observations as plain tuples (not Vision types)
-    /// for compatibility with VisionCoco17Mapper.
-    ///
-    /// Vision's VNRecognizedPointsObservation.RecognizedPoint order (0–17):
-    /// head, neck, nose, leftShoulder, rightShoulder, leftElbow, rightElbow,
-    /// leftWrist, rightWrist, leftHip, rightHip, leftKnee, rightKnee,
-    /// leftAnkle, rightAnkle, sternum, spine, pelvis
+    /// Extracts Vision's 19 joints as plain value structs in the mapper's
+    /// canonical joint order (`VisionCoco17Mapper.visionJointNames`).
+    /// Joints Vision did not detect become zero-confidence placeholders.
     private func extractVisionKeypoints(
-        from observation: VNRecognizedPointsObservation
+        from observation: VNHumanBodyPoseObservation
     ) -> [VisionCoco17Mapper.VisionKeypoint] {
-        var keypoints: [VisionCoco17Mapper.VisionKeypoint] = []
-
-        // Vision joint indices in order.
-        let visionJointNames: [VNRecognizedPointGroupKey] = [
-            .bodyLandmarkKeyHead,
-            .bodyLandmarkKeyNeck,
-            .bodyLandmarkKeyNose,
-            .bodyLandmarkKeyLeftShoulder,
-            .bodyLandmarkKeyRightShoulder,
-            .bodyLandmarkKeyLeftElbow,
-            .bodyLandmarkKeyRightElbow,
-            .bodyLandmarkKeyLeftWrist,
-            .bodyLandmarkKeyRightWrist,
-            .bodyLandmarkKeyLeftHip,
-            .bodyLandmarkKeyRightHip,
-            .bodyLandmarkKeyLeftKnee,
-            .bodyLandmarkKeyRightKnee,
-            .bodyLandmarkKeyLeftAnkle,
-            .bodyLandmarkKeyRightAnkle,
-            // Note: sternum, spine, pelvis are NOT exposed in VNRecognizedPointsObservation
-            // They're optional in Vision's v1 output; we'll synthesize them as zero-confidence.
-        ]
-
-        for (idx, jointName) in visionJointNames.enumerated() {
-            if let point = try? observation.recognizedPoints(forGroupKey: jointName)?.first {
-                let x = Float(point.location.x)
-                let y = Float(point.location.y)
-                let confidence = Float(point.confidence)
-                keypoints.append(VisionCoco17Mapper.VisionKeypoint(
-                    x: x,
-                    y: y,
-                    confidence: confidence
-                ))
+        VisionCoco17Mapper.visionJointNames.map { jointName in
+            if let point = try? observation.recognizedPoint(jointName) {
+                return VisionCoco17Mapper.VisionKeypoint(
+                    x: Float(point.location.x),
+                    y: Float(point.location.y),
+                    confidence: Float(point.confidence)
+                )
             } else {
-                // Joint not detected or unavailable — zero-confidence placeholder.
-                keypoints.append(VisionCoco17Mapper.VisionKeypoint(
-                    x: 0,
-                    y: 0,
-                    confidence: 0
-                ))
+                // Joint not detected — zero-confidence placeholder.
+                return VisionCoco17Mapper.VisionKeypoint(x: 0, y: 0, confidence: 0)
             }
         }
-
-        // Synthesize sternum, spine, pelvis (indices 15–17) as zero-confidence
-        // to reach 18 joints as expected by the mapper.
-        for _ in 0..<3 {
-            keypoints.append(VisionCoco17Mapper.VisionKeypoint(
-                x: 0,
-                y: 0,
-                confidence: 0
-            ))
-        }
-
-        return keypoints
-    }
-
-    /// Selects the person with the highest mean confidence from multiple detections.
-    /// Reuses the mapper's multi-person selection logic.
-    private func selectBestPerson(
-        _ detections: [[VisionCoco17Mapper.VisionKeypoint]]
-    ) -> [VisionCoco17Mapper.VisionKeypoint]? {
-        VisionCoco17Mapper.bestPerson(from: detections)
     }
 
     /// Tracks inference latency for p50/p95 reporting.
@@ -186,9 +130,8 @@ final class VisionPoseBackend: PoseBackend {
         if latencyBufMs.count >= 50 && latencyBufMs.count % 50 == 0 {
             let sorted = latencyBufMs.sorted()
             let p50 = sorted[sorted.count / 2]
-            let p95 = sorted[Int(Double(sorted.count) * 0.95)]
-            logger.debug("Inference latency p50=\(String(format: "%.1f", p50)) ms, "
-                        + "p95=\(String(format: "%.1f", p95)) ms")
+            let p95 = sorted[min(Int(Double(sorted.count) * 0.95), sorted.count - 1)]
+            logger.debug("Inference latency p50=\(String(format: "%.1f", p50)) ms, p95=\(String(format: "%.1f", p95)) ms")
         }
     }
 }

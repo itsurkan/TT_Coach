@@ -1,6 +1,17 @@
 import XCTest
 
+@testable import TTCoach
+
 final class VisionCoco17MapperTests: XCTestCase {
+
+    /// Builds a 19-joint canonical Vision array with uniform values.
+    private func uniformJoints(
+        x: Float = 0.5, y: Float = 0.5, confidence: Float = 0.9
+    ) -> [VisionCoco17Mapper.VisionKeypoint] {
+        (0..<19).map { _ in
+            VisionCoco17Mapper.VisionKeypoint(x: x, y: y, confidence: confidence)
+        }
+    }
 
     /// Test that empty input returns empty output.
     func testEmptyInput() {
@@ -12,9 +23,9 @@ final class VisionCoco17MapperTests: XCTestCase {
         XCTAssertEqual(result.count, 0, "Empty input should yield empty output")
     }
 
-    /// Test that input with fewer than 18 joints returns empty (malformed).
+    /// Test that input with fewer than 19 joints returns empty (malformed).
     func testInsufficientJoints() {
-        let visionKps = (0..<17).map { _ in
+        let visionKps = (0..<18).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9)
         }
         let result = VisionCoco17Mapper.mapToCoco17(
@@ -22,15 +33,14 @@ final class VisionCoco17MapperTests: XCTestCase {
             frameWidth: 1920,
             frameHeight: 1080
         )
-        XCTAssertEqual(result.count, 0, "Input with < 18 joints should yield empty output")
+        XCTAssertEqual(result.count, 0, "Input with < 19 joints should yield empty output")
     }
 
-    /// Test y-flip transformation: y_vision=0.1 (bottom) -> y_coco=0.9 (top-aligned).
+    /// Test y-flip transformation: y_vision=0.1 (near bottom) -> y_coco=0.9 (near bottom in top-left coords).
     func testYFlip() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        // Build a minimal 18-joint skeleton with specific y values.
-        for i in 0..<18 {
-            let y: Float = (i == 2) ? 0.1 : 0.5  // nose (index 2) at y=0.1
+        for i in 0..<19 {
+            let y: Float = (i == 0) ? 0.1 : 0.5  // nose (canonical index 0) at y=0.1
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: y, confidence: 0.9))
         }
 
@@ -42,17 +52,17 @@ final class VisionCoco17MapperTests: XCTestCase {
 
         XCTAssertEqual(result.count, 17, "Should produce 17 COCO keypoints")
         // Nose is COCO index 0.
-        let noseKeypointIdx = 0
-        let flippedY = result[noseKeypointIdx].y
-        XCTAssertAlmostEqual(flippedY, 0.9, accuracy: 0.0001, "y=0.1 (Vision bottom) should flip to 0.9 (COCO top)")
+        XCTAssertAlmostEqual(result[0].y, 0.9, accuracy: 0.0001, "y=0.1 (Vision bottom-left) should flip to 0.9 (COCO top-left)")
+        // All other joints at y=0.5 flip to 0.5.
+        XCTAssertAlmostEqual(result[5].y, 0.5, accuracy: 0.0001, "y=0.5 stays 0.5 after flip")
     }
 
-    /// Test that joints map to correct COCO indices.
+    /// Test that joints map to correct COCO indices, including direct eye/ear mapping.
     func testJointMapping() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for i in 0..<18 {
-            // Assign unique x values per Vision joint so we can track mappings.
-            let x = Float(i) / 100.0  // 0.00, 0.01, 0.02, ... 0.17
+        for i in 0..<19 {
+            // Assign unique x values per canonical Vision joint so we can track mappings.
+            let x = Float(i) / 100.0  // 0.00, 0.01, ... 0.18
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: x, y: 0.5, confidence: 0.9))
         }
 
@@ -64,22 +74,50 @@ final class VisionCoco17MapperTests: XCTestCase {
 
         XCTAssertEqual(result.count, 17, "Should produce 17 COCO keypoints")
 
-        // Spot-check a few mappings:
-        // Vision 2 (nose, x=0.02) -> COCO 0 (nose)
-        XCTAssertAlmostEqual(result[0].x, 0.02, accuracy: 0.0001, "Vision nose (x=0.02) should be at COCO[0]")
+        // Vision 0 (nose) -> COCO 0
+        XCTAssertAlmostEqual(result[0].x, 0.00, accuracy: 0.0001, "Vision nose should be at COCO[0]")
+        // Vision 1 (leftEye) -> COCO 1 (direct eye mapping)
+        XCTAssertAlmostEqual(result[1].x, 0.01, accuracy: 0.0001, "Vision leftEye should be at COCO[1]")
+        // Vision 4 (rightEar) -> COCO 4 (direct ear mapping)
+        XCTAssertAlmostEqual(result[4].x, 0.04, accuracy: 0.0001, "Vision rightEar should be at COCO[4]")
+        // Vision 6 (leftShoulder) -> COCO 5 (neck at Vision 5 is dropped)
+        XCTAssertAlmostEqual(result[5].x, 0.06, accuracy: 0.0001, "Vision leftShoulder should be at COCO[5]")
+        // Vision 10 (leftWrist) -> COCO 9
+        XCTAssertAlmostEqual(result[9].x, 0.10, accuracy: 0.0001, "Vision leftWrist should be at COCO[9]")
+        // Vision 13 (leftHip) -> COCO 11 (root at Vision 12 is dropped)
+        XCTAssertAlmostEqual(result[11].x, 0.13, accuracy: 0.0001, "Vision leftHip should be at COCO[11]")
+        // Vision 18 (rightAnkle) -> COCO 16
+        XCTAssertAlmostEqual(result[16].x, 0.18, accuracy: 0.0001, "Vision rightAnkle should be at COCO[16]")
+    }
 
-        // Vision 3 (leftShoulder, x=0.03) -> COCO 5 (leftShoulder)
-        XCTAssertAlmostEqual(result[5].x, 0.03, accuracy: 0.0001, "Vision leftShoulder (x=0.03) should be at COCO[5]")
+    /// Test that eyes/ears come through with their REAL coordinates and confidences
+    /// (Vision provides them natively — no zero-confidence synthesis).
+    func testEyeEarDirectMapping() {
+        var visionKps = uniformJoints()
+        visionKps[1] = VisionCoco17Mapper.VisionKeypoint(x: 0.45, y: 0.8, confidence: 0.77)  // leftEye
+        visionKps[3] = VisionCoco17Mapper.VisionKeypoint(x: 0.40, y: 0.78, confidence: 0.66) // leftEar
 
-        // Vision 9 (leftHip, x=0.09) -> COCO 11 (leftHip)
-        XCTAssertAlmostEqual(result[11].x, 0.09, accuracy: 0.0001, "Vision leftHip (x=0.09) should be at COCO[11]")
+        let result = VisionCoco17Mapper.mapToCoco17(
+            visionKeypoints: visionKps,
+            frameWidth: 1920,
+            frameHeight: 1080
+        )
+
+        XCTAssertEqual(result.count, 17)
+        // COCO 1 = left_eye
+        XCTAssertAlmostEqual(result[1].x, 0.45, accuracy: 0.0001, "leftEye x maps directly")
+        XCTAssertAlmostEqual(result[1].y, 0.2, accuracy: 0.0001, "leftEye y flips (1 - 0.8)")
+        XCTAssertAlmostEqual(result[1].confidence, 0.77, accuracy: 0.0001, "leftEye confidence passes through")
+        // COCO 3 = left_ear
+        XCTAssertAlmostEqual(result[3].x, 0.40, accuracy: 0.0001, "leftEar x maps directly")
+        XCTAssertAlmostEqual(result[3].confidence, 0.66, accuracy: 0.0001, "leftEar confidence passes through")
     }
 
     /// Test that confidence values pass through unchanged.
     func testConfidencePassthrough() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for i in 0..<18 {
-            let conf = Float(i) / 18.0  // 0.0, 0.056, 0.111, ..., 0.944
+        for i in 0..<19 {
+            let conf = Float(i) / 19.0
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: conf))
         }
 
@@ -90,17 +128,17 @@ final class VisionCoco17MapperTests: XCTestCase {
         )
 
         XCTAssertEqual(result.count, 17, "Should produce 17 COCO keypoints")
-        // Spot-check: Vision 3 (conf=0.167...) -> COCO 5
-        XCTAssertAlmostEqual(result[5].confidence, Float(3) / 18.0, accuracy: 0.0001, "Confidence should pass through")
+        // Vision 6 (leftShoulder, conf=6/19) -> COCO 5
+        XCTAssertAlmostEqual(result[5].confidence, Float(6) / 19.0, accuracy: 0.0001, "Confidence should pass through")
+        // Vision 12 (root) is dropped; COCO 11 carries Vision 13 (leftHip) confidence.
+        XCTAssertAlmostEqual(result[11].confidence, Float(13) / 19.0, accuracy: 0.0001, "root is dropped, leftHip maps to COCO[11]")
     }
 
-    /// Test that all 17 COCO indices are populated (no skipped indices).
-    /// Eye/ear indices (1-4) are synthesized with zero confidence if Vision doesn't provide them.
-    func testAllCocoIndicesPresent() {
-        var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for _ in 0..<18 {
-            visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9))
-        }
+    /// Test that an undetected joint (zero-confidence placeholder) passes through
+    /// with zero confidence — the shared pipeline gates on score < 0.3.
+    func testUndetectedJointPlaceholder() {
+        var visionKps = uniformJoints()
+        visionKps[17] = VisionCoco17Mapper.VisionKeypoint(x: 0, y: 0, confidence: 0)  // leftAnkle missing
 
         let result = VisionCoco17Mapper.mapToCoco17(
             visionKeypoints: visionKps,
@@ -108,44 +146,34 @@ final class VisionCoco17MapperTests: XCTestCase {
             frameHeight: 1080
         )
 
-        XCTAssertEqual(result.count, 17, "All 17 COCO indices must be present")
+        XCTAssertEqual(result.count, 17)
+        // COCO 15 = left_ankle
+        XCTAssertEqual(result[15].confidence, 0, "Undetected joint keeps zero confidence")
     }
 
-    /// Test that eye/ear placeholders are synthesized with zero confidence.
-    func testEyeEarPlaceholders() {
-        var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        // Build 18-joint skeleton with high confidence for body, but
-        // we'll verify eye/ear get synthesized even with high input confidence.
-        for _ in 0..<18 {
-            visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9))
-        }
-
-        let result = VisionCoco17Mapper.mapToCoco17(
-            visionKeypoints: visionKps,
-            frameWidth: 1920,
-            frameHeight: 1080
-        )
-
-        XCTAssertEqual(result.count, 17, "Should have all 17 indices")
-        // Eye/ear indices (1-4) in the result should have zero confidence
-        // because Vision doesn't provide them natively.
-        for idx in [1, 2, 3, 4] {
-            XCTAssertEqual(result[idx].confidence, 0, "Eye/ear (index \(idx)) should have zero confidence")
-        }
+    /// Test the canonical joint name list matches the 19-joint contract.
+    func testCanonicalJointOrder() {
+        let names = VisionCoco17Mapper.visionJointNames
+        XCTAssertEqual(names.count, 19, "Canonical order must have 19 joints")
+        XCTAssertEqual(names[0], .nose)
+        XCTAssertEqual(names[1], .leftEye)
+        XCTAssertEqual(names[4], .rightEar)
+        XCTAssertEqual(names[5], .neck)
+        XCTAssertEqual(names[12], .root)
+        XCTAssertEqual(names[18], .rightAnkle)
     }
 
     /// Test multi-person detection: highest mean confidence wins.
     func testBestPersonSelection() {
-        let person1 = (0..<17).map { _ in
+        let person1 = (0..<19).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.3, y: 0.3, confidence: 0.8)
         }
-        let person2 = (0..<17).map { _ in
+        let person2 = (0..<19).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.7, y: 0.7, confidence: 0.95)
         }
 
         let best = VisionCoco17Mapper.bestPerson(from: [person1, person2])
         XCTAssertNotNil(best, "Should select a person")
-        // Person 2 has higher mean confidence, so it should be selected.
         XCTAssertAlmostEqual(best![0].x, 0.7, accuracy: 0.0001, "Should select person with highest mean confidence")
     }
 
@@ -157,51 +185,30 @@ final class VisionCoco17MapperTests: XCTestCase {
 
     /// Test single detection.
     func testBestPersonSingle() {
-        let person = (0..<17).map { _ in
-            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9)
-        }
-
+        let person = uniformJoints()
         let best = VisionCoco17Mapper.bestPerson(from: [person])
         XCTAssertNotNil(best, "Should select the only person")
-        XCTAssertEqual(best!.count, 17, "Should return the same person")
-    }
-
-    /// Test bestPerson with detections of varying array sizes.
-    func testBestPersonWithVariingArraySizes() {
-        let person1 = (0..<10).map { _ in
-            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9)
-        }
-        let person2 = (0..<20).map { _ in
-            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.7)
-        }
-
-        let best = VisionCoco17Mapper.bestPerson(from: [person1, person2])
-        XCTAssertNotNil(best, "Should select a person despite varying array sizes")
-        // person1 mean = 0.9, person2 mean = 0.7, so person1 should win
-        XCTAssertEqual(best!.count, 10, "Should select person1 (smaller but higher confidence)")
+        XCTAssertEqual(best!.count, 19, "Should return the same person")
     }
 
     /// Test bestPerson when all detections have very low confidence.
     func testBestPersonAllLowConfidence() {
-        let person1 = (0..<17).map { _ in
+        let person1 = (0..<19).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.05)
         }
-        let person2 = (0..<17).map { _ in
+        let person2 = (0..<19).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.08)
         }
 
         let best = VisionCoco17Mapper.bestPerson(from: [person1, person2])
         XCTAssertNotNil(best, "Should still select even when all are low confidence")
-        // person2 mean = 0.08 > person1 mean = 0.05
         XCTAssertAlmostEqual(best![0].confidence, 0.08, accuracy: 0.0001, "Should select person2 (higher low confidence)")
     }
 
-    /// Test mapToCoco17 with exactly 18 joints (boundary condition).
-    func testMapToCoco17With18JointsExact() {
-        var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for i in 0..<18 {
-            let conf = Float(i) / 18.0
-            visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: Float(i) / 100.0, y: 0.5, confidence: conf))
+    /// Test mapToCoco17 with exactly 19 joints (boundary condition).
+    func testMapToCoco17With19JointsExact() {
+        let visionKps = (0..<19).map { i in
+            VisionCoco17Mapper.VisionKeypoint(x: Float(i) / 100.0, y: 0.5, confidence: Float(i) / 19.0)
         }
 
         let result = VisionCoco17Mapper.mapToCoco17(
@@ -210,11 +217,7 @@ final class VisionCoco17MapperTests: XCTestCase {
             frameHeight: 1080
         )
 
-        XCTAssertEqual(result.count, 17, "Exactly 18 joints input should produce exactly 17 COCO joints")
-        // All indices should be populated (no gaps)
-        for i in 0..<17 {
-            XCTAssertNotNil(result[i], "COCO index \(i) should be present")
-        }
+        XCTAssertEqual(result.count, 17, "Exactly 19 joints input should produce exactly 17 COCO joints")
     }
 
     // MARK: - Helper

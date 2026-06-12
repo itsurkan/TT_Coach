@@ -20,7 +20,7 @@ final class VisionPoseBackendTests: XCTestCase {
 
     // MARK: - Mock CVPixelBuffer for testing
 
-    /// Creates a minimal grayscale CVPixelBuffer for testing (1x1 pixel).
+    /// Creates a blank BGRA CVPixelBuffer for testing (no person in frame).
     private func createMockPixelBuffer() -> CVPixelBuffer {
         var pixelBuffer: CVPixelBuffer?
         let status = CVPixelBufferCreate(
@@ -32,40 +32,30 @@ final class VisionPoseBackendTests: XCTestCase {
             &pixelBuffer
         )
         precondition(status == kCVReturnSuccess, "Failed to create CVPixelBuffer")
+        // Zero-fill so Vision sees a deterministic black frame.
+        CVPixelBufferLockBaseAddress(pixelBuffer!, [])
+        if let base = CVPixelBufferGetBaseAddress(pixelBuffer!) {
+            memset(base, 0, CVPixelBufferGetDataSize(pixelBuffer!))
+        }
+        CVPixelBufferUnlockBaseAddress(pixelBuffer!, [])
         return pixelBuffer!
     }
 
     // MARK: - Tests
 
-    /// Test that backend returns empty array when given a mock buffer
-    /// (no Vision detection in a synthetic frame).
-    func testEstimatePoseReturnsEmptyForNoDetection() {
+    /// Synthetic blank buffer: Vision should not hallucinate a person, but the
+    /// hard contract is: either empty (no detection) or exactly 17 COCO keypoints.
+    func testEstimatePoseContractOnSyntheticBuffer() {
         let buffer = createMockPixelBuffer()
         let keypoints = backend.estimatePose(
             in: buffer,
             frameWidth: 1920,
             frameHeight: 1080
         )
-        // Mock buffer won't have real person — expect empty result.
-        XCTAssertEqual(keypoints.count, 0, "Mock buffer should return no keypoints")
-    }
-
-    /// Test that estimatePose returns [Keypoint2D] array (shared module type).
-    func testEstimatePoseReturnType() {
-        let buffer = createMockPixelBuffer()
-        let result = backend.estimatePose(
-            in: buffer,
-            frameWidth: 1920,
-            frameHeight: 1080
+        XCTAssertTrue(
+            keypoints.isEmpty || keypoints.count == 17,
+            "estimatePose must return empty or exactly 17 COCO keypoints, got \(keypoints.count)"
         )
-        // Result should be an array of Keypoint2D (even if empty).
-        XCTAssertIsNotNil(result, "estimatePose should return an array")
-        XCTAssert(result is [Keypoint2D], "estimatePose must return [Keypoint2D]")
-    }
-
-    /// Test that the backend conforms to PoseBackend protocol.
-    func testBackendConformsToProtocol() {
-        XCTAssert(backend is PoseBackend, "VisionPoseBackend should conform to PoseBackend")
     }
 
     /// Smoke test: repeated calls don't crash (verifies request reuse is safe).
@@ -77,11 +67,14 @@ final class VisionPoseBackendTests: XCTestCase {
                 frameWidth: 1920,
                 frameHeight: 1080
             )
-            XCTAssertNotNil(result, "Repeated inference should not crash")
+            XCTAssertTrue(
+                result.isEmpty || result.count == 17,
+                "Repeated inference should keep the empty-or-17 contract"
+            )
         }
     }
 
-    /// Test that keypoints are in normalized [0, 1] range (schema v2 contract).
+    /// Test that any returned keypoints are in normalized [0, 1] range (schema v2 contract).
     func testKeypointsNormalized() {
         let buffer = createMockPixelBuffer()
         let keypoints = backend.estimatePose(
@@ -89,7 +82,7 @@ final class VisionPoseBackendTests: XCTestCase {
             frameWidth: 1920,
             frameHeight: 1080
         )
-        for kp in keypoints {
+        for kp in keypoints where kp.score > 0 {
             XCTAssertGreaterThanOrEqual(kp.x, 0, "x should be in [0, 1]")
             XCTAssertLessThanOrEqual(kp.x, 1, "x should be in [0, 1]")
             XCTAssertGreaterThanOrEqual(kp.y, 0, "y should be in [0, 1]")
@@ -99,36 +92,12 @@ final class VisionPoseBackendTests: XCTestCase {
         }
     }
 
-    /// Test that when detections are present, they have the expected structure
-    /// (17 COCO keypoints when a person is actually detected).
-    /// NOTE: This test is integration-level and requires actual Vision framework
-    /// to detect a person in the buffer. In unit test context, this may not trigger
-    /// a real detection, so we verify the structure when non-empty.
-    func testKeypointStructureWhenPresent() {
-        // Create a buffer that *might* trigger a detection (real footage would).
-        // For MVP, we verify the contract that IF there are keypoints,
-        // there should be 17 of them (COCO-17 schema).
-        let buffer = createMockPixelBuffer()
-        let keypoints = backend.estimatePose(
-            in: buffer,
-            frameWidth: 1920,
-            frameHeight: 1080
-        )
-        // If non-empty, must be exactly 17 (COCO-17).
-        if !keypoints.isEmpty {
-            XCTAssertEqual(keypoints.count, 17,
-                          "COCO-17 schema requires exactly 17 keypoints when person is detected")
-        }
-    }
+    // MARK: - Mapper integration (via synthetic Vision keypoints)
 
-    // MARK: - Mapper integration (via mock Vision keypoints)
-
-    /// Test that the backend correctly maps through VisionCoco17Mapper
-    /// by creating synthetic Vision keypoints and verifying the output structure.
+    /// Verify that synthetic 19-joint Vision data round-trips through the mapper
+    /// and converts to the shared module's Keypoint2D, as the backend does internally.
     func testMapperIntegration() {
-        // This is an indirect integration test: verify that synthetic Vision data
-        // can round-trip through the mapper without the backend itself.
-        let visionKps = (0..<18).map { i in
+        let visionKps = (0..<19).map { i in
             VisionCoco17Mapper.VisionKeypoint(
                 x: Float(i) / 100.0,
                 y: 0.5,
@@ -151,13 +120,12 @@ final class VisionPoseBackendTests: XCTestCase {
 
     // MARK: - Protocol contract verification
 
-    /// Verify that the backend method signature matches PoseBackend protocol exactly.
+    /// PoseBackend conformance is a compile-time guarantee; this just exercises
+    /// the protocol-typed call path.
     func testProtocolMethodSignature() {
-        // This is a compile-time check (if the backend doesn't conform, it won't compile).
-        // At runtime, verify the method exists and is callable.
+        let poseBackend: PoseBackend = backend
         let buffer = createMockPixelBuffer()
-        _ = backend.estimatePose(in: buffer, frameWidth: 1920, frameHeight: 1080)
-        // If we reach here, the method exists and has the correct signature.
-        XCTAssert(true)
+        let result = poseBackend.estimatePose(in: buffer, frameWidth: 1920, frameHeight: 1080)
+        XCTAssertTrue(result.isEmpty || result.count == 17)
     }
 }

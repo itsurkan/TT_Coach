@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreImage
 import Vision
 import Foundation
 
@@ -12,24 +13,12 @@ let coco17NumKeypoints = 17
 struct PoseFrame {
     let frameIndex: Int
     let timestampMs: Int64
-    let landmarks: [[String: Any]]
+    let landmarks: [VisionCoco17Mapper.VisionKeypoint]
 }
 
-/// Rounds a float to 4 decimal places.
-func roundTo4Decimals(_ value: Float) -> Float {
-    return Float(Int(value * 10000)) / 10000
-}
-
-/// Maps Vision joint index to VNHumanBodyPoseObservation.JointName.
-func jointNameForIndex(_ index: Int) -> VNHumanBodyPoseObservation.JointName {
-    let names: [VNHumanBodyPoseObservation.JointName] = [
-        .head, .neck, .nose, .leftShoulder, .rightShoulder,
-        .leftElbow, .rightElbow, .leftWrist, .rightWrist,
-        .leftHip, .rightHip, .leftKnee, .rightKnee,
-        .leftAnkle, .rightAnkle, .sternum, .spine, .pelvis
-    ]
-    precondition(index >= 0 && index < names.count, "Invalid joint index: \(index) (expected 0-\(names.count - 1))")
-    return names[index]
+/// Formats a float with exactly 4 decimal places (schema v2 contract).
+func fmt4(_ value: Float) -> String {
+    return String(format: "%.4f", value)
 }
 
 /// Extracts all frames from a video using AVAssetReader.
@@ -43,7 +32,8 @@ func extractFrames(from videoPath: String) -> [(image: CGImage, timestampMs: Int
         exit(1)
     }
 
-    guard let videoTrack = try? asset.loadTracks(withMediaType: .video).first else {
+    // Synchronous track access — deprecation warning acceptable for a CLI tool.
+    guard let videoTrack = asset.tracks(withMediaType: .video).first else {
         fputs("ERROR: no video track found in \(videoPath)\n", stderr)
         exit(1)
     }
@@ -82,11 +72,28 @@ func extractFrames(from videoPath: String) -> [(image: CGImage, timestampMs: Int
     }
 
     reader.cancelReading()
-    return frames
+
+    // AVAssetReader emits frames in DECODE order (B-frames arrive out of sequence).
+    // The drill pipeline needs a monotonic time series — sort by presentation time
+    // and renumber frame indices.
+    frames.sort { $0.timestampMs < $1.timestampMs }
+
+    // Match the RTM exporter's timestamp convention: uniform frameIndex * intervalMs.
+    // Phone footage is variable-frame-rate; raw presentation times carry gaps that
+    // the ms-window stroke detector reads as slow strokes. The RTM golden fixtures
+    // use uniform synthetic timestamps, so parity requires the same time base.
+    let durationMs = frames.last?.timestampMs ?? 0
+    let intervalMs = frames.count > 1
+        ? Int64((Double(durationMs) / Double(frames.count - 1)).rounded())
+        : 1
+    return frames.enumerated().map { (i, f) in
+        (image: f.image, timestampMs: Int64(i) * intervalMs, frameIndex: i)
+    }
 }
 
 /// Detects human body pose in a CGImage using Vision framework.
-/// Returns array of detections, each as array of [VisionKeypoint] (one per joint 0-17).
+/// Returns array of detections, each as 19 keypoints in the canonical Vision
+/// joint order (`VisionCoco17Mapper.visionJointNames`).
 func detectPose(in cgImage: CGImage) -> [[VisionCoco17Mapper.VisionKeypoint]] {
     let request = VNDetectHumanBodyPoseRequest()
     let handler = VNImageRequestHandler(cgImage: cgImage)
@@ -100,63 +107,64 @@ func detectPose(in cgImage: CGImage) -> [[VisionCoco17Mapper.VisionKeypoint]] {
     var detections: [[VisionCoco17Mapper.VisionKeypoint]] = []
 
     for observation in request.results ?? [] {
-        guard let bodyPoseObservation = observation as? VNHumanBodyPoseObservation else { continue }
-
-        // Vision provides joints 0-17 (18 total). Collect them in order.
-        var visionKeypoints: [VisionCoco17Mapper.VisionKeypoint] = []
-        for jointIndex in 0..<18 {
-            let jointName = jointNameForIndex(jointIndex)
-            let point = bodyPoseObservation.recognizedPoints[jointName]
-
-            if let point = point {
-                visionKeypoints.append(
-                    VisionCoco17Mapper.VisionKeypoint(
-                        x: Float(point.x),
-                        y: Float(point.y),
-                        confidence: Float(point.confidence)
-                    )
+        let visionKeypoints = VisionCoco17Mapper.visionJointNames.map { jointName -> VisionCoco17Mapper.VisionKeypoint in
+            if let point = try? observation.recognizedPoint(jointName) {
+                return VisionCoco17Mapper.VisionKeypoint(
+                    x: Float(point.location.x),
+                    y: Float(point.location.y),
+                    confidence: Float(point.confidence)
                 )
             } else {
-                visionKeypoints.append(
-                    VisionCoco17Mapper.VisionKeypoint(x: 0, y: 0, confidence: 0)
-                )
+                return VisionCoco17Mapper.VisionKeypoint(x: 0, y: 0, confidence: 0)
             }
         }
-
         detections.append(visionKeypoints)
     }
 
     return detections
 }
 
-/// Builds a schema-v2 pose JSON dictionary.
-func buildPoseJSON(
+/// Serializes schema-v2 pose JSON by hand. JSONSerialization cannot guarantee
+/// key order, but the KMP parser (PoseJsonV2Parser) tripwires on landmark
+/// field-order drift — landmarks MUST serialize as {index, x, y, score}.
+func buildPoseJSONString(
     videoName: String,
     videoWidth: Int,
     videoHeight: Int,
     videoDurationMs: Int64,
     frames: [PoseFrame]
-) -> [String: Any] {
-    var data: [String: Any] = [
-        "schemaVersion": schemaVersion,
-        "topology": "coco17",
-        "model": "vision-bodypose",
-        "videoName": videoName,
-        "intervalMs": 1,  // Full FPS export
-        "totalFrames": frames.count,
-        "videoDurationMs": videoDurationMs,
-        "videoWidth": videoWidth,
-        "videoHeight": videoHeight,
-        "exportTimestamp": Int64(Date().timeIntervalSince1970 * 1000),
-        "frames": frames.map { frame -> [String: Any] in
-            [
-                "frameIndex": frame.frameIndex,
-                "timestampMs": frame.timestampMs,
-                "landmarks": frame.landmarks
-            ]
+) -> String {
+    // Mean frame interval, like the RTM exporter (17 ms @ 60 fps, 20 ms @ 50 fps).
+    // Timestamps are uniform (frameIndex * intervalMs), so this divides exactly.
+    let intervalMs = frames.count > 1
+        ? Int((Double(videoDurationMs) / Double(frames.count - 1)).rounded())
+        : 1
+    var out = "{\n"
+    out += "  \"schemaVersion\": \(schemaVersion),\n"
+    out += "  \"topology\": \"coco17\",\n"
+    out += "  \"model\": \"vision-bodypose\",\n"
+    out += "  \"videoName\": \"\(videoName)\",\n"
+    out += "  \"intervalMs\": \(intervalMs),\n"
+    out += "  \"totalFrames\": \(frames.count),\n"
+    out += "  \"videoDurationMs\": \(videoDurationMs),\n"
+    out += "  \"videoWidth\": \(videoWidth),\n"
+    out += "  \"videoHeight\": \(videoHeight),\n"
+    out += "  \"exportTimestamp\": \(Int64(Date().timeIntervalSince1970 * 1000)),\n"
+    out += "  \"frames\": [\n"
+    for (fi, frame) in frames.enumerated() {
+        out += "    {\"frameIndex\": \(frame.frameIndex), \"timestampMs\": \(frame.timestampMs), \"landmarks\": ["
+        if !frame.landmarks.isEmpty {
+            out += "\n"
+            for (li, kp) in frame.landmarks.enumerated() {
+                out += "      {\"index\": \(li), \"x\": \(fmt4(kp.x)), \"y\": \(fmt4(kp.y)), \"score\": \(fmt4(kp.confidence))}"
+                out += li < frame.landmarks.count - 1 ? ",\n" : "\n    "
+            }
         }
-    ]
-    return data
+        out += "]}"
+        out += fi < frames.count - 1 ? ",\n" : "\n"
+    }
+    out += "  ]\n}\n"
+    return out
 }
 
 /// Main entry point.
@@ -204,23 +212,15 @@ for (index, frameData) in frames.enumerated() {
     let detections = detectPose(in: frameData.image)
 
     // Pick the best person if multiple detected.
-    var landmarks: [[String: Any]] = []
+    var landmarks: [VisionCoco17Mapper.VisionKeypoint] = []
     if let bestDetection = VisionCoco17Mapper.bestPerson(from: detections) {
         let mapped = VisionCoco17Mapper.mapToCoco17(
             visionKeypoints: bestDetection,
             frameWidth: videoWidth,
             frameHeight: videoHeight
         )
-
         if mapped.count == coco17NumKeypoints {
-            landmarks = mapped.enumerated().map { (idx, kp) -> [String: Any] in
-                [
-                    "index": idx,
-                    "x": Double(roundTo4Decimals(kp.x)),
-                    "y": Double(roundTo4Decimals(kp.y)),
-                    "score": Double(roundTo4Decimals(kp.confidence))
-                ]
-            }
+            landmarks = mapped
         }
     }
 
@@ -240,7 +240,7 @@ for (index, frameData) in frames.enumerated() {
 fputs("  processed \(poseFrames.count) frames\n", stderr)
 
 // Build and write JSON.
-let poseJSON = buildPoseJSON(
+let poseJSONString = buildPoseJSONString(
     videoName: videoName,
     videoWidth: videoWidth,
     videoHeight: videoHeight,
@@ -252,8 +252,7 @@ let outPath = videoURL.deletingLastPathComponent()
     .appendingPathComponent(videoBase + "_poses_vision.json")
 
 do {
-    let jsonData = try JSONSerialization.data(withJSONObject: poseJSON, options: [.prettyPrinted, .sortedKeys])
-    try jsonData.write(to: outPath, options: .atomic)
+    try Data(poseJSONString.utf8).write(to: outPath, options: .atomic)
     fputs("\n-> \(outPath.path)\n", stderr)
 
     let detectedCount = poseFrames.filter { !$0.landmarks.isEmpty }.count

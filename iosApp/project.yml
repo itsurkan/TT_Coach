@@ -31,7 +31,9 @@ targets:
     type: application
     platform: iOS
     sources:
-      - TTCoach
+      - path: TTCoach
+        excludes:
+          - "**/*Tests.swift"
     info:
       path: TTCoach/Info.plist
       properties:
