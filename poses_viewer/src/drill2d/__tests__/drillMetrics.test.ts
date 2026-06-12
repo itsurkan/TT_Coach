@@ -12,6 +12,7 @@
 import { describe, expect, it } from 'vitest'
 import { extractAtFrame, extractAtPeak, METRIC, ALL_KEYS } from '../drillMetrics'
 import { Coco17, Keypoint2D, PoseFrame2D } from '../types'
+import { METRIC_KEYS } from '../referenceStandard'
 
 const K = (x: number, y: number, score = 1): Keypoint2D => ({ x, y, score })
 
@@ -117,5 +118,11 @@ describe('extractAtPeak', () => {
     expect(ALL_KEYS).toContain(METRIC.KNEE_BEND)
     expect(ALL_KEYS).toContain(METRIC.TORSO_LEAN)
     expect(ALL_KEYS).toContain(METRIC.SHOULDER_TILT)
+  })
+})
+
+describe('metric key consistency', () => {
+  it('ALL_KEYS matches referenceStandard.METRIC_KEYS (no drift between the two definitions)', () => {
+    expect([...ALL_KEYS].sort()).toEqual([...METRIC_KEYS].sort())
   })
 })
