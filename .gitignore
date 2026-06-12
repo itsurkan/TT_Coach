@@ -34,3 +34,6 @@ node_modules/
 *.tsbuildinfo
 .kotlin/errors/*
 tmp/*
+
+# iOS RTMPose ONNX models (fetched via iosApp/TTCoach/Models/fetch_models.sh)
+iosApp/TTCoach/Models/*.onnx
