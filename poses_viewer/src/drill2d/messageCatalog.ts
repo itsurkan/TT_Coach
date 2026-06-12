@@ -38,6 +38,16 @@ function phrase(metricKey: string, high: boolean): string {
   }
 }
 
-export function positiveMessage(): string {
-  return 'Good rep — close to the standard'
+/** EXP-6: rotate positive reinforcement so a clean streak isn't the same line repeated. */
+const POSITIVE_MESSAGES = [
+  'Good rep — close to the standard',
+  'Nice — that one looked solid',
+  'Clean technique, keep it going',
+  "That's the shape — repeat it",
+  'Looking sharp — stay with it',
+]
+
+export function positiveMessage(index = 0): string {
+  const n = POSITIVE_MESSAGES.length
+  return POSITIVE_MESSAGES[((index % n) + n) % n]
 }

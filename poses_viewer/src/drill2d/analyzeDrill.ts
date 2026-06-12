@@ -199,6 +199,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   // nagging it every rep. The cadence rate-limit still applies on top.
   const feedback: SpokenFeedback[] = []
   let lastMetric: string | null = null
+  let positiveCount = 0 // EXP-6: rotate positive phrasings
   const lastSpokenMsByMetric: Record<string, number> = {}
   for (const rep of repAnalyses) {
     if (!rep.placementOk) continue // silent rep; UI surfaces the placement flag
@@ -210,7 +211,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
       lastMetric = cue.metricKey
       lastSpokenMsByMetric[cue.metricKey] = atMs
     } else if (rep.cues.length === 0 && Object.keys(rep.metrics).length > 0 && cadence.offerPositive(atMs)) {
-      feedback.push({ timestampMs: atMs, message: positiveMessage(), cue: null })
+      feedback.push({ timestampMs: atMs, message: positiveMessage(positiveCount++), cue: null })
     }
   }
 

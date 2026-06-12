@@ -137,6 +137,14 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 - **Verdict:** less false-precision nagging, more deserved encouragement. Detection untouched.
 - Commit: `feat(viewer): EXP-5 suppress trivial sub-5deg deviations`.
 
+### EXP-6 — Positive-message variety ✅ KEEP
+- **Files:** `messageCatalog.ts` (`POSITIVE_MESSAGES` pool + indexed `positiveMessage`), `analyzeDrill.ts` (rotating `positiveCount`).
+- **Why:** EXP-5 made clean reps earn positives, but `positiveMessage()` returned one fixed string
+  → ivan heard "Good rep" ×4 (the repetition EXP-1 fixed for corrections).
+- **Visual result (ivan):** positives now rotate — "Good rep…", "Nice — that one looked solid",
+  "Clean technique, keep it going", "That's the shape — repeat it". ✅
+- Commit: `feat(viewer): EXP-6 positive-message variety`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").
