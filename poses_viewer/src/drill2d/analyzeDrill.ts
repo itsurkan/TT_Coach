@@ -36,6 +36,9 @@ export const UNRELIABLE_IQR_DEG = 20
 /** Need at least this many measured reps before judging a metric's reliability. */
 export const MIN_REPS_FOR_RELIABILITY = 4
 
+// Intentional nearest-rank quantile (NOT Tukey/linear-interpolated). UNRELIABLE_IQR_DEG
+// is tuned against THIS estimator, so don't switch to interpolation without re-tuning.
+// Empty input is unreachable (callers gate on >= MIN_REPS_FOR_RELIABILITY).
 function quantile(sorted: number[], p: number): number {
   if (sorted.length === 0) return NaN
   return sorted[Math.min(sorted.length - 1, Math.floor(p * sorted.length))]
@@ -189,6 +192,8 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   // degrees we can stand behind, so we DROP cues for any metric whose cross-rep IQR
   // exceeds UNRELIABLE_IQR_DEG. Consistent-but-off metrics (video_3 lean, IQR≈1) are
   // untouched — they're real systematic faults worth coaching.
+  // Safe to mutate rep.cues: repAnalyses is rebuilt fresh on every analyzeDrill() call
+  // (reps.map above), so no RepAnalysis reference survives to be double-filtered.
   const unreliable = unreliableMetricKeys(repAnalyses)
   if (unreliable.size > 0) {
     for (const rep of repAnalyses) {

@@ -186,6 +186,21 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   Additive; detection/per-rep feedback unchanged.
 - Commit: `feat(viewer): EXP-9 holistic post-set report`.
 
+### Batch-4 — Code-review pass + test hardening ✅
+- Dispatched a senior-reviewer subagent over `2d..2d-experiments` (source only). Verdict:
+  **Ready to merge — with fixes.** It confirmed: detection genuinely untouched (EXP logic is all
+  downstream of finalized `reps`), no module-level state leaks (all per-call), strength∧unreliable
+  exclusion correct, React wiring crash-safe, `positiveMessage` negative-index guard correct. It
+  *withdrew* its one behavioral concern after tracing (variety/cadence interaction is correct).
+- **One legit gap fixed:** the new pure helpers had zero direct tests (266/266 only proved no
+  detection regression). Added `__tests__/analyzeExperiments.test.ts` — **22 tests** covering the
+  boundary cases: IQR exactly 20° (strict `>`), `MIN_REPS_FOR_RELIABILITY`, strength fraction
+  exactly 0.8, `REMINDER_INTERVAL_MS` boundary, focus tie-breaks, empty/negative inputs.
+- Added two clarifying comments (quantile is intentional nearest-rank tuned to the threshold;
+  `rep.cues` mutation is safe because `repAnalyses` is rebuilt per call). **Full suite 288/288 pass.**
+- EXP-8 `torso_lean lo:15` reaffirmed as provisional (may emit "lean more" on truly-upright reps;
+  re-tune on protocol footage) — already documented in `referenceStandard.ts`.
+
 ### Batch-3 validations (no code change)
 - **Camera-angle adaptation confirmed:** table_v7 at its true yaw=45° → `placementWarn: true` and
   feedback **suppressed** ("fix the camera angle"). The "adapt to camera angle" deliverable holds —
