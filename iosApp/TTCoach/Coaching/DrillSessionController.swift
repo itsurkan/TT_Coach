@@ -68,7 +68,7 @@ final class DrillSessionController: ObservableObject {
     private let analysisIntervalS: TimeInterval = 3.0
 
     init(
-        poseBackend: PoseBackend = StubRTMPoseBackend(),
+        poseBackend: PoseBackend = VisionPoseBackend(),
         lang: FeedbackLang = .en,
         handedness: Handedness = .right
     ) {
@@ -115,16 +115,17 @@ final class DrillSessionController: ObservableObject {
 
     func finishCalibration() {
         guard mode == .calibrating else { return }
-        mode = .idle
 
         guard frames.count > 1 else {
             statusText = "No frames captured — is the pose backend wired in?"
+            mode = .idle
             return
         }
 
         // Kotlin defaults aren't exported to Swift — pass everything explicitly,
         // using the same values as the Kotlin signature defaults.
-        let baseline = DrillCalibrator.shared.calibrate(
+        // Use calibrateChecked() for safe exception handling (M2.1).
+        let outcome = DrillCalibrator.shared.calibrateChecked(
             sequence: makeSequence(),
             drillType: "forehand_drive",
             createdAtMs: Int64(Date().timeIntervalSince1970 * 1000),
@@ -135,14 +136,28 @@ final class DrillSessionController: ObservableObject {
             cameraYawDeg: nil,        // per-rep auto-estimate from the PRE-stroke window
             maxCameraYawDeg: DrillCalibrator.shared.DEFAULT_MAX_CAMERA_YAW_DEG
         )
-        // CAUTION: DrillCalibrator throws CameraPlacementException /
-        // IllegalArgumentException on bad input. Kotlin exceptions from
-        // non-@Throws functions terminate Swift callers — see
-        // IOS_PORT_REPORT.md ("@Throws wrapper") before shipping this path.
-        self.baseline = baseline
-        hasBaseline = true
-        statusText = "Baseline ready (\(baseline.repCount) reps, " +
-                     "quality \(String(format: "%.2f", baseline.qualityScore)))"
+
+        // Pattern-match on CalibrationOutcome sealed class (M2.1).
+        // Kotlin-Native exports sealed classes as ObjC class hierarchy.
+        if let success = outcome as? CalibrationOutcomeSuccess {
+            // Happy path: save baseline, activate it, move to coaching
+            self.baseline = success.baseline
+            hasBaseline = true
+            mode = .coaching
+            statusText = "Baseline ready (\(success.baseline.repCount) reps, " +
+                         "quality \(String(format: "%.2f", success.baseline.qualityScore)))"
+            startCoaching()
+        } else if let placementError = outcome as? CalibrationOutcomePlacementError {
+            // Camera placement issue — ask user to reposition
+            statusText = "Camera placement issue — repositioning needed"
+            speech.speak(placementError.message)
+            mode = .calibrating  // Stay in calibration, allow retry
+        } else if let failed = outcome as? CalibrationOutcomeFailed {
+            // Other error — suggest retry
+            statusText = "Calibration failed: \(failed.message)"
+            speech.speak("Calibration failed. Try again.")
+            mode = .calibrating  // Stay in calibration, allow retry from start
+        }
     }
 
     func startCoaching() {
