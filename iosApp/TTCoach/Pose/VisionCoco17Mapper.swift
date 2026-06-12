@@ -104,15 +104,21 @@ public struct VisionCoco17Mapper {
         return coco17.compactMap { $0 }
     }
 
+    /// Computes the mean confidence of a detection array.
+    /// - Parameter keypoints: Array of VisionKeypoint.
+    /// - Returns: Mean confidence value.
+    private static func meanConfidence(_ keypoints: [VisionKeypoint]) -> Float {
+        guard !keypoints.isEmpty else { return 0 }
+        return keypoints.map { $0.confidence }.reduce(0, +) / Float(keypoints.count)
+    }
+
     /// Selects the best person from multiple detections based on mean confidence.
     /// - Parameter detections: Array of [VisionKeypoint] arrays (one per detected person).
     /// - Returns: The detection with the highest mean confidence, or nil if detections is empty.
     public static func bestPerson(from detections: [[VisionKeypoint]]) -> [VisionKeypoint]? {
         guard !detections.isEmpty else { return nil }
         return detections.max { a, b in
-            let meanConfA = a.map { $0.confidence }.reduce(0, +) / Float(a.count)
-            let meanConfB = b.map { $0.confidence }.reduce(0, +) / Float(b.count)
-            return meanConfA < meanConfB
+            meanConfidence(a) < meanConfidence(b)
         }
     }
 }
