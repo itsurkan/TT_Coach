@@ -139,7 +139,7 @@ final class DrillSessionController: ObservableObject {
 
         // Pattern-match on CalibrationOutcome sealed class (M2.1).
         // Kotlin-Native exports sealed classes as ObjC class hierarchy.
-        if let success = outcome as? CalibrationOutcomeSuccess {
+        if let success = outcome as? CalibrationOutcome.Success {
             // Happy path: save baseline, activate it, move to coaching
             self.baseline = success.baseline
             hasBaseline = true
@@ -147,12 +147,12 @@ final class DrillSessionController: ObservableObject {
             statusText = "Baseline ready (\(success.baseline.repCount) reps, " +
                          "quality \(String(format: "%.2f", success.baseline.qualityScore)))"
             startCoaching()
-        } else if let placementError = outcome as? CalibrationOutcomePlacementError {
+        } else if let placementError = outcome as? CalibrationOutcome.PlacementError {
             // Camera placement issue — ask user to reposition
             statusText = "Camera placement issue — repositioning needed"
             speech.speak(placementError.message)
             mode = .calibrating  // Stay in calibration, allow retry
-        } else if let failed = outcome as? CalibrationOutcomeFailed {
+        } else if let failed = outcome as? CalibrationOutcome.Failed {
             // Other error — suggest retry
             statusText = "Calibration failed: \(failed.message)"
             speech.speak("Calibration failed. Try again.")

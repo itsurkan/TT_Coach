@@ -68,6 +68,9 @@ targets:
       - path: TTCoach/Pose
         includes:
           - "*Tests.swift"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: TTCoach
 
