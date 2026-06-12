@@ -109,9 +109,16 @@ targets:
     deploymentTarget: "14.0"
     sources:
       - RTMPoseExport
+      # The real exporter composes the same pipeline as the in-app backend. It does
+      # NOT import RTMPoseBackend/TTCoachShared (TTCoachShared is an iOS-only KMP
+      # framework), so it pulls the ORT-backed stages + their pure math directly.
       - path: TTCoach/Pose
         includes:
           - ORTSessionFactory.swift
+          - RTMPoseMath.swift
+          - PixelBufferSampler.swift
+          - YoloxDetector.swift
+          - RtmposeEstimator.swift
     dependencies:
       - package: onnxruntime
         product: onnxruntime
