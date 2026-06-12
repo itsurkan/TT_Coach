@@ -67,8 +67,22 @@ final class DrillSessionController: ObservableObject {
     /// Re-run the shared batch analyzer this often while coaching.
     private let analysisIntervalS: TimeInterval = 3.0
 
+    /// Default pose backend: RTMPose (desktop-golden parity). Falls back to Apple
+    /// Vision if the ONNX models can't load (missing bundle resources / ORT
+    /// unavailable) so the app still runs rather than crashing. A throwing init
+    /// can't be a default-argument value, hence this factory.
+    nonisolated static func makeDefaultBackend() -> PoseBackend {
+        do {
+            return try RTMPoseBackend()
+        } catch {
+            print("[DrillSessionController] RTMPoseBackend unavailable (\(error)); " +
+                  "falling back to VisionPoseBackend.")
+            return VisionPoseBackend()
+        }
+    }
+
     init(
-        poseBackend: PoseBackend = VisionPoseBackend(),
+        poseBackend: PoseBackend = DrillSessionController.makeDefaultBackend(),
         lang: FeedbackLang = .en,
         handedness: Handedness = .right
     ) {
