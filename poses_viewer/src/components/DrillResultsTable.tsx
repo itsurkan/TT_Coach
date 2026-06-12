@@ -34,17 +34,23 @@ interface Props {
   enabledMetrics: Set<string>
   selectedIndex: number | null
   onSelect: (index: number) => void
+  /** EXP-4: metric keys flagged as too noisy to coach (shown muted, not flagged). */
+  unreliableMetrics?: string[]
 }
 
-export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect }: Props) {
+export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [] }: Props) {
   const cols = ALL_KEYS.filter(k => enabledMetrics.has(k))
+  const noisy = new Set(unreliableMetrics)
   return (
     <table className="w-full text-xs border-collapse">
       <thead>
         <tr className="text-neutral-400 text-left">
           <th className="py-1 pr-2">#</th>
           {cols.map(k => (
-            <th key={k} className="py-1 px-2">{METRIC_LABEL[k] ?? k}</th>
+            <th key={k} className="py-1 px-2">
+              {METRIC_LABEL[k] ?? k}
+              {noisy.has(k) && <span className="text-neutral-500" title="Нестабільна метрика — підказки приглушено (EXP-2)"> ~шум</span>}
+            </th>
           ))}
           <th className="py-1 px-2">Підказка</th>
         </tr>
@@ -62,6 +68,14 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
               {cols.map(k => {
                 const v = rep.metrics[k]
                 const status = metricStatus(v, standard.ranges[k])
+                // EXP-4: a noisy metric's value is shown muted/struck — present but not trusted.
+                if (noisy.has(k)) {
+                  return (
+                    <td key={k} className="py-1 px-2 text-neutral-600 line-through" title="Нестабільна метрика — приглушено">
+                      {v === undefined ? '—' : `${Math.round(v)}°`}
+                    </td>
+                  )
+                }
                 return (
                   <td key={k} className={`py-1 px-2 ${STATUS_CLASS[status]}`}>
                     {v === undefined ? '—' : `${Math.round(v)}° ${status === 'ok' ? '' : `(${status})`}`}

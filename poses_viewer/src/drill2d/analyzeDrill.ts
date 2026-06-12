@@ -120,6 +120,9 @@ export interface DrillAnalysisReport {
   forwardRepCount: number
   /** EXP-3: one-line "what to work on" for the whole set. */
   focus: SessionFocus
+  /** EXP-2/4: metric keys whose cross-rep spread made them untrustworthy (cues dropped,
+   *  values shown but flagged as noisy in the UI). */
+  unreliableMetrics: string[]
 }
 
 export interface DrillAnalysisConfig {
@@ -219,6 +222,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     rawPeakCount: rawStrokes.length,
     forwardRepCount: reps.length,
     focus: sessionFocus(repAnalyses),
+    unreliableMetrics: [...unreliable],
   }
 }
 

@@ -97,6 +97,14 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   "don't re-teach, give a clear focus" positioning. Additive; per-rep table/feedback unchanged.
 - Commit: `feat(viewer): EXP-3 session focus summary`.
 
+### EXP-4 — Mark unreliable metrics in the results table (EXP-2b) ✅ KEEP
+- **Files:** `analyzeDrill.ts` (`report.unreliableMetrics`), `DrillResultsTable.tsx`, `StrokesPage.tsx`.
+- **Change:** the metrics EXP-2 suppressed are now shown muted + struck-through with a "~шум"
+  header tag, so a displayed 43° elbow no longer reads as a trustworthy measurement.
+- **Visual result:** andrii elbow column → grey/strikethrough + "~шум"; reliable columns
+  keep their over/under colour. Honest UI: value present, but visibly not trusted. ✅
+- Commit: `feat(viewer): EXP-4 mark unreliable metrics in results table`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").

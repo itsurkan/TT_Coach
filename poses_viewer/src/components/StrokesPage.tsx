@@ -316,6 +316,7 @@ export default function StrokesPage() {
             reps={report.reps}
             standard={REFERENCE_STANDARDS[drillType]}
             enabledMetrics={enabledMetrics}
+            unreliableMetrics={report.unreliableMetrics}
             selectedIndex={selectedIdx}
             onSelect={i => {
               setSelectedIdx(i)
