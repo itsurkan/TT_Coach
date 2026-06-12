@@ -40,10 +40,40 @@ export default function StrokesPage() {
   const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
   const [feedbackMode, setFeedbackMode] = useState<FeedbackMode>('audio')
   const videoRef = useRef<HTMLVideoElement>(null)
+  // EXP-7: gate the calibration save until the load for the current base has applied,
+  // so switching videos doesn't write the old yaw to the new video's key.
+  const calibAppliedRef = useRef('')
 
   useEffect(() => {
     fetch('/api/videos').then(r => (r.ok ? r.json() : [])).then(setVideos).catch(() => setVideos([]))
   }, [])
+
+  // EXP-7: per-video camera-angle + handedness persistence. Selecting a video restores
+  // its saved calibration (the manual L-25 angle you defined once); changing the knobs
+  // saves it back. Keyed by video base in localStorage.
+  useEffect(() => {
+    if (!base) return
+    let yaw = 0
+    let hand: Handedness = 'right'
+    try {
+      const raw = localStorage.getItem(`strokes_calib_${base}`)
+      if (raw) {
+        const c = JSON.parse(raw)
+        if (typeof c.yaw === 'number') yaw = c.yaw
+        if (c.hand === 'left' || c.hand === 'right') hand = c.hand
+      }
+    } catch { /* ignore malformed storage */ }
+    setYawDeg(yaw)
+    setHandedness(hand)
+    calibAppliedRef.current = base
+  }, [base])
+
+  useEffect(() => {
+    if (!base || calibAppliedRef.current !== base) return
+    try {
+      localStorage.setItem(`strokes_calib_${base}`, JSON.stringify({ yaw: yawDeg, hand: handedness }))
+    } catch { /* ignore quota/availability errors */ }
+  }, [base, yawDeg, handedness])
 
   useEffect(() => {
     if (!base) { setSeq(null); return }

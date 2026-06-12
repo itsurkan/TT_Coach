@@ -155,9 +155,17 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   "Clean technique, keep it going", "That's the shape — repeat it". ✅
 - Commit: `feat(viewer): EXP-6 positive-message variety`.
 
-### EXP-7 — (deferred) per-video camera-angle persistence
-- Idea: remember yaw+handedness per video in localStorage so calibration sticks. Deferred —
-  all usable footage is ~0° so low visible payoff; revisit if angled footage matters.
+### EXP-7 — Per-video camera-angle + handedness persistence ✅ KEEP
+- **File:** `StrokesPage.tsx` (load/save effects keyed by video base in localStorage,
+  `strokes_calib_<base>`; a `calibAppliedRef` gates the save so switching videos can't write the
+  old yaw to the new key).
+- **Why:** operationalizes the "define the camera angle once, adapt analysis" deliverable — the
+  manual L-25 angle (and handedness) you set per video now sticks instead of resetting each visit.
+- **Verified (CDP round-trip):** set andrii yaw=12 → saved `{"yaw":12,"hand":"right"}`; switch to
+  video_3 → yaw resets to its default 0; switch back to andrii → yaw restored to 12. ✅
+- **Safety:** measurement tools set yaw explicitly so goldens are unaffected (andrii 23/15/15
+  intact, 288/288 tests pass). Storage errors are swallowed.
+- Commit: `feat(viewer): EXP-7 per-video calibration persistence`.
 
 ### EXP-8 — Research-grounded torso_lean / shoulder_tilt ranges ✅ KEEP
 - **File:** `referenceStandard.ts`. Background research (cited, see commit) found NO TT study
