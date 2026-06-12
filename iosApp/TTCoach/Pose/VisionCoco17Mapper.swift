@@ -93,10 +93,12 @@ public struct VisionCoco17Mapper {
         // Fill in missing eye/ear landmarks (COCO indices 1-4) with zero-confidence placeholders.
         // This satisfies schema v2 requirement of exactly 17 keypoints while ensuring
         // the shared pipeline's angle functions ignore them (score < 0.3 gate).
-        if coco17[1] == nil { coco17[1] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // left_eye
-        if coco17[2] == nil { coco17[2] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // right_eye
-        if coco17[3] == nil { coco17[3] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // left_ear
-        if coco17[4] == nil { coco17[4] = VisionKeypoint(x: 0, y: 0, confidence: 0) }  // right_ear
+        let placeholder = VisionKeypoint(x: 0, y: 0, confidence: 0)
+        for idx in 1...4 {
+            if coco17[idx] == nil {
+                coco17[idx] = placeholder
+            }
+        }
 
         // Ensure all 17 COCO indices are now populated.
         guard coco17.allSatisfy({ $0 != nil }) else { return [] }
