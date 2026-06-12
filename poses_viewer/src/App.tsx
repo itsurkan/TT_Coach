@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef, Fragment } from 'react'
+import { useState, useEffect, useCallback, useRef, Fragment, useMemo } from 'react'
 import { Film, Volume2, VolumeX } from 'lucide-react'
-import { Landmark, PosesBallData, Contact, ContactsData, FrameLabel, LabelStatus, LabelsData, CropConfig, TrajectorySegment, TableFrameLabel, TableLabelsData, TABLE_KEYPOINT_COUNT } from './types'
+import { Landmark, PosesBallData, Contact, ContactsData, FrameLabel, LabelStatus, LabelsData, CropConfig, TrajectorySegment, TableFrameLabel, TableLabelsData, TABLE_KEYPOINT_COUNT, Frame } from './types'
 import { segmentTrajectory, predictTrajectory, type PredictiveTrajectory } from './utils/trajectoryPipeline'
 import { predictTrajectoryV2, type PredictiveTrajectoryV2 } from './utils/trajectoryPipelineV2'
 import { predictTrajectoryV3, type PredictiveTrajectoryV3 } from './utils/trajectoryPipelineV3'
@@ -503,47 +503,31 @@ export default function App() {
     }
   }, [])
 
+  /** Factory for creating pose fetchers with common logic. */
+  const createPoseFetcher = (
+    setter: (data: PosesBallData | null) => void,
+    suffix: string
+  ) =>
+    useCallback(async (base: string) => {
+      setter(null)
+      try {
+        const res = await fetch(`/videos/${base}/${base}_${suffix}.json`)
+        if (!res.ok) return
+        const json: unknown = await res.json()
+        setter(normalizeData(json))
+      } catch {
+        // poses file is optional
+      }
+    }, [])
+
   /** Fetch RTMPose schema-v2 poses JSON (silently ignores if missing). */
-  const fetchRtmPoses = useCallback(async (base: string) => {
-    setRtmData(null)
-    const url = `/videos/${base}/${base}_poses_rtm.json`
-    try {
-      const res = await fetch(url)
-      if (!res.ok) return
-      const json: unknown = await res.json()
-      setRtmData(normalizeData(json))
-    } catch {
-      // rtm poses file is optional
-    }
-  }, [])
+  const fetchRtmPoses = createPoseFetcher(setRtmData, 'poses_rtm')
 
   /** Fetch Vision schema-v2 poses JSON (silently ignores if missing). */
-  const fetchVisionPoses = useCallback(async (base: string) => {
-    setVisionData(null)
-    const url = `/videos/${base}/${base}_poses_vision.json`
-    try {
-      const res = await fetch(url)
-      if (!res.ok) return
-      const json: unknown = await res.json()
-      setVisionData(normalizeData(json))
-    } catch {
-      // vision poses file is optional
-    }
-  }, [])
+  const fetchVisionPoses = createPoseFetcher(setVisionData, 'poses_vision')
 
   /** Fetch MediaPipe schema-v1 poses JSON (silently ignores if missing). */
-  const fetchMediapipePoses = useCallback(async (base: string) => {
-    setMediapipeData(null)
-    const url = `/videos/${base}/${base}_poses.json`
-    try {
-      const res = await fetch(url)
-      if (!res.ok) return
-      const json: unknown = await res.json()
-      setMediapipeData(normalizeData(json))
-    } catch {
-      // mediapipe poses file is optional
-    }
-  }, [])
+  const fetchMediapipePoses = createPoseFetcher(setMediapipeData, 'poses')
 
   /** Fetch ball_v5 JSON (silently ignores if missing). */
   const fetchBallV5 = useCallback(async (base: string) => {
@@ -1080,56 +1064,45 @@ export default function App() {
   const currentContact = contacts?.contacts.find(c => c.frameIndex === frameIndex) ?? null
   const ball  = frame?.ball ?? null
 
-  // Find matching pose frame index by timestampMs for the active source
-  const activePoseFrameIdx = (() => {
-    if (!activePoseData || !frame) return -1
+  /** Find the closest frame by timestampMs within a tolerance. */
+  const findClosestFrameIndex = (
+    frames: Frame[] | undefined,
+    targetTimestampMs: number,
+    intervalMs?: number
+  ): number => {
+    if (!frames || frames.length === 0) return -1
     let best = 0
     let bestDiff = Infinity
-    for (let i = 0; i < activePoseData.frames.length; i++) {
-      const diff = Math.abs(activePoseData.frames[i].timestampMs - frame.timestampMs)
+    for (let i = 0; i < frames.length; i++) {
+      const diff = Math.abs(frames[i].timestampMs - targetTimestampMs)
       if (diff < bestDiff) { bestDiff = diff; best = i }
     }
-    return bestDiff < (activePoseData.intervalMs ?? 200) ? best : -1
-  })()
+    return bestDiff < (intervalMs ?? 200) ? best : -1
+  }
+
+  // Find matching pose frame indices by timestampMs (memoized to avoid recalc on unrelated state changes)
+  const activePoseFrameIdx = useMemo(
+    () => frame ? findClosestFrameIndex(activePoseData?.frames, frame.timestampMs, activePoseData?.intervalMs) : -1,
+    [frame?.timestampMs, activePoseData]
+  )
   const activePoseFrame = activePoseFrameIdx >= 0 ? activePoseData!.frames[activePoseFrameIdx] : null
 
-  // Find matching RTM pose frame index by timestampMs (legacy, kept for backward compat)
-  const rtmFrameIdx = (() => {
-    if (!rtmData || !frame) return -1
-    let best = 0
-    let bestDiff = Infinity
-    for (let i = 0; i < rtmData.frames.length; i++) {
-      const diff = Math.abs(rtmData.frames[i].timestampMs - frame.timestampMs)
-      if (diff < bestDiff) { bestDiff = diff; best = i }
-    }
-    return bestDiff < (rtmData.intervalMs ?? 200) ? best : -1
-  })()
+  const rtmFrameIdx = useMemo(
+    () => frame ? findClosestFrameIndex(rtmData?.frames, frame.timestampMs, rtmData?.intervalMs) : -1,
+    [frame?.timestampMs, rtmData]
+  )
   const rtmFrame = rtmFrameIdx >= 0 ? rtmData!.frames[rtmFrameIdx] : null
 
-  // Find matching Ball V5 frame index by timestampMs
-  const ballV5FrameIdx = (() => {
-    if (!ballV5Data || !frame) return -1
-    let best = 0
-    let bestDiff = Infinity
-    for (let i = 0; i < ballV5Data.frames.length; i++) {
-      const diff = Math.abs(ballV5Data.frames[i].timestampMs - frame.timestampMs)
-      if (diff < bestDiff) { bestDiff = diff; best = i }
-    }
-    return bestDiff < (ballV5Data.intervalMs ?? 200) ? best : -1
-  })()
+  const ballV5FrameIdx = useMemo(
+    () => frame ? findClosestFrameIndex(ballV5Data?.frames, frame.timestampMs, ballV5Data?.intervalMs) : -1,
+    [frame?.timestampMs, ballV5Data]
+  )
   const ballV5Frame = ballV5FrameIdx >= 0 ? ballV5Data!.frames[ballV5FrameIdx] : null
 
-  // Find matching Ball YOLO frame index by timestampMs
-  const ballYoloFrameIdx = (() => {
-    if (!ballYoloData || !frame) return -1
-    let best = 0
-    let bestDiff = Infinity
-    for (let i = 0; i < ballYoloData.frames.length; i++) {
-      const diff = Math.abs(ballYoloData.frames[i].timestampMs - frame.timestampMs)
-      if (diff < bestDiff) { bestDiff = diff; best = i }
-    }
-    return bestDiff < (ballYoloData.intervalMs ?? 200) ? best : -1
-  })()
+  const ballYoloFrameIdx = useMemo(
+    () => frame ? findClosestFrameIndex(ballYoloData?.frames, frame.timestampMs, ballYoloData?.intervalMs) : -1,
+    [frame?.timestampMs, ballYoloData]
+  )
   const ballYoloFrame = ballYoloFrameIdx >= 0 ? ballYoloData!.frames[ballYoloFrameIdx] : null
 
   const cbClass = 'flex items-center gap-1.5 cursor-pointer select-none text-sm text-gray-300'
