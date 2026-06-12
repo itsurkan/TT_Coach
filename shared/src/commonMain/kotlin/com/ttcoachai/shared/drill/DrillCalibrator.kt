@@ -103,4 +103,43 @@ object DrillCalibrator {
             outlierSigmaThreshold = outlierSigmaThreshold
         )
     }
+
+    /**
+     * Non-throwing calibration entry point for iOS and other FFI contexts.
+     * Wraps calibrate() and returns a sealed class result to prevent Kotlin
+     * exceptions from crashing Swift bridge code.
+     *
+     * This is the preferred entry point for Phase 3 iOS; the desktop 003 path
+     * continues using calibrate() directly.
+     */
+    fun calibrateChecked(
+        sequence: PoseSequence2D,
+        drillType: String,
+        createdAtMs: Long,
+        handedness: Handedness = Handedness.RIGHT,
+        minRepCount: Int = 10,
+        outlierSigmaThreshold: Double = 2.0,
+        detector: StrokeDetector2D = StrokeDetector2D(),
+        cameraYawDeg: Float? = null,
+        maxCameraYawDeg: Float = DEFAULT_MAX_CAMERA_YAW_DEG
+    ): CalibrationOutcome {
+        return try {
+            val baseline = calibrate(
+                sequence = sequence,
+                drillType = drillType,
+                createdAtMs = createdAtMs,
+                handedness = handedness,
+                minRepCount = minRepCount,
+                outlierSigmaThreshold = outlierSigmaThreshold,
+                detector = detector,
+                cameraYawDeg = cameraYawDeg,
+                maxCameraYawDeg = maxCameraYawDeg
+            )
+            CalibrationOutcome.Success(baseline)
+        } catch (e: CameraPlacementException) {
+            CalibrationOutcome.PlacementError(e.message ?: "Camera placement invalid")
+        } catch (e: Exception) {
+            CalibrationOutcome.Failed("Calibration failed: ${e.message}")
+        }
+    }
 }
