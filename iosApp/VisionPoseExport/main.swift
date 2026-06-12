@@ -28,7 +28,8 @@ func jointNameForIndex(_ index: Int) -> VNHumanBodyPoseObservation.JointName {
         .leftHip, .rightHip, .leftKnee, .rightKnee,
         .leftAnkle, .rightAnkle, .sternum, .spine, .pelvis
     ]
-    return index >= 0 && index < names.count ? names[index] : .nose
+    precondition(index >= 0 && index < names.count, "Invalid joint index: \(index) (expected 0-\(names.count - 1))")
+    return names[index]
 }
 
 /// Extracts all frames from a video using AVAssetReader.
