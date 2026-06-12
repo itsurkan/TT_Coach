@@ -37,9 +37,15 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 | IMG_6414 | ❌ no mp4 | — | no | empty dir |
 
 ## Resume state (for fresh-context continuation)
-- Branch `2d-experiments`. Done & committed: **EXP-1..5** (all feedback-layer, viewer-only TS in
-  `poses_viewer/src/drill2d/` + `components/`). Detection verified solid (counts match goldens,
-  robust to ±yaw) — value is in feedback, so the series leans feedback.
+- Branch `2d-experiments` (NOTE: a stray `experiments` branch held the work after a gap; I
+  fast-forwarded `2d-experiments` to it — they're aligned). Done & committed: **EXP-1..6, EXP-8**
+  (EXP-7 deferred). All feedback-layer, viewer-only TS in `poses_viewer/src/drill2d/` + `components/`.
+  Detection verified solid (counts match goldens, robust to ±yaw) — value is in feedback.
+- Net effect across the 4 usable clips: scattered single-metric nagging → varied, trust-gated
+  coaching with a session focus, honest noisy-metric marking, no sub-5° nitpicks, varied positives,
+  and research-grounded lean range (normal forward lean no longer falsely flagged).
+- **Next-up candidates:** detection spot-check on ivan_1/video_4 bands; validate on marginal
+  footage + non-zero yaw; EXP-7 per-video calibration persistence; a holistic post-set report.
 - Env: Vite dev on **5782**, headed Chrome CDP on **9222**. Tools: `tmp/analyze.mjs <port> <video> <yaw> <hand> <shot>` (counts + per-rep table + spoken log, deterministic), `tmp/triage.mjs` (yaw sweep + screenshot). Both have select-verify; Videos/ is gitignored.
 - Usable videos: andrii_1, video_3, video_4, ivan_1 (all ~side-on). Marginal: video_2, IMG_6330, table_12, table_v7.
 - **Next-up candidates:** (a) research-ground the coach_opinion torso_lean(5–25)/shoulder_tilt(0–20)
