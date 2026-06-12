@@ -166,6 +166,57 @@ final class VisionCoco17MapperTests: XCTestCase {
         XCTAssertEqual(best!.count, 17, "Should return the same person")
     }
 
+    /// Test bestPerson with detections of varying array sizes.
+    func testBestPersonWithVariingArraySizes() {
+        let person1 = (0..<10).map { _ in
+            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9)
+        }
+        let person2 = (0..<20).map { _ in
+            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.7)
+        }
+
+        let best = VisionCoco17Mapper.bestPerson(from: [person1, person2])
+        XCTAssertNotNil(best, "Should select a person despite varying array sizes")
+        // person1 mean = 0.9, person2 mean = 0.7, so person1 should win
+        XCTAssertEqual(best!.count, 10, "Should select person1 (smaller but higher confidence)")
+    }
+
+    /// Test bestPerson when all detections have very low confidence.
+    func testBestPersonAllLowConfidence() {
+        let person1 = (0..<17).map { _ in
+            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.05)
+        }
+        let person2 = (0..<17).map { _ in
+            VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.08)
+        }
+
+        let best = VisionCoco17Mapper.bestPerson(from: [person1, person2])
+        XCTAssertNotNil(best, "Should still select even when all are low confidence")
+        // person2 mean = 0.08 > person1 mean = 0.05
+        XCTAssertAlmostEqual(best![0].confidence, 0.08, accuracy: 0.0001, "Should select person2 (higher low confidence)")
+    }
+
+    /// Test mapToCoco17 with exactly 18 joints (boundary condition).
+    func testMapToCoco17With18JointsExact() {
+        var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
+        for i in 0..<18 {
+            let conf = Float(i) / 18.0
+            visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: Float(i) / 100.0, y: 0.5, confidence: conf))
+        }
+
+        let result = VisionCoco17Mapper.mapToCoco17(
+            visionKeypoints: visionKps,
+            frameWidth: 1920,
+            frameHeight: 1080
+        )
+
+        XCTAssertEqual(result.count, 17, "Exactly 18 joints input should produce exactly 17 COCO joints")
+        // All indices should be populated (no gaps)
+        for i in 0..<17 {
+            XCTAssertNotNil(result[i], "COCO index \(i) should be present")
+        }
+    }
+
     // MARK: - Helper
 
     func XCTAssertAlmostEqual(_ a: Float, _ b: Float, accuracy: Float, _ message: String = "") {
