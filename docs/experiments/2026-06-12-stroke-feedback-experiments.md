@@ -117,6 +117,15 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 - EXP-5 (session-quality gate) abandoned: it didn't cleanly separate marginal from clean footage,
   and its initial signal was contaminated by the corrupt IMG_6330 measurement.
 
+### EXP-5 — Suppress trivial (sub-5°) deviations ✅ KEEP
+- **File:** `poses_viewer/src/drill2d/feedbackEngine.ts` (`MIN_MEANINGFUL_DELTA_DEG = 5`).
+- **Change:** a metric < 5° outside its ideal band is within keypoint-jitter noise — drop the cue
+  (a coach doesn't nitpick "3° off"). Keeps meaningful faults (≥5°).
+- **Visual result:** ivan's "3°/4° off" nags → gone; those reps now read as **"Good rep"
+  positives** (4 of them) + 2 real corrections. video_3/video_4 meaningful cues unchanged. ✅
+- **Verdict:** less false-precision nagging, more deserved encouragement. Detection untouched.
+- Commit: `feat(viewer): EXP-5 suppress trivial sub-5deg deviations`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").

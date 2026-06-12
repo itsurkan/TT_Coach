@@ -8,6 +8,14 @@ import { FeedbackCue } from './feedbackCue'
 import { precisionFor } from './metricPrecision'
 import { ReferenceStandard } from './referenceStandard'
 
+/**
+ * EXP-5: a deviation smaller than this (degrees outside the ideal band) is within
+ * the metric's own measurement noise (±a few degrees of keypoint jitter) — not worth
+ * a coaching cue. A real coach doesn't nitpick "3° off". Suppresses the trivia, keeps
+ * the meaningful faults.
+ */
+export const MIN_MEANINGFUL_DELTA_DEG = 5
+
 export function evaluateRep(
   metrics: Record<string, number>,
   standard: ReferenceStandard,
@@ -30,6 +38,7 @@ export function evaluateRep(
     } else {
       continue // inside the band — no cue
     }
+    if (Math.abs(delta) < MIN_MEANINGFUL_DELTA_DEG) continue // EXP-5: within noise — don't nitpick
     const severity = halfWidth > 0 ? Math.abs(delta) / halfWidth : 0
     cues.push({ metricKey: key, direction, deltaFromRange: delta, severity, precision: precisionFor(key) })
   }
