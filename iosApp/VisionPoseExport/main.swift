@@ -61,6 +61,7 @@ func extractFrames(from videoPath: String) -> [(image: CGImage, timestampMs: Int
     var frames: [(image: CGImage, timestampMs: Int64, frameIndex: Int)] = []
     var frameIndex = 0
 
+    let context = CIContext()  // Create once outside the loop for efficiency
     while let sampleBuffer = output.copyNextSampleBuffer() {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { continue }
 
@@ -69,7 +70,6 @@ func extractFrames(from videoPath: String) -> [(image: CGImage, timestampMs: Int
 
         // Convert CVPixelBuffer to CGImage.
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let context = CIContext()
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else { continue }
 
         frames.append((image: cgImage, timestampMs: timestampMs, frameIndex: frameIndex))
