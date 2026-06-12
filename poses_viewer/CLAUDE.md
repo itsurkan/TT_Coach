@@ -51,6 +51,18 @@ Clicking a stroke band loops its `start→end` segment (`strokeLoop.ts` `loopBac
 the video `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without
 deselecting. Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
+**Phase-aligned rep bands (`drill2d/strokeCycleWindow.ts`):** the detector's speed-valley
+boundaries land mid-cycle, so a rep band looked phase-shifted (it appeared to start in the prior
+stroke's recovery). A forehand drive travels LOW→HIGH, so `cycleWindow` recomputes each KEPT rep's
+display `[start,end]` from wrist-y extrema: start = lowest physical wrist point (max y = load) before
+the peak, end = highest point (min y = follow-through finish) after it. Vertical-only → xScale-free;
+y lightly smoothed so one junk frame can't grab an edge; search bounded by neighbour rep peaks (+ a
+±maxSpanMs cap for the first/last rep); falls back to the detector boundary when the wrist is gated.
+**COUNT-SAFE — display/loop only, runs in the `StrokesPage` `entries` memo on reps that already
+survived detect→forward→rep; never feeds detection, metrics (extractAtPeak, peak±70ms), or
+`analyzeDrill`.** Dropped bands keep detector boundaries. Detector/Kotlin `StrokeDetector2D` unchanged
+(this is a viewer display concern, not a detection change).
+
 **Locomotion gate (`drill2d/locomotionFilter.ts`, EXPERIMENTAL — L-30):** walking is otherwise
 counted as a rep (wrist swings forward fast while the body translates). `hipMidTravelTorso` measures
 hip-mid horizontal excursion over a stroke window in torso-lengths; `filterStationaryStrokes` drops

@@ -10,6 +10,7 @@ import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
 import { ALL_KEYS } from '../drill2d/drillMetrics'
 import { DrillResultsTable } from './DrillResultsTable'
 import { loopBackTarget } from './strokeLoop'
+import { cycleWindow } from '../drill2d/strokeCycleWindow'
 
 interface VideoItem { name: string; ext: string }
 
@@ -91,17 +92,31 @@ export default function StrokesPage() {
     const locoPeaks = new Set(result.locomotionStrokes.map(s => s.peakFrame))
     const fwdPeaks = new Set(result.forwardStrokes.map(s => s.peakFrame))
     const ms = (frame: number) => seq.frames[frame]?.timestampMs ?? frame * seq.intervalMs
-    return result.rawStrokes.map((s, i) => ({
-      kind: repPeaks.has(s.peakFrame) ? 'rep'
-        : locoPeaks.has(s.peakFrame) ? 'locomotion-dropped'
-        : fwdPeaks.has(s.peakFrame) ? 'forward-dropped'
-        : 'raw-dropped',
-      startMs: ms(s.startFrame),
-      peakMs: ms(s.peakFrame),
-      endMs: ms(s.endFrame),
-      label: `#${i + 1} · ${s.peakSpeed.toFixed(1)} торс/с`,
-    }))
-  }, [seq, result])
+    // Reps get a phase-aligned LOW→HIGH band (load → follow-through finish), bounded
+    // by neighbour rep peaks so windows don't cross. Dropped bands keep detector
+    // boundaries. Count is untouched — this only reshapes already-kept reps.
+    const reps = result.reps
+    const repBand = new Map<number, { startMs: number; endMs: number }>()
+    for (let k = 0; k < reps.length; k++) {
+      const lo = k > 0 ? reps[k - 1].peakFrame : 0
+      const hi = k < reps.length - 1 ? reps[k + 1].peakFrame : seq.frames.length - 1
+      const w = cycleWindow(seq.frames, reps[k], handedness, lo, hi, seq.intervalMs)
+      repBand.set(reps[k].peakFrame, { startMs: ms(w.startFrame), endMs: ms(w.endFrame) })
+    }
+    return result.rawStrokes.map((s, i) => {
+      const band = repBand.get(s.peakFrame)
+      return {
+        kind: repPeaks.has(s.peakFrame) ? 'rep'
+          : locoPeaks.has(s.peakFrame) ? 'locomotion-dropped'
+          : fwdPeaks.has(s.peakFrame) ? 'forward-dropped'
+          : 'raw-dropped',
+        startMs: band ? band.startMs : ms(s.startFrame),
+        peakMs: ms(s.peakFrame),
+        endMs: band ? band.endMs : ms(s.endFrame),
+        label: `#${i + 1} · ${s.peakSpeed.toFixed(1)} торс/с`,
+      } as TimelineEntry
+    })
+  }, [seq, result, handedness])
 
   // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
   useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics, hipTravelMaxTorso])
