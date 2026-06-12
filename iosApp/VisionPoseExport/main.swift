@@ -85,7 +85,7 @@ func extractFrames(from videoPath: String) -> [(image: CGImage, timestampMs: Int
 }
 
 /// Detects human body pose in a CGImage using Vision framework.
-/// Returns array of detections, each as array of [VisionKeypoint] (one per joint 0-18).
+/// Returns array of detections, each as array of [VisionKeypoint] (one per joint 0-17).
 func detectPose(in cgImage: CGImage) -> [[VisionCoco17Mapper.VisionKeypoint]] {
     let request = VNDetectHumanBodyPoseRequest()
     let handler = VNImageRequestHandler(cgImage: cgImage)
@@ -101,9 +101,9 @@ func detectPose(in cgImage: CGImage) -> [[VisionCoco17Mapper.VisionKeypoint]] {
     for observation in request.results ?? [] {
         guard let bodyPoseObservation = observation as? VNHumanBodyPoseObservation else { continue }
 
-        // Vision provides joints 0-18. Collect them in order.
+        // Vision provides joints 0-17 (18 total). Collect them in order.
         var visionKeypoints: [VisionCoco17Mapper.VisionKeypoint] = []
-        for jointIndex in 0..<19 {
+        for jointIndex in 0..<18 {
             let jointName = jointNameForIndex(jointIndex)
             let point = bodyPoseObservation.recognizedPoints[jointName]
 

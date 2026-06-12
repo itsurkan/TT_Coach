@@ -12,9 +12,9 @@ final class VisionCoco17MapperTests: XCTestCase {
         XCTAssertEqual(result.count, 0, "Empty input should yield empty output")
     }
 
-    /// Test that input with fewer than 19 joints returns empty (malformed).
+    /// Test that input with fewer than 18 joints returns empty (malformed).
     func testInsufficientJoints() {
-        let visionKps = (0..<18).map { _ in
+        let visionKps = (0..<17).map { _ in
             VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9)
         }
         let result = VisionCoco17Mapper.mapToCoco17(
@@ -22,14 +22,14 @@ final class VisionCoco17MapperTests: XCTestCase {
             frameWidth: 1920,
             frameHeight: 1080
         )
-        XCTAssertEqual(result.count, 0, "Input with < 19 joints should yield empty output")
+        XCTAssertEqual(result.count, 0, "Input with < 18 joints should yield empty output")
     }
 
     /// Test y-flip transformation: y_vision=0.1 (bottom) -> y_coco=0.9 (top-aligned).
     func testYFlip() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        // Build a minimal 19-joint skeleton with specific y values.
-        for i in 0..<19 {
+        // Build a minimal 18-joint skeleton with specific y values.
+        for i in 0..<18 {
             let y: Float = (i == 2) ? 0.1 : 0.5  // nose (index 2) at y=0.1
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: y, confidence: 0.9))
         }
@@ -50,9 +50,9 @@ final class VisionCoco17MapperTests: XCTestCase {
     /// Test that joints map to correct COCO indices.
     func testJointMapping() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for i in 0..<19 {
+        for i in 0..<18 {
             // Assign unique x values per Vision joint so we can track mappings.
-            let x = Float(i) / 100.0  // 0.00, 0.01, 0.02, ... 0.18
+            let x = Float(i) / 100.0  // 0.00, 0.01, 0.02, ... 0.17
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: x, y: 0.5, confidence: 0.9))
         }
 
@@ -78,8 +78,8 @@ final class VisionCoco17MapperTests: XCTestCase {
     /// Test that confidence values pass through unchanged.
     func testConfidencePassthrough() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for i in 0..<19 {
-            let conf = Float(i) / 19.0  // 0.0, 0.05, 0.10, ..., 0.95
+        for i in 0..<18 {
+            let conf = Float(i) / 18.0  // 0.0, 0.056, 0.111, ..., 0.944
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: conf))
         }
 
@@ -90,15 +90,15 @@ final class VisionCoco17MapperTests: XCTestCase {
         )
 
         XCTAssertEqual(result.count, 17, "Should produce 17 COCO keypoints")
-        // Spot-check: Vision 3 (conf=0.157...) -> COCO 5
-        XCTAssertAlmostEqual(result[5].confidence, Float(3) / 19.0, accuracy: 0.0001, "Confidence should pass through")
+        // Spot-check: Vision 3 (conf=0.167...) -> COCO 5
+        XCTAssertAlmostEqual(result[5].confidence, Float(3) / 18.0, accuracy: 0.0001, "Confidence should pass through")
     }
 
     /// Test that all 17 COCO indices are populated (no skipped indices).
     /// Eye/ear indices (1-4) are synthesized with zero confidence if Vision doesn't provide them.
     func testAllCocoIndicesPresent() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        for _ in 0..<19 {
+        for _ in 0..<18 {
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9))
         }
 
@@ -114,9 +114,9 @@ final class VisionCoco17MapperTests: XCTestCase {
     /// Test that eye/ear placeholders are synthesized with zero confidence.
     func testEyeEarPlaceholders() {
         var visionKps: [VisionCoco17Mapper.VisionKeypoint] = []
-        // Build 19-joint skeleton with high confidence for body, but
+        // Build 18-joint skeleton with high confidence for body, but
         // we'll verify eye/ear get synthesized even with high input confidence.
-        for _ in 0..<19 {
+        for _ in 0..<18 {
             visionKps.append(VisionCoco17Mapper.VisionKeypoint(x: 0.5, y: 0.5, confidence: 0.9))
         }
 

@@ -7,8 +7,8 @@ import Foundation
 /// Vision coordinates: bottom-left origin [0,1]
 /// COCO-17 coordinates: top-left origin [0,1] (y-flip applied)
 ///
-/// Mapping rule: Vision provides 19 joints; COCO-17 uses 17. We map the 17 COCO joints
-/// and drop Vision's neck/sternum/spine/pelvis (redundant with shoulders/hips).
+/// Mapping rule: Vision provides 18 joints (indices 0–17); COCO-17 uses 17.
+/// We map the 17 COCO joints and drop Vision's neck/sternum/spine/pelvis (redundant with shoulders/hips).
 public struct VisionCoco17Mapper {
 
     /// A single Vision keypoint (plain tuple for testability).
@@ -18,12 +18,12 @@ public struct VisionCoco17Mapper {
         let confidence: Float
     }
 
-    /// Maps Vision joints (0-18) to COCO-17 indices, or nil if that Vision joint is not used.
+    /// Maps Vision joints (0-17) to COCO-17 indices, or nil if that Vision joint is not used.
     /// Vision joint order (as per AVFoundation VNHumanBodyPoseObservation.RecognizedPoint):
     /// 0: head, 1: neck, 2: nose, 3: leftShoulder, 4: rightShoulder,
     /// 5: leftElbow, 6: rightElbow, 7: leftWrist, 8: rightWrist,
     /// 9: leftHip, 10: rightHip, 11: leftKnee, 12: rightKnee,
-    /// 13: leftAnkle, 14: rightAnkle, 15: sternum, 16: spine, 17: pelvis, 18: (unused)
+    /// 13: leftAnkle, 14: rightAnkle, 15: sternum, 16: spine, 17: pelvis
     ///
     /// COCO-17 has eye/ear landmarks (indices 1-4) which Vision doesn't provide.
     /// We drop those and map Vision's body joints to COCO's body indices.
@@ -46,12 +46,11 @@ public struct VisionCoco17Mapper {
         nil,        // 15: sternum → dropped
         nil,        // 16: spine → dropped
         nil,        // 17: pelvis → dropped
-        nil,        // 18: unused
     ]
 
     /// Maps Vision keypoints (one person) to COCO-17 order.
     /// - Parameters:
-    ///   - visionKeypoints: Vision joints in order [0..18]. Length must be 19 or greater.
+    ///   - visionKeypoints: Vision joints in order [0..17]. Length must be 18 or greater.
     ///   - frameWidth: Video frame width in pixels (used only for validation)
     ///   - frameHeight: Video frame height in pixels (used only for validation)
     /// - Returns: 17 COCO keypoints in COCO-17 order, or empty array if visionKeypoints is empty.
@@ -70,7 +69,7 @@ public struct VisionCoco17Mapper {
         frameHeight: Int
     ) -> [VisionKeypoint] {
         guard !visionKeypoints.isEmpty else { return [] }
-        guard visionKeypoints.count >= 19 else {
+        guard visionKeypoints.count >= 18 else {
             // Malformed input — return empty to signal no person detected.
             return []
         }
