@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSpokenFeedback, FeedbackMode } from './useSpokenFeedback'
 import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
 import { countStrokes } from '../drill2d/countStrokes'
@@ -24,6 +25,7 @@ export default function StrokesPage() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [drillType, setDrillType] = useState('forehand_drive')
   const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
+  const [feedbackMode, setFeedbackMode] = useState<FeedbackMode>('audio')
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -75,6 +77,8 @@ export default function StrokesPage() {
     }
   }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
 
+  const spoken = useSpokenFeedback(report?.feedback ?? [], feedbackMode)
+
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
     const repPeaks = new Set(result.reps.map(s => s.peakFrame))
@@ -98,6 +102,7 @@ export default function StrokesPage() {
   const seek = (ms: number) => {
     const v = videoRef.current
     if (v) v.currentTime = ms / 1000
+    spoken.reset(ms)
   }
 
   // ←/→ = ±1 кадр, Shift = ±10 кадрів (пауза перед кроком, щоб кадр не "втікав")
@@ -155,7 +160,11 @@ export default function StrokesPage() {
             src={videoUrl}
             controls
             className="max-h-[55vh] bg-black"
-            onTimeUpdate={e => setCurrentMs(e.currentTarget.currentTime * 1000)}
+            onTimeUpdate={e => {
+              const ms = e.currentTarget.currentTime * 1000
+              setCurrentMs(ms)
+              spoken.onTime(ms)
+            }}
           />
           {seq && result && (
             <>
@@ -168,6 +177,21 @@ export default function StrokesPage() {
                 onSelect={i => { setSelectedIdx(i); seek(entries[i].startMs) }}
               />
               <TimelineLegend />
+              {spoken.latest && (
+                <div className="bg-sky-900/60 border border-sky-700 rounded p-2 text-sm">
+                  🔊 {spoken.latest.message}
+                </div>
+              )}
+              {spoken.log.length > 0 && (
+                <details className="text-xs text-neutral-300">
+                  <summary>Журнал підказок ({spoken.log.length})</summary>
+                  <ul className="mt-1 space-y-0.5">
+                    {spoken.log.map((f, i) => (
+                      <li key={i}>{(f.timestampMs / 1000).toFixed(1)} с — {f.message}</li>
+                    ))}
+                  </ul>
+                </details>
+              )}
               <div className="text-xs text-neutral-400">
                 Кадр: <b className="text-neutral-200">{currentFrame}</b> / {seq.frames.length - 1}
                 {' · '}{(currentMs / 1000).toFixed(2)} с
@@ -287,6 +311,17 @@ export default function StrokesPage() {
             onChange={e => setDrillType(e.target.value)}
           >
             <option value="forehand_drive">Накат справа (forehand drive)</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2">
+          <span className="w-56">Озвучення підказок:</span>
+          <select
+            className="bg-neutral-800 rounded px-2 py-1"
+            value={feedbackMode}
+            onChange={e => setFeedbackMode(e.target.value as FeedbackMode)}
+          >
+            <option value="audio">Голос (за замовч.)</option>
+            <option value="text">Лише текст</option>
           </select>
         </label>
         <div className="flex items-start gap-2">
