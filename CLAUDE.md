@@ -99,7 +99,7 @@ models/trained/              # frozen YOLO weights
 
 **Commit hygiene:** `git add` explicit paths, never `git add -A` (working tree carries unrelated artifacts: `node_modules/.vite/`, `tsconfig.tsbuildinfo`). Commit after each logical change.
 
-**Plan execution:** always execute written implementation plans via subagent-driven development (`superpowers:subagent-driven-development`) — fresh subagent per task, review between tasks. Never execute plan tasks inline in the main session.
+**Plan execution:** always execute written implementation plans via subagent-driven development (`superpowers:subagent-driven-development`) — fresh subagent per task, review between tasks. Never execute plan tasks inline in the main session. **Never ask the user which execution approach to use — subagent-driven is the standing default; proceed without asking.**
 
 **Room:** entities in `app/.../models/`, DAOs in `app/.../db/`, `AppDatabase` v3 (added `drill_configs`), still `fallbackToDestructiveMigration()` — schema bump wipes local data.
 
