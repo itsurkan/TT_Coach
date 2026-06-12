@@ -30,8 +30,10 @@ M0 stroke-counting debug harness (spec: docs/superpowers/specs/2026-06-11-drill-
 `countStrokes.ts` (pipeline order detect → forward → rep is MANDATORY). NOT related to `src/drill/`
 (3D mannequin FK). **Binding fix-flow rule: Kotlin is source of truth — any behavioral fix lands in
 shared/ Kotlin first, then is mirrored here; goldens updated in both suites in the same change.**
-Golden parity test (`drill2d/__tests__/golden.test.ts`): 23 raw / 15 forward / 15 reps on
-andrii_1_rtm — reads fixtures from `shared/src/commonTest/resources/fixtures/` via repo-relative path.
+Golden parity tests (`drill2d/__tests__/golden.test.ts`, mirroring Kotlin
+`ForwardStrokeFilterRealFootageTest`): andrii_1_rtm 23 raw / 15 forward / 15 reps;
+video_4_rtm (shadow play) 18 / 12 / 9 — fixtures read from
+`shared/src/commonTest/resources/fixtures/` via repo-relative path.
 `#/strokes` UI: video + color-coded stroke bands (emerald reps / amber RepFilter-dropped / gray
 recovery), click-to-seek, knobs for handedness / manual camera yaw (estimator not ported, L-25) /
 minPeakSpeed / minPeakGapMs.

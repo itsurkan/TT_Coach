@@ -109,20 +109,6 @@ peak speeds match the drives (4.58 vs 4.50 torso/s) — without a ball there is 
 acceleration-into-contact asymmetry, so classification rides on the fallback.
 **Refs:** `ForwardStrokeFilter.kt`; commits `85b0ef2`, `f3be865`.
 
-### L-28 · Stroke direction measured start→peak misreads continuous play — `OPEN`
-`ForwardStrokeFilter.wristDx` takes wrist x-displacement startFrame→peakFrame. On
-continuous shadow play (video_4, 12 visually-verified right-hand drives) the
-smoothed speed never falls below the 0.3 boundary floor between swings, so
-startFrame bleeds back into the previous follow-through where x is already
-forward — 7 of 12 true drives measure dx ≤ 0 and are dropped (4 reps from 12
-drives). Detection itself is sound: every one of the 12 forward-motion runs
-contains a raw detector peak; only the direction read is wrong. Fix validated in
-a TS prototype: measure displacement over the ~100 ms APPROACH into the peak
-(`x[peak] − x[peak−100ms]`, clamped to startFrame) — restores 12/12 forward on
-video_4 (9 reps after banding) and preserves the andrii_1 23-raw/15-rep golden.
-**Refs:** `ForwardStrokeFilter.kt` wristDx; plan
-`docs/superpowers/plans/2026-06-11-forward-dx-peak-approach.md`.
-
 ## 2. Live capture & Android runtime (Phase 3 relevant)
 
 ### L-15 · Capture rate ≠ inference rate; fixed frame-skip breaks stroke detection — `PLANNED` (design guidance)
@@ -232,3 +218,15 @@ checking the rotation flag — portrait phone videos could invert the aspect-rat
 correction all angle math depends on.
 **Resolved by:** `e00d038` — exporter takes width/height from the *decoded* frame,
 so rotation is baked in before export; follow-up `629c46a` clamps x/y to `[0,1]`.
+
+### L-28 · Stroke direction measured start→peak misreads continuous play — `RESOLVED`
+`ForwardStrokeFilter.wristDx` took wrist x-displacement startFrame→peakFrame; on
+continuous shadow play the start boundary bleeds into the previous follow-through
+and true drives read backward (video_4: 7 of 12 visually-verified drives dropped,
+4 reps from 12). Detection itself was sound — every forward-motion run contained
+a raw detector peak.
+**Resolved by:** `73b9d00` — direction read over the ~100 ms approach INTO the peak
+(`PEAK_APPROACH_WINDOW_MS`, timestamp-walked, clamped to startFrame) in
+`ForwardStrokeFilter.kt`, mirrored in the TS harness; stage-level goldens
+andrii_1 23/15/15 (unchanged) and video_4 18/12/9 pinned in BOTH suites
+(`ForwardStrokeFilterRealFootageTest.kt`, `golden.test.ts`).
