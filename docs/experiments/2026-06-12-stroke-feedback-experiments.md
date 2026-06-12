@@ -2,6 +2,31 @@
 
 Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 
+## TL;DR (for your return)
+Ran RTM export + triage on all 14 clips (4 usable: andrii_1, video_3, video_4, ivan_1), then **10
+viewer-layer experiments** that overhaul the coaching feedback. The `#/strokes` simulator went from
+*"nag one metric every rep — often a measurement artifact or normal posture"* to **varied,
+trust-gated, research-grounded coaching with a session focus + strengths summary**. Detection was
+deliberately left untouched (counts still match goldens). Each experiment is its own commit so you
+can cherry-pick individually.
+
+| Exp | What | Headline effect |
+|----|------|-----------------|
+| EXP-1 | Variety-aware feedback | "Elbow ×5" → rotates real faults |
+| EXP-2 | Reliability/trust gate (IQR>20°) | andrii's blur-artifact elbow nag silenced |
+| EXP-3 | Session "main focus" | one takeaway: "bend the knees, 15/15" |
+| EXP-4 | Mark noisy metrics in table | struck-through "~шум" |
+| EXP-5 | Drop sub-5° deviations | trivia → "Good rep" |
+| EXP-6 | Positive-message variety | no more "Good rep ×4" |
+| EXP-7 | Per-video calibration persistence | remembers each clip's L-25 angle + handedness |
+| EXP-8 | Research-grounded lean range (5–25→15–40°) | normal attacking lean no longer false-flagged |
+| EXP-9 | Post-set report | reps · clean count · strengths |
+
+**Verification:** code-reviewed (senior-reviewer subagent: "ready to merge"), **288/288 tests**
+(incl. 22 new for the EXP helpers), detection goldens intact (andrii 23/15/15, video_4 18/12/9).
+**Caveats to know:** EXP-8 lean range is *provisional* (no direct TT biomechanics source; re-tune on
+camera-protocol footage); feedback layer is viewer-only by design (no Kotlin port). Details below.
+
 ## Ground rules (from user, 2026-06-12)
 - **Validation:** visual UI judgment in poses_viewer `#/strokes` (no test gate; tests may be wrong and can be ignored).
 - **Integration:** every experiment = its own cleanly-scoped commit so individual changes can be cherry-picked to `main` later. This log tracks hypothesis → change → result → keep/revert.
