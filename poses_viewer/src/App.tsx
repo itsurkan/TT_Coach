@@ -36,6 +36,62 @@ function jsonSuffixes(wantPoses: boolean, wantBall: boolean): string[] {
   return ['_poses_ball.json', '_poses.json', '_ball.json']
 }
 
+/* ── Pose source selector (radio buttons) ──────────────────────────── */
+function PoseSourceSelector({
+  source,
+  onChange,
+  hasRtm,
+  hasVision,
+  hasMediapipe,
+}: {
+  source: 'rtm' | 'mediapipe' | 'vision'
+  onChange: (s: 'rtm' | 'mediapipe' | 'vision') => void
+  hasRtm: boolean
+  hasVision: boolean
+  hasMediapipe: boolean
+}) {
+  return (
+    <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded text-sm">
+      <label className="flex items-center gap-1.5 cursor-pointer" title="RTMPose COCO-17 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="rtm"
+          checked={source === 'rtm'}
+          onChange={() => onChange('rtm')}
+          disabled={!hasRtm}
+          className="cursor-pointer"
+        />
+        <span className={hasRtm ? 'text-amber-400' : 'text-gray-600'}>RTM</span>
+      </label>
+      <label className="flex items-center gap-1.5 cursor-pointer" title="Apple Vision schema-v2 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="vision"
+          checked={source === 'vision'}
+          onChange={() => onChange('vision')}
+          disabled={!hasVision}
+          className="cursor-pointer"
+        />
+        <span className={hasVision ? 'text-purple-400' : 'text-gray-600'}>Vision</span>
+      </label>
+      <label className="flex items-center gap-1.5 cursor-pointer" title="Legacy MediaPipe-33 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="mediapipe"
+          checked={source === 'mediapipe'}
+          onChange={() => onChange('mediapipe')}
+          disabled={!hasMediapipe}
+          className="cursor-pointer"
+        />
+        <span className={hasMediapipe ? 'text-blue-400' : 'text-gray-600'}>MediaPipe</span>
+      </label>
+    </div>
+  )
+}
+
 /* ── MultiSelect dropdown with checkboxes ──────────────────────────── */
 interface MultiSelectItem {
   label: string
@@ -103,6 +159,7 @@ interface PersistedSettings {
   showContacts: boolean; muted: boolean; placingBall: boolean; showLabels: boolean
   showTrajectory: boolean; showTrajectoryV2: boolean; showTrajectoryV3: boolean; showTrajectoryV4: boolean; showTrajectory3D: boolean; showTrajectory3Dv2: boolean
   showTableLabels: boolean; showTableView: boolean; showTableYolo: boolean; showTablePredict: boolean; showTableGrid: boolean; showTableGridMarked: boolean
+  poseSource: 'rtm' | 'mediapipe' | 'vision'
 }
 
 const DEFAULT_SETTINGS: PersistedSettings = {
@@ -110,6 +167,7 @@ const DEFAULT_SETTINGS: PersistedSettings = {
   showContacts: false, muted: false, placingBall: false, showLabels: false,
   showTrajectory: false, showTrajectoryV2: false, showTrajectoryV3: false, showTrajectoryV4: false, showTrajectory3D: false, showTrajectory3Dv2: false,
   showTableLabels: false, showTableView: false, showTableYolo: false, showTablePredict: true, showTableGrid: true, showTableGridMarked: false,
+  poseSource: 'rtm',
 }
 
 function loadSettings(): PersistedSettings {
@@ -149,7 +207,10 @@ export default function App() {
   const saved = useRef(loadSettings())
   const [showPoses, setShowPoses] = useState(saved.current.showPoses)
   const [showRtmPoses, setShowRtmPoses] = useState(saved.current.showRtmPoses)
+  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision'>(saved.current.poseSource)
   const [rtmData, setRtmData] = useState<PosesBallData | null>(null)
+  const [visionData, setVisionData] = useState<PosesBallData | null>(null)
+  const [mediapipeData, setMediapipeData] = useState<PosesBallData | null>(null)
   const [showBall, setShowBall] = useState(saved.current.showBall)
   const [showBallV5, setShowBallV5] = useState(saved.current.showBallV5)
   const [ballV5Data, setBallV5Data] = useState<PosesBallData | null>(null)
@@ -199,10 +260,11 @@ export default function App() {
       showPoses, showRtmPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
       placingBall, showLabels, showTrajectory, showTrajectoryV2, showTrajectoryV3,
       showTrajectoryV4, showTrajectory3D, showTrajectory3Dv2, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked,
+      poseSource,
     })
   }, [showPoses, showRtmPoses, showBall, showBallV5, showBallYolo, showContacts, muted,
       placingBall, showLabels, showTrajectory, showTrajectoryV2, showTrajectoryV3,
-      showTrajectoryV4, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked])
+      showTrajectoryV4, showTableLabels, showTableView, showTableYolo, showTablePredict, showTableGrid, showTableGridMarked, poseSource])
 
   // Auto-dismiss transient toast
   useEffect(() => {
@@ -452,6 +514,34 @@ export default function App() {
       setRtmData(normalizeData(json))
     } catch {
       // rtm poses file is optional
+    }
+  }, [])
+
+  /** Fetch Vision schema-v2 poses JSON (silently ignores if missing). */
+  const fetchVisionPoses = useCallback(async (base: string) => {
+    setVisionData(null)
+    const url = `/videos/${base}/${base}_poses_vision.json`
+    try {
+      const res = await fetch(url)
+      if (!res.ok) return
+      const json: unknown = await res.json()
+      setVisionData(normalizeData(json))
+    } catch {
+      // vision poses file is optional
+    }
+  }, [])
+
+  /** Fetch MediaPipe schema-v1 poses JSON (silently ignores if missing). */
+  const fetchMediapipePoses = useCallback(async (base: string) => {
+    setMediapipeData(null)
+    const url = `/videos/${base}/${base}_poses.json`
+    try {
+      const res = await fetch(url)
+      if (!res.ok) return
+      const json: unknown = await res.json()
+      setMediapipeData(normalizeData(json))
+    } catch {
+      // mediapipe poses file is optional
     }
   }, [])
 
@@ -762,6 +852,8 @@ export default function App() {
     fetchBallV5(base)
     fetchBallYolo(base)
     fetchRtmPoses(base)
+    fetchVisionPoses(base)
+    fetchMediapipePoses(base)
 
     e.target.value = ''
   }
@@ -816,6 +908,8 @@ export default function App() {
     fetchBallV5(base)
     fetchBallYolo(base)
     fetchRtmPoses(base)
+    fetchVisionPoses(base)
+    fetchMediapipePoses(base)
   }
 
   // On first load, resume the last-opened video once the server list is known
@@ -976,13 +1070,30 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [data, contacts, handlePlayPause, handleLabel, showTableLabels])
 
-  const frame = data?.frames[frameIndex] ?? null
+  const frame = (activePoseData ?? data)?.frames[frameIndex] ?? null
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
   const currentContact = contacts?.contacts.find(c => c.frameIndex === frameIndex) ?? null
   const ball  = frame?.ball ?? null
 
-  // Find matching RTM pose frame index by timestampMs
+  // Determine which pose data to display based on poseSource
+  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : mediapipeData
+  const activeTopology = activePoseData?.topology ?? 'mediapipe33'
+
+  // Find matching pose frame index by timestampMs for the active source
+  const activePoseFrameIdx = (() => {
+    if (!activePoseData || !frame) return -1
+    let best = 0
+    let bestDiff = Infinity
+    for (let i = 0; i < activePoseData.frames.length; i++) {
+      const diff = Math.abs(activePoseData.frames[i].timestampMs - frame.timestampMs)
+      if (diff < bestDiff) { bestDiff = diff; best = i }
+    }
+    return bestDiff < (activePoseData.intervalMs ?? 200) ? best : -1
+  })()
+  const activePoseFrame = activePoseFrameIdx >= 0 ? activePoseData!.frames[activePoseFrameIdx] : null
+
+  // Find matching RTM pose frame index by timestampMs (legacy, kept for backward compat)
   const rtmFrameIdx = (() => {
     if (!rtmData || !frame) return -1
     let best = 0
@@ -1078,14 +1189,13 @@ export default function App() {
           </select>
         )}
 
-        <label className={cbClass} title="RTMPose COCO-17 skeleton (_poses_rtm.json) — current 2D pipeline">
-          <input type="checkbox" checked={showRtmPoses} onChange={e => setShowRtmPoses(e.target.checked)} className="accent-amber-400" />
-          RTM
-        </label>
-        <label className={cbClass} title="Legacy MediaPipe-33 skeleton (_poses.json) — frozen pre-pivot pipeline">
-          <input type="checkbox" checked={showPoses} onChange={e => handleShowPoses(e.target.checked)} className="accent-blue-500" />
-          <span className="opacity-60">Poses<span className="text-[10px] ml-0.5 align-super">legacy</span></span>
-        </label>
+        <PoseSourceSelector
+          source={poseSource}
+          onChange={setPoseSource}
+          hasRtm={!!rtmData}
+          hasVision={!!visionData}
+          hasMediapipe={!!mediapipeData}
+        />
         <label className={cbClass}>
           <input type="checkbox" checked={showContacts} onChange={e => setShowContacts(e.target.checked)} className="accent-orange-500" />
           Contacts
@@ -1240,17 +1350,17 @@ export default function App() {
                 : {}
               }>
                 <PoseCanvas
-                  topology={data?.topology ?? 'mediapipe33'}
-                  frame={frame}
-                  frames={data.frames}
+                  topology={activeTopology}
+                  frame={activePoseFrame}
+                  frames={activePoseData?.frames ?? data.frames}
                   frameIndex={frameIndex}
                   videoWidth={data.videoWidth}
                   videoHeight={data.videoHeight}
                   transparent={!!videoSrc}
-                  showPoses={showPoses}
-                  showRtmPoses={showRtmPoses}
-                  rtmFrame={rtmFrame}
-                  rtmTopology={rtmData?.topology ?? 'coco17'}
+                  showPoses={false}
+                  showRtmPoses={!!activePoseFrame}
+                  rtmFrame={activePoseFrame}
+                  rtmTopology={activeTopology}
                   showBall={showBall}
                   showBallV5={showBallV5}
                   ballV5Frame={ballV5Frame}
