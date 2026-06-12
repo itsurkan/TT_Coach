@@ -172,6 +172,17 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   the corpus — with honest, cited grounding. Detection untouched.
 - Commit: `feat(viewer): EXP-8 research-grounded torso_lean/shoulder_tilt ranges`.
 
+### EXP-9 — Holistic post-set report (strengths + clean count) ✅ KEEP
+- **Files:** `analyzeDrill.ts` (`sessionStrengths`, `report.strengths`/`cleanReps`), `StrokesPage.tsx` (📋 summary panel).
+- **Change:** alongside the 🎯 focus, surface a coach-style summary: total reps, reps with no
+  faults, and the player's STRENGTHS — reliable metrics held in-band on ≥80% of reps.
+- **Visual result (ivan):** "📋 Підсумок: 23 повторів · 13 без зауважень / ✅ Сильні сторони:
+  плече, коліна" + "🎯 Main focus: open the elbow (10/23)". Tells the player what they did well
+  *and* what to fix. ✅
+- **Verdict:** completes the coaching loop (praise + focus + counts), reusing existing data.
+  Additive; detection/per-rep feedback unchanged.
+- Commit: `feat(viewer): EXP-9 holistic post-set report`.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").

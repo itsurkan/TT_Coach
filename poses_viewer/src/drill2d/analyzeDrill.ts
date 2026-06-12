@@ -123,6 +123,10 @@ export interface DrillAnalysisReport {
   /** EXP-2/4: metric keys whose cross-rep spread made them untrustworthy (cues dropped,
    *  values shown but flagged as noisy in the UI). */
   unreliableMetrics: string[]
+  /** EXP-9: reliable metrics the player kept in the ideal band on most reps (their strengths). */
+  strengths: string[]
+  /** EXP-9: coachable reps with zero faults. */
+  cleanReps: number
 }
 
 export interface DrillAnalysisConfig {
@@ -216,6 +220,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   }
 
   const okCount = repAnalyses.filter(r => r.placementOk).length
+  const coached = repAnalyses.filter(r => r.placementOk)
   return {
     reps: repAnalyses,
     feedback,
@@ -224,7 +229,43 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     forwardRepCount: reps.length,
     focus: sessionFocus(repAnalyses),
     unreliableMetrics: [...unreliable],
+    strengths: sessionStrengths(coached, unreliable, config.standard, config.enabledMetrics),
+    cleanReps: coached.filter(r => r.cues.length === 0).length,
   }
+}
+
+/** EXP-9: STRENGTH_FRACTION of coached reps must keep a reliable metric in-band for it
+ *  to count as a strength worth praising. */
+export const STRENGTH_FRACTION = 0.8
+
+/**
+ * EXP-9: reliable metrics the player held inside the ideal band on most reps. A metric
+ * is a strength when it's measured, not flagged unreliable, and in-range on
+ * ≥ STRENGTH_FRACTION of the reps where it was measured.
+ */
+export function sessionStrengths(
+  coached: RepAnalysis[],
+  unreliable: Set<string>,
+  standard: ReferenceStandard,
+  enabledKeys?: Set<string>,
+): string[] {
+  const strengths: string[] = []
+  for (const [key, range] of Object.entries(standard.ranges)) {
+    if (unreliable.has(key)) continue
+    if (enabledKeys && !enabledKeys.has(key)) continue
+    let measured = 0
+    let inBand = 0
+    for (const rep of coached) {
+      const v = rep.metrics[key]
+      if (v === undefined) continue
+      measured++
+      if (v >= range.lo && v <= range.hi) inBand++
+    }
+    if (measured >= MIN_REPS_FOR_RELIABILITY && inBand >= STRENGTH_FRACTION * measured) {
+      strengths.push(key)
+    }
+  }
+  return strengths
 }
 
 function medianSeverity(cues: FeedbackCue[]): number {

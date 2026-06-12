@@ -14,6 +14,15 @@ import { cycleWindow } from '../drill2d/strokeCycleWindow'
 
 interface VideoItem { name: string; ext: string }
 
+/** EXP-9: UA metric labels for the session summary (mirrors DrillResultsTable chrome). */
+const METRIC_LABEL_UA: Record<string, string> = {
+  elbow_angle: 'лікоть',
+  shoulder_angle: 'плече',
+  knee_bend: 'коліна',
+  torso_lean: 'нахил корпусу',
+  shoulder_tilt: 'нахил плечей',
+}
+
 export default function StrokesPage() {
   const [videos, setVideos] = useState<VideoItem[]>([])
   const [base, setBase] = useState('')
@@ -304,6 +313,16 @@ export default function StrokesPage() {
               🎯 {report.focus.message}
               {report.focus.metricKey && (
                 <span className="text-amber-300/80"> — {report.focus.count}/{report.focus.total} повторів</span>
+              )}
+            </div>
+          )}
+          {report.placementOk && (
+            <div className="rounded p-2 text-xs bg-neutral-800/70 border border-neutral-700 text-neutral-300 space-y-0.5">
+              <div>📋 <b>Підсумок:</b> {report.reps.length} повторів · {report.cleanReps} без зауважень</div>
+              {report.strengths.length > 0 && (
+                <div className="text-emerald-300">
+                  ✅ Сильні сторони: {report.strengths.map(k => METRIC_LABEL_UA[k] ?? k).join(', ')}
+                </div>
               )}
             </div>
           )}
