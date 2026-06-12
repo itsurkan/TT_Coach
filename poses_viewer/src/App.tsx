@@ -1070,15 +1070,15 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [data, contacts, handlePlayPause, handleLabel, showTableLabels])
 
+  // Determine which pose data to display based on poseSource
+  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : mediapipeData
+  const activeTopology = activePoseData?.topology ?? 'mediapipe33'
+
   const frame = (activePoseData ?? data)?.frames[frameIndex] ?? null
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
   const currentContact = contacts?.contacts.find(c => c.frameIndex === frameIndex) ?? null
   const ball  = frame?.ball ?? null
-
-  // Determine which pose data to display based on poseSource
-  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : mediapipeData
-  const activeTopology = activePoseData?.topology ?? 'mediapipe33'
 
   // Find matching pose frame index by timestampMs for the active source
   const activePoseFrameIdx = (() => {
