@@ -41,7 +41,30 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
 (chronological; each entry: hypothesis, change, commit, visual result, verdict)
 
 ### E0 — Baseline observation (no code change)
-- Status: triaging. 4 of 4 existing exports triaged (see table). 10 new exports in progress.
+- All 14 triaged. Baseline spoken-feedback logs captured for the 4 usable videos.
+- **Core finding:** the engine emits the single top-severity cue per rep through a blind
+  rate-limiter (`cadence.offer`) with no memory → the SAME line repeats every 3–5s:
+  andrii "Elbow… ×5", video_3 "Leaning… ×5". And andrii's elbow delta swings 39–79° off
+  rep-to-rep — a motion-blur artifact (RTMPose is confident-but-wrong on the fast-swinging
+  forearm at the wrist-speed peak; scores stay 0.6–0.9 even as the elbow collapses to 0°),
+  yet it's coached as precise degrees. Two defects: (1) repetitive single-cue nagging,
+  (2) precise coaching on unstable/artifact metrics. → EXP-1 fixes (1); EXP-2 targets (2).
+- Measurement tool: `tmp/analyze.mjs` (CDP, deterministic currentTime-stepping to cross every
+  feedback timestamp), `tmp/triage.mjs` (yaw sweep + screenshot). Both scratch (Videos/ gitignored).
+
+### EXP-1 — Variety-aware feedback (anti-repetition) ✅ KEEP
+- **File:** `poses_viewer/src/drill2d/analyzeDrill.ts` (feedback-assembly loop + `pickVariedCue`).
+- **Change:** prefer the most-severe cue for an issue OTHER than the one just spoken; for a
+  persistent single fault, space reminders to ≥8s instead of every rep. Cadence rate-limit
+  still applies. (Feedback layer is viewer-only — no Kotlin mirror needed.)
+- **Visual result (spoken logs, before → after):**
+  - andrii: `Elbow ×5` → `Elbow / Legs / Elbow / Legs / Elbow`
+  - video_3: `Leaning ×5` → `Leaning / Shoulder-tilt / Leaning / Shoulder-tilt / Leaning`
+  - video_4: `Leaning ×3, Arm ×1` → 3 distinct faults
+  - ivan_1: 2 messages → 4 distinct faults (knees, shoulder-line, elbow, shoulder-tilt)
+- **Verdict:** clear improvement — coach surfaces the player's real spread of faults instead of
+  one repeated line. Detection/counts untouched. Aligns with "don't re-teach" positioning.
+- Commit: `feat(viewer): EXP-1 variety-aware feedback`.
 
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).

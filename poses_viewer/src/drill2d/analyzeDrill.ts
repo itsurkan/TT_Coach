@@ -25,6 +25,32 @@ import { ReferenceStandard } from './referenceStandard'
 /** |yaw| beyond this → rep excluded from feedback (CLAUDE.md: ~30° gate). */
 export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
 
+/** EXP-1: a persistent single-issue cue is re-surfaced at most this often (ms),
+ *  instead of repeating it every rep. */
+export const REMINDER_INTERVAL_MS = 8000
+
+/**
+ * EXP-1 cue selection: prefer the most-severe cue for an issue OTHER than the one
+ * just spoken (variety). If the only cues are the same metric as last time, only
+ * re-surface it once enough time has passed (spaced reminder), else stay quiet.
+ * `cues` is already severity-sorted (feedbackEngine).
+ */
+export function pickVariedCue(
+  cues: FeedbackCue[],
+  lastMetric: string | null,
+  lastSpokenMsByMetric: Record<string, number>,
+  nowMs: number,
+): FeedbackCue | null {
+  if (cues.length === 0) return null
+  const different = cues.find(c => c.metricKey !== lastMetric)
+  if (different) return different
+  // Only same-metric cues remain (single persistent fault): space the reminder out.
+  const top = cues[0]
+  const lastMs = lastSpokenMsByMetric[top.metricKey]
+  if (lastMs === undefined || nowMs - lastMs >= REMINDER_INTERVAL_MS) return top
+  return null
+}
+
 export interface RepAnalysis {
   stroke: Stroke2D
   metrics: Record<string, number>
@@ -104,13 +130,23 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     return { stroke, metrics, cues, cameraYawDeg: yaw, placementOk }
   })
 
+  // EXP-1 (variety-aware feedback): a real coach surfaces different faults across a
+  // set instead of repeating the same line every rep. We (a) prefer the most-severe
+  // cue addressing a DIFFERENT issue than the one just spoken, and (b) for a
+  // persistent single issue, space reminders out (REMINDER_INTERVAL_MS) rather than
+  // nagging it every rep. The cadence rate-limit still applies on top.
   const feedback: SpokenFeedback[] = []
+  let lastMetric: string | null = null
+  const lastSpokenMsByMetric: Record<string, number> = {}
   for (const rep of repAnalyses) {
     if (!rep.placementOk) continue // silent rep; UI surfaces the placement flag
     const atMs = rep.stroke.endFrame * seq.intervalMs
-    const cue = cadence.offer(atMs, rep.cues)
+    const chosen = pickVariedCue(rep.cues, lastMetric, lastSpokenMsByMetric, atMs)
+    const cue = cadence.offer(atMs, chosen ? [chosen] : [])
     if (cue !== null) {
       feedback.push({ timestampMs: atMs, message: formatCue(cue), cue })
+      lastMetric = cue.metricKey
+      lastSpokenMsByMetric[cue.metricKey] = atMs
     } else if (rep.cues.length === 0 && Object.keys(rep.metrics).length > 0 && cadence.offerPositive(atMs)) {
       feedback.push({ timestampMs: atMs, message: positiveMessage(), cue: null })
     }
