@@ -4,6 +4,10 @@ import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
 import { countStrokes } from '../drill2d/countStrokes'
 import { DETECTOR_DEFAULTS } from '../drill2d/strokeDetector2d'
 import { StrokeTimeline, TimelineEntry } from './StrokeTimeline'
+import { analyzeDrill, DrillAnalysisReport } from '../drill2d/analyzeDrill'
+import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
+import { ALL_KEYS } from '../drill2d/drillMetrics'
+import { DrillResultsTable } from './DrillResultsTable'
 
 interface VideoItem { name: string; ext: string }
 
@@ -18,6 +22,8 @@ export default function StrokesPage() {
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
+  const [drillType, setDrillType] = useState('forehand_drive')
+  const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useEffect(() => {
@@ -51,6 +57,24 @@ export default function StrokesPage() {
     }
   }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs])
 
+  const report = useMemo<DrillAnalysisReport | null>(() => {
+    if (!seq) return null
+    const standard = REFERENCE_STANDARDS[drillType]
+    if (!standard) return null
+    try {
+      return analyzeDrill(seq, {
+        handedness,
+        drillType,
+        standard,
+        enabledMetrics,
+        cameraYawDeg: yawDeg,
+        detector: { minPeakSpeed, minPeakGapMs },
+      })
+    } catch {
+      return null
+    }
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
+
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
     const repPeaks = new Set(result.reps.map(s => s.peakFrame))
@@ -66,7 +90,7 @@ export default function StrokesPage() {
   }, [seq, result])
 
   // Selection indexes into entries; drop it when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs])
+  useEffect(() => { setSelectedIdx(null) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -192,6 +216,28 @@ export default function StrokesPage() {
         </div>
       )}
 
+      {report && report.reps.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold">Аналіз повторів</h2>
+          {!report.placementOk && (
+            <div className="text-amber-400 text-xs">
+              ⚠ Більшість повторів зняті не збоку — підказки приглушені. Виправ кут камери.
+            </div>
+          )}
+          <DrillResultsTable
+            reps={report.reps}
+            standard={REFERENCE_STANDARDS[drillType]}
+            enabledMetrics={enabledMetrics}
+            selectedIndex={selectedIdx}
+            onSelect={i => {
+              setSelectedIdx(i)
+              const peakMs = seq ? (seq.frames[report.reps[i].stroke.peakFrame]?.timestampMs ?? 0) : 0
+              seek(peakMs)
+            }}
+          />
+        </div>
+      )}
+
       <fieldset className="border border-neutral-700 rounded p-3 max-w-xl space-y-2 text-sm">
         <legend className="px-1">Налаштування</legend>
         <label className="flex items-center gap-2">
@@ -233,6 +279,35 @@ export default function StrokesPage() {
           />
         </label>
         <p className="text-neutral-400">Клік по смузі — перехід до піка удару.</p>
+        <label className="flex items-center gap-2">
+          <span className="w-56">Вправа:</span>
+          <select
+            className="bg-neutral-800 rounded px-2 py-1"
+            value={drillType}
+            onChange={e => setDrillType(e.target.value)}
+          >
+            <option value="forehand_drive">Накат справа (forehand drive)</option>
+          </select>
+        </label>
+        <div className="flex items-start gap-2">
+          <span className="w-56">Метрики:</span>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {ALL_KEYS.map(k => (
+              <label key={k} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  checked={enabledMetrics.has(k)}
+                  onChange={e => setEnabledMetrics(prev => {
+                    const next = new Set(prev)
+                    if (e.target.checked) next.add(k); else next.delete(k)
+                    return next
+                  })}
+                />
+                {k}
+              </label>
+            ))}
+          </div>
+        </div>
       </fieldset>
       </div>
     </div>
