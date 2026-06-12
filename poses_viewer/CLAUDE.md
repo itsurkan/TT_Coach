@@ -47,7 +47,9 @@ diverges from Kotlin and has NO shared/ counterpart to golden against. `analyzeD
 M0 count-golden (detection on plain aspect). `#/strokes` now also shows a per-rep results table
 (`DrillResultsTable.tsx`), metric on/off toggles, a drill-type selector, and `speechSynthesis`
 spoken-feedback playback (`useSpokenFeedback.ts`, EN voice, audio default + text-only mode).
-Reference ranges are PROVISIONAL (see referenceStandard.ts header).
+Clicking a stroke band loops its `start→end` segment (`strokeLoop.ts` `loopBackTarget`, wired in
+the video `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without
+deselecting. Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 

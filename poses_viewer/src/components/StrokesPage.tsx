@@ -9,6 +9,7 @@ import { analyzeDrill, DrillAnalysisReport } from '../drill2d/analyzeDrill'
 import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
 import { ALL_KEYS } from '../drill2d/drillMetrics'
 import { DrillResultsTable } from './DrillResultsTable'
+import { loopBackTarget } from './strokeLoop'
 
 interface VideoItem { name: string; ext: string }
 
@@ -23,6 +24,7 @@ export default function StrokesPage() {
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
+  const [loop, setLoop] = useState(false)
   const [drillType, setDrillType] = useState('forehand_drive')
   const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
   const [feedbackMode, setFeedbackMode] = useState<FeedbackMode>('audio')
@@ -94,8 +96,8 @@ export default function StrokesPage() {
     }))
   }, [seq, result])
 
-  // Selection indexes into entries; drop it when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
+  // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
+  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -162,7 +164,17 @@ export default function StrokesPage() {
             controls
             className="max-h-[55vh] bg-black"
             onTimeUpdate={e => {
-              const ms = e.currentTarget.currentTime * 1000
+              const v = e.currentTarget
+              const ms = v.currentTime * 1000
+              if (loop && selected) {
+                const back = loopBackTarget(ms, selected.startMs, selected.endMs)
+                if (back !== null) {
+                  v.currentTime = back / 1000
+                  setCurrentMs(back)
+                  spoken.reset(back) // re-arm cues for the next pass
+                  return
+                }
+              }
               setCurrentMs(ms)
               spoken.onTime(ms)
             }}
@@ -175,7 +187,12 @@ export default function StrokesPage() {
                 currentMs={currentMs}
                 onSeek={seek}
                 selectedIndex={selectedIdx}
-                onSelect={i => { setSelectedIdx(i); seek(entries[i].startMs) }}
+                onSelect={i => {
+                  setSelectedIdx(i)
+                  setLoop(true) // clicking a stroke loops it
+                  seek(entries[i].startMs)
+                  videoRef.current?.play()
+                }}
               />
               <TimelineLegend />
               {spoken.latest && (
@@ -220,8 +237,19 @@ export default function StrokesPage() {
                     Кінець · {(selected.endMs / 1000).toFixed(2)} с
                   </button>
                   <button
+                    className={`px-2 py-1 rounded ${loop ? 'bg-emerald-700 hover:bg-emerald-600 text-emerald-50' : 'bg-neutral-700 hover:bg-neutral-600'}`}
+                    onClick={() => {
+                      const next = !loop
+                      setLoop(next)
+                      if (next) { seek(selected.startMs); videoRef.current?.play() }
+                    }}
+                    title="Зациклити цей удар (старт → кінець)"
+                  >
+                    🔁 Цикл: {loop ? 'увімк' : 'вимк'}
+                  </button>
+                  <button
                     className="px-2 py-1 rounded text-neutral-400 hover:text-neutral-200"
-                    onClick={() => setSelectedIdx(null)}
+                    onClick={() => { setSelectedIdx(null); setLoop(false) }}
                     title="Зняти вибір"
                   >
                     ✕
