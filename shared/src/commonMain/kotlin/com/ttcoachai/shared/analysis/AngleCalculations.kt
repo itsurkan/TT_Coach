@@ -6,9 +6,13 @@
 package com.ttcoachai.shared.analysis
 
 import com.ttcoachai.shared.models.Landmark3D
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.sqrt
+
+private fun toDegrees(radians: Double): Double = radians * 180.0 / PI
 
 /**
  * Platform-independent angle calculation functions extracted from MotionAnalyzer.
@@ -36,7 +40,7 @@ object AngleCalculations {
         if (magBA == 0.0 || magBC == 0.0) return 0f
 
         val cosAngle = dotProduct / (magBA * magBC)
-        return Math.toDegrees(Math.acos(cosAngle.coerceIn(-1.0, 1.0))).toFloat()
+        return toDegrees(acos(cosAngle.coerceIn(-1.0, 1.0))).toFloat()
     }
 
     /**
@@ -64,14 +68,14 @@ object AngleCalculations {
         val leftHip = landmarks.getOrNull(23) ?: return null
         val rightHip = landmarks.getOrNull(24) ?: return null
 
-        val shoulderAngle = Math.toDegrees(
+        val shoulderAngle = toDegrees(
             atan2(
                 (rightShoulder.y - leftShoulder.y).toDouble(),
                 (rightShoulder.x - leftShoulder.x).toDouble()
             )
         ).toFloat()
 
-        val hipAngle = Math.toDegrees(
+        val hipAngle = toDegrees(
             atan2(
                 (rightHip.y - leftHip.y).toDouble(),
                 (rightHip.x - leftHip.x).toDouble()

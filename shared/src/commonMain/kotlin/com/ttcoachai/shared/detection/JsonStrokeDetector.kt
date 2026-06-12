@@ -13,6 +13,15 @@ import com.ttcoachai.shared.models.StrokeDetectorConfig
 import com.ttcoachai.shared.models.StrokePhase
 import com.ttcoachai.shared.models.TrackingAxis
 import kotlin.math.abs
+import kotlin.math.roundToLong
+
+/** KMP-portable replacement for JVM-only `"%.3f".format(v)` (log output only). */
+private fun fmt3(value: Float): String {
+    val milli = (value.toDouble() * 1000).roundToLong()
+    val sign = if (milli < 0) "-" else ""
+    val absMilli = if (milli < 0) -milli else milli
+    return "$sign${absMilli / 1000}.${(absMilli % 1000).toString().padStart(3, '0')}"
+}
 
 /**
  * Generic stroke detector for JSON pose data.
@@ -289,8 +298,8 @@ class JsonStrokeDetector(
             println(
                 "$TAG: Finalized stroke ${stroke.strokeIndex + 1}: " +
                         "frames ${stroke.preparationStartFrame}-${stroke.returnEndFrame}, " +
-                        "backswing=${"%.3f".format(stroke.backswingMinValue)}, " +
-                        "peak=${"%.3f".format(stroke.forwardPeakValue)}, " +
+                        "backswing=${fmt3(stroke.backswingMinValue)}, " +
+                        "peak=${fmt3(stroke.forwardPeakValue)}, " +
                         "duration=${stroke.strokeDurationMs}ms"
             )
         } else {
