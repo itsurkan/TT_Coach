@@ -1,0 +1,60 @@
+# XcodeGen project definition for the TT Coach iOS app.
+#
+# Generate the Xcode project on your Mac with:
+#   brew install xcodegen        # once
+#   cd iosApp && xcodegen generate
+#   open TTCoach.xcodeproj
+#
+# The pre-build script invokes the KMP direct-integration task
+# (:shared:embedAndSignAppleFrameworkForXcode), which compiles the shared
+# Kotlin module into TTCoachShared.framework for the current SDK/config and
+# drops it into shared/build/xcode-frameworks/. Nothing here touches app/
+# (Android) or the frozen pipelines.
+
+name: TTCoach
+
+options:
+  bundleIdPrefix: com.ttcoachai
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    # KMP pre-build scripts need to write outside the sandbox (gradle caches).
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+
+targets:
+  TTCoach:
+    type: application
+    platform: iOS
+    sources:
+      - TTCoach
+    info:
+      path: TTCoach/Info.plist
+      properties:
+        CFBundleDisplayName: TT Coach
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: >-
+          TT Coach uses the camera to analyze your table-tennis strokes and give
+          real-time coaching feedback. Video is processed on-device and never uploaded.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ttcoachai.ttcoach
+        # Where :shared:embedAndSignAppleFrameworkForXcode puts the framework.
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: "$(inherited) -framework TTCoachShared"
+    preBuildScripts:
+      - name: Build TTCoachShared (Kotlin Multiplatform)
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/TTCoachShared.framework
