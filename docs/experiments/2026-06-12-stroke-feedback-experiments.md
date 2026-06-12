@@ -105,6 +105,18 @@ Branch: `2d-experiments` (off `2d`). Autonomous 12h run.
   keep their over/under colour. Honest UI: value present, but visibly not trusted. ✅
 - Commit: `feat(viewer): EXP-4 mark unreliable metrics in results table`.
 
+### ⚠ Data-integrity finding — corrupt IMG_6330 export
+- During triage I found IMG_6330's `_poses_rtm.json` (from the batch `export_new.py` run)
+  contained **andrii_1's exact frames** (header `videoName` correct, but `frames` byte-identical
+  to andrii) — the video plays the rally, the poses were andrii's. Verified all other 12 exports
+  are distinct/clean (frame-100/500/900 R-shoulder signature check). Re-exported IMG_6330 via
+  `export_poses_rtmpose.py` → now correct (188 frames @100ms). **Experiments EXP-1..4 are
+  unaffected** (they used andrii/video_3/video_4/ivan_1, all verified distinct).
+- Hardened `tmp/analyze.mjs` with select-verify+retry after this surfaced a stale-selection risk.
+- Root cause in `export_new.py` batch mode not chased (out of scope); flag for follow-up.
+- EXP-5 (session-quality gate) abandoned: it didn't cleanly separate marginal from clean footage,
+  and its initial signal was contaminated by the corrupt IMG_6330 measurement.
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").
