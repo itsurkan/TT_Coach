@@ -27,18 +27,18 @@ describe('parsePoseV2', () => {
   })
 })
 
-describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
-  // Kotlin source of truth: 23 raw peaks, 15 reps, handedness RIGHT, yaw 0.
-  // If this fails, the TS port is the bug — diff per-stroke output against a
-  // Kotlin diagnostic; NEVER loosen these numbers to make TS pass.
-  it('andrii_1: 23 raw peaks → 15 reps', () => {
+describe('GOLDEN counts (TS viewer pipeline — diverged from Kotlin)', () => {
+  // NOTE: the TS detector now uses DIRECTION-AWARE NMS (a backswing and its forward
+  // drive both survive) + the full-cycle model. This intentionally diverges from the
+  // Kotlin shared/ chain (still gap-based). These are the TS numbers; do not "restore"
+  // them to the old Kotlin goldens. Direction-aware NMS raises raw-peak counts (both
+  // swing halves detected) and shifts RepFilter banding.
+  it('andrii_1: 29 raw peaks → 13 reps (RepFilter trims 2 cycles)', () => {
     const seq = load('andrii_1_rtm.json')
     const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
-    expect(r.rawStrokes).toHaveLength(23)
-    expect(r.forwardStrokes).toHaveLength(15) // observed; matches Kotlin (RepFilter drops none on this fixture)
-    expect(r.reps).toHaveLength(15)
-    // Planted player — every rep's hip travel ≤ ~0.25 torso, under the 0.4 gate
-    // (now default-on), so the locomotion gate (L-30) removes none.
+    expect(r.rawStrokes).toHaveLength(29)
+    expect(r.forwardStrokes).toHaveLength(15) // all 15 forward drives still detected
+    expect(r.reps).toHaveLength(13)            // cycle-duration banding drops 2
     expect(r.locomotionStrokes).toHaveLength(0)
     // eslint-disable-next-line no-console
     console.log(`andrii_1: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
@@ -55,10 +55,10 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     console.log(`video_2: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
 
-  it('video_4: shadow play — 18 raw → 12 drives → 12 cycles → 11 banded → 10 after locomotion gate', () => {
+  it('video_4: shadow play — 25 raw → 12 drives → 12 cycles → 11 banded → 10 after locomotion gate', () => {
     const seq = load('video_4_rtm.json')
     const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
-    expect(r.rawStrokes).toHaveLength(18)
+    expect(r.rawStrokes).toHaveLength(25)     // direction-aware NMS keeps both swing halves
     expect(r.forwardStrokes).toHaveLength(12) // 12 drives, visually verified
     expect(r.cycles).toHaveLength(12)         // one cycle per drive (backswing paired where present)
     // Full-cycle model: banding on near-uniform cycle duration keeps the two short
@@ -68,5 +68,15 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     expect(r.locomotionStrokes).toHaveLength(1)
     // eslint-disable-next-line no-console
     console.log(`video_4: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length} loco=${r.locomotionStrokes.length}`)
+  })
+
+  it('video_3: steady forehand drill — 20 reps at even ~0.95s cadence', () => {
+    // Direction-aware NMS recovers the strokes the old 500ms-gap NMS suppressed
+    // (the backswing and forward drive were near-equal speed → gap kept only one).
+    const seq = load('video_3_rtm.json')
+    const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
+    expect(r.reps).toHaveLength(20)
+    // eslint-disable-next-line no-console
+    console.log(`video_3: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
 })

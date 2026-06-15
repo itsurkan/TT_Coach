@@ -25,7 +25,14 @@ Mostly wiring. Loads pose+ball JSON keyed by `videoBase`; optional V5/YOLO ball,
 ### `src/drill2d/` + `src/components/StrokesPage.tsx` / `StrokeTimeline.tsx`
 
 M0 stroke-counting debug harness (spec: docs/superpowers/specs/2026-06-11-drill-effectiveness-sim-design.md).
-`drill2d/` is a 1:1 TS mirror of the Kotlin shared/ detection chain — `strokeDetector2d.ts`,
+**DIVERGED FROM KOTLIN (2026-06-15, user-directed "viewer-first"):** the TS detector now uses
+DIRECTION-AWARE NMS — the min-peak-gap only de-dups SAME-direction wrist peaks, so a backswing and
+its forward drive both survive ("one stroke = one backward + one forward move", gap-independent).
+This + the full-cycle model fixes slow/shadow footage the gap-based detector under-counted. Current
+TS golden counts: andrii_1 29 raw / 13 reps, video_4 25 raw / **10 reps (hard contract)**, video_3
+20 reps (steady drill). The Kotlin shared/ chain is still gap-based (not yet back-ported).
+
+`drill2d/` is a TS mirror of the Kotlin shared/ detection chain — `strokeDetector2d.ts`,
 `forwardStrokeFilter.ts`, `repFilter.ts`, plus `geometry.ts` (xScale), `facing.ts`, `parsePoseV2.ts`,
 `countStrokes.ts` (pipeline order detect → forward → rep is MANDATORY). NOT related to `src/drill/`
 (3D mannequin FK). **Binding fix-flow rule: Kotlin is source of truth — any behavioral fix lands in

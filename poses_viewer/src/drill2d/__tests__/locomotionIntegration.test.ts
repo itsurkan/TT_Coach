@@ -20,12 +20,12 @@ describe('locomotion gate — countStrokes', () => {
     // the dropped stroke is the one peaking ~15.18s
     const peakMs = seq.frames[r.locomotionStrokes[0].peakFrame].timestampMs
     expect(peakMs / 1000).toBeCloseTo(15.18, 1)
-    expect(countStrokes(load('andrii_1_rtm.json'), cfg).reps.length).toBe(15)
+    expect(countStrokes(load('andrii_1_rtm.json'), cfg).reps.length).toBe(13)
   })
 
-  it('explicit 0 disables the gate: banded cycles before loco (11 / 15)', () => {
+  it('explicit 0 disables the gate: banded cycles before loco (11 / 13)', () => {
     expect(countStrokes(load('video_4_rtm.json'), { ...cfg, hipTravelMaxTorso: 0 }).reps.length).toBe(11)
-    expect(countStrokes(load('andrii_1_rtm.json'), { ...cfg, hipTravelMaxTorso: 0 }).reps.length).toBe(15)
+    expect(countStrokes(load('andrii_1_rtm.json'), { ...cfg, hipTravelMaxTorso: 0 }).reps.length).toBe(13)
   })
 })
 

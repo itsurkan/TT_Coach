@@ -48,8 +48,21 @@ export default function StrokesPage() {
   const calibAppliedRef = useRef('')
 
   useEffect(() => {
-    fetch('/api/videos').then(r => (r.ok ? r.json() : [])).then(setVideos).catch(() => setVideos([]))
+    fetch('/api/videos').then(r => (r.ok ? r.json() : [])).then((vs: VideoItem[]) => {
+      setVideos(vs)
+      // Restore the last-selected video across reloads (only if it still exists).
+      try {
+        const saved = localStorage.getItem('strokes_selected_video')
+        if (saved && vs.some(v => v.name === saved)) setBase(saved)
+      } catch { /* ignore storage errors */ }
+    }).catch(() => setVideos([]))
   }, [])
+
+  // Persist the selected video so a reload reopens it.
+  useEffect(() => {
+    if (!base) return
+    try { localStorage.setItem('strokes_selected_video', base) } catch { /* ignore */ }
+  }, [base])
 
   // EXP-7: per-video camera-angle + handedness persistence. Selecting a video restores
   // its saved calibration (the manual L-25 angle you defined once); changing the knobs

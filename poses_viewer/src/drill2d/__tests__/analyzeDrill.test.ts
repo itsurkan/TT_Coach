@@ -12,7 +12,7 @@ function loadSeq(name: string) {
 }
 
 describe('analyzeDrill — count parity (anti-drift guardrail)', () => {
-  it('andrii_1 produces 15 reps from 23 raw peaks (matches Kotlin E2E golden)', () => {
+  it('andrii_1 produces 13 reps from 29 raw peaks (direction-aware NMS, TS-diverged)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
       handedness: 'right',
@@ -20,8 +20,8 @@ describe('analyzeDrill — count parity (anti-drift guardrail)', () => {
       standard: FOREHAND_DRIVE_STANDARD,
       cameraYawDeg: 0, // manual override → placementOk, feedback flows
     })
-    expect(report.rawPeakCount).toBe(23)
-    expect(report.reps).toHaveLength(15)
+    expect(report.rawPeakCount).toBe(29)
+    expect(report.reps).toHaveLength(13)
   })
 
   it('produces a metric map per rep and (with yaw override) at least one spoken line', () => {

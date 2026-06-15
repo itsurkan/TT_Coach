@@ -46,7 +46,9 @@ describe('video_4 full-cycle integration — exactly 10 strokes', () => {
     expect(r.locomotionStrokes.some(at1518)).toBe(true)
   })
 
-  it('andrii_1 stays at 15 reps (full-cycle change is regression-safe)', () => {
-    expect(countStrokes(load('andrii_1_rtm.json'), { handedness: 'right', cameraYawDeg: 0 }).reps).toHaveLength(15)
+  it('andrii_1 = 13 reps (direction-aware NMS shifted it; video_4=10 is the hard contract)', () => {
+    // andrii_1 is a different camera setup (user accepted drift). The hard guard is
+    // video_4=10 above; this just pins andrii's current count so further changes are visible.
+    expect(countStrokes(load('andrii_1_rtm.json'), { handedness: 'right', cameraYawDeg: 0 }).reps).toHaveLength(13)
   })
 })

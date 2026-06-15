@@ -41,15 +41,23 @@ export function detectStrokes(
   const torsoLen = medianTorsoLength(frames, xScale, opts.minScore)
   if (torsoLen === null) return []
 
+  const smoothFrames = framesFor(opts.smoothingWindowMs, intervalMs)
   const speed = smooth(
     rawWristSpeeds(frames, handedness, xScale, torsoLen, intervalMs, opts.minScore),
-    framesFor(opts.smoothingWindowMs, intervalMs),
+    smoothFrames,
   )
+  // Signed horizontal wrist direction (forward vs backward), smoothed on the same
+  // window. The min-peak-gap NMS only de-dups SAME-direction peaks, so a backswing
+  // and the forward drive that follows it ~300ms later BOTH survive — "one stroke =
+  // one backward + one forward move" instead of relying on the gap to pick one.
+  const dirSign = smooth(rawWristDx(frames, handedness, xScale, intervalMs, opts.minScore), smoothFrames)
+    .map(d => (d > 0 ? 1 : d < 0 ? -1 : 0))
   const peaks = findPeaks(
     speed,
     framesFor(opts.peakWindowRadiusMs, intervalMs),
     framesFor(opts.minPeakGapMs, intervalMs),
     opts.minPeakSpeed,
+    dirSign,
   )
   const strokes: Stroke2D[] = peaks.map((p, idx) => {
     const floor = speed[p] * opts.boundaryFraction
@@ -102,6 +110,26 @@ function rawWristSpeeds(
   return raw
 }
 
+/** Signed horizontal wrist displacement per frame (xScale-corrected); + and − mark
+ *  the two swing directions. 0 when the wrist is gated at either end. */
+function rawWristDx(
+  frames: PoseFrame2D[],
+  handedness: Handedness,
+  xScale: number,
+  intervalMs: number,
+  minScore: number,
+): number[] {
+  const wristIdx = Coco17.wrist(handedness)
+  const dtSec = intervalMs / 1000
+  const raw = new Array<number>(frames.length).fill(0)
+  for (let i = 1; i < frames.length; i++) {
+    const prev = scored(frames[i - 1].keypoints, wristIdx, minScore)
+    const curr = scored(frames[i].keypoints, wristIdx, minScore)
+    raw[i] = prev === null || curr === null ? 0 : ((curr.x - prev.x) * xScale) / dtSec
+  }
+  return raw
+}
+
 /** Median xScale-corrected shoulder-mid→hip-mid distance; null if never measurable. */
 function medianTorsoLength(frames: PoseFrame2D[], xScale: number, minScore: number): number | null {
   const lens: number[] = []
@@ -143,8 +171,20 @@ function smooth(raw: number[], window: number): number[] {
  * Local-maximum peak finding with keep-max NMS refractory: a candidate within
  * minGap of the previously admitted peak REPLACES it when taller, so a small
  * early bump cannot block a taller stroke peak.
+ *
+ * When `dirSign` is supplied, the refractory de-dup is DIRECTION-AWARE: it only
+ * merges two peaks of the SAME swing direction. An opposite-direction peak within
+ * minGap is always admitted, so a backswing and the forward drive ~300ms later both
+ * survive (one stroke = one backward + one forward move) instead of the gap picking
+ * the marginally-faster one (the L-27 shadow-play failure).
  */
-function findPeaks(speed: number[], radius: number, minGap: number, minPeakSpeed: number): number[] {
+function findPeaks(
+  speed: number[],
+  radius: number,
+  minGap: number,
+  minPeakSpeed: number,
+  dirSign?: number[],
+): number[] {
   const peaks: number[] = []
   for (let i = 0; i < speed.length; i++) {
     if (speed[i] < minPeakSpeed) continue
@@ -157,9 +197,12 @@ function findPeaks(speed: number[], radius: number, minGap: number, minPeakSpeed
       if (j > i && speed[j] > speed[i]) { isPeak = false; break }
     }
     if (!isPeak) continue
-    if (peaks.length === 0 || i - peaks[peaks.length - 1] >= minGap) {
+    const last = peaks[peaks.length - 1]
+    // Same-direction neighbours de-dup; opposite-direction ones never suppress each other.
+    const sameDir = dirSign === undefined || dirSign[i] === dirSign[last]
+    if (peaks.length === 0 || i - last >= minGap || !sameDir) {
       peaks.push(i)
-    } else if (speed[i] > speed[peaks[peaks.length - 1]]) {
+    } else if (speed[i] > speed[last]) {
       peaks[peaks.length - 1] = i
     }
   }
