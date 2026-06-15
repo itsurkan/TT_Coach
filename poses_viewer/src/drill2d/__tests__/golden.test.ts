@@ -55,14 +55,16 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     console.log(`video_2: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
 
-  it('video_4: shadow play — 18 raw → 12 forward → 9 reps → 8 after locomotion gate (mirrors Kotlin)', () => {
+  it('video_4: shadow play — 18 raw → 12 drives → 12 cycles → 11 banded → 10 after locomotion gate', () => {
     const seq = load('video_4_rtm.json')
     const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
     expect(r.rawStrokes).toHaveLength(18)
     expect(r.forwardStrokes).toHaveLength(12) // 12 drives, visually verified
-    // detect→forward→rep yields 9; the 9th is the player stepping (hip-mid travel
-    // ~0.68 torso vs ≤0.25 for real drives) — the L-30 gate (default-on) drops it.
-    expect(r.reps).toHaveLength(8)
+    expect(r.cycles).toHaveLength(12)         // one cycle per drive (backswing paired where present)
+    // Full-cycle model: banding on near-uniform cycle duration keeps the two short
+    // fast drives (7.53s, 13.80s) the forward-half filter dropped → 11 banded; the
+    // L-30 gate then drops the player's walking step (~15.18s, hip ~0.68 torso) → 10.
+    expect(r.reps).toHaveLength(10)
     expect(r.locomotionStrokes).toHaveLength(1)
     // eslint-disable-next-line no-console
     console.log(`video_4: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length} loco=${r.locomotionStrokes.length}`)

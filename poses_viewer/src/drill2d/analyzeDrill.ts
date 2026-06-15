@@ -11,8 +11,9 @@ import { PoseSequence2D } from './parsePoseV2'
 import { xScaleFor, MAX_YAW_DEG } from './geometry'
 import { detectStrokes, StrokeDetectorOptions } from './strokeDetector2d'
 import { filterForwardStrokes } from './forwardStrokeFilter'
-import { filterReps } from './repFilter'
-import { filterStationaryStrokes, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFilter'
+import { filterCycleReps } from './repFilter'
+import { pairCycles, MAX_PAIR_GAP_MS } from './cyclePairing'
+import { filterStationaryCycles, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFilter'
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak } from './drillMetrics'
@@ -146,6 +147,8 @@ export interface DrillAnalysisConfig {
   /** EXPERIMENTAL locomotion gate (L-30): drop reps whose hip-mid travels more
    *  than this many torso-lengths (walking). 0/undefined = off. */
   hipTravelMaxTorso?: number
+  /** Cycle-pairing gap cap (ms); undefined → MAX_PAIR_GAP_MS (800). */
+  maxPairGapMs?: number
 }
 
 export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): DrillAnalysisReport {
@@ -158,12 +161,15 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   const detectXScale = xScaleFor(seq.aspectRatio, 0)
   const rawStrokes = detectStrokes(seq.frames, config.handedness, detectXScale, seq.intervalMs, config.detector)
   const forwardStrokes = filterForwardStrokes(rawStrokes, seq.frames, config.handedness, minScore)
-  const repped = filterReps(forwardStrokes)
+  const cycles = pairCycles(rawStrokes, forwardStrokes, seq.frames, seq.intervalMs, config.maxPairGapMs ?? MAX_PAIR_GAP_MS)
+  const banded = filterCycleReps(cycles)
   // undefined → default-on (DEFAULT_MAX_TRAVEL_TORSO); explicit 0 → gate off.
   const hipTravelMax = config.hipTravelMaxTorso ?? DEFAULT_MAX_TRAVEL_TORSO
-  const reps = hipTravelMax > 0
-    ? filterStationaryStrokes(repped, seq.frames, detectXScale, hipTravelMax, minScore)
-    : repped
+  const keptCycles = hipTravelMax > 0
+    ? filterStationaryCycles(banded, seq.frames, detectXScale, hipTravelMax, minScore)
+    : banded
+  // Metrics anchor stays the drive peak — analysis sees the same frames as before.
+  const reps = keptCycles.map(c => c.drive)
 
   const cadence = new FeedbackCadencePolicy(
     config.cadence?.minIntervalMs ?? 3000,

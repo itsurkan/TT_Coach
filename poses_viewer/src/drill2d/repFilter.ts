@@ -1,4 +1,4 @@
-import { Stroke2D } from './types'
+import { Stroke2D, StrokeCycle2D } from './types'
 import { median } from './median'
 
 /**
@@ -20,6 +20,28 @@ export function filterReps(strokes: Stroke2D[]): Stroke2D[] {
     return (
       s.peakSpeed >= medSpeed / SPEED_BAND &&
       s.peakSpeed <= medSpeed * SPEED_BAND &&
+      dur >= medDur / DURATION_BAND &&
+      dur <= medDur * DURATION_BAND
+    )
+  })
+}
+
+/**
+ * Cycle-aware RepFilter. Same banding, but duration is the FULL cycle span
+ * (backswing.start → drive.end), not the forward-half. Cycle durations are near
+ * uniform (~1.0 s), so fast/short drives whose forward-half fell below the
+ * forward-half lower band are kept — fixing the video_4 8-vs-10 undercount.
+ * Speed still bands on the drive peak (cycle.peakSpeed → drive.peakSpeed).
+ */
+export function filterCycleReps(cycles: StrokeCycle2D[]): StrokeCycle2D[] {
+  if (cycles.length < MIN_STROKES_TO_FILTER) return cycles
+  const medSpeed = median(cycles.map(c => c.peakSpeed))
+  const medDur = median(cycles.map(c => c.endFrame - c.startFrame))
+  return cycles.filter(c => {
+    const dur = c.endFrame - c.startFrame
+    return (
+      c.peakSpeed >= medSpeed / SPEED_BAND &&
+      c.peakSpeed <= medSpeed * SPEED_BAND &&
       dur >= medDur / DURATION_BAND &&
       dur <= medDur * DURATION_BAND
     )

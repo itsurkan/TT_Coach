@@ -1,4 +1,4 @@
-import { Coco17, PoseFrame2D, Stroke2D } from './types'
+import { Coco17, PoseFrame2D, Stroke2D, StrokeCycle2D } from './types'
 import { scored } from './facing'
 
 /**
@@ -31,13 +31,13 @@ const MIN_TORSO_LEN = 1e-4
  */
 export function hipMidTravelTorso(
   frames: PoseFrame2D[],
-  stroke: Stroke2D,
+  window: { startFrame: number; endFrame: number },
   xScale: number,
   minScore: number,
 ): number | null {
   const xs: number[] = []
   const torsos: number[] = []
-  for (let i = stroke.startFrame; i <= stroke.endFrame; i++) {
+  for (let i = window.startFrame; i <= window.endFrame; i++) {
     const kp = frames[i]?.keypoints
     if (kp === undefined) continue
     const lh = scored(kp, Coco17.LEFT_HIP, minScore)
@@ -73,6 +73,25 @@ export function filterStationaryStrokes(
 ): Stroke2D[] {
   return strokes.filter(s => {
     const travel = hipMidTravelTorso(frames, s, xScale, minScore)
+    return travel === null || travel <= maxTravelTorso
+  })
+}
+
+/**
+ * Cycle-aware locomotion gate. Hip-mid travel is measured over the FULL cycle
+ * window [cycle.startFrame, cycle.endFrame] (backswing + drive), so a walking
+ * step that slides the body across the whole cycle is still rejected. Cycles
+ * whose travel can't be measured are KEPT (no reject on absence of evidence).
+ */
+export function filterStationaryCycles(
+  cycles: StrokeCycle2D[],
+  frames: PoseFrame2D[],
+  xScale: number,
+  maxTravelTorso: number,
+  minScore: number,
+): StrokeCycle2D[] {
+  return cycles.filter(c => {
+    const travel = hipMidTravelTorso(frames, c, xScale, minScore)
     return travel === null || travel <= maxTravelTorso
   })
 }
