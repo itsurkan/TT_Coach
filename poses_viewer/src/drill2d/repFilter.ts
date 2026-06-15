@@ -27,11 +27,23 @@ export function filterReps(strokes: Stroke2D[]): Stroke2D[] {
 }
 
 /**
- * Cycle-aware RepFilter. Same banding, but duration is the FULL cycle span
- * (backswing.start → drive.end), not the forward-half. Cycle durations are near
- * uniform (~1.0 s), so fast/short drives whose forward-half fell below the
- * forward-half lower band are kept — fixing the video_4 8-vs-10 undercount.
- * Speed still bands on the drive peak (cycle.peakSpeed → drive.peakSpeed).
+ * Speed below this fraction of the session median counts as "slow" for the
+ * short-cycle junk test. Chosen on a wide stable plateau (0.75–0.95 all give the
+ * same counts on video_3/4 + andrii), so it is not a knife-edge tuned value.
+ */
+export const SHORT_STRONG_SPEED_FRACTION = 0.85
+
+/**
+ * Cycle-aware RepFilter. Duration is the FULL cycle span (backswing.start →
+ * drive.end). Speed bands on the drive peak (cycle.peakSpeed).
+ *
+ * The duration LOWER bound is RELAXED: a short cycle (below the band) is dropped
+ * only when it is ALSO slow (< SHORT_STRONG_SPEED_FRACTION × median speed). A
+ * short-but-strong cycle is a real drive whose span is short only because no
+ * backswing was paired (unpaired cycle = drive-half only) — keeping it recovers
+ * andrii_1's two backswing-less drives (L-31) while still dropping video_4's slow
+ * trailing junk (@15.74s, 0.68× median). The duration UPPER bound and the speed
+ * band still drop long/very-slow/very-fast non-strokes.
  */
 export function filterCycleReps(cycles: StrokeCycle2D[]): StrokeCycle2D[] {
   if (cycles.length < MIN_STROKES_TO_FILTER) return cycles
@@ -39,11 +51,9 @@ export function filterCycleReps(cycles: StrokeCycle2D[]): StrokeCycle2D[] {
   const medDur = median(cycles.map(c => c.endFrame - c.startFrame))
   return cycles.filter(c => {
     const dur = c.endFrame - c.startFrame
-    return (
-      c.peakSpeed >= medSpeed / SPEED_BAND &&
-      c.peakSpeed <= medSpeed * SPEED_BAND &&
-      dur >= medDur / DURATION_BAND &&
-      dur <= medDur * DURATION_BAND
-    )
+    if (c.peakSpeed < medSpeed / SPEED_BAND || c.peakSpeed > medSpeed * SPEED_BAND) return false
+    if (dur > medDur * DURATION_BAND) return false
+    if (dur < medDur / DURATION_BAND && c.peakSpeed < medSpeed * SHORT_STRONG_SPEED_FRACTION) return false
+    return true
   })
 }

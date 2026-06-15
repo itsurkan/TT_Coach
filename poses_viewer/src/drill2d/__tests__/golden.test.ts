@@ -33,12 +33,12 @@ describe('GOLDEN counts (TS viewer pipeline — diverged from Kotlin)', () => {
   // Kotlin shared/ chain (still gap-based). These are the TS numbers; do not "restore"
   // them to the old Kotlin goldens. Direction-aware NMS raises raw-peak counts (both
   // swing halves detected) and shifts RepFilter banding.
-  it('andrii_1: 29 raw peaks → 13 reps (RepFilter trims 2 cycles)', () => {
+  it('andrii_1: 29 raw peaks → 15 reps', () => {
     const seq = load('andrii_1_rtm.json')
     const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
     expect(r.rawStrokes).toHaveLength(29)
-    expect(r.forwardStrokes).toHaveLength(15) // all 15 forward drives still detected
-    expect(r.reps).toHaveLength(13)            // cycle-duration banding drops 2
+    expect(r.forwardStrokes).toHaveLength(15) // all 15 forward drives detected
+    expect(r.reps).toHaveLength(15)            // short-but-strong unpaired drives now kept (L-31 fix)
     expect(r.locomotionStrokes).toHaveLength(0)
     // eslint-disable-next-line no-console
     console.log(`andrii_1: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)

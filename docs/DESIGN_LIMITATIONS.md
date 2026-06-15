@@ -120,6 +120,22 @@ evidence tags. Until then the UI surfaces the `evidence` flag so users see these
 external provisional standard, not a calibrated target.
 **Refs:** `poses_viewer/src/drill2d/referenceStandard.ts`; deep-research pass 2026-06-12.
 
+### L-31 · Cycle RepFilter dropped real drives that lack a paired backswing — `RESOLVED`
+After direction-aware NMS + the full-cycle model (2026-06-15), a forward drive whose backswing
+peak isn't detected (or is >`MAX_PAIR_GAP_MS` away) becomes an UNPAIRED cycle whose span is just the
+~0.5s drive-half. RepFilter's old duration LOWER bound (`medDur/2`) dropped it as "too short",
+losing two real `andrii_1` topspin drives (@1.14s, @4.88s, normal speed ~8 torso/s) → 13 instead of
+15. The same bound usefully dropped `video_4`'s trailing junk (@15.74s, 0.42s, **0.68× median speed**).
+**Resolved by** relaxing the lower bound in `filterCycleReps`: a short cycle is dropped only when it
+is ALSO slow (`< SHORT_STRONG_SPEED_FRACTION = 0.85 × median speed`). A short-but-STRONG cycle is a
+real fast/unpaired drive (kept); a short-AND-slow one is junk (dropped). The fraction sits on a wide
+stable plateau (0.75–0.95 all give the same counts), not a knife-edge — andrii's drives (0.96×, 1.09×)
+are kept, video_4's junk (0.68×) dropped. Final: video_3=20, video_4=10, andrii_1=15, all pinned by
+`strokeCountContract.integration.test.ts`. The detector is stroke-type- and camera-agnostic
+(andrii is topspin from a different camera; it still counts 15).
+**Refs:** `repFilter.ts` `filterCycleReps` / `SHORT_STRONG_SPEED_FRACTION`; `cyclePairing.ts`;
+`strokeCountContract.integration.test.ts`.
+
 ### L-30 · Locomotion (walking) counted as reps — `RESOLVED` (gate default-on + Kotlin-mirrored; threshold provisional)
 The detect → ForwardStrokeFilter → RepFilter chain keys on wrist speed + forward direction +
 speed/duration banding — none of which distinguish a forehand drive from a player walking while
