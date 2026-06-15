@@ -32,6 +32,9 @@ export default function StrokesPage() {
   const [yawDeg, setYawDeg] = useState(0)
   const [minPeakSpeed, setMinPeakSpeed] = useState(DETECTOR_DEFAULTS.minPeakSpeed)
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
+  // Per-clip detector sensitivity. Default 300ms keeps the global goldens (video_4=10);
+  // lower it (~200ms) for slow/warm-up footage like video_3 to surface faint strokes + splits.
+  const [smoothingMs, setSmoothingMs] = useState(DETECTOR_DEFAULTS.smoothingWindowMs)
   const [hipTravelMaxTorso, setHipTravelMaxTorso] = useState(DEFAULT_MAX_TRAVEL_TORSO) // L-30 gate on by default; set 0 to disable
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
@@ -95,13 +98,13 @@ export default function StrokesPage() {
       return countStrokes(seq, {
         handedness,
         cameraYawDeg: yawDeg,
-        detector: { minPeakSpeed, minPeakGapMs },
+        detector: { minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs },
         hipTravelMaxTorso,
       })
     } catch {
       return null // xScaleFor throws beyond ±60°; inputs are clamped, but stay safe
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, hipTravelMaxTorso])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, hipTravelMaxTorso])
 
   const report = useMemo<DrillAnalysisReport | null>(() => {
     if (!seq) return null
@@ -114,13 +117,13 @@ export default function StrokesPage() {
         standard,
         enabledMetrics,
         cameraYawDeg: yawDeg,
-        detector: { minPeakSpeed, minPeakGapMs },
+        detector: { minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs },
         hipTravelMaxTorso,
       })
     } catch {
       return null
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics, hipTravelMaxTorso])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, enabledMetrics, hipTravelMaxTorso])
 
   const feed = useMemo(() => report?.feedback ?? [], [report])
   const spoken = useSpokenFeedback(feed, feedbackMode)
@@ -170,7 +173,7 @@ export default function StrokesPage() {
   }, [seq, result])
 
   // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, drillType, enabledMetrics, hipTravelMaxTorso])
+  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, enabledMetrics, hipTravelMaxTorso])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -428,6 +431,19 @@ export default function StrokesPage() {
             onChange={e => setMinPeakGapMs(Number(e.target.value))}
           />
         </label>
+        <label className="flex items-center gap-2">
+          <span className="w-56">Згладжування швидкості (мс):</span>
+          <input
+            type="number" min={50} max={500} step={50}
+            className="bg-neutral-800 rounded px-2 py-1 w-20"
+            value={smoothingMs}
+            onChange={e => setSmoothingMs(Number(e.target.value))}
+          />
+        </label>
+        <p className="text-neutral-400">
+          За замовч. 300 мс (тримає глобальні голдени, video_4=10). Нижче (~200) — для повільних/розминкових
+          кліпів (video_3): ловить слабкі удари та розділяє злиті піки. Менше згладжування = чутливіший детектор.
+        </p>
         <label className="flex items-center gap-2">
           <span className="w-56">Гейт ходьби (зсув таза, торс; 0 = вимк):</span>
           <input

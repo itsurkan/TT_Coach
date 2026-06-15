@@ -36,7 +36,9 @@ video_4_rtm (shadow play) 18 / 12 / 9 — fixtures read from
 `shared/src/commonTest/resources/fixtures/` via repo-relative path.
 `#/strokes` UI: video + color-coded stroke bands (emerald reps / amber RepFilter-dropped / gray
 recovery), click-to-seek, knobs for handedness / manual camera yaw (estimator not ported, L-25) /
-minPeakSpeed / minPeakGapMs.
+minPeakSpeed / minPeakGapMs / smoothing (`smoothingWindowMs`, default 300ms keeps the global
+goldens incl. video_4=10; lower ~200ms is a PER-CLIP sensitivity dial for slow/warm-up footage
+like video_3 — surfaces faint strokes + splits merged peaks — never change the 300ms default).
 
 **M1 (metrics + feedback) extends the same page (no new route):** measurement modules
 `angles2d.ts`, `cameraYaw.ts`, `drillMetrics.ts`, `sanityBounds.ts`, `metricPrecision.ts` are
