@@ -64,7 +64,10 @@ class ForehandDriveDrillAnalyzer(
     private val detector: StrokeDetector2D = StrokeDetector2D(),
     /** Explicit camera-yaw override applied to all reps; null → per-rep auto-estimate. */
     private val cameraYawDeg: Float? = null,
-    private val maxCameraYawDeg: Float = DrillCalibrator.DEFAULT_MAX_CAMERA_YAW_DEG
+    private val maxCameraYawDeg: Float = DrillCalibrator.DEFAULT_MAX_CAMERA_YAW_DEG,
+    /** Locomotion gate (L-30): drop reps whose hip-mid travels more than this many
+     *  torso-lengths (walking). ≤ 0 disables. On by default so a walking step gets no feedback. */
+    private val hipTravelMaxTorso: Float = LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO
 ) {
 
     init {
@@ -80,8 +83,11 @@ class ForehandDriveDrillAnalyzer(
         // Detection on plain aspect; per-rep corrected xScale below. ForwardStrokeFilter
         // keeps recovery swings out of feedback; RepFilter drops junk peaks (L-03).
         val detected = detector.detect(sequence.frames, handedness, sequence.aspectRatio, sequence.intervalMs)
-        val strokes = RepFilter.filter(
-            ForwardStrokeFilter.filter(detected, sequence.frames, handedness)
+        // detect → ForwardStrokeFilter → RepFilter → locomotion gate (xScale = aspectRatio
+        // since detection runs on plain aspect / yaw 0).
+        val strokes = LocomotionFilter.filterStationary(
+            RepFilter.filter(ForwardStrokeFilter.filter(detected, sequence.frames, handedness)),
+            sequence.frames, sequence.aspectRatio, hipTravelMaxTorso
         )
 
         val reps = strokes.map { stroke ->

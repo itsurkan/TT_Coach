@@ -25,9 +25,20 @@ class ForwardStrokeFilterRealFootageTest {
         return Triple(raw.size, forward.size, reps.size)
     }
 
+    /** Reps surviving the default pipeline INCLUDING the locomotion gate (L-30). */
+    private fun gatedReps(seq: PoseSequence2D): Int {
+        val raw = StrokeDetector2D().detect(seq.frames, Handedness.RIGHT, seq.aspectRatio, seq.intervalMs)
+        val reps = RepFilter.filter(ForwardStrokeFilter.filter(raw, seq.frames, Handedness.RIGHT))
+        return LocomotionFilter.filterStationary(reps, seq.frames, seq.aspectRatio).size
+    }
+
     @Test
     fun andrii1GoldenUnchangedByL28Fix() {
-        assertEquals(Triple(23, 15, 15), counts(TestFixturesV2.loadAndriiRtm()))
+        val seq = TestFixturesV2.loadAndriiRtm()
+        assertEquals(Triple(23, 15, 15), counts(seq))
+        // Planted player — every rep's hip travel ≤ ~0.25 torso, under the 0.4 gate,
+        // so the locomotion gate removes none.
+        assertEquals(15, gatedReps(seq))
     }
 
     @Test
@@ -36,6 +47,10 @@ class ForwardStrokeFilterRealFootageTest {
         // frame-by-frame (racket + watch overlay, 2026-06-11). Before the L-28
         // fix this read 18/4/4 — startFrame bled into the previous follow-through
         // and 7 true drives measured dx ≤ 0.
-        assertEquals(Triple(18, 12, 9), counts(TestFixturesV2.loadVideo4Rtm()))
+        val seq = TestFixturesV2.loadVideo4Rtm()
+        assertEquals(Triple(18, 12, 9), counts(seq))
+        // The 9th "rep" is the player stepping (hip-mid travel ~0.68 torso vs ≤0.25
+        // for real drives) — the locomotion gate (L-30) drops it: 9 → 8.
+        assertEquals(8, gatedReps(seq))
     }
 }

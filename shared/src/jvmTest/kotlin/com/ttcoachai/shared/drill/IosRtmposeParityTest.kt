@@ -52,7 +52,14 @@ class IosRtmposeParityTest {
             createdAtMs = 1L,
             handedness = Handedness.RIGHT,
             minRepCount = 3,
-            cameraYawDeg = 0f  // Pin yaw; fixtures don't follow the placement protocol
+            cameraYawDeg = 0f,  // Pin yaw; fixtures don't follow the placement protocol
+            // Hold the locomotion gate (L-30) OFF: this test compares the iOS-RTM and
+            // Python-RTM backends on the SAME rep set. video_2 is distant footage with
+            // only 3–4 detected reps and some large-movement ("walking") swings; letting
+            // the gate drop them would confound backend parity with gate behavior and
+            // starve calibration below minRepCount. Gate behavior is covered by
+            // ForwardStrokeFilterRealFootageTest.
+            hipTravelMaxTorso = 0f
         )
         println("$label: reps=${result.repCount}, excluded=${result.excludedRepIndices.size}, quality=${result.qualityScore}")
         return result

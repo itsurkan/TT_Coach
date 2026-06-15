@@ -4,6 +4,7 @@ import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
 import { countStrokes } from '../drill2d/countStrokes'
 import { DETECTOR_DEFAULTS } from '../drill2d/strokeDetector2d'
+import { DEFAULT_MAX_TRAVEL_TORSO } from '../drill2d/locomotionFilter'
 import { StrokeTimeline, TimelineEntry } from './StrokeTimeline'
 import { analyzeDrill, DrillAnalysisReport } from '../drill2d/analyzeDrill'
 import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
@@ -32,7 +33,7 @@ export default function StrokesPage() {
   const [yawDeg, setYawDeg] = useState(0)
   const [minPeakSpeed, setMinPeakSpeed] = useState(DETECTOR_DEFAULTS.minPeakSpeed)
   const [minPeakGapMs, setMinPeakGapMs] = useState(DETECTOR_DEFAULTS.minPeakGapMs)
-  const [hipTravelMaxTorso, setHipTravelMaxTorso] = useState(0) // 0 = locomotion gate off (L-30)
+  const [hipTravelMaxTorso, setHipTravelMaxTorso] = useState(DEFAULT_MAX_TRAVEL_TORSO) // L-30 gate on by default; set 0 to disable
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [loop, setLoop] = useState(false)

@@ -63,14 +63,15 @@ survived detect→forward→rep; never feeds detection, metrics (extractAtPeak, 
 `analyzeDrill`.** Dropped bands keep detector boundaries. Detector/Kotlin `StrokeDetector2D` unchanged
 (this is a viewer display concern, not a detection change).
 
-**Locomotion gate (`drill2d/locomotionFilter.ts`, EXPERIMENTAL — L-30):** walking is otherwise
-counted as a rep (wrist swings forward fast while the body translates). `hipMidTravelTorso` measures
-hip-mid horizontal excursion over a stroke window in torso-lengths; `filterStationaryStrokes` drops
-reps above a threshold. Wired into `countStrokes`/`analyzeDrill` behind the «Гейт ходьби» knob,
-**default 0 (off)** so the count goldens hold; rose timeline band + «Хода (відкинуто)» counter show
-what it removed. **Viewer-first prototype — NOT yet mirrored in Kotlin `StrokeDetector2D`** (the
-binding fix-flow rule's Kotlin-first step is a tracked follow-up); ~0.4-torso threshold is tuned on
-non-protocol footage, not frozen.
+**Locomotion gate (`drill2d/locomotionFilter.ts` — L-30):** walking is otherwise counted as a rep
+(wrist swings forward fast while the body translates). `hipMidTravelTorso` measures hip-mid
+horizontal excursion over a stroke window in torso-lengths; `filterStationaryStrokes` drops reps
+above a threshold. Wired into `countStrokes`/`analyzeDrill` **on by default** at
+`DEFAULT_MAX_TRAVEL_TORSO` (0.4); the «Гейт ходьби» knob can set 0 to disable. Rose timeline band +
+«Хода (відкинуто)» counter show what it removed. **Mirrored 1:1 in Kotlin
+`shared/drill/LocomotionFilter.kt` (source of truth)**; default-on dropped the video_4 golden
+9 → 8 in both suites (andrii unchanged at 15). The 0.4-torso threshold is tuned on non-protocol
+footage and still provisional — re-tune on protocol footage (DESIGN_LIMITATIONS L-30).
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 

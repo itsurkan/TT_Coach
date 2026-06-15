@@ -120,21 +120,27 @@ evidence tags. Until then the UI surfaces the `evidence` flag so users see these
 external provisional standard, not a calibrated target.
 **Refs:** `poses_viewer/src/drill2d/referenceStandard.ts`; deep-research pass 2026-06-12.
 
-### L-30 · Locomotion (walking) counted as reps; gate is viewer-only + un-mirrored — `OPEN`
+### L-30 · Locomotion (walking) counted as reps — `RESOLVED` (gate default-on + Kotlin-mirrored; threshold provisional)
 The detect → ForwardStrokeFilter → RepFilter chain keys on wrist speed + forward direction +
 speed/duration banding — none of which distinguish a forehand drive from a player walking while
 swinging the arm. On `video_4_rtm` a walking step at 15.18 s (peak 5.8 torso/s) is counted as a
 rep. Diagnosed via hip-mid horizontal travel (torso-length-normalized): genuine drives keep the
 hips planted (0.09–0.25 torso on andrii_1 + video_4), the walking rep travels 0.68 torso — a clean
-3–4× separation. Fix prototyped **viewer-first** (user direction, overriding the Kotlin-first
-binding rule): `poses_viewer/src/drill2d/locomotionFilter.ts` (`hipMidTravelTorso`,
-`filterStationaryStrokes`), wired into `countStrokes`/`analyzeDrill` behind a UI knob
-(«Гейт ходьби»), **default OFF** so the 23/15/15 + 18/12/9 count goldens hold. **Two follow-ups
-before this is real:** (1) mirror the filter into Kotlin `StrokeDetector2D`/a new locomotion stage
-and update goldens in both suites in one change (binding fix-flow rule); (2) the ~0.4-torso
-threshold was picked on non-protocol `Videos/` footage — tune + freeze it on protocol footage
-before defaulting the gate on.
-**Refs:** `poses_viewer/src/drill2d/locomotionFilter.ts`, `countStrokes.ts`, `analyzeDrill.ts`,
+3–4× separation.
+**Fixed (2026-06-15, user-directed full fix):** `LocomotionFilter` (`hipMidTravelTorso`,
+`filterStationary`, `DEFAULT_MAX_TRAVEL_TORSO = 0.4`) added to Kotlin `shared/drill/` (source of
+truth) and mirrored 1:1 in `poses_viewer/src/drill2d/locomotionFilter.ts`. Wired into the default
+pipeline (`DrillCalibrator`, `ForehandDriveDrillAnalyzer`, `countStrokes`, `analyzeDrill`) **on by
+default**; the «Гейт ходьби» knob can set 0 to disable. Both golden suites updated in the same
+change: video_4 final count **9 → 8** (`ForwardStrokeFilterRealFootageTest`, `golden.test.ts`);
+andrii unchanged at 15. `IosRtmposeParityTest` holds the gate off (it compares backends, not gate
+behavior, on marginal 3–4-rep `video_2`).
+**Residual caveat:** the 0.4-torso threshold was picked on non-protocol `Videos/` footage and is a
+single global value; on distant footage (`video_2_ios_rtm`) a large-movement swing reads 0.868 torso
+and is also dropped — fine here, but re-tune + freeze it on protocol footage before treating it as
+final. Strokes whose hip travel can't be measured are KEPT (never reject on absence of evidence).
+**Refs:** `shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/LocomotionFilter.kt`,
+`poses_viewer/src/drill2d/locomotionFilter.ts`, `countStrokes.ts`, `analyzeDrill.ts`,
 `StrokesPage.tsx`; relates to L-03 (resolved precursor), L-27.
 
 ## 2. Live capture & Android runtime (Phase 3 relevant)

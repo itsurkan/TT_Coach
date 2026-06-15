@@ -12,7 +12,7 @@ import { xScaleFor, MAX_YAW_DEG } from './geometry'
 import { detectStrokes, StrokeDetectorOptions } from './strokeDetector2d'
 import { filterForwardStrokes } from './forwardStrokeFilter'
 import { filterReps } from './repFilter'
-import { filterStationaryStrokes } from './locomotionFilter'
+import { filterStationaryStrokes, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFilter'
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak } from './drillMetrics'
@@ -159,8 +159,10 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   const rawStrokes = detectStrokes(seq.frames, config.handedness, detectXScale, seq.intervalMs, config.detector)
   const forwardStrokes = filterForwardStrokes(rawStrokes, seq.frames, config.handedness, minScore)
   const repped = filterReps(forwardStrokes)
-  const reps = config.hipTravelMaxTorso && config.hipTravelMaxTorso > 0
-    ? filterStationaryStrokes(repped, seq.frames, detectXScale, config.hipTravelMaxTorso, minScore)
+  // undefined → default-on (DEFAULT_MAX_TRAVEL_TORSO); explicit 0 → gate off.
+  const hipTravelMax = config.hipTravelMaxTorso ?? DEFAULT_MAX_TRAVEL_TORSO
+  const reps = hipTravelMax > 0
+    ? filterStationaryStrokes(repped, seq.frames, detectXScale, hipTravelMax, minScore)
     : repped
 
   const cadence = new FeedbackCadencePolicy(

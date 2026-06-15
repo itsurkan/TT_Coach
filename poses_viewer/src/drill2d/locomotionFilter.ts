@@ -10,9 +10,17 @@ import { scored } from './facing'
  * This measures hip-mid horizontal excursion over a stroke's window, normalized
  * by torso-length (camera-distance invariant), so such strokes can be rejected.
  *
- * Off by default (the viewer passes a 0 / disabled threshold); only the count
- * goldens' behavior is unchanged until a threshold is set.
+ * Mirrors Kotlin LocomotionFilter (source of truth). On by default at
+ * DEFAULT_MAX_TRAVEL_TORSO; the «Гейт ходьби» knob can set 0 to disable.
  */
+
+/**
+ * Strokes whose hip-mid travels more than this many torso-lengths are locomotion
+ * (walking), not strokes. Tuned on non-protocol footage: real drives in the
+ * andrii_1 / video_4 fixtures peak at ~0.25 hip travel, a walking step at ~0.68.
+ * Kept in sync with Kotlin LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO.
+ */
+export const DEFAULT_MAX_TRAVEL_TORSO = 0.4
 
 const MIN_TORSO_LEN = 1e-4
 

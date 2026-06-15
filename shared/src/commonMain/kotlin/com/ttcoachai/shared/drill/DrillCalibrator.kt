@@ -45,7 +45,11 @@ object DrillCalibrator {
         detector: StrokeDetector2D = StrokeDetector2D(),
         /** Explicit camera-yaw override applied to all reps; null → per-rep auto-estimate. */
         cameraYawDeg: Float? = null,
-        maxCameraYawDeg: Float = DEFAULT_MAX_CAMERA_YAW_DEG
+        maxCameraYawDeg: Float = DEFAULT_MAX_CAMERA_YAW_DEG,
+        /** Locomotion gate (L-30): drop reps whose hip-mid travels more than this many
+         *  torso-lengths (walking). ≤ 0 disables. On by default so a walking step is not
+         *  calibrated as a stroke. */
+        hipTravelMaxTorso: Float = LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO
     ): PersonalBaseline {
         require(maxCameraYawDeg <= ViewGeometry.MAX_YAW_DEG) {
             "maxCameraYawDeg must be <= ViewGeometry.MAX_YAW_DEG (${ViewGeometry.MAX_YAW_DEG}°), " +
@@ -54,8 +58,11 @@ object DrillCalibrator {
         // Detection on plain aspect: peak finding tolerates uncorrected ≤30° yaw
         // (≤15% speed-magnitude error); metrics below use per-rep corrected xScale.
         val detected = detector.detect(sequence.frames, handedness, sequence.aspectRatio, sequence.intervalMs)
-        val strokes = RepFilter.filter(
-            ForwardStrokeFilter.filter(detected, sequence.frames, handedness)
+        // detect → ForwardStrokeFilter → RepFilter → locomotion gate (xScale = aspectRatio
+        // since detection runs on plain aspect / yaw 0).
+        val strokes = LocomotionFilter.filterStationary(
+            RepFilter.filter(ForwardStrokeFilter.filter(detected, sequence.frames, handedness)),
+            sequence.frames, sequence.aspectRatio, hipTravelMaxTorso
         )
 
         val strokesWithYaw = strokes.map { stroke ->

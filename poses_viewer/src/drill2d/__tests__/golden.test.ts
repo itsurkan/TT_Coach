@@ -37,6 +37,9 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     expect(r.rawStrokes).toHaveLength(23)
     expect(r.forwardStrokes).toHaveLength(15) // observed; matches Kotlin (RepFilter drops none on this fixture)
     expect(r.reps).toHaveLength(15)
+    // Planted player — every rep's hip travel ≤ ~0.25 torso, under the 0.4 gate
+    // (now default-on), so the locomotion gate (L-30) removes none.
+    expect(r.locomotionStrokes).toHaveLength(0)
     // eslint-disable-next-line no-console
     console.log(`andrii_1: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
@@ -52,13 +55,16 @@ describe('GOLDEN parity vs Kotlin E2E (ForehandDriveEndToEndTest)', () => {
     console.log(`video_2: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
   })
 
-  it('video_4: shadow play — 18 raw → 12 forward → 9 reps (mirrors Kotlin)', () => {
+  it('video_4: shadow play — 18 raw → 12 forward → 9 reps → 8 after locomotion gate (mirrors Kotlin)', () => {
     const seq = load('video_4_rtm.json')
     const r = countStrokes(seq, { handedness: 'right', cameraYawDeg: 0 })
     expect(r.rawStrokes).toHaveLength(18)
     expect(r.forwardStrokes).toHaveLength(12) // 12 drives, visually verified
-    expect(r.reps).toHaveLength(9)
+    // detect→forward→rep yields 9; the 9th is the player stepping (hip-mid travel
+    // ~0.68 torso vs ≤0.25 for real drives) — the L-30 gate (default-on) drops it.
+    expect(r.reps).toHaveLength(8)
+    expect(r.locomotionStrokes).toHaveLength(1)
     // eslint-disable-next-line no-console
-    console.log(`video_4: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length}`)
+    console.log(`video_4: raw=${r.rawStrokes.length} forward=${r.forwardStrokes.length} reps=${r.reps.length} loco=${r.locomotionStrokes.length}`)
   })
 })
