@@ -26,6 +26,39 @@ export interface Stroke2D {
   peakSpeed: number
 }
 
+/**
+ * A full stroke cycle = optional backswing + forward drive.
+ *
+ * startFrame = backswing.startFrame when paired, drive.startFrame when unpaired.
+ * endFrame   = drive.endFrame always.
+ * peakFrame and peakSpeed forward to drive.
+ *
+ * Use makeCycle() to construct — it encodes the start/end convention.
+ * Mirror of Kotlin StrokeCycle2D (source of truth: shared/models/StrokeCycle2D.kt).
+ */
+export interface StrokeCycle2D {
+  readonly backswing: Stroke2D | null
+  readonly drive: Stroke2D
+  readonly startFrame: number
+  readonly endFrame: number
+  readonly peakFrame: number
+  readonly peakSpeed: number
+}
+
+/** Build a cycle applying the start/end convention:
+ *  start = backswing.startFrame ?? drive.startFrame; end = drive.endFrame. */
+export function makeCycle(backswing: Stroke2D | null, drive: Stroke2D): StrokeCycle2D {
+  return {
+    backswing,
+    drive,
+    startFrame: backswing !== null ? backswing.startFrame : drive.startFrame,
+    endFrame: drive.endFrame,
+    // Plain properties (not getters): drive is immutable, and these survive object spread.
+    peakFrame: drive.peakFrame,
+    peakSpeed: drive.peakSpeed,
+  }
+}
+
 export type Handedness = 'right' | 'left'
 
 /** COCO-17 keypoint indices (docs/pose_json_schema_v2.md). Valid for Halpe26 indices 0–16 too. */
