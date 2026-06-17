@@ -13,13 +13,14 @@
  * Task 12). The UI must surface the `evidence` tag so these never read as gospel.
  */
 
-/** The five metric keys, duplicated from drillMetrics to avoid an import cycle. */
+/** The metric keys, duplicated from drillMetrics to avoid an import cycle. */
 export const METRIC_KEYS = [
   'elbow_angle',
   'shoulder_angle',
   'knee_bend',
   'torso_lean',
   'shoulder_tilt',
+  'hip_flexion',
 ] as const
 
 export type MetricKey = (typeof METRIC_KEYS)[number]
@@ -77,6 +78,14 @@ export const FOREHAND_DRIVE_STANDARD: ReferenceStandard = {
     shoulder_tilt: {
       lo: 0, hi: 25, evidence: 'coach_opinion',
       source: 'research-informed (lumbar lateral-bending 20–28°, FBioE 2023 1185177, indirect); provisional',
+    },
+    // Hip flexion (shoulder→hip→knee, vertex at hip): 180° = upright stance. At the
+    // load/contact phase of a forehand drive, the player sits into a forward hip hinge
+    // — approximately 130–160° based on own footage and coach observation. No direct
+    // TT biomechanics study measures this interior angle; PROVISIONAL.
+    hip_flexion: {
+      lo: 130, hi: 165, evidence: 'coach_opinion',
+      source: 'coach observation + own footage; no measured TT source; PROVISIONAL',
     },
   },
 }

@@ -111,13 +111,14 @@ describe('extractAtPeak', () => {
     expect(() => extractAtPeak([], 0, 'right', 1, 33)).toThrow()
   })
 
-  it('ALL_KEYS lists the five metric keys', () => {
-    expect(ALL_KEYS).toHaveLength(5)
+  it('ALL_KEYS lists the six metric keys', () => {
+    expect(ALL_KEYS).toHaveLength(6)
     expect(ALL_KEYS).toContain(METRIC.ELBOW_ANGLE)
     expect(ALL_KEYS).toContain(METRIC.SHOULDER_ANGLE)
     expect(ALL_KEYS).toContain(METRIC.KNEE_BEND)
     expect(ALL_KEYS).toContain(METRIC.TORSO_LEAN)
     expect(ALL_KEYS).toContain(METRIC.SHOULDER_TILT)
+    expect(ALL_KEYS).toContain(METRIC.HIP_FLEXION)
   })
 })
 

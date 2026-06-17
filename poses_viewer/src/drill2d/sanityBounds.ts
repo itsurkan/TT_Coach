@@ -11,6 +11,7 @@ const BOUNDS: Record<MetricKey, readonly [number, number]> = {
   knee_bend: [60, 180],
   torso_lean: [-60, 60],
   shoulder_tilt: [-60, 60],
+  hip_flexion: [60, 180], // PROVISIONAL: copied from knee_bend; not yet validated for the hip on footage
 }
 
 export function isSane(metricKey: string, value: number): boolean {

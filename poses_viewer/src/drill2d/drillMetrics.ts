@@ -1,12 +1,12 @@
 /**
- * Per-rep extraction of the five in-plane metrics at the stroke's wrist-speed peak
+ * Per-rep extraction of the in-plane metrics at the stroke's wrist-speed peak
  * — 1:1 mirror of Kotlin DrillMetrics. Score-gated per joint, sanity-bounded per
  * value, then MEDIAN over a ±70 ms window (keypoints are unsmoothed — one junk
  * frame must not shift the rep value).
  */
 import { Handedness, PoseFrame2D } from './types'
 import { DEFAULT_MIN_SCORE } from './facing'
-import { elbowAngle, kneeBend, shoulderAngle, shoulderTilt, torsoLean } from './angles2d'
+import { elbowAngle, hipFlexion, kneeBend, shoulderAngle, shoulderTilt, torsoLean } from './angles2d'
 import { isSane } from './sanityBounds'
 
 export const METRIC = {
@@ -15,18 +15,19 @@ export const METRIC = {
   KNEE_BEND: 'knee_bend',
   TORSO_LEAN: 'torso_lean',
   SHOULDER_TILT: 'shoulder_tilt',
+  HIP_FLEXION: 'hip_flexion',
 } as const
 
 export const ALL_KEYS: string[] = [
   METRIC.ELBOW_ANGLE, METRIC.SHOULDER_ANGLE, METRIC.KNEE_BEND,
-  METRIC.TORSO_LEAN, METRIC.SHOULDER_TILT,
+  METRIC.TORSO_LEAN, METRIC.SHOULDER_TILT, METRIC.HIP_FLEXION,
 ]
 
 /** Half-width of the peak-metric smoothing window, in ms (±2 frames at 30 fps). */
 export const DEFAULT_PEAK_RADIUS_MS = 70
 
 /**
- * Extract the five in-plane metrics for a single frame.
+ * Extract the in-plane metrics for a single frame.
  * Each metric is score-gated by the angle function (returns null when below minScore),
  * then sanity-bounded — matching Kotlin's collect-then-filter approach.
  */
@@ -41,6 +42,7 @@ export function extractAtFrame(
     [METRIC.KNEE_BEND]: kneeBend(kp, handedness, xScale, minScore),
     [METRIC.TORSO_LEAN]: torsoLean(kp, xScale, minScore),
     [METRIC.SHOULDER_TILT]: shoulderTilt(kp, xScale, minScore),
+    [METRIC.HIP_FLEXION]: hipFlexion(kp, handedness, xScale, minScore),
   }
   const out: Record<string, number> = {}
   for (const [key, value] of Object.entries(raw)) {

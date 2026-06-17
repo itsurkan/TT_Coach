@@ -60,6 +60,13 @@ export function kneeBend(
   return jointAngle(kp, Coco17.hip(h), Coco17.knee(h), Coco17.ankle(h), xScale, minScore)
 }
 
+/** Hip flexion: shoulder–hip–knee (vertex at hip). 180° = straight torso-to-thigh (upright); smaller = more hinged into the load position. */
+export function hipFlexion(
+  kp: Keypoint2D[], h: Handedness, xScale: number, minScore = DEFAULT_MIN_SCORE,
+): number | null {
+  return jointAngle(kp, Coco17.shoulder(h), Coco17.hip(h), Coco17.knee(h), xScale, minScore)
+}
+
 /**
  * Torso lean: signed angle of hip-mid→shoulder-mid from vertical, facing-normalized
  * (0 = upright, + = forward lean toward facing direction). Null when facing is

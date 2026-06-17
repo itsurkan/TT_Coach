@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { angleDeg, elbowAngle, shoulderTilt, torsoLean } from '../angles2d'
+import { angleDeg, elbowAngle, hipFlexion, shoulderTilt, torsoLean } from '../angles2d'
 import { Coco17, Keypoint2D } from '../types'
 
 const K = (x: number, y: number, score = 1): Keypoint2D => ({ x, y, score })
@@ -41,6 +41,39 @@ describe('elbowAngle', () => {
       [Coco17.RIGHT_WRIST]: K(2, 0),
     })
     expect(elbowAngle(kp, 'right', 1)).toBeNull()
+  })
+})
+
+describe('hipFlexion', () => {
+  it('returns ~180° for a straight standing pose (shoulder–hip–knee collinear)', () => {
+    // Shoulder above hip, knee below hip — all on the same vertical line
+    const kp = pose({
+      [Coco17.RIGHT_SHOULDER]: K(0.5, 0.1),
+      [Coco17.RIGHT_HIP]:      K(0.5, 0.5),
+      [Coco17.RIGHT_KNEE]:     K(0.5, 0.9),
+    })
+    expect(hipFlexion(kp, 'right', 1)).toBeCloseTo(180, 4)
+  })
+
+  it('returns a clearly hinged angle (<180°) when the torso leans forward over the knee', () => {
+    // Shoulder shifted forward of hip; knee directly below hip → hip angle < 180°
+    const kp = pose({
+      [Coco17.RIGHT_SHOULDER]: K(0.7, 0.1),
+      [Coco17.RIGHT_HIP]:      K(0.5, 0.5),
+      [Coco17.RIGHT_KNEE]:     K(0.5, 0.9),
+    })
+    const angle = hipFlexion(kp, 'right', 1)
+    expect(angle).not.toBeNull()
+    expect(angle as number).toBeCloseTo(153.4, 0)
+  })
+
+  it('returns null when a required keypoint is below the score gate', () => {
+    const kp = pose({
+      [Coco17.RIGHT_SHOULDER]: K(0.5, 0.1),
+      [Coco17.RIGHT_HIP]:      K(0.5, 0.5, 0.1), // low score → gated
+      [Coco17.RIGHT_KNEE]:     K(0.5, 0.9),
+    })
+    expect(hipFlexion(kp, 'right', 1)).toBeNull()
   })
 })
 
