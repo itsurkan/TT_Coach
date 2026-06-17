@@ -4,7 +4,7 @@
  * value, then MEDIAN over a ±70 ms window (keypoints are unsmoothed — one junk
  * frame must not shift the rep value).
  */
-import { Handedness, PoseFrame2D } from './types'
+import { Handedness, PoseFrame2D, StrokeCycle2D } from './types'
 import { DEFAULT_MIN_SCORE } from './facing'
 import { elbowAngle, hipFlexion, kneeBend, shoulderAngle, shoulderTilt, torsoLean } from './angles2d'
 import { isSane } from './sanityBounds'
@@ -89,4 +89,104 @@ export function extractAtPeak(
   const out: Record<string, number> = {}
   for (const [key, values] of Object.entries(byKey)) out[key] = medianOf(values)
   return out
+}
+
+// ---------------------------------------------------------------------------
+// Per-phase extraction
+// ---------------------------------------------------------------------------
+
+/** The three stroke phases at which metrics are measured. */
+export type Phase = 'backswing' | 'contact' | 'followthrough'
+
+/**
+ * Declares which phases each metric should be measured at.
+ * Exported so table UI and reference-range modules can import it without
+ * duplicating the mapping.
+ *
+ * The `satisfies` check enforces that every METRIC value has an entry here —
+ * a typo'd or missing key is a compile-time error. We derive the key type
+ * locally from the METRIC const to avoid an import cycle with referenceStandard.ts.
+ */
+export const METRIC_PHASES = {
+  [METRIC.KNEE_BEND]:       ['backswing', 'contact'],
+  [METRIC.HIP_FLEXION]:     ['backswing', 'contact'],
+  [METRIC.ELBOW_ANGLE]:     ['backswing', 'contact'],
+  [METRIC.SHOULDER_ANGLE]:  ['contact', 'followthrough'],
+  [METRIC.TORSO_LEAN]:      ['contact'],
+  [METRIC.SHOULDER_TILT]:   ['contact'],
+} satisfies Record<(typeof METRIC)[keyof typeof METRIC], Phase[]>
+
+/**
+ * Extract per-metric, per-phase values for a full stroke cycle.
+ *
+ * Phase anchor frames:
+ *   backswing   → cycle.drive.startFrame  (the turn; only emitted when cycle.backswing != null)
+ *   contact     → cycle.drive.peakFrame   (same anchor as extractAtPeak today)
+ *   followthrough → cycle.drive.endFrame
+ *
+ * Each phase is computed via the existing extractAtPeak (±radiusMs median window).
+ * extractAtPeak is called AT MOST ONCE per distinct anchor frame — results are
+ * memoized by frame index so metrics sharing the same anchor reuse the window.
+ *
+ * A phase value is `number | null` (null when extractAtPeak gated the metric at
+ * that frame). The `backswing` key is omitted entirely from a metric's record
+ * when cycle.backswing is null.
+ */
+export function extractPerPhase(
+  cycle: StrokeCycle2D,
+  frames: PoseFrame2D[],
+  handedness: Handedness,
+  xScale: number,
+  intervalMs: number,
+  minScore = DEFAULT_MIN_SCORE,
+  radiusMs = DEFAULT_PEAK_RADIUS_MS,
+): Record<string, Partial<Record<Phase, number | null>>> {
+  // Map phase → anchor frame index (omit backswing when unpaired).
+  const phaseAnchors: Partial<Record<Phase, number>> = {
+    contact:       cycle.drive.peakFrame,
+    followthrough: cycle.drive.endFrame,
+  }
+  if (cycle.backswing !== null) {
+    phaseAnchors.backswing = cycle.drive.startFrame
+  }
+
+  // Pre-flight: validate each anchor frame that will actually be used.
+  for (const [phase, frameIndex] of Object.entries(phaseAnchors) as [Phase, number][]) {
+    if (frameIndex < 0 || frameIndex >= frames.length) {
+      throw new Error(
+        `extractPerPhase: ${phase} anchor frame ${frameIndex} out of bounds for ${frames.length} frames`,
+      )
+    }
+  }
+
+  // Memoize extractAtPeak calls by frame index so shared anchors are not
+  // recomputed (e.g. two metrics at 'contact' → same window, one call).
+  const cache = new Map<number, Record<string, number>>()
+  function peakAt(frameIndex: number): Record<string, number> {
+    let cached = cache.get(frameIndex)
+    if (cached === undefined) {
+      cached = extractAtPeak(frames, frameIndex, handedness, xScale, intervalMs, minScore, radiusMs)
+      cache.set(frameIndex, cached)
+    }
+    return cached
+  }
+
+  const result: Record<string, Partial<Record<Phase, number | null>>> = {}
+
+  for (const [metricKey, phases] of Object.entries(METRIC_PHASES)) {
+    const phaseRecord: Partial<Record<Phase, number | null>> = {}
+    for (const phase of phases) {
+      const anchorFrame = phaseAnchors[phase]
+      if (anchorFrame === undefined) {
+        // backswing phase requested but cycle is unpaired — omit entirely.
+        continue
+      }
+      const extracted = peakAt(anchorFrame)
+      // Keep null explicitly when extractAtPeak gated this metric out.
+      phaseRecord[phase] = extracted[metricKey] !== undefined ? extracted[metricKey] : null
+    }
+    result[metricKey] = phaseRecord
+  }
+
+  return result
 }
