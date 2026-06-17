@@ -16,7 +16,7 @@ import { pairCycles, MAX_PAIR_GAP_MS } from './cyclePairing'
 import { filterStationaryCycles, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFilter'
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
-import { extractAtPeak } from './drillMetrics'
+import { extractAtPeak, extractPerPhase, Phase } from './drillMetrics'
 import { evaluateRep } from './feedbackEngine'
 import { FeedbackCue } from './feedbackCue'
 import { formatCue, positiveMessage } from './messageCatalog'
@@ -90,6 +90,9 @@ export function pickVariedCue(
 export interface RepAnalysis {
   stroke: Stroke2D
   metrics: Record<string, number>
+  /** Per-phase values for metrics in METRIC_PHASES. Key = metric key; value = map of Phase → number|null.
+   *  A phase key is absent when the cycle is unpaired (backswing) or extractPerPhase gated it. */
+  perPhase: Record<string, Partial<Record<Phase, number | null>>>
   cues: FeedbackCue[]
   /** Yaw used for this rep (override or pre-stroke estimate); null = unmeasurable. */
   cameraYawDeg: number | null
@@ -176,7 +179,8 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     config.cadence?.maxIntervalMs ?? 5000,
   )
 
-  const repAnalyses: RepAnalysis[] = reps.map(stroke => {
+  const repAnalyses: RepAnalysis[] = keptCycles.map(cycle => {
+    const stroke = cycle.drive
     const yaw = yawOverride !== null
       ? yawOverride
       : estimateYawForStroke(seq.frames, stroke, seq.aspectRatio, seq.intervalMs, minScore)
@@ -189,8 +193,9 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
       : 0
     const xScale = xScaleFor(seq.aspectRatio, metricsYaw)
     const metrics = extractAtPeak(seq.frames, stroke.peakFrame, config.handedness, xScale, seq.intervalMs, minScore)
+    const perPhase = extractPerPhase(cycle, seq.frames, config.handedness, xScale, seq.intervalMs, minScore)
     const cues = placementOk ? evaluateRep(metrics, config.standard, config.enabledMetrics) : []
-    return { stroke, metrics, cues, cameraYawDeg: yaw, placementOk }
+    return { stroke, metrics, perPhase, cues, cameraYawDeg: yaw, placementOk }
   })
 
   // EXP-2 (reliability/trust gating): a metric whose value swings wildly across the
@@ -201,7 +206,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   // exceeds UNRELIABLE_IQR_DEG. Consistent-but-off metrics (video_3 lean, IQR≈1) are
   // untouched — they're real systematic faults worth coaching.
   // Safe to mutate rep.cues: repAnalyses is rebuilt fresh on every analyzeDrill() call
-  // (reps.map above), so no RepAnalysis reference survives to be double-filtered.
+  // (keptCycles.map above), so no RepAnalysis reference survives to be double-filtered.
   const unreliable = unreliableMetricKeys(repAnalyses)
   if (unreliable.size > 0) {
     for (const rep of repAnalyses) {

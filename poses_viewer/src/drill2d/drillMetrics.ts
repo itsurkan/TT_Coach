@@ -103,9 +103,14 @@ export type Phase = 'backswing' | 'contact' | 'followthrough'
  * Exported so table UI and reference-range modules can import it without
  * duplicating the mapping.
  *
- * The `satisfies` check enforces that every METRIC value has an entry here —
- * a typo'd or missing key is a compile-time error. We derive the key type
- * locally from the METRIC const to avoid an import cycle with referenceStandard.ts.
+ * This is a CURATED SUBSET of all metrics — not every metric gets per-phase
+ * treatment. The `satisfies Partial<...>` check enforces that any key present
+ * is a valid MetricKey (typo'd keys are compile-time errors), while still
+ * allowing the subset to omit metrics.
+ *
+ * shoulder_tilt is intentionally excluded — it is dropped from per-phase and
+ * rendered as the unchanged single-instant colored cell (using standard.ranges).
+ * torso_lean stays as a display-only (uncolored) phase metric.
  */
 export const METRIC_PHASES = {
   [METRIC.KNEE_BEND]:       ['backswing', 'contact'],
@@ -113,8 +118,7 @@ export const METRIC_PHASES = {
   [METRIC.ELBOW_ANGLE]:     ['backswing', 'contact'],
   [METRIC.SHOULDER_ANGLE]:  ['contact', 'followthrough'],
   [METRIC.TORSO_LEAN]:      ['contact'],
-  [METRIC.SHOULDER_TILT]:   ['contact'],
-} satisfies Record<(typeof METRIC)[keyof typeof METRIC], Phase[]>
+} satisfies Partial<Record<(typeof METRIC)[keyof typeof METRIC], Phase[]>>
 
 /**
  * Extract per-metric, per-phase values for a full stroke cycle.

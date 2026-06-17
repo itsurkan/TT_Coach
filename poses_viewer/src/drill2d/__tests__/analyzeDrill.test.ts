@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { analyzeDrill } from '../analyzeDrill'
 import { parsePoseV2 } from '../parsePoseV2'
 import { FOREHAND_DRIVE_STANDARD } from '../referenceStandard'
+import { METRIC_PHASES } from '../drillMetrics'
 
 // Mirror golden.test.ts's fixture path pattern (repo-relative).
 function loadSeq(name: string) {
@@ -44,5 +45,126 @@ describe('analyzeDrill — count parity (anti-drift guardrail)', () => {
       handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: null,
     })
     expect(report.placementOk).toBe(false)
+  })
+})
+
+describe('analyzeDrill — perPhase field', () => {
+  it('every rep has a perPhase field', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const rep of report.reps) {
+      expect(rep.perPhase).toBeDefined()
+      expect(typeof rep.perPhase).toBe('object')
+    }
+  })
+
+  it('perPhase contains all METRIC_PHASES keys for each rep', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    const metricKeys = Object.keys(METRIC_PHASES)
+    for (const rep of report.reps) {
+      for (const key of metricKeys) {
+        expect(rep.perPhase).toHaveProperty(key)
+      }
+    }
+  })
+
+  it('knee_bend has backswing and contact phases (paired cycle)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    // Find at least one rep with a backswing (paired cycle)
+    const paired = report.reps.filter(r => 'backswing' in r.perPhase.knee_bend)
+    expect(paired.length).toBeGreaterThan(0)
+    for (const rep of paired) {
+      const kb = rep.perPhase.knee_bend
+      expect('backswing' in kb).toBe(true)
+      expect('contact' in kb).toBe(true)
+    }
+  })
+
+  it('hip_flexion has backswing and contact phases (paired cycle)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    const paired = report.reps.filter(r => 'backswing' in r.perPhase.hip_flexion)
+    expect(paired.length).toBeGreaterThan(0)
+    for (const rep of paired) {
+      const hf = rep.perPhase.hip_flexion
+      expect('backswing' in hf).toBe(true)
+      expect('contact' in hf).toBe(true)
+    }
+  })
+
+  it('elbow_angle has backswing and contact phases (paired cycle)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    const paired = report.reps.filter(r => 'backswing' in r.perPhase.elbow_angle)
+    expect(paired.length).toBeGreaterThan(0)
+    for (const rep of paired) {
+      const ea = rep.perPhase.elbow_angle
+      expect('backswing' in ea).toBe(true)
+      expect('contact' in ea).toBe(true)
+    }
+  })
+
+  it('shoulder_angle has contact and followthrough phases', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    // shoulder_angle phases are contact and followthrough — present on ALL reps (no backswing required)
+    for (const rep of report.reps) {
+      const sa = rep.perPhase.shoulder_angle
+      expect('contact' in sa).toBe(true)
+      expect('followthrough' in sa).toBe(true)
+    }
+  })
+
+  it('contact-phase value equals single-instant metrics for metrics measured at contact', () => {
+    // The contact anchor is drive.peakFrame, same as extractAtPeak — values must match exactly.
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    // Metrics that include the 'contact' phase (from METRIC_PHASES subset):
+    // knee_bend, hip_flexion, elbow_angle, shoulder_angle, torso_lean.
+    // shoulder_tilt is intentionally excluded from METRIC_PHASES — it is not in perPhase.
+    const contactMetrics = Object.entries(METRIC_PHASES)
+      .filter(([, phases]) => (phases as string[]).includes('contact'))
+      .map(([key]) => key)
+
+    for (const rep of report.reps) {
+      for (const key of contactMetrics) {
+        const contactVal = rep.perPhase[key]?.contact
+        const instantVal = rep.metrics[key]
+        if (contactVal === null || contactVal === undefined) {
+          // metric was gated (score < threshold) — single-instant also missing
+          expect(instantVal).toBeUndefined()
+        } else {
+          // Both must be present and equal (same window, same computation)
+          expect(instantVal).toBeDefined()
+          expect(contactVal).toBeCloseTo(instantVal!, 5)
+        }
+      }
+    }
+  })
+
+  it('perPhase does NOT contain shoulder_tilt (it is a single-instant colored cell, not per-phase)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const rep of report.reps) {
+      expect('shoulder_tilt' in rep.perPhase).toBe(false)
+    }
   })
 })

@@ -175,12 +175,8 @@ describe('extractPerPhase — paired cycle', () => {
     expect('followthrough' in r).toBe(false)
   })
 
-  it('shoulder_tilt has contact key only', () => {
-    const r = result[METRIC.SHOULDER_TILT]
-    expect(r).toBeDefined()
-    expect('backswing' in r).toBe(false)
-    expect('contact' in r).toBe(true)
-    expect('followthrough' in r).toBe(false)
+  it('shoulder_tilt is NOT in perPhase result (excluded from METRIC_PHASES)', () => {
+    expect(METRIC.SHOULDER_TILT in result).toBe(false)
   })
 
   it('elbow_angle backswing and contact differ when poses differ between anchors', () => {
@@ -267,13 +263,17 @@ describe('extractPerPhase — unpaired cycle', () => {
 // ---------------------------------------------------------------------------
 
 describe('METRIC_PHASES config', () => {
-  it('covers all six metric keys', () => {
+  it('is a curated subset: exactly {knee_bend, hip_flexion, elbow_angle, shoulder_angle, torso_lean}', () => {
     const configuredKeys = Object.keys(METRIC_PHASES).sort()
-    const allKeys = [
+    const expectedKeys = [
       METRIC.ELBOW_ANGLE, METRIC.SHOULDER_ANGLE, METRIC.KNEE_BEND,
-      METRIC.TORSO_LEAN, METRIC.SHOULDER_TILT, METRIC.HIP_FLEXION,
+      METRIC.TORSO_LEAN, METRIC.HIP_FLEXION,
     ].sort()
-    expect(configuredKeys).toEqual(allKeys)
+    expect(configuredKeys).toEqual(expectedKeys)
+  })
+
+  it('shoulder_tilt is NOT a key of METRIC_PHASES (dropped from per-phase, rendered as single-instant colored cell)', () => {
+    expect(METRIC.SHOULDER_TILT in METRIC_PHASES).toBe(false)
   })
 
   it('only contains valid Phase values', () => {

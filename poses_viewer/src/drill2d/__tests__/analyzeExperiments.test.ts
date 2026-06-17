@@ -19,7 +19,7 @@ function cue(metricKey: string, severity = 1): FeedbackCue {
   return { metricKey, direction: 'too_high', deltaFromRange: severity * 10, severity, precision: 'precise_degrees' }
 }
 function rep(metrics: Record<string, number>, cues: FeedbackCue[] = [], placementOk = true): RepAnalysis {
-  return { stroke: { startFrame: 0, peakFrame: 1, endFrame: 2 } as never, metrics, cues, cameraYawDeg: 0, placementOk }
+  return { stroke: { startFrame: 0, peakFrame: 1, endFrame: 2 } as never, metrics, perPhase: {}, cues, cameraYawDeg: 0, placementOk }
 }
 const STD: ReferenceStandard = {
   drillType: 'forehand_drive',
