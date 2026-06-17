@@ -22,6 +22,7 @@ import { FeedbackCue } from './feedbackCue'
 import { formatCue, positiveMessage } from './messageCatalog'
 import { FeedbackCadencePolicy } from './cadencePolicy'
 import { ReferenceStandard } from './referenceStandard'
+import { estimateCoil, type CoilLabel } from './shoulderCoil'
 
 /** |yaw| beyond this → rep excluded from feedback (CLAUDE.md: ~30° gate). */
 export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
@@ -98,6 +99,12 @@ export interface RepAnalysis {
   cameraYawDeg: number | null
   /** false → camera too far off side view (or unmeasurable): no cues, metrics diagnostic only. */
   placementOk: boolean
+  /**
+   * Qualitative shoulder-coil indicator (foreshortening proxy, trust-rule compliant).
+   * null = unpaired cycle (no backswing) OR both-shoulder score gate triggered.
+   * NEVER a degree value — qualitative-only per the project trust rule.
+   */
+  coil: { ratio: number; label: CoilLabel } | null
 }
 
 export interface SpokenFeedback {
@@ -195,7 +202,8 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     const metrics = extractAtPeak(seq.frames, stroke.peakFrame, config.handedness, xScale, seq.intervalMs, minScore)
     const perPhase = extractPerPhase(cycle, seq.frames, config.handedness, xScale, seq.intervalMs, minScore)
     const cues = placementOk ? evaluateRep(metrics, config.standard, config.enabledMetrics) : []
-    return { stroke, metrics, perPhase, cues, cameraYawDeg: yaw, placementOk }
+    const coil = estimateCoil(cycle, seq.frames, xScale, seq.intervalMs, minScore)
+    return { stroke, metrics, perPhase, cues, cameraYawDeg: yaw, placementOk, coil }
   })
 
   // EXP-2 (reliability/trust gating): a metric whose value swings wildly across the

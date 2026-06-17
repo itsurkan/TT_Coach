@@ -168,3 +168,40 @@ describe('analyzeDrill — perPhase field', () => {
     }
   })
 })
+
+describe('analyzeDrill — coil field', () => {
+  it('every rep has a coil field (object or null)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const rep of report.reps) {
+      expect('coil' in rep).toBe(true)
+      // coil is either null or { ratio: number, label: 'opened' | 'limited' }
+      if (rep.coil !== null) {
+        expect(typeof rep.coil.ratio).toBe('number')
+        expect(['opened', 'limited']).toContain(rep.coil.label)
+      }
+    }
+  })
+
+  it('coil does NOT appear in perPhase (it is a separate qualitative field)', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const rep of report.reps) {
+      expect('coil' in rep.perPhase).toBe(false)
+    }
+  })
+
+  it('coil is NOT a numeric metric key in rep.metrics', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const rep of report.reps) {
+      expect('coil' in rep.metrics).toBe(false)
+    }
+  })
+})

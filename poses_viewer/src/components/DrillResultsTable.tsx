@@ -1,6 +1,7 @@
 import { RepAnalysis } from '../drill2d/analyzeDrill'
 import { ReferenceStandard, ReferenceRange, perPhaseRange } from '../drill2d/referenceStandard'
 import { ALL_KEYS, METRIC_PHASES, Phase } from '../drill2d/drillMetrics'
+import type { CoilLabel } from '../drill2d/shoulderCoil'
 
 export type MetricStatus = 'ok' | 'over' | 'under' | 'n/a'
 
@@ -99,6 +100,27 @@ function PhaseCell({
 const phasesOf = (k: string): Phase[] | undefined =>
   METRIC_PHASES[k as keyof typeof METRIC_PHASES] as Phase[] | undefined
 
+/** Ukrainian label for each coil label. */
+const COIL_UA: Record<CoilLabel, string> = {
+  opened: 'розкрив',
+  limited: 'слабка',
+}
+
+/**
+ * Renders the qualitative coil label for one rep.
+ * Neutral/muted styling — no degree, no severity color (trust rule).
+ */
+function CoilCell({ coil }: { coil: RepAnalysis['coil'] }) {
+  if (coil === null) {
+    return <span className="text-neutral-600">—</span>
+  }
+  return (
+    <span className="text-neutral-400 italic">
+      {COIL_UA[coil.label]}
+    </span>
+  )
+}
+
 export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [] }: Props) {
   const cols = ALL_KEYS.filter(k => enabledMetrics.has(k))
   const noisy = new Set(unreliableMetrics)
@@ -127,6 +149,12 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
               </th>
             )
           })}
+          <th
+            className="py-1 px-2 text-neutral-500 italic"
+            title="Якісний індикатор скрутки корпусу (фокусне скорочення плечей) — НЕ градуси; низька достовірність; тільки при наявності замаху"
+          >
+            ~Скрутка
+          </th>
           <th className="py-1 px-2">Підказка</th>
         </tr>
         {/* Phase sub-header row — only rendered when at least one metric has phases */}
@@ -145,6 +173,7 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
               // No phases — single empty sub-header cell
               return <th key={k} className="px-2 pb-1" />
             })}
+            <th className="px-2 pb-1" />{/* coil sub-header placeholder */}
             <th className="px-2 pb-1" />
           </tr>
         )}
@@ -194,6 +223,9 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
                   </td>
                 )
               })}
+              <td className="py-1 px-2">
+                <CoilCell coil={rep.coil} />
+              </td>
               <td className="py-1 px-2 text-neutral-300">
                 {!rep.placementOk
                   ? '⚠ перевір кут камери (placement)'
