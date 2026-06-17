@@ -13,6 +13,15 @@
  * Task 12). The UI must surface the `evidence` tag so these never read as gospel.
  */
 
+/**
+ * Phase type is imported TYPE-ONLY to avoid a runtime import cycle between
+ * referenceStandard.ts and drillMetrics.ts (drillMetrics imports angle
+ * functions; referenceStandard is imported by feedbackEngine which is a
+ * downstream consumer — a value import would form a cycle). The `import type`
+ * erases fully at compile time.
+ */
+import type { Phase } from './drillMetrics'
+
 /** The metric keys, duplicated from drillMetrics to avoid an import cycle. */
 export const METRIC_KEYS = [
   'elbow_angle',
@@ -93,4 +102,76 @@ export const FOREHAND_DRIVE_STANDARD: ReferenceStandard = {
 /** Registry for the (currently single) drill-type selector. */
 export const REFERENCE_STANDARDS: Record<string, ReferenceStandard> = {
   forehand_drive: FOREHAND_DRIVE_STANDARD,
+}
+
+// ---------------------------------------------------------------------------
+// Per-phase reference ranges
+// ---------------------------------------------------------------------------
+
+/**
+ * Per-phase ideal ranges for metrics that have phase-specific literature
+ * anchors. This is a PARTIAL map — not every metric has per-phase data, and
+ * not every phase is configured for each metric that is present.
+ *
+ * NOTE: `elbow_angle` has NO entry here — elbow flex is a pattern metric
+ * (extension at backswing, flex at contact) with no external per-phase ideal
+ * that can be credibly mapped to our interior-angle convention. The single-
+ * instant range in FOREHAND_DRIVE_STANDARD.ranges covers it adequately.
+ *
+ * Interior-angle convention throughout: 180° = fully straight.
+ * All entries are PROVISIONAL — see individual `source` strings.
+ */
+export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, ReferenceRange>>>> = {
+  knee_bend: {
+    backswing: {
+      lo: 105, hi: 130,
+      evidence: 'measured',
+      source: 'Bańkosz & Winiarski JSSM 2020, knee flex ~63° at backswing → interior ~117°; flexion→interior converted; PROVISIONAL band, re-tune on protocol footage',
+    },
+    contact: {
+      lo: 100, hi: 128,
+      evidence: 'measured',
+      source: 'Bańkosz 2020, knee flex ~66° at contact (deepest) → interior ~114°; PROVISIONAL',
+    },
+  },
+  hip_flexion: {
+    backswing: {
+      lo: 115, hi: 160,
+      evidence: 'coach_opinion',
+      source: 'Bańkosz ~22° vs PeerJ 2021 ~63° flex at backswing → interior ~158°/~117°; sources DISAGREE, seeded wide; robust signal is the hinge DIRECTION not degrees; PROVISIONAL',
+    },
+    contact: {
+      lo: 120, hi: 165,
+      evidence: 'coach_opinion',
+      source: 'hip extends slightly toward contact; PROVISIONAL, sources disagree',
+    },
+  },
+  shoulder_angle: {
+    contact: {
+      lo: 30, hi: 75,
+      evidence: 'coach_opinion',
+      source: 'band borrowed from the single-instant FOREHAND_DRIVE_STANDARD range (Bańkosz/PMC7238326); hi=75 reflects forward-phase end, not true contact — interior-angle/instant mapping UNVERIFIED; PROVISIONAL',
+    },
+    followthrough: {
+      lo: 80, hi: 130,
+      evidence: 'coach_opinion',
+      source: 'arm sweeps high at finish (Bańkosz shoulder flex peaks ~97°); interior-angle mapping UNVERIFIED; PROVISIONAL',
+    },
+  },
+}
+
+/**
+ * Look up the per-phase ideal range for a given metric and phase.
+ *
+ * Returns `null` when:
+ *   - the metric has no per-phase entry (e.g. `elbow_angle`, `torso_lean`, `shoulder_tilt`);
+ *   - the metric has entries but not for the requested phase (e.g. `shoulder_angle` at `backswing`).
+ *
+ * Task 3 (table coloring) uses this to decide whether to render a phase cell
+ * with a good/warn/bad background or leave it uncolored.
+ */
+export function perPhaseRange(metricKey: string, phase: Phase): ReferenceRange | null {
+  const metricEntry = PER_PHASE_RANGES[metricKey as MetricKey]
+  if (metricEntry === undefined) return null
+  return metricEntry[phase] ?? null
 }
