@@ -10,7 +10,7 @@ entries (move resolved ones to the bottom section with the resolving commit/doc)
 - `ACCEPTED` — known and consciously deferred (record why and the revisit trigger)
 - `RESOLVED` — fixed; entry moved to the Resolved section
 
-Last updated: 2026-06-12
+Last updated: 2026-06-17
 
 ---
 
@@ -119,6 +119,27 @@ deep-research skill after the limit resets, verify the numbers, and tighten the 
 evidence tags. Until then the UI surfaces the `evidence` flag so users see these are an
 external provisional standard, not a calibrated target.
 **Refs:** `poses_viewer/src/drill2d/referenceStandard.ts`; deep-research pass 2026-06-12.
+
+### L-32 · Per-phase ideal ranges are provisional (extends L-29) — `OPEN`
+
+`PER_PHASE_RANGES` in `poses_viewer/src/drill2d/referenceStandard.ts` seedes per-phase bands (knee, hip, shoulder × backswing / contact / follow-through) primarily from Bańkosz & Winiarski JSSM 2020.
+Several conversion issues are partly unverified:
+
+- The Bańkosz source uses a **flexion** convention (0° = straight joint); this codebase uses **interior** angles (0° = fully folded, 180° = straight). The conversion is `interior = 180 − flexion`, but the mapping of which Bańkosz stroke instant corresponds to which `Phase` enum value has not been independently verified against the original video-protocol description.
+- **Hip flexion sources disagree:** Bańkosz JSSM 2020 reports ~22° at backswing; the companion PeerJ 2021 paper reports ~63°. Different phase-boundary conventions are the likely cause. The hip range is therefore seeded wide and tagged `coach_opinion`.
+- **Shoulder follow-through** mapping (Bańkosz ~97° flexion ≈ 83° interior elevation) is plausible but unverified against video.
+
+**Backswing-end availability and data quality:**
+
+The backswing phase is produced only for ~75% of cycles (unpaired cycles — forward drives whose paired backswing peak was not detected or fell outside `MAX_PAIR_GAP_MS` — omit it). The backswing-end instant is also the worst-tracked moment in the stroke: the racket arm passes behind the torso, reducing keypoint scores and triggering the `score < 0.3` null gate more often. Expect more blank cells in the backswing column than other phases; this is correct score-gate behavior, not a bug.
+
+**Shoulder-coil indicator (`shoulderCoil.ts`):**
+
+«Скрутка» is a LOW-CONFIDENCE qualitative proxy: it measures the projected shoulder-width foreshortening ratio (backswing vs follow-through). This signal is noisy, confounded by player translation, and sensitive to camera yaw and body sway. `COIL_OPENED_RATIO = 1.25` is a provisional heuristic. The indicator intentionally produces no degree value (trust rule; see L-21); it emits only soft qualitative labels.
+
+**Fix direction:** re-tune all per-phase bands + the coil ratio on protocol footage (following the L-30 precedent). Verify the interior-angle convention mapping against the Bańkosz phase-boundary protocol. Cross-link: L-29 (single-instant ranges provisional), L-04 (sign noise affects display-only torso_lean), L-30 (protocol footage re-tune precedent).
+
+**Refs:** `poses_viewer/src/drill2d/referenceStandard.ts`; `poses_viewer/src/drill2d/shoulderCoil.ts`; `poses_viewer/src/drill2d/drillMetrics.ts`; experiments log 2026-06-17.
 
 ### L-31 · Cycle RepFilter dropped real drives that lack a paired backswing — `RESOLVED`
 After direction-aware NMS + the full-cycle model (2026-06-15), a forward drive whose backswing

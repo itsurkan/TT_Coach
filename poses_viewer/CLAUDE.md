@@ -60,6 +60,20 @@ Clicking a stroke band loops its `start→end` segment (`strokeLoop.ts` `loopBac
 the video `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without
 deselecting. Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
+**Per-phase columns in `DrillResultsTable` (2026-06-17):** the table now shows separate columns for
+three stroke phases — backswing «замах», contact «удар», follow-through «завершення» — for
+`knee_bend`, `hip_flexion`, `elbow_angle`, and `shoulder_angle`. `torso_lean` appears at contact
+only, display-only (no colour; L-04 sign noise). `shoulder_tilt` remains a single-instant cell
+(axial rotation is not reliably measurable from a side camera). A qualitative «Скрутка» column
+shows a shoulder-coil indicator (soft label «розкрив»/«слабка», no degrees — trust rule) derived
+from projected shoulder-width foreshortening in `shoulderCoil.ts`. Per-phase reference bands come
+from `PER_PHASE_RANGES` / `perPhaseRange` in `referenceStandard.ts` (seeded from Bańkosz & Winiarski
+JSSM 2020, interior-angle convention; conversion partly unverified — see L-32). Backswing cells are
+blank on unpaired cycles (~25% of reps) and on frames where keypoint scores fall below the 0.3 gate;
+this is correct behavior, not a bug. Key exports: `extractPerPhase`, `METRIC_PHASES`, `Phase`
+(from `drillMetrics.ts`); `shoulderCoil.ts`; `PER_PHASE_RANGES`, `perPhaseRange`
+(from `referenceStandard.ts`). `analyzeDrill` `RepAnalysis` carries `perPhase` + `coil` fields.
+
 **Phase-aligned rep bands (`drill2d/strokeCycleWindow.ts`):** the detector's speed-valley
 boundaries land mid-cycle, so a rep band looked phase-shifted (it appeared to start in the prior
 stroke's recovery). A forehand drive travels LOW→HIGH, so `cycleWindow` recomputes each KEPT rep's

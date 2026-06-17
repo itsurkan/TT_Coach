@@ -246,6 +246,61 @@ camera-protocol footage); feedback layer is viewer-only by design (no Kotlin por
 - **Regression check:** detection goldens intact (andrii 23/15/15, video_4 18/12/9; golden vitest
   5/5). **Full viewer suite 266/266 pass** — all 9 feedback experiments are clean, no test breakage.
 
+---
+
+## 2026-06-17 — Per-phase metrics — research + implementation
+
+### Motivation
+
+Up to this point all drill metrics were sampled at a single instant: the wrist-speed peak (~contact).
+That works well for contact-frame posture, but misses the pattern "correct at the start, wrong at the finish" — e.g. a player who loads the elbow properly in the backswing but never extends at contact.
+A phase-to-phase DELTA would hide exactly that problem (a big delta could come from either a good start or a good finish), so the decision was to expose the **absolute value at each phase** in separate table columns: backswing «замах», contact «удар», follow-through «завершення».
+
+### Research — measured source
+
+**Bańkosz & Winiarski, *Parameters of Topspin Forehand and Their Inter-/Intra-Individual Variability*, JSSM 2020** (IMU+mocap, n=7 males; companion papers: PeerJ 2021, Healthcare 2023, Frontiers 2023).
+Per-phase group means in the flexion convention (0° = straight joint):
+
+| Metric | Ready | Backswing-end | Contact | Follow-through |
+|--------|-------|---------------|---------|----------------|
+| Knee flexion | 23° | 63° | 66° | 56° |
+| Elbow flexion | 48° | 27° | 26° | 39° |
+| Shoulder elevation | 23° | −8° | 25° | 97° |
+| Hip flexion | 41° | 22° | 25° | 45° |
+
+**Caveat (critical):** coefficients of variation (CV) in this study frequently exceed 100% — meaning the inter-individual spread is larger than the group mean itself. The authors explicitly conclude group means are "insufficient" for prescribing individual coaching targets. This finding directly **supports** the project's design decision to calibrate to the player's own personal baseline (equifinality: many valid techniques exist).
+
+The PeerJ 2021 companion reports hip flexion at backswing as ~63° (vs 22° in the JSSM paper) — the two sources **disagree**, probably due to different stroke-phase boundary conventions. Both data points are retained in the implementation as a wide provisional range tagged `coach_opinion`.
+
+### 2D side-camera measurability
+
+A side (sagittal-plane) camera can reliably measure **flexion / extension** (knee, elbow, hip, forward trunk lean) from the projected joint angle, because these motions are mostly in-plane.
+
+**Vertical-axis rotations** — trunk/waist coil, hip axial rotation, shoulder coil — foreshorten toward a side camera. The projected angle is cosine-ambiguous: the same 2D appearance corresponds to many different 3D rotation states, there is no sign, and the result is confounded by camera yaw (the same reason `CameraAngleEstimator` returns `|yaw|` only, not signed yaw). These metrics must remain qualitative-only or silent (trust rule).
+
+### What was implemented
+
+Per-metric phase pairs, a narrow evidence-graded set:
+
+- **`knee_bend`** — measured at backswing-end + contact.
+- **`hip_flexion`** (NEW metric, shoulder→hip→knee angle) — measured at backswing-end + contact. New function `hipFlexion` added to `angles2d.ts`.
+- **`elbow_angle`** — measured at backswing-end + contact.
+- **`shoulder_angle`** (elevation) — contact + follow-through. Its largest change is at the finish, not backswing↔contact, so backswing is omitted.
+- **`torso_lean`** — contact only, **display-only** (no colour coding; sign noise from L-04 makes per-phase coloring unreliable).
+- **`shoulder_tilt`** — unchanged single-instant cell (dropped from per-phase expansion; axial rotation is not reliably measurable from side camera).
+- **Qualitative shoulder-coil indicator («Скрутка»)** — derived from the projected shoulder-width ratio backswing→follow-through (foreshortening proxy). Emits soft labels «розкрив» / «слабка». **No degrees** (trust rule). Provisional; see L-32.
+
+### Key files
+
+- `poses_viewer/src/drill2d/angles2d.ts` — `hipFlexion` added.
+- `poses_viewer/src/drill2d/drillMetrics.ts` — `extractPerPhase`, `METRIC_PHASES`, `Phase` type.
+- `poses_viewer/src/drill2d/referenceStandard.ts` — `PER_PHASE_RANGES`, `perPhaseRange` lookup. Ranges seeded from Bańkosz (flexion→interior `180 − flex`) with conversion caveats (see L-32).
+- `poses_viewer/src/drill2d/shoulderCoil.ts` — shoulder-coil indicator (foreshortening ratio).
+- `poses_viewer/src/drill2d/analyzeDrill.ts` — `perPhase` + `coil` fields added to `RepAnalysis`.
+- `poses_viewer/src/components/DrillResultsTable.tsx` — per-phase columns (замах / удар / завершення) + «Скрутка» qualitative column.
+
+---
+
 ## Experiment backlog (prioritized; refined after full triage)
 Validation = visible before/after in #/strokes. Each = own commit (TS `drill2d/` layer, where the viewer runs).
 1. **E1 — Per-video camera-angle calibration (L-25).** Define correct yaw per usable video; verify metrics stabilize + placementOk. Core deliverable ("define camera angle, adapt analysis").
