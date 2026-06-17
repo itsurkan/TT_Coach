@@ -18,8 +18,7 @@
  */
 
 import { Coco17, Keypoint2D, PoseFrame2D, StrokeCycle2D } from './types'
-import { scored } from './facing'
-import { DEFAULT_MIN_SCORE } from './facing'
+import { scored, DEFAULT_MIN_SCORE } from './facing'
 import { median } from './median'
 
 // ---------------------------------------------------------------------------
