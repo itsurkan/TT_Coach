@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSpokenFeedback } from './useSpokenFeedback'
 import { buildSpokenSchedule } from '../drill2d/buildSpokenSchedule'
-import { loadUserStyles, getActiveStyle } from '../drill2d/voiceStyleStore'
+import { loadUserStyles, getActiveStyle, saveUserStyles } from '../drill2d/voiceStyleStore'
 import { voiceProfileOf } from '../drill2d/voiceStyle'
 import { loadManifest, type ClipManifest } from '../drill2d/voiceClips'
 import { Handedness } from '../drill2d/types'
@@ -15,6 +15,7 @@ import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
 import { ALL_KEYS } from '../drill2d/drillMetrics'
 import { DrillResultsTable } from './DrillResultsTable'
 import { loopBackTarget } from './strokeLoop'
+import { VoiceStyleEditor } from './VoiceStyleEditor'
 
 interface VideoItem { name: string; ext: string }
 
@@ -46,7 +47,7 @@ export default function StrokesPage() {
   const [drillType, setDrillType] = useState('forehand_drive')
   const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
   const [muted, setMuted] = useState(false)
-  const [styleState] = useState(() => loadUserStyles())
+  const [styleState, setStyleState] = useState(() => loadUserStyles())
   const [manifest, setManifest] = useState<ClipManifest | null>(null)
   const activeStyle = useMemo(() => getActiveStyle(styleState), [styleState])
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -522,6 +523,11 @@ export default function StrokesPage() {
           </div>
         </div>
       </fieldset>
+      <VoiceStyleEditor
+        state={styleState}
+        manifest={manifest}
+        onChange={next => { setStyleState(next); saveUserStyles(next) }}
+      />
       </div>
     </div>
   )
