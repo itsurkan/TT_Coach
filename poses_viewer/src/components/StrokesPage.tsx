@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useSpokenFeedback, FeedbackMode } from './useSpokenFeedback'
+import { useSpokenFeedback } from './useSpokenFeedback'
+import { buildSpokenSchedule } from '../drill2d/buildSpokenSchedule'
+import { loadUserStyles, getActiveStyle } from '../drill2d/voiceStyleStore'
+import { voiceProfileOf } from '../drill2d/voiceStyle'
+import { loadManifest, type ClipManifest } from '../drill2d/voiceClips'
 import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
 import { countStrokes } from '../drill2d/countStrokes'
@@ -41,7 +45,10 @@ export default function StrokesPage() {
   const [loop, setLoop] = useState(false)
   const [drillType, setDrillType] = useState('forehand_drive')
   const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
-  const [feedbackMode, setFeedbackMode] = useState<FeedbackMode>('audio')
+  const [muted, setMuted] = useState(false)
+  const [styleState] = useState(() => loadUserStyles())
+  const [manifest, setManifest] = useState<ClipManifest | null>(null)
+  const activeStyle = useMemo(() => getActiveStyle(styleState), [styleState])
   const videoRef = useRef<HTMLVideoElement>(null)
   // EXP-7: gate the calibration save until the load for the current base has applied,
   // so switching videos doesn't write the old yaw to the new video's key.
@@ -105,6 +112,12 @@ export default function StrokesPage() {
       .catch(e => setError(String(e.message ?? e)))
   }, [base])
 
+  useEffect(() => {
+    let alive = true
+    loadManifest(activeStyle.id).then(m => { if (alive) setManifest(m) })
+    return () => { alive = false }
+  }, [activeStyle.id])
+
   const result = useMemo(() => {
     if (!seq) return null
     try {
@@ -138,8 +151,11 @@ export default function StrokesPage() {
     }
   }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, enabledMetrics, hipTravelMaxTorso])
 
-  const feed = useMemo(() => report?.feedback ?? [], [report])
-  const spoken = useSpokenFeedback(feed, feedbackMode)
+  const schedule = useMemo(
+    () => (report ? buildSpokenSchedule(report.voiceReps, report.strokeStartTimes, activeStyle, manifest) : []),
+    [report, activeStyle, manifest],
+  )
+  const spoken = useSpokenFeedback(schedule, voiceProfileOf(activeStyle), manifest, muted)
 
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
@@ -286,7 +302,7 @@ export default function StrokesPage() {
               <TimelineLegend />
               {spoken.latest && (
                 <div className="bg-sky-900/60 border border-sky-700 rounded p-2 text-sm">
-                  🔊 {spoken.latest.message}
+                  🔊 {spoken.latest.text}
                 </div>
               )}
               {spoken.log.length > 0 && (
@@ -294,7 +310,7 @@ export default function StrokesPage() {
                   <summary>Журнал підказок ({spoken.log.length})</summary>
                   <ul className="mt-1 space-y-0.5">
                     {spoken.log.map((f, i) => (
-                      <li key={i}>{(f.timestampMs / 1000).toFixed(1)} с — {f.message}</li>
+                      <li key={i}>{(f.atMs / 1000).toFixed(1)} с — {f.text}</li>
                     ))}
                   </ul>
                 </details>
@@ -483,14 +499,8 @@ export default function StrokesPage() {
         </label>
         <label className="flex items-center gap-2">
           <span className="w-56">Озвучення підказок:</span>
-          <select
-            className="bg-neutral-800 rounded px-2 py-1"
-            value={feedbackMode}
-            onChange={e => setFeedbackMode(e.target.value as FeedbackMode)}
-          >
-            <option value="audio">Голос (за замовч.)</option>
-            <option value="text">Лише текст</option>
-          </select>
+          <input type="checkbox" checked={!muted} onChange={e => setMuted(!e.target.checked)} />
+          <span className="text-neutral-400">{muted ? 'вимкнено (лише текст)' : 'голос увімкнено'}</span>
         </label>
         <div className="flex items-start gap-2">
           <span className="w-56">Метрики:</span>
