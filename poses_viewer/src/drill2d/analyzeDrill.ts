@@ -19,8 +19,7 @@ import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak, extractPerPhase, type Phase } from './drillMetrics'
 import { evaluateRep } from './feedbackEngine'
 import { FeedbackCue } from './feedbackCue'
-import { formatCue, positiveMessage } from './messageCatalog'
-import { FeedbackCadencePolicy } from './cadencePolicy'
+import { formatCue } from './messageCatalog'
 import { ReferenceStandard } from './referenceStandard'
 import { estimateCoil, type CoilLabel } from './shoulderCoil'
 import type { VoiceRep, MetricObservation } from './buildSpokenSchedule'
@@ -28,10 +27,6 @@ import { VOICE_METRIC_KEYS, type MetricKey } from './voiceStyle'
 
 /** |yaw| beyond this → rep excluded from feedback (CLAUDE.md: ~30° gate). */
 export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
-
-/** EXP-1: a persistent single-issue cue is re-surfaced at most this often (ms),
- *  instead of repeating it every rep. */
-export const REMINDER_INTERVAL_MS = 8000
 
 /** EXP-2: a metric whose cross-rep IQR exceeds this (degrees) is treated as
  *  unreliable (measurement noise) and not coached. ~20° cleanly separates blur
@@ -68,28 +63,6 @@ export function unreliableMetricKeys(reps: RepAnalysis[]): Set<string> {
   return unreliable
 }
 
-/**
- * EXP-1 cue selection: prefer the most-severe cue for an issue OTHER than the one
- * just spoken (variety). If the only cues are the same metric as last time, only
- * re-surface it once enough time has passed (spaced reminder), else stay quiet.
- * `cues` is already severity-sorted (feedbackEngine).
- */
-export function pickVariedCue(
-  cues: FeedbackCue[],
-  lastMetric: string | null,
-  lastSpokenMsByMetric: Record<string, number>,
-  nowMs: number,
-): FeedbackCue | null {
-  if (cues.length === 0) return null
-  const different = cues.find(c => c.metricKey !== lastMetric)
-  if (different) return different
-  // Only same-metric cues remain (single persistent fault): space the reminder out.
-  const top = cues[0]
-  const lastMs = lastSpokenMsByMetric[top.metricKey]
-  if (lastMs === undefined || nowMs - lastMs >= REMINDER_INTERVAL_MS) return top
-  return null
-}
-
 export interface RepAnalysis {
   stroke: Stroke2D
   metrics: Record<string, number>
@@ -109,13 +82,6 @@ export interface RepAnalysis {
   coil: { ratio: number; label: CoilLabel } | null
 }
 
-export interface SpokenFeedback {
-  timestampMs: number
-  message: string
-  /** null = positive reinforcement, not a correction. */
-  cue: FeedbackCue | null
-}
-
 /** EXP-3: the single actionable takeaway for the whole set. */
 export interface SessionFocus {
   /** Dominant metric to work on, or null when the set was clean. */
@@ -129,7 +95,6 @@ export interface SessionFocus {
 
 export interface DrillAnalysisReport {
   reps: RepAnalysis[]
-  feedback: SpokenFeedback[]
   /** Session summary: false → over half the reps had bad camera placement. */
   placementOk: boolean
   rawPeakCount: number
@@ -186,11 +151,6 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     : banded
   // Metrics anchor stays the drive peak — analysis sees the same frames as before.
   const reps = keptCycles.map(c => c.drive)
-
-  const cadence = new FeedbackCadencePolicy(
-    config.cadence?.minIntervalMs ?? 3000,
-    config.cadence?.maxIntervalMs ?? 5000,
-  )
 
   const repAnalyses: RepAnalysis[] = keptCycles.map(cycle => {
     const stroke = cycle.drive
@@ -254,34 +214,10 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   })
   const strokeStartTimes = voiceReps.map(r => r.strokeStartMs)
 
-  // EXP-1 (variety-aware feedback): a real coach surfaces different faults across a
-  // set instead of repeating the same line every rep. We (a) prefer the most-severe
-  // cue addressing a DIFFERENT issue than the one just spoken, and (b) for a
-  // persistent single issue, space reminders out (REMINDER_INTERVAL_MS) rather than
-  // nagging it every rep. The cadence rate-limit still applies on top.
-  const feedback: SpokenFeedback[] = []
-  let lastMetric: string | null = null
-  let positiveCount = 0 // EXP-6: rotate positive phrasings
-  const lastSpokenMsByMetric: Record<string, number> = {}
-  for (const rep of repAnalyses) {
-    if (!rep.placementOk) continue // silent rep; UI surfaces the placement flag
-    const atMs = rep.stroke.endFrame * seq.intervalMs
-    const chosen = pickVariedCue(rep.cues, lastMetric, lastSpokenMsByMetric, atMs)
-    const cue = cadence.offer(atMs, chosen ? [chosen] : [])
-    if (cue !== null) {
-      feedback.push({ timestampMs: atMs, message: formatCue(cue), cue })
-      lastMetric = cue.metricKey
-      lastSpokenMsByMetric[cue.metricKey] = atMs
-    } else if (rep.cues.length === 0 && Object.keys(rep.metrics).length > 0 && cadence.offerPositive(atMs)) {
-      feedback.push({ timestampMs: atMs, message: positiveMessage(positiveCount++), cue: null })
-    }
-  }
-
   const okCount = repAnalyses.filter(r => r.placementOk).length
   const coached = repAnalyses.filter(r => r.placementOk)
   return {
     reps: repAnalyses,
-    feedback,
     placementOk: repAnalyses.length === 0 || okCount * 2 >= repAnalyses.length,
     rawPeakCount: rawStrokes.length,
     forwardRepCount: reps.length,

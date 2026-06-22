@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
-  pickVariedCue,
   unreliableMetricKeys,
   sessionFocus,
   sessionStrengths,
   UNRELIABLE_IQR_DEG,
   MIN_REPS_FOR_RELIABILITY,
   STRENGTH_FRACTION,
-  REMINDER_INTERVAL_MS,
   RepAnalysis,
 } from '../analyzeDrill'
 import { positiveMessage } from '../messageCatalog'
@@ -121,30 +119,6 @@ describe('sessionStrengths (EXP-9)', () => {
   it('needs at least MIN_REPS_FOR_RELIABILITY measurements', () => {
     const reps = [120, 121, 122].map(v => rep({ elbow_angle: v }))
     expect(sessionStrengths(reps, new Set(), STD)).not.toContain('elbow_angle')
-  })
-})
-
-// --- EXP-1: pickVariedCue -------------------------------------------------
-describe('pickVariedCue (EXP-1)', () => {
-  it('returns null for an empty cue list', () => {
-    expect(pickVariedCue([], null, {}, 0)).toBeNull()
-  })
-  it('prefers a cue for a different metric than the one just spoken', () => {
-    const cues = [cue('elbow_angle', 2), cue('knee_bend', 1)]
-    expect(pickVariedCue(cues, 'elbow_angle', {}, 0)?.metricKey).toBe('knee_bend')
-  })
-  it('takes the top cue when no previous metric is set', () => {
-    const cues = [cue('elbow_angle', 2), cue('knee_bend', 1)]
-    expect(pickVariedCue(cues, null, {}, 0)?.metricKey).toBe('elbow_angle')
-  })
-  it('suppresses a repeat of the only fault until the reminder interval elapses', () => {
-    const cues = [cue('elbow_angle')]
-    const spoken = { elbow_angle: 1000 }
-    expect(pickVariedCue(cues, 'elbow_angle', spoken, 1000 + REMINDER_INTERVAL_MS - 1)).toBeNull()
-    expect(pickVariedCue(cues, 'elbow_angle', spoken, 1000 + REMINDER_INTERVAL_MS)?.metricKey).toBe('elbow_angle')
-  })
-  it('surfaces a persistent fault the first time even if it equals lastMetric', () => {
-    expect(pickVariedCue([cue('elbow_angle')], 'elbow_angle', {}, 5000)?.metricKey).toBe('elbow_angle')
   })
 })
 

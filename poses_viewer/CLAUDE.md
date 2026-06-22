@@ -51,14 +51,22 @@ like video_3 — surfaces faint strokes + splits merged peaks — never change t
 `angles2d.ts`, `cameraYaw.ts`, `drillMetrics.ts`, `sanityBounds.ts`, `metricPrecision.ts` are
 1:1 Kotlin mirrors (golden-parity); the feedback half — `referenceStandard.ts` (external IDEAL
 ranges, NOT personal baseline — spec decision #2), `feedbackEngine.ts` (range-based severity),
-`messageCatalog.ts` (EN, "vs ideal" wording), `cadencePolicy.ts`, `analyzeDrill.ts` — deliberately
-diverges from Kotlin and has NO shared/ counterpart to golden against. `analyzeDrill` preserves the
-M0 count-golden (detection on plain aspect). `#/strokes` now also shows a per-rep results table
-(`DrillResultsTable.tsx`), metric on/off toggles, a drill-type selector, and `speechSynthesis`
-spoken-feedback playback (`useSpokenFeedback.ts`, EN voice, audio default + text-only mode).
-Clicking a stroke band loops its `start→end` segment (`strokeLoop.ts` `loopBackTarget`, wired in
-the video `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without
-deselecting. Reference ranges are PROVISIONAL (see referenceStandard.ts header).
+`messageCatalog.ts` (EN, "vs ideal" wording), `analyzeDrill.ts` — deliberately diverges from
+Kotlin and has NO shared/ counterpart to golden against. `analyzeDrill` preserves the M0
+count-golden (detection on plain aspect). `#/strokes` now also shows a per-rep results table
+(`DrillResultsTable.tsx`), metric on/off toggles, a drill-type selector, and clip-or-live voice
+feedback playback. The voice layer is config-driven: `voiceStyle.ts` (model + 3 immutable presets,
+EN+UA phrases), `voiceStyleStore.ts` (localStorage CRUD), `voiceClips.ts` (deterministic clip key
++ manifest), `buildSpokenSchedule.ts` (pure core: gate → praise → select → cadence → skip-stale;
+vitest-covered), `useSpokenFeedback.ts` (clip-or-live playback + barge-in), `VoiceStyleEditor.tsx`
+(visual editor). `analyzeDrill` emits style-independent `voiceReps`/`strokeStartTimes`; the spoken
+schedule is built per active style. `cadencePolicy.ts` removed (cadence is now a style param).
+`messageCatalog`/`feedbackEngine` remain only for the on-screen session summary
+(`sessionFocus`/`sessionStrengths`) + the per-rep table. Clips live in `public/voice/<styleId>/`,
+generated offline by `scripts/generateVoiceClips.ts`. Clicking a stroke band loops its `start→end`
+segment (`strokeLoop.ts` `loopBackTarget`, wired in the video `onTimeUpdate`); a `🔁 Цикл` toggle
+in the selected-stroke row turns it off without deselecting. Reference ranges are PROVISIONAL (see
+referenceStandard.ts header).
 
 **Per-phase columns in `DrillResultsTable` (2026-06-17):** the table now shows separate columns for
 three stroke phases — backswing «замах», contact «удар», follow-through «завершення» — for
