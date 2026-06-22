@@ -66,7 +66,17 @@ function uniquePhrases(style: VoiceStyle): Array<{ lang: Lang; text: string }> {
 async function main() {
   const arg = process.argv[2]
   if (!arg) { console.error('usage: npm run gen:voice -- <style.json>'); process.exit(1) }
-  const style = JSON.parse(readFileSync(resolve(process.cwd(), arg), 'utf-8')) as VoiceStyle
+  let style: VoiceStyle
+  try {
+    style = JSON.parse(readFileSync(resolve(process.cwd(), arg), 'utf-8')) as VoiceStyle
+  } catch (err) {
+    console.error(`cannot read style JSON at "${arg}": ${(err as Error).message}`)
+    process.exit(1)
+  }
+  if (typeof style.id !== 'string' || !/^[\w-]+$/.test(style.id)) {
+    console.error(`invalid style.id "${style.id}" — must match [A-Za-z0-9_-]+`)
+    process.exit(1)
+  }
   const provider = pickProvider()
   const outDir = resolve(PUBLIC_DIR, style.id)
   mkdirSync(outDir, { recursive: true })
