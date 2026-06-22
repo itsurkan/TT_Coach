@@ -132,7 +132,7 @@ export function buildSpokenSchedule(
     if (style.praiseEnabled) {
       const corrected = [...prevOutOfBand].some(k => !curOutOfBand.has(k))
       if (style.praiseOnCorrection && corrected) praiseCandidate = true
-      else if (style.praiseOnStreak && cleanStreak >= style.praiseStreakLen) praiseCandidate = true
+      else if (style.praiseOnStreak && cleanStreak > 0 && cleanStreak >= style.praiseStreakLen) praiseCandidate = true
     }
 
     // 3. Cue selection (one per rep): max severity, vary-aware, reminder-suppressed.

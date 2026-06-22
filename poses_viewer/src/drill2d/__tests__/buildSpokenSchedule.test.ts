@@ -134,6 +134,15 @@ describe('buildSpokenSchedule — praise', () => {
     expect(out[1].kind).toBe('cue')
     expect(out[1].metricKey).toBe('knee_bend')
   })
+  it('does not fire streak praise on an out-of-band rep even when praiseStreakLen is 0', () => {
+    const reps = [rep(0, { elbow_angle: band(160) })] // out of band → cleanStreak resets to 0
+    const out = buildSpokenSchedule(reps, [0], style({
+      praiseEnabled: true, praiseOnStreak: true, praiseStreakLen: 0, praiseOnCorrection: false,
+      correctiveMinGapMs: 0, praiseMinSilenceMs: 0,
+    }))
+    // The only possible emission is the correction cue, never a praise.
+    expect(out.every(o => o.kind !== 'praise')).toBe(true)
+  })
 })
 
 describe('buildSpokenSchedule — timing anchor', () => {
