@@ -205,3 +205,43 @@ describe('analyzeDrill — coil field', () => {
     }
   })
 })
+
+describe('analyzeDrill — voice inputs (style-independent)', () => {
+  it('emits one voiceRep and one strokeStartTime per kept rep, with ascending starts', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    expect(report.voiceReps).toHaveLength(report.reps.length)
+    expect(report.strokeStartTimes).toHaveLength(report.reps.length)
+    for (let i = 1; i < report.strokeStartTimes.length; i++) {
+      expect(report.strokeStartTimes[i]).toBeGreaterThanOrEqual(report.strokeStartTimes[i - 1])
+    }
+  })
+  it('places contact between start and end for every voiceRep', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    for (const v of report.voiceReps) {
+      expect(v.strokeStartMs).toBeLessThanOrEqual(v.contactMs)
+      expect(v.contactMs).toBeLessThanOrEqual(v.strokeEndMs)
+    }
+  })
+  it('with yaw override 0, at least one coachable voiceRep carries observations bounded by the standard', () => {
+    const seq = loadSeq('andrii_1_rtm.json')
+    const report = analyzeDrill(seq, {
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+    })
+    const withObs = report.voiceReps.filter(v => v.coachable && Object.keys(v.observations).length > 0)
+    expect(withObs.length).toBeGreaterThan(0)
+    // never voices hip_flexion; every observation carries the ideal band
+    for (const v of report.voiceReps) {
+      expect(Object.keys(v.observations)).not.toContain('hip_flexion')
+      for (const obs of Object.values(v.observations)) {
+        expect(typeof obs!.lo).toBe('number')
+        expect(typeof obs!.hi).toBe('number')
+      }
+    }
+  })
+})

@@ -23,6 +23,8 @@ import { formatCue, positiveMessage } from './messageCatalog'
 import { FeedbackCadencePolicy } from './cadencePolicy'
 import { ReferenceStandard } from './referenceStandard'
 import { estimateCoil, type CoilLabel } from './shoulderCoil'
+import type { VoiceRep, MetricObservation } from './buildSpokenSchedule'
+import { VOICE_METRIC_KEYS, type MetricKey } from './voiceStyle'
 
 /** |yaw| beyond this → rep excluded from feedback (CLAUDE.md: ~30° gate). */
 export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
@@ -141,6 +143,10 @@ export interface DrillAnalysisReport {
   strengths: string[]
   /** EXP-9: coachable reps with zero faults. */
   cleanReps: number
+  /** Style-independent per-rep inputs for the voice core (buildSpokenSchedule). One per kept rep. */
+  voiceReps: VoiceRep[]
+  /** Stroke onset (ms) per kept rep, ascending — used by skip-stale collision checks. */
+  strokeStartTimes: number[]
 }
 
 export interface DrillAnalysisConfig {
@@ -222,6 +228,32 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     }
   }
 
+  // Style-independent voice inputs: per-rep observations the voice core (buildSpokenSchedule)
+  // gates against the active style. Only the 5 VOICED in-plane metrics, only on placementOk reps,
+  // and only metrics not flagged unreliable. hip_flexion is analysis-only (never voiced).
+  const intervalMs = seq.intervalMs
+  const voiceReps: VoiceRep[] = repAnalyses.map(rep => {
+    const observations: Partial<Record<MetricKey, MetricObservation>> = {}
+    if (rep.placementOk) {
+      for (const key of VOICE_METRIC_KEYS) {
+        if (unreliable.has(key)) continue
+        if (config.enabledMetrics && !config.enabledMetrics.has(key)) continue
+        const value = rep.metrics[key]
+        const range = config.standard.ranges[key]
+        if (value === undefined || range === undefined) continue
+        observations[key] = { value, lo: range.lo, hi: range.hi }
+      }
+    }
+    return {
+      strokeStartMs: rep.stroke.startFrame * intervalMs,
+      contactMs: rep.stroke.peakFrame * intervalMs,
+      strokeEndMs: rep.stroke.endFrame * intervalMs,
+      coachable: rep.placementOk && Object.keys(observations).length > 0,
+      observations,
+    }
+  })
+  const strokeStartTimes = voiceReps.map(r => r.strokeStartMs)
+
   // EXP-1 (variety-aware feedback): a real coach surfaces different faults across a
   // set instead of repeating the same line every rep. We (a) prefer the most-severe
   // cue addressing a DIFFERENT issue than the one just spoken, and (b) for a
@@ -257,6 +289,8 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     unreliableMetrics: [...unreliable],
     strengths: sessionStrengths(coached, unreliable, config.standard, config.enabledMetrics),
     cleanReps: coached.filter(r => r.cues.length === 0).length,
+    voiceReps,
+    strokeStartTimes,
   }
 }
 
