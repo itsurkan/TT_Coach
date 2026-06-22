@@ -59,6 +59,8 @@ export function importStyle(json: string, id: string): VoiceStyle {
     parsed === null || typeof parsed !== 'object' ||
     typeof parsed.name !== 'string' ||
     typeof parsed.phrases !== 'object' || parsed.phrases === null ||
+    typeof (parsed.phrases as { en?: unknown }).en !== 'object' || (parsed.phrases as { en?: unknown }).en === null ||
+    typeof (parsed.phrases as { uk?: unknown }).uk !== 'object' || (parsed.phrases as { uk?: unknown }).uk === null ||
     typeof parsed.bandWidthMult !== 'number'
   ) {
     throw new Error('invalid voice style JSON')
@@ -68,7 +70,7 @@ export function importStyle(json: string, id: string): VoiceStyle {
 
 export function getActiveStyle(state: StoredStyles): VoiceStyle {
   const id = resolveActiveId(state.activeStyleId, state.styles)
-  return allStyles(state.styles).find(s => s.id === id) ?? PRESETS[0]
+  return allStyles(state.styles).find(s => s.id === id) ?? PRESETS.find(p => p.id === DEFAULT_ACTIVE_ID) ?? PRESETS[0]
 }
 
 export function newStyleId(): string {

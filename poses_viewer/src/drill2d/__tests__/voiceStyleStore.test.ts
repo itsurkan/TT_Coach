@@ -63,6 +63,9 @@ describe('serialize/import round-trip', () => {
   it('rejects invalid JSON shapes', () => {
     expect(() => importStyle('{"foo":1}', 'x')).toThrow()
   })
+  it('rejects a style whose phrases lack en/uk language sets', () => {
+    expect(() => importStyle('{"name":"x","phrases":{},"bandWidthMult":1}', 'id')).toThrow()
+  })
 })
 
 describe('persistence', () => {
