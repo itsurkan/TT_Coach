@@ -71,6 +71,7 @@ export function useSpokenFeedback(
   const lastMsRef = useRef(0)
   const [log, setLog] = useState<SpokenFeedbackItem[]>([])
   const [latest, setLatest] = useState<SpokenFeedbackItem | null>(null)
+  // onTime intentionally depends only on `schedule`; live profile/manifest/muted flow through refs to avoid re-creating the callback each render.
   const profileRef = useRef(profile)
   const manifestRef = useRef(manifest)
   const mutedRef = useRef(muted)

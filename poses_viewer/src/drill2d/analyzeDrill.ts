@@ -124,7 +124,6 @@ export interface DrillAnalysisConfig {
   cameraYawDeg?: number | null
   maxCameraYawDeg?: number
   detector?: StrokeDetectorOptions
-  cadence?: { minIntervalMs: number; maxIntervalMs: number }
   /** EXPERIMENTAL locomotion gate (L-30): drop reps whose hip-mid travels more
    *  than this many torso-lengths (walking). 0/undefined = off. */
   hipTravelMaxTorso?: number

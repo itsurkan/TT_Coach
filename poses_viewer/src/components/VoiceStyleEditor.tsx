@@ -4,13 +4,13 @@
  * the active style feeds the buildSpokenSchedule memo in StrokesPage, so a slider
  * change re-runs only the pure scheduler. "Test voice" plays a sample (clip-or-live).
  */
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   type VoiceStyle, type Lang, type MetricKey, VOICE_METRIC_KEYS, voiceProfileOf,
 } from '../drill2d/voiceStyle'
 import {
   type StoredStyles, allStyles, cloneStyle, renameStyle, removeStyle, upsertStyle,
-  serializeStyle, importStyle, newStyleId, getActiveStyle,
+  serializeStyle, importStyle, newStyleId, getActiveStyle, DEFAULT_ACTIVE_ID,
 } from '../drill2d/voiceStyleStore'
 import { clipKey, lookupClip, type ClipManifest } from '../drill2d/voiceClips'
 import { speakNow } from './useSpokenFeedback'
@@ -26,6 +26,7 @@ const LANGS: Lang[] = ['en', 'uk']
 export function VoiceStyleEditor({ state, onChange, manifest }: VoiceStyleEditorProps) {
   const active = getActiveStyle(state)
   const [editLang, setEditLang] = useState<Lang>(active.lang)
+  useEffect(() => { setEditLang(active.lang) }, [active.id])
   const styles = allStyles(state.styles)
 
   // Edit a field; if the active style is builtin, clone it first and switch to the clone.
@@ -50,7 +51,7 @@ export function VoiceStyleEditor({ state, onChange, manifest }: VoiceStyleEditor
   }
   function remove() {
     if (active.builtin) return
-    onChange({ activeStyleId: 'preset-strict', styles: removeStyle(state.styles, active.id) })
+    onChange({ activeStyleId: DEFAULT_ACTIVE_ID, styles: removeStyle(state.styles, active.id) })
   }
   function exportJson() {
     const blob = new Blob([serializeStyle(active)], { type: 'application/json' })
