@@ -284,6 +284,27 @@ export default function StrokesPage() {
   const selected = selectedIdx !== null ? entries[selectedIdx] : null
   const currentFrame = seq ? Math.min(Math.round(currentMs / seq.intervalMs), seq.frames.length - 1) : 0
 
+  // `selectedIdx` is canonical in ENTRIES-space (the full band list the timeline +
+  // loop read). The table indexes `report.reps` (kept reps only), so both views map
+  // through the drive-peak ms — otherwise a table click would select the i-th *band*
+  // (often a not-counted stroke) and the loop would yank playback there.
+  const peakMsOf = (frame: number): number =>
+    seq ? (seq.frames[frame]?.timestampMs ?? frame * seq.intervalMs) : 0
+  const repEntryIdxByPeakMs = useMemo(() => {
+    const m = new Map<number, number>()
+    entries.forEach((e, idx) => { if (e.kind === 'rep') m.set(e.peakMs, idx) })
+    return m
+  }, [entries])
+  // Map the canonical entries-space selection back to a table row (null when the
+  // selected band is not a counted rep).
+  const tableSelectedIndex = useMemo(() => {
+    if (selectedIdx === null || !report) return null
+    const e = entries[selectedIdx]
+    if (!e || e.kind !== 'rep') return null
+    const i = report.reps.findIndex(r => peakMsOf(r.stroke.peakFrame) === e.peakMs)
+    return i >= 0 ? i : null
+  }, [selectedIdx, entries, report, seq])
+
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4">
       <div className="w-full flex flex-col lg:flex-row gap-4 items-start">
@@ -460,11 +481,11 @@ export default function StrokesPage() {
             standard={REFERENCE_STANDARDS[drillType]}
             enabledMetrics={new Set(feedbackSettings.enabledMetrics)}
             unreliableMetrics={report.unreliableMetrics}
-            selectedIndex={selectedIdx}
+            selectedIndex={tableSelectedIndex}
             voicedByRep={voicedByRep}
             onSelect={i => {
-              setSelectedIdx(i)
-              const peakMs = seq ? (seq.frames[report.reps[i].stroke.peakFrame]?.timestampMs ?? 0) : 0
+              const peakMs = peakMsOf(report.reps[i].stroke.peakFrame)
+              setSelectedIdx(repEntryIdxByPeakMs.get(peakMs) ?? null)
               seek(peakMs)
             }}
           />

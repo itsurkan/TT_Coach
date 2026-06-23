@@ -11,6 +11,8 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
   type VoiceStyle, type Lang, type MetricKey, VOICE_METRIC_KEYS, voiceProfileOf,
 } from '../drill2d/voiceStyle'
+import { METRIC_PHASES, type Phase } from '../drill2d/drillMetrics'
+import { isPatternMetric } from '../drill2d/decideRepCues'
 import {
   type StoredStyles, allStyles, cloneStyle, renameStyle, removeStyle, upsertStyle,
   serializeStyle, importStyle, newStyleId, getActiveStyle, DEFAULT_ACTIVE_ID,
@@ -26,6 +28,13 @@ export interface VoiceStyleEditorProps {
 }
 
 const LANGS: Lang[] = ['en', 'uk']
+
+/** Short Ukrainian labels for each phase (per-phase pattern-metric rows). */
+const PHASE_LABEL: Record<Phase, string> = {
+  backswing: 'замах',
+  contact: 'удар',
+  followthrough: 'завершення',
+}
 
 export function VoiceStyleEditor({ state, onChange, manifest }: VoiceStyleEditorProps) {
   const active = getActiveStyle(state)
@@ -169,6 +178,16 @@ function PhraseTable({ style, lang, manifest, onEdit }: {
       return { ...s, phrases }
     })
   }
+  function setPhaseCue(metric: MetricKey, phase: Phase, dir: 'up' | 'down', value: string) {
+    onEdit(s => {
+      const phrases = JSON.parse(JSON.stringify(s.phrases)) as VoiceStyle['phrases']
+      const pc = (phrases[lang].phaseCues ??= {})
+      const m = (pc[metric] ??= {})
+      const slot = (m[phase] ??= { up: '', down: '' })
+      slot[dir] = value
+      return { ...s, phrases }
+    })
+  }
   function setPraise(i: number, value: string) {
     onEdit(s => {
       const phrases = JSON.parse(JSON.stringify(s.phrases)) as VoiceStyle['phrases']
@@ -180,17 +199,38 @@ function PhraseTable({ style, lang, manifest, onEdit }: {
     <table className="w-full text-xs">
       <thead><tr className="text-neutral-500"><th className="text-left">Метрика</th><th className="text-left">вище зони</th><th className="text-left">нижче зони</th></tr></thead>
       <tbody>
-        {VOICE_METRIC_KEYS.map(metric => (
-          <tr key={metric}>
-            <td className="pr-2 text-neutral-400">{metric}</td>
-            {(['up', 'down'] as const).map(dir => (
-              <td key={dir} className="pr-2">
-                <input className="bg-neutral-800 rounded px-1 py-0.5 w-full" value={set.cues[metric][dir]} onChange={e => setCue(metric, dir, e.target.value)} />
-                {badge(set.cues[metric][dir])}
-              </td>
-            ))}
-          </tr>
-        ))}
+        {VOICE_METRIC_KEYS.flatMap(metric => {
+          // Pattern metrics (elbow) are graded per phase → render one editable row
+          // per phase, writing to phaseCues. Other metrics keep the single row.
+          if (isPatternMetric(metric)) {
+            const phases = (METRIC_PHASES[metric as keyof typeof METRIC_PHASES] ?? []) as Phase[]
+            return phases.map(phase => {
+              const slot = set.phaseCues?.[metric]?.[phase] ?? { up: '', down: '' }
+              return (
+                <tr key={`${metric}-${phase}`}>
+                  <td className="pr-2 text-neutral-400">{metric} ({PHASE_LABEL[phase]})</td>
+                  {(['up', 'down'] as const).map(dir => (
+                    <td key={dir} className="pr-2">
+                      <input className="bg-neutral-800 rounded px-1 py-0.5 w-full" value={slot[dir]} onChange={e => setPhaseCue(metric, phase, dir, e.target.value)} />
+                      {badge(slot[dir])}
+                    </td>
+                  ))}
+                </tr>
+              )
+            })
+          }
+          return [(
+            <tr key={metric}>
+              <td className="pr-2 text-neutral-400">{metric}</td>
+              {(['up', 'down'] as const).map(dir => (
+                <td key={dir} className="pr-2">
+                  <input className="bg-neutral-800 rounded px-1 py-0.5 w-full" value={set.cues[metric][dir]} onChange={e => setCue(metric, dir, e.target.value)} />
+                  {badge(set.cues[metric][dir])}
+                </td>
+              ))}
+            </tr>
+          )]
+        })}
         <tr><td colSpan={3} className="pt-2 text-neutral-400">Похвала</td></tr>
         {set.praise.map((p, i) => (
           <tr key={i}><td colSpan={3}>

@@ -57,11 +57,18 @@ on/off toggles, a drill-type selector, and clip-or-live voice feedback playback.
 **Feedback-decision / voice-reproduction split (2026-06-23):** a single decision engine
 `decideRepCues.ts` (range-based severity against the external IDEAL ranges in `referenceStandard.ts`,
 NOT personal baseline — spec decision #2) produces per-rep `FeedbackCue[]`, including `hip_flexion`
-(deliberate trust-rule exception — voiced despite being a rotational proxy). It EXCLUDES the
-`PATTERN_METRICS` set — currently `elbow_angle` — which describe a movement across the stroke
-(extends on backswing ~165°, flexes at contact ~97°) and so have no meaningful static single-instant
-ideal to grade against; their per-phase angles are still SHOWN in the table (uncolored) but never
-produce a cue. This is the **single source of truth** driving BOTH the on-screen table and the voice; it is
+(deliberate trust-rule exception — voiced despite being a rotational proxy). `decideRepCues`
+EXCLUDES the `PATTERN_METRICS` set — currently `elbow_angle` — which describes a movement across the
+stroke (extends on the backswing ~165°, folds at the finish) and so has no meaningful static
+single-instant ideal to grade at the noisy contact peak. Instead `decidePatternCues(perPhase,
+settings)` grades the elbow PER PHASE — at the **backswing** and **followthrough** anchors (NOT
+contact) — against `PER_PHASE_RANGES.elbow_angle` (PROVISIONAL coach-opinion bands: backswing
+145–175 near-straight take-back, followthrough 60–85 folded finish; the primary tuning dial).
+`analyzeDrill` merges both cue lists per rep (`isPatternMetric`/`PATTERN_METRICS` exported). Pattern
+cues carry a `phase` and are EXEMPT from the single-instant IQR reliability gate (graded at slower
+anchors; per-phase reliability is a follow-up), and pattern keys are filtered out of
+`unreliableMetrics` so contact noise never strikes through the elbow columns. This is the **single
+source of truth** driving BOTH the on-screen table and the voice; it is
 parameterised by `FeedbackSettings` (widened bands via `bandWidthMult` + `minMeaningfulDeltaDeg`,
 `enabledMetrics`). `feedbackSettings.ts` (NEW) holds the feedback policy
 (bands/thresholds/cadence/praise/skip-stale/enabledMetrics); persisted at localStorage key
@@ -70,21 +77,26 @@ parameterised by `FeedbackSettings` (widened bands via `bandWidthMult` + `minMea
 + phrases); `controls.tsx` holds shared `Slider`/`Toggle`/`secFmt` helpers.
 `buildSpokenSchedule(reps: RepInput[], strokeStartTimes, settings, phrases, lang, rate, manifest?)`
 returns `{ schedule, voicedByRep }` — it never re-decides what is wrong (no band math), only applies
-cadence/praise/skip-stale and renders phrases from the pre-decided cues. `DrillResultsTable` shows
-two cue columns: «Всі зауваження» (all detected cues from `decideRepCues`) and «Підказка»
-(voiced-only, from `voicedByRep`). `messageCatalog.ts` (EN, "vs ideal" wording) remains for the
+cadence/praise/skip-stale and renders phrases from the pre-decided cues. Phrase lookup is
+PHASE-AWARE: a cue carrying a `phase` renders `PhraseSet.phaseCues[metric][phase]` (seeded for elbow
+backswing/followthrough in all 6 presets, editable per-phase in `VoiceStyleEditor`) and falls back to
+the single-instant `cues[metric]`; the reminder/staleness key is `metricKey + (phase ?? '')` so a
+backswing cue does not suppress a followthrough cue within `reminderIntervalMs`. `DrillResultsTable`
+shows two cue columns: «Всі зауваження» (all detected cues) and «Підказка» (voiced-only, from
+`voicedByRep`); both label pattern cues as e.g. `elbow_angle (завершення)` via `cueLabel`. `messageCatalog.ts` (EN, "vs ideal" wording) remains for the
 on-screen session summary (`sessionFocus`/`sessionStrengths`). Clips live in
 `public/voice/<styleId>/`, generated offline by `scripts/generateVoiceClips.ts`. Clicking a stroke
 band loops its `start→end` segment (`strokeLoop.ts` `loopBackTarget`, wired in the video
 `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without deselecting.
 Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
-**Per-phase columns in `DrillResultsTable` (2026-06-17):** the table now shows separate columns for
-three stroke phases — backswing «замах», contact «удар», follow-through «завершення» — for
-`knee_bend`, `hip_flexion`, `elbow_angle`, and `shoulder_angle`. Reference-band coloring (green/red
-severity) applies only to `knee_bend`, `hip_flexion`, and `shoulder_angle` — these have
-`PER_PHASE_RANGES` entries. `elbow_angle` cells appear per-phase but are UNCOLORED (no per-phase
-ideal range defined; it is a pattern metric). `torso_lean` appears at contact only, also uncolored
+**Per-phase columns in `DrillResultsTable` (2026-06-17; elbow updated 2026-06-23):** the table shows
+separate columns per stroke phase — backswing «замах», contact «удар», follow-through «завершення».
+`knee_bend` + `hip_flexion` show замах+удар; `shoulder_angle` shows удар+завершення; `elbow_angle`
+shows **замах+завершення** (NOT удар — contact is the noisiest elbow instant and is intentionally not
+graded). Reference-band coloring (green/red severity) applies to `knee_bend`, `hip_flexion`,
+`shoulder_angle`, AND now `elbow_angle` — all have `PER_PHASE_RANGES` entries (elbow bands are
+PROVISIONAL coach-opinion, the primary tuning dial). `torso_lean` appears at contact only, uncolored
 (display-only; L-04 sign noise). `shoulder_tilt` remains a single-instant cell (axial rotation is
 not reliably measurable from a side camera). A qualitative «Скрутка» column shows a shoulder-coil
 indicator (soft label «розкрив»/«слабка», no degrees — trust rule) derived from projected

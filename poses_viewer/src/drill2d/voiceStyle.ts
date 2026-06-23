@@ -6,6 +6,9 @@
  * phrase is a plain imperative — the voice layer never injects a degree number.
  */
 
+// Type-only: Phase keys the per-phase phrase map is indexed by (pattern metrics).
+import type { Phase } from './drillMetrics'
+
 export type MetricKey = 'elbow_angle' | 'shoulder_angle' | 'knee_bend' | 'torso_lean' | 'shoulder_tilt' | 'hip_flexion'
 
 /** The coachable metrics (drive both the table and the voice), fixed order for tie stability. */
@@ -18,6 +21,12 @@ export type Lang = 'en' | 'uk'
 export interface PhraseSet {
   /** up = measured value ABOVE the (widened) band; down = BELOW it. */
   cues: Record<MetricKey, { up: string; down: string }>
+  /**
+   * Per-phase phrases for PATTERN metrics (currently elbow), graded at a stroke
+   * phase rather than the contact instant. When a cue carries a `phase` and a
+   * phrase exists here, it overrides `cues[metric]`. up/down semantics match `cues`.
+   */
+  phaseCues?: Partial<Record<MetricKey, Partial<Record<Phase, { up: string; down: string }>>>>
   /** Rotated praise pool; specific, never bare "good job". */
   praise: string[]
 }
@@ -64,6 +73,12 @@ const PLAYFUL_EN: PhraseSet = {
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
     hip_flexion: { up: 'ease the hips up a touch', down: 'sink into the hips' },
   },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: "don't lock the elbow on the backswing", down: 'open the elbow a little on the backswing' },
+      followthrough: { up: 'finish the elbow through', down: "don't over-fold the finish" },
+    },
+  },
   praise: ["that's the shape!", 'yes — that follow-through', 'clean — do that again', 'nice, really solid', 'love it, keep going'],
 }
 const PLAYFUL_UK: PhraseSet = {
@@ -74,6 +89,12 @@ const PLAYFUL_UK: PhraseSet = {
     torso_lean: { up: 'тримайся трохи рівніше', down: 'нахились до мʼяча' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
     hip_flexion: { up: 'трохи вище стегнами', down: 'присядь у стегнах' },
+  },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: 'не блокуй лікоть на замаху', down: 'трохи розправ лікоть на замаху' },
+      followthrough: { up: 'доводь лікоть до кінця', down: 'не затискай на завершенні' },
+    },
   },
   praise: ['оце форма!', 'так — оце завершення', 'чисто — ще раз так', 'гарно, дуже впевнено', 'клас, продовжуй'],
 }
@@ -87,6 +108,12 @@ const STRICT_EN: PhraseSet = {
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
     hip_flexion: { up: 'stand tall', down: 'hinge forward' },
   },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: "don't lock the elbow on the backswing", down: 'open the elbow on the backswing' },
+      followthrough: { up: 'finish the elbow through', down: "don't over-fold the finish" },
+    },
+  },
   praise: ["that's the shape", 'clean — repeat that', 'correct'],
 }
 const STRICT_UK: PhraseSet = {
@@ -97,6 +124,12 @@ const STRICT_UK: PhraseSet = {
     torso_lean: { up: 'тримайся рівніше', down: 'нахились уперед' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
     hip_flexion: { up: 'вище', down: 'нахились у стегнах' },
+  },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: 'не блокуй лікоть на замаху', down: 'розправ лікоть на замаху' },
+      followthrough: { up: 'доводь лікоть', down: 'не затискай на завершенні' },
+    },
   },
   praise: ['оце форма', 'чисто — повтори', 'правильно'],
 }
@@ -110,6 +143,12 @@ const EFFICIENT_EN: PhraseSet = {
     shoulder_tilt: { up: 'level shoulders', down: 'level shoulders' },
     hip_flexion: { up: 'hips up', down: 'hinge' },
   },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: "don't lock elbow", down: 'open elbow' },
+      followthrough: { up: 'finish elbow', down: "don't over-fold" },
+    },
+  },
   praise: ['clean', 'yes', 'good'],
 }
 const EFFICIENT_UK: PhraseSet = {
@@ -120,6 +159,12 @@ const EFFICIENT_UK: PhraseSet = {
     torso_lean: { up: 'вище', down: 'нахились' },
     shoulder_tilt: { up: 'рівніше плечі', down: 'рівніше плечі' },
     hip_flexion: { up: 'вище', down: 'нахились' },
+  },
+  phaseCues: {
+    elbow_angle: {
+      backswing:     { up: 'не блокуй лікоть', down: 'розправ лікоть' },
+      followthrough: { up: 'доводь лікоть', down: 'не затискай' },
+    },
   },
   praise: ['чисто', 'так', 'добре'],
 }

@@ -47,6 +47,19 @@ export function nextStrokeStartAfter(strokeStartTimes: number[], atMs: number): 
 
 const dirToPhrase = (d: FeedbackCue['direction']): 'up' | 'down' => (d === 'too_high' ? 'up' : 'down')
 
+/** Staleness/reminder key: per-phase cues key on metric+phase so a backswing cue
+ *  doesn't suppress a followthrough cue (and vice versa) within reminderIntervalMs. */
+const cueKey = (c: FeedbackCue): string => c.metricKey + (c.phase ?? '')
+
+/** Render the phrase for a cue: a per-phase phrase (pattern metrics) wins, else the
+ *  single-instant phrase for the metric. */
+function phraseFor(phrases: PhraseSet, cue: FeedbackCue): string {
+  const mk = cue.metricKey as MetricKey
+  const dir = dirToPhrase(cue.direction)
+  const phasePhrase = cue.phase ? phrases.phaseCues?.[mk]?.[cue.phase] : undefined
+  return phasePhrase ? phasePhrase[dir] : phrases.cues[mk][dir]
+}
+
 export function buildSpokenSchedule(
   reps: RepInput[],
   strokeStartTimes: number[],
@@ -94,7 +107,7 @@ export function buildSpokenSchedule(
     // Cue selection: cues are already severity-desc; drop reminder-suppressed, vary-aware.
     let chosen: FeedbackCue | null = null
     const eligible = rep.cues.filter(c => {
-      const last = lastCuedMs.get(c.metricKey)
+      const last = lastCuedMs.get(cueKey(c))
       return last === undefined || atMs - last >= settings.reminderIntervalMs
     })
     if (eligible.length > 0) {
@@ -105,13 +118,13 @@ export function buildSpokenSchedule(
     let voiced: FeedbackCue | null = null
     if (chosen !== null) {
       if (atMs - lastSpokenMs >= settings.correctiveMinGapMs) {
-        const text = phrases.cues[chosen.metricKey as MetricKey][dirToPhrase(chosen.direction)]
+        const text = phraseFor(phrases, chosen)
         const { ms, key } = durationOf(text)
         if (fits(atMs, ms)) {
           schedule.push({ atMs, text, lang, kind: 'cue', metricKey: chosen.metricKey as MetricKey, clipKey: key, estDurationMs: ms })
           lastSpokenMs = atMs
           lastCueMetric = chosen.metricKey
-          lastCuedMs.set(chosen.metricKey, atMs)
+          lastCuedMs.set(cueKey(chosen), atMs)
           voiced = chosen
         }
       }

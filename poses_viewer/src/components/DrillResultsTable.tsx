@@ -38,6 +38,10 @@ const PHASE_LABEL: Record<Phase, string> = {
   followthrough: 'завершення',
 }
 
+/** Cue display label: pattern cues carry a phase, suffix it so «лікоть (завершення)» is distinct. */
+const cueLabel = (c: FeedbackCue): string =>
+  c.phase ? `${c.metricKey} (${PHASE_LABEL[c.phase]})` : c.metricKey
+
 interface Props {
   reps: RepAnalysis[]
   standard: ReferenceStandard
@@ -234,11 +238,11 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
                 {!rep.placementOk
                   ? '⚠ перевір кут камери (placement)'
                   : rep.cues.length > 0
-                    ? rep.cues.map(c => c.metricKey).join(', ')
+                    ? rep.cues.map(cueLabel).join(', ')
                     : '✓'}
               </td>
               <td className="py-1 px-2 text-sky-300">
-                {voicedByRep?.[i]?.metricKey ?? '—'}
+                {voicedByRep?.[i] ? cueLabel(voicedByRep[i]!) : '—'}
               </td>
             </tr>
           )

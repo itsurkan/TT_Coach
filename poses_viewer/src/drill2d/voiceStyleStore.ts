@@ -4,7 +4,7 @@
  * import/resolve) are split from the thin localStorage read/write so the logic is
  * node-testable. Editing a preset is prevented at the UI layer by cloning first.
  */
-import { PRESETS, type VoiceStyle, type Lang, VOICE_METRIC_KEYS } from './voiceStyle'
+import { PRESETS, type VoiceStyle, type Lang, type PhraseSet, VOICE_METRIC_KEYS } from './voiceStyle'
 
 export const STORAGE_KEY = 'poses_viewer_voice_styles'
 export const DEFAULT_ACTIVE_ID = 'preset-strict'
@@ -19,6 +19,21 @@ export function normalizeStyle(raw: VoiceStyle): VoiceStyle {
     phrases[lang].cues ??= JSON.parse(JSON.stringify(REPRO_DEFAULT.phrases[lang].cues))
     for (const k of VOICE_METRIC_KEYS) {
       phrases[lang].cues[k] ??= { ...REPRO_DEFAULT.phrases[lang].cues[k] }
+    }
+    // Backfill per-phase pattern phrases (elbow at backswing/followthrough) from
+    // the default preset when an older stored style predates them.
+    const defaultPhaseCues = REPRO_DEFAULT.phrases[lang].phaseCues
+    if (defaultPhaseCues) {
+      const pc: NonNullable<PhraseSet['phaseCues']> = (phrases[lang].phaseCues ??= {})
+      for (const [metric, defPhases] of Object.entries(defaultPhaseCues)) {
+        if (!defPhases) continue
+        const mk = metric as keyof typeof defaultPhaseCues
+        const target = (pc[mk] ??= {})
+        for (const [phase, slot] of Object.entries(defPhases)) {
+          if (!slot) continue
+          ;(target as Record<string, { up: string; down: string }>)[phase] ??= { ...slot }
+        }
+      }
     }
     phrases[lang].praise ??= [...REPRO_DEFAULT.phrases[lang].praise]
   }

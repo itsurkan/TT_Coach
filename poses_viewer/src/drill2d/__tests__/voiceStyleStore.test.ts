@@ -127,4 +127,13 @@ describe('normalizeStyle migration', () => {
     expect(n.phrases.en.cues.hip_flexion.up.length).toBeGreaterThan(0)
     expect(n.phrases.uk.cues.hip_flexion.down.length).toBeGreaterThan(0)
   })
+  it('backfills missing per-phase elbow phrases (phaseCues) from the default preset', () => {
+    const noPhase = JSON.parse(JSON.stringify(PRESETS[0]))
+    delete noPhase.phrases.en.phaseCues
+    delete noPhase.phrases.uk.phaseCues
+    const n = normalizeStyle(noPhase)
+    expect(n.phrases.en.phaseCues!.elbow_angle!.backswing!.up.length).toBeGreaterThan(0)
+    expect(n.phrases.en.phaseCues!.elbow_angle!.followthrough!.down.length).toBeGreaterThan(0)
+    expect(n.phrases.uk.phaseCues!.elbow_angle!.followthrough!.up.length).toBeGreaterThan(0)
+  })
 })

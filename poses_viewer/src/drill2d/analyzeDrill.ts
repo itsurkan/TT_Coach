@@ -17,7 +17,7 @@ import { filterStationaryCycles, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFi
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak, extractPerPhase, type Phase } from './drillMetrics'
-import { decideRepCues } from './decideRepCues'
+import { decideRepCues, decidePatternCues, isPatternMetric } from './decideRepCues'
 import type { FeedbackSettings } from './feedbackSettings'
 import { FeedbackCue } from './feedbackCue'
 import { formatCue } from './messageCatalog'
@@ -165,7 +165,14 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     const xScale = xScaleFor(seq.aspectRatio, metricsYaw)
     const metrics = extractAtPeak(seq.frames, stroke.peakFrame, config.handedness, xScale, seq.intervalMs, minScore)
     const perPhase = extractPerPhase(cycle, seq.frames, config.handedness, xScale, seq.intervalMs, minScore)
-    const cues = placementOk ? decideRepCues(metrics, config.standard, config.feedbackSettings) : []
+    // Single-instant cues (decideRepCues) + per-phase pattern cues (elbow at backswing/
+    // followthrough). Merged + re-sorted so the table and voice see one severity-ranked list.
+    const cues = placementOk
+      ? [
+          ...decideRepCues(metrics, config.standard, config.feedbackSettings),
+          ...decidePatternCues(perPhase, config.feedbackSettings),
+        ].sort((a, b) => b.severity - a.severity)
+      : []
     const coil = estimateCoil(cycle, seq.frames, xScale, seq.intervalMs, minScore)
     return { stroke, metrics, perPhase, cues, cameraYawDeg: yaw, placementOk, coil }
   })
@@ -179,10 +186,14 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
   // untouched — they're real systematic faults worth coaching.
   // Safe to mutate rep.cues: repAnalyses is rebuilt fresh on every analyzeDrill() call
   // (keptCycles.map above), so no RepAnalysis reference survives to be double-filtered.
+  // The IQR reliability gate is computed from single-instant rep.metrics (e.g. elbow
+  // reads 35–124° at the contact peak). Pattern cues are graded at the SLOWER backswing/
+  // followthrough anchors, so they are exempt from this single-instant noise gate
+  // (per-phase reliability is a documented follow-up).
   const unreliable = unreliableMetricKeys(repAnalyses)
   if (unreliable.size > 0) {
     for (const rep of repAnalyses) {
-      rep.cues = rep.cues.filter(c => !unreliable.has(c.metricKey))
+      rep.cues = rep.cues.filter(c => isPatternMetric(c.metricKey) || !unreliable.has(c.metricKey))
     }
   }
 
@@ -206,7 +217,9 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     rawPeakCount: rawStrokes.length,
     forwardRepCount: reps.length,
     focus: sessionFocus(repAnalyses),
-    unreliableMetrics: [...unreliable],
+    // Pattern metrics (elbow) are graded per-phase, not single-instant, so their
+    // contact-instant IQR must not strike-through their per-phase table columns.
+    unreliableMetrics: [...unreliable].filter(k => !isPatternMetric(k)),
     strengths: sessionStrengths(coached, unreliable, config.standard, new Set(config.feedbackSettings.enabledMetrics)),
     cleanReps: coached.filter(r => r.cues.length === 0).length,
     voiceReps,

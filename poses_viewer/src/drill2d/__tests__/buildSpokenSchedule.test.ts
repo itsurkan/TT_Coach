@@ -16,8 +16,8 @@ function settings(o: Partial<typeof DEFAULT_FEEDBACK_SETTINGS> = {}) {
     ...o,
   }
 }
-const cue = (metricKey: string, direction: FeedbackCue['direction'], severity = 1): FeedbackCue =>
-  ({ metricKey, direction, deltaFromRange: direction === 'too_high' ? 10 : -10, severity, precision: 'precise_degrees' })
+const cue = (metricKey: string, direction: FeedbackCue['direction'], severity = 1, phase?: FeedbackCue['phase']): FeedbackCue =>
+  ({ metricKey, direction, deltaFromRange: direction === 'too_high' ? 10 : -10, severity, precision: 'precise_degrees', ...(phase ? { phase } : {}) })
 const rep = (startMs: number, cues: FeedbackCue[], coachable = true): RepInput =>
   ({ cues, timing: { strokeStartMs: startMs, contactMs: startMs + 200, strokeEndMs: startMs + 400 }, coachable })
 
@@ -68,5 +68,23 @@ describe('buildSpokenSchedule (unified cues)', () => {
       [rep(0, [cue('elbow_angle', 'too_low')], false)], [0], settings(), STRICT.phrases.en, 'en', STRICT.rate)
     expect(schedule).toEqual([])
     expect(voicedByRep).toEqual([null])
+  })
+  it('speaks the per-phase phrase for a pattern (elbow) cue, not the single-instant phrase', () => {
+    const { schedule } = buildSpokenSchedule(
+      [rep(0, [cue('elbow_angle', 'too_high', 1, 'followthrough')])], [0], settings(), STRICT.phrases.en, 'en', STRICT.rate)
+    expect(schedule).toHaveLength(1)
+    expect(schedule[0].text).toBe(STRICT.phrases.en.phaseCues!.elbow_angle!.followthrough!.up)
+    expect(schedule[0].text).not.toBe(STRICT.phrases.en.cues.elbow_angle.up)
+  })
+  it('a backswing cue does not suppress a followthrough cue within reminderIntervalMs', () => {
+    const reps = [
+      rep(0, [cue('elbow_angle', 'too_low', 1, 'backswing')]),
+      rep(500, [cue('elbow_angle', 'too_high', 1, 'followthrough')]),
+    ]
+    const { schedule, voicedByRep } = buildSpokenSchedule(
+      reps, [0, 500], settings({ reminderIntervalMs: 5000 }), STRICT.phrases.en, 'en', STRICT.rate)
+    expect(schedule).toHaveLength(2)
+    expect(voicedByRep[0]?.phase).toBe('backswing')
+    expect(voicedByRep[1]?.phase).toBe('followthrough')
   })
 })
