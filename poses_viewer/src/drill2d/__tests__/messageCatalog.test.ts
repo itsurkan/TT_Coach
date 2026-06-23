@@ -25,4 +25,8 @@ describe('messageCatalog', () => {
   it('has a positive message', () => {
     expect(positiveMessage().length).toBeGreaterThan(0)
   })
+  it('formats a hip_flexion cue', () => {
+    const up = formatCue({ metricKey: 'hip_flexion', direction: 'too_high', deltaFromRange: 8, severity: 1, precision: 'precise_degrees' })
+    expect(up.toLowerCase()).toContain('hip')
+  })
 })

@@ -1,31 +1,24 @@
 /**
- * The pure voice core. Walks style-independent per-rep observations in time order
- * and produces a deterministic, audio-free spoken schedule:
- *   gate → praise → select → cadence → skip-stale → format.
- * Every item lands in the inter-rep gap at strokeEndMs + postStrokeGapMs, and must
- * finish before the next stroke starts. No pose math here — re-running on a style
- * edit is cheap (enables live preview).
+ * The pure voice core. Walks per-rep DECISION cues (from decideRepCues — already
+ * band-gated) in time order and produces a deterministic spoken schedule:
+ *   select → cadence → praise → skip-stale → format.
+ * It never re-decides what's wrong (no band math here) — it only chooses which of a
+ * rep's cues to voice and when. Returns voicedByRep so the table can show exactly
+ * what was spoken per rep.
  */
-import type { Lang, MetricKey, VoiceStyle } from './voiceStyle'
+import type { FeedbackCue } from './feedbackCue'
+import type { FeedbackSettings } from './feedbackSettings'
+import type { Lang, MetricKey, PhraseSet } from './voiceStyle'
 import { clipKey, lookupClip, type ClipManifest } from './voiceClips'
 
 /** Practitioner WPM budget: ~150 wpm ≈ 2.5 words/s. */
 export const BASE_WPM = 150
 
-export interface MetricObservation {
-  value: number
-  lo: number
-  hi: number
-}
-
-export interface VoiceRep {
-  strokeStartMs: number
-  contactMs: number
-  strokeEndMs: number
-  /** false → bad camera / no measurable coachable metrics; the core emits nothing and leaves state untouched. */
-  coachable: boolean
-  /** Only voiced (5 in-plane), reliable, measured metrics with their (un-widened) ideal band. */
-  observations: Partial<Record<MetricKey, MetricObservation>>
+export interface RepTiming { strokeStartMs: number; contactMs: number; strokeEndMs: number }
+export interface RepInput {
+  cues: FeedbackCue[]   // severity-desc, already gated by decideRepCues
+  timing: RepTiming
+  coachable: boolean    // false → bad camera / unmeasurable: emit nothing, state untouched
 }
 
 export interface SpokenFeedbackItem {
@@ -37,10 +30,9 @@ export interface SpokenFeedbackItem {
   clipKey?: string
   estDurationMs: number
 }
-
 export type SpokenSchedule = SpokenFeedbackItem[]
+export interface ScheduleResult { schedule: SpokenSchedule; voicedByRep: (FeedbackCue | null)[] }
 
-/** Live-TTS utterance duration estimate from word count, scaled by rate. */
 export function estimateDurationMs(text: string, rate: number): number {
   const words = text.trim().split(/\s+/).filter(Boolean).length
   const safeRate = rate > 0 ? rate : 1
@@ -48,124 +40,83 @@ export function estimateDurationMs(text: string, rate: number): number {
   return wordsPerSec > 0 ? (words / wordsPerSec) * 1000 : 0
 }
 
-/** First stroke start strictly after atMs, or +Infinity if none (last rep). */
 export function nextStrokeStartAfter(strokeStartTimes: number[], atMs: number): number {
   for (const t of strokeStartTimes) if (t > atMs) return t
   return Number.POSITIVE_INFINITY
 }
 
-interface Deviation {
-  direction: 'up' | 'down'
-  deviation: number
-  severity: number
-}
-
-/** Per-metric out-of-band deviations for one rep, given the style's widened bands. */
-function gateRep(
-  observations: Partial<Record<MetricKey, MetricObservation>>,
-  style: VoiceStyle,
-): Map<MetricKey, Deviation> {
-  const out = new Map<MetricKey, Deviation>()
-  for (const key of Object.keys(observations) as MetricKey[]) {
-    const o = observations[key]!
-    const center = (o.lo + o.hi) / 2
-    const half = (o.hi - o.lo) / 2
-    const wLo = center - half * style.bandWidthMult
-    const wHi = center + half * style.bandWidthMult
-    let direction: 'up' | 'down'
-    let deviation: number
-    if (o.value > wHi) {
-      direction = 'up'
-      deviation = o.value - wHi
-    } else if (o.value < wLo) {
-      direction = 'down'
-      deviation = o.value - wLo
-    } else {
-      continue
-    }
-    if (Math.abs(deviation) < style.minMeaningfulDeltaDeg) continue
-    const severity = half > 0 ? Math.abs(deviation) / half : 0
-    out.set(key, { direction, deviation, severity })
-  }
-  return out
-}
+const dirToPhrase = (d: FeedbackCue['direction']): 'up' | 'down' => (d === 'too_high' ? 'up' : 'down')
 
 export function buildSpokenSchedule(
-  reps: VoiceRep[],
+  reps: RepInput[],
   strokeStartTimes: number[],
-  style: VoiceStyle,
+  settings: FeedbackSettings,
+  phrases: PhraseSet,
+  lang: Lang,
+  rate: number,
   clipManifest?: ClipManifest | null,
-): SpokenSchedule {
+): ScheduleResult {
   const schedule: SpokenSchedule = []
-  const lang = style.lang
-  const phrases = style.phrases[lang]
+  const voicedByRep: (FeedbackCue | null)[] = []
 
   let lastSpokenMs = Number.NEGATIVE_INFINITY
-  let prevOutOfBand = new Set<MetricKey>()
-  const lastCuedMs = new Map<MetricKey, number>()
-  let lastCueMetric: MetricKey | null = null
+  let prevOutOfBand = new Set<string>()
+  const lastCuedMs = new Map<string, number>()
+  let lastCueMetric: string | null = null
   let cleanStreak = 0
   let praiseIndex = 0
 
   const durationOf = (text: string): { ms: number; key?: string } => {
     const clip = lookupClip(clipManifest ?? null, lang, text)
     if (clip) return { ms: clip.durationMs, key: clipKey(lang, text) }
-    return { ms: estimateDurationMs(text, style.rate) }
+    return { ms: estimateDurationMs(text, rate) }
   }
   const fits = (atMs: number, ms: number): boolean => {
-    if (!style.skipStaleEnabled) return true
+    if (!settings.skipStaleEnabled) return true
     const next = nextStrokeStartAfter(strokeStartTimes, atMs)
-    return atMs + ms <= next - style.skipStaleMarginMs
+    return atMs + ms <= next - settings.skipStaleMarginMs
   }
 
   for (const rep of reps) {
-    if (!rep.coachable) continue
-    const atMs = rep.strokeEndMs + style.postStrokeGapMs
-
-    // 1. Bandwidth gate.
-    const deviations = gateRep(rep.observations, style)
-    const curOutOfBand = new Set<MetricKey>(deviations.keys())
+    if (!rep.coachable) { voicedByRep.push(null); continue }
+    const atMs = rep.timing.strokeEndMs + settings.postStrokeGapMs
+    const curOutOfBand = new Set<string>(rep.cues.map(c => c.metricKey))
     cleanStreak = curOutOfBand.size === 0 ? cleanStreak + 1 : 0
 
-    // 2. Praise candidate (computed before correction; correction wins if both qualify).
+    // Praise candidate (correction wins if both qualify).
     let praiseCandidate = false
-    if (style.praiseEnabled) {
+    if (settings.praiseEnabled) {
       const corrected = [...prevOutOfBand].some(k => !curOutOfBand.has(k))
-      if (style.praiseOnCorrection && corrected) praiseCandidate = true
-      else if (style.praiseOnStreak && cleanStreak > 0 && cleanStreak >= style.praiseStreakLen) praiseCandidate = true
+      if (settings.praiseOnCorrection && corrected) praiseCandidate = true
+      else if (settings.praiseOnStreak && cleanStreak > 0 && cleanStreak >= settings.praiseStreakLen) praiseCandidate = true
     }
 
-    // 3. Cue selection (one per rep): max severity, vary-aware, reminder-suppressed.
-    let chosen: MetricKey | null = null
-    if (curOutOfBand.size > 0) {
-      const ranked = [...curOutOfBand].sort(
-        (a, b) => deviations.get(b)!.severity - deviations.get(a)!.severity,
-      )
-      const eligible = ranked.filter(k => {
-        const last = lastCuedMs.get(k)
-        return last === undefined || atMs - last >= style.reminderIntervalMs
-      })
-      if (eligible.length > 0) {
-        chosen = eligible[0]
-        if (style.varyCues && chosen === lastCueMetric && eligible.length > 1) chosen = eligible[1]
-      }
+    // Cue selection: cues are already severity-desc; drop reminder-suppressed, vary-aware.
+    let chosen: FeedbackCue | null = null
+    const eligible = rep.cues.filter(c => {
+      const last = lastCuedMs.get(c.metricKey)
+      return last === undefined || atMs - last >= settings.reminderIntervalMs
+    })
+    if (eligible.length > 0) {
+      chosen = eligible[0]
+      if (settings.varyCues && chosen.metricKey === lastCueMetric && eligible.length > 1) chosen = eligible[1]
     }
 
-    // 4–6. Emit. Correction outranks praise; if the correction is dropped (cadence/stale) the rep stays silent.
+    let voiced: FeedbackCue | null = null
     if (chosen !== null) {
-      if (atMs - lastSpokenMs >= style.correctiveMinGapMs) {
-        const dir = deviations.get(chosen)!.direction
-        const text = phrases.cues[chosen][dir]
+      if (atMs - lastSpokenMs >= settings.correctiveMinGapMs) {
+        const text = phrases.cues[chosen.metricKey as MetricKey][dirToPhrase(chosen.direction)]
         const { ms, key } = durationOf(text)
         if (fits(atMs, ms)) {
-          schedule.push({ atMs, text, lang, kind: 'cue', metricKey: chosen, clipKey: key, estDurationMs: ms })
+          schedule.push({ atMs, text, lang, kind: 'cue', metricKey: chosen.metricKey as MetricKey, clipKey: key, estDurationMs: ms })
           lastSpokenMs = atMs
-          lastCueMetric = chosen
-          lastCuedMs.set(chosen, atMs)
+          lastCueMetric = chosen.metricKey
+          lastCuedMs.set(chosen.metricKey, atMs)
+          voiced = chosen
         }
       }
     } else if (praiseCandidate) {
-      if (atMs - lastSpokenMs >= style.praiseMinSilenceMs && phrases.praise.length > 0) {
+      if (atMs - lastSpokenMs >= settings.praiseMinSilenceMs && phrases.praise.length > 0) {
         const text = phrases.praise[praiseIndex % phrases.praise.length]
         const { ms, key } = durationOf(text)
         if (fits(atMs, ms)) {
@@ -176,9 +127,9 @@ export function buildSpokenSchedule(
       }
     }
 
-    // Always advance the out-of-band memory, regardless of what was emitted.
+    voicedByRep.push(voiced)
     prevOutOfBand = curOutOfBand
   }
 
-  return schedule
+  return { schedule, voicedByRep }
 }

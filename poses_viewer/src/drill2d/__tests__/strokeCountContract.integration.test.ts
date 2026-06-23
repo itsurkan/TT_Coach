@@ -6,6 +6,9 @@ import { countStrokes } from '../countStrokes'
 import { analyzeDrill } from '../analyzeDrill'
 import { REFERENCE_STANDARDS } from '../referenceStandard'
 import { ALL_KEYS } from '../drillMetrics'
+import { DEFAULT_FEEDBACK_SETTINGS } from '../feedbackSettings'
+
+const RAW_BAND_SETTINGS = { ...DEFAULT_FEEDBACK_SETTINGS, bandWidthMult: 1, minMeaningfulDeltaDeg: 5 }
 
 /**
  * STROKE-COUNT CONTRACT (2026-06-15). Direction-aware NMS + full-cycle model.
@@ -25,7 +28,7 @@ const drillCfg = (extra = {}) => ({
   handedness: 'right' as const,
   drillType: 'forehand_drive',
   standard: REFERENCE_STANDARDS['forehand_drive'],
-  enabledMetrics: new Set(ALL_KEYS),
+  feedbackSettings: RAW_BAND_SETTINGS,
   cameraYawDeg: 0,
   ...extra,
 })

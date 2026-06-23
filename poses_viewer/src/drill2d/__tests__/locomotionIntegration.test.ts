@@ -6,6 +6,9 @@ import { countStrokes } from '../countStrokes'
 import { analyzeDrill } from '../analyzeDrill'
 import { REFERENCE_STANDARDS } from '../referenceStandard'
 import { ALL_KEYS } from '../drillMetrics'
+import { DEFAULT_FEEDBACK_SETTINGS } from '../feedbackSettings'
+
+const RAW_BAND_SETTINGS = { ...DEFAULT_FEEDBACK_SETTINGS, bandWidthMult: 1, minMeaningfulDeltaDeg: 5 }
 
 const FIX = path.resolve(__dirname, '../../../../shared/src/commonTest/resources/fixtures')
 const load = (n: string) => parsePoseV2(JSON.parse(fs.readFileSync(path.join(FIX, n), 'utf-8')))
@@ -34,7 +37,7 @@ describe('locomotion gate — analyzeDrill', () => {
     handedness: 'right' as const,
     drillType: 'forehand_drive',
     standard: REFERENCE_STANDARDS['forehand_drive'],
-    enabledMetrics: new Set(ALL_KEYS),
+    feedbackSettings: RAW_BAND_SETTINGS,
     cameraYawDeg: 0,
   }
   it('on by default: 10 reps in video_4, the 15.18s walking rep removed', () => {

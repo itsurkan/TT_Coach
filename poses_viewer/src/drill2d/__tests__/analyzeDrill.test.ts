@@ -5,6 +5,11 @@ import { analyzeDrill } from '../analyzeDrill'
 import { parsePoseV2 } from '../parsePoseV2'
 import { FOREHAND_DRIVE_STANDARD } from '../referenceStandard'
 import { METRIC_PHASES } from '../drillMetrics'
+import { DEFAULT_FEEDBACK_SETTINGS } from '../feedbackSettings'
+
+/** Raw-band equivalence: bandWidthMult=1, minMeaningfulDeltaDeg=5 reproduces
+ *  the old feedbackEngine.evaluateRep behaviour so existing cue/voice expectations hold. */
+const RAW_BAND_SETTINGS = { ...DEFAULT_FEEDBACK_SETTINGS, bandWidthMult: 1, minMeaningfulDeltaDeg: 5 }
 
 // Mirror golden.test.ts's fixture path pattern (repo-relative).
 function loadSeq(name: string) {
@@ -19,6 +24,7 @@ describe('analyzeDrill — count parity (anti-drift guardrail)', () => {
       handedness: 'right',
       drillType: 'forehand_drive',
       standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS,
       cameraYawDeg: 0, // manual override → placementOk, feedback flows
     })
     expect(report.rawPeakCount).toBe(29)
@@ -28,7 +34,8 @@ describe('analyzeDrill — count parity (anti-drift guardrail)', () => {
   it('auto yaw estimation flags Videos/ footage as bad placement (L-25 saturation)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: null,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: null,
     })
     expect(report.placementOk).toBe(false)
   })
@@ -38,7 +45,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('every rep has a perPhase field', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const rep of report.reps) {
       expect(rep.perPhase).toBeDefined()
@@ -49,7 +57,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('perPhase contains all METRIC_PHASES keys for each rep', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     const metricKeys = Object.keys(METRIC_PHASES)
     for (const rep of report.reps) {
@@ -62,7 +71,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('knee_bend has backswing and contact phases (paired cycle)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     // Find at least one rep with a backswing (paired cycle)
     const paired = report.reps.filter(r => 'backswing' in r.perPhase.knee_bend)
@@ -77,7 +87,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('hip_flexion has backswing and contact phases (paired cycle)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     const paired = report.reps.filter(r => 'backswing' in r.perPhase.hip_flexion)
     expect(paired.length).toBeGreaterThan(0)
@@ -91,7 +102,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('elbow_angle has backswing and contact phases (paired cycle)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     const paired = report.reps.filter(r => 'backswing' in r.perPhase.elbow_angle)
     expect(paired.length).toBeGreaterThan(0)
@@ -105,7 +117,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('shoulder_angle has contact and followthrough phases', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     // shoulder_angle phases are contact and followthrough — present on ALL reps (no backswing required)
     for (const rep of report.reps) {
@@ -119,7 +132,8 @@ describe('analyzeDrill — perPhase field', () => {
     // The contact anchor is drive.peakFrame, same as extractAtPeak — values must match exactly.
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     // Metrics that include the 'contact' phase (from METRIC_PHASES subset):
     // knee_bend, hip_flexion, elbow_angle, shoulder_angle, torso_lean.
@@ -147,7 +161,8 @@ describe('analyzeDrill — perPhase field', () => {
   it('perPhase does NOT contain shoulder_tilt (it is a single-instant colored cell, not per-phase)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const rep of report.reps) {
       expect('shoulder_tilt' in rep.perPhase).toBe(false)
@@ -159,7 +174,8 @@ describe('analyzeDrill — coil field', () => {
   it('every rep has a coil field (object or null)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const rep of report.reps) {
       expect('coil' in rep).toBe(true)
@@ -174,7 +190,8 @@ describe('analyzeDrill — coil field', () => {
   it('coil does NOT appear in perPhase (it is a separate qualitative field)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const rep of report.reps) {
       expect('coil' in rep.perPhase).toBe(false)
@@ -184,7 +201,8 @@ describe('analyzeDrill — coil field', () => {
   it('coil is NOT a numeric metric key in rep.metrics', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const rep of report.reps) {
       expect('coil' in rep.metrics).toBe(false)
@@ -196,7 +214,8 @@ describe('analyzeDrill — voice inputs (style-independent)', () => {
   it('emits one voiceRep and one strokeStartTime per kept rep, with ascending starts', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     expect(report.voiceReps).toHaveLength(report.reps.length)
     expect(report.strokeStartTimes).toHaveLength(report.reps.length)
@@ -207,26 +226,28 @@ describe('analyzeDrill — voice inputs (style-independent)', () => {
   it('places contact between start and end for every voiceRep', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     for (const v of report.voiceReps) {
-      expect(v.strokeStartMs).toBeLessThanOrEqual(v.contactMs)
-      expect(v.contactMs).toBeLessThanOrEqual(v.strokeEndMs)
+      expect(v.timing.strokeStartMs).toBeLessThanOrEqual(v.timing.contactMs)
+      expect(v.timing.contactMs).toBeLessThanOrEqual(v.timing.strokeEndMs)
     }
   })
-  it('with yaw override 0, at least one coachable voiceRep carries observations bounded by the standard', () => {
+  it('with yaw override 0, voiceReps carry RepInput shape (.cues, .timing, .coachable)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
-      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD, cameraYawDeg: 0,
+      handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
+      feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
-    const withObs = report.voiceReps.filter(v => v.coachable && Object.keys(v.observations).length > 0)
-    expect(withObs.length).toBeGreaterThan(0)
-    // every observation carries the ideal band (hip_flexion is now a voiced metric — Task 4 reworks this block to .cues)
     for (const v of report.voiceReps) {
-      for (const obs of Object.values(v.observations)) {
-        expect(typeof obs!.lo).toBe('number')
-        expect(typeof obs!.hi).toBe('number')
-      }
+      expect(Array.isArray(v.cues)).toBe(true)
+      expect(typeof v.coachable).toBe('boolean')
+      expect(typeof v.timing.strokeStartMs).toBe('number')
+      expect(typeof v.timing.contactMs).toBe('number')
+      expect(typeof v.timing.strokeEndMs).toBe('number')
     }
+    // At least one coachable rep
+    expect(report.voiceReps.some(v => v.coachable)).toBe(true)
   })
 })

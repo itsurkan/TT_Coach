@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSpokenFeedback } from './useSpokenFeedback'
 import { buildSpokenSchedule } from '../drill2d/buildSpokenSchedule'
 import { loadUserStyles, getActiveStyle, saveUserStyles } from '../drill2d/voiceStyleStore'
-import { voiceProfileOf } from '../drill2d/voiceStyle'
+import { voiceProfileOf, type MetricKey } from '../drill2d/voiceStyle'
+import { DEFAULT_FEEDBACK_SETTINGS } from '../drill2d/feedbackSettings'
 import { loadManifest, type ClipManifest } from '../drill2d/voiceClips'
 import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
@@ -50,6 +51,11 @@ export default function StrokesPage() {
   const [styleState, setStyleState] = useState(() => loadUserStyles())
   const [manifest, setManifest] = useState<ClipManifest | null>(null)
   const activeStyle = useMemo(() => getActiveStyle(styleState), [styleState])
+  // Task 5 will replace this with real settings state; for now derive from the existing enabledMetrics toggle.
+  const feedbackSettings = useMemo(
+    () => ({ ...DEFAULT_FEEDBACK_SETTINGS, enabledMetrics: [...enabledMetrics] as MetricKey[] }),
+    [enabledMetrics],
+  )
   const videoRef = useRef<HTMLVideoElement>(null)
   // EXP-7: gate the calibration save until the load for the current base has applied,
   // so switching videos doesn't write the old yaw to the new video's key.
@@ -142,7 +148,7 @@ export default function StrokesPage() {
         handedness,
         drillType,
         standard,
-        enabledMetrics,
+        feedbackSettings,
         cameraYawDeg: yawDeg,
         detector: { minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs },
         hipTravelMaxTorso,
@@ -150,13 +156,56 @@ export default function StrokesPage() {
     } catch {
       return null
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, enabledMetrics, hipTravelMaxTorso])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, feedbackSettings, hipTravelMaxTorso])
 
-  const schedule = useMemo(
-    () => (report ? buildSpokenSchedule(report.voiceReps, report.strokeStartTimes, activeStyle, manifest) : []),
-    [report, activeStyle, manifest],
+  const { schedule, voicedByRep } = useMemo(
+    () => report
+      ? buildSpokenSchedule(report.voiceReps, report.strokeStartTimes, feedbackSettings, activeStyle.phrases[activeStyle.lang], activeStyle.lang, activeStyle.rate, manifest)
+      : { schedule: [], voicedByRep: [] },
+    [report, feedbackSettings, activeStyle, manifest],
   )
   const spoken = useSpokenFeedback(schedule, voiceProfileOf(activeStyle), manifest, muted)
+
+  /** Dump every input + output that determines feedback into one JSON for offline analysis. */
+  function exportDebugJson() {
+    const dump = {
+      exportedAt: new Date().toISOString(),
+      video: base,
+      drillType,
+      detector: { handedness, cameraYawDeg: yawDeg, minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs, hipTravelMaxTorso },
+      enabledMetrics: [...enabledMetrics],
+      muted,
+      referenceStandard: REFERENCE_STANDARDS[drillType],
+      voiceStyle: activeStyle,
+      report: report && {
+        counts: { rawPeakCount: report.rawPeakCount, forwardRepCount: report.forwardRepCount, reps: report.reps.length, cleanReps: report.cleanReps },
+        placementOk: report.placementOk,
+        focus: report.focus,
+        unreliableMetrics: report.unreliableMetrics,
+        strengths: report.strengths,
+        reps: report.reps.map((r, i) => ({
+          index: i + 1,
+          placementOk: r.placementOk,
+          cameraYawDeg: r.cameraYawDeg,
+          metrics: r.metrics,
+          perPhase: r.perPhase,
+          coil: r.coil,
+          cues: r.cues,
+        })),
+        // The exact per-rep inputs the voice core gates against (value + un-widened ideal band).
+        voiceReps: report.voiceReps,
+      },
+      // What the active voice style would actually say, in time order.
+      spokenSchedule: schedule.map(s => ({ atMs: s.atMs, kind: s.kind, metricKey: s.metricKey, text: s.text })),
+    }
+    const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${base || 'drill'}-debug.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const entries = useMemo<TimelineEntry[]>(() => {
     if (!seq || !result) return []
@@ -238,7 +287,8 @@ export default function StrokesPage() {
 
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100 p-4">
-      <div className="mx-auto w-full max-w-4xl space-y-4">
+      <div className="w-full flex flex-col lg:flex-row gap-4 items-start">
+      <div className="flex-1 min-w-0 space-y-4">
       <header className="flex items-center gap-4 flex-wrap">
         <a
           href="#/main"
@@ -420,9 +470,20 @@ export default function StrokesPage() {
           />
         </div>
       )}
+      </div>
 
+      <div className="flex flex-col xl:flex-row gap-4 items-start shrink-0">
       <fieldset className="border border-neutral-700 rounded p-3 max-w-xl space-y-2 text-sm">
         <legend className="px-1">Налаштування</legend>
+        <button
+          type="button"
+          className="px-2 py-1 bg-sky-800 hover:bg-sky-700 disabled:opacity-40 rounded text-xs"
+          onClick={exportDebugJson}
+          disabled={!report}
+          title="Зберегти всі налаштування + результати аналізу в JSON для надсилання на діагностику"
+        >
+          ⬇ Експорт налаштувань (JSON)
+        </button>
         <label className="flex items-center gap-2">
           <span className="w-56">Рука:</span>
           <select
@@ -528,6 +589,7 @@ export default function StrokesPage() {
         manifest={manifest}
         onChange={next => { setStyleState(next); saveUserStyles(next) }}
       />
+      </div>
       </div>
     </div>
   )

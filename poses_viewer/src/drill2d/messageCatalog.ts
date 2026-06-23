@@ -31,6 +31,9 @@ function phrase(metricKey: string, high: boolean): string {
     case METRIC.SHOULDER_TILT:
       return high ? 'Shoulders more tilted than ideal — level them'
                   : 'Shoulder line flatter than ideal — let the playing shoulder drop a touch'
+    case 'hip_flexion':
+      return high ? 'Hips higher than ideal — sit into them a touch'
+                  : 'Standing too tall — hinge forward into the hips'
     default:
       // Unknown metric (future rotational cues): qualitative-only, never degrees.
       return high ? 'A bit more than ideal on that move — ease off'

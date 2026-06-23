@@ -17,13 +17,13 @@ import { filterStationaryCycles, DEFAULT_MAX_TRAVEL_TORSO } from './locomotionFi
 import { DEFAULT_MIN_SCORE } from './facing'
 import { estimateYawForStroke } from './cameraYaw'
 import { extractAtPeak, extractPerPhase, type Phase } from './drillMetrics'
-import { evaluateRep } from './feedbackEngine'
+import { decideRepCues } from './decideRepCues'
+import type { FeedbackSettings } from './feedbackSettings'
 import { FeedbackCue } from './feedbackCue'
 import { formatCue } from './messageCatalog'
 import { ReferenceStandard } from './referenceStandard'
 import { estimateCoil, type CoilLabel } from './shoulderCoil'
-import type { VoiceRep, MetricObservation } from './buildSpokenSchedule'
-import { VOICE_METRIC_KEYS, type MetricKey } from './voiceStyle'
+import type { RepInput } from './buildSpokenSchedule'
 
 /** |yaw| beyond this → rep excluded from feedback (CLAUDE.md: ~30° gate). */
 export const DEFAULT_MAX_CAMERA_YAW_DEG = 30
@@ -109,7 +109,7 @@ export interface DrillAnalysisReport {
   /** EXP-9: coachable reps with zero faults. */
   cleanReps: number
   /** Style-independent per-rep inputs for the voice core (buildSpokenSchedule). One per kept rep. */
-  voiceReps: VoiceRep[]
+  voiceReps: RepInput[]
   /** Stroke onset (ms) per kept rep, ascending — used by skip-stale collision checks. */
   strokeStartTimes: number[]
 }
@@ -118,8 +118,7 @@ export interface DrillAnalysisConfig {
   handedness: Handedness
   drillType: string
   standard: ReferenceStandard
-  /** Metric keys to evaluate; omitted → all metrics in the standard. */
-  enabledMetrics?: Set<string>
+  feedbackSettings: FeedbackSettings
   /** Manual yaw applied to ALL reps; null → per-rep auto-estimate; undefined → default 0. */
   cameraYawDeg?: number | null
   maxCameraYawDeg?: number
@@ -166,7 +165,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     const xScale = xScaleFor(seq.aspectRatio, metricsYaw)
     const metrics = extractAtPeak(seq.frames, stroke.peakFrame, config.handedness, xScale, seq.intervalMs, minScore)
     const perPhase = extractPerPhase(cycle, seq.frames, config.handedness, xScale, seq.intervalMs, minScore)
-    const cues = placementOk ? evaluateRep(metrics, config.standard, config.enabledMetrics) : []
+    const cues = placementOk ? decideRepCues(metrics, config.standard, config.feedbackSettings) : []
     const coil = estimateCoil(cycle, seq.frames, xScale, seq.intervalMs, minScore)
     return { stroke, metrics, perPhase, cues, cameraYawDeg: yaw, placementOk, coil }
   })
@@ -187,31 +186,17 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     }
   }
 
-  // Style-independent voice inputs: per-rep observations the voice core (buildSpokenSchedule)
-  // gates against the active style. Only the 5 VOICED in-plane metrics, only on placementOk reps,
-  // and only metrics not flagged unreliable. hip_flexion is analysis-only (never voiced).
   const intervalMs = seq.intervalMs
-  const voiceReps: VoiceRep[] = repAnalyses.map(rep => {
-    const observations: Partial<Record<MetricKey, MetricObservation>> = {}
-    if (rep.placementOk) {
-      for (const key of VOICE_METRIC_KEYS) {
-        if (unreliable.has(key)) continue
-        if (config.enabledMetrics && !config.enabledMetrics.has(key)) continue
-        const value = rep.metrics[key]
-        const range = config.standard.ranges[key]
-        if (value === undefined || range === undefined) continue
-        observations[key] = { value, lo: range.lo, hi: range.hi }
-      }
-    }
-    return {
+  const voiceReps: RepInput[] = repAnalyses.map(rep => ({
+    cues: rep.cues, // already reliability-filtered above
+    timing: {
       strokeStartMs: rep.stroke.startFrame * intervalMs,
       contactMs: rep.stroke.peakFrame * intervalMs,
       strokeEndMs: rep.stroke.endFrame * intervalMs,
-      coachable: rep.placementOk && Object.keys(observations).length > 0,
-      observations,
-    }
-  })
-  const strokeStartTimes = voiceReps.map(r => r.strokeStartMs)
+    },
+    coachable: rep.placementOk,
+  }))
+  const strokeStartTimes = voiceReps.map(r => r.timing.strokeStartMs)
 
   const okCount = repAnalyses.filter(r => r.placementOk).length
   const coached = repAnalyses.filter(r => r.placementOk)
@@ -222,7 +207,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     forwardRepCount: reps.length,
     focus: sessionFocus(repAnalyses),
     unreliableMetrics: [...unreliable],
-    strengths: sessionStrengths(coached, unreliable, config.standard, config.enabledMetrics),
+    strengths: sessionStrengths(coached, unreliable, config.standard, new Set(config.feedbackSettings.enabledMetrics)),
     cleanReps: coached.filter(r => r.cues.length === 0).length,
     voiceReps,
     strokeStartTimes,
