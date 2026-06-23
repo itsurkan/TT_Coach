@@ -16,9 +16,9 @@
 /**
  * Phase type is imported TYPE-ONLY to avoid a runtime import cycle between
  * referenceStandard.ts and drillMetrics.ts (drillMetrics imports angle
- * functions; referenceStandard is imported by feedbackEngine which is a
- * downstream consumer — a value import would form a cycle). The `import type`
- * erases fully at compile time.
+ * functions; referenceStandard is imported by decideRepCues / metricPrecision
+ * which are downstream consumers — a value import would form a cycle). The
+ * `import type` erases fully at compile time.
  */
 import type { Phase } from './drillMetrics'
 

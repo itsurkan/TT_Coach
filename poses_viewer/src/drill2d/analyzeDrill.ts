@@ -2,7 +2,7 @@
  * Drill analysis orchestrator — adapted from Kotlin ForehandDriveDrillAnalyzer.
  * Same pipeline (detect → ForwardStrokeFilter → RepFilter → per-rep yaw → metrics →
  * cues → cadenced feedback), but cues compare to the external IDEAL range
- * (feedbackEngine), not a personal baseline. Detection runs on plain aspectRatio so
+ * (decideRepCues), not a personal baseline. Detection runs on plain aspectRatio so
  * the M0 count-golden (andrii_1: 23 raw / 15 reps) is preserved; per-rep metrics use
  * the yaw-corrected xScale.
  */

@@ -49,24 +49,32 @@ like video_3 — surfaces faint strokes + splits merged peaks — never change t
 
 **M1 (metrics + feedback) extends the same page (no new route):** measurement modules
 `angles2d.ts`, `cameraYaw.ts`, `drillMetrics.ts`, `sanityBounds.ts`, `metricPrecision.ts` are
-1:1 Kotlin mirrors (golden-parity); the feedback half — `referenceStandard.ts` (external IDEAL
-ranges, NOT personal baseline — spec decision #2), `feedbackEngine.ts` (range-based severity),
-`messageCatalog.ts` (EN, "vs ideal" wording), `analyzeDrill.ts` — deliberately diverges from
-Kotlin and has NO shared/ counterpart to golden against. `analyzeDrill` preserves the M0
-count-golden (detection on plain aspect). `#/strokes` now also shows a per-rep results table
-(`DrillResultsTable.tsx`), metric on/off toggles, a drill-type selector, and clip-or-live voice
-feedback playback. The voice layer is config-driven: `voiceStyle.ts` (model + 3 immutable presets,
-EN+UA phrases), `voiceStyleStore.ts` (localStorage CRUD), `voiceClips.ts` (deterministic clip key
-+ manifest), `buildSpokenSchedule.ts` (pure core: gate → praise → select → cadence → skip-stale;
-vitest-covered), `useSpokenFeedback.ts` (clip-or-live playback + barge-in), `VoiceStyleEditor.tsx`
-(visual editor). `analyzeDrill` emits style-independent `voiceReps`/`strokeStartTimes`; the spoken
-schedule is built per active style. `cadencePolicy.ts` removed (cadence is now a style param).
-`messageCatalog`/`feedbackEngine` remain only for the on-screen session summary
-(`sessionFocus`/`sessionStrengths`) + the per-rep table. Clips live in `public/voice/<styleId>/`,
-generated offline by `scripts/generateVoiceClips.ts`. Clicking a stroke band loops its `start→end`
-segment (`strokeLoop.ts` `loopBackTarget`, wired in the video `onTimeUpdate`); a `🔁 Цикл` toggle
-in the selected-stroke row turns it off without deselecting. Reference ranges are PROVISIONAL (see
-referenceStandard.ts header).
+1:1 Kotlin mirrors (golden-parity); the feedback half deliberately diverges from Kotlin and has NO
+shared/ counterpart to golden against. `analyzeDrill` preserves the M0 count-golden (detection on
+plain aspect). `#/strokes` now also shows a per-rep results table (`DrillResultsTable.tsx`), metric
+on/off toggles, a drill-type selector, and clip-or-live voice feedback playback.
+
+**Feedback-decision / voice-reproduction split (2026-06-23):** a single decision engine
+`decideRepCues.ts` (range-based severity against the external IDEAL ranges in `referenceStandard.ts`,
+NOT personal baseline — spec decision #2) produces per-rep `FeedbackCue[]` covering ALL coachable
+metrics, including `hip_flexion` (deliberate trust-rule exception — voiced despite being a rotational
+proxy). This is the **single source of truth** driving BOTH the on-screen table and the voice; it is
+parameterised by `FeedbackSettings` (widened bands via `bandWidthMult` + `minMeaningfulDeltaDeg`,
+`enabledMetrics`). `feedbackSettings.ts` (NEW) holds the feedback policy
+(bands/thresholds/cadence/praise/skip-stale/enabledMetrics); persisted at localStorage key
+`strokes_feedback_settings`; edited in the Налаштування panel. `feedbackEngine.ts` is REMOVED
+(replaced by `decideRepCues`). `VoiceStyle` is now reproduction-only (lang/voiceURI/rate/pitch/volume
++ phrases); `controls.tsx` holds shared `Slider`/`Toggle`/`secFmt` helpers.
+`buildSpokenSchedule(reps: RepInput[], strokeStartTimes, settings, phrases, lang, rate, manifest?)`
+returns `{ schedule, voicedByRep }` — it never re-decides what is wrong (no band math), only applies
+cadence/praise/skip-stale and renders phrases from the pre-decided cues. `DrillResultsTable` shows
+two cue columns: «Всі зауваження» (all detected cues from `decideRepCues`) and «Підказка»
+(voiced-only, from `voicedByRep`). `messageCatalog.ts` (EN, "vs ideal" wording) remains for the
+on-screen session summary (`sessionFocus`/`sessionStrengths`). Clips live in
+`public/voice/<styleId>/`, generated offline by `scripts/generateVoiceClips.ts`. Clicking a stroke
+band loops its `start→end` segment (`strokeLoop.ts` `loopBackTarget`, wired in the video
+`onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without deselecting.
+Reference ranges are PROVISIONAL (see referenceStandard.ts header).
 
 **Per-phase columns in `DrillResultsTable` (2026-06-17):** the table now shows separate columns for
 three stroke phases — backswing «замах», contact «удар», follow-through «завершення» — for
