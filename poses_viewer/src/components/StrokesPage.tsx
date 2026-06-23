@@ -460,6 +460,7 @@ export default function StrokesPage() {
             enabledMetrics={new Set(feedbackSettings.enabledMetrics)}
             unreliableMetrics={report.unreliableMetrics}
             selectedIndex={selectedIdx}
+            voicedByRep={voicedByRep}
             onSelect={i => {
               setSelectedIdx(i)
               const peakMs = seq ? (seq.frames[report.reps[i].stroke.peakFrame]?.timestampMs ?? 0) : 0

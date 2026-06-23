@@ -2,6 +2,7 @@ import { RepAnalysis } from '../drill2d/analyzeDrill'
 import { ReferenceStandard, ReferenceRange, perPhaseRange } from '../drill2d/referenceStandard'
 import { ALL_KEYS, METRIC_PHASES, Phase } from '../drill2d/drillMetrics'
 import type { CoilLabel } from '../drill2d/shoulderCoil'
+import type { FeedbackCue } from '../drill2d/feedbackCue'
 
 export type MetricStatus = 'ok' | 'over' | 'under' | 'n/a'
 
@@ -45,6 +46,8 @@ interface Props {
   onSelect: (index: number) => void
   /** EXP-4: metric keys flagged as too noisy to coach (shown muted, not flagged). */
   unreliableMetrics?: string[]
+  /** Task 6: voiced cue per rep, aligned to reps array (null = cadence-suppressed / clean). */
+  voicedByRep?: (FeedbackCue | null)[]
 }
 
 /**
@@ -121,7 +124,7 @@ function CoilCell({ coil }: { coil: RepAnalysis['coil'] }) {
   )
 }
 
-export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [] }: Props) {
+export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [], voicedByRep }: Props) {
   const cols = ALL_KEYS.filter(k => enabledMetrics.has(k))
   const noisy = new Set(unreliableMetrics)
 
@@ -155,6 +158,7 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
           >
             ~Скрутка
           </th>
+          <th className="py-1 px-2">Всі зауваження</th>
           <th className="py-1 px-2">Підказка</th>
         </tr>
         {/* Phase sub-header row — only rendered when at least one metric has phases */}
@@ -174,13 +178,13 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
               return <th key={k} className="px-2 pb-1" />
             })}
             <th className="px-2 pb-1" />{/* coil sub-header placeholder */}
-            <th className="px-2 pb-1" />
+            <th className="px-2 pb-1" />{/* Всі зауваження sub-header placeholder */}
+            <th className="px-2 pb-1" />{/* Підказка sub-header placeholder */}
           </tr>
         )}
       </thead>
       <tbody>
         {reps.map((rep, i) => {
-          const top = rep.cues[0]
           return (
             <tr
               key={i}
@@ -229,9 +233,12 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
               <td className="py-1 px-2 text-neutral-300">
                 {!rep.placementOk
                   ? '⚠ перевір кут камери (placement)'
-                  : top
-                    ? top.metricKey
+                  : rep.cues.length > 0
+                    ? rep.cues.map(c => c.metricKey).join(', ')
                     : '✓'}
+              </td>
+              <td className="py-1 px-2 text-sky-300">
+                {voicedByRep?.[i]?.metricKey ?? '—'}
               </td>
             </tr>
           )
