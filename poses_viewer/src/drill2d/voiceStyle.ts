@@ -27,27 +27,6 @@ export interface VoiceStyle {
   name: string
   builtin: boolean
 
-  // Cadence / timing
-  correctiveMinGapMs: number
-  praiseMinSilenceMs: number
-  postStrokeGapMs: number
-
-  // Bands / gating
-  bandWidthMult: number
-  minMeaningfulDeltaDeg: number
-  reminderIntervalMs: number
-  varyCues: boolean
-
-  // Praise
-  praiseEnabled: boolean
-  praiseOnCorrection: boolean
-  praiseOnStreak: boolean
-  praiseStreakLen: number
-
-  // Skip-stale
-  skipStaleEnabled: boolean
-  skipStaleMarginMs: number
-
   // Voice (TTS)
   lang: Lang
   voiceURI: string | null
@@ -148,28 +127,16 @@ const EFFICIENT_UK: PhraseSet = {
 export const PRESETS: VoiceStyle[] = [
   {
     id: 'preset-playful', name: 'Playful', builtin: true,
-    correctiveMinGapMs: 2500, praiseMinSilenceMs: 3000, postStrokeGapMs: 300,
-    bandWidthMult: 1.0, minMeaningfulDeltaDeg: 5, reminderIntervalMs: 8000, varyCues: true,
-    praiseEnabled: true, praiseOnCorrection: true, praiseOnStreak: true, praiseStreakLen: 3,
-    skipStaleEnabled: true, skipStaleMarginMs: 150,
     lang: 'en', voiceURI: null, rate: 0.95, pitch: 1.05, volume: 1.0,
     phrases: { en: PLAYFUL_EN, uk: PLAYFUL_UK },
   },
   {
     id: 'preset-strict', name: 'Strict', builtin: true,
-    correctiveMinGapMs: 3000, praiseMinSilenceMs: 6000, postStrokeGapMs: 300,
-    bandWidthMult: 0.9, minMeaningfulDeltaDeg: 5, reminderIntervalMs: 8000, varyCues: true,
-    praiseEnabled: true, praiseOnCorrection: true, praiseOnStreak: false, praiseStreakLen: 3,
-    skipStaleEnabled: true, skipStaleMarginMs: 150,
     lang: 'en', voiceURI: null, rate: 1.0, pitch: 0.95, volume: 1.0,
     phrases: { en: STRICT_EN, uk: STRICT_UK },
   },
   {
     id: 'preset-efficient', name: 'Efficient', builtin: true,
-    correctiveMinGapMs: 5000, praiseMinSilenceMs: 10000, postStrokeGapMs: 300,
-    bandWidthMult: 1.4, minMeaningfulDeltaDeg: 7, reminderIntervalMs: 10000, varyCues: true,
-    praiseEnabled: true, praiseOnCorrection: true, praiseOnStreak: false, praiseStreakLen: 3,
-    skipStaleEnabled: true, skipStaleMarginMs: 150,
     lang: 'en', voiceURI: null, rate: 1.15, pitch: 1.0, volume: 1.0,
     phrases: { en: EFFICIENT_EN, uk: EFFICIENT_UK },
   },

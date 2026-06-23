@@ -4,10 +4,34 @@
  * import/resolve) are split from the thin localStorage read/write so the logic is
  * node-testable. Editing a preset is prevented at the UI layer by cloning first.
  */
-import { PRESETS, type VoiceStyle } from './voiceStyle'
+import { PRESETS, type VoiceStyle, type Lang, VOICE_METRIC_KEYS } from './voiceStyle'
 
 export const STORAGE_KEY = 'poses_viewer_voice_styles'
 export const DEFAULT_ACTIVE_ID = 'preset-strict'
+
+const REPRO_DEFAULT = PRESETS.find(p => p.id === DEFAULT_ACTIVE_ID) ?? PRESETS[0]
+
+/** Keep only reproduction fields; backfill any missing cue phrases (e.g. hip_flexion). */
+export function normalizeStyle(raw: VoiceStyle): VoiceStyle {
+  const phrases = JSON.parse(JSON.stringify(raw.phrases ?? REPRO_DEFAULT.phrases)) as VoiceStyle['phrases']
+  for (const lang of ['en', 'uk'] as Lang[]) {
+    phrases[lang] ??= JSON.parse(JSON.stringify(REPRO_DEFAULT.phrases[lang]))
+    phrases[lang].cues ??= JSON.parse(JSON.stringify(REPRO_DEFAULT.phrases[lang].cues))
+    for (const k of VOICE_METRIC_KEYS) {
+      phrases[lang].cues[k] ??= { ...REPRO_DEFAULT.phrases[lang].cues[k] }
+    }
+    phrases[lang].praise ??= [...REPRO_DEFAULT.phrases[lang].praise]
+  }
+  return {
+    id: raw.id, name: raw.name, builtin: !!raw.builtin,
+    lang: raw.lang ?? REPRO_DEFAULT.lang,
+    voiceURI: raw.voiceURI ?? null,
+    rate: raw.rate ?? REPRO_DEFAULT.rate,
+    pitch: raw.pitch ?? REPRO_DEFAULT.pitch,
+    volume: raw.volume ?? REPRO_DEFAULT.volume,
+    phrases,
+  }
+}
 
 /** Persisted shape: active id + user styles only (presets are merged in at load). */
 export interface StoredStyles {
@@ -60,12 +84,11 @@ export function importStyle(json: string, id: string): VoiceStyle {
     typeof parsed.name !== 'string' ||
     typeof parsed.phrases !== 'object' || parsed.phrases === null ||
     typeof (parsed.phrases as { en?: unknown }).en !== 'object' || (parsed.phrases as { en?: unknown }).en === null ||
-    typeof (parsed.phrases as { uk?: unknown }).uk !== 'object' || (parsed.phrases as { uk?: unknown }).uk === null ||
-    typeof parsed.bandWidthMult !== 'number'
+    typeof (parsed.phrases as { uk?: unknown }).uk !== 'object' || (parsed.phrases as { uk?: unknown }).uk === null
   ) {
     throw new Error('invalid voice style JSON')
   }
-  return { ...(deepCopy(parsed as VoiceStyle)), id, builtin: false }
+  return normalizeStyle({ ...(parsed as VoiceStyle), id, builtin: false })
 }
 
 export function getActiveStyle(state: StoredStyles): VoiceStyle {
@@ -87,7 +110,7 @@ export function loadUserStyles(): StoredStyles {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return { activeStyleId: DEFAULT_ACTIVE_ID, styles: [] }
     const parsed = JSON.parse(raw) as StoredStyles
-    const styles = Array.isArray(parsed.styles) ? parsed.styles.filter(s => !s.builtin) : []
+    const styles = Array.isArray(parsed.styles) ? parsed.styles.filter(s => !s.builtin).map(normalizeStyle) : []
     return { activeStyleId: resolveActiveId(parsed.activeStyleId ?? DEFAULT_ACTIVE_ID, styles), styles }
   } catch {
     return { activeStyleId: DEFAULT_ACTIVE_ID, styles: [] }

@@ -171,10 +171,10 @@ export default function StrokesPage() {
       video: base,
       drillType,
       detector: { handedness, cameraYawDeg: yawDeg, minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs, hipTravelMaxTorso },
-      enabledMetrics: [...feedbackSettings.enabledMetrics],
       muted,
+      feedbackSettings,
+      voiceStyle: { id: activeStyle.id, name: activeStyle.name, lang: activeStyle.lang, rate: activeStyle.rate, pitch: activeStyle.pitch, volume: activeStyle.volume, phrases: activeStyle.phrases },
       referenceStandard: REFERENCE_STANDARDS[drillType],
-      voiceStyle: activeStyle,
       report: report && {
         counts: { rawPeakCount: report.rawPeakCount, forwardRepCount: report.forwardRepCount, reps: report.reps.length, cleanReps: report.cleanReps },
         placementOk: report.placementOk,
@@ -188,7 +188,8 @@ export default function StrokesPage() {
           metrics: r.metrics,
           perPhase: r.perPhase,
           coil: r.coil,
-          cues: r.cues,
+          allCues: r.cues.map(c => ({ metricKey: c.metricKey, direction: c.direction, deltaFromRange: c.deltaFromRange, severity: c.severity })),
+          voicedCue: voicedByRep[i] ? { metricKey: voicedByRep[i]!.metricKey, direction: voicedByRep[i]!.direction } : null,
         })),
         // The exact per-rep inputs the voice core gates against (value + un-widened ideal band).
         voiceReps: report.voiceReps,

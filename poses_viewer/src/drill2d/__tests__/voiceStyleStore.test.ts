@@ -4,9 +4,10 @@ import {
   STORAGE_KEY, DEFAULT_ACTIVE_ID,
   allStyles, resolveActiveId, cloneStyle, renameStyle, removeStyle, upsertStyle,
   serializeStyle, importStyle, getActiveStyle, loadUserStyles, saveUserStyles, newStyleId,
+  normalizeStyle,
   type StoredStyles,
 } from '../voiceStyleStore'
-import { PRESETS } from '../voiceStyle'
+import { PRESETS, type VoiceStyle } from '../voiceStyle'
 
 beforeEach(() => localStorage.clear())
 
@@ -107,5 +108,23 @@ describe('newStyleId', () => {
   it('returns distinct non-empty ids', () => {
     expect(newStyleId()).not.toBe(newStyleId())
     expect(newStyleId().length).toBeGreaterThan(0)
+  })
+})
+
+describe('normalizeStyle migration', () => {
+  it('strips legacy policy fields', () => {
+    const legacy = { ...PRESETS[0], bandWidthMult: 1.4, correctiveMinGapMs: 5000 } as unknown as VoiceStyle
+    const n = normalizeStyle(legacy) as unknown as Record<string, unknown>
+    expect(n.bandWidthMult).toBeUndefined()
+    expect(n.correctiveMinGapMs).toBeUndefined()
+    expect(n.rate).toBeDefined()
+  })
+  it('backfills missing hip_flexion phrases from the default preset', () => {
+    const noHip = JSON.parse(JSON.stringify(PRESETS[0]))
+    delete noHip.phrases.en.cues.hip_flexion
+    delete noHip.phrases.uk.cues.hip_flexion
+    const n = normalizeStyle(noHip)
+    expect(n.phrases.en.cues.hip_flexion.up.length).toBeGreaterThan(0)
+    expect(n.phrases.uk.cues.hip_flexion.down.length).toBeGreaterThan(0)
   })
 })
