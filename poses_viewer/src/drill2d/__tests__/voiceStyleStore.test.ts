@@ -136,4 +136,19 @@ describe('normalizeStyle migration', () => {
     expect(n.phrases.en.phaseCues!.elbow_angle!.followthrough!.down.length).toBeGreaterThan(0)
     expect(n.phrases.uk.phaseCues!.elbow_angle!.followthrough!.up.length).toBeGreaterThan(0)
   })
+  it('backfills missing per-phase shoulder/knee/hip/torso phaseCues from the default preset', () => {
+    const noPhase = JSON.parse(JSON.stringify(PRESETS[0]))
+    delete noPhase.phrases.en.phaseCues
+    delete noPhase.phrases.uk.phaseCues
+    const n = normalizeStyle(noPhase)
+    // shoulder_angle: backswing + followthrough
+    expect(n.phrases.en.phaseCues!.shoulder_angle!.backswing!.up.length).toBeGreaterThan(0)
+    expect(n.phrases.en.phaseCues!.shoulder_angle!.followthrough!.down).toBeDefined()
+    // knee_bend: contact
+    expect(n.phrases.en.phaseCues!.knee_bend!.contact!.up.length).toBeGreaterThan(0)
+    // hip_flexion: backswing (uk)
+    expect(n.phrases.uk.phaseCues!.hip_flexion!.backswing!.down.length).toBeGreaterThan(0)
+    // torso_lean: contact (uk)
+    expect(n.phrases.uk.phaseCues!.torso_lean!.contact).toBeDefined()
+  })
 })

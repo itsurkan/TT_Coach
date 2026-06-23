@@ -22,9 +22,10 @@ export interface PhraseSet {
   /** up = measured value ABOVE the (widened) band; down = BELOW it. */
   cues: Record<MetricKey, { up: string; down: string }>
   /**
-   * Per-phase phrases for PATTERN metrics (currently elbow), graded at a stroke
-   * phase rather than the contact instant. When a cue carries a `phase` and a
-   * phrase exists here, it overrides `cues[metric]`. up/down semantics match `cues`.
+   * Per-phase phrases for PATTERN metrics (elbow, shoulder_angle, knee_bend, hip_flexion,
+   * torso_lean), graded at a stroke phase rather than the contact instant. When a cue
+   * carries a `phase` and a phrase exists here, it overrides `cues[metric]`. up/down
+   * semantics match `cues`.
    */
   phaseCues?: Partial<Record<MetricKey, Partial<Record<Phase, { up: string; down: string }>>>>
   /** Rotated praise pool; specific, never bare "good job". */
@@ -78,6 +79,22 @@ const PLAYFUL_EN: PhraseSet = {
       backswing:     { up: "don't lock the elbow on the backswing", down: 'open the elbow a little on the backswing' },
       followthrough: { up: 'finish the elbow through', down: "don't over-fold the finish" },
     },
+    shoulder_angle: {
+      backswing:     { up: 'keep the arm low on the take-back', down: 'let the arm hang back a bit' },
+      followthrough: { up: "don't over-swing the finish", down: 'sweep up to finish' },
+    },
+    knee_bend: {
+      backswing: { up: 'sit a little deeper as you load', down: "don't over-sink the load" },
+      contact:   { up: 'stay down through contact', down: "don't over-bend at contact" },
+    },
+    hip_flexion: {
+      backswing: { up: 'hinge into the hips a touch more', down: 'ease the hips up as you load' },
+      contact:   { up: 'keep the hip hinge at contact', down: 'ease the hips up at contact' },
+    },
+    torso_lean: {
+      backswing: { up: 'stay a bit taller on the take-back', down: 'lean in a little as you load' },
+      contact:   { up: 'stand a touch taller at contact', down: 'lean into the ball at contact' },
+    },
   },
   praise: ["that's the shape!", 'yes — that follow-through', 'clean — do that again', 'nice, really solid', 'love it, keep going'],
 }
@@ -94,6 +111,22 @@ const PLAYFUL_UK: PhraseSet = {
     elbow_angle: {
       backswing:     { up: 'не блокуй лікоть на замаху', down: 'трохи розправ лікоть на замаху' },
       followthrough: { up: 'доводь лікоть до кінця', down: 'не затискай на завершенні' },
+    },
+    shoulder_angle: {
+      backswing:     { up: 'тримай руку нижче на замаху', down: 'трохи опусти руку назад' },
+      followthrough: { up: 'не перемахуй на завершенні', down: 'доводь руку вгору' },
+    },
+    knee_bend: {
+      backswing: { up: 'присядь трохи глибше на замаху', down: 'не присідай надто на замаху' },
+      contact:   { up: 'тримай присід в ударі', down: 'не перегинай коліна в ударі' },
+    },
+    hip_flexion: {
+      backswing: { up: 'трохи більше нахилу в стегнах', down: 'трохи розігни стегна на замаху' },
+      contact:   { up: 'тримай нахил стегон в ударі', down: 'розігни стегна в ударі' },
+    },
+    torso_lean: {
+      backswing: { up: 'тримайся рівніше на замаху', down: 'трохи нахились на замаху' },
+      contact:   { up: 'тримайся рівніше в ударі', down: 'нахились до мʼяча в ударі' },
     },
   },
   praise: ['оце форма!', 'так — оце завершення', 'чисто — ще раз так', 'гарно, дуже впевнено', 'клас, продовжуй'],
@@ -113,6 +146,22 @@ const STRICT_EN: PhraseSet = {
       backswing:     { up: "don't lock the elbow on the backswing", down: 'open the elbow on the backswing' },
       followthrough: { up: 'finish the elbow through', down: "don't over-fold the finish" },
     },
+    shoulder_angle: {
+      backswing:     { up: 'arm low on the backswing', down: 'arm back on the backswing' },
+      followthrough: { up: "don't over-swing", down: 'sweep up to finish' },
+    },
+    knee_bend: {
+      backswing: { up: 'sit deeper to load', down: "don't over-sink" },
+      contact:   { up: 'stay down at contact', down: "don't over-bend" },
+    },
+    hip_flexion: {
+      backswing: { up: 'hinge forward to load', down: 'hips up on the load' },
+      contact:   { up: 'keep the hinge at contact', down: 'hips up at contact' },
+    },
+    torso_lean: {
+      backswing: { up: 'taller on the backswing', down: 'lean in to load' },
+      contact:   { up: 'taller at contact', down: 'lean in at contact' },
+    },
   },
   praise: ["that's the shape", 'clean — repeat that', 'correct'],
 }
@@ -129,6 +178,22 @@ const STRICT_UK: PhraseSet = {
     elbow_angle: {
       backswing:     { up: 'не блокуй лікоть на замаху', down: 'розправ лікоть на замаху' },
       followthrough: { up: 'доводь лікоть', down: 'не затискай на завершенні' },
+    },
+    shoulder_angle: {
+      backswing:     { up: 'рука нижче на замаху', down: 'рука назад на замаху' },
+      followthrough: { up: 'не перемахуй', down: 'доводь руку вгору' },
+    },
+    knee_bend: {
+      backswing: { up: 'присядь глибше', down: 'не присідай надто' },
+      contact:   { up: 'тримай присід в ударі', down: 'не перегинай коліна' },
+    },
+    hip_flexion: {
+      backswing: { up: 'нахились у стегнах', down: 'стегна вище' },
+      contact:   { up: 'тримай нахил в ударі', down: 'стегна вище в ударі' },
+    },
+    torso_lean: {
+      backswing: { up: 'рівніше на замаху', down: 'нахились на замаху' },
+      contact:   { up: 'рівніше в ударі', down: 'нахились в ударі' },
     },
   },
   praise: ['оце форма', 'чисто — повтори', 'правильно'],
@@ -148,6 +213,22 @@ const EFFICIENT_EN: PhraseSet = {
       backswing:     { up: "don't lock elbow", down: 'open elbow' },
       followthrough: { up: 'finish elbow', down: "don't over-fold" },
     },
+    shoulder_angle: {
+      backswing:     { up: 'arm low', down: 'arm back' },
+      followthrough: { up: "don't over-swing", down: 'sweep up' },
+    },
+    knee_bend: {
+      backswing: { up: 'sit deeper', down: "don't over-sink" },
+      contact:   { up: 'stay down', down: "don't over-bend" },
+    },
+    hip_flexion: {
+      backswing: { up: 'hinge', down: 'hips up' },
+      contact:   { up: 'hold hinge', down: 'hips up' },
+    },
+    torso_lean: {
+      backswing: { up: 'taller', down: 'lean in' },
+      contact:   { up: 'taller', down: 'lean in' },
+    },
   },
   praise: ['clean', 'yes', 'good'],
 }
@@ -164,6 +245,22 @@ const EFFICIENT_UK: PhraseSet = {
     elbow_angle: {
       backswing:     { up: 'не блокуй лікоть', down: 'розправ лікоть' },
       followthrough: { up: 'доводь лікоть', down: 'не затискай' },
+    },
+    shoulder_angle: {
+      backswing:     { up: 'рука нижче', down: 'рука назад' },
+      followthrough: { up: 'не перемахуй', down: 'руку вгору' },
+    },
+    knee_bend: {
+      backswing: { up: 'глибше присід', down: 'не пересідай' },
+      contact:   { up: 'тримай присід', down: 'не перегинай' },
+    },
+    hip_flexion: {
+      backswing: { up: 'нахил', down: 'стегна вище' },
+      contact:   { up: 'тримай нахил', down: 'стегна вище' },
+    },
+    torso_lean: {
+      backswing: { up: 'рівніше', down: 'нахились' },
+      contact:   { up: 'рівніше', down: 'нахились' },
     },
   },
   praise: ['чисто', 'так', 'добре'],
