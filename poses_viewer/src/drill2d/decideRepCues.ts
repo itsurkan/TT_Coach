@@ -11,6 +11,18 @@ import { ReferenceStandard } from './referenceStandard'
 import { FeedbackSettings } from './feedbackSettings'
 import { MetricKey } from './voiceStyle'
 
+/**
+ * Pattern metrics describe a movement ACROSS the stroke, not a single target pose, so a
+ * single contact-instant value has no meaningful static ideal to grade against.
+ *
+ * `elbow_angle` is the case in point: it extends on the backswing (~165°) and flexes at
+ * contact (~97°), so grading the contact frame against a fixed band produces a cue that
+ * reads as nonsense ("extend your arm" while the backswing arm is already fully extended).
+ * The literature band stays in referenceStandard.ranges for reference + sessionStrengths,
+ * and the per-phase columns still SHOW the start/end angles, but we never emit a cue for it.
+ */
+const PATTERN_METRICS = new Set<string>(['elbow_angle'])
+
 export function decideRepCues(
   metrics: Record<string, number>,
   standard: ReferenceStandard,
@@ -19,6 +31,7 @@ export function decideRepCues(
   const enabled = new Set<string>(settings.enabledMetrics as MetricKey[])
   const cues: FeedbackCue[] = []
   for (const [key, range] of Object.entries(standard.ranges)) {
+    if (PATTERN_METRICS.has(key)) continue
     if (!enabled.has(key)) continue
     const value = metrics[key]
     if (value === undefined) continue

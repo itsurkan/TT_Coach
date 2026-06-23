@@ -56,9 +56,12 @@ on/off toggles, a drill-type selector, and clip-or-live voice feedback playback.
 
 **Feedback-decision / voice-reproduction split (2026-06-23):** a single decision engine
 `decideRepCues.ts` (range-based severity against the external IDEAL ranges in `referenceStandard.ts`,
-NOT personal baseline — spec decision #2) produces per-rep `FeedbackCue[]` covering ALL coachable
-metrics, including `hip_flexion` (deliberate trust-rule exception — voiced despite being a rotational
-proxy). This is the **single source of truth** driving BOTH the on-screen table and the voice; it is
+NOT personal baseline — spec decision #2) produces per-rep `FeedbackCue[]`, including `hip_flexion`
+(deliberate trust-rule exception — voiced despite being a rotational proxy). It EXCLUDES the
+`PATTERN_METRICS` set — currently `elbow_angle` — which describe a movement across the stroke
+(extends on backswing ~165°, flexes at contact ~97°) and so have no meaningful static single-instant
+ideal to grade against; their per-phase angles are still SHOWN in the table (uncolored) but never
+produce a cue. This is the **single source of truth** driving BOTH the on-screen table and the voice; it is
 parameterised by `FeedbackSettings` (widened bands via `bandWidthMult` + `minMeaningfulDeltaDeg`,
 `enabledMetrics`). `feedbackSettings.ts` (NEW) holds the feedback policy
 (bands/thresholds/cadence/praise/skip-stale/enabledMetrics); persisted at localStorage key

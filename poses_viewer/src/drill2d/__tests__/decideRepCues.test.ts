@@ -8,11 +8,11 @@ const raw = { ...DEFAULT_FEEDBACK_SETTINGS, bandWidthMult: 1, minMeaningfulDelta
 
 describe('decideRepCues', () => {
   it('is silent inside the band', () => {
-    expect(decideRepCues({ elbow_angle: 130 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([]) // band 115–150
+    expect(decideRepCues({ knee_bend: 127 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([]) // band 110–145
   })
   it('flags above the band as too_high', () => {
-    const cues = decideRepCues({ elbow_angle: 168 }, FOREHAND_DRIVE_STANDARD, raw) // hi 150
-    expect(cues[0].metricKey).toBe('elbow_angle')
+    const cues = decideRepCues({ knee_bend: 160 }, FOREHAND_DRIVE_STANDARD, raw) // hi 145
+    expect(cues[0].metricKey).toBe('knee_bend')
     expect(cues[0].direction).toBe('too_high')
   })
   it('flags below the band as too_low', () => {
@@ -20,18 +20,23 @@ describe('decideRepCues', () => {
     expect(cues[0].direction).toBe('too_low')
   })
   it('respects minMeaningfulDeltaDeg', () => {
-    expect(decideRepCues({ elbow_angle: 153 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([]) // dev 3 < 5
+    expect(decideRepCues({ knee_bend: 148 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([]) // dev 3 < 5
   })
   it('widens the band with bandWidthMult', () => {
-    const wide = { ...raw, bandWidthMult: 1.4 } // elbow widened lo ≈ 108
-    expect(decideRepCues({ elbow_angle: 110 }, FOREHAND_DRIVE_STANDARD, wide)).toEqual([]) // inside widened
-    const cues = decideRepCues({ elbow_angle: 97 }, FOREHAND_DRIVE_STANDARD, wide) // ~11 under 108
-    expect(cues[0].metricKey).toBe('elbow_angle')
+    const wide = { ...raw, bandWidthMult: 1.4 } // knee widened lo ≈ 103
+    expect(decideRepCues({ knee_bend: 105 }, FOREHAND_DRIVE_STANDARD, wide)).toEqual([]) // inside widened
+    const cues = decideRepCues({ knee_bend: 88 }, FOREHAND_DRIVE_STANDARD, wide) // ~15 under 103
+    expect(cues[0].metricKey).toBe('knee_bend')
     expect(cues[0].direction).toBe('too_low')
   })
   it('honours enabledMetrics', () => {
-    const only = { ...raw, enabledMetrics: ['knee_bend'] as MetricKey[] }
-    expect(decideRepCues({ elbow_angle: 168 }, FOREHAND_DRIVE_STANDARD, only)).toEqual([])
+    const only = { ...raw, enabledMetrics: ['shoulder_angle'] as MetricKey[] }
+    expect(decideRepCues({ knee_bend: 90 }, FOREHAND_DRIVE_STANDARD, only)).toEqual([])
+  })
+  it('never grades elbow_angle — it is a pattern metric (extends on backswing, flexes at contact)', () => {
+    // Far below AND far above the band: a single contact instant has no static ideal for the elbow.
+    expect(decideRepCues({ elbow_angle: 97 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([])
+    expect(decideRepCues({ elbow_angle: 168 }, FOREHAND_DRIVE_STANDARD, raw)).toEqual([])
   })
   it('includes hip_flexion when out of band', () => {
     const cues = decideRepCues({ hip_flexion: 100 }, FOREHAND_DRIVE_STANDARD, raw) // band 130–165, lo 130
@@ -39,7 +44,7 @@ describe('decideRepCues', () => {
     expect(cues[0].direction).toBe('too_low')
   })
   it('sorts by severity descending', () => {
-    const cues = decideRepCues({ elbow_angle: 170, knee_bend: 100 }, FOREHAND_DRIVE_STANDARD, raw)
+    const cues = decideRepCues({ shoulder_angle: 110, knee_bend: 100 }, FOREHAND_DRIVE_STANDARD, raw)
     expect(cues[0].severity).toBeGreaterThanOrEqual(cues[1].severity)
   })
 })
