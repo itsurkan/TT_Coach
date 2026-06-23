@@ -108,16 +108,25 @@ export type Phase = 'backswing' | 'contact' | 'followthrough'
  * is a valid MetricKey (typo'd keys are compile-time errors), while still
  * allowing the subset to omit metrics.
  *
- * shoulder_tilt is intentionally excluded — it is dropped from per-phase and
- * rendered as the unchanged single-instant colored cell (using standard.ranges).
- * torso_lean stays as a display-only (uncolored) phase metric.
+ * Movement-bracketing rule:
+ *   - Arm metrics (elbow, shoulder): backswing + followthrough (the swing arc).
+ *     Contact is the noisiest instant for both — RTMPose mislocates the fast forearm
+ *     and the shoulder sweeps through its full range, so no stable ideal exists at contact.
+ *   - Legs/trunk metrics (knee, hip, torso): backswing + contact (load → drive).
+ *     Followthrough is excluded — it is a recovery phase that rotates out of the camera
+ *     plane, so 2D coaching values are unreliable there (no ideal to grade against).
+ *
+ * shoulder_tilt is intentionally excluded from METRIC_PHASES — it remains a
+ * single-instant colored cell (using standard.ranges directly).
  */
 export const METRIC_PHASES = {
+  // Legs/trunk — load → drive; followthrough excluded (rotation-corrupted)
   [METRIC.KNEE_BEND]:       ['backswing', 'contact'],
   [METRIC.HIP_FLEXION]:     ['backswing', 'contact'],
-  [METRIC.ELBOW_ANGLE]:     ['backswing', 'contact'],
-  [METRIC.SHOULDER_ANGLE]:  ['contact', 'followthrough'],
-  [METRIC.TORSO_LEAN]:      ['contact'],
+  [METRIC.TORSO_LEAN]:      ['backswing', 'contact'],
+  // Arm — swing arc (замах → завершення); contact excluded (noisiest instant)
+  [METRIC.ELBOW_ANGLE]:     ['backswing', 'followthrough'],
+  [METRIC.SHOULDER_ANGLE]:  ['backswing', 'followthrough'],
 } satisfies Partial<Record<(typeof METRIC)[keyof typeof METRIC], Phase[]>>
 
 /**

@@ -99,7 +99,7 @@ describe('analyzeDrill — perPhase field', () => {
     }
   })
 
-  it('elbow_angle has backswing and contact phases (paired cycle)', () => {
+  it('elbow_angle has backswing and followthrough phases (paired cycle), not contact', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
       handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
@@ -110,20 +110,22 @@ describe('analyzeDrill — perPhase field', () => {
     for (const rep of paired) {
       const ea = rep.perPhase.elbow_angle
       expect('backswing' in ea).toBe(true)
-      expect('contact' in ea).toBe(true)
+      expect('followthrough' in ea).toBe(true)
+      expect('contact' in ea).toBe(false)
     }
   })
 
-  it('shoulder_angle has contact and followthrough phases', () => {
+  it('shoulder_angle has backswing and followthrough phases (NOT contact)', () => {
     const seq = loadSeq('andrii_1_rtm.json')
     const report = analyzeDrill(seq, {
       handedness: 'right', drillType: 'forehand_drive', standard: FOREHAND_DRIVE_STANDARD,
       feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
-    // shoulder_angle phases are contact and followthrough — present on ALL reps (no backswing required)
+    // shoulder_angle is now an arm-pattern metric (backswing + followthrough only).
+    // Paired reps have backswing; unpaired reps skip it but always have followthrough.
     for (const rep of report.reps) {
       const sa = rep.perPhase.shoulder_angle
-      expect('contact' in sa).toBe(true)
+      expect('contact' in sa).toBe(false)
       expect('followthrough' in sa).toBe(true)
     }
   })
@@ -136,8 +138,9 @@ describe('analyzeDrill — perPhase field', () => {
       feedbackSettings: RAW_BAND_SETTINGS, cameraYawDeg: 0,
     })
     // Metrics that include the 'contact' phase (from METRIC_PHASES subset):
-    // knee_bend, hip_flexion, elbow_angle, shoulder_angle, torso_lean.
-    // shoulder_tilt is intentionally excluded from METRIC_PHASES — it is not in perPhase.
+    // knee_bend, hip_flexion, torso_lean. elbow_angle and shoulder_angle are arm-pattern
+    // metrics graded at backswing/followthrough (not contact); shoulder_tilt is excluded
+    // from METRIC_PHASES entirely.
     const contactMetrics = Object.entries(METRIC_PHASES)
       .filter(([, phases]) => (phases as string[]).includes('contact'))
       .map(([key]) => key)

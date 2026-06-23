@@ -109,19 +109,51 @@ export const REFERENCE_STANDARDS: Record<string, ReferenceStandard> = {
 // ---------------------------------------------------------------------------
 
 /**
- * Per-phase ideal ranges for metrics that have phase-specific literature
- * anchors. This is a PARTIAL map — not every metric has per-phase data, and
- * not every phase is configured for each metric that is present.
+ * Per-phase ideal ranges for the five pattern metrics (all graded per-phase,
+ * never at the single contact instant by decideRepCues).
  *
- * NOTE: `elbow_angle` has NO entry here — elbow flex is a pattern metric
- * (extension at backswing, flex at contact) with no external per-phase ideal
- * that can be credibly mapped to our interior-angle convention. The single-
- * instant range in FOREHAND_DRIVE_STANDARD.ranges covers it adequately.
+ * Movement-bracketing rule (mirrors METRIC_PHASES in drillMetrics.ts):
+ *   - Arm metrics (elbow, shoulder): graded at backswing + followthrough.
+ *     Contact is the noisiest instant for both — RTMPose mislocates the fast
+ *     forearm and the shoulder sweeps through its full range there.
+ *   - Legs/trunk (knee, hip, torso): graded at backswing + contact (load → drive).
+ *     Followthrough is excluded — recovery phase, rotation-corrupted in 2D, no ideal.
+ *
+ * Unmeasured / provisional bands:
+ *   - shoulder_angle.backswing: coach-opinion only, no TT study measures take-back
+ *     shoulder elevation at this instant. Primary tuning dial.
+ *   - torso_lean.backswing + torso_lean.contact: coach-opinion. 2D lean is inflated
+ *     by axial rotation/camera-yaw; re-tune on protocol footage.
  *
  * Interior-angle convention throughout: 180° = fully straight.
- * All entries are PROVISIONAL — see individual `source` strings.
  */
 export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, ReferenceRange>>>> = {
+  // ---- ARM metrics: backswing + followthrough ----
+  elbow_angle: {
+    backswing: {
+      lo: 145, hi: 175,
+      evidence: 'coach_opinion',
+      source: 'PROVISIONAL coach-opinion: near-straight extended take-back (andrii ~152–167 sits in band). <145 too bent → too_low; >175 locked → too_high. Primary tuning dial.',
+    },
+    followthrough: {
+      lo: 60, hi: 85,
+      evidence: 'coach_opinion',
+      source: 'PROVISIONAL coach-opinion: elbow FOLDS as the arm wraps up/across at the finish. >85 too straight / did not wrap → too_high («доводи лікоть»); <60 over-folded → too_low. Unmeasured on our footage; primary tuning dial.',
+    },
+  },
+  shoulder_angle: {
+    backswing: {
+      lo: 20, hi: 60,
+      evidence: 'coach_opinion',
+      source: 'PROVISIONAL coach-opinion: arm hangs low/back at the take-back (small hip–shoulder–elbow elevation); <20 collapsed → too_low; >60 already lifting early → too_high. Unmeasured; tuning dial.',
+    },
+    followthrough: {
+      lo: 80, hi: 130,
+      evidence: 'coach_opinion',
+      source: 'arm sweeps high at finish (Bańkosz shoulder flex peaks ~97°); interior-angle mapping UNVERIFIED; PROVISIONAL',
+    },
+  },
+  // ---- LEGS/TRUNK metrics: backswing + contact; followthrough excluded ----
   knee_bend: {
     backswing: {
       lo: 105, hi: 130,
@@ -146,16 +178,16 @@ export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, R
       source: 'hip extends slightly toward contact; PROVISIONAL, sources disagree',
     },
   },
-  shoulder_angle: {
-    contact: {
-      lo: 30, hi: 75,
+  torso_lean: {
+    backswing: {
+      lo: 5, hi: 25,
       evidence: 'coach_opinion',
-      source: 'band borrowed from the single-instant FOREHAND_DRIVE_STANDARD range (Bańkosz/PMC7238326); hi=75 reflects forward-phase end, not true contact — interior-angle/instant mapping UNVERIFIED; PROVISIONAL',
+      source: 'PROVISIONAL coach-opinion: more upright at take-back before loading forward; cleanest 2D instant (least axial rotation). Unmeasured; tuning dial.',
     },
-    followthrough: {
-      lo: 80, hi: 130,
+    contact: {
+      lo: 15, hi: 40,
       evidence: 'coach_opinion',
-      source: 'arm sweeps high at finish (Bańkosz shoulder flex peaks ~97°); interior-angle mapping UNVERIFIED; PROVISIONAL',
+      source: 'PROVISIONAL coach-opinion: forward attacking lean at contact (own footage 33–39°); 2D lean inflated by axial rotation, re-tune on protocol footage; tuning dial.',
     },
   },
 }
@@ -164,10 +196,12 @@ export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, R
  * Look up the per-phase ideal range for a given metric and phase.
  *
  * Returns `null` when:
- *   - the metric has no per-phase entry (e.g. `elbow_angle`, `torso_lean`, `shoulder_tilt`);
- *   - the metric has entries but not for the requested phase (e.g. `shoulder_angle` at `backswing`).
+ *   - the metric has no per-phase entry (e.g. `shoulder_tilt`);
+ *   - the metric has entries but not for the requested phase (e.g. `elbow_angle`
+ *     at `contact` — arm metrics are graded at backswing/followthrough only;
+ *     legs/trunk metrics at backswing/contact only, never followthrough).
  *
- * Task 3 (table coloring) uses this to decide whether to render a phase cell
+ * Table coloring uses this to decide whether to render a phase cell
  * with a good/warn/bad background or leave it uncolored.
  */
 export function perPhaseRange(metricKey: string, phase: Phase): ReferenceRange | null {

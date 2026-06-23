@@ -33,14 +33,25 @@ describe('PER_PHASE_RANGES', () => {
     expect(PER_PHASE_RANGES.hip_flexion!.contact).toBeDefined()
   })
 
-  it('has shoulder_angle entries for contact and followthrough', () => {
+  it('has shoulder_angle entries for backswing and followthrough (NOT contact)', () => {
     expect(PER_PHASE_RANGES.shoulder_angle).toBeDefined()
-    expect(PER_PHASE_RANGES.shoulder_angle!.contact).toBeDefined()
+    expect(PER_PHASE_RANGES.shoulder_angle!.backswing).toBeDefined()
     expect(PER_PHASE_RANGES.shoulder_angle!.followthrough).toBeDefined()
+    expect(PER_PHASE_RANGES.shoulder_angle!.contact).toBeUndefined()
   })
 
-  it('has NO elbow_angle entry', () => {
-    expect(PER_PHASE_RANGES.elbow_angle).toBeUndefined()
+  it('has torso_lean entries for backswing and contact (NOT followthrough)', () => {
+    expect(PER_PHASE_RANGES.torso_lean).toBeDefined()
+    expect(PER_PHASE_RANGES.torso_lean!.backswing).toBeDefined()
+    expect(PER_PHASE_RANGES.torso_lean!.contact).toBeDefined()
+    expect(PER_PHASE_RANGES.torso_lean!.followthrough).toBeUndefined()
+  })
+
+  it('has elbow_angle entries for backswing and followthrough (NOT contact)', () => {
+    expect(PER_PHASE_RANGES.elbow_angle).toBeDefined()
+    expect(PER_PHASE_RANGES.elbow_angle!.backswing).toBeDefined()
+    expect(PER_PHASE_RANGES.elbow_angle!.followthrough).toBeDefined()
+    expect(PER_PHASE_RANGES.elbow_angle!.contact).toBeUndefined()
   })
 
   it('every configured entry is well-formed (lo < hi, valid evidence, non-empty source containing PROVISIONAL)', () => {
@@ -73,13 +84,38 @@ describe('perPhaseRange', () => {
     expect(perPhaseRange('elbow_angle', 'contact')).toBeNull()
   })
 
-  it('returns null for shoulder_angle at backswing (phase not configured for that metric)', () => {
-    expect(perPhaseRange('shoulder_angle', 'backswing')).toBeNull()
+  it('returns the backswing range for shoulder_angle', () => {
+    const r = perPhaseRange('shoulder_angle', 'backswing')
+    expect(r).not.toBeNull()
+    expect(r!.lo).toBe(20)
+    expect(r!.hi).toBe(60)
+    expect(r!.evidence).toBe('coach_opinion')
+  })
+
+  it('returns null for shoulder_angle at contact (contact excluded for arm metrics)', () => {
+    expect(perPhaseRange('shoulder_angle', 'contact')).toBeNull()
+  })
+
+  it('returns the backswing range for torso_lean', () => {
+    const r = perPhaseRange('torso_lean', 'backswing')
+    expect(r).not.toBeNull()
+    expect(r!.lo).toBe(5)
+    expect(r!.hi).toBe(25)
+  })
+
+  it('returns the contact range for torso_lean', () => {
+    const r = perPhaseRange('torso_lean', 'contact')
+    expect(r).not.toBeNull()
+    expect(r!.lo).toBe(15)
+    expect(r!.hi).toBe(40)
+  })
+
+  it('returns null for torso_lean at followthrough (excluded — rotation-corrupted)', () => {
+    expect(perPhaseRange('torso_lean', 'followthrough')).toBeNull()
   })
 
   it('returns null for a known metric that has no per-phase ranges', () => {
-    // torso_lean and shoulder_tilt are valid MetricKeys but have no PER_PHASE_RANGES entries
-    expect(perPhaseRange('torso_lean', 'contact')).toBeNull()
+    // shoulder_tilt is the only metric key with no PER_PHASE_RANGES entry
     expect(perPhaseRange('shoulder_tilt', 'contact')).toBeNull()
   })
 

@@ -109,34 +109,28 @@ describe('extractPerPhase — paired cycle', () => {
     expect('followthrough' in r).toBe(false)
   })
 
-  it('elbow_angle has backswing and contact keys', () => {
+  it('elbow_angle has backswing and followthrough keys (not contact)', () => {
     const r = result[METRIC.ELBOW_ANGLE]
     expect(r).toBeDefined()
     expect('backswing' in r).toBe(true)
-    expect('contact' in r).toBe(true)
-    expect('followthrough' in r).toBe(false)
+    expect('followthrough' in r).toBe(true)
+    expect('contact' in r).toBe(false)
   })
 
-  it('shoulder_angle has contact and followthrough keys only', () => {
+  it('shoulder_angle has backswing and followthrough keys (NOT contact)', () => {
     const r = result[METRIC.SHOULDER_ANGLE]
     expect(r).toBeDefined()
-    expect('backswing' in r).toBe(false)
-    expect('contact' in r).toBe(true)
+    expect('backswing' in r).toBe(true)
+    expect('contact' in r).toBe(false)
     expect('followthrough' in r).toBe(true)
   })
 
-  it('shoulder_angle followthrough reads from drive.endFrame and differs from contact when elbow differs between anchors', () => {
-    // shoulderAngle = hip–shoulder–elbow angle. We need the hip off the shoulder–elbow
-    // axis and a sane result (not 180°). Build dedicated frames with hip at (0.30, 0.42)
-    // so the hip–shoulder–elbow triangle is non-collinear.
-    //
-    // Frame layout (same cycle: drive startFrame=5, peakFrame=8, endFrame=12):
-    //   frame 8  (contact):      elbow at (0.50, 0.42) → hip–shoulder–elbow ≈ one angle
-    //   frame 12 (followthrough): elbow at (0.50, 0.62) → hip–shoulder–elbow ≈ different angle
-    // shoulderAngle = hip–shoulder–elbow (vertex at shoulder).
-    // To get distinct angles at the two anchors, vary the elbow position laterally
-    // so the hip–shoulder–elbow included angle changes noticeably.
-    //   Frame 8  (contact):      elbow at (0.30, 0.42) — elbow to the left → acute angle
+  it('shoulder_angle backswing and followthrough read from distinct anchors and differ', () => {
+    // shoulderAngle = hip–shoulder–elbow angle. Build dedicated frames so:
+    //   frame 5  (drive.startFrame = backswing anchor): elbow at one position → one angle
+    //   frame 12 (drive.endFrame   = followthrough anchor): elbow at a different position → different angle
+    // Hip is placed off-axis so the hip–shoulder–elbow triangle is non-collinear.
+    //   Frame 5  (backswing):     elbow at (0.30, 0.42) — elbow to the left  → acute angle
     //   Frame 12 (followthrough): elbow at (0.70, 0.42) — elbow to the right → obtuse angle
     function shoulderFrameAt(idx: number, elbowX: number): PoseFrame2D {
       const kp: Keypoint2D[] = Array.from({ length: 17 }, () => K(0.5, 0.5))
@@ -147,8 +141,8 @@ describe('extractPerPhase — paired cycle', () => {
       return { frameIndex: idx, timestampMs: idx * 100, keypoints: kp }
     }
     const shoulderFrames = Array.from({ length: 13 }, (_, i) => {
-      if (i === 8)  return shoulderFrameAt(i, 0.30)   // elbow left → one angle
-      if (i === 12) return shoulderFrameAt(i, 0.70)   // elbow right → different angle
+      if (i === 5)  return shoulderFrameAt(i, 0.30)   // backswing anchor  → acute angle
+      if (i === 12) return shoulderFrameAt(i, 0.70)   // followthrough anchor → obtuse angle
       return shoulderFrameAt(i, 0.50)
     })
     const bsDrive = stroke(0, 0, 2, 4)
@@ -157,20 +151,20 @@ describe('extractPerPhase — paired cycle', () => {
     const sr = extractPerPhase(shlCycle, shoulderFrames, 'right', 1, 100)
 
     const shlResult = sr[METRIC.SHOULDER_ANGLE]
-    const ctVal = shlResult['contact']
+    const bsVal = shlResult['backswing']
     const ftVal = shlResult['followthrough']
 
     // Both phases must yield a valid (non-null) sane shoulder angle.
-    expect(ctVal).not.toBeNull()
+    expect(bsVal).not.toBeNull()
     expect(ftVal).not.toBeNull()
     // The two anchor frames have different elbow positions → different hip–shoulder–elbow angles.
-    expect(ftVal).not.toBeCloseTo(ctVal as number, 1)
+    expect(ftVal).not.toBeCloseTo(bsVal as number, 1)
   })
 
-  it('torso_lean has contact key only', () => {
+  it('torso_lean has backswing and contact keys (NOT followthrough)', () => {
     const r = result[METRIC.TORSO_LEAN]
     expect(r).toBeDefined()
-    expect('backswing' in r).toBe(false)
+    expect('backswing' in r).toBe(true)
     expect('contact' in r).toBe(true)
     expect('followthrough' in r).toBe(false)
   })
@@ -179,17 +173,17 @@ describe('extractPerPhase — paired cycle', () => {
     expect(METRIC.SHOULDER_TILT in result).toBe(false)
   })
 
-  it('elbow_angle backswing and contact differ when poses differ between anchors', () => {
-    // Frame 5 (backswing anchor = drive.startFrame) has WRIST_60 → ~60°
-    // Frame 8 (contact anchor  = drive.peakFrame)   has WRIST_120 → ~120°
+  it('elbow_angle backswing and followthrough differ when poses differ between anchors', () => {
+    // Frame 5  (backswing anchor   = drive.startFrame) has WRIST_60 → ~60°
+    // Frame 12 (followthrough anchor = drive.endFrame) has default WRIST_90 → ~90°
     // With single-frame radius (100ms interval, 70ms radius → radius=0) these must differ.
     const r = result[METRIC.ELBOW_ANGLE]
     const bsVal = r['backswing']
-    const ctVal = r['contact']
+    const ftVal = r['followthrough']
     expect(bsVal).not.toBeNull()
-    expect(ctVal).not.toBeNull()
+    expect(ftVal).not.toBeNull()
     // The two anchor frames have different wrist positions → different angles.
-    expect(bsVal).not.toBeCloseTo(ctVal as number, 1)
+    expect(bsVal).not.toBeCloseTo(ftVal as number, 1)
   })
 
   it('elbow_angle backswing reads from drive.startFrame (frame 5, WRIST_60), NOT backswing.startFrame (frame 0, WRIST_90)', () => {
@@ -214,10 +208,10 @@ describe('extractPerPhase — paired cycle', () => {
     expect(bsVal).toBeLessThan(angleAtFrame0)
   })
 
-  it('elbow_angle contact reads from drive.peakFrame (frame 8, WRIST_120)', () => {
-    // Frame 8 has WRIST_120 → larger angle than the backswing anchor (frame 5, WRIST_60).
+  it('elbow_angle followthrough reads from drive.endFrame (frame 12, WRIST_90)', () => {
+    // Frame 12 has WRIST_90 (~90°) → larger angle than the backswing anchor (frame 5, WRIST_60 ~60°).
     const r = result[METRIC.ELBOW_ANGLE]
-    expect(r['contact']).toBeGreaterThan(r['backswing'] as number)
+    expect(r['followthrough']).toBeGreaterThan(r['backswing'] as number)
   })
 })
 
@@ -242,19 +236,21 @@ describe('extractPerPhase — unpaired cycle', () => {
     expect('contact' in result[METRIC.KNEE_BEND]).toBe(true)
   })
 
-  it('shoulder_angle still has contact and followthrough keys', () => {
+  it('shoulder_angle still has followthrough key (backswing omitted — unpaired)', () => {
     const r = result[METRIC.SHOULDER_ANGLE]
-    expect('contact' in r).toBe(true)
+    expect('backswing' in r).toBe(false)
+    expect('contact' in r).toBe(false)
     expect('followthrough' in r).toBe(true)
   })
 
-  it('elbow_angle still has contact key with a valid value', () => {
+  it('elbow_angle still has followthrough key with a valid value (not contact)', () => {
     const r = result[METRIC.ELBOW_ANGLE]
-    expect('contact' in r).toBe(true)
-    // contact anchor = frame 5 (WRIST_120) → angle present and sane
-    expect(r['contact']).not.toBeNull()
-    expect(r['contact']).toBeGreaterThan(20)
-    expect(r['contact']).toBeLessThan(170)
+    expect('contact' in r).toBe(false)
+    expect('followthrough' in r).toBe(true)
+    // followthrough anchor = drive.endFrame = frame 9 (default WRIST_90) → angle present and sane
+    expect(r['followthrough']).not.toBeNull()
+    expect(r['followthrough']).toBeGreaterThan(20)
+    expect(r['followthrough']).toBeLessThan(170)
   })
 })
 
