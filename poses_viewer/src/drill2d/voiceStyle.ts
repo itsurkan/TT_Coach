@@ -6,11 +6,11 @@
  * phrase is a plain imperative — the voice layer never injects a degree number.
  */
 
-export type MetricKey = 'elbow_angle' | 'shoulder_angle' | 'knee_bend' | 'torso_lean' | 'shoulder_tilt'
+export type MetricKey = 'elbow_angle' | 'shoulder_angle' | 'knee_bend' | 'torso_lean' | 'shoulder_tilt' | 'hip_flexion'
 
-/** The 5 voiced in-plane metrics, in a fixed order (severity-tie stability). */
+/** The coachable metrics (drive both the table and the voice), fixed order for tie stability. */
 export const VOICE_METRIC_KEYS: MetricKey[] = [
-  'elbow_angle', 'shoulder_angle', 'knee_bend', 'torso_lean', 'shoulder_tilt',
+  'elbow_angle', 'shoulder_angle', 'knee_bend', 'torso_lean', 'shoulder_tilt', 'hip_flexion',
 ]
 
 export type Lang = 'en' | 'uk'
@@ -83,6 +83,7 @@ const PLAYFUL_EN: PhraseSet = {
     knee_bend: { up: 'sit into it, legs on', down: 'ease up, stand a little taller' },
     torso_lean: { up: 'stand a bit taller', down: 'lean into the ball' },
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
+    hip_flexion: { up: 'ease the hips up a touch', down: 'sink into the hips' },
   },
   praise: ["that's the shape!", 'yes — that follow-through', 'clean — do that again', 'nice, really solid', 'love it, keep going'],
 }
@@ -93,6 +94,7 @@ const PLAYFUL_UK: PhraseSet = {
     knee_bend: { up: 'присядь, працюй ногами', down: 'трохи випрямись' },
     torso_lean: { up: 'тримайся трохи рівніше', down: 'нахились до мʼяча' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
+    hip_flexion: { up: 'трохи вище стегнами', down: 'присядь у стегнах' },
   },
   praise: ['оце форма!', 'так — оце завершення', 'чисто — ще раз так', 'гарно, дуже впевнено', 'клас, продовжуй'],
 }
@@ -104,6 +106,7 @@ const STRICT_EN: PhraseSet = {
     knee_bend: { up: 'bend the knees', down: 'stand taller' },
     torso_lean: { up: 'stand taller', down: 'lean in' },
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
+    hip_flexion: { up: 'stand tall', down: 'hinge forward' },
   },
   praise: ["that's the shape", 'clean — repeat that', 'correct'],
 }
@@ -114,6 +117,7 @@ const STRICT_UK: PhraseSet = {
     knee_bend: { up: 'зігни коліна', down: 'стань вище' },
     torso_lean: { up: 'тримайся рівніше', down: 'нахились уперед' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
+    hip_flexion: { up: 'вище', down: 'нахились у стегнах' },
   },
   praise: ['оце форма', 'чисто — повтори', 'правильно'],
 }
@@ -125,6 +129,7 @@ const EFFICIENT_EN: PhraseSet = {
     knee_bend: { up: 'bend knees', down: 'stand taller' },
     torso_lean: { up: 'taller', down: 'lean in' },
     shoulder_tilt: { up: 'level shoulders', down: 'level shoulders' },
+    hip_flexion: { up: 'hips up', down: 'hinge' },
   },
   praise: ['clean', 'yes', 'good'],
 }
@@ -135,6 +140,7 @@ const EFFICIENT_UK: PhraseSet = {
     knee_bend: { up: 'зігни коліна', down: 'вище' },
     torso_lean: { up: 'вище', down: 'нахились' },
     shoulder_tilt: { up: 'рівніше плечі', down: 'рівніше плечі' },
+    hip_flexion: { up: 'вище', down: 'нахились' },
   },
   praise: ['чисто', 'так', 'добре'],
 }

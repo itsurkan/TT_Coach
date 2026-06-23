@@ -36,6 +36,20 @@ describe('PRESETS', () => {
   })
 })
 
+describe('hip_flexion is a coachable, voiced metric', () => {
+  it('is in VOICE_METRIC_KEYS', () => {
+    expect(VOICE_METRIC_KEYS).toContain('hip_flexion')
+  })
+  it('every preset has EN + UK hip_flexion phrases', () => {
+    for (const p of PRESETS) {
+      expect(p.phrases.en.cues.hip_flexion.up.length).toBeGreaterThan(0)
+      expect(p.phrases.en.cues.hip_flexion.down.length).toBeGreaterThan(0)
+      expect(p.phrases.uk.cues.hip_flexion.up.length).toBeGreaterThan(0)
+      expect(p.phrases.uk.cues.hip_flexion.down.length).toBeGreaterThan(0)
+    }
+  })
+})
+
 describe('voiceProfileOf', () => {
   it('projects the TTS subset of a style', () => {
     const strict = PRESETS.find(p => p.id === 'preset-strict')!
