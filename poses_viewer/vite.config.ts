@@ -18,7 +18,7 @@ const MIME: Record<string, string> = {
 
 export default defineConfig({
   test: {
-    environment: 'node',
+    environment: 'jsdom',
     globals: true,
     exclude: [
       '**/node_modules/**',
