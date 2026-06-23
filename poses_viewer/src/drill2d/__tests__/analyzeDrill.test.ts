@@ -221,9 +221,8 @@ describe('analyzeDrill — voice inputs (style-independent)', () => {
     })
     const withObs = report.voiceReps.filter(v => v.coachable && Object.keys(v.observations).length > 0)
     expect(withObs.length).toBeGreaterThan(0)
-    // never voices hip_flexion; every observation carries the ideal band
+    // every observation carries the ideal band (hip_flexion is now a voiced metric — Task 4 reworks this block to .cues)
     for (const v of report.voiceReps) {
-      expect(Object.keys(v.observations)).not.toContain('hip_flexion')
       for (const obs of Object.values(v.observations)) {
         expect(typeof obs!.lo).toBe('number')
         expect(typeof obs!.hi).toBe('number')
