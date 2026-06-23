@@ -3,7 +3,7 @@ import { useSpokenFeedback } from './useSpokenFeedback'
 import { buildSpokenSchedule } from '../drill2d/buildSpokenSchedule'
 import { loadUserStyles, getActiveStyle, saveUserStyles } from '../drill2d/voiceStyleStore'
 import { voiceProfileOf, type MetricKey } from '../drill2d/voiceStyle'
-import { DEFAULT_FEEDBACK_SETTINGS } from '../drill2d/feedbackSettings'
+import { type FeedbackSettings, loadFeedbackSettings, saveFeedbackSettings } from '../drill2d/feedbackSettings'
 import { loadManifest, type ClipManifest } from '../drill2d/voiceClips'
 import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
@@ -17,6 +17,7 @@ import { ALL_KEYS } from '../drill2d/drillMetrics'
 import { DrillResultsTable } from './DrillResultsTable'
 import { loopBackTarget } from './strokeLoop'
 import { VoiceStyleEditor } from './VoiceStyleEditor'
+import { Slider, Toggle, secFmt } from './controls'
 
 interface VideoItem { name: string; ext: string }
 
@@ -46,16 +47,13 @@ export default function StrokesPage() {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [loop, setLoop] = useState(false)
   const [drillType, setDrillType] = useState('forehand_drive')
-  const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(new Set(ALL_KEYS))
+  const [feedbackSettings, setFeedbackSettings] = useState<FeedbackSettings>(loadFeedbackSettings)
   const [muted, setMuted] = useState(false)
   const [styleState, setStyleState] = useState(() => loadUserStyles())
   const [manifest, setManifest] = useState<ClipManifest | null>(null)
   const activeStyle = useMemo(() => getActiveStyle(styleState), [styleState])
-  // Task 5 will replace this with real settings state; for now derive from the existing enabledMetrics toggle.
-  const feedbackSettings = useMemo(
-    () => ({ ...DEFAULT_FEEDBACK_SETTINGS, enabledMetrics: [...enabledMetrics] as MetricKey[] }),
-    [enabledMetrics],
-  )
+  useEffect(() => { saveFeedbackSettings(feedbackSettings) }, [feedbackSettings])
+  function patchSettings(p: Partial<FeedbackSettings>) { setFeedbackSettings(s => ({ ...s, ...p })) }
   const videoRef = useRef<HTMLVideoElement>(null)
   // EXP-7: gate the calibration save until the load for the current base has applied,
   // so switching videos doesn't write the old yaw to the new video's key.
@@ -173,7 +171,7 @@ export default function StrokesPage() {
       video: base,
       drillType,
       detector: { handedness, cameraYawDeg: yawDeg, minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs, hipTravelMaxTorso },
-      enabledMetrics: [...enabledMetrics],
+      enabledMetrics: [...feedbackSettings.enabledMetrics],
       muted,
       referenceStandard: REFERENCE_STANDARDS[drillType],
       voiceStyle: activeStyle,
@@ -252,7 +250,7 @@ export default function StrokesPage() {
   }, [seq, result])
 
   // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, enabledMetrics, hipTravelMaxTorso])
+  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, feedbackSettings, hipTravelMaxTorso])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -459,7 +457,7 @@ export default function StrokesPage() {
           <DrillResultsTable
             reps={report.reps}
             standard={REFERENCE_STANDARDS[drillType]}
-            enabledMetrics={enabledMetrics}
+            enabledMetrics={new Set(feedbackSettings.enabledMetrics)}
             unreliableMetrics={report.unreliableMetrics}
             selectedIndex={selectedIdx}
             onSelect={i => {
@@ -571,11 +569,11 @@ export default function StrokesPage() {
               <label key={k} className="flex items-center gap-1">
                 <input
                   type="checkbox"
-                  checked={enabledMetrics.has(k)}
-                  onChange={e => setEnabledMetrics(prev => {
-                    const next = new Set(prev)
-                    if (e.target.checked) next.add(k); else next.delete(k)
-                    return next
+                  checked={feedbackSettings.enabledMetrics.includes(k as MetricKey)}
+                  onChange={e => patchSettings({
+                    enabledMetrics: e.target.checked
+                      ? [...feedbackSettings.enabledMetrics, k as MetricKey]
+                      : feedbackSettings.enabledMetrics.filter(m => m !== k),
                   })}
                 />
                 {k}
@@ -583,6 +581,26 @@ export default function StrokesPage() {
             ))}
           </div>
         </div>
+        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Зони</div>
+        <Slider label="Ширина зони ×" min={0.5} max={2} step={0.05} value={feedbackSettings.bandWidthMult} onChange={v => patchSettings({ bandWidthMult: v })} hint="Множник допустимої зони навколо ідеалу. >1 поблажливіше, <1 суворіше." />
+        <Slider label="Поріг значущості (°)" min={0} max={20} step={1} value={feedbackSettings.minMeaningfulDeltaDeg} onChange={v => patchSettings({ minMeaningfulDeltaDeg: v })} hint="Мінімальне відхилення в градусах, яке варто озвучувати." />
+        <Slider label="Інтервал нагадування" min={0} max={20000} step={500} value={feedbackSettings.reminderIntervalMs} onChange={v => patchSettings({ reminderIntervalMs: v })} hint="Як часто повторювати підказку про ту саму проблему." />
+        <Toggle label="Чергувати підказки" value={feedbackSettings.varyCues} onChange={v => patchSettings({ varyCues: v })} hint="Чергувати метрику підказки, коли їх кілька." />
+
+        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Каденс (с)</div>
+        <Slider label="Пауза між підказками" min={0} max={10} step={0.1} value={feedbackSettings.correctiveMinGapMs / 1000} onChange={v => patchSettings({ correctiveMinGapMs: Math.round(v * 1000) })} fmt={secFmt} hint="Мінімальний час між виправними підказками." />
+        <Slider label="Тиша перед похвалою" min={0} max={15} step={0.1} value={feedbackSettings.praiseMinSilenceMs / 1000} onChange={v => patchSettings({ praiseMinSilenceMs: Math.round(v * 1000) })} fmt={secFmt} hint="Скільки тиші перед похвалою." />
+        <Slider label="Пауза після удару" min={0} max={1.5} step={0.05} value={feedbackSettings.postStrokeGapMs / 1000} onChange={v => patchSettings({ postStrokeGapMs: Math.round(v * 1000) })} fmt={secFmt} hint="Затримка після удару перед озвученням." />
+
+        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Похвала</div>
+        <Toggle label="Увімкнено" value={feedbackSettings.praiseEnabled} onChange={v => patchSettings({ praiseEnabled: v })} />
+        <Toggle label="За виправлення" value={feedbackSettings.praiseOnCorrection} onChange={v => patchSettings({ praiseOnCorrection: v })} />
+        <Toggle label="За серію" value={feedbackSettings.praiseOnStreak} onChange={v => patchSettings({ praiseOnStreak: v })} />
+        <Slider label="Довжина серії" min={1} max={10} step={1} value={feedbackSettings.praiseStreakLen} onChange={v => patchSettings({ praiseStreakLen: v })} />
+
+        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Пропуск застарілих</div>
+        <Toggle label="Увімкнено" value={feedbackSettings.skipStaleEnabled} onChange={v => patchSettings({ skipStaleEnabled: v })} hint="Не озвучувати, якщо вже починається наступний удар." />
+        <Slider label="Запас перед ударом (мс)" min={0} max={1000} step={50} value={feedbackSettings.skipStaleMarginMs} onChange={v => patchSettings({ skipStaleMarginMs: v })} />
       </fieldset>
       <VoiceStyleEditor
         state={styleState}

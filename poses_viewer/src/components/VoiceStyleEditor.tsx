@@ -3,6 +3,9 @@
  * builtin style auto-clones it into a new user style first. Live preview is free —
  * the active style feeds the buildSpokenSchedule memo in StrokesPage, so a slider
  * change re-runs only the pure scheduler. "Test voice" plays a sample (clip-or-live).
+ *
+ * Cadence / Bands / Praise / Skip-stale controls moved to the Налаштування panel
+ * (StrokesPage) in Task 5 — this editor now covers reproduction only (Voice + Phrases).
  */
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import {
@@ -14,6 +17,7 @@ import {
 } from '../drill2d/voiceStyleStore'
 import { clipKey, lookupClip, type ClipManifest } from '../drill2d/voiceClips'
 import { speakNow } from './useSpokenFeedback'
+import { Slider } from './controls'
 
 export interface VoiceStyleEditorProps {
   state: StoredStyles
@@ -92,35 +96,6 @@ export function VoiceStyleEditor({ state, onChange, manifest }: VoiceStyleEditor
       </div>
       {active.builtin && <p className="text-amber-400 text-xs">Вбудований пресет незмінний — редагування створить копію.</p>}
 
-      {/* Cadence */}
-      <Section title="Каденс (мс)">
-        <Slider label="Пауза між підказками" min={0} max={10000} step={250} value={active.correctiveMinGapMs} onChange={v => edit(s => ({ ...s, correctiveMinGapMs: v }))} />
-        <Slider label="Тиша перед похвалою" min={0} max={15000} step={250} value={active.praiseMinSilenceMs} onChange={v => edit(s => ({ ...s, praiseMinSilenceMs: v }))} />
-        <Slider label="Пауза після удару" min={0} max={1500} step={50} value={active.postStrokeGapMs} onChange={v => edit(s => ({ ...s, postStrokeGapMs: v }))} />
-      </Section>
-
-      {/* Bands */}
-      <Section title="Зони">
-        <Slider label="Ширина зони ×" min={0.5} max={2} step={0.05} value={active.bandWidthMult} onChange={v => edit(s => ({ ...s, bandWidthMult: v }))} />
-        <Slider label="Поріг значущості (°)" min={0} max={20} step={1} value={active.minMeaningfulDeltaDeg} onChange={v => edit(s => ({ ...s, minMeaningfulDeltaDeg: v }))} />
-        <Slider label="Інтервал нагадування" min={0} max={20000} step={500} value={active.reminderIntervalMs} onChange={v => edit(s => ({ ...s, reminderIntervalMs: v }))} />
-        <Toggle label="Чергувати підказки" value={active.varyCues} onChange={v => edit(s => ({ ...s, varyCues: v }))} />
-      </Section>
-
-      {/* Praise */}
-      <Section title="Похвала">
-        <Toggle label="Увімкнено" value={active.praiseEnabled} onChange={v => edit(s => ({ ...s, praiseEnabled: v }))} />
-        <Toggle label="За виправлення" value={active.praiseOnCorrection} onChange={v => edit(s => ({ ...s, praiseOnCorrection: v }))} />
-        <Toggle label="За серію" value={active.praiseOnStreak} onChange={v => edit(s => ({ ...s, praiseOnStreak: v }))} />
-        <Slider label="Довжина серії" min={1} max={10} step={1} value={active.praiseStreakLen} onChange={v => edit(s => ({ ...s, praiseStreakLen: v }))} />
-      </Section>
-
-      {/* Skip-stale */}
-      <Section title="Пропуск застарілих">
-        <Toggle label="Увімкнено" value={active.skipStaleEnabled} onChange={v => edit(s => ({ ...s, skipStaleEnabled: v }))} />
-        <Slider label="Запас перед ударом (мс)" min={0} max={1000} step={50} value={active.skipStaleMarginMs} onChange={v => edit(s => ({ ...s, skipStaleMarginMs: v }))} />
-      </Section>
-
       {/* Voice */}
       <Section title="Голос">
         <div className="flex items-center gap-2">
@@ -131,9 +106,12 @@ export function VoiceStyleEditor({ state, onChange, manifest }: VoiceStyleEditor
           ))}
         </div>
         <VoicePicker style={active} onPick={uri => edit(s => ({ ...s, voiceURI: uri }))} />
-        <Slider label="Темп" min={0.5} max={2} step={0.05} value={active.rate} onChange={v => edit(s => ({ ...s, rate: v }))} />
-        <Slider label="Тон" min={0} max={2} step={0.05} value={active.pitch} onChange={v => edit(s => ({ ...s, pitch: v }))} />
-        <Slider label="Гучність" min={0} max={1} step={0.05} value={active.volume} onChange={v => edit(s => ({ ...s, volume: v }))} />
+        <Slider label="Темп" min={0.5} max={2} step={0.05} value={active.rate} onChange={v => edit(s => ({ ...s, rate: v }))}
+          hint="Швидкість мовлення. 1 — звичайна, більше — швидше." />
+        <Slider label="Тон" min={0} max={2} step={0.05} value={active.pitch} onChange={v => edit(s => ({ ...s, pitch: v }))}
+          hint="Висота голосу. 1 — звичайна, більше — вищий тон." />
+        <Slider label="Гучність" min={0} max={1} step={0.05} value={active.volume} onChange={v => edit(s => ({ ...s, volume: v }))}
+          hint="Гучність озвучення: 0 — тихо, 1 — максимально." />
       </Section>
 
       {/* Phrases */}
@@ -156,26 +134,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
       <div className="text-neutral-400 mb-1">{title}</div>
       <div className="space-y-1">{children}</div>
     </div>
-  )
-}
-
-function Slider(props: { label: string; min: number; max: number; step: number; value: number; onChange: (v: number) => void }) {
-  return (
-    <label className="flex items-center gap-2">
-      <span className="w-48">{props.label}</span>
-      <input type="range" min={props.min} max={props.max} step={props.step} value={props.value}
-        onChange={e => props.onChange(Number(e.target.value))} className="flex-1" />
-      <span className="w-16 text-right tabular-nums">{props.value}</span>
-    </label>
-  )
-}
-
-function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <label className="flex items-center gap-2">
-      <input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)} />
-      <span>{label}</span>
-    </label>
   )
 }
 
