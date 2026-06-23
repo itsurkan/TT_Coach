@@ -70,11 +70,16 @@ export function decideRepCues(
 }
 
 /**
- * Grade the PATTERN metrics (currently elbow) at each stroke phase against their
- * per-phase ideal bands. Same widening / minMeaningfulDeltaDeg / severity math as
- * decideRepCues, but the ideal comes from perPhaseRange(metric, phase) and each cue
- * carries its `phase`. Phases with no per-phase range (e.g. elbow at contact) or a
- * null/undefined value are skipped. Returns severity-desc (analyzeDrill re-sorts).
+ * Grade all five PATTERN metrics (elbow_angle, shoulder_angle, knee_bend, hip_flexion,
+ * torso_lean) at each stroke phase against their per-phase ideal bands. Same widening /
+ * minMeaningfulDeltaDeg / severity math as decideRepCues, but the ideal comes from
+ * perPhaseRange(metric, phase) and each cue carries its `phase`.
+ *
+ * Movement-bracketing rule applied here:
+ *   - Arm metrics (elbow, shoulder): phases backswing + followthrough only.
+ *   - Legs/trunk metrics (knee, hip, torso): phases backswing + contact only.
+ * Phases with no per-phase range (e.g. elbow at contact) or a null/undefined value
+ * are skipped. Returns severity-desc (analyzeDrill re-sorts).
  */
 export function decidePatternCues(
   perPhase: Record<string, Partial<Record<Phase, number | null>>>,

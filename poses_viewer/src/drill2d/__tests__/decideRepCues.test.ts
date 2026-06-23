@@ -218,6 +218,15 @@ describe('decidePatternCues (hip_flexion per-phase)', () => {
     expect(decidePatternCues({ hip_flexion: { followthrough: 100 } }, raw)).toEqual([])
   })
 
+  it('flags too-high at contact (hip too extended)', () => {
+    // contact band 120–165; value 175 > 165 → delta = 175 - 165 = 10; |delta|=10 ≥ 5
+    const cues = decidePatternCues({ hip_flexion: { contact: 175 } }, raw)
+    expect(cues).toHaveLength(1)
+    expect(cues[0].metricKey).toBe('hip_flexion')
+    expect(cues[0].direction).toBe('too_high')
+    expect(cues[0].phase).toBe('contact')
+  })
+
   it('honours enabledMetrics for a new pattern metric', () => {
     const only = { ...raw, enabledMetrics: ['elbow_angle'] as MetricKey[] }
     // hip_flexion far out of band but excluded → no cue
@@ -250,7 +259,14 @@ describe('decidePatternCues (torso_lean per-phase)', () => {
     expect(decidePatternCues({ torso_lean: { followthrough: 0 } }, raw)).toEqual([])
   })
 
-  it('skips a null phase value for torso_lean', () => {
-    expect(decidePatternCues({ torso_lean: { backswing: null, contact: 20 } }, raw)).toEqual([])
+  it('skips a null backswing but still grades a valid contact (null-skip is unambiguous)', () => {
+    // contact band 15–40; value 8 < 15 → delta = 8 - 15 = -7; |delta|=7 ≥ 5 → would produce a cue if graded.
+    // backswing is null → must be skipped. Result must be exactly ONE contact cue (not zero),
+    // proving the null skip did NOT suppress the valid contact value alongside it.
+    const cues = decidePatternCues({ torso_lean: { backswing: null, contact: 8 } }, raw)
+    expect(cues).toHaveLength(1)
+    expect(cues[0].metricKey).toBe('torso_lean')
+    expect(cues[0].direction).toBe('too_low')
+    expect(cues[0].phase).toBe('contact')
   })
 })
