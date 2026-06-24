@@ -37,3 +37,9 @@ tmp/*
 
 # iOS RTMPose ONNX models (fetched via iosApp/TTCoach/Models/fetch_models.sh)
 iosApp/TTCoach/Models/*.onnx
+
+# Claude memory: local-only (machine/account-specific, never push)
+.claude/memory/project_git_push_auth.md
+# Claude local settings & runtime locks
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

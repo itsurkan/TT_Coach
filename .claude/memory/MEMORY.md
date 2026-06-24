@@ -1,0 +1,13 @@
+- [User profile](user_profile.md) — Ivan, solo dev on TT_Coach (personal product); Kotlin/KMP/Android; Ukrainian native; macOS with Temurin 25 (pinned to JDK 21 for build)
+- [Collaboration preferences](feedback_collaboration.md) — honest estimates over cheerleading; AskUserQuestion for multi-decision alignment; Ukrainian for strategic talk, English for code/docs
+- [Product positioning](product_positioning.md) — don't re-teach; calibrate to player's existing technique, check against personal baseline
+- [Staged roadmap](staged_roadmap.md) — PIVOT 2026-06-10 (branch `2d`): 2D fixed-drill MVP on RTMPose, desktop-first, baseline-derived reference angles; ball/audio/video analysis frozen
+- [Commit cadence](feedback_commit_cadence.md) — commit after each logical change, don't batch end-of-task
+- [Screenshot save location](feedback_screenshots.md) — save adb screencaps to `tmp/screenshots/` in project root, not `/tmp/`, so they're visible in VSCode
+- [Stay in scope](feedback_scope_discipline.md) — fix exactly what was asked; don't expand to adjacent problems (e.g., fix legs → don't also touch torso) without confirmation
+- [Prefer subagents](feedback_subagents.md) — delegate exploration/research/planning to Agent subagents whenever it avoids loading large output into main context
+- [Plan execution = subagents](feedback_plan_execution_subagents.md) — always run plans via subagent-driven-development; never ask which approach (overrides the skill's "offer execution choice" step)
+- [Viewer fast iteration](feedback_viewer_fast_iteration.md) — for poses_viewer-visible fixes the user wants direct TS iteration, not the full Kotlin-first subagent plan; back-port to Kotlin separately
+- [iOS app planned](project_ios_future.md) — iPhone app is a firm future target; default new logic to `shared/commonMain`, keep Android APIs quarantined in `app/`
+- [Git push auth](project_git_push_auth.md) — gh account switch required before push (details in local-only file, gitignored)
+- Future-work ideas live in `docs/DESIGN_LIMITATIONS.md` (L-numbered register), NOT in memory — e.g. L-33 arm elbow-flyout depth metric
