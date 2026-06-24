@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Support — TT Coach AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+window.TWEAKS = /*EDITMODE-BEGIN*/{
+  "palette": "amber",
+  "heroVariant": "minimal",
+  "theme": "light",
+  "density": "comfortable"
+}/*EDITMODE-END*/;
+window.__PAGE = 'support';
+</script>
+<style>
+  :root {
+    --bg: #FAF7F2;
+    --bg-2: #F2EEE6;
+    --ink: #1A1A1F;
+    --ink-2: #3A3A42;
+    --ink-3: #6B6B75;
+    --line: #E6E1D6;
+    --navy: #1E4DA8;
+    --navy-2: #163E8A;
+    --sage: #9FE0C4;
+    --sage-2: #2F9D7A;
+    --sage-bg: #E8F5EE;
+    --amber: #F5B547;
+    --amber-bg: #FBE8C4;
+    --canvas: #1A1A1F;
+    --canvas-2: #25252C;
+    --sage-ink: #0E5F48;
+    --accent: var(--navy);
+  }
+  [data-palette="amber"] { --accent: #D9892C; --navy: #D9892C; --navy-2: #B36C16; }
+  [data-palette="sage"] { --accent: #1F8A63; --navy: #1F8A63; --navy-2: #14664A; }
+  [data-theme="dark"] {
+    --bg: #0E0E12;
+    --bg-2: #16161B;
+    --ink: #F2EEE6;
+    --ink-2: #C9C7BF;
+    --ink-3: #8A8A92;
+    --line: #2A2A32;
+    --canvas: #06060A;
+    --canvas-2: #14141A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { display: block; max-width: 100%; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  ::selection { background: var(--amber); color: var(--ink); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="src/primitives.jsx"></script>
+<script type="text/babel" src="src/i18n.jsx"></script>
+<script type="text/babel" src="src/nav.jsx"></script>
+<script type="text/babel" src="src/cta.jsx"></script>
+<script type="text/babel" src="src/pagesContent.jsx"></script>
+<script type="text/babel" src="src/pages.jsx"></script>
+
+</body>
+</html>

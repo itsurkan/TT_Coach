@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TT Coach AI — Logo Concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAF7F2;
+    --bg-2: #F2EEE6;
+    --ink: #1A1A1F;
+    --ink-2: #3A3A42;
+    --ink-3: #6B6B75;
+    --line: #E6E1D6;
+    --amber: #F5B547;
+    --amber-2: #D9892C;
+    --sage: #2F9D7A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 64px 32px 96px; }
+  header { margin-bottom: 56px; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-3); margin-bottom: 14px;
+  }
+  h1 { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 12px; }
+  .sub { font-size: 17px; color: var(--ink-2); max-width: 560px; }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+  .card {
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .card-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .pane {
+    padding: 44px 40px;
+    display: flex; align-items: center; gap: 36px;
+    min-height: 200px;
+  }
+  .pane.light { background: var(--bg); }
+  .pane.dark { background: #0E0E12; }
+
+  .appicon {
+    width: 84px; height: 84px; border-radius: 21px;
+    display: grid; place-items: center; flex-shrink: 0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  }
+  .lockup { display: flex; align-items: center; gap: 12px; }
+  .lockup .mark {
+    width: 40px; height: 40px; border-radius: 11px;
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .wordmark { font-weight: 700; font-size: 20px; letter-spacing: -0.015em; }
+  .dark .wordmark { color: #F2EEE6; }
+  .fav { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+  .fav .mini { width: 22px; height: 22px; border-radius: 6px; display:grid; place-items:center; flex-shrink:0; }
+  .fav .cap { font-size: 11px; color: var(--ink-3); }
+  .dark .fav .cap { color: #8A8A92; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  .card-meta { padding: 24px 32px 26px; border-top: 1px solid var(--line); display: flex; gap: 20px; align-items: baseline; }
+  .num { font-family:'JetBrains Mono',monospace; font-size: 13px; color: var(--amber-2); font-weight: 500; flex-shrink: 0; }
+  .meta-body h3 { font-size: 18px; font-weight: 700; margin-bottom: 5px; letter-spacing: -0.01em; }
+  .meta-body p { font-size: 14.5px; color: var(--ink-2); max-width: 760px; }
+
+  .current-note {
+    display:flex; gap: 18px; align-items:center;
+    border: 1px dashed var(--line); border-radius: 16px;
+    padding: 20px 24px; margin-bottom: 40px; background: var(--bg-2);
+  }
+  .current-note .old { width: 48px; height: 48px; border-radius: 13px; background: var(--ink); display:grid; place-items:center; flex-shrink:0; }
+  .current-note .t { font-size: 14px; color: var(--ink-2); }
+  .current-note .t b { color: var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">TT Coach AI · Brand</div>
+    <h1>Five logo directions</h1>
+    <p class="sub">The current mark reads like a magnifying glass. Each concept below is shown as an app icon, a nav lockup, and a favicon — on light and dark.</p>
+  </header>
+
+  <div class="current-note">
+    <div class="old">
+      <svg width="28" height="28" viewBox="0 0 20 20" fill="none">
+        <circle cx="8" cy="10" r="5.2" stroke="#FAF7F2" stroke-width="1.6" />
+        <path d="M11.2 13.2l2.8 2.8" stroke="#FAF7F2" stroke-width="1.6" stroke-linecap="round" />
+        <circle cx="14.6" cy="6.4" r="1.6" fill="#F5B547" />
+      </svg>
+    </div>
+    <div class="t"><b>Current logo.</b> The stroked circle + handle reads as a search/magnifier icon — the table-tennis idea doesn't land.</div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+const C = {
+  ink: '#1A1A1F', bg: '#FAF7F2', amber: '#F5B547', amber2: '#D9892C',
+  darkBg: '#0E0E12', darkInk: '#F2EEE6'
+};
+
+// Each concept returns SVG markup string given (size, fg, ball, mode)
+// fg = primary stroke/fill color, ball = accent color
+const concepts = [
+  {
+    name: 'Paddle & Ball',
+    blurb: 'A solid paddle silhouette with the ball lifted off the blade. The most literal, instantly-readable table-tennis mark — friendly, confident, scales down cleanly to a favicon.',
+    svg: (s, fg, ball) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">
+      <rect x="19.6" y="24" width="7.2" height="19" rx="3.6" fill="${fg}" transform="rotate(-32 23.2 33.5)"/>
+      <circle cx="20" cy="19" r="12.2" fill="${fg}"/>
+      <circle cx="34.5" cy="12.5" r="4.6" fill="${ball}"/>
+    </svg>`
+  },
+  {
+    name: 'Trajectory',
+    blurb: 'The ball traced along a spin arc — the signature of AI motion analysis. The dotted path says "tracking" and "coaching feedback" without a single literal paddle. Distinctive and ownable.',
+    svg: (s, fg, ball) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">
+      <path d="M8 36C12 16 26 10 40 14" stroke="${fg}" stroke-width="3" stroke-linecap="round" stroke-dasharray="0.2 7.2"/>
+      <path d="M8 36C12 16 26 10 40 14" stroke="${fg}" stroke-width="3" stroke-linecap="round" opacity="0"/>
+      <circle cx="9" cy="35.5" r="3" fill="${fg}" opacity="0.35"/>
+      <circle cx="40" cy="14" r="6.5" fill="${ball}"/>
+    </svg>`
+  },
+  {
+    name: 'Net Bounce',
+    blurb: 'A side-on table: the net line and a ball mid-bounce. Reads as the game itself — rally, rhythm, play. Calm and architectural, pairs well with the wordmark.',
+    svg: (s, fg, ball) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">
+      <path d="M10 30C14 18 22 18 24 28 26 38 34 38 38 26" stroke="${fg}" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <rect x="22.6" y="8" width="2.8" height="20" rx="1.4" fill="${fg}"/>
+      <rect x="14" y="26.5" width="20" height="2.8" rx="1.4" fill="${fg}"/>
+      <circle cx="38" cy="14" r="5.5" fill="${ball}"/>
+    </svg>`
+  },
+  {
+    name: 'Focus Reticle',
+    blurb: 'The ball locked inside a camera focus bracket — the AI is watching, measuring, and locking on. Speaks directly to computer-vision coaching. Techy and precise.',
+    svg: (s, fg, ball) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">
+      <g stroke="${fg}" stroke-width="3" stroke-linecap="round">
+        <path d="M11 17v-4a2 2 0 0 1 2-2h4"/>
+        <path d="M37 17v-4a2 2 0 0 0-2-2h-4"/>
+        <path d="M11 31v4a2 2 0 0 0 2 2h4"/>
+        <path d="M37 31v4a2 2 0 0 1-2 2h-4"/>
+      </g>
+      <circle cx="24" cy="24" r="7" fill="${ball}"/>
+    </svg>`
+  },
+  {
+    name: 'TT Monogram',
+    blurb: 'Two stacked "T" strokes forming a compact monogram, with the ball as the accent dot. The most flexible for tight spaces and merch — works as a pure letterform when color drops out.',
+    svg: (s, fg, ball) => `<svg width="${s}" height="${s}" viewBox="0 0 48 48" fill="none">
+      <g stroke="${fg}" stroke-width="3.4" stroke-linecap="round">
+        <path d="M11 15h13"/>
+        <path d="M17.5 15v20"/>
+        <path d="M26 23h11"/>
+        <path d="M31.5 23v12"/>
+      </g>
+      <circle cx="34" cy="14" r="4.2" fill="${ball}"/>
+    </svg>`
+  },
+];
+
+const grid = document.getElementById('grid');
+concepts.forEach((c, i) => {
+  const num = String(i + 1).padStart(2, '0');
+  const pane = (mode) => {
+    const isDark = mode === 'dark';
+    const fg = isDark ? C.darkInk : C.ink;
+    const iconBg = isDark ? '#16161B' : C.ink;
+    const iconFg = isDark ? C.darkInk : C.bg;
+    return `
+    <div class="pane ${mode}">
+      <div class="appicon" style="background:${iconBg}">${c.svg(52, iconFg, C.amber)}</div>
+      <div class="stack">
+        <div class="lockup">
+          <div class="mark" style="background:${isDark ? '#16161B' : C.ink}">${c.svg(26, iconFg, C.amber)}</div>
+          <span class="wordmark">TT Coach AI</span>
+        </div>
+        <div class="fav">
+          <div class="mini" style="background:${isDark ? '#16161B' : C.ink}">${c.svg(15, iconFg, C.amber)}</div>
+          <span class="cap">favicon · 16px</span>
+        </div>
+      </div>
+    </div>`;
+  };
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="card-top">${pane('light')}${pane('dark')}</div>
+    <div class="card-meta">
+      <span class="num">${num}</span>
+      <div class="meta-body">
+        <h3>${c.name}</h3>
+        <p>${c.blurb}</p>
+      </div>
+    </div>`;
+  grid.appendChild(card);
+});
+</script>
+</body>
+</html>

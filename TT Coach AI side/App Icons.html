@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TT Coach AI — App Icons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#FAF7F2; --bg2:#F2EEE6; --ink:#1A1A1F; --ink2:#3A3A42; --ink3:#6B6B75; --line:#E6E1D6; --amber:#F5B547; --amber2:#D9892C; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1080px;margin:0 auto;padding:64px 32px 96px}
+  .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
+  h1{font-size:38px;font-weight:800;letter-spacing:-.02em;margin-bottom:12px}
+  .sub{font-size:17px;color:var(--ink2);max-width:600px}
+  .bar{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;text-decoration:none;padding:11px 18px;border-radius:11px;border:1px solid var(--line)}
+  .btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .btn.ghost{background:#fff;color:var(--ink)}
+
+  section{margin-top:56px}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .sec-head h2{font-size:22px;font-weight:800;letter-spacing:-.01em}
+  .sec-head .note{font-size:13.5px;color:var(--ink3)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:18px}
+  .tile{border:1px solid var(--line);border-radius:16px;background:#fff;padding:20px 16px 14px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+  .swatch{display:grid;place-items:center;height:128px;width:100%}
+  .swatch img{display:block;image-rendering:auto;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+  .tile .px{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500}
+  .tile .use{font-size:11.5px;color:var(--ink3);min-height:28px}
+  .tile a.dl{font-size:12px;font-weight:600;text-decoration:none;color:var(--amber2);border:1px solid var(--line);border-radius:8px;padding:6px 12px;width:100%}
+  .tile a.dl:hover{background:var(--bg2)}
+  .checker{background:
+    linear-gradient(45deg,#eee 25%,transparent 25%),
+    linear-gradient(-45deg,#eee 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#eee 75%),
+    linear-gradient(-45deg,transparent 75%,#eee 75%);
+    background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;border-radius:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="eyebrow">TT Coach AI · App Icons</div>
+  <h1>Mobile app icons</h1>
+  <p class="sub">The TT Monogram exported as ready-to-ship PNGs for iOS and Android, plus adaptive-icon layers and a maskable image. Click any tile to download, or grab the whole set.</p>
+  <div class="bar">
+    <a class="btn primary" id="zipBtn" href="#">↓ Download all icons (.zip)</a>
+    <a class="btn ghost" href="app-icons/ios/icon-1024.png" download>↓ 1024 master (iOS)</a>
+    <a class="btn ghost" href="app-icons/android/maskable-512.png" download>↓ 512 maskable (Android)</a>
+  </div>
+
+  <div id="sections"></div>
+</div>
+
+<script>
+const data = [
+  {
+    title: 'iOS', note: 'AppIcon set — drag into Assets.xcassets',
+    base: 'app-icons/ios/icon-',
+    items: [
+      [1024,'App Store'],[180,'iPhone @3x'],[167,'iPad Pro'],[152,'iPad @2x'],
+      [120,'iPhone @2x'],[87,'Settings @3x'],[80,'Spotlight @2x'],[76,'iPad @1x'],
+      [60,'Notification @3x'],[58,'Settings @2x'],[40,'Spotlight'],[29,'Settings'],[20,'Notification'],
+    ],
+  },
+  {
+    title: 'Android', note: 'mipmap densities + adaptive layers',
+    base: 'app-icons/android/icon-',
+    items: [
+      [512,'Play Store'],[192,'xxxhdpi'],[144,'xxhdpi'],[96,'xhdpi'],[72,'hdpi'],[48,'mdpi'],
+    ],
+    extra: [
+      ['app-icons/android/maskable-512.png', '512 · maskable', 'PWA / adaptive safe-zone'],
+      ['app-icons/android/adaptive-foreground-432.png', '432 · fg layer', 'Adaptive foreground (transparent)'],
+      ['app-icons/android/adaptive-background-432.png', '432 · bg layer', 'Adaptive background (solid)'],
+    ],
+  },
+];
+
+const cap = (n) => Math.min(112, n);
+const sections = document.getElementById('sections');
+data.forEach(group => {
+  const sec = document.createElement('section');
+  let tiles = group.items.map(([s,use]) => {
+    const path = `${group.base}${s}.png`;
+    const d = cap(s);
+    return `<div class="tile">
+      <div class="swatch"><img src="${path}" width="${d}" height="${d}" alt="${s}px"/></div>
+      <div class="px">${s}×${s}</div>
+      <div class="use">${use}</div>
+      <a class="dl" href="${path}" download>Download PNG</a>
+    </div>`;
+  }).join('');
+  if (group.extra) {
+    tiles += group.extra.map(([path,label,use]) => {
+      return `<div class="tile">
+        <div class="swatch checker"><img src="${path}" width="112" height="112" alt="${label}"/></div>
+        <div class="px">${label}</div>
+        <div class="use">${use}</div>
+        <a class="dl" href="${path}" download>Download PNG</a>
+      </div>`;
+    }).join('');
+  }
+  sec.innerHTML = `
+    <div class="sec-head"><h2>${group.title}</h2><span class="note">${group.note}</span></div>
+    <div class="grid">${tiles}</div>`;
+  sections.appendChild(sec);
+});
+
+// Build a zip in-browser for the "download all" button (lazy-load JSZip)
+document.getElementById('zipBtn').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.currentTarget;
+  const orig = btn.textContent;
+  btn.textContent = 'Packaging…';
+  try {
+    if (!window.JSZip) {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+    }
+    const zip = new JSZip();
+    const all = [];
+    data.forEach(g => {
+      g.items.forEach(([s]) => all.push(`${g.base}${s}.png`));
+      (g.extra||[]).forEach(([p]) => all.push(p));
+    });
+    await Promise.all(all.map(async p => {
+      const blob = await (await fetch(p)).blob();
+      zip.file(p, blob);
+    }));
+    const out = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(out);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'tt-coach-ai-icons.zip';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+    btn.textContent = '✓ Downloaded';
+    setTimeout(() => btn.textContent = orig, 2000);
+  } catch (err) {
+    btn.textContent = 'Zip failed — download tiles individually';
+    setTimeout(() => btn.textContent = orig, 3000);
+  }
+});
+</script>
+</body>
+</html>
