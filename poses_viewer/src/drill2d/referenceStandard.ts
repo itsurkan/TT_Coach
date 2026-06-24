@@ -156,14 +156,14 @@ export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, R
   // ---- LEGS/TRUNK metrics: backswing + contact; followthrough excluded ----
   knee_bend: {
     backswing: {
-      lo: 105, hi: 130,
+      lo: 110, hi: 130,
       evidence: 'measured',
-      source: 'Bańkosz & Winiarski JSSM 2020, knee flex ~63° at backswing → interior ~117°; flexion→interior converted; PROVISIONAL band, re-tune on protocol footage',
+      source: 'Bańkosz & Winiarski JSSM 2020, knee flex ~63° at backswing → interior ~117°; loaded deep bend is the ideal, straightening above hi flags «stay down»; PROVISIONAL, re-tune on protocol footage',
     },
     contact: {
-      lo: 100, hi: 128,
+      lo: 110, hi: 130,
       evidence: 'measured',
-      source: 'Bańkosz 2020, knee flex ~66° at contact (deepest) → interior ~114°; PROVISIONAL',
+      source: 'Bańkosz 2020, knee flex ~66° at contact (deepest) → interior ~114°; deep bend is the ideal, getting up above hi flags «stay down / don\'t get up»; PROVISIONAL',
     },
   },
   hip_flexion: {
@@ -180,12 +180,12 @@ export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, R
   },
   torso_lean: {
     backswing: {
-      lo: 5, hi: 25,
+      lo: 25, hi: 45,
       evidence: 'coach_opinion',
-      source: 'PROVISIONAL coach-opinion: more upright at take-back before loading forward; cleanest 2D instant (least axial rotation). Unmeasured; tuning dial.',
+      source: 'PROVISIONAL coach-opinion: forward lean already established at take-back; cleanest 2D instant (least axial rotation). Unmeasured; tuning dial.',
     },
     contact: {
-      lo: 15, hi: 40,
+      lo: 25, hi: 45,
       evidence: 'coach_opinion',
       source: 'PROVISIONAL coach-opinion: forward attacking lean at contact (own footage 33–39°); 2D lean inflated by axial rotation, re-tune on protocol footage; tuning dial.',
     },

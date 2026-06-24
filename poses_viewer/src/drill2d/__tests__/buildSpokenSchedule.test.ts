@@ -76,6 +76,20 @@ describe('buildSpokenSchedule (unified cues)', () => {
     expect(schedule[0].text).toBe(STRICT.phrases.en.phaseCues!.elbow_angle!.followthrough!.up)
     expect(schedule[0].text).not.toBe(STRICT.phrases.en.cues.elbow_angle.up)
   })
+  it('skipStale: the first cue of the session is always heard, even when packed reps would suppress it', () => {
+    // Reps 500ms apart, phrase cannot finish before the next stroke starts → skipStale would
+    // otherwise push the only audible cue to the LAST rep. The first-voiced exemption keeps rep 0.
+    const reps = [
+      rep(0, [cue('elbow_angle', 'too_low')]),
+      rep(500, [cue('elbow_angle', 'too_low')]),
+      rep(1000, [cue('elbow_angle', 'too_low')]),
+    ]
+    const { voicedByRep } = buildSpokenSchedule(
+      reps, [0, 500, 1000],
+      settings({ skipStaleEnabled: true, skipStaleMarginMs: 150, postStrokeGapMs: 0 }),
+      STRICT.phrases.en, 'en', STRICT.rate)
+    expect(voicedByRep[0]?.metricKey).toBe('elbow_angle') // first cue heard despite skipStale
+  })
   it('a backswing cue does not suppress a followthrough cue within reminderIntervalMs', () => {
     const reps = [
       rep(0, [cue('elbow_angle', 'too_low', 1, 'backswing')]),

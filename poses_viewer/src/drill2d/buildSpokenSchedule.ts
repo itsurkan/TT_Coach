@@ -86,6 +86,9 @@ export function buildSpokenSchedule(
   }
   const fits = (atMs: number, ms: number): boolean => {
     if (!settings.skipStaleEnabled) return true
+    // The first voiced item of the session is always heard — otherwise on a fast drill skipStale
+    // mutes every non-last rep and feedback lands only after the exercise is over.
+    if (lastSpokenMs === Number.NEGATIVE_INFINITY) return true
     const next = nextStrokeStartAfter(strokeStartTimes, atMs)
     return atMs + ms <= next - settings.skipStaleMarginMs
   }

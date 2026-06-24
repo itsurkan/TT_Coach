@@ -90,9 +90,9 @@ describe('decideRepCues', () => {
 
 // elbow per-phase bands: backswing 145–175, followthrough 60–85
 // shoulder_angle: backswing 20–60, followthrough 80–130
-// knee_bend: backswing 105–130, contact 100–128
+// knee_bend: backswing 110–130, contact 110–130
 // hip_flexion: backswing 115–160, contact 120–165
-// torso_lean: backswing 5–25, contact 15–40
+// torso_lean: backswing 25–45, contact 25–45
 type PerPhase = Record<string, Partial<Record<Phase, number | null>>>
 
 describe('decidePatternCues (elbow per-phase)', () => {
@@ -173,10 +173,10 @@ describe('decidePatternCues (shoulder_angle per-phase)', () => {
 })
 
 describe('decidePatternCues (knee_bend per-phase)', () => {
-  // backswing band 105–130 (center 117.5, half 12.5); contact 100–128 (center 114, half 14)
+  // backswing band 110–130 (center 120, half 10); contact 110–130 (center 120, half 10)
 
   it('flags too-low at backswing (knee not loaded)', () => {
-    // value 90 < 105 → delta = 90 - 105 = -15; |delta|=15 ≥ 5
+    // value 90 < 110 → delta = 90 - 110 = -20; |delta|=20 ≥ 5
     const cues = decidePatternCues({ knee_bend: { backswing: 90 } }, raw)
     expect(cues).toHaveLength(1)
     expect(cues[0].metricKey).toBe('knee_bend')
@@ -185,7 +185,7 @@ describe('decidePatternCues (knee_bend per-phase)', () => {
   })
 
   it('flags too-high at contact (knee too straight)', () => {
-    // value 150 > 128 → delta = 150 - 128 = 22; |delta|=22 ≥ 5
+    // value 150 > 130 → delta = 150 - 130 = 20; |delta|=20 ≥ 5
     const cues = decidePatternCues({ knee_bend: { contact: 150 } }, raw)
     expect(cues).toHaveLength(1)
     expect(cues[0].metricKey).toBe('knee_bend')
@@ -235,11 +235,11 @@ describe('decidePatternCues (hip_flexion per-phase)', () => {
 })
 
 describe('decidePatternCues (torso_lean per-phase)', () => {
-  // backswing band 5–25 (center 15, half 10); contact 15–40 (center 27.5, half 12.5)
+  // backswing band 25–45 (center 35, half 10); contact 25–45 (center 35, half 10)
 
   it('flags too-high at backswing (leaning forward too early)', () => {
-    // value 35 > 25 → delta = 35 - 25 = 10; |delta|=10 ≥ 5
-    const cues = decidePatternCues({ torso_lean: { backswing: 35 } }, raw)
+    // value 55 > 45 → delta = 55 - 45 = 10; |delta|=10 ≥ 5
+    const cues = decidePatternCues({ torso_lean: { backswing: 55 } }, raw)
     expect(cues).toHaveLength(1)
     expect(cues[0].metricKey).toBe('torso_lean')
     expect(cues[0].direction).toBe('too_high')
@@ -247,7 +247,7 @@ describe('decidePatternCues (torso_lean per-phase)', () => {
   })
 
   it('flags too-low at contact (not leaning into the shot)', () => {
-    // value 8 < 15 → delta = 8 - 15 = -7; |delta|=7 ≥ 5
+    // value 8 < 25 → delta = 8 - 25 = -17; |delta|=17 ≥ 5
     const cues = decidePatternCues({ torso_lean: { contact: 8 } }, raw)
     expect(cues).toHaveLength(1)
     expect(cues[0].metricKey).toBe('torso_lean')

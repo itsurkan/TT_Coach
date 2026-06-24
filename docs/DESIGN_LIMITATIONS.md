@@ -250,6 +250,28 @@ frame-extraction scripts, YOLO training: frozen in place, not deleted. Return in
 Stage 2 of the staged roadmap.
 **Refs:** spec Phase 3; `STAGED_ROADMAP.md`.
 
+### L-33 · Out-of-plane arm movement (elbow flyout) not tracked — `ACCEPTED` (revisit post-MVP)
+`shoulder_angle` (hip–shoulder–elbow) collapses the entire in-plane arm sweep
+(forward/back + up/down) into one interior angle and is blind to the depth axis —
+abduction toward/away from a side camera, i.e. the "chicken wing" / elbow-flyout
+fault. This is a real, commonly-coached forehand fault and the one dimension a
+pure side-camera 2D angle set genuinely misses.
+**Why deferred (not adding now):** (1) worst noise/value ratio of any candidate
+metric — foreshortening recovery `θ = acos(L_proj / L_true)` has a dead zone below
+~30° tilt and no toward/away sign, so it only fires on extreme flyout, which
+`shoulder_angle` already moves on; mostly a noisy projection of signal already
+captured. (2) A new low-confidence metric erodes trust in the validated ones, and
+false positives are toxic to the calibrate-don't-re-teach positioning. (3) The
+existing 5 in-plane metrics + ideal ranges are still provisional (L-29, L-32) —
+don't stack a 6th axis on an unvalidated base.
+**Revisit trigger / fix direction:** after the 5 metrics are validated on protocol
+footage, check on real reps whether a flyout fault survives uncaught; only then add
+it as a QUALITATIVE label (`'tucked' | 'flying_out'`), styled like `shoulderCoil`
+(kept out of the °-formatter / severity coloring), NEVER a numeric angle in
+`PER_PHASE_RANGES`. Precise depth would instead argue for a frontal second camera.
+**Refs:** `AngleCalculations2D.shoulderAngle`; `shoulderCoil.ts`;
+`CameraAngleEstimator` (same foreshortening math, shipped for yaw); trust rule (L-21).
+
 ---
 
 ## Resolved

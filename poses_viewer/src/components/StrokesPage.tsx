@@ -15,6 +15,7 @@ import { analyzeDrill, DrillAnalysisReport } from '../drill2d/analyzeDrill'
 import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
 import { ALL_KEYS } from '../drill2d/drillMetrics'
 import { DrillResultsTable } from './DrillResultsTable'
+import { ReferenceAnglesTable } from './ReferenceAnglesTable'
 import { loopBackTarget } from './strokeLoop'
 import { VoiceStyleEditor } from './VoiceStyleEditor'
 import { Slider, Toggle, secFmt } from './controls'
@@ -607,7 +608,7 @@ export default function StrokesPage() {
         <div className="border-t border-neutral-800 pt-2 text-neutral-400">Зони</div>
         <Slider label="Ширина зони ×" min={0.5} max={2} step={0.05} value={feedbackSettings.bandWidthMult} onChange={v => patchSettings({ bandWidthMult: v })} hint="Множник допустимої зони навколо ідеалу. >1 поблажливіше, <1 суворіше." />
         <Slider label="Поріг значущості (°)" min={0} max={20} step={1} value={feedbackSettings.minMeaningfulDeltaDeg} onChange={v => patchSettings({ minMeaningfulDeltaDeg: v })} hint="Мінімальне відхилення в градусах, яке варто озвучувати." />
-        <Slider label="Інтервал нагадування" min={0} max={20000} step={500} value={feedbackSettings.reminderIntervalMs} onChange={v => patchSettings({ reminderIntervalMs: v })} hint="Як часто повторювати підказку про ту саму проблему." />
+        <Slider label="Інтервал нагадування (с)" min={0} max={20} step={0.5} value={feedbackSettings.reminderIntervalMs / 1000} onChange={v => patchSettings({ reminderIntervalMs: Math.round(v * 1000) })} fmt={secFmt} hint="Як часто повторювати підказку про ту саму проблему." />
         <Toggle label="Чергувати підказки" value={feedbackSettings.varyCues} onChange={v => patchSettings({ varyCues: v })} hint="Чергувати метрику підказки, коли їх кілька." />
 
         <div className="border-t border-neutral-800 pt-2 text-neutral-400">Каденс (с)</div>
@@ -632,6 +633,11 @@ export default function StrokesPage() {
       />
       </div>
       </div>
+      {REFERENCE_STANDARDS[drillType] && (
+        <div className="w-full mt-6 pt-4 border-t border-neutral-800 max-w-3xl">
+          <ReferenceAnglesTable standard={REFERENCE_STANDARDS[drillType]} />
+        </div>
+      )}
     </div>
   )
 }

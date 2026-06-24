@@ -75,7 +75,7 @@ describe('perPhaseRange', () => {
   it('returns the range for knee_bend at backswing', () => {
     const r = perPhaseRange('knee_bend', 'backswing')
     expect(r).not.toBeNull()
-    expect(r!.lo).toBe(105)
+    expect(r!.lo).toBe(110)
     expect(r!.hi).toBe(130)
     expect(r!.evidence).toBe('measured')
   })
@@ -99,15 +99,15 @@ describe('perPhaseRange', () => {
   it('returns the backswing range for torso_lean', () => {
     const r = perPhaseRange('torso_lean', 'backswing')
     expect(r).not.toBeNull()
-    expect(r!.lo).toBe(5)
-    expect(r!.hi).toBe(25)
+    expect(r!.lo).toBe(25)
+    expect(r!.hi).toBe(45)
   })
 
   it('returns the contact range for torso_lean', () => {
     const r = perPhaseRange('torso_lean', 'contact')
     expect(r).not.toBeNull()
-    expect(r!.lo).toBe(15)
-    expect(r!.hi).toBe(40)
+    expect(r!.lo).toBe(25)
+    expect(r!.hi).toBe(45)
   })
 
   it('returns null for torso_lean at followthrough (excluded — rotation-corrupted)', () => {
