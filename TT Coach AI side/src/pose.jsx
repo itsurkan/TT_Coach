@@ -1,12 +1,14 @@
 // RTMPose 2D pose — COCO 17 keypoints, rendered from the REAL detector export
-// (video_4.mp4). Two real frames drive an eased ping-pong loop:
-//   RAW_A = frame 52 (t=884ms)   — begin
-//   RAW_B = frame 57 (t=969ms)   — end
-// Coordinates are the detector's normalized landmarks, auto-fitted to fill the
-// dark canvas. A couple of low-confidence head points (the detector parked the
-// nose / one eye at x=0.1007) are repaired from their neighbours so the head
-// stays coherent. No synthetic neck, no invented feet — the skeleton ends at
-// the ankles exactly like the source viewer.
+// (video_4_poses_rtm.json). Two real frames drive an eased ping-pong loop:
+//   RAW_A = viewer frame 52 (RTM 305, t=5185ms) — racket arm low (ready)
+//   RAW_B = viewer frame 55 (RTM 323, t=5491ms) — racket driven to contact
+// The viewer scrubber is the 171-frame (~10fps) timeline; those map to RTM
+// frames 305/323 in the full 1003-frame @17ms export (ratio ≈ 5.87). Both
+// frames score cleanly (mean ≈ 0.8, every keypoint > 0.3) — unlike the raw
+// early frames, where the detector hadn't locked on. Coordinates are the
+// detector's pixel landmarks, auto-fitted to fill the dark canvas. The COCO
+// neckline (ear->shoulder) is omitted; two synthetic toe points (17,18) are
+// appended off each ankle so the figure reads with feet (COCO-17 has none).
 //
 // Colour scheme matches the viewer overlay:
 //   amber   = left arm, left leg, torso sides, head
@@ -16,50 +18,54 @@
 // COCO order: 0 nose,1 l_eye,2 r_eye,3 l_ear,4 r_ear, 5 l_sh,6 r_sh,7 l_el,
 //   8 r_el,9 l_wr,10 r_wr, 11 l_hip,12 r_hip,13 l_knee,14 r_knee,15 l_ank,16 r_ank
 
-const POSE_VIDEO = { w: 720, h: 1280, name: 'video_4.mp4', frame: 52, tMs: 884 };
+const POSE_VIDEO = { w: 720, h: 1280, name: 'video_4.mp4', frame: 52, tMs: 5185 };
 
-// --- two keyframes traced from the player's overlay photos -------------------
-// Racket arm = RIGHT side (magenta). Photo 1 -> paddle LOW at the table (ready);
-// Photo 2 -> paddle driven UP to the face (contact/follow-through). Coordinates
-// are in the photo's own ~620x1160 space; fitFrames normalizes & centers them.
-// Lower body (hips/knees/ankles 11-16) is shared/planted between the frames.
+// --- two real detector keyframes (video_4_poses_rtm.json) --------------------
+// Racket arm = RIGHT side (magenta). RTM 305 -> paddle LOW (ready); RTM 334 ->
+// paddle driven UP to the face (contact/follow-through). Coordinates are the
+// detector's pixel landmarks (x*720, y*1280); fitFrames normalizes & centers
+// them with one shared transform so both frames stay aligned.
 const RAW_A = [
-  [440, 120], // 0  nose
-  [468, 128], // 1  l eye
-  [452, 122], // 2  r eye
-  [498, 150], // 3  l ear
-  [478, 152], // 4  r ear
-  [270, 220], // 5  l shoulder (back)
-  [460, 252], // 6  r shoulder (racket)
-  [360, 440], // 7  l elbow (free)
-  [430, 470], // 8  r elbow (racket)
-  [475, 330], // 9  l wrist (free fist up by face)
-  [360, 650], // 10 r wrist (paddle LOW)
-  [190, 500], // 11 l hip
-  [300, 510], // 12 r hip
-  [250, 730], // 13 l knee
-  [415, 740], // 14 r knee
-  [195, 1050],// 15 l ankle
-  [325, 950], // 16 r ankle
+  [538, 502], //  0 nose
+  [548, 489], //  1 l eye
+  [529, 480], //  2 r eye
+  [544, 480], //  3 l ear
+  [492, 455], //  4 r ear
+  [518, 541], //  5 l shoulder
+  [402, 508], //  6 r shoulder (racket)
+  [525, 638], //  7 l elbow
+  [391, 618], //  8 r elbow (racket)
+  [535, 644], //  9 l wrist
+  [426, 700], // 10 r wrist (paddle LOW)
+  [398, 683], // 11 l hip
+  [320, 666], // 12 r hip
+  [484, 817], // 13 l knee
+  [387, 808], // 14 r knee
+  [415, 922], // 15 l ankle
+  [352, 1017],// 16 r ankle
+  [465, 955], // 17 l toe (synthetic foot, off the ankle in facing dir)
+  [411, 1027],// 18 r toe (synthetic foot)
 ];
 const RAW_B = [
-  [430, 130], // 0  nose
-  [458, 135], // 1  l eye
-  [445, 130], // 2  r eye
-  [490, 155], // 3  l ear
-  [470, 158], // 4  r ear
-  [290, 240], // 5  l shoulder
-  [470, 250], // 6  r shoulder
-  [395, 460], // 7  l elbow
-  [520, 360], // 8  r elbow
-  [485, 365], // 9  l wrist
-  [540, 290], // 10 r wrist (paddle HIGH)
-  [190, 500], // 11 l hip   (= A, planted)
-  [300, 510], // 12 r hip
-  [250, 730], // 13 l knee
-  [415, 740], // 14 r knee
-  [195, 1050],// 15 l ankle
-  [325, 950], // 16 r ankle
+  [578, 456], //  0 nose
+  [585, 442], //  1 l eye
+  [573, 433], //  2 r eye
+  [529, 430], //  3 l ear
+  [531, 407], //  4 r ear
+  [473, 477], //  5 l shoulder
+  [450, 460], //  6 r shoulder (racket)
+  [480, 574], //  7 l elbow
+  [471, 586], //  8 r elbow (racket)
+  [575, 574], //  9 l wrist
+  [564, 565], // 10 r wrist (paddle, contact)
+  [357, 635], // 11 l hip
+  [317, 632], // 12 r hip
+  [429, 783], // 13 l knee
+  [399, 809], // 14 r knee
+  [408, 927], // 15 l ankle
+  [352, 1011],// 16 r ankle
+  [467, 936], // 17 l toe (synthetic foot)
+  [410, 1025],// 18 r toe (synthetic foot)
 ];
 
 // --- fit both frames into the canvas (shared transform, centered) ----------
@@ -88,7 +94,7 @@ const EDGES = [
   { e: [5, 11], c: 'y' },  { e: [6, 12], c: 'y' },           // torso sides
   { e: [5, 7], c: 'y' },   { e: [7, 9], c: 'y' },            // left arm
   { e: [6, 8], c: 'm' },   { e: [8, 10], c: 'm' },           // right arm (racket)
-  { e: [3, 5], c: 'y' },   { e: [4, 6], c: 'y' },            // ear->shoulder (COCO neckline)
+  { e: [15, 17], c: 'y' }, { e: [16, 18], c: 'm' },          // feet (synthetic toes)
   { e: [0, 1], c: 'y', head: true }, { e: [0, 2], c: 'y', head: true },
   { e: [1, 3], c: 'y', head: true }, { e: [2, 4], c: 'y', head: true },
 ];
