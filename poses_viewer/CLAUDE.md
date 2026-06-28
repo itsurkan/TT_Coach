@@ -4,7 +4,8 @@ React + Vite debug/labeling tool for TT_Coach. Overlays pose, ball, contact, and
 
 - Dev server: `npm run dev` → http://localhost:5780
 - Stack: React 18, TypeScript, Vite 6, Tailwind v4, three/@react-three/fiber/drei 0.184, vitest 4
-- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. Hash routing via `src/hooks/useHashRoute.ts`: `#/main` (default), `#/mannequin`, `#/drill2`, `#/dataset`, `#/strokes`. `App.tsx` early-returns the matching component for non-`main` routes.
+- Vite proxies JSON + MP4 from repo-top `Videos/<base>/`. Hash routing via `src/hooks/useHashRoute.ts`: `#/main` (default), `#/mannequin`, `#/drill2`, `#/dataset`, `#/strokes`, `#/pose3d`, `#/exercises`. `App.tsx` early-returns the matching component for non-`main` routes.
+- `#/pose3d` ([Pose3DPage.tsx](src/components/Pose3DPage.tsx)) — **throwaway 3D-lift experiment.** Renders a rotatable 3D skeleton from `Videos/<base>/<base>_pose3d_lift_<source>.json` (MotionAGFormer temporal 2D→3D; produced by `scripts/poses/lift_pose3d.py`, see `scripts/poses/LIFT.md`). A **RTM / Vision / MediaPipe** header toggle picks the 2D `<source>` fed to the lift (each its own JSON). Self-describing JSON: reads embedded `joints`/`bones` so the page is topology-agnostic (`topology:"h36m17"`, standard H36M order — 1-3 right leg, 4-6 left leg). Lift axes are +z up; the page maps model `(x,y,z)` → three.js `(x, z, -y)`. Controls: drag = rotate, **scroll anywhere = scrub frames** (wheel-zoom is disabled so it never fights scrubbing), Space = play/pause, ←/→ = step. Camera **auto-fits** the whole sequence's bounding box (`computeFit`, remounts on clip change) so the skeleton is always fully visible regardless of pose/zoom. Reuses the `@react-three/fiber` Canvas + drei `OrbitControls`/`Grid`/`Line` pattern from `Drill2Mannequin.tsx`. NOT wired into the drill pipeline; does not touch shared/ or reopen L-21/L-22.
 
 Update this file when you change a listed file.
 
@@ -144,6 +145,32 @@ above a threshold. Wired into `countStrokes`/`analyzeDrill` **on by default** at
 `shared/drill/LocomotionFilter.kt` (source of truth)**; default-on dropped the video_4 golden
 9 → 8 in both suites (andrii unchanged at 15). The 0.4-torso threshold is tuned on non-protocol
 footage and still provisional — re-tune on protocol footage (DESIGN_LIMITATIONS L-30).
+
+**Exercises = TRAINING settings (`#/exercises`, 2026-06-28; viewer-only, no Kotlin mirror):**
+the FIRST of three independent settings types — feedback (`feedbackSettings.ts`) and voice
+(`voiceStyle.ts`) stay GLOBAL/separate, edited on the Симулятор page. An `Exercise`
+(`drill2d/exercise.ts`) carries ONLY training config: `drillType`, body-part `focusAreas`
+(arm/shoulder/legs/torso/hip → active metrics via `FOCUS_TO_METRICS`; `hip_flexion` shared by
+legs+hip, deduped; empty focus ⇒ all), `referenceSource` ('standard' | 'personal-baseline'),
+`strictness` (×band, >1 narrower), optional `perPhaseOverrides`. Persisted in
+`exerciseStore.ts` (mirrors `voiceStyleStore.ts`: built-in forehand-drive preset never
+persisted, clone/rename/remove/upsert, `normalizeExercise` backfill, localStorage key
+`poses_viewer_exercises`, `activeExerciseId` = the one the simulator uses). `ExercisesPage.tsx`
+= list + create-from-scratch/clone + Simple view (name, focus chips, reference toggle,
+strictness slider) + Advanced `<details>` (per-phase lo/hi overrides).
+**The exercise drives the grading pipeline WITHOUT touching the golden-tested core:**
+`StrokesPage`'s `analysis` memo builds an *effective* `FeedbackSettings`
+(`enabledMetrics`=`effectiveEnabledMetrics(ex)`, `bandWidthMult`=`effectiveBandWidthMult(ex,
+global)`) and *effective* `standard`/`perPhaseRanges`, passed into `analyzeDrill`.
+`analyzeDrill`/`decidePatternCues` gained an OPTIONAL `perPhaseRanges` param that defaults to
+the global `PER_PHASE_RANGES` — so the default path is byte-identical and all goldens hold (the
+built-in default exercise reproduces `VOICE_METRIC_KEYS` + `bandWidthMult 1.4`; guarded by a test
+in `exercise.test.ts`). `personal-baseline` runs `analyzeDrill` once to read the player's
+per-metric/per-phase medians, then recenters the ideal bands on them (`deriveBaselineStandard` /
+`deriveBaselinePerPhase`, keeping each band width) and re-grades — metrics/perPhase don't depend
+on the bands, so the two passes are consistent. `DrillResultsTable` takes an optional
+`perPhaseRanges` prop so its coloring tracks the effective bands. NOT mirrored in Kotlin shared/
+(viewer-authoring concept; back-port is a separate follow-up).
 
 ### `src/components/Drill2Mannequin.tsx` (~805 lines)
 
