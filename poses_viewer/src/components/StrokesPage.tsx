@@ -2,8 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useSpokenFeedback } from './useSpokenFeedback'
 import { buildSpokenSchedule } from '../drill2d/buildSpokenSchedule'
 import { loadUserStyles, getActiveStyle, saveUserStyles } from '../drill2d/voiceStyleStore'
-import { voiceProfileOf, type MetricKey } from '../drill2d/voiceStyle'
+import { voiceProfileOf } from '../drill2d/voiceStyle'
 import { type FeedbackSettings, loadFeedbackSettings, saveFeedbackSettings } from '../drill2d/feedbackSettings'
+import {
+  loadExercises, saveExercises, getActiveExercise, allExercises, type StoredExercises,
+} from '../drill2d/exerciseStore'
+import {
+  effectiveEnabledMetrics, effectiveBandWidthMult,
+  deriveBaselineStandard, deriveBaselinePerPhase, mergePerPhaseOverrides,
+} from '../drill2d/exercise'
 import { loadManifest, type ClipManifest } from '../drill2d/voiceClips'
 import { Handedness } from '../drill2d/types'
 import { parsePoseV2, PoseSequence2D } from '../drill2d/parsePoseV2'
@@ -11,9 +18,8 @@ import { countStrokes } from '../drill2d/countStrokes'
 import { DETECTOR_DEFAULTS } from '../drill2d/strokeDetector2d'
 import { DEFAULT_MAX_TRAVEL_TORSO } from '../drill2d/locomotionFilter'
 import { StrokeTimeline, TimelineEntry } from './StrokeTimeline'
-import { analyzeDrill, DrillAnalysisReport } from '../drill2d/analyzeDrill'
-import { REFERENCE_STANDARDS } from '../drill2d/referenceStandard'
-import { ALL_KEYS } from '../drill2d/drillMetrics'
+import { analyzeDrill } from '../drill2d/analyzeDrill'
+import { REFERENCE_STANDARDS, PER_PHASE_RANGES } from '../drill2d/referenceStandard'
 import { DrillResultsTable } from './DrillResultsTable'
 import { ReferenceAnglesTable } from './ReferenceAnglesTable'
 import { loopBackTarget } from './strokeLoop'
@@ -47,7 +53,14 @@ export default function StrokesPage() {
   const [currentMs, setCurrentMs] = useState(0)
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
   const [loop, setLoop] = useState(false)
-  const [drillType, setDrillType] = useState('forehand_drive')
+  // Active exercise = the TRAINING settings (focus/reference/strictness). Loaded fresh on mount
+  // so changes made on #/exercises apply here; the in-page selector also writes it back.
+  const [exState, setExState] = useState<StoredExercises>(() => loadExercises())
+  const exercise = useMemo(() => getActiveExercise(exState), [exState])
+  const drillType = exercise.drillType
+  function selectExercise(id: string) {
+    setExState(s => { const next = { ...s, activeExerciseId: id }; saveExercises(next); return next })
+  }
   const [feedbackSettings, setFeedbackSettings] = useState<FeedbackSettings>(loadFeedbackSettings)
   const [muted, setMuted] = useState(false)
   const [styleState, setStyleState] = useState(() => loadUserStyles())
@@ -138,24 +151,45 @@ export default function StrokesPage() {
     }
   }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, hipTravelMaxTorso])
 
-  const report = useMemo<DrillAnalysisReport | null>(() => {
+  // Drive the grading pipeline from the selected exercise WITHOUT touching the golden-tested
+  // core: build effective settings (focus → enabledMetrics; strictness → bandWidthMult) and an
+  // effective standard / per-phase map. 'personal-baseline' runs a first pass to read the
+  // player's own per-metric medians, then recenters the ideal bands on them and re-grades —
+  // metrics/perPhase don't depend on the bands, so the two passes are consistent.
+  const analysis = useMemo(() => {
     if (!seq) return null
-    const standard = REFERENCE_STANDARDS[drillType]
-    if (!standard) return null
+    const base = REFERENCE_STANDARDS[drillType]
+    if (!base) return null
+    const effSettings: FeedbackSettings = {
+      ...feedbackSettings,
+      enabledMetrics: effectiveEnabledMetrics(exercise),
+      bandWidthMult: effectiveBandWidthMult(exercise, feedbackSettings.bandWidthMult),
+    }
+    const mergedPhase = mergePerPhaseOverrides(PER_PHASE_RANGES, exercise.perPhaseOverrides)
+    const cfg = {
+      handedness,
+      drillType,
+      feedbackSettings: effSettings,
+      cameraYawDeg: yawDeg,
+      detector: { minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs },
+      hipTravelMaxTorso,
+    }
     try {
-      return analyzeDrill(seq, {
-        handedness,
-        drillType,
-        standard,
-        feedbackSettings,
-        cameraYawDeg: yawDeg,
-        detector: { minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs },
-        hipTravelMaxTorso,
-      })
+      let standard = base
+      let perPhaseRanges = mergedPhase
+      if (exercise.referenceSource === 'personal-baseline') {
+        const pass1 = analyzeDrill(seq, { ...cfg, standard: base, perPhaseRanges: mergedPhase })
+        standard = deriveBaselineStandard(pass1.reps, base)
+        perPhaseRanges = deriveBaselinePerPhase(pass1.reps, mergedPhase)
+      }
+      const report = analyzeDrill(seq, { ...cfg, standard, perPhaseRanges })
+      return { report, standard, perPhaseRanges, enabledMetrics: effSettings.enabledMetrics }
     } catch {
       return null
     }
-  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, feedbackSettings, hipTravelMaxTorso])
+  }, [seq, handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, exercise, feedbackSettings, hipTravelMaxTorso])
+
+  const report = analysis?.report ?? null
 
   const { schedule, voicedByRep } = useMemo(
     () => report
@@ -171,11 +205,16 @@ export default function StrokesPage() {
       exportedAt: new Date().toISOString(),
       video: base,
       drillType,
+      exercise: {
+        id: exercise.id, name: exercise.name, focusAreas: exercise.focusAreas,
+        referenceSource: exercise.referenceSource, strictness: exercise.strictness,
+        enabledMetrics: analysis?.enabledMetrics,
+      },
       detector: { handedness, cameraYawDeg: yawDeg, minPeakSpeed, minPeakGapMs, smoothingWindowMs: smoothingMs, hipTravelMaxTorso },
       muted,
       feedbackSettings,
       voiceStyle: { id: activeStyle.id, name: activeStyle.name, lang: activeStyle.lang, rate: activeStyle.rate, pitch: activeStyle.pitch, volume: activeStyle.volume, phrases: activeStyle.phrases },
-      referenceStandard: REFERENCE_STANDARDS[drillType],
+      referenceStandard: analysis?.standard ?? REFERENCE_STANDARDS[drillType],
       report: report && {
         counts: { rawPeakCount: report.rawPeakCount, forwardRepCount: report.forwardRepCount, reps: report.reps.length, cleanReps: report.cleanReps },
         placementOk: report.placementOk,
@@ -252,7 +291,7 @@ export default function StrokesPage() {
   }, [seq, result])
 
   // Selection indexes into entries; drop it (and stop looping) when the knobs rebuild the stroke list.
-  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, drillType, feedbackSettings, hipTravelMaxTorso])
+  useEffect(() => { setSelectedIdx(null); setLoop(false) }, [handedness, yawDeg, minPeakSpeed, minPeakGapMs, smoothingMs, exercise, feedbackSettings, hipTravelMaxTorso])
 
   const videoEntry = videos.find(v => v.name === base)
   const videoUrl = videoEntry?.ext ? `/videos/${base}/${base}${videoEntry.ext}` : null
@@ -479,8 +518,9 @@ export default function StrokesPage() {
           )}
           <DrillResultsTable
             reps={report.reps}
-            standard={REFERENCE_STANDARDS[drillType]}
-            enabledMetrics={new Set(feedbackSettings.enabledMetrics)}
+            standard={analysis!.standard}
+            enabledMetrics={new Set(analysis!.enabledMetrics)}
+            perPhaseRanges={analysis!.perPhaseRanges}
             unreliableMetrics={report.unreliableMetrics}
             selectedIndex={tableSelectedIndex}
             voicedByRep={voicedByRep}
@@ -574,38 +614,25 @@ export default function StrokesPage() {
         <label className="flex items-center gap-2">
           <span className="w-56">Вправа:</span>
           <select
-            className="bg-neutral-800 rounded px-2 py-1"
-            value={drillType}
-            onChange={e => setDrillType(e.target.value)}
+            className="bg-neutral-800 rounded px-2 py-1 flex-1 min-w-0"
+            value={exState.activeExerciseId}
+            onChange={e => selectExercise(e.target.value)}
           >
-            <option value="forehand_drive">Накат справа (forehand drive)</option>
+            {allExercises(exState.exercises).map(e => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
           </select>
+          <a href="#/exercises" className="text-sky-400 hover:text-sky-300 text-xs whitespace-nowrap" title="Створити/редагувати вправи">Керувати →</a>
         </label>
+        <p className="text-xs text-neutral-400 pl-[15rem] -mt-1">
+          Фокус і метрики задаються у вправі (еталон: {exercise.referenceSource === 'personal-baseline' ? 'мій базовий рівень' : 'стандарт'}, суворість ×{exercise.strictness.toFixed(2)}).
+        </p>
         <label className="flex items-center gap-2">
           <span className="w-56">Озвучення підказок:</span>
           <input type="checkbox" checked={!muted} onChange={e => setMuted(!e.target.checked)} />
           <span className="text-neutral-400">{muted ? 'вимкнено (лише текст)' : 'голос увімкнено'}</span>
         </label>
-        <div className="flex items-start gap-2">
-          <span className="w-56">Метрики:</span>
-          <div className="flex flex-wrap gap-x-3 gap-y-1">
-            {ALL_KEYS.map(k => (
-              <label key={k} className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={feedbackSettings.enabledMetrics.includes(k as MetricKey)}
-                  onChange={e => patchSettings({
-                    enabledMetrics: e.target.checked
-                      ? [...feedbackSettings.enabledMetrics, k as MetricKey]
-                      : feedbackSettings.enabledMetrics.filter(m => m !== k),
-                  })}
-                />
-                {k}
-              </label>
-            ))}
-          </div>
-        </div>
-        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Зони</div>
+        <div className="border-t border-neutral-800 pt-2 text-neutral-400">Зони (глобальні; накладаються на суворість вправи)</div>
         <Slider label="Ширина зони ×" min={0.5} max={2} step={0.05} value={feedbackSettings.bandWidthMult} onChange={v => patchSettings({ bandWidthMult: v })} hint="Множник допустимої зони навколо ідеалу. >1 поблажливіше, <1 суворіше." />
         <Slider label="Поріг значущості (°)" min={0} max={20} step={1} value={feedbackSettings.minMeaningfulDeltaDeg} onChange={v => patchSettings({ minMeaningfulDeltaDeg: v })} hint="Мінімальне відхилення в градусах, яке варто озвучувати." />
         <Slider label="Інтервал нагадування (с)" min={0} max={20} step={0.5} value={feedbackSettings.reminderIntervalMs / 1000} onChange={v => patchSettings({ reminderIntervalMs: Math.round(v * 1000) })} fmt={secFmt} hint="Як часто повторювати підказку про ту саму проблему." />
@@ -633,9 +660,9 @@ export default function StrokesPage() {
       />
       </div>
       </div>
-      {REFERENCE_STANDARDS[drillType] && (
+      {analysis && (
         <div className="w-full mt-6 pt-4 border-t border-neutral-800 max-w-3xl">
-          <ReferenceAnglesTable standard={REFERENCE_STANDARDS[drillType]} />
+          <ReferenceAnglesTable standard={analysis.standard} />
         </div>
       )}
     </div>

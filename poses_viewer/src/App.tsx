@@ -25,6 +25,8 @@ import DatasetBrowser from './components/DatasetBrowser'
 import Drill2Preview from './components/Drill2Preview'
 import MannequinEditor from './components/MannequinEditor'
 import StrokesPage from './components/StrokesPage'
+import Pose3DPage from './components/Pose3DPage'
+import { ExercisesPage } from './components/ExercisesPage'
 import { useHashRoute } from './hooks/useHashRoute'
 import { toNumber, normalizeData } from './utils/normalizePoses'
 
@@ -1120,6 +1122,12 @@ export default function App() {
   if (route === 'drill2') {
     return <Drill2Preview onClose={() => navigate('main')} />
   }
+  if (route === 'pose3d') {
+    return <Pose3DPage onClose={() => navigate('main')} />
+  }
+  if (route === 'exercises') {
+    return <ExercisesPage onClose={() => navigate('main')} />
+  }
 
   return (
     <div className="h-screen bg-gray-950 text-gray-100 flex flex-col select-none overflow-hidden">
@@ -1148,6 +1156,22 @@ export default function App() {
           title="Interactive 3D mannequin editor — click joints, coloured body parts"
         >
           + Mannequin Editor
+        </button>
+
+        <button
+          className="bg-sky-700 hover:bg-sky-600 px-3 py-1.5 rounded text-sm"
+          onClick={() => navigate('pose3d')}
+          title="MotionAGFormer temporal 2D→3D lift of RTMPose keypoints (run scripts/poses/lift_pose3d.py)"
+        >
+          + 3D Lift
+        </button>
+
+        <button
+          className="bg-amber-700 hover:bg-amber-600 px-3 py-1.5 rounded text-sm"
+          onClick={() => navigate('exercises')}
+          title="Створити/редагувати вправи — фокус, еталон, суворість"
+        >
+          + Вправи
         </button>
 
         {videoList.length > 0 && (

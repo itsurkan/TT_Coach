@@ -1,5 +1,5 @@
 import { RepAnalysis } from '../drill2d/analyzeDrill'
-import { ReferenceStandard, ReferenceRange, perPhaseRange } from '../drill2d/referenceStandard'
+import { ReferenceStandard, ReferenceRange, perPhaseRange, type PerPhaseRanges } from '../drill2d/referenceStandard'
 import { ALL_KEYS, METRIC_PHASES, Phase } from '../drill2d/drillMetrics'
 import type { CoilLabel } from '../drill2d/shoulderCoil'
 import type { FeedbackCue } from '../drill2d/feedbackCue'
@@ -52,6 +52,8 @@ interface Props {
   unreliableMetrics?: string[]
   /** Task 6: voiced cue per rep, aligned to reps array (null = cadence-suppressed / clean). */
   voicedByRep?: (FeedbackCue | null)[]
+  /** Effective per-phase ideal bands (exercise overrides / personal-baseline). Omit → global. */
+  perPhaseRanges?: PerPhaseRanges
 }
 
 /**
@@ -64,17 +66,15 @@ interface Props {
  * - null/undefined value → render «—».
  */
 function PhaseCell({
-  metricKey,
-  phase,
+  range,
   value,
   isNoisy,
 }: {
-  metricKey: string
-  phase: Phase
+  /** Resolved ideal band for this metric+phase (effective overrides applied), or undefined. */
+  range: ReferenceRange | undefined
   value: number | null | undefined
   isNoisy: boolean
 }) {
-  const range = perPhaseRange(metricKey, phase) ?? undefined
   const status = metricStatus(value === null ? undefined : value, range)
   const formatted = value === undefined || value === null ? '—' : `${Math.round(value)}°`
 
@@ -128,9 +128,12 @@ function CoilCell({ coil }: { coil: RepAnalysis['coil'] }) {
   )
 }
 
-export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [], voicedByRep }: Props) {
+export function DrillResultsTable({ reps, standard, enabledMetrics, selectedIndex, onSelect, unreliableMetrics = [], voicedByRep, perPhaseRanges }: Props) {
   const cols = ALL_KEYS.filter(k => enabledMetrics.has(k))
   const noisy = new Set(unreliableMetrics)
+  /** Resolve the per-phase ideal band, honouring effective overrides when provided. */
+  const rangeFor = (k: string, phase: Phase): ReferenceRange | undefined =>
+    (perPhaseRanges ? perPhaseRanges[k as keyof PerPhaseRanges]?.[phase] : perPhaseRange(k, phase)) ?? undefined
 
   return (
     <table className="w-full text-xs border-collapse">
@@ -207,7 +210,7 @@ export function DrillResultsTable({ reps, standard, enabledMetrics, selectedInde
                     const value = phaseValues !== undefined ? phaseValues[phase] : undefined
                     return (
                       <td key={`${k}-${phase}`} className="py-1 px-2">
-                        <PhaseCell metricKey={k} phase={phase} value={value} isNoisy={noisy.has(k)} />
+                        <PhaseCell range={rangeFor(k, phase)} value={value} isNoisy={noisy.has(k)} />
                       </td>
                     )
                   })
