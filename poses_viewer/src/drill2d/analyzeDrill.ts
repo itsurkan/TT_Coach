@@ -21,7 +21,7 @@ import { decideRepCues, decidePatternCues, isPatternMetric } from './decideRepCu
 import type { FeedbackSettings } from './feedbackSettings'
 import { FeedbackCue } from './feedbackCue'
 import { formatCue } from './messageCatalog'
-import { ReferenceStandard } from './referenceStandard'
+import { ReferenceStandard, type PerPhaseRanges } from './referenceStandard'
 import { estimateCoil, type CoilLabel } from './shoulderCoil'
 import type { RepInput } from './buildSpokenSchedule'
 
@@ -118,6 +118,9 @@ export interface DrillAnalysisConfig {
   handedness: Handedness
   drillType: string
   standard: ReferenceStandard
+  /** Optional per-phase ideal-band overrides (per-exercise / personal-baseline).
+   *  undefined → the global PER_PHASE_RANGES (golden-preserving default). */
+  perPhaseRanges?: PerPhaseRanges
   feedbackSettings: FeedbackSettings
   /** Manual yaw applied to ALL reps; null → per-rep auto-estimate; undefined → default 0. */
   cameraYawDeg?: number | null
@@ -170,7 +173,7 @@ export function analyzeDrill(seq: PoseSequence2D, config: DrillAnalysisConfig): 
     const cues = placementOk
       ? [
           ...decideRepCues(metrics, config.standard, config.feedbackSettings),
-          ...decidePatternCues(perPhase, config.feedbackSettings),
+          ...decidePatternCues(perPhase, config.feedbackSettings, config.perPhaseRanges),
         ].sort((a, b) => b.severity - a.severity)
       : []
     const coil = estimateCoil(cycle, seq.frames, xScale, seq.intervalMs, minScore)

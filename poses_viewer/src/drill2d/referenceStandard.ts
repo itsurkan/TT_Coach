@@ -127,7 +127,11 @@ export const REFERENCE_STANDARDS: Record<string, ReferenceStandard> = {
  *
  * Interior-angle convention throughout: 180° = fully straight.
  */
-export const PER_PHASE_RANGES: Partial<Record<MetricKey, Partial<Record<Phase, ReferenceRange>>>> = {
+/** A per-metric, per-phase ideal-range map — the shape of PER_PHASE_RANGES, reused for
+ *  per-exercise overrides and personal-baseline recentering. */
+export type PerPhaseRanges = Partial<Record<MetricKey, Partial<Record<Phase, ReferenceRange>>>>
+
+export const PER_PHASE_RANGES: PerPhaseRanges = {
   // ---- ARM metrics: backswing + followthrough ----
   elbow_angle: {
     backswing: {

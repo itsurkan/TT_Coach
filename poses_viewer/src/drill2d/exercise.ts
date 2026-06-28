@@ -11,8 +11,10 @@
  * NOT edit the golden-parity-tested core (decideRepCues / analyzeDrill).
  */
 import { VOICE_METRIC_KEYS, type MetricKey } from './voiceStyle'
-import type { ReferenceStandard, ReferenceRange, MetricKey as RefMetricKey } from './referenceStandard'
+import type { ReferenceStandard, ReferenceRange, MetricKey as RefMetricKey, PerPhaseRanges } from './referenceStandard'
 import type { Phase } from './drillMetrics'
+
+export type { PerPhaseRanges }
 
 /** Body-part focus the player picks; each maps to one or more in-plane metrics. */
 export type FocusArea = 'arm' | 'shoulder' | 'legs' | 'torso' | 'hip'
@@ -39,9 +41,6 @@ export const FOCUS_TO_METRICS: Record<FocusArea, MetricKey[]> = {
 }
 
 export type ReferenceSource = 'standard' | 'personal-baseline'
-
-/** Per-phase override map — same shape as referenceStandard's PER_PHASE_RANGES. */
-export type PerPhaseRanges = Partial<Record<RefMetricKey, Partial<Record<Phase, ReferenceRange>>>>
 
 export interface Exercise {
   id: string

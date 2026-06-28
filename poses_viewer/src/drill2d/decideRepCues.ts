@@ -7,7 +7,7 @@
  */
 import { FeedbackCue } from './feedbackCue'
 import { precisionFor } from './metricPrecision'
-import { ReferenceStandard, perPhaseRange } from './referenceStandard'
+import { ReferenceStandard, perPhaseRange, type PerPhaseRanges } from './referenceStandard'
 import { FeedbackSettings } from './feedbackSettings'
 import { MetricKey } from './voiceStyle'
 import type { Phase } from './drillMetrics'
@@ -80,12 +80,19 @@ export function decideRepCues(
  *   - Legs/trunk metrics (knee, hip, torso): phases backswing + contact only.
  * Phases with no per-phase range (e.g. elbow at contact) or a null/undefined value
  * are skipped. Returns severity-desc (analyzeDrill re-sorts).
+ *
+ * `ranges` optionally overrides the per-phase ideal bands (per-exercise overrides or
+ * personal-baseline recentering). When omitted, the global PER_PHASE_RANGES are used —
+ * so the default path is byte-identical and the golden suites stay green.
  */
 export function decidePatternCues(
   perPhase: Record<string, Partial<Record<Phase, number | null>>>,
   settings: FeedbackSettings,
+  ranges?: PerPhaseRanges,
 ): FeedbackCue[] {
   const enabled = new Set<string>(settings.enabledMetrics as MetricKey[])
+  const lookup = (metricKey: string, phase: Phase) =>
+    ranges ? (ranges[metricKey as MetricKey]?.[phase] ?? null) : perPhaseRange(metricKey, phase)
   const cues: FeedbackCue[] = []
   for (const metricKey of PATTERN_METRICS) {
     if (!enabled.has(metricKey)) continue
@@ -94,7 +101,7 @@ export function decidePatternCues(
     for (const [phaseStr, value] of Object.entries(phaseValues)) {
       const phase = phaseStr as Phase
       if (value === null || value === undefined) continue
-      const range = perPhaseRange(metricKey, phase)
+      const range = lookup(metricKey, phase)
       if (range === null) continue
       const half = (range.hi - range.lo) / 2
       const center = (range.lo + range.hi) / 2
