@@ -58,9 +58,9 @@
 
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        
+
         <!-- Typography scale -->
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Material3.DisplayMedium</item>
@@ -77,6 +77,82 @@
         <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Material3.LabelSmall</item>
+
+        <!-- TTC foundation: default font + shape (Slice 1) -->
+        <item name="android:fontFamily">@font/inter_tight</item>
+        <item name="fontFamily">@font/inter_tight</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.TTC.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.TTC.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.TTC.Large</item>
+    </style>
+
+    <!-- ===== TTC typography (Slice 1) ===== -->
+    <style name="TextAppearance.TTC.Stat.Hero" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Large" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Medium" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Small" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Mono.Meta" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_medium</item>
+        <item name="fontFamily">@font/jetbrains_mono_medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Title.Screen" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Title.Card" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter_tight_regular</item>
+        <item name="fontFamily">@font/inter_tight_regular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+    </style>
+    <style name="TextAppearance.TTC.Body.Secondary" parent="TextAppearance.TTC.Body">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Eyebrow" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:letterSpacing">0.11</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Nav.Label" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter_tight_medium</item>
+        <item name="fontFamily">@font/inter_tight_medium</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
     </style>
 
     <style name="BottomSheetSpinnerItemStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
