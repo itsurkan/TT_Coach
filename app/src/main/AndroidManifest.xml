@@ -96,6 +96,13 @@
             android:exported="true"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Design System Preview (dev-only, runtime FLAG_DEBUGGABLE gate protects release).
+             Exported so `adb shell am start` can launch it directly. -->
+        <activity
+            android:name=".debug.DesignSystemPreviewActivity"
+            android:exported="true"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Baseline Dump Receiver (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
         <receiver
             android:name=".debug.BaselineDumpReceiver"
