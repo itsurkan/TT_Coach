@@ -38,6 +38,12 @@ tmp/*
 # iOS RTMPose ONNX models (fetched via iosApp/TTCoach/Models/fetch_models.sh)
 iosApp/TTCoach/Models/*.onnx
 
+# 3D-lift experiment (scripts/poses/lift_pose3d.py): vendored model + weights + torch env
+# are large and re-fetchable — see scripts/poses/LIFT.md. Never track.
+scripts/poses/vendor/
+.venv-lift/
+Videos/**/*_pose3d_lift*.json
+
 # Claude memory: local-only (machine/account-specific, never push)
 .claude/memory/project_git_push_auth.md
 # Claude local settings & runtime locks
