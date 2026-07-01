@@ -99,7 +99,8 @@ so a backswing cue does not suppress a followthrough cue within `reminderInterva
 (voiced-only, from `voicedByRep`); both label pattern cues as e.g. `elbow_angle (завершення)` or
 `torso_lean (замах)` via `cueLabel`. `messageCatalog.ts` (EN, "vs ideal" wording) remains for the
 on-screen session summary (`sessionFocus`/`sessionStrengths`). Clips live in
-`public/voice/<styleId>/`, generated offline by `scripts/generateVoiceClips.ts` —
+`public/voice/<styleId>/<lang>/<clipKey>.<ext>` (split by language; `manifest.file` carries the
+`<lang>/…` path, played as `/voice/<styleId>/<file>`), generated offline by `scripts/generateVoiceClips.ts` —
 `TTS_PROVIDER=files VOICE_SRC=<dir>` indexes pre-rendered audio (auto-maps by normalized
 filename, `pairing.json` overrides, `music-metadata` duration, MISSING report; rebuilds the
 manifest fresh each run), `stub` dry-runs the keys. `uniquePhrases` enumerates cues +

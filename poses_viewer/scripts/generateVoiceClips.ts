@@ -5,7 +5,7 @@
  *
  * Two providers:
  *   files (primary) — index audio you already rendered (e.g. ElevenLabs web UI) and copy
- *     each into public/voice/<styleId>/<clipKey>.<ext>. No network / API key.
+ *     each into public/voice/<styleId>/<lang>/<clipKey>.<ext> (split by language). No API key.
  *       TTS_PROVIDER=files VOICE_SRC=./my-clips npm run gen:voice -- ./my.voicestyle.json
  *     Mapping: a source file is matched to a phrase when its basename (minus extension),
  *     run through normalizeText, equals the phrase. For arbitrary filenames, add a
@@ -177,8 +177,9 @@ async function main() {
       console.warn(`MISSING  ${key}  "${text}"`)
       continue
     }
-    const file = `${key}.${res.ext}`
-    if (res.audio.length > 0) writeFileSync(resolve(outDir, file), res.audio)
+    const file = `${lang}/${key}.${res.ext}` // split by language: <styleId>/<lang>/<clipKey>.<ext>
+    const absFile = resolve(outDir, file)
+    if (res.audio.length > 0) { mkdirSync(dirname(absFile), { recursive: true }); writeFileSync(absFile, res.audio) }
     const entry: ClipEntry = { file, durationMs: res.durationMs, text, lang }
     manifest.clips[key] = entry
     written++

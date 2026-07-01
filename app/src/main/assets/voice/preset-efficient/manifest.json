@@ -1,0 +1,329 @@
+{
+  "styleId": "preset-efficient",
+  "clips": {
+    "uk__sikz5h": {
+      "file": "uk/uk__sikz5h.mp3",
+      "durationMs": 2273,
+      "text": "зігни лікоть",
+      "lang": "uk"
+    },
+    "uk__pozuw1": {
+      "file": "uk/uk__pozuw1.mp3",
+      "durationMs": 993,
+      "text": "випрями руку",
+      "lang": "uk"
+    },
+    "uk__1w6czen": {
+      "file": "uk/uk__1w6czen.mp3",
+      "durationMs": 1567,
+      "text": "опусти плече",
+      "lang": "uk"
+    },
+    "uk__vow359": {
+      "file": "uk/uk__vow359.mp3",
+      "durationMs": 1071,
+      "text": "відкрий плече",
+      "lang": "uk"
+    },
+    "uk__tj5386": {
+      "file": "uk/uk__tj5386.mp3",
+      "durationMs": 2194,
+      "text": "зігни коліна",
+      "lang": "uk"
+    },
+    "uk__xvcsnn": {
+      "file": "uk/uk__xvcsnn.mp3",
+      "durationMs": 1228,
+      "text": "вище",
+      "lang": "uk"
+    },
+    "uk__rxim2j": {
+      "file": "uk/uk__rxim2j.mp3",
+      "durationMs": 1411,
+      "text": "нахились",
+      "lang": "uk"
+    },
+    "uk__1pi1ad3": {
+      "file": "uk/uk__1pi1ad3.mp3",
+      "durationMs": 1489,
+      "text": "рівніше плечі",
+      "lang": "uk"
+    },
+    "uk__1w26ixq": {
+      "file": "uk/uk__1w26ixq.mp3",
+      "durationMs": 1959,
+      "text": "не блокуй лікоть",
+      "lang": "uk"
+    },
+    "uk__1gj7nzq": {
+      "file": "uk/uk__1gj7nzq.mp3",
+      "durationMs": 1646,
+      "text": "розправ лікоть",
+      "lang": "uk"
+    },
+    "uk__1doqu7w": {
+      "file": "uk/uk__1doqu7w.mp3",
+      "durationMs": 1149,
+      "text": "доводь лікоть",
+      "lang": "uk"
+    },
+    "uk__8hm8rm": {
+      "file": "uk/uk__8hm8rm.mp3",
+      "durationMs": 1489,
+      "text": "не затискай",
+      "lang": "uk"
+    },
+    "uk__1jlle31": {
+      "file": "uk/uk__1jlle31.mp3",
+      "durationMs": 2038,
+      "text": "рука нижче",
+      "lang": "uk"
+    },
+    "uk__1jlgrde": {
+      "file": "uk/uk__1jlgrde.mp3",
+      "durationMs": 1228,
+      "text": "рука назад",
+      "lang": "uk"
+    },
+    "uk__ajdg9t": {
+      "file": "uk/uk__ajdg9t.mp3",
+      "durationMs": 993,
+      "text": "не перемахуй",
+      "lang": "uk"
+    },
+    "uk__pf90ar": {
+      "file": "uk/uk__pf90ar.mp3",
+      "durationMs": 1411,
+      "text": "руку вгору",
+      "lang": "uk"
+    },
+    "uk__xmbtzx": {
+      "file": "uk/uk__xmbtzx.mp3",
+      "durationMs": 1489,
+      "text": "глибше присід",
+      "lang": "uk"
+    },
+    "uk__dmfezc": {
+      "file": "uk/uk__dmfezc.mp3",
+      "durationMs": 2038,
+      "text": "не пересідай",
+      "lang": "uk"
+    },
+    "uk__jmh1ke": {
+      "file": "uk/uk__jmh1ke.mp3",
+      "durationMs": 914,
+      "text": "тримай присід",
+      "lang": "uk"
+    },
+    "uk__bgpbwt": {
+      "file": "uk/uk__bgpbwt.mp3",
+      "durationMs": 1802,
+      "text": "не перегинай",
+      "lang": "uk"
+    },
+    "uk__1gal4z2": {
+      "file": "uk/uk__1gal4z2.mp3",
+      "durationMs": 1724,
+      "text": "нахил",
+      "lang": "uk"
+    },
+    "uk__11mteyj": {
+      "file": "uk/uk__11mteyj.mp3",
+      "durationMs": 1724,
+      "text": "стегна вище",
+      "lang": "uk"
+    },
+    "uk__15gon6p": {
+      "file": "uk/uk__15gon6p.mp3",
+      "durationMs": 2351,
+      "text": "тримай нахил",
+      "lang": "uk"
+    },
+    "uk__vcrfef": {
+      "file": "uk/uk__vcrfef.mp3",
+      "durationMs": 1228,
+      "text": "рівніше",
+      "lang": "uk"
+    },
+    "uk__1hq8ew7": {
+      "file": "uk/uk__1hq8ew7.mp3",
+      "durationMs": 836,
+      "text": "чисто",
+      "lang": "uk"
+    },
+    "uk__36hpm5": {
+      "file": "uk/uk__36hpm5.mp3",
+      "durationMs": 522,
+      "text": "так",
+      "lang": "uk"
+    },
+    "uk__1hdpfsb": {
+      "file": "uk/uk__1hdpfsb.mp3",
+      "durationMs": 836,
+      "text": "добре",
+      "lang": "uk"
+    },
+    "en__6b808r": {
+      "file": "en/en__6b808r.mp3",
+      "durationMs": 1881,
+      "text": "bend elbow",
+      "lang": "en"
+    },
+    "en__19t3725": {
+      "file": "en/en__19t3725.mp3",
+      "durationMs": 1306,
+      "text": "extend arm",
+      "lang": "en"
+    },
+    "en__1huo6sy": {
+      "file": "en/en__1huo6sy.mp3",
+      "durationMs": 914,
+      "text": "drop shoulder",
+      "lang": "en"
+    },
+    "en__1h1ktnz": {
+      "file": "en/en__1h1ktnz.mp3",
+      "durationMs": 1489,
+      "text": "open shoulder",
+      "lang": "en"
+    },
+    "en__67a96m": {
+      "file": "en/en__67a96m.mp3",
+      "durationMs": 2273,
+      "text": "bend knees",
+      "lang": "en"
+    },
+    "en__xw0igb": {
+      "file": "en/en__xw0igb.mp3",
+      "durationMs": 1149,
+      "text": "stand taller",
+      "lang": "en"
+    },
+    "en__stl3l3": {
+      "file": "en/en__stl3l3.mp3",
+      "durationMs": 601,
+      "text": "taller",
+      "lang": "en"
+    },
+    "en__1edxc4": {
+      "file": "en/en__1edxc4.mp3",
+      "durationMs": 679,
+      "text": "lean in",
+      "lang": "en"
+    },
+    "en__1n2poxq": {
+      "file": "en/en__1n2poxq.mp3",
+      "durationMs": 1959,
+      "text": "level shoulders",
+      "lang": "en"
+    },
+    "en__87odpe": {
+      "file": "en/en__87odpe.mp3",
+      "durationMs": 1149,
+      "text": "hips up",
+      "lang": "en"
+    },
+    "en__2xxlzc": {
+      "file": "en/en__2xxlzc.mp3",
+      "durationMs": 679,
+      "text": "hinge",
+      "lang": "en"
+    },
+    "en__1gyp2bv": {
+      "file": "en/en__1gyp2bv.mp3",
+      "durationMs": 1071,
+      "text": "don't lock elbow",
+      "lang": "en"
+    },
+    "en__1yylleq": {
+      "file": "en/en__1yylleq.mp3",
+      "durationMs": 1228,
+      "text": "open elbow",
+      "lang": "en"
+    },
+    "en__17ojuv9": {
+      "file": "en/en__17ojuv9.mp3",
+      "durationMs": 1489,
+      "text": "finish elbow",
+      "lang": "en"
+    },
+    "en__nfe0cx": {
+      "file": "en/en__nfe0cx.mp3",
+      "durationMs": 1567,
+      "text": "don't over-fold",
+      "lang": "en"
+    },
+    "en__d0eyb3": {
+      "file": "en/en__d0eyb3.mp3",
+      "durationMs": 993,
+      "text": "arm low",
+      "lang": "en"
+    },
+    "en__36zq28": {
+      "file": "en/en__36zq28.mp3",
+      "durationMs": 1724,
+      "text": "arm back",
+      "lang": "en"
+    },
+    "en__1qebifo": {
+      "file": "en/en__1qebifo.mp3",
+      "durationMs": 1646,
+      "text": "don't over-swing",
+      "lang": "en"
+    },
+    "en__9c3i44": {
+      "file": "en/en__9c3i44.mp3",
+      "durationMs": 1149,
+      "text": "sweep up",
+      "lang": "en"
+    },
+    "en__ku586g": {
+      "file": "en/en__ku586g.mp3",
+      "durationMs": 1411,
+      "text": "sit deeper",
+      "lang": "en"
+    },
+    "en__nexz3j": {
+      "file": "en/en__nexz3j.mp3",
+      "durationMs": 1306,
+      "text": "don't over-sink",
+      "lang": "en"
+    },
+    "en__1lqjj7s": {
+      "file": "en/en__1lqjj7s.mp3",
+      "durationMs": 1149,
+      "text": "stay down",
+      "lang": "en"
+    },
+    "en__nfb2fx": {
+      "file": "en/en__nfb2fx.mp3",
+      "durationMs": 1567,
+      "text": "don't over-bend",
+      "lang": "en"
+    },
+    "en__1tr7wxz": {
+      "file": "en/en__1tr7wxz.mp3",
+      "durationMs": 1567,
+      "text": "hold hinge",
+      "lang": "en"
+    },
+    "en__2xc2g0": {
+      "file": "en/en__2xc2g0.mp3",
+      "durationMs": 836,
+      "text": "clean",
+      "lang": "en"
+    },
+    "en__375zxm": {
+      "file": "en/en__375zxm.mp3",
+      "durationMs": 522,
+      "text": "yes",
+      "lang": "en"
+    },
+    "en__yix9l2": {
+      "file": "en/en__yix9l2.mp3",
+      "durationMs": 679,
+      "text": "good",
+      "lang": "en"
+    }
+  }
+}
