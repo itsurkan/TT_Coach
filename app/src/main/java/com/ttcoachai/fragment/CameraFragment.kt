@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     companion object {
-        private const val TAG = "TT AI Coach 1"
+        private const val TAG = "TT Coach AI"
     }
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null

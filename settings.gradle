@@ -17,6 +17,6 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "TT AI Coach 1"
+rootProject.name = "TT Coach AI"
 include ':app'
 include ':shared'

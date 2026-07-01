@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TT AI Coach 1</string>
+    <string name="app_name">TT Coach AI</string>
     <string name="use_video_debug">🎬 Використати відео (відлагодження)</string>
 
     <string name="media_pipe">MediaPipe</string>
