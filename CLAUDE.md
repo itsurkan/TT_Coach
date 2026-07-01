@@ -21,6 +21,24 @@ The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-a
 
 Docs dated April 2026 and earlier (ball tracking, MediaPipe calibration UI, MVP trackers) describe the **pre-pivot** state — still accurate as history and for frozen code, but not current direction.
 
+## Android UI redesign (gold-dark) — Slice 1 DONE (2026-07-01)
+
+Parallel track: restyling the existing Material 3 Android `app/` to a gold-on-dark "house system"
+from the claude.ai/design project **"Table Tennis Coach AI Redesign"** (project UUID
+`feb1eaea-d763-41c9-86fe-1262790d7291`, read via the DesignSync tool). **`app/` UI resources are
+therefore no longer strictly frozen** — but the pose/ball/trajectory pipeline code stays frozen
+(this track touches presentation only: colors/type/shape/styles/layouts + debug UI). Built in slices:
+- **Slice 1 — design-system foundation: DONE.** Colors (dark+light), bundled Inter Tight +
+  JetBrains Mono, shape appearances, `TTC.*` component styles, and a debug preview harness
+  `DesignSystemPreviewActivity` (`adb shell am start -n com.ttcoachai/.debug.DesignSystemPreviewActivity`,
+  FLAG_DEBUGGABLE-gated). Spec: [docs/superpowers/specs/2026-07-01-android-gold-dark-foundation-design.md](docs/superpowers/specs/2026-07-01-android-gold-dark-foundation-design.md);
+  plan: [docs/superpowers/plans/2026-07-01-android-gold-dark-foundation.md](docs/superpowers/plans/2026-07-01-android-gold-dark-foundation.md);
+  verbatim tokens: [docs/design/design-tokens-source.md](docs/design/design-tokens-source.md).
+- **Slices 2–4 — PENDING.** Slice 2: restyle existing screens (Dashboard/Progress/Drills/Settings/Profile/History).
+  Slice 3: new screens (Session Review `6b`, Feedback `11a`, Detection `11b`, New/Clone exercise forms `10c`/`10d`).
+  Slice 4: Live Session `1a` (needs the **parent** design doc — the `Live Session.dc.html` canvas only
+  contains the surrounding screens, not the `1a`/`2a` capture screen itself).
+
 ## Active Technologies
 
 **Current (2D pivot):**
