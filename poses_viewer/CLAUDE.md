@@ -99,7 +99,12 @@ so a backswing cue does not suppress a followthrough cue within `reminderInterva
 (voiced-only, from `voicedByRep`); both label pattern cues as e.g. `elbow_angle (завершення)` or
 `torso_lean (замах)` via `cueLabel`. `messageCatalog.ts` (EN, "vs ideal" wording) remains for the
 on-screen session summary (`sessionFocus`/`sessionStrengths`). Clips live in
-`public/voice/<styleId>/`, generated offline by `scripts/generateVoiceClips.ts`. Clicking a stroke
+`public/voice/<styleId>/`, generated offline by `scripts/generateVoiceClips.ts` —
+`TTS_PROVIDER=files VOICE_SRC=<dir>` indexes pre-rendered audio (auto-maps by normalized
+filename, `pairing.json` overrides, `music-metadata` duration, MISSING report; rebuilds the
+manifest fresh each run), `stub` dry-runs the keys. `uniquePhrases` enumerates cues +
+**phaseCues** + praise for BOTH langs (per-phase clips were previously un-generated); the
+manifest keys are `clipKey`-parity-tested in `drill2d/__tests__/voiceClipsGen.test.ts`. Clicking a stroke
 band loops its `start→end` segment (`strokeLoop.ts` `loopBackTarget`, wired in the video
 `onTimeUpdate`); a `🔁 Цикл` toggle in the selected-stroke row turns it off without deselecting.
 Reference ranges are PROVISIONAL (see referenceStandard.ts header).
