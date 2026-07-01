@@ -59,7 +59,7 @@
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?android:attr/colorBackground</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">?attr/isLightTheme</item>
 
         <!-- Typography scale -->
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
