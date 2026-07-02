@@ -2,7 +2,6 @@ package com.ttcoachai.fragment
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.text.InputType
 import android.text.format.DateUtils
@@ -24,7 +23,6 @@ import com.ttcoachai.TrainingActivity
 import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.FragmentDrillsBinding
 import com.ttcoachai.db.AppDatabase
-import com.ttcoachai.debug.BaselinePreviewActivity
 import com.ttcoachai.models.CustomDrillEntity
 import com.ttcoachai.repository.CustomDrillRepository
 import kotlinx.coroutines.Dispatchers
@@ -208,36 +206,90 @@ class DrillsFragment : Fragment() {
     }
 
     /**
-     * Long-press on a drill row opens the drill-action picker:
-     *  - "Calibrate" launches CalibrationActivity. Custom drills pass their
-     *    own `custom_<ts>` drillType; built-ins use the legacy
-     *    forehand_shadow default until per-drill calibration lands.
-     *  - "Edit in UI mode" opens the BaselinePreviewActivity parameter
-     *    editor (Phase 7). Hidden on release builds via FLAG_DEBUGGABLE.
+     * Long-press on a drill row opens the rule-gated action menu (Continue/Edit/
+     * Clone/Rename/Delete), filtered per-exercise by [DrillActions]. Built-in
+     * presets only offer Continue/Clone; custom drills offer all five.
      */
     private fun showDrillOptions(exercise: Exercise) {
-        val ctx = requireContext()
-        val isDebuggable = ctx.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
-        val labels = mutableListOf(getString(R.string.drill_menu_calibrate))
-        if (isDebuggable) labels += getString(R.string.drill_menu_edit_ui_mode)
-
-        AlertDialog.Builder(ctx)
+        data class Action(val label: String, val run: () -> Unit)
+        val actions = buildList {
+            if (DrillActions.canContinue(exercise))
+                add(Action(getString(R.string.drill_action_continue)) { onExerciseSelected(exercise) })
+            if (DrillActions.canEdit(exercise))
+                add(Action(getString(R.string.drill_action_edit)) { launchCustomDrillCalibration() })
+            if (DrillActions.canClone(exercise))
+                add(Action(getString(R.string.drill_action_clone)) { cloneDrill(exercise) })
+            if (DrillActions.canRename(exercise))
+                add(Action(getString(R.string.drill_action_rename)) { renameDrill(exercise) })
+            if (DrillActions.canDelete(exercise))
+                add(Action(getString(R.string.drill_action_delete)) { deleteDrill(exercise) })
+        }
+        val labels = actions.map { it.label }.toTypedArray()
+        AlertDialog.Builder(requireContext())
             .setTitle(exercise.name)
-            .setItems(labels.toTypedArray()) { _, which ->
-                when (which) {
-                    0 -> startActivity(
-                        Intent(ctx, CalibrationActivity::class.java).apply {
-                            if (exercise.id.startsWith(CUSTOM_DRILL_PREFIX)) {
-                                putExtra(CalibrationActivity.EXTRA_DRILL_TYPE, exercise.id)
+            .setItems(labels) { _, which -> actions[which].run() }
+            .show()
+    }
+
+    private fun cloneDrill(source: Exercise) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val newType = "${CUSTOM_DRILL_PREFIX}${System.currentTimeMillis()}"
+            val copyName = "${source.name} ${getString(R.string.drill_clone_copy_suffix)}"
+            val baseTemplate = if (DrillActions.isCustom(source)) {
+                withContext(Dispatchers.IO) { customDrillRepo.get(source.id) }?.baseTemplate ?: source.id
+            } else source.id
+            val entity = CustomDrillEntity(
+                drillType = newType,
+                name = copyName,
+                baseTemplate = baseTemplate,
+                createdAtMs = System.currentTimeMillis()
+            )
+            withContext(Dispatchers.IO) { customDrillRepo.save(entity) }
+            if (_binding == null) return@launch
+            Toast.makeText(requireContext(),
+                getString(R.string.drill_clone_toast, copyName), Toast.LENGTH_SHORT).show()
+            reloadCustomDrills()
+        }
+    }
+
+    private fun renameDrill(exercise: Exercise) {
+        val input = EditText(requireContext()).apply { setText(exercise.name) }
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.drill_rename_title)
+            .setView(input)
+            .setPositiveButton(R.string.drill_rename_save) { _, _ ->
+                val newName = input.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val existing = withContext(Dispatchers.IO) { customDrillRepo.get(exercise.id) }
+                        if (existing != null) {
+                            withContext(Dispatchers.IO) {
+                                customDrillRepo.save(existing.copy(name = newName))
                             }
+                            if (_binding == null) return@launch
+                            reloadCustomDrills()
                         }
-                    )
-                    1 -> startActivity(
-                        Intent(ctx, BaselinePreviewActivity::class.java)
-                            .putExtra(BaselinePreviewActivity.EXTRA_DRILL_TYPE, exercise.id)
-                    )
+                    }
                 }
             }
+            .setNegativeButton(R.string.drill_cancel, null)
+            .show()
+    }
+
+    private fun deleteDrill(exercise: Exercise) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.drill_delete_title)
+            .setMessage(getString(R.string.drill_delete_message, exercise.name))
+            .setPositiveButton(R.string.drill_delete_confirm) { _, _ ->
+                viewLifecycleOwner.lifecycleScope.launch {
+                    withContext(Dispatchers.IO) { customDrillRepo.delete(exercise.id) }
+                    if (_binding == null) return@launch
+                    Toast.makeText(requireContext(),
+                        getString(R.string.drill_delete_toast, exercise.name), Toast.LENGTH_SHORT).show()
+                    reloadCustomDrills()
+                }
+            }
+            .setNegativeButton(R.string.drill_cancel, null)
             .show()
     }
 
