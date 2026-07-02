@@ -3,6 +3,7 @@ package com.ttcoachai.helpers
 import com.ttcoachai.models.TrainingSession
 import java.time.Instant
 import java.time.ZoneId
+import java.time.temporal.IsoFields
 import java.time.temporal.WeekFields
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -33,6 +34,9 @@ object SessionHistoryGrouper {
         val nowDate = Instant.ofEpochMilli(nowMs).atZone(zone).toLocalDate()
         val nowWeek = nowDate.get(weekFields.weekOfWeekBasedYear())
         val nowYear = nowDate.get(weekFields.weekBasedYear())
+        val lastWeekRefDate = nowDate.minusDays(7)
+        val lastWeekRefWeek = lastWeekRefDate.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+        val lastWeekRefYear = lastWeekRefDate.get(IsoFields.WEEK_BASED_YEAR)
 
         // previous same-exercise accuracy (older neighbour), walking oldest->newest
         val trendByIndex = HashMap<String, Pair<Trend, Int>>()
@@ -59,7 +63,7 @@ object SessionHistoryGrouper {
             val year = date.get(weekFields.weekBasedYear())
             val group = when {
                 year == nowYear && week == nowWeek -> WeekGroup.THIS_WEEK
-                year == nowYear && week == nowWeek - 1 -> WeekGroup.LAST_WEEK
+                year == lastWeekRefYear && week == lastWeekRefWeek -> WeekGroup.LAST_WEEK
                 else -> WeekGroup.EARLIER
             }
             val (trend, delta) = trendByIndex[s.id] ?: (Trend.FLAT to 0)

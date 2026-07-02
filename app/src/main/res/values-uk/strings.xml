@@ -724,6 +724,11 @@
     <string name="review_action_train_again">Повторити тренування</string>
     <string name="review_action_overview">Огляд</string>
     <string name="review_no_analytics">Немає детальної аналітики для цієї сесії</string>
+    <string name="review_when_meta">%1$s · %2$s · %3$d хв</string>
+    <string name="review_kpi_duration_value">%1$dхв</string>
+    <string name="review_x_axis_min">%1$d хв</string>
+    <string name="date_today">Сьогодні</string>
+    <string name="date_yesterday">Вчора</string>
     <string name="cd_share">Поділитися сесією</string>
     <!-- Focus-area display names -->
     <string name="focus_wrist">Кут зап\'ястя</string>

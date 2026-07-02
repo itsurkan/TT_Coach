@@ -5,6 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import java.time.Instant
 import java.time.ZoneId
 
 @RunWith(RobolectricTestRunner::class)
@@ -33,6 +34,17 @@ class SessionHistoryGrouperTest {
         assertEquals(SessionHistoryGrouper.WeekGroup.THIS_WEEK, rows["a"]!!.group)
         assertEquals(SessionHistoryGrouper.WeekGroup.LAST_WEEK, rows["b"]!!.group)
         assertEquals(SessionHistoryGrouper.WeekGroup.EARLIER, rows["c"]!!.group)
+    }
+
+    @Test
+    fun group_lastWeek_handlesIsoYearBoundary() {
+        // now = Jan 2, 2024, ISO week 1 of week-based-year 2024
+        val nowJan = Instant.parse("2024-01-02T12:00:00Z").toEpochMilli()
+        // session = Dec 29, 2023, ISO week 52 of week-based-year 2023 (last week relative to nowJan)
+        val sessionDec = Instant.parse("2023-12-29T12:00:00Z").toEpochMilli()
+        val sessions = listOf(session("boundary", sessionDec, "Forehand", 0.80f))
+        val rows = SessionHistoryGrouper.group(sessions, nowJan, zone).associateBy { it.session.id }
+        assertEquals(SessionHistoryGrouper.WeekGroup.LAST_WEEK, rows["boundary"]!!.group)
     }
 
     @Test

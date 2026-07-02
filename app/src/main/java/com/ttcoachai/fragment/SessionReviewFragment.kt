@@ -17,6 +17,9 @@ import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -54,15 +57,29 @@ class SessionReviewFragment : Fragment() {
             return
         }
         binding.tvDrillName.text = session.exerciseName
-        val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(session.startTime))
-        binding.tvWhen.text = "$time · ${session.durationSeconds / 60} min"
+        val locale = resources.configuration.locales[0]
+        val time = SimpleDateFormat("HH:mm", locale).format(Date(session.startTime))
+        val zone = ZoneId.systemDefault()
+        val sessionDate = Instant.ofEpochMilli(session.startTime).atZone(zone).toLocalDate()
+        val today = LocalDate.now(zone)
+        val relativeDatePrefix = when {
+            sessionDate.isEqual(today) -> getString(R.string.date_today)
+            sessionDate.isEqual(today.minusDays(1)) -> getString(R.string.date_yesterday)
+            else -> SimpleDateFormat("d MMM", locale).format(Date(session.startTime))
+        }
+        binding.tvWhen.text = getString(
+            R.string.review_when_meta,
+            relativeDatePrefix,
+            time,
+            session.durationSeconds / 60
+        )
         binding.tvKpiAccuracy.text = "${session.getAccuracyPercent()}%"
         binding.tvKpiStrokes.text = session.strokeCount.toString()
-        binding.tvKpiDuration.text = "${session.durationSeconds / 60}m"
+        binding.tvKpiDuration.text = getString(R.string.review_kpi_duration_value, session.durationSeconds / 60)
 
         val totalMin = session.durationSeconds / 60
-        binding.tvXMid.text = "${totalMin / 2} min"
-        binding.tvXEnd.text = "$totalMin min"
+        binding.tvXMid.text = getString(R.string.review_x_axis_min, totalMin / 2)
+        binding.tvXEnd.text = getString(R.string.review_x_axis_min, totalMin)
 
         if (analytics == null) {
             binding.chartAccuracy.visibility = View.INVISIBLE
