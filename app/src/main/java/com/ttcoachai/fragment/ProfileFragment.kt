@@ -54,7 +54,6 @@ class ProfileFragment : Fragment() {
 
         setupSubscriptionSection()
         setupThemeButtons()
-        setupLevelSelector()
         setupMenuItems()
         
         // Initialize ProgressDataLoader
@@ -157,41 +156,6 @@ class ProfileFragment : Fragment() {
                 (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
             }
         }
-    }
-
-    private fun setupLevelSelector() {
-        val currentLevel = settingsManager.getSkillLevel()
-        
-        when (currentLevel) {
-            "Beginner" -> binding.toggleGroupLevel.check(R.id.btn_level_beginner)
-            "Advanced" -> binding.toggleGroupLevel.check(R.id.btn_level_advanced)
-            else -> binding.toggleGroupLevel.check(R.id.btn_level_intermediate)
-        }
-        
-        refreshLevelHeader(currentLevel)
-        
-        binding.toggleGroupLevel.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                val newLevel = when (checkedId) {
-                    R.id.btn_level_beginner -> "Beginner"
-                    R.id.btn_level_advanced -> "Advanced"
-                    else -> "Intermediate"
-                }
-                settingsManager.setSkillLevel(newLevel)
-                refreshLevelHeader(newLevel)
-                // Trigger cloud sync
-                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
-            }
-        }
-    }
-
-    private fun refreshLevelHeader(level: String) {
-        val localizedLevel = when (level) {
-            "Beginner" -> getString(R.string.level_beginner)
-            "Advanced" -> getString(R.string.level_advanced)
-            else -> getString(R.string.level_intermediate)
-        }
-        binding.tvProfileLevel.text = getString(R.string.level_format, localizedLevel)
     }
 
     private fun setupMenuItems() {

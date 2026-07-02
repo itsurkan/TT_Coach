@@ -116,27 +116,6 @@
                             android:text="user@example.com"
                             android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                             android:layout_marginBottom="8dp"/>
-
-                        <!-- Level Badge Pill -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/tv_profile_level"
-                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:text="@string/placeholder_user_level"
-                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
-                            android:textColor="@color/ttc_gold_bright"
-                            app:strokeColor="@color/ttc_gold_bright"
-                            app:strokeWidth="1dp"
-                            android:paddingStart="12dp"
-                            android:paddingEnd="12dp"
-                            android:insetTop="0dp"
-                            android:insetBottom="0dp"
-                            app:cornerRadius="16dp"
-                            android:layout_marginTop="4dp"
-                            android:drawableStart="@drawable/ic_trending_up"
-                            app:iconTint="@color/ttc_gold_bright"
-                            android:drawablePadding="6dp"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -606,65 +585,6 @@
                 android:orientation="vertical"
                 android:divider="?android:attr/listDivider"
                 android:showDividers="middle">
-
-                <!-- Skill Level -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_award"
-                            app:tint="?attr/colorOnSurfaceVariant"
-                            android:layout_marginEnd="12dp"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textAppearance="?attr/textAppearanceBodyLarge"
-                            android:text="@string/skill_level_title"/>
-                    </LinearLayout>
-
-                    <com.google.android.material.button.MaterialButtonToggleGroup
-                        android:id="@+id/toggle_group_level"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-
-                        <Button
-                            android:id="@+id/btn_level_beginner"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/level_beginner" />
-
-                        <Button
-                            android:id="@+id/btn_level_intermediate"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/level_intermediate" />
-
-                        <Button
-                            android:id="@+id/btn_level_advanced"
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/level_advanced" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
-                </LinearLayout>
 
                 <!-- Theme -->
                 <LinearLayout

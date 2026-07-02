@@ -242,7 +242,6 @@
     <string name="placeholder_feedback_desc_perfect">Ви зробили контакт з м\'ячем у оптимальній точці перед собою.</string>
     <string name="placeholder_user_initials">ІП</string>
     <string name="placeholder_user_name">Іван Петренко</string>
-    <string name="placeholder_user_level">Середній рівень</string>
     <string name="placeholder_score">86</string>
     <string name="placeholder_streak">12</string>
     <string name="placeholder_hits">0</string>
@@ -431,11 +430,6 @@
     <string name="theme_light">Світла</string>
     <string name="theme_dark">Темна</string>
     <string name="theme_system">Системна</string>
-    <string name="skill_level_title">Рівень навичок</string>
-    <string name="level_beginner">Початківець</string>
-    <string name="level_intermediate">Середній</string>
-    <string name="level_advanced">Просунутий</string>
-    <string name="level_format">%s гравець</string>
     <string name="language_section">Мова</string>
     <string name="language_title">Мова інтерфейсу</string>
     <string name="language_desc">Оберіть бажану мову для додатка</string>

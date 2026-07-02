@@ -261,8 +261,10 @@ class DrillsFragment : Fragment() {
     }
 
     private fun iconForDrill(id: String): Int = when (id) {
-        "backhand_loop" -> R.drawable.ic_trending_up
-        "footwork_drill" -> R.drawable.ic_person
+        "forehand_drive", "forehand_andrii" -> R.drawable.ic_skill_forehand
+        "backhand_loop" -> R.drawable.ic_skill_backhand
+        "serve_practice" -> R.drawable.ic_skill_topspin
+        "footwork_drill" -> R.drawable.ic_skill_footwork
         "multiball_rally" -> R.drawable.ic_alert_circle
         "consistency_challenge" -> R.drawable.ic_check_circle_2
         else -> R.drawable.ic_target

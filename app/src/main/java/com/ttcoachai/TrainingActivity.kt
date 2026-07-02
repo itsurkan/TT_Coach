@@ -193,8 +193,11 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     .setNeutralButton(getString(R.string.dialog_no)) { _, _ -> resumeTraining() }
                     .setNegativeButton(getString(R.string.btn_discard)) { _, _ -> stopTraining(discard = true) }
                     .setPositiveButton(getString(R.string.btn_finish_save)) { _, _ -> stopTraining(discard = false) }
-                    .setOnCancelListener { resumeTraining() }
+                    // A second back press cancels the dialog and discards the training,
+                    // rather than resuming and returning to the camera view.
+                    .setOnCancelListener { stopTraining(discard = true) }
                     .show()
+                    .apply { setCanceledOnTouchOutside(false) }
             }
         })
     }
