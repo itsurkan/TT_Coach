@@ -29,7 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:text="@string/progress_subtitle"
-                android:textAppearance="@style/TextAppearance.TTC.Body" />
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
 
             <!-- Stats Overview Cards -->
             <LinearLayout

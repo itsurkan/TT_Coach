@@ -742,6 +742,7 @@
     <string name="greeting_afternoon">Good afternoon</string>
     <string name="greeting_evening">Good evening</string>
     <string name="greeting_name_fallback">there</string>
+    <string name="format_greeting_prefix">%1$s,</string>
     <string name="cd_avatar">Profile picture</string>
 
     <string name="eyebrow_last_session">LAST SESSION</string>

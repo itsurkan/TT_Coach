@@ -568,6 +568,7 @@
     <string name="greeting_afternoon">Доброго дня</string>
     <string name="greeting_evening">Доброго вечора</string>
     <string name="greeting_name_fallback">друже</string>
+    <string name="format_greeting_prefix">%1$s,</string>
     <string name="cd_avatar">Фото профілю</string>
 
     <string name="eyebrow_last_session">ОСТАННЯ СЕСІЯ</string>

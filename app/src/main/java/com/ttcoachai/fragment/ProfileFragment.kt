@@ -17,8 +17,6 @@ import com.ttcoachai.DebugActivity
 import com.ttcoachai.databinding.FragmentProfileBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
-import android.widget.ArrayAdapter
-import android.widget.AdapterView
 import com.ttcoachai.viewmodels.AuthViewModel
 import coil.load
 import kotlinx.coroutines.flow.collect
@@ -55,7 +53,6 @@ class ProfileFragment : Fragment() {
         viewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.ttcoachai.viewmodels.AuthViewModel::class.java]
 
         setupSubscriptionSection()
-        setupLanguageSection()
         setupThemeButtons()
         setupLevelSelector()
         setupMenuItems()
@@ -134,38 +131,6 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireContext(), SubscribeActivity::class.java)
             startActivity(intent)
         }
-    }
-
-    private fun setupLanguageSection() {
-        val languages = resources.getStringArray(R.array.language_options)
-        val languageCodes = resources.getStringArray(R.array.language_codes)
-        
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, languages)
-        binding.autoCompleteLanguage.setAdapter(adapter)
-
-        // Set current selection based on saved language
-        val currentLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
-        val selectionIndex = languageCodes.indexOf(currentLanguage).coerceAtLeast(0)
-        binding.autoCompleteLanguage.setText(languages[selectionIndex], false)
-
-        binding.autoCompleteLanguage.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val newLanguage = languageCodes[position]
-            val savedLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
-            
-            if (newLanguage != savedLanguage) {
-                com.ttcoachai.LocaleHelper.setLocale(requireContext(), newLanguage)
-                // Trigger cloud sync before restart
-                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
-                restartApp()
-            }
-        }
-    }
-
-    private fun restartApp() {
-        val intent = Intent(requireContext(), com.ttcoachai.MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
-        requireActivity().finish()
     }
 
     private fun setupThemeButtons() {

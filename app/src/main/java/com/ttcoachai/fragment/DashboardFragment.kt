@@ -48,7 +48,7 @@ class DashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.tvGreeting.text = greetingForTimeOfDay()
+        binding.tvGreeting.text = getString(R.string.format_greeting_prefix, greetingForTimeOfDay())
         setupClickListeners()
         loadDashboardData()
     }

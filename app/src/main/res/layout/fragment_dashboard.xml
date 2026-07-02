@@ -30,19 +30,24 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="horizontal"
+                    android:baselineAligned="true"
+                    android:gravity="bottom">
 
                     <TextView
                         android:id="@+id/tv_greeting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/greeting_evening"
-                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
+                        android:textColor="@color/ttc_text_1"
+                        android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_greeting_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
                         android:text="@string/greeting_name_fallback"
                         android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
                         android:textColor="@color/ttc_text_1"

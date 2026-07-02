@@ -12,7 +12,47 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Profile Header -->
+        <!-- Screen Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_title"
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_subtitle"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                    android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <ImageButton
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_settings"
+                android:scaleType="centerInside"
+                android:contentDescription="@string/settings"
+                android:tint="@color/ttc_text_1"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!-- Profile Identity Card -->
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
             android:layout_width="match_parent"
@@ -75,13 +115,28 @@
                             android:layout_height="wrap_content"
                             android:text="user@example.com"
                             android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                            android:layout_marginBottom="4dp"/>
-                        <TextView
+                            android:layout_marginBottom="8dp"/>
+
+                        <!-- Level Badge Pill -->
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/tv_profile_level"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="32dp"
                             android:text="@string/placeholder_user_level"
-                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+                            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+                            android:textColor="@color/ttc_gold_bright"
+                            app:strokeColor="@color/ttc_gold_bright"
+                            app:strokeWidth="1dp"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            app:cornerRadius="16dp"
+                            android:layout_marginTop="4dp"
+                            android:drawableStart="@drawable/ic_trending_up"
+                            app:iconTint="@color/ttc_gold_bright"
+                            android:drawablePadding="6dp"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -95,9 +150,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingVertical="16dp"
+                    android:paddingTop="16dp"
                     android:baselineAligned="false">
-                    
+
                     <!-- Skill Score -->
                     <LinearLayout
                         android:layout_width="0dp"
@@ -105,21 +160,34 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="center">
-                        
+
                         <TextView
                             android:id="@+id/tv_profile_skill_score"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_score"
-                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large"
+                            android:textColor="@color/ttc_gold_bright"/>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/skill_score"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="14sp"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
+
+                    <!-- Divider 1 -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="40dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="4dp"/>
 
                     <!-- Total Hours -->
                     <LinearLayout
@@ -128,7 +196,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="center">
-                        
+
                         <TextView
                             android:id="@+id/tv_profile_hours"
                             android:layout_width="wrap_content"
@@ -137,12 +205,24 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Large"/>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_total_hours"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="14sp"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
+
+                    <!-- Divider 2 -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="40dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="4dp"/>
 
                     <!-- Days Streak -->
                     <LinearLayout
@@ -151,7 +231,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="center">
-                        
+
                         <TextView
                             android:id="@+id/tv_profile_streak"
                             android:layout_width="wrap_content"
@@ -160,12 +240,24 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Large" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_days_streak"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="14sp"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
+
+                    <!-- Divider 3 -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="40dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="4dp"/>
 
                     <!-- Achievements -->
                     <LinearLayout
@@ -174,7 +266,7 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="center">
-                        
+
                         <TextView
                             android:id="@+id/tv_profile_achievements"
                             android:layout_width="wrap_content"
@@ -183,10 +275,15 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Large" />
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_achievements"
+                            android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="14sp"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -485,76 +582,6 @@
                         android:layout_height="20dp"
                         android:src="@drawable/ic_chevron_right"
                         app:tint="?attr/colorOnSurfaceVariant"/>
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Language Section -->
-        <TextView
-            style="@style/TTC.SectionHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/language_section"
-            android:layout_marginBottom="12dp"/>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TTC.Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:orientation="horizontal">
-
-                <FrameLayout
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bg_icon_tile_neutral">
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_language"
-                        app:tint="@color/ttc_text_2"
-                        android:layout_gravity="center"/>
-                </FrameLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:layout_marginStart="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/language_title"
-                        android:textAppearance="@style/TextAppearance.TTC.Title.Card"
-                        android:layout_marginBottom="4dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/language_desc"
-                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
-                        android:layout_marginBottom="12dp"/>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp">
-
-                        <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                            android:id="@+id/auto_complete_language"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none"
-                            android:padding="12dp" />
-                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
