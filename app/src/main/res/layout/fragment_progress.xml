@@ -58,8 +58,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_gold_container">
+                            android:background="@drawable/bg_icon_tile_gold">
 
                             <ImageView
                                 android:layout_width="20dp"
@@ -104,8 +103,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_surface_elevated">
+                            android:background="@drawable/bg_icon_tile_neutral">
 
                             <ImageView
                                 android:layout_width="20dp"
@@ -150,8 +148,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_gold_container">
+                            android:background="@drawable/bg_icon_tile_gold">
 
                             <ImageView
                                 android:layout_width="20dp"
@@ -191,8 +188,10 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
+                    <!-- Pill segmented control (restyled toggle group; IDs preserved for ProgressFragment) -->
                     <com.google.android.material.button.MaterialButtonToggleGroup
                         android:id="@+id/toggle_group_chart"
+                        style="@style/TTC.SegmentedTrack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="24dp"
@@ -202,18 +201,38 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_training_time"
-                            style="@style/TTC.Button.Ghost"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:textAllCaps="false"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/inter_tight_semibold"
+                            android:textColor="@color/ttc_chip_text"
+                            app:backgroundTint="@color/ttc_chip_bg"
+                            app:strokeWidth="0dp"
+                            app:elevation="0dp"
+                            app:cornerRadius="18dp"
                             android:text="@string/tab_training_time" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_accuracy"
-                            style="@style/TTC.Button.Ghost"
+                            style="@style/Widget.Material3.Button.TextButton"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:textAllCaps="false"
+                            android:textSize="13sp"
+                            android:fontFamily="@font/inter_tight_semibold"
+                            android:textColor="@color/ttc_chip_text"
+                            app:backgroundTint="@color/ttc_chip_bg"
+                            app:strokeWidth="0dp"
+                            app:elevation="0dp"
+                            app:cornerRadius="18dp"
                             android:text="@string/tab_accuracy" />
                     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -234,8 +253,7 @@
 
                     <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:background="@color/ttc_surface_elevated">
+                        android:layout_height="200dp">
 
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/training_bar_chart"

@@ -48,7 +48,7 @@
                     android:id="@+id/card_start_training"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_card_blue_gradient"
+                    android:background="@color/ttc_gold_bright"
                     android:padding="24dp">
 
                     <TextView
@@ -126,8 +126,7 @@
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target"
                             app:tint="@color/ttc_gold_accent"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_gold_container"
+                            android:background="@drawable/bg_icon_tile_gold"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -165,9 +164,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target"
-                            app:tint="@color/ttc_amber"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_gold_container"
+                            app:tint="@color/ttc_gold_accent"
+                            android:background="@drawable/bg_icon_tile_gold"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -206,8 +204,7 @@
                             android:layout_height="32dp"
                             android:src="@drawable/ic_target"
                             app:tint="@color/ttc_text_2"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_surface_elevated"
+                            android:background="@drawable/bg_icon_tile_neutral"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 
@@ -245,9 +242,8 @@
                             android:layout_width="32dp"
                             android:layout_height="32dp"
                             android:src="@drawable/ic_trending_up"
-                            app:tint="@color/ttc_error"
-                            android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="@color/ttc_error_container"
+                            app:tint="@color/ttc_text_2"
+                            android:background="@drawable/bg_icon_tile_neutral"
                             android:padding="8dp"
                             android:layout_marginBottom="8dp"/>
 

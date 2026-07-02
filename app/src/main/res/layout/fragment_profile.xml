@@ -14,11 +14,10 @@
 
         <!-- Profile Header -->
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            style="@style/Widget.Material3.CardView.Outlined"
-            app:cardCornerRadius="16dp">
+            android:layout_marginBottom="24dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -36,10 +35,9 @@
                     <FrameLayout
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:background="@drawable/bg_rounded_white_20"
-                        android:backgroundTint="?attr/colorSurfaceVariant"
+                        android:background="@drawable/circle_gold"
                         android:clipToOutline="true">
-                        
+
                         <ImageView
                             android:id="@+id/iv_profile_image"
                             android:layout_width="match_parent"
@@ -53,7 +51,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_initials"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textColor="@color/ttc_gold_accent"
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:layout_gravity="center"/>
@@ -70,29 +68,27 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_name"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Screen"/>
                         <TextView
                             android:id="@+id/tv_profile_email"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="user@example.com"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                             android:layout_marginBottom="4dp"/>
                         <TextView
                             android:id="@+id/tv_profile_level"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_user_level"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="?attr/colorControlHighlight"
+                    android:background="@color/ttc_outline"
                     android:layout_marginBottom="16dp"/>
 
                 <LinearLayout
@@ -115,16 +111,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_score"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold"/>
-                            
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large"/>
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/skill_score"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
                     <!-- Total Hours -->
@@ -140,16 +134,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold"/>
-                            
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large"/>
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_total_hours"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
                     <!-- Days Streak -->
@@ -165,16 +157,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_count_24"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold" />
-                            
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_days_streak"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
                     <!-- Achievements -->
@@ -190,16 +180,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/placeholder_streak"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold" />
-                            
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large" />
+
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="@string/stats_achievements"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
                 </LinearLayout>
 
@@ -208,20 +196,18 @@
 
         <!-- Subscription Section -->
         <TextView
+            style="@style/TTC.SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/subscription_section"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorOnSurfaceVariant"
             android:layout_marginBottom="12dp"/>
 
         <!-- Premium Active Card (visible when subscribed) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_subscription_active"
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/AppTheme.Card.Grid"
-            app:cardBackgroundColor="@color/bg_card_calendar"
             android:layout_marginBottom="24dp"
             android:visibility="gone">
 
@@ -234,13 +220,12 @@
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_card_rounded"
-                    android:backgroundTint="@color/text_card_calendar">
+                    android:background="@drawable/bg_icon_tile_gold">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_crown"
-                        app:tint="@color/bg_card_calendar"
+                        app:tint="@color/ttc_gold_accent"
                         android:layout_gravity="center"/>
                 </FrameLayout>
 
@@ -261,8 +246,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/premium_active_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="@color/text_card_calendar"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -270,10 +254,10 @@
                             android:textAppearance="?attr/textAppearanceLabelSmall"
                             android:textStyle="bold"
                             android:background="@drawable/bg_badge_active"
-                            android:backgroundTint="@color/text_card_calendar"
+                            android:backgroundTint="@color/ttc_gold_bright"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="2dp"
-                            android:textColor="@color/bg_card_calendar"
+                            android:textColor="@color/ttc_on_gold"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -281,9 +265,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/premium_enjoy_desc"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="@color/text_card_calendar"
-                        android:alpha="0.8"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                         android:layout_marginBottom="12dp"/>
 
                     <TextView
@@ -291,9 +273,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/placeholder_renews_on"
-                        android:textAppearance="?attr/textAppearanceLabelSmall"
-                        android:textColor="@color/text_card_calendar"
-                        android:alpha="0.6"/>
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -301,10 +281,10 @@
         <!-- Upgrade Card (visible when not subscribed) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_subscription_upgrade"
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/AppTheme.Card.Grid"
-            app:cardBackgroundColor="?attr/colorErrorContainer"
+            app:cardBackgroundColor="@color/ttc_gold_bright"
             android:layout_marginBottom="24dp"
             android:clickable="true"
             android:focusable="true">
@@ -319,12 +299,12 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="@drawable/bg_card_rounded"
-                    android:backgroundTint="?attr/colorOnErrorContainer">
+                    android:backgroundTint="@color/ttc_cream">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_crown"
-                        app:tint="?attr/colorErrorContainer"
+                        app:tint="@color/ttc_on_gold"
                         android:layout_gravity="center"/>
                 </FrameLayout>
 
@@ -346,12 +326,12 @@
                             android:layout_height="wrap_content"
                             android:text="@string/upgrade_to_premium"
                             android:textAppearance="?attr/textAppearanceTitleMedium"
-                            android:textColor="?attr/colorOnErrorContainer"/>
+                            android:textColor="@color/ttc_on_gold"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_award"
-                            app:tint="?attr/colorOnErrorContainer"
+                            app:tint="@color/ttc_on_gold"
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
@@ -360,8 +340,7 @@
                         android:layout_height="wrap_content"
                         android:text="@string/upgrade_unlock_desc"
                         android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="?attr/colorOnErrorContainer"
-                        android:alpha="0.8"
+                        android:textColor="@color/ttc_text_on_gold_card"
                         android:lineSpacingMultiplier="1.2"
                         android:layout_marginBottom="12dp"/>
 
@@ -369,18 +348,22 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:gravity="center_vertical"
+                        android:background="@drawable/bg_card_rounded"
+                        android:backgroundTint="@color/ttc_on_gold"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp">
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/view_plans"
                             android:textAppearance="?attr/textAppearanceLabelLarge"
-                            android:textColor="?attr/colorError"/>
+                            android:textColor="@color/ttc_gold_bright"/>
                         <ImageView
                             android:layout_width="16dp"
                             android:layout_height="16dp"
                             android:src="@drawable/ic_chevron_right"
-                            app:tint="?attr/colorError"
+                            app:tint="@color/ttc_gold_bright"
                             android:layout_marginStart="4dp"/>
                     </LinearLayout>
                 </LinearLayout>
@@ -389,19 +372,16 @@
 
         <!-- Training Goals Section -->
         <TextView
+            style="@style/TTC.SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/training_goals_section"
-            android:textAppearance="?attr/textAppearanceLabelLarge"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorControlHighlight"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -425,13 +405,12 @@
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_rounded_blue_light"
-                        android:backgroundTint="?attr/colorPrimaryContainer">
+                        android:background="@drawable/bg_icon_tile_gold">
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_target"
-                            app:tint="?attr/colorPrimary"
+                            app:tint="@color/ttc_gold_accent"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -445,13 +424,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/weekly_sessions"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/weekly_sessions_desc"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
                     <ImageView
@@ -475,13 +453,12 @@
                     <FrameLayout
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:background="@drawable/bg_rounded_green_light"
-                        android:backgroundTint="?attr/colorTertiaryContainer">
+                        android:background="@drawable/bg_icon_tile_gold">
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:src="@drawable/ic_award"
-                            app:tint="?attr/colorTertiary"
+                            app:tint="@color/ttc_gold_accent"
                             android:layout_gravity="center"/>
                     </FrameLayout>
 
@@ -495,13 +472,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_target"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_target_desc"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
                     <ImageView
@@ -515,17 +491,16 @@
 
         <!-- Language Section -->
         <TextView
+            style="@style/TTC.SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/language_section"
-            android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.CardView.Outlined"
-            app:cardCornerRadius="16dp"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -537,13 +512,12 @@
                 <FrameLayout
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:background="@drawable/bg_rounded_white_20"
-                    android:backgroundTint="?attr/colorControlHighlight">
+                    android:background="@drawable/bg_icon_tile_neutral">
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_language"
-                        app:tint="?attr/colorControlNormal"
+                        app:tint="@color/ttc_text_2"
                         android:layout_gravity="center"/>
                 </FrameLayout>
 
@@ -558,16 +532,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/language_title"
-                        android:textAppearance="?attr/textAppearanceTitleSmall"
-                        android:textStyle="bold"
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Card"
                         android:layout_marginBottom="4dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/language_desc"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                         android:layout_marginBottom="12dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -589,17 +561,16 @@
 
         <!-- Settings Section -->
         <TextView
+            style="@style/TTC.SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/title_settings"
-            android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.Material3.CardView.Outlined"
-            app:cardCornerRadius="16dp"
             android:layout_marginBottom="24dp">
 
             <LinearLayout
@@ -749,7 +720,7 @@
                         android:text="@string/push_notifications"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_push_notifications"
-                        style="@style/CustomSwitch"
+                        style="@style/TTC.Toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"/>
@@ -774,7 +745,7 @@
                         android:text="@string/daily_reminders"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_daily_reminders"
-                        style="@style/CustomSwitch"
+                        style="@style/TTC.Toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:checked="true"/>
@@ -799,7 +770,7 @@
                         android:text="@string/achievement_alerts"/>
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switch_achievement_alerts"
-                        style="@style/CustomSwitch"
+                        style="@style/TTC.Toggle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"/>
                 </LinearLayout>
@@ -808,19 +779,16 @@
 
         <!-- More Section -->
         <TextView
+            style="@style/TTC.SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/more_section"
-            android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="?attr/colorControlHighlight"
             android:layout_marginBottom="24dp">
 
             <LinearLayout

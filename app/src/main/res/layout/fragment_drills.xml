@@ -130,7 +130,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_all"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/TTC.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/section_all_drills"
@@ -140,7 +140,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_beginner"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/TTC.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/difficulty_beginner"
@@ -149,7 +149,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_intermediate"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/TTC.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/difficulty_intermediate"
@@ -158,7 +158,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chip_advanced"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/TTC.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/difficulty_advanced"

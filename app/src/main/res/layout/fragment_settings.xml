@@ -79,12 +79,14 @@
                             android:id="@+id/toggle_coach_style"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_track"
+                            android:padding="4dp"
                             app:singleSelection="true"
                             app:selectionRequired="true">
 
                             <Button
                                 android:id="@+id/btn_coach_vadym"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -92,7 +94,7 @@
 
                             <Button
                                 android:id="@+id/btn_coach_Ivan"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -100,7 +102,7 @@
 
                             <Button
                                 android:id="@+id/btn_coach_Andriy"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -127,8 +129,7 @@
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/ttc_on_gold"
-                            android:background="@drawable/circle_background"
-                            android:backgroundTint="@color/ttc_gold_bright"
+                            android:background="@drawable/circle_gold"
                             android:gravity="center"
                             android:layout_marginEnd="12dp"/>
 
@@ -481,12 +482,14 @@
                             android:id="@+id/toggle_fps"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_track"
+                            android:padding="4dp"
                             app:singleSelection="true"
                             app:selectionRequired="true">
 
                             <Button
                                 android:id="@+id/btn_fps_24"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -494,7 +497,7 @@
 
                             <Button
                                 android:id="@+id/btn_fps_30"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -502,7 +505,7 @@
 
                             <Button
                                 android:id="@+id/btn_fps_60"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -531,8 +534,8 @@
                                 <ImageView
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
-                                    android:src="@android:drawable/ic_menu_view"
-                                    android:tint="@color/ttc_gold_accent"
+                                    android:src="@drawable/ic_monitor"
+                                    app:tint="@color/ttc_gold_accent"
                                     android:layout_marginEnd="8dp"/>
 
                                 <TextView
@@ -619,12 +622,14 @@
                             android:id="@+id/toggle_ball_detection_fps"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_track"
+                            android:padding="4dp"
                             app:singleSelection="true"
                             app:selectionRequired="true">
 
                             <Button
                                 android:id="@+id/btn_ball_fps_10"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -632,7 +637,7 @@
 
                             <Button
                                 android:id="@+id/btn_ball_fps_30"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -640,7 +645,7 @@
 
                             <Button
                                 android:id="@+id/btn_ball_fps_60"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -648,7 +653,7 @@
 
                             <Button
                                 android:id="@+id/btn_ball_fps_120"
-                                style="?attr/materialButtonOutlinedStyle"
+                                style="@style/TTC.Segment.Button"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
