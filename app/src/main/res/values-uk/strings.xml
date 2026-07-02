@@ -732,4 +732,24 @@
     <string name="focus_elbow_position">Положення ліктя</string>
     <string name="focus_stroke_speed">Швидкість удару</string>
     <string name="focus_general">Загальна техніка</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Історія сесій</string>
+    <string name="history_subtitle">%1$d сесій · останні 30 днів</string>
+    <string name="history_kpi_sessions">Сесії</string>
+    <string name="history_kpi_accuracy">Сер. точність</string>
+    <string name="history_kpi_time">Загальний час</string>
+    <string name="history_filter_all">Усі</string>
+    <string name="history_filter_forehand">Форхенд</string>
+    <string name="history_filter_backhand">Бекхенд</string>
+    <string name="history_filter_topspin">Топспін</string>
+    <string name="history_section_this_week">ЦЬОГО ТИЖНЯ</string>
+    <string name="history_section_last_week">МИНУЛОГО ТИЖНЯ</string>
+    <string name="history_section_earlier">РАНІШЕ · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d хв</string>
+    <string name="history_show_earlier">Показати ще %1$d сесій ⌄</string>
+    <string name="history_empty_title">Ще немає сесій — почніть вправу</string>
+    <string name="history_empty_cta">До вправ</string>
+    <string name="history_total_hours">%1$.1f год</string>
+    <string name="cd_filter">Фільтрувати сесії</string>
 </resources>

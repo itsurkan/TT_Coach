@@ -906,4 +906,24 @@
     <string name="focus_elbow_position">Elbow position</string>
     <string name="focus_stroke_speed">Stroke speed</string>
     <string name="focus_general">General technique</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Session history</string>
+    <string name="history_subtitle">%1$d sessions · last 30 days</string>
+    <string name="history_kpi_sessions">Sessions</string>
+    <string name="history_kpi_accuracy">Avg accuracy</string>
+    <string name="history_kpi_time">Total time</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_forehand">Forehand</string>
+    <string name="history_filter_backhand">Backhand</string>
+    <string name="history_filter_topspin">Topspin</string>
+    <string name="history_section_this_week">THIS WEEK</string>
+    <string name="history_section_last_week">LAST WEEK</string>
+    <string name="history_section_earlier">EARLIER · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d min</string>
+    <string name="history_show_earlier">Show %1$d earlier sessions ⌄</string>
+    <string name="history_empty_title">No sessions yet — start a drill</string>
+    <string name="history_empty_cta">Go to Drills</string>
+    <string name="history_total_hours">%1$.1fh</string>
+    <string name="cd_filter">Filter sessions</string>
 </resources>
