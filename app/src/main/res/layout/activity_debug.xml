@@ -57,6 +57,14 @@
                 android:text="@string/btn_portrait_mode"
                 android:textSize="12sp"
                 android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnSeedSessions"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="@string/btn_seed_sessions"
+                android:textSize="12sp"
+                android:layout_marginEnd="8dp" />
         </LinearLayout>
     </LinearLayout>
 

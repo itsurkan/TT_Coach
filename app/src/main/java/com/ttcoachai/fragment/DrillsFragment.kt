@@ -51,6 +51,11 @@ class DrillsFragment : Fragment() {
     var currentDrills: List<Exercise> = emptyList()
         private set
 
+    /** Locked (not-yet-available) drills are hidden until the user expands the footer toggle. */
+    private var lockedExpanded = false
+    private var programsUnlocked: List<Exercise> = emptyList()
+    private var programsLocked: List<Exercise> = emptyList()
+
     private val exerciseEditorLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -148,11 +153,12 @@ class DrillsFragment : Fragment() {
     private fun setupUI() {
         binding.rvDrills.layoutManager = LinearLayoutManager(context)
         adapter = ExerciseAdapter(
-            exercises = builtInExercises,
+            exercises = builtInExercises.filter { !it.isLocked },
             onExerciseClick = { onExerciseSelected(it) },
             onExerciseLongClick = { showDrillOptions(it) },
             onCloneClick = { cloneDrill(it) },
-            onDeleteClick = { deleteDrill(it) }
+            onDeleteClick = { deleteDrill(it) },
+            onToggleLocked = { toggleLocked() }
         )
         binding.rvDrills.adapter = adapter
 
@@ -202,8 +208,23 @@ class DrillsFragment : Fragment() {
                 binding.btnRecentContinue.setOnClickListener { onExerciseSelected(recent) }
             }
 
-            adapter.updateList(programs)
+            val (locked, unlocked) = programs.partition { it.isLocked }
+            programsUnlocked = unlocked
+            programsLocked = locked
+            renderPrograms()
         }
+    }
+
+    /** Rebuilds the visible drill list: unlocked always, locked only when expanded. */
+    private fun renderPrograms() {
+        val visible = if (lockedExpanded) programsUnlocked + programsLocked else programsUnlocked
+        adapter.setData(visible, hasLocked = programsLocked.isNotEmpty(), expanded = lockedExpanded)
+    }
+
+    private fun toggleLocked() {
+        lockedExpanded = !lockedExpanded
+        adapter.closeOpenRow()
+        renderPrograms()
     }
 
     private fun iconForDrill(id: String): Int = when (id) {

@@ -6,62 +6,78 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp">
 
-    <!-- Delete panel (left edge) — revealed by swiping RIGHT -->
+    <!-- Delete panel (left edge) — revealed by swiping RIGHT. Outer width drives the reveal
+         distance; the inner tile insets on its card-facing (end) edge to leave a gap. -->
     <LinearLayout
         android:id="@+id/swipe_delete_panel"
-        android:layout_width="88dp"
+        android:layout_width="96dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:orientation="vertical"
-        android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@color/ttc_error"
         android:contentDescription="@string/drill_action_delete">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_trash"
-            app:tint="@android:color/white"
-            android:contentDescription="@null"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_delete">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/drill_action_delete"
-            android:textColor="@android:color/white"
-            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_trash"
+                app:tint="@color/ttc_error"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_delete"
+                android:textColor="@color/ttc_error"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Clone panel (right edge) — revealed by swiping LEFT -->
+    <!-- Clone panel (right edge) — revealed by swiping LEFT. Inner tile insets on its
+         card-facing (start) edge to leave a gap between card and tile. -->
     <LinearLayout
         android:id="@+id/swipe_clone_panel"
-        android:layout_width="88dp"
+        android:layout_width="96dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
         android:orientation="vertical"
-        android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@color/ttc_gold_bright"
         android:contentDescription="@string/drill_action_clone">
 
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_content_copy"
-            app:tint="@color/ttc_on_gold"
-            android:contentDescription="@null"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_clone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/drill_action_clone"
-            android:textColor="@color/ttc_on_gold"
-            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_content_copy"
+                app:tint="@color/ttc_gold_accent"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_clone"
+                android:textColor="@color/ttc_gold_accent"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Foreground: the existing card (opaque so panels are hidden when closed) -->
@@ -74,20 +90,22 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
             <FrameLayout
                 android:id="@+id/fl_icon_container"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_icon_tile_gold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <ImageView
                     android:id="@+id/iv_exercise_icon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_target"
                     app:tint="@color/ttc_gold_accent"

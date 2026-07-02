@@ -34,7 +34,11 @@ class TTCoachApplication : Application() {
             progressRepository = com.ttcoachai.repository.ProgressRepository(progressDao = database.progressDao())
         )
     }
-    
+
+    val sessionAnalyticsRecorder: com.ttcoachai.managers.SessionAnalyticsRecorder by lazy {
+        com.ttcoachai.managers.SessionAnalyticsRecorder(database.sessionAnalyticsDao())
+    }
+
     override fun attachBaseContext(base: Context) {
         // Apply saved locale before any activity is created
         super.attachBaseContext(LocaleHelper.applyLocale(base))

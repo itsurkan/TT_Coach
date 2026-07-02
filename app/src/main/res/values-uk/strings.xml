@@ -315,6 +315,7 @@
     <string name="btn_load_video">📂 Завантажити відео</string>
     <string name="btn_log_poses">💾 Логувати пози</string>
     <string name="btn_portrait_mode">📱 Портретний режим</string>
+    <string name="btn_seed_sessions">🌱 Заповнити тестовими сесіями</string>
     <string name="btn_load">📂 Завантажити</string>
     <string name="btn_log">💾 Лог</string>
     <string name="btn_landscape">🖥 Ландшафтний режим</string>
@@ -598,6 +599,8 @@
     <!-- Exercises tab redesign (2a / 10a / 10b) -->
     <string name="drills_section_recent">НЕЩОДАВНІ</string>
     <string name="drills_section_all_programs">ВСІ ПРОГРАМИ</string>
+    <string name="drills_show_locked">Показати заблоковані</string>
+    <string name="drills_hide_locked">Сховати заблоковані</string>
     <string name="drills_recent_last_session">Останнє тренування</string>
     <string name="drills_recent_accuracy">%1$d%% точності</string>
     <string name="drills_continue_training">Продовжити тренування</string>
@@ -777,4 +780,58 @@
     <string name="exercise_editor_row_hips_strike">Стегна · удар</string>
     <string name="exercise_editor_row_torso_backswing">Нахил корпусу · замах</string>
     <string name="exercise_editor_row_torso_strike">Нахил корпусу · удар</string>
+    <!-- Session Review (Slice 3) -->
+    <string name="review_eyebrow">ОГЛЯД СЕСІЇ</string>
+    <string name="review_kpi_accuracy">Точність</string>
+    <string name="review_kpi_strokes">Удари</string>
+    <string name="review_kpi_duration">Тривалість</string>
+    <string name="review_accuracy_card_title">ТОЧНІСТЬ ПРОТЯГОМ СЕСІЇ</string>
+    <string name="review_accuracy_caption">Частка чистих ударів протягом сесії</string>
+    <string name="review_peak_pill">Пік %1$d%%</string>
+    <string name="review_x_label_start">0 хв</string>
+    <string name="review_shot_quality_title">ЯКІСТЬ УДАРІВ · %1$d ударів</string>
+    <string name="review_legend_clean">Чисті %1$d</string>
+    <string name="review_legend_error">Помилки %1$d</string>
+    <string name="review_focus_title">ГОЛОВНІ ЗОНИ УВАГИ</string>
+    <string name="review_top_focus_chip">ГОЛОВНЕ</string>
+    <string name="review_focus_count">%1$d×</string>
+    <string name="review_view_all_focus">Показати всі зони уваги (%1$d) ›</string>
+    <string name="review_summary_title">ПІДСУМОК ВІД ТРЕНЕРА</string>
+    <string name="review_action_train_again">Повторити тренування</string>
+    <string name="review_action_overview">Огляд</string>
+    <string name="review_no_analytics">Немає детальної аналітики для цієї сесії</string>
+    <string name="review_when_meta">%1$s · %2$s · %3$d хв</string>
+    <string name="review_kpi_duration_value">%1$dхв</string>
+    <string name="review_x_axis_min">%1$d хв</string>
+    <string name="date_today">Сьогодні</string>
+    <string name="date_yesterday">Вчора</string>
+    <string name="cd_share">Поділитися сесією</string>
+    <!-- Focus-area display names -->
+    <string name="focus_wrist">Кут зап\'ястя</string>
+    <string name="focus_body_rotation">Обертання тіла</string>
+    <string name="focus_follow_through">Проводка</string>
+    <string name="focus_contact_height">Висота контакту</string>
+    <string name="focus_elbow_position">Положення ліктя</string>
+    <string name="focus_stroke_speed">Швидкість удару</string>
+    <string name="focus_general">Загальна техніка</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Історія сесій</string>
+    <string name="history_subtitle">%1$d сесій · останні 30 днів</string>
+    <string name="history_kpi_sessions">Сесії</string>
+    <string name="history_kpi_accuracy">Сер. точність</string>
+    <string name="history_kpi_time">Загальний час</string>
+    <string name="history_filter_all">Усі</string>
+    <string name="history_filter_forehand">Форхенд</string>
+    <string name="history_filter_backhand">Бекхенд</string>
+    <string name="history_filter_topspin">Топспін</string>
+    <string name="history_section_this_week">ЦЬОГО ТИЖНЯ</string>
+    <string name="history_section_last_week">МИНУЛОГО ТИЖНЯ</string>
+    <string name="history_section_earlier">РАНІШЕ · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d хв</string>
+    <string name="history_show_earlier">Показати ще %1$d сесій ⌄</string>
+    <string name="history_empty_title">Ще немає сесій — почніть вправу</string>
+    <string name="history_empty_cta">До вправ</string>
+    <string name="history_total_hours">%1$.1f год</string>
+    <string name="cd_filter">Фільтрувати сесії</string>
 </resources>
