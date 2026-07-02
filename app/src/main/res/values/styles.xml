@@ -303,4 +303,38 @@
         <item name="strokeWidth">1dp</item>
         <item name="cardElevation">0dp</item>
     </style>
+
+    <!-- ===== TTC gold-tint card + gold section header (Settings/Feedback/Detection) ===== -->
+    <style name="TTC.Card.GoldTint" parent="TTC.Card">
+        <item name="cardBackgroundColor">@color/ttc_gold_container</item>
+        <item name="strokeColor">@color/ttc_gold_container_outline</item>
+    </style>
+
+    <style name="TextAppearance.TTC.Eyebrow.Gold" parent="TextAppearance.TTC.Eyebrow">
+        <item name="android:textColor">@color/ttc_gold_accent</item>
+    </style>
+
+    <style name="TTC.SectionHeader.Gold" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Eyebrow.Gold</item>
+    </style>
+
+    <!-- ===== TTC stepper control (Settings/Feedback/Detection) ===== -->
+    <style name="TtcStepper.Button" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">33dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="TtcStepper.Value" parent="Widget.AppCompat.TextView">
+        <item name="android:minWidth">50dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
 </resources>

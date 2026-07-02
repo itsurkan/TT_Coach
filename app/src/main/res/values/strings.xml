@@ -792,4 +792,86 @@
     <string name="drill_delete_confirm">Delete</string>
     <string name="drill_delete_toast">Deleted \"%1$s\"</string>
     <string name="drill_cancel">Cancel</string>
+
+    <!-- Settings 8a -->
+    <string name="settings_screen_title">Training settings</string>
+    <string name="settings_subtitle">Tune how your coach watches and talks to you</string>
+    <string name="settings_section_ai_coach">AI Coach</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_section_feedback_detection">Feedback &amp; detection</string>
+    <string name="settings_section_camera">Camera</string>
+    <string name="settings_choose_coach">Choose your coach</string>
+    <string name="settings_choose_coach_sub">Pick a coaching style that fits how you like to train</string>
+    <string name="settings_interface_language">Interface language</string>
+    <string name="settings_interface_language_sub">Language of the app\'s screens and menus</string>
+    <string name="settings_coach_language">Coach language</string>
+    <string name="settings_coach_language_sub">Language your coach speaks and writes in</string>
+    <string name="settings_link_feedback">Feedback</string>
+    <string name="settings_link_feedback_sub">Cues, cadence &amp; praise · applies to all sessions</string>
+    <string name="settings_link_detection">Detection</string>
+    <string name="settings_link_detection_sub">Stroke picking · thresholds, smoothing &amp; timing</string>
+    <string name="settings_video_quality">Video quality</string>
+    <string name="settings_video_quality_sub">Higher quality improves pose detection</string>
+    <string name="settings_frame_rate">Frame rate</string>
+    <string name="settings_frame_rate_sub">Higher captures faster motion</string>
+    <string name="settings_show_skeleton">Show pose skeleton</string>
+    <string name="settings_show_skeleton_sub">Overlay skeleton visualization during training</string>
+    <string name="settings_tip">TIP</string>
+    <string name="settings_tip_body">Use 720p at 30 FPS with the pose skeleton on. This balance keeps feedback accurate without draining your battery.</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_uk">UK</string>
+    <!-- Feedback 11a -->
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_subtitle">Applies to every session</string>
+    <string name="feedback_section_coaching">Coaching</string>
+    <string name="feedback_section_corrections">Corrections</string>
+    <string name="feedback_section_cue_zones">Cue zones</string>
+    <string name="feedback_section_cue_zones_sub">Global — layered on top of exercise strictness</string>
+    <string name="feedback_section_cadence">Cadence</string>
+    <string name="feedback_section_praise">Praise</string>
+    <string name="feedback_playing_hand">Playing hand</string>
+    <string name="feedback_hand_right">Right</string>
+    <string name="feedback_hand_left">Left</string>
+    <string name="feedback_voice_cues">Voice cues</string>
+    <string name="feedback_voice_cues_sub">Speak corrections aloud during play</string>
+    <string name="feedback_voice_volume">Voice volume</string>
+    <string name="feedback_zone_width">Zone width</string>
+    <string name="feedback_significance">Significance threshold</string>
+    <string name="feedback_alternate_cues">Alternate cues</string>
+    <string name="feedback_alternate_cues_sub">Rotate between flagged issues</string>
+    <string name="feedback_reminder_interval">Reminder interval</string>
+    <string name="feedback_pause_between">Pause between cues</string>
+    <string name="feedback_silence_before_praise">Silence before praise</string>
+    <string name="feedback_pause_after_stroke">Pause after stroke</string>
+    <string name="feedback_cues_per_session">Cues per session</string>
+    <string name="feedback_praise_enabled">Praise enabled</string>
+    <string name="feedback_praise_on_corrections">On corrections</string>
+    <string name="feedback_praise_on_streak">On streak</string>
+    <string name="feedback_streak_length">Streak length</string>
+    <string name="correction_wrist">Wrist Angle</string>
+    <string name="correction_rotation">Body Rotation</string>
+    <string name="correction_elbow">Elbow Position</string>
+    <string name="correction_speed">Stroke Speed</string>
+    <!-- Detection 11b -->
+    <string name="detection_title">Detection</string>
+    <string name="detection_subtitle">Advanced — how strokes are picked out</string>
+    <string name="detection_camera_angle">Camera angle</string>
+    <string name="detection_camera_angle_sub">Manual override · degrees</string>
+    <string name="detection_peak_speed">Peak speed threshold</string>
+    <string name="detection_peak_speed_sub">Torso-widths / second</string>
+    <string name="detection_min_interval">Min peak interval</string>
+    <string name="detection_min_interval_sub">Milliseconds</string>
+    <string name="detection_smoothing">Speed smoothing</string>
+    <string name="detection_smoothing_sub">Milliseconds · lower = more sensitive</string>
+    <string name="detection_walk_gate">Walk gate</string>
+    <string name="detection_walk_gate_sub">Pelvis shift · 0 = off</string>
+    <string name="detection_skip_stale">Skip stale reps</string>
+    <string name="detection_skip_stale_sub">Drop late-detected strokes</string>
+    <string name="detection_prestroke_buffer">Pre-stroke buffer</string>
+    <string name="detection_prestroke_buffer_sub">Milliseconds</string>
+    <string name="detection_ball_fps">Ball detection FPS</string>
+    <string name="detection_ball_fps_sub">Ball tracking capture rate</string>
+    <string name="detection_distance_mode">Distance mode</string>
+    <string name="detection_distance_mode_sub">Track ball distance from table</string>
+    <string name="cd_back">Back</string>
 </resources>
