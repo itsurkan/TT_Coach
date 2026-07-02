@@ -166,7 +166,7 @@ class DrillsFragment : Fragment() {
         )
         binding.rvDrills.adapter = adapter
 
-        binding.fabAddDrill.setOnClickListener { launchCustomDrillCalibration() }
+        binding.fabAddDrill.setOnClickListener { showCalibrationIntroDialog() }
 
         attachSwipeActions()
     }
@@ -353,6 +353,15 @@ class DrillsFragment : Fragment() {
                 }
             }
             .setNegativeButton(R.string.drill_cancel, null)
+            .show()
+    }
+
+    private fun showCalibrationIntroDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.calibration_intro_title)
+            .setMessage(R.string.calibration_intro_body)
+            .setPositiveButton(R.string.calibration_intro_proceed) { _, _ -> launchCustomDrillCalibration() }
+            .setNegativeButton(R.string.calibration_intro_cancel, null)
             .show()
     }
 
