@@ -876,4 +876,34 @@
     <string name="detection_distance_mode">Distance mode</string>
     <string name="detection_distance_mode_sub">Track ball distance from table</string>
     <string name="cd_back">Back</string>
+
+    <!-- Session Review (Slice 3) -->
+    <string name="review_eyebrow">SESSION REVIEW</string>
+    <string name="review_kpi_accuracy">Accuracy</string>
+    <string name="review_kpi_strokes">Strokes</string>
+    <string name="review_kpi_duration">Duration</string>
+    <string name="review_accuracy_card_title">ACCURACY THROUGH SESSION</string>
+    <string name="review_accuracy_caption">Clean-stroke rate across the session</string>
+    <string name="review_peak_pill">Peak %1$d%%</string>
+    <string name="review_x_label_start">0 min</string>
+    <string name="review_shot_quality_title">SHOT QUALITY · %1$d strokes</string>
+    <string name="review_legend_clean">Clean %1$d</string>
+    <string name="review_legend_error">Error %1$d</string>
+    <string name="review_focus_title">TOP FOCUS AREAS</string>
+    <string name="review_top_focus_chip">TOP FOCUS</string>
+    <string name="review_focus_count">%1$d×</string>
+    <string name="review_view_all_focus">View all %1$d focus areas ›</string>
+    <string name="review_summary_title">AI COACH SUMMARY</string>
+    <string name="review_action_train_again">Train this again</string>
+    <string name="review_action_overview">Overview</string>
+    <string name="review_no_analytics">No detailed analytics for this session</string>
+    <string name="cd_share">Share session</string>
+    <!-- Focus-area display names (keys match SessionAnalyticsBuilder.displayNameKey) -->
+    <string name="focus_wrist">Wrist angle</string>
+    <string name="focus_body_rotation">Body rotation</string>
+    <string name="focus_follow_through">Follow-through</string>
+    <string name="focus_contact_height">Contact height</string>
+    <string name="focus_elbow_position">Elbow position</string>
+    <string name="focus_stroke_speed">Stroke speed</string>
+    <string name="focus_general">General technique</string>
 </resources>
