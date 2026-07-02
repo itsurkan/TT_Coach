@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/ttc_canvas">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_link_icon_tile"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/ttc_text_1"
+                    android:contentDescription="@string/cd_back"
+                    android:padding="7dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/feedback_title"
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Screen" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/feedback_subtitle"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TTC.Card"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- ===================== Coaching ===================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TTC.SectionHeader.Gold"
+                        android:text="@string/feedback_section_coaching"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Playing hand -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                            android:textSize="13.5sp"
+                            android:text="@string/feedback_playing_hand" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_playing_hand"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_track"
+                            android:padding="4dp"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <Button
+                                android:id="@+id/btn_hand_right"
+                                style="@style/TTC.Segment.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="72dp"
+                                android:text="@string/feedback_hand_right" />
+
+                            <Button
+                                android:id="@+id/btn_hand_left"
+                                style="@style/TTC.Segment.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="72dp"
+                                android:text="@string/feedback_hand_left" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Voice cues -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_voice_cues" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/feedback_voice_cues_sub" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_voice_cues"
+                            style="@style/TTC.Toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Voice volume -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                            android:textSize="13.5sp"
+                            android:text="@string/feedback_voice_volume" />
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_voice_volume"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="100"
+                            android:stepSize="1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="-16dp"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- ===================== Corrections ===================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TTC.SectionHeader.Gold"
+                        android:text="@string/feedback_section_corrections"
+                        android:layout_marginBottom="12dp" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chip_group_corrections"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:singleLine="false">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_wrist"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_wrist" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_rotation"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_rotation" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_follow_through"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_follow_through" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_contact_height"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_contact_height" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_elbow"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_elbow" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_speed"
+                            style="@style/TTC.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/correction_speed" />
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="-16dp"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- ===================== Cue zones ===================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TTC.SectionHeader.Gold"
+                        android:text="@string/feedback_section_cue_zones" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                        android:text="@string/feedback_section_cue_zones_sub"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Zone width -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_zone_width" />
+
+                            <TextView
+                                android:id="@+id/tv_zone_width"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="×1.4" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_zone_width"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0.5"
+                            android:valueTo="3.0"
+                            android:stepSize="0.1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Significance -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_significance" />
+
+                            <TextView
+                                android:id="@+id/tv_significance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="7°" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_significance"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="1"
+                            android:valueTo="20"
+                            android:stepSize="1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Alternate cues -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_alternate_cues" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/feedback_alternate_cues_sub" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_alternate_cues"
+                            style="@style/TTC.Toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="-16dp"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- ===================== Cadence ===================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TTC.SectionHeader.Gold"
+                        android:text="@string/feedback_section_cadence"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Reminder interval -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_reminder_interval" />
+
+                            <TextView
+                                android:id="@+id/tv_reminder"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="10.0s" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_reminder"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="30"
+                            android:stepSize="0.5" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Pause between cues -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_pause_between" />
+
+                            <TextView
+                                android:id="@+id/tv_pause_between"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="5.0s" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_pause_between"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="15"
+                            android:stepSize="0.1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Silence before praise -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_silence_before_praise" />
+
+                            <TextView
+                                android:id="@+id/tv_silence_praise"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="10.0s" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_silence_praise"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="20"
+                            android:stepSize="0.1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Pause after stroke -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_pause_after_stroke" />
+
+                            <TextView
+                                android:id="@+id/tv_pause_after"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                android:textColor="@color/ttc_gold_accent"
+                                tools:text="0.3s" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_pause_after"
+                            style="@style/TTC.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="2"
+                            android:stepSize="0.1" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Cues per session -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                            android:textSize="13.5sp"
+                            android:text="@string/feedback_cues_per_session"
+                            android:layout_marginBottom="12dp" />
+
+                        <com.google.android.material.button.MaterialButtonToggleGroup
+                            android:id="@+id/toggle_cues_per_session"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_pill_track"
+                            android:padding="4dp"
+                            app:singleSelection="true"
+                            app:selectionRequired="true">
+
+                            <Button
+                                android:id="@+id/btn_cues_3"
+                                style="@style/TTC.Segment.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="3" />
+
+                            <Button
+                                android:id="@+id/btn_cues_5"
+                                style="@style/TTC.Segment.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="5" />
+
+                            <Button
+                                android:id="@+id/btn_cues_10"
+                                style="@style/TTC.Segment.Button"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="10" />
+                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginHorizontal="-16dp"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- ===================== Praise ===================== -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/TTC.SectionHeader.Gold"
+                        android:text="@string/feedback_section_praise"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Praise enabled (master) -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                            android:textSize="13.5sp"
+                            android:text="@string/feedback_praise_enabled" />
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_praise_enabled"
+                            style="@style/TTC.Toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="14dp" />
+
+                    <!-- Praise children group -->
+                    <LinearLayout
+                        android:id="@+id/group_praise_children"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- On corrections -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_praise_on_corrections" />
+
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switch_praise_corrections"
+                                style="@style/TTC.Toggle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/ttc_outline"
+                            android:layout_marginVertical="14dp" />
+
+                        <!-- On streak -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/feedback_praise_on_streak" />
+
+                            <com.google.android.material.switchmaterial.SwitchMaterial
+                                android:id="@+id/switch_praise_streak"
+                                style="@style/TTC.Toggle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+                        </LinearLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:background="@color/ttc_outline"
+                            android:layout_marginVertical="14dp" />
+
+                        <!-- Streak length -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical">
+
+                                <TextView
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                    android:textSize="13.5sp"
+                                    android:text="@string/feedback_streak_length" />
+
+                                <TextView
+                                    android:id="@+id/tv_streak_len"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                                    android:textColor="@color/ttc_gold_accent"
+                                    tools:text="3" />
+                            </LinearLayout>
+
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/slider_streak_len"
+                                style="@style/TTC.Slider"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:valueFrom="1"
+                                android:valueTo="10"
+                                android:stepSize="1" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
