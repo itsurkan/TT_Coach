@@ -607,6 +607,10 @@
     <string name="drills_recent_accuracy">%1$d%% точності</string>
     <string name="drills_continue_training">Продовжити тренування</string>
     <string name="drills_add_own_exercise">+ Додати свою вправу · калібрування</string>
+    <string name="calibration_intro_title">Калібрування вправи</string>
+    <string name="calibration_intro_body">1. Розташуйте камеру збоку, на рівні пояса, на відстані 2–3 м.\n2. Виконайте 8–10 ударів у своєму звичному темпі.\n3. Система запам\'ятає ваші кути як еталон — це ваша особиста техніка, а не «правильна» форма.</string>
+    <string name="calibration_intro_proceed">Розпочати</string>
+    <string name="calibration_intro_cancel">Скасувати</string>
     <string name="drill_action_continue">Продовжити тренування</string>
     <string name="drill_action_edit">Редагувати</string>
     <string name="drill_action_clone">Клонувати</string>

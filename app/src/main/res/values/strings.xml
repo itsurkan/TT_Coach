@@ -379,6 +379,9 @@
     <string name="subscription_how_works_profile">• This setting affects the subscription status shown in your Profile</string>
     
     <!-- Profile Updates -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Your account &amp; goals</string>
+    <string name="settings">Settings</string>
     <string name="subscription_section">Subscription</string>
     <string name="premium_active_badge">Active</string>
     <string name="premium_active_title">Premium Active</string>
@@ -778,6 +781,10 @@
     <string name="drills_recent_accuracy">%1$d%% accuracy</string>
     <string name="drills_continue_training">Continue training</string>
     <string name="drills_add_own_exercise">+ Add your own exercise · calibration</string>
+    <string name="calibration_intro_title">Exercise calibration</string>
+    <string name="calibration_intro_body">1. Place the camera to the side, at waist height, 2–3 m away.\n2. Perform 8–10 strokes at your natural pace.\n3. The app will remember your angles as the baseline — this is your own technique, not a "correct" form.</string>
+    <string name="calibration_intro_proceed">Start</string>
+    <string name="calibration_intro_cancel">Cancel</string>
     <string name="drill_action_continue">Continue training</string>
     <string name="drill_action_edit">Edit</string>
     <string name="drill_action_clone">Clone</string>
