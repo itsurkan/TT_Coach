@@ -229,6 +229,11 @@
         <item name="cornerRadius">999dp</item>
         <item name="rippleColor">@color/ttc_gold_container_outline</item>
     </style>
+    <!-- Bold gold-fill segment for the subscription paywall toggle (12b/13a). -->
+    <style name="TTC.Segment.Button.Paywall" parent="TTC.Segment.Button">
+        <item name="backgroundTint">@color/ttc_paywall_segment_bg_tint</item>
+        <item name="android:textColor">@color/ttc_paywall_segment_text</item>
+    </style>
 
     <style name="TTC.SectionHeader" parent="Widget.AppCompat.TextView">
         <item name="android:textAppearance">@style/TextAppearance.TTC.Eyebrow</item>

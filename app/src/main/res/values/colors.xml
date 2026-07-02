@@ -173,4 +173,6 @@
     <color name="ttc_amber">#E9A25E</color>
     <color name="ttc_cream">#FBF4E1</color>
     <color name="ttc_text_disabled">#A0A5AF</color>
+    <color name="ttc_paywall_bg">#F5F6F8</color>
+    <color name="ttc_success_container">#E9F7EF</color>
 </resources>
