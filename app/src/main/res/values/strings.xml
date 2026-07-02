@@ -586,6 +586,7 @@
     <string name="btn_load_video">📂 Load Video</string>
     <string name="btn_log_poses">💾 Log Poses</string>
     <string name="btn_portrait_mode">📱 Portrait Mode</string>
+    <string name="btn_seed_sessions">🌱 Seed demo sessions</string>
     <string name="btn_load">📂 Load</string>
     <string name="btn_log">💾 Log</string>
     <string name="btn_landscape">🖥 Landscape</string>
@@ -897,4 +898,58 @@
     <string name="subscribe_privacy">Privacy</string>
     <string name="subscribe_restore_none">No purchases to restore</string>
     <string name="subscribe_activated">Subscription activated!</string>
+    <!-- Session Review (Slice 3) -->
+    <string name="review_eyebrow">SESSION REVIEW</string>
+    <string name="review_kpi_accuracy">Accuracy</string>
+    <string name="review_kpi_strokes">Strokes</string>
+    <string name="review_kpi_duration">Duration</string>
+    <string name="review_accuracy_card_title">ACCURACY THROUGH SESSION</string>
+    <string name="review_accuracy_caption">Clean-stroke rate across the session</string>
+    <string name="review_peak_pill">Peak %1$d%%</string>
+    <string name="review_x_label_start">0 min</string>
+    <string name="review_shot_quality_title">SHOT QUALITY · %1$d strokes</string>
+    <string name="review_legend_clean">Clean %1$d</string>
+    <string name="review_legend_error">Error %1$d</string>
+    <string name="review_focus_title">TOP FOCUS AREAS</string>
+    <string name="review_top_focus_chip">TOP FOCUS</string>
+    <string name="review_focus_count">%1$d×</string>
+    <string name="review_view_all_focus">View all %1$d focus areas ›</string>
+    <string name="review_summary_title">AI COACH SUMMARY</string>
+    <string name="review_action_train_again">Train this again</string>
+    <string name="review_action_overview">Overview</string>
+    <string name="review_no_analytics">No detailed analytics for this session</string>
+    <string name="review_when_meta">%1$s · %2$s · %3$d min</string>
+    <string name="review_kpi_duration_value">%1$dm</string>
+    <string name="review_x_axis_min">%1$d min</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="cd_share">Share session</string>
+    <!-- Focus-area display names (keys match SessionAnalyticsBuilder.displayNameKey) -->
+    <string name="focus_wrist">Wrist angle</string>
+    <string name="focus_body_rotation">Body rotation</string>
+    <string name="focus_follow_through">Follow-through</string>
+    <string name="focus_contact_height">Contact height</string>
+    <string name="focus_elbow_position">Elbow position</string>
+    <string name="focus_stroke_speed">Stroke speed</string>
+    <string name="focus_general">General technique</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Session history</string>
+    <string name="history_subtitle">%1$d sessions · last 30 days</string>
+    <string name="history_kpi_sessions">Sessions</string>
+    <string name="history_kpi_accuracy">Avg accuracy</string>
+    <string name="history_kpi_time">Total time</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_forehand">Forehand</string>
+    <string name="history_filter_backhand">Backhand</string>
+    <string name="history_filter_topspin">Topspin</string>
+    <string name="history_section_this_week">THIS WEEK</string>
+    <string name="history_section_last_week">LAST WEEK</string>
+    <string name="history_section_earlier">EARLIER · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d min</string>
+    <string name="history_show_earlier">Show %1$d earlier sessions ⌄</string>
+    <string name="history_empty_title">No sessions yet — start a drill</string>
+    <string name="history_empty_cta">Go to Drills</string>
+    <string name="history_total_hours">%1$.1fh</string>
+    <string name="cd_filter">Filter sessions</string>
 </resources>

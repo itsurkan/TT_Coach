@@ -177,7 +177,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             strokeCount = strokeCount,
             correctStrokes = correctStrokes,
             averageScore = averageScore,
-            appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" }
+            appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" },
+            onSaved = { sessionId ->
+                app.sessionAnalyticsRecorder.record(
+                    sessionId = sessionId,
+                    results = stateManager.getAnalysisResults(),
+                    feedback = stateManager.getLatestFeedbackItems()
+                )
+            }
         )
     }
 

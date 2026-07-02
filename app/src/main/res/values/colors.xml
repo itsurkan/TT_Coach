@@ -175,4 +175,10 @@
     <color name="ttc_text_disabled">#A0A5AF</color>
     <color name="ttc_paywall_bg">#F5F6F8</color>
     <color name="ttc_success_container">#E9F7EF</color>
+
+    <!-- Session History / Review screens (Slice 3) -->
+    <color name="ttc_trend_up">#12A05F</color>
+    <color name="ttc_trend_down">#C4463C</color>
+    <color name="ttc_shot_error">#D9645C</color>
+    <color name="ttc_chart_grid">#E9EBEF</color>
 </resources>

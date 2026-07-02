@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -48,8 +49,24 @@ class ProgressFragment : Fragment() {
         setupCharts()
         setupSegmentedButtons()
         loadCloudData()
+        binding.cardSessionHistory.setOnClickListener {
+            findNavController().navigate(R.id.navigation_session_history)
+        }
+        loadHistorySummary()
     }
-    
+
+    private fun loadHistorySummary() {
+        val app = requireActivity().application as TTCoachApplication
+        val userId = app.cloudSyncManager.currentUserId ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val sessions = app.database.trainingDao().getRecentSessions(userId, 200)
+            val kpi = com.ttcoachai.helpers.SessionHistoryGrouper
+                .last30DaysKpi(sessions, System.currentTimeMillis())
+            binding.tvHistorySummary.text =
+                getString(R.string.history_subtitle, kpi.sessionCount)
+        }
+    }
+
     private fun loadCloudData() {
         val app = requireActivity().application as TTCoachApplication
         val dataLoader = com.ttcoachai.helpers.ProgressDataLoader(app.cloudSyncManager)

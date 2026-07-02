@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/ttc_canvas">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="20dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:gravity="center_vertical"
+            android:layout_marginBottom="20dp">
+            <ImageButton android:id="@+id/btn_back"
+                android:layout_width="34dp" android:layout_height="34dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/bg_link_icon_tile"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="@color/ttc_text_1" android:padding="7dp"
+                android:contentDescription="@string/cd_back" />
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/history_title"
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Screen" />
+                <TextView android:id="@+id/tv_subtitle"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                    tools:text="12 sessions · last 30 days" />
+            </LinearLayout>
+            <ImageView android:layout_width="34dp" android:layout_height="34dp"
+                android:padding="7dp" android:src="@drawable/ic_filter"
+                app:tint="@color/ttc_text_3"
+                android:contentDescription="@string/cd_filter" />
+        </LinearLayout>
+
+        <!-- KPI strip -->
+        <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:baselineAligned="false"
+            android:layout_marginBottom="16dp">
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tv_kpi_sessions"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TTC.Stat.Hero" tools:text="12" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/history_kpi_sessions"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tv_kpi_accuracy"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TTC.Stat.Hero"
+                    android:textColor="@color/ttc_gold_accent" tools:text="86%" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/history_kpi_accuracy"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:id="@+id/tv_kpi_time"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TTC.Stat.Hero" tools:text="4.2h" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="@string/history_kpi_time"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Filter chips -->
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chip_group_filter"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+            <com.google.android.material.chip.Chip android:id="@+id/chip_all"
+                style="@style/TTC.Chip.Filter"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:checked="true" android:text="@string/history_filter_all" />
+            <com.google.android.material.chip.Chip android:id="@+id/chip_forehand"
+                style="@style/TTC.Chip.Filter"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/history_filter_forehand" />
+            <com.google.android.material.chip.Chip android:id="@+id/chip_backhand"
+                style="@style/TTC.Chip.Filter"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/history_filter_backhand" />
+            <com.google.android.material.chip.Chip android:id="@+id/chip_topspin"
+                style="@style/TTC.Chip.Filter"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="@string/history_filter_topspin" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Grouped list container (filled in code) -->
+        <LinearLayout android:id="@+id/list_container"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <!-- Show earlier expander -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_show_earlier"
+            style="@style/TTC.Button.Ghost"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            tools:text="Show 5 earlier sessions ⌄" />
+
+        <!-- Empty state -->
+        <LinearLayout android:id="@+id/empty_state"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:gravity="center"
+            android:paddingVertical="48dp" android:visibility="gone">
+            <ImageView android:layout_width="48dp" android:layout_height="48dp"
+                android:src="@drawable/ic_activity"
+                app:tint="@color/ttc_text_3"
+                android:contentDescription="@null" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/history_empty_title"
+                android:textAppearance="@style/TextAppearance.TTC.Body" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_empty_cta"
+                style="@style/TTC.Button.Primary"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/history_empty_cta" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
