@@ -131,6 +131,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Exercise Editor Screen (New / Clone / Edit, 10c/10d) -->
+        <activity
+            android:name=".ui.ExerciseEditorActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Weekly Sessions Screen -->
         <activity
             android:name=".WeeklySessionsActivity"
