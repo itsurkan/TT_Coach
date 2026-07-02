@@ -36,6 +36,12 @@
         tools:layout="@layout/fragment_settings" />
 
     <fragment
+        android:id="@+id/navigation_detection"
+        android:name="com.ttcoachai.fragment.DetectionFragment"
+        android:label="@string/detection_title"
+        tools:layout="@layout/fragment_detection" />
+
+    <fragment
         android:id="@+id/permissions_fragment"
         android:name="com.ttcoachai.fragment.PermissionsFragment"
         android:label="Permissions">
