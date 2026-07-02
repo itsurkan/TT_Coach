@@ -170,8 +170,11 @@ and writes `SessionAnalyticsEntity` for the new `sessionId`.
 `nav_graph.xml`: add `navigation_session_history` (Progress → it) and `navigation_session_review`
 (`<action>` from history, `<argument name="sessionId" type="string">`, Bundle). Progress gets a
 **prominent "Session history" entry card near the top** of the screen (above the Skills card —
-not buried below it), optionally previewing the most recent session (name · when · accuracy) so
-it reads almost as prominently as a tab without adding a 6th bottom-nav item. Decision: History
+not buried below it): title "Session history" + a summary subtitle (e.g. "N sessions · last 30
+days") + chevron. **No recent-session preview here** — the Home/Dashboard already surfaces the
+most recent session (its "RECENT" card), so this entry stays a distinct navigation affordance,
+not a duplicate. It reads almost as prominently as a tab without adding a 6th bottom-nav item.
+Decision: History
 stays a **child of Progress** (it is the session log behind Progress's aggregates), and the
 bottom nav keeps 5 tabs per Material's 3–5 guidance; discoverability is solved by the prominent
 entry, not a new tab. (`ProgressFragment`, existing click pattern.)
@@ -221,7 +224,7 @@ names, button labels, content descriptions.
 - [ ] `AccuracyLineChartView` + `ShotQualityBarView`
 - [ ] `SessionHistoryFragment` + `fragment_session_history.xml` (+ empty state, filter, grouping, trend)
 - [ ] `SessionReviewFragment` + `fragment_session_review.xml`
-- [ ] Progress prominent top "Session history" entry card (with recent-session preview) + nav graph + args + MainActivity tab-highlight
+- [ ] Progress prominent top "Session history" entry card (title + summary subtitle + chevron; no recent-session preview) + nav graph + args + MainActivity tab-highlight
 - [ ] New color tokens (light + dark), UK + EN strings
 - [ ] Debug-only seeder (FLAG_DEBUGGABLE)
 - [ ] Tests green: `:shared:jvmTest`, `:app:assembleDebug`
