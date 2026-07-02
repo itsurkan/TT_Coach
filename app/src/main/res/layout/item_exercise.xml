@@ -68,7 +68,7 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/swipe_foreground"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         style="@style/TTC.Card">
 
         <androidx.constraintlayout.widget.ConstraintLayout
