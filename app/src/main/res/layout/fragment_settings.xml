@@ -8,7 +8,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:background="@color/ttc_canvas">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,45 +21,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/training_settings_title"
-                android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                android:textColor="?attr/colorOnSurface"
+                android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/training_settings_subtitle"
-                android:textColor="@color/text_muted"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                 android:layout_marginBottom="24dp"/>
 
             <!-- AI Trainer Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/TTC.SectionHeader"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_info_details"
-                    app:tint="@color/coach_accent_green"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/ai_trainer_section"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
-            </LinearLayout>
+                android:text="@string/ai_trainer_section"
+                android:layout_marginBottom="12dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardCornerRadius="16dp"
+                style="@style/TTC.Card"
+                app:contentPadding="0dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -79,14 +64,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/select_coach_label"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/select_coach_desc"
-                            android:textColor="@color/text_muted"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -96,7 +81,7 @@
                             android:layout_height="wrap_content"
                             app:singleSelection="true"
                             app:selectionRequired="true">
-                            
+
                             <Button
                                 android:id="@+id/btn_coach_vadym"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -104,7 +89,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/coach_vadym_name" />
-                                
+
                             <Button
                                 android:id="@+id/btn_coach_Ivan"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -112,7 +97,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/coach_ivan_name" />
-                                
+
                             <Button
                                 android:id="@+id/btn_coach_Andriy"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -131,7 +116,7 @@
                         android:orientation="horizontal"
                         android:padding="16dp"
                         android:gravity="center_vertical"
-                        android:background="@color/green_50">
+                        android:background="@color/ttc_gold_container">
 
                         <!-- Coach Avatar -->
                         <TextView
@@ -141,9 +126,9 @@
                             android:text="@string/label_version_character"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            android:textColor="@android:color/white"
+                            android:textColor="@color/ttc_on_gold"
                             android:background="@drawable/circle_background"
-                            android:backgroundTint="@color/coach_accent_green"
+                            android:backgroundTint="@color/ttc_gold_bright"
                             android:gravity="center"
                             android:layout_marginEnd="12dp"/>
 
@@ -160,7 +145,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="@string/coach_vadym_name"
                                 android:textStyle="bold"
-                                android:textColor="@color/coach_accent_green"
+                                android:textColor="@color/ttc_gold_accent"
                                 android:textSize="16sp"/>
 
                             <TextView
@@ -168,7 +153,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/coach_vadym_style"
-                                android:textColor="@color/coach_accent_green"
+                                android:textColor="@color/ttc_gold_accent"
                                 android:textSize="14sp"
                                 android:layout_marginTop="2dp"/>
 
@@ -177,7 +162,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/coach_vadym_desc"
-                                android:textColor="@color/text_muted"
+                                android:textColor="@color/ttc_text_on_gold_card"
                                 android:textSize="12sp"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
@@ -186,34 +171,18 @@
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Audio Feedback Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/TTC.SectionHeader"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_lock_silent_mode_off"
-                    app:tint="@android:color/holo_blue_dark"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/audio_feedback_section"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
-            </LinearLayout>
+                android:text="@string/audio_feedback_section"
+                android:layout_marginBottom="12dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorControlHighlight"
+                style="@style/TTC.Card"
+                app:contentPadding="0dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -240,19 +209,20 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/audio_feedback_enabled"
-                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                                android:textAppearance="@style/TextAppearance.TTC.Body"
+                                android:textStyle="bold"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/audio_feedback_desc"
-                                android:textColor="@color/text_muted"
-                                android:textAppearance="?attr/textAppearanceBodySmall"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_audio_feedback"
+                            style="@style/TTC.Toggle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -275,15 +245,15 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/volume_label"
-                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                                android:textAppearance="@style/TextAppearance.TTC.Body"
+                                android:textStyle="bold"/>
 
                             <TextView
                                 android:id="@+id/tv_volume_value"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/placeholder_percentage_high"
-                                android:textColor="@color/text_muted"
-                                android:textSize="14sp"/>
+                                android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"/>
                         </LinearLayout>
 
                         <SeekBar
@@ -291,48 +261,34 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:max="100"
-                            android:progress="75"/>
+                            android:progress="75"
+                            android:progressTint="@color/ttc_gold_bright"
+                            android:progressBackgroundTint="@color/ttc_sink"
+                            android:thumbTint="@color/ttc_gold_bright"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/volume_desc"
-                            android:textColor="@color/text_muted"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                             android:layout_marginTop="8dp"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Feedback Settings Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/TTC.SectionHeader"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_edit"
-                    app:tint="@color/coach_accent_green"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/header_feedback_settings_debug"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
-            </LinearLayout>
+                android:text="@string/header_feedback_settings_debug"
+                android:layout_marginBottom="12dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorControlHighlight"
+                style="@style/TTC.Card"
+                app:contentPadding="0dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -353,7 +309,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_frequency_n"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"/>
 
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
@@ -381,7 +338,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/label_enabled_corrections"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"
                             android:layout_marginBottom="12dp"/>
 
                         <com.google.android.material.chip.ChipGroup
@@ -439,34 +397,18 @@
 
 
             <!-- Camera Settings Section -->
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                style="@style/TTC.SectionHeader"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:src="@android:drawable/ic_menu_camera"
-                    app:tint="@android:color/holo_purple"
-                    android:layout_marginEnd="8dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/camera_settings_section"
-                    android:textAppearance="?attr/textAppearanceLabelLarge"/>
-            </LinearLayout>
+                android:text="@string/camera_settings_section"
+                android:layout_marginBottom="12dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorControlHighlight"
+                style="@style/TTC.Card"
+                app:contentPadding="0dp"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -487,14 +429,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/video_quality_label"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/video_quality_desc"
-                            android:textColor="@color/text_muted"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -524,14 +466,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/frame_rate_label"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/frame_rate_desc"
-                            android:textColor="@color/text_muted"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -541,7 +483,7 @@
                             android:layout_height="wrap_content"
                             app:singleSelection="true"
                             app:selectionRequired="true">
-                            
+
                             <Button
                                 android:id="@+id/btn_fps_24"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -549,7 +491,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/fps_24" />
-                                
+
                             <Button
                                 android:id="@+id/btn_fps_30"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -557,7 +499,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/fps_30" />
-                                
+
                             <Button
                                 android:id="@+id/btn_fps_60"
                                 style="?attr/materialButtonOutlinedStyle"
@@ -590,27 +532,28 @@
                                     android:layout_width="16dp"
                                     android:layout_height="16dp"
                                     android:src="@android:drawable/ic_menu_view"
-                                    app:tint="@color/text_muted"
+                                    android:tint="@color/ttc_gold_accent"
                                     android:layout_marginEnd="8dp"/>
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="@string/show_pose_skeleton_label"
-                                    android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                                    android:textAppearance="@style/TextAppearance.TTC.Body"
+                                    android:textStyle="bold"/>
                             </LinearLayout>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/show_pose_skeleton_desc"
-                                android:textColor="@color/text_muted"
-                                android:textAppearance="?attr/textAppearanceBodySmall"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_pose_skeleton"
+                            style="@style/TTC.Toggle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -632,19 +575,20 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/distance_mode_label"
-                                android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                                android:textAppearance="@style/TextAppearance.TTC.Body"
+                                android:textStyle="bold"/>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/distance_mode_desc"
-                                android:textColor="@color/text_muted"
-                                android:textAppearance="?attr/textAppearanceBodySmall"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
                         <com.google.android.material.switchmaterial.SwitchMaterial
                             android:id="@+id/switch_distance_mode"
+                            style="@style/TTC.Toggle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"/>
                     </LinearLayout>
@@ -660,14 +604,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/ball_detection_fps_label"
-                            android:textAppearance="?attr/textAppearanceTitleMedium"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Body"
+                            android:textStyle="bold"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/ball_detection_fps_desc"
-                            android:textColor="@color/text_muted"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -718,9 +662,11 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/Widget.Material3.CardView.Outlined"
-                app:cardCornerRadius="12dp"
-                app:cardBackgroundColor="?attr/colorSurfaceVariant"
+                app:cardBackgroundColor="@color/ttc_gold_container"
+                app:strokeColor="@color/ttc_gold_container_outline"
+                app:strokeWidth="1dp"
+                app:cardElevation="0dp"
+                app:shapeAppearance="@style/ShapeAppearance.TTC.Medium"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -733,16 +679,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_pro_tip_title"
+                        android:textAppearance="@style/TextAppearance.TTC.Body"
                         android:textStyle="bold"
-                        android:textSize="14sp"
+                        android:textColor="@color/ttc_text_on_gold_card"
                         android:layout_marginBottom="8dp"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/settings_pro_tip"
-                        android:textColor="@color/text_muted"
-                        android:textSize="14sp"
+                        android:textAppearance="@style/TextAppearance.TTC.Body"
+                        android:textColor="@color/ttc_text_on_gold_card"
                         android:lineSpacingMultiplier="1.5"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
