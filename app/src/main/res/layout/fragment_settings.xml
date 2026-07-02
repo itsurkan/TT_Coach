@@ -89,39 +89,67 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <!-- Pill segmented control: plain pill track + segments styled manually in SettingsFragment -->
+                        <LinearLayout
                             android:id="@+id/toggle_coach_style"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_coach_vadym"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/coach_vadym_name" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_coach_Ivan"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/coach_ivan_name" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_coach_Andriy"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/coach_andriy_name" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- Coach Info Card -->
@@ -260,31 +288,49 @@
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <!-- Pill segmented control: plain pill track + segments styled manually in SettingsFragment -->
+                        <LinearLayout
                             android:id="@+id/toggle_interface_lang"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_iface_en"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="56dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/lang_en" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_iface_uk"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="56dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/lang_uk" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- Coach language -->
@@ -317,31 +363,49 @@
                                 android:layout_marginTop="4dp"/>
                         </LinearLayout>
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <!-- Pill segmented control: plain pill track + segments styled manually in SettingsFragment -->
+                        <LinearLayout
                             android:id="@+id/toggle_coach_lang"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_coach_lang_en"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="56dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/lang_en" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_coach_lang_uk"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="56dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/lang_uk" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -581,39 +645,67 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginBottom="12dp"/>
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <!-- Pill segmented control: plain pill track + segments styled manually in SettingsFragment -->
+                        <LinearLayout
                             android:id="@+id/toggle_fps"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_fps_24"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/fps_24" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_fps_30"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/fps_30" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_fps_60"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/fps_60" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <!-- Pose Skeleton -->

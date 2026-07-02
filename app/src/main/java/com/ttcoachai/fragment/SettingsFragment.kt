@@ -6,11 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentSettingsBinding
 import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.models.CoachingStyle
 
 class SettingsFragment : Fragment() {
 
@@ -37,29 +41,42 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupAITrainerSettings() {
-        val currentCoachStyle = settingsManager.getCoachingStyle()
+        val coachButtons = listOf(binding.btnCoachVadym, binding.btnCoachIvan, binding.btnCoachAndriy)
 
-        // Check corresponding button
-        when (currentCoachStyle) {
-            com.ttcoachai.models.CoachingStyle.GENTLE_SUPPORTIVE -> binding.toggleCoachStyle.check(R.id.btn_coach_vadym)
-            com.ttcoachai.models.CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.toggleCoachStyle.check(R.id.btn_coach_Ivan)
-            com.ttcoachai.models.CoachingStyle.PRECISE_TECHNICAL -> binding.toggleCoachStyle.check(R.id.btn_coach_Andriy)
-        }
-
-        // Update coach info card initially
-        updateCoachInfoCard(currentCoachStyle)
-
-        binding.toggleCoachStyle.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                val selectedStyle = when (checkedId) {
-                    R.id.btn_coach_vadym -> com.ttcoachai.models.CoachingStyle.GENTLE_SUPPORTIVE
-                    R.id.btn_coach_Ivan -> com.ttcoachai.models.CoachingStyle.MOTIVATIONAL_ENERGETIC
-                    else -> com.ttcoachai.models.CoachingStyle.PRECISE_TECHNICAL
-                }
-                settingsManager.setCoachingStyle(selectedStyle)
-                updateCoachInfoCard(selectedStyle)
+        fun select(style: CoachingStyle, persist: Boolean) {
+            val selected = when (style) {
+                CoachingStyle.GENTLE_SUPPORTIVE -> binding.btnCoachVadym
+                CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.btnCoachIvan
+                CoachingStyle.PRECISE_TECHNICAL -> binding.btnCoachAndriy
             }
+            coachButtons.forEach { styleSegment(it, it === selected) }
+            updateCoachInfoCard(style)
+            if (persist) settingsManager.setCoachingStyle(style)
         }
+
+        binding.btnCoachVadym.setOnClickListener { select(CoachingStyle.GENTLE_SUPPORTIVE, persist = true) }
+        binding.btnCoachIvan.setOnClickListener { select(CoachingStyle.MOTIVATIONAL_ENERGETIC, persist = true) }
+        binding.btnCoachAndriy.setOnClickListener { select(CoachingStyle.PRECISE_TECHNICAL, persist = true) }
+
+        select(settingsManager.getCoachingStyle(), persist = false)
+    }
+
+    /**
+     * Active segment = muted gold-container pill (#221C0F) with a subtle gold-brown outline and
+     * bold bright-gold text; inactive = transparent with muted secondary text. Each button keeps
+     * its own 999dp corners (plain LinearLayout track, not MaterialButtonToggleGroup) so the
+     * selected pill is fully rounded in every position.
+     */
+    private fun styleSegment(btn: MaterialButton, active: Boolean) {
+        val ctx = requireContext()
+        val bgColor = if (active) R.color.ttc_gold_container else android.R.color.transparent
+        val textColor = if (active) R.color.ttc_gold_accent else R.color.ttc_text_2
+        val font = if (active) R.font.inter_tight_bold else R.font.inter_tight_semibold
+        btn.backgroundTintList = ContextCompat.getColorStateList(ctx, bgColor)
+        btn.setTextColor(ContextCompat.getColor(ctx, textColor))
+        btn.strokeColor = ContextCompat.getColorStateList(ctx, R.color.ttc_gold_container_outline)
+        btn.strokeWidth = if (active) resources.displayMetrics.density.toInt().coerceAtLeast(1) else 0
+        btn.typeface = ResourcesCompat.getFont(ctx, font)
     }
 
     private fun updateCoachInfoCard(coachStyle: com.ttcoachai.models.CoachingStyle) {
@@ -75,24 +92,26 @@ class SettingsFragment : Fragment() {
 
     private fun setupLanguageSettings() {
         // Interface language (store-only, no recreate)
-        binding.toggleInterfaceLang.check(
-            if (settingsManager.getLanguageCode() == "uk") R.id.btn_iface_uk else R.id.btn_iface_en
-        )
-        binding.toggleInterfaceLang.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                settingsManager.setLanguageCode(if (checkedId == R.id.btn_iface_uk) "uk" else "en")
-            }
+        val ifaceButtons = listOf(binding.btnIfaceEn, binding.btnIfaceUk)
+        fun selectIface(uk: Boolean, persist: Boolean) {
+            val selected = if (uk) binding.btnIfaceUk else binding.btnIfaceEn
+            ifaceButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) settingsManager.setLanguageCode(if (uk) "uk" else "en")
         }
+        binding.btnIfaceEn.setOnClickListener { selectIface(uk = false, persist = true) }
+        binding.btnIfaceUk.setOnClickListener { selectIface(uk = true, persist = true) }
+        selectIface(uk = settingsManager.getLanguageCode() == "uk", persist = false)
 
         // Coach language
-        binding.toggleCoachLang.check(
-            if (settingsManager.getCoachLanguage() == "uk") R.id.btn_coach_lang_uk else R.id.btn_coach_lang_en
-        )
-        binding.toggleCoachLang.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                settingsManager.setCoachLanguage(if (checkedId == R.id.btn_coach_lang_uk) "uk" else "en")
-            }
+        val coachLangButtons = listOf(binding.btnCoachLangEn, binding.btnCoachLangUk)
+        fun selectCoachLang(uk: Boolean, persist: Boolean) {
+            val selected = if (uk) binding.btnCoachLangUk else binding.btnCoachLangEn
+            coachLangButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) settingsManager.setCoachLanguage(if (uk) "uk" else "en")
         }
+        binding.btnCoachLangEn.setOnClickListener { selectCoachLang(uk = false, persist = true) }
+        binding.btnCoachLangUk.setOnClickListener { selectCoachLang(uk = true, persist = true) }
+        selectCoachLang(uk = settingsManager.getCoachLanguage() == "uk", persist = false)
     }
 
     private fun setupFeedbackDetectionLinks() {
@@ -119,24 +138,21 @@ class SettingsFragment : Fragment() {
             settingsManager.setCameraResolution(position)
         }
 
-        // FPS Toggle Group
-        val currentFps = settingsManager.getTargetFps()
-        when (currentFps) {
-            24 -> binding.toggleFps.check(R.id.btn_fps_24)
-            30 -> binding.toggleFps.check(R.id.btn_fps_30)
-            60 -> binding.toggleFps.check(R.id.btn_fps_60)
-        }
-
-        binding.toggleFps.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                val fps = when (checkedId) {
-                    R.id.btn_fps_24 -> 24
-                    R.id.btn_fps_30 -> 30
-                    else -> 60
-                }
-                settingsManager.setTargetFps(fps)
+        // FPS pill segmented control
+        val fpsButtons = listOf(binding.btnFps24, binding.btnFps30, binding.btnFps60)
+        fun selectFps(fps: Int, persist: Boolean) {
+            val selected = when (fps) {
+                24 -> binding.btnFps24
+                30 -> binding.btnFps30
+                else -> binding.btnFps60
             }
+            fpsButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) settingsManager.setTargetFps(fps)
         }
+        binding.btnFps24.setOnClickListener { selectFps(24, persist = true) }
+        binding.btnFps30.setOnClickListener { selectFps(30, persist = true) }
+        binding.btnFps60.setOnClickListener { selectFps(60, persist = true) }
+        selectFps(settingsManager.getTargetFps(), persist = false)
 
         // Pose skeleton switch
         binding.switchPoseSkeleton.isChecked = settingsManager.isShowSkeleton()
