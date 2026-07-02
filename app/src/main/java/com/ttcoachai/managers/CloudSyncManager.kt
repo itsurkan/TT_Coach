@@ -275,15 +275,17 @@ class CloudSyncManager(
         strokeCount: Int,
         correctStrokes: Int,
         averageScore: Double,
-        appVersion: String
+        appVersion: String,
+        onSaved: (suspend (sessionId: String) -> Unit)? = null
     ) {
         if (!isAuthenticated) {
             android.util.Log.d(TAG, "User not authenticated, skipping cloud sync")
             return
         }
 
+        val sessionId = com.ttcoachai.models.TrainingSession.generateId()
         val session = com.ttcoachai.models.TrainingSession(
-            id = com.ttcoachai.models.TrainingSession.generateId(),
+            id = sessionId,
             exerciseId = exerciseId,
             exerciseName = exerciseName,
             startTime = startTime,
@@ -299,6 +301,8 @@ class CloudSyncManager(
             val result = saveTrainingSession(session)
             if (result.isSuccess) {
                 android.util.Log.d(TAG, "Training session saved to cloud: ${result.getOrNull()}")
+                runCatching { onSaved?.invoke(sessionId) }
+                    .onFailure { android.util.Log.e(TAG, "post-save hook failed", it) }
             } else {
                 android.util.Log.e(TAG, "Failed to save session to cloud", result.exceptionOrNull())
             }
