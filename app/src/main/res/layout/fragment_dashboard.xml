@@ -264,19 +264,6 @@
                             android:textAppearance="@style/TextAppearance.TTC.Body"
                             android:textColor="@color/ttc_text_1" />
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_premium"
-                            android:paddingStart="8dp"
-                            android:paddingEnd="8dp"
-                            android:paddingTop="3dp"
-                            android:paddingBottom="3dp"
-                            android:layout_marginEnd="6dp"
-                            android:text="@string/pill_premium"
-                            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
-                            android:textColor="@color/ttc_gold_accent" />
-
                         <ImageView
                             android:layout_width="18dp"
                             android:layout_height="18dp"
@@ -599,71 +586,6 @@
                         android:progress="0"
                         android:progressTint="@color/ttc_gold_bright"
                         android:progressBackgroundTint="@color/ttc_sink" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ===================== FOCUS THIS WEEK card (placeholder) ===================== -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_focus"
-                style="@style/TTC.Card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:contentPadding="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/eyebrow_focus_this_week"
-                        android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginTop="12dp">
-
-                        <View
-                            android:id="@+id/focus_dot"
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:background="@drawable/dot_amber"
-                            android:backgroundTint="@color/ttc_text_3" />
-
-                        <TextView
-                            android:id="@+id/tv_focus_title"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="10dp"
-                            android:text="@string/focus_placeholder_title"
-                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
-                            android:textSize="16sp" />
-
-                        <ImageView
-                            android:id="@+id/iv_focus_chevron"
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/ttc_text_3"
-                            android:visibility="gone"
-                            android:contentDescription="@null" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_focus_desc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/focus_placeholder_desc"
-                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

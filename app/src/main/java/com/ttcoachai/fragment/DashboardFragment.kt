@@ -110,8 +110,6 @@ class DashboardFragment : Fragment() {
         binding.pillStreak.visibility = View.GONE
         binding.tvWeeklySessions.text = getString(R.string.format_weekly_sessions, 0, 7)
         binding.progressWeekly.progress = 0
-
-        applyFocusPlaceholder()
     }
 
     private fun applyDashboardData(data: DashboardData) {
@@ -150,9 +148,6 @@ class DashboardFragment : Fragment() {
         binding.tvWeeklySessions.text =
             getString(R.string.format_weekly_sessions, data.weeklyDone, data.weeklyGoal)
         binding.progressWeekly.progress = data.weeklyProgressPct
-
-        // Focus card stays in placeholder state (no correction data tracked yet).
-        applyFocusPlaceholder()
     }
 
     private fun applyAvatar(initial: String, photoUrl: String?) {
@@ -199,15 +194,6 @@ class DashboardFragment : Fragment() {
                 lbl.setTypeface(android.graphics.Typeface.create(lbl.typeface, android.graphics.Typeface.NORMAL))
             }
         }
-    }
-
-    private fun applyFocusPlaceholder() {
-        binding.tvFocusTitle.text = getString(R.string.focus_placeholder_title)
-        binding.tvFocusDesc.text = getString(R.string.focus_placeholder_desc)
-        binding.ivFocusChevron.visibility = View.GONE
-        // Neutral (non-amber) dot in the placeholder state.
-        binding.focusDot.backgroundTintList =
-            android.content.res.ColorStateList.valueOf(requireContext().getColor(R.color.ttc_text_3))
     }
 
     private fun todayDowIndex(fallback: Int): Int {

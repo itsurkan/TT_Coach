@@ -2,5 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/iosApp/build/SourcePackages/checkouts/onnxruntime-swift-package-manager" vcs="Git" />
   </component>
 </project>
