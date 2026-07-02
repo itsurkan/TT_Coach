@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.text.InputType
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +43,14 @@ class DrillsFragment : Fragment() {
     private val customDrillRepo by lazy {
         CustomDrillRepository(AppDatabase.getDatabase(requireContext()).customDrillDao())
     }
+
+    private val trainingDao by lazy {
+        AppDatabase.getDatabase(requireContext()).trainingDao()
+    }
+
+    /** Merged built-in + custom list, reused by the drill-options menu and swipe actions. */
+    var currentDrills: List<Exercise> = emptyList()
+        private set
 
     private var pendingCustomDrillType: String? = null
 
@@ -150,27 +159,52 @@ class DrillsFragment : Fragment() {
         )
         binding.rvDrills.adapter = adapter
 
-        binding.btnStartFeatured.setOnClickListener {
-            val forehand = builtInExercises.find { it.id == "forehand_drive" }
-            if (forehand != null) onExerciseSelected(forehand)
-        }
-
-        binding.chipAll.setOnClickListener { filterExercises("All") }
-        binding.chipBeginner.setOnClickListener { filterExercises("Beginner") }
-        binding.chipIntermediate.setOnClickListener { filterExercises("Intermediate") }
-        binding.chipAdvanced.setOnClickListener { filterExercises("Advanced") }
-
         binding.btnAddCustomDrill.setOnClickListener { launchCustomDrillCalibration() }
+        binding.fabAddDrill.setOnClickListener { launchCustomDrillCalibration() }
     }
 
-    private fun filterExercises(difficulty: String) {
-        val all = builtInExercises + customExercises
-        val filtered = if (difficulty == "All") {
-            all
-        } else {
-            all.filter { it.difficulty.equals(difficulty, ignoreCase = true) }
+    /**
+     * Binds the RECENT card from the most recent [com.ttcoachai.models.TrainingSession]
+     * and splits [allDrills] into (recent, programs) via [DrillActions.partition], updating
+     * the adapter with the ALL PROGRAMS list only. Guards against a torn-down view since
+     * this runs inside a coroutine.
+     */
+    private fun bindRecentAndPrograms(allDrills: List<Exercise>) {
+        currentDrills = allDrills
+        viewLifecycleOwner.lifecycleScope.launch {
+            val session = withContext(Dispatchers.IO) { trainingDao.getMostRecentSession() }
+            if (_binding == null) return@launch
+            val (recent, programs) = DrillActions.partition(allDrills, session?.exerciseId)
+
+            val sectionRecent = binding.sectionRecent
+            if (recent == null || session == null) {
+                sectionRecent.visibility = View.GONE
+            } else {
+                sectionRecent.visibility = View.VISIBLE
+                binding.tvRecentName.text = recent.name
+                binding.ivRecentIcon.setImageResource(iconForDrill(recent.id))
+                binding.tvRecentDate.text = DateUtils.getRelativeTimeSpanString(
+                    session.startTime, System.currentTimeMillis(),
+                    DateUtils.DAY_IN_MILLIS
+                ).toString().uppercase()
+
+                val pct = if (session.accuracy <= 1f) (session.accuracy * 100).toInt()
+                          else session.accuracy.toInt()
+                binding.tvRecentAccuracy.text = getString(R.string.drills_recent_accuracy, pct)
+
+                binding.btnRecentContinue.setOnClickListener { onExerciseSelected(recent) }
+            }
+
+            adapter.updateList(programs)
         }
-        adapter.updateList(filtered)
+    }
+
+    private fun iconForDrill(id: String): Int = when (id) {
+        "backhand_loop" -> R.drawable.ic_trending_up
+        "footwork_drill" -> R.drawable.ic_person
+        "multiball_rally" -> R.drawable.ic_alert_circle
+        "consistency_challenge" -> R.drawable.ic_check_circle_2
+        else -> R.drawable.ic_target
     }
 
     /**
@@ -263,7 +297,8 @@ class DrillsFragment : Fragment() {
         lifecycleScope.launch {
             val rows = withContext(Dispatchers.IO) { customDrillRepo.getAll() }
             customExercises = rows.map { it.toExercise() }
-            adapter.updateList(builtInExercises + customExercises)
+            if (_binding == null) return@launch
+            bindRecentAndPrograms(builtInExercises + customExercises)
         }
     }
 
