@@ -2,6 +2,8 @@ package com.ttcoachai.fragment
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Bundle
 import android.text.InputType
 import android.text.format.DateUtils
@@ -13,9 +15,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.Exercise
 import com.ttcoachai.ExerciseAdapter
 import com.ttcoachai.R
@@ -49,6 +54,9 @@ class DrillsFragment : Fragment() {
     /** Merged built-in + custom list, reused by the drill-options menu and swipe actions. */
     var currentDrills: List<Exercise> = emptyList()
         private set
+
+    /** Last list bound to the adapter (ALL PROGRAMS only), used to map a swipe position to an Exercise. */
+    private var boundPrograms: List<Exercise> = emptyList()
 
     private var pendingCustomDrillType: String? = null
 
@@ -159,6 +167,58 @@ class DrillsFragment : Fragment() {
 
         binding.btnAddCustomDrill.setOnClickListener { launchCustomDrillCalibration() }
         binding.fabAddDrill.setOnClickListener { launchCustomDrillCalibration() }
+
+        attachSwipeActions()
+    }
+
+    /**
+     * Swipe-left = Clone (gold), swipe-right = Delete (red), gated per-row by [DrillActions]:
+     * built-ins allow Clone only, custom drills allow both.
+     */
+    private fun attachSwipeActions() {
+        val swipeCallback = object : ItemTouchHelper.SimpleCallback(
+            0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            private val goldPaint = Paint().apply { color = ContextCompat.getColor(requireContext(), R.color.ttc_gold_bright) }
+            private val redPaint = Paint().apply { color = ContextCompat.getColor(requireContext(), R.color.ttc_error) }
+
+            override fun getSwipeDirs(rv: RecyclerView, vh: RecyclerView.ViewHolder): Int {
+                val pos = vh.bindingAdapterPosition
+                val ex = boundPrograms.getOrNull(pos) ?: return 0
+                // Built-ins: Clone (left) only. Custom: Clone (left) + Delete (right).
+                return if (DrillActions.canDelete(ex)) ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+                       else ItemTouchHelper.LEFT
+            }
+
+            override fun onMove(rv: RecyclerView, vh: RecyclerView.ViewHolder, t: RecyclerView.ViewHolder) = false
+
+            override fun onSwiped(vh: RecyclerView.ViewHolder, direction: Int) {
+                val ex = boundPrograms.getOrNull(vh.bindingAdapterPosition) ?: run {
+                    adapter.notifyDataSetChanged(); return
+                }
+                when (direction) {
+                    ItemTouchHelper.LEFT -> cloneDrill(ex)                       // swipe left → Clone
+                    ItemTouchHelper.RIGHT -> if (DrillActions.canDelete(ex)) deleteDrill(ex)
+                                             else adapter.notifyDataSetChanged()
+                }
+                // reloadCustomDrills() inside clone/delete rebinds the list; snap the row back meanwhile
+                adapter.notifyItemChanged(vh.bindingAdapterPosition)
+            }
+
+            override fun onChildDraw(
+                c: Canvas, rv: RecyclerView, vh: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+            ) {
+                val item = vh.itemView
+                if (dX < 0) {
+                    c.drawRect(item.right + dX, item.top.toFloat(), item.right.toFloat(), item.bottom.toFloat(), goldPaint)
+                } else if (dX > 0) {
+                    c.drawRect(item.left.toFloat(), item.top.toFloat(), item.left + dX, item.bottom.toFloat(), redPaint)
+                }
+                super.onChildDraw(c, rv, vh, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+        ItemTouchHelper(swipeCallback).attachToRecyclerView(binding.rvDrills)
     }
 
     /**
@@ -193,6 +253,7 @@ class DrillsFragment : Fragment() {
                 binding.btnRecentContinue.setOnClickListener { onExerciseSelected(recent) }
             }
 
+            boundPrograms = programs
             adapter.updateList(programs)
         }
     }
