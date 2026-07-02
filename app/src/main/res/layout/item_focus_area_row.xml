@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="10dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_focus_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                tools:text="Wrist angle" />
+
+            <TextView
+                android:id="@+id/chip_top_focus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="2dp"
+                android:text="@string/review_top_focus_chip"
+                android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
+                android:textColor="@color/ttc_shot_error"
+                android:background="@drawable/bg_pill_track"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/bar_focus"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="6dp"
+            app:trackCornerRadius="3dp"
+            app:trackColor="@color/ttc_sink"
+            app:indicatorColor="@color/ttc_shot_error" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_focus_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+        tools:text="5×" />
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="6dp"
+        android:src="@drawable/ic_chevron_right"
+        app:tint="@color/ttc_text_3"
+        android:contentDescription="@null" />
+</LinearLayout>
