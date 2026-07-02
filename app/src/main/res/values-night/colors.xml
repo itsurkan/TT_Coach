@@ -162,4 +162,10 @@
     <color name="ttc_text_disabled">#8A909E</color>
     <color name="ttc_paywall_bg">#0E1115</color>
     <color name="ttc_success_container">#0E241B</color>
+
+    <!-- Session History / Review screens (Slice 3) -->
+    <color name="ttc_trend_up">#2FD08A</color>
+    <color name="ttc_trend_down">#E8817A</color>
+    <color name="ttc_shot_error">#E8817A</color>
+    <color name="ttc_chart_grid">#1E2530</color>
 </resources>
