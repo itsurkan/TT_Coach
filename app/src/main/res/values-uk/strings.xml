@@ -621,4 +621,86 @@
     <string name="drill_delete_confirm">Видалити</string>
     <string name="drill_delete_toast">Видалено «%1$s»</string>
     <string name="drill_cancel">Скасувати</string>
+
+    <!-- Settings / Feedback / Detection redesign (gold-dark) -->
+    <string name="settings_screen_title">Налаштування тренувань</string>
+    <string name="settings_subtitle">Налаштуйте, як ваш тренер спостерігає та розмовляє з вами</string>
+    <string name="settings_section_ai_coach">AI Тренер</string>
+    <string name="settings_section_language">Мова</string>
+    <string name="settings_section_feedback_detection">Зворотний зв\'язок і виявлення</string>
+    <string name="settings_section_camera">Камера</string>
+    <string name="settings_choose_coach">Оберіть свого тренера</string>
+    <string name="settings_choose_coach_sub">Оберіть стиль тренування, що відповідає вашим уподобанням</string>
+    <string name="settings_interface_language">Мова інтерфейсу</string>
+    <string name="settings_interface_language_sub">Мова екранів і меню додатка</string>
+    <string name="settings_coach_language">Мова тренера</string>
+    <string name="settings_coach_language_sub">Мова, якою тренер говорить і пише</string>
+    <string name="settings_link_feedback">Зворотний зв\'язок</string>
+    <string name="settings_link_feedback_sub">Підказки, ритм і похвала · застосовується до всіх сесій</string>
+    <string name="settings_link_detection">Виявлення</string>
+    <string name="settings_link_detection_sub">Розпізнавання ударів · пороги, згладжування та таймінг</string>
+    <string name="settings_video_quality">Якість відео</string>
+    <string name="settings_video_quality_sub">Вища якість покращує виявлення пози</string>
+    <string name="settings_frame_rate">Частота кадрів</string>
+    <string name="settings_frame_rate_sub">Вища частота фіксує швидші рухи</string>
+    <string name="settings_show_skeleton">Показувати скелет пози</string>
+    <string name="settings_show_skeleton_sub">Накладання візуалізації скелету під час тренування</string>
+    <string name="settings_tip">ПОРАДА</string>
+    <string name="settings_tip_body">Використовуйте 720p при 30 FPS з увімкненим скелетом пози. Цей баланс забезпечує точний фідбек без розрядження батареї.</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_uk">UK</string>
+
+    <string name="feedback_title">Зворотний зв\'язок</string>
+    <string name="feedback_subtitle">Застосовується до кожної сесії</string>
+    <string name="feedback_section_coaching">Тренування</string>
+    <string name="feedback_section_corrections">Корекції</string>
+    <string name="feedback_section_cue_zones">Зони підказок</string>
+    <string name="feedback_section_cue_zones_sub">Глобально — накладається поверх суворості вправи</string>
+    <string name="feedback_section_cadence">Ритм</string>
+    <string name="feedback_section_praise">Похвала</string>
+    <string name="feedback_playing_hand">Ігрова рука</string>
+    <string name="feedback_hand_right">Права</string>
+    <string name="feedback_hand_left">Ліва</string>
+    <string name="feedback_voice_cues">Голосові підказки</string>
+    <string name="feedback_voice_cues_sub">Озвучувати корекції під час гри</string>
+    <string name="feedback_voice_volume">Гучність голосу</string>
+    <string name="feedback_zone_width">Ширина зони</string>
+    <string name="feedback_significance">Поріг значущості</string>
+    <string name="feedback_alternate_cues">Чергування підказок</string>
+    <string name="feedback_alternate_cues_sub">Чергувати між позначеними проблемами</string>
+    <string name="feedback_reminder_interval">Інтервал нагадування</string>
+    <string name="feedback_pause_between">Пауза між підказками</string>
+    <string name="feedback_silence_before_praise">Тиша перед похвалою</string>
+    <string name="feedback_pause_after_stroke">Пауза після удару</string>
+    <string name="feedback_cues_per_session">Підказок за сесію</string>
+    <string name="feedback_praise_enabled">Похвала увімкнена</string>
+    <string name="feedback_praise_on_corrections">При корекціях</string>
+    <string name="feedback_praise_on_streak">При серії</string>
+    <string name="feedback_streak_length">Довжина серії</string>
+    <string name="correction_wrist">Кут зап\'ястя</string>
+    <string name="correction_rotation">Ротація корпусу</string>
+    <string name="correction_elbow">Позиція ліктя</string>
+    <string name="correction_speed">Швидкість удару</string>
+
+    <string name="detection_title">Виявлення</string>
+    <string name="detection_subtitle">Розширені — як розпізнаються удари</string>
+    <string name="detection_camera_angle">Кут камери</string>
+    <string name="detection_camera_angle_sub">Ручне перевизначення · градуси</string>
+    <string name="detection_peak_speed">Поріг пікової швидкості</string>
+    <string name="detection_peak_speed_sub">Ширин тулуба / секунду</string>
+    <string name="detection_min_interval">Мін. інтервал між піками</string>
+    <string name="detection_min_interval_sub">Мілісекунди</string>
+    <string name="detection_smoothing">Згладжування швидкості</string>
+    <string name="detection_smoothing_sub">Мілісекунди · менше = чутливіше</string>
+    <string name="detection_walk_gate">Поріг ходьби</string>
+    <string name="detection_walk_gate_sub">Зміщення таза · 0 = вимкнено</string>
+    <string name="detection_skip_stale">Пропускати застарілі удари</string>
+    <string name="detection_skip_stale_sub">Відкидати пізно виявлені удари</string>
+    <string name="detection_prestroke_buffer">Буфер перед ударом</string>
+    <string name="detection_prestroke_buffer_sub">Мілісекунди</string>
+    <string name="detection_ball_fps">FPS виявлення м\'яча</string>
+    <string name="detection_ball_fps_sub">Частота захоплення відстеження м\'яча</string>
+    <string name="detection_distance_mode">Режим на відстані</string>
+    <string name="detection_distance_mode_sub">Відстежувати відстань м\'яча від столу</string>
+    <string name="cd_back">Назад</string>
 </resources>
