@@ -562,4 +562,41 @@
     <string name="drills_custom_default_name">Своя вправа %1$d</string>
     <string name="drills_custom_category">Своя</string>
     <string name="drills_custom_saved_toast">Вправу збережено: %1$s</string>
+
+    <!-- Dashboard (gold-dark Home) -->
+    <string name="greeting_morning">Доброго ранку</string>
+    <string name="greeting_afternoon">Доброго дня</string>
+    <string name="greeting_evening">Доброго вечора</string>
+    <string name="greeting_name_fallback">друже</string>
+    <string name="cd_avatar">Фото профілю</string>
+
+    <string name="eyebrow_last_session">ОСТАННЯ СЕСІЯ</string>
+    <string name="placeholder_dash_dash">--</string>
+    <string name="placeholder_no_sessions">Ще немає сесій</string>
+    <string name="eyebrow_strokes">УДАРИ</string>
+    <string name="eyebrow_accuracy">ТОЧНІСТЬ</string>
+    <string name="eyebrow_consistency">СТАБІЛЬНІСТЬ</string>
+    <string name="action_view_full_report">Повний звіт</string>
+    <string name="pill_premium">ПРЕМІУМ</string>
+    <string name="format_percent">%1$d%%</string>
+    <string name="day_today">Сьогодні</string>
+    <string name="day_yesterday">Учора</string>
+    <string name="format_when_label">%1$s · %2$s</string>
+
+    <string name="eyebrow_this_week">ЦЬОГО ТИЖНЯ</string>
+    <string name="format_streak_days">Серія: %1$d дн.</string>
+    <string name="dow_mon_short">Пн</string>
+    <string name="dow_tue_short">Вт</string>
+    <string name="dow_wed_short">Ср</string>
+    <string name="dow_thu_short">Чт</string>
+    <string name="dow_fri_short">Пт</string>
+    <string name="dow_sat_short">Сб</string>
+    <string name="dow_sun_short">Нд</string>
+    <string name="format_weekly_sessions">%1$d / %2$d сесій</string>
+
+    <string name="eyebrow_focus_this_week">ФОКУС ЦЬОГО ТИЖНЯ</string>
+    <string name="focus_placeholder_title">Напрямки роботи скоро з’являться</string>
+    <string name="focus_placeholder_desc">Проведіть більше сесій, щоб побачити найчастіші зауваження.</string>
+
+    <string name="btn_new_session">Нова сесія</string>
 </resources>
