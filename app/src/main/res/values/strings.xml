@@ -586,6 +586,7 @@
     <string name="btn_load_video">📂 Load Video</string>
     <string name="btn_log_poses">💾 Log Poses</string>
     <string name="btn_portrait_mode">📱 Portrait Mode</string>
+    <string name="btn_seed_sessions">🌱 Seed demo sessions</string>
     <string name="btn_load">📂 Load</string>
     <string name="btn_log">💾 Log</string>
     <string name="btn_landscape">🖥 Landscape</string>

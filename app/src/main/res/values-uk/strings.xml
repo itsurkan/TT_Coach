@@ -315,6 +315,7 @@
     <string name="btn_load_video">📂 Завантажити відео</string>
     <string name="btn_log_poses">💾 Логувати пози</string>
     <string name="btn_portrait_mode">📱 Портретний режим</string>
+    <string name="btn_seed_sessions">🌱 Заповнити тестовими сесіями</string>
     <string name="btn_load">📂 Завантажити</string>
     <string name="btn_log">💾 Лог</string>
     <string name="btn_landscape">🖥 Ландшафтний режим</string>
