@@ -184,7 +184,8 @@ class ProgressFragment : Fragment() {
             legend.isEnabled = false
             setDrawGridBackground(false)
             setTouchEnabled(false) // Disable interaction for simple view
-            
+            setExtraBottomOffset(10f) // reserve room so day-label descenders aren't clipped
+
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
                 setDrawGridLines(false)
@@ -192,6 +193,7 @@ class ProgressFragment : Fragment() {
                 valueFormatter = IndexAxisValueFormatter(days)
                 textColor = ContextCompat.getColor(context, R.color.text_muted)
                 textSize = 12f
+                yOffset = 8f
             }
             
             axisLeft.apply {
@@ -209,6 +211,7 @@ class ProgressFragment : Fragment() {
             legend.isEnabled = false
             setDrawGridBackground(false)
             setTouchEnabled(false)
+            setExtraBottomOffset(10f) // reserve room so day-label descenders aren't clipped
 
             xAxis.apply {
                 position = XAxis.XAxisPosition.BOTTOM
@@ -217,6 +220,7 @@ class ProgressFragment : Fragment() {
                 valueFormatter = IndexAxisValueFormatter(days)
                 textColor = ContextCompat.getColor(context, R.color.text_muted)
                 textSize = 12f
+                yOffset = 8f
             }
 
             axisLeft.apply {
