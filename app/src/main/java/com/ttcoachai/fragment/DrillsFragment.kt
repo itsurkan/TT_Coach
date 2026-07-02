@@ -3,7 +3,6 @@ package com.ttcoachai.fragment
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.InputType
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -21,11 +20,11 @@ import com.ttcoachai.Exercise
 import com.ttcoachai.ExerciseAdapter
 import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
-import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.FragmentDrillsBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
 import com.ttcoachai.repository.CustomDrillRepository
+import com.ttcoachai.ui.ExerciseEditorActivity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,14 +51,10 @@ class DrillsFragment : Fragment() {
     var currentDrills: List<Exercise> = emptyList()
         private set
 
-    private var pendingCustomDrillType: String? = null
-
-    private val calibrationLauncher: ActivityResultLauncher<Intent> =
+    private val exerciseEditorLauncher: ActivityResultLauncher<Intent> =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val drillType = pendingCustomDrillType ?: return@registerForActivityResult
-            pendingCustomDrillType = null
             if (result.resultCode == Activity.RESULT_OK) {
-                promptForCustomDrillName(drillType)
+                reloadCustomDrills()
             }
         }
 
@@ -168,7 +163,9 @@ class DrillsFragment : Fragment() {
             }
         })
 
-        binding.fabAddDrill.setOnClickListener { showCalibrationIntroDialog() }
+        binding.fabAddDrill.setOnClickListener {
+            exerciseEditorLauncher.launch(ExerciseEditorActivity.newIntentNew(requireContext()))
+        }
     }
 
     /**
@@ -230,7 +227,11 @@ class DrillsFragment : Fragment() {
             if (DrillActions.canContinue(exercise))
                 add(Action(getString(R.string.drill_action_continue)) { onExerciseSelected(exercise) })
             if (DrillActions.canEdit(exercise))
-                add(Action(getString(R.string.drill_action_edit)) { launchCustomDrillCalibration() })
+                add(Action(getString(R.string.drill_action_edit)) {
+                    exerciseEditorLauncher.launch(
+                        ExerciseEditorActivity.newIntentEdit(requireContext(), exercise.id)
+                    )
+                })
             if (DrillActions.canClone(exercise))
                 add(Action(getString(R.string.drill_action_clone)) { cloneDrill(exercise) })
             if (DrillActions.canRename(exercise))
@@ -247,22 +248,13 @@ class DrillsFragment : Fragment() {
 
     private fun cloneDrill(source: Exercise) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val newType = "${CUSTOM_DRILL_PREFIX}${System.currentTimeMillis()}"
-            val copyName = "${source.name} ${getString(R.string.drill_clone_copy_suffix)}"
             val baseTemplate = if (DrillActions.isCustom(source)) {
                 withContext(Dispatchers.IO) { customDrillRepo.get(source.id) }?.baseTemplate ?: source.id
             } else source.id
-            val entity = CustomDrillEntity(
-                drillType = newType,
-                name = copyName,
-                baseTemplate = baseTemplate,
-                createdAtMs = System.currentTimeMillis()
-            )
-            withContext(Dispatchers.IO) { customDrillRepo.save(entity) }
             if (_binding == null) return@launch
-            Toast.makeText(requireContext(),
-                getString(R.string.drill_clone_toast, copyName), Toast.LENGTH_SHORT).show()
-            reloadCustomDrills()
+            exerciseEditorLauncher.launch(
+                ExerciseEditorActivity.newIntentClone(requireContext(), source.id, source.name, baseTemplate)
+            )
         }
     }
 
@@ -305,66 +297,6 @@ class DrillsFragment : Fragment() {
             }
             .setNegativeButton(R.string.drill_cancel, null)
             .show()
-    }
-
-    private fun showCalibrationIntroDialog() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.calibration_intro_title)
-            .setMessage(R.string.calibration_intro_body)
-            .setPositiveButton(R.string.calibration_intro_proceed) { _, _ -> launchCustomDrillCalibration() }
-            .setNegativeButton(R.string.calibration_intro_cancel, null)
-            .show()
-    }
-
-    private fun launchCustomDrillCalibration() {
-        val drillType = "$CUSTOM_DRILL_PREFIX${System.currentTimeMillis()}"
-        pendingCustomDrillType = drillType
-        val intent = Intent(requireContext(), CalibrationActivity::class.java)
-            .putExtra(CalibrationActivity.EXTRA_DRILL_TYPE, drillType)
-        calibrationLauncher.launch(intent)
-    }
-
-    private fun promptForCustomDrillName(drillType: String) {
-        val ctx = requireContext()
-        val input = EditText(ctx).apply {
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            hint = getString(R.string.drills_custom_name_hint)
-            setSingleLine(true)
-        }
-        lifecycleScope.launch {
-            val nextIndex = withContext(Dispatchers.IO) { customDrillRepo.count() } + 1
-            val defaultName = getString(R.string.drills_custom_default_name, nextIndex)
-            input.setText(defaultName)
-            input.setSelection(0, defaultName.length)
-
-            AlertDialog.Builder(ctx)
-                .setTitle(R.string.drills_custom_name_title)
-                .setView(input)
-                .setCancelable(false)
-                .setPositiveButton(R.string.drills_custom_name_save) { _, _ ->
-                    val name = input.text.toString().trim().ifEmpty { defaultName }
-                    persistCustomDrill(drillType, name)
-                }
-                .show()
-        }
-    }
-
-    private fun persistCustomDrill(drillType: String, name: String) {
-        val entity = CustomDrillEntity(
-            drillType = drillType,
-            name = name,
-            baseTemplate = "forehand_drive",
-            createdAtMs = System.currentTimeMillis()
-        )
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) { customDrillRepo.save(entity) }
-            Toast.makeText(
-                requireContext(),
-                getString(R.string.drills_custom_saved_toast, name),
-                Toast.LENGTH_SHORT
-            ).show()
-            reloadCustomDrills()
-        }
     }
 
     private fun reloadCustomDrills() {

@@ -282,6 +282,24 @@ Generalizing stroke detection per drill type is deferred; until then, non-foreha
 feedback accuracy is not claimed.
 **Refs:** `docs/superpowers/specs/2026-07-02-android-exercises-tab-gold-dark-design.md`.
 
+### L-35 · Exercise editor fields not consumed by the live feedback analyzer — `ACCEPTED` (revisit post-MVP)
+The exercise editor (screens 10c New / 10d Clone/Edit) persists focus areas,
+reference type, strictness, and per-phase targets onto `CustomDrillEntity`
+(`focusCsv`, `referenceType`, `strictnessX`, `perPhaseTargetsJson`, `baselineId`).
+The editor round-trips these fields faithfully (create/clone/edit all read and
+write them correctly), but the live drill run does not yet read them back — the
+Phase 2 rule evaluator (`FrameRuleEvaluator`/`DrillFeedbackEngine`) is not wired to
+apply per-drill overrides at runtime. This is the same deferral already true of
+`DrillConfigEntity` (coach-tuned drill-shape overrides, also unconsumed at
+runtime). `baseTemplate` on a NEW drill is currently self-referential (its own
+`custom_...` drillType) — verified harmless today since nothing resolves icons or
+analyzer selection via `baseTemplate` (icon lookup keys off `drillType`/`id` with a
+safe default; drill-type resolution keys off `EXERCISE_ID`), but any future code
+that starts consuming `baseTemplate` for analyzer/icon selection must special-case
+or default the NEW-mode self-reference.
+**Refs:** `ExerciseEditorActivity.kt` (`onPrimaryClicked`); `CustomDrillEntity.kt`;
+`DrillsFragment.kt` (`iconForDrill`); L-20 (`DrillConfigEntity` same deferral).
+
 ---
 
 ## Resolved
