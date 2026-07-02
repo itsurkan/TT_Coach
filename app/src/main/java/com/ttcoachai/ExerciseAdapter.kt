@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.databinding.ItemExerciseBinding
+import com.ttcoachai.databinding.ItemLockedToggleBinding
 import com.ttcoachai.fragment.DrillActions
 import com.ttcoachai.ui.SwipeRevealLayout
 import com.ttcoachai.ui.SwipeState
@@ -18,14 +19,25 @@ class ExerciseAdapter(
     private val onExerciseClick: (Exercise) -> Unit,
     private val onExerciseLongClick: ((Exercise) -> Unit)? = null,
     private val onCloneClick: (Exercise) -> Unit = {},
-    private val onDeleteClick: (Exercise) -> Unit = {}
-) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
+    private val onDeleteClick: (Exercise) -> Unit = {},
+    private val onToggleLocked: () -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     /** The single row currently open, if any — enforces one-open-at-a-time. */
     private var openRow: SwipeRevealLayout? = null
 
-    fun updateList(newExercises: List<Exercise>) {
+    /** When there are hidden locked drills, a footer toggle row is appended. */
+    private var hasLocked = false
+    private var lockedExpanded = false
+
+    /**
+     * Replaces the visible drill list. [hasLocked] controls whether the expand/collapse
+     * footer is shown; [expanded] drives its label + chevron direction.
+     */
+    fun setData(newExercises: List<Exercise>, hasLocked: Boolean, expanded: Boolean) {
         exercises = newExercises
+        this.hasLocked = hasLocked
+        this.lockedExpanded = expanded
         openRow = null
         notifyDataSetChanged()
     }
@@ -34,6 +46,11 @@ class ExerciseAdapter(
     fun closeOpenRow() {
         openRow?.close(animate = true)
     }
+
+    override fun getItemCount(): Int = exercises.size + if (hasLocked) 1 else 0
+
+    override fun getItemViewType(position: Int): Int =
+        if (hasLocked && position == exercises.size) VIEW_TYPE_FOOTER else VIEW_TYPE_ITEM
 
     inner class ExerciseViewHolder(
         private val binding: ItemExerciseBinding
@@ -113,18 +130,37 @@ class ExerciseAdapter(
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
-        val binding = ItemExerciseBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ExerciseViewHolder(binding)
+    inner class LockedToggleViewHolder(
+        private val binding: ItemLockedToggleBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind() {
+            binding.btnToggleLocked.apply {
+                setText(if (lockedExpanded) R.string.drills_hide_locked else R.string.drills_show_locked)
+                setIconResource(if (lockedExpanded) R.drawable.icn_chevron_up else R.drawable.ic_chevron_down)
+                setOnClickListener { onToggleLocked() }
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
-        holder.bind(exercises[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == VIEW_TYPE_FOOTER) {
+            LockedToggleViewHolder(ItemLockedToggleBinding.inflate(inflater, parent, false))
+        } else {
+            ExerciseViewHolder(ItemExerciseBinding.inflate(inflater, parent, false))
+        }
     }
 
-    override fun getItemCount() = exercises.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ExerciseViewHolder -> holder.bind(exercises[position])
+            is LockedToggleViewHolder -> holder.bind()
+        }
+    }
+
+    companion object {
+        private const val VIEW_TYPE_ITEM = 0
+        private const val VIEW_TYPE_FOOTER = 1
+    }
 }

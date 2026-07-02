@@ -773,6 +773,8 @@
     <!-- Exercises tab redesign (2a / 10a / 10b) -->
     <string name="drills_section_recent">RECENT</string>
     <string name="drills_section_all_programs">ALL PROGRAMS</string>
+    <string name="drills_show_locked">Show locked drills</string>
+    <string name="drills_hide_locked">Hide locked drills</string>
     <string name="drills_recent_last_session">Last session</string>
     <string name="drills_recent_accuracy">%1$d%% accuracy</string>
     <string name="drills_continue_training">Continue training</string>

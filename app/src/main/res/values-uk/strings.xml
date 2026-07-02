@@ -599,6 +599,8 @@
     <!-- Exercises tab redesign (2a / 10a / 10b) -->
     <string name="drills_section_recent">НЕЩОДАВНІ</string>
     <string name="drills_section_all_programs">ВСІ ПРОГРАМИ</string>
+    <string name="drills_show_locked">Показати заблоковані</string>
+    <string name="drills_hide_locked">Сховати заблоковані</string>
     <string name="drills_recent_last_session">Останнє тренування</string>
     <string name="drills_recent_accuracy">%1$d%% точності</string>
     <string name="drills_continue_training">Продовжити тренування</string>

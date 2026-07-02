@@ -9,58 +9,64 @@
     <!-- Delete panel (left edge) — revealed by swiping RIGHT -->
     <LinearLayout
         android:id="@+id/swipe_delete_panel"
-        android:layout_width="88dp"
+        android:layout_width="84dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginStart="4dp"
         android:orientation="vertical"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@color/ttc_error"
+        android:background="@drawable/bg_swipe_delete"
         android:contentDescription="@string/drill_action_delete">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/ic_trash"
-            app:tint="@android:color/white"
+            app:tint="@color/ttc_error"
             android:contentDescription="@null"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="@string/drill_action_delete"
-            android:textColor="@android:color/white"
+            android:textColor="@color/ttc_error"
             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
     </LinearLayout>
 
     <!-- Clone panel (right edge) — revealed by swiping LEFT -->
     <LinearLayout
         android:id="@+id/swipe_clone_panel"
-        android:layout_width="88dp"
+        android:layout_width="84dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginEnd="4dp"
         android:orientation="vertical"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@color/ttc_gold_bright"
+        android:background="@drawable/bg_swipe_clone"
         android:contentDescription="@string/drill_action_clone">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/ic_content_copy"
-            app:tint="@color/ttc_on_gold"
+            app:tint="@color/ttc_gold_accent"
             android:contentDescription="@null"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="@string/drill_action_clone"
-            android:textColor="@color/ttc_on_gold"
+            android:textColor="@color/ttc_gold_accent"
             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
     </LinearLayout>
 
@@ -74,20 +80,21 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="16dp">
+            android:padding="12dp">
 
             <FrameLayout
                 android:id="@+id/fl_icon_container"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_icon_tile_gold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <ImageView
                     android:id="@+id/iv_exercise_icon"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_target"
                     app:tint="@color/ttc_gold_accent"
