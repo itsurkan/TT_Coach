@@ -12,8 +12,8 @@ interface TrainingDao {
     @Query("SELECT * FROM training_sessions WHERE userId = :userId ORDER BY startTime DESC LIMIT :limit")
     suspend fun getRecentSessions(userId: String, limit: Int): List<TrainingSession>
 
-    @Query("SELECT * FROM training_sessions ORDER BY startTime DESC LIMIT 1")
-    suspend fun getMostRecentSession(): TrainingSession?
+    @Query("SELECT * FROM training_sessions WHERE userId = :userId ORDER BY startTime DESC LIMIT 1")
+    suspend fun getMostRecentSessionForUser(userId: String): TrainingSession?
 
     @Query("SELECT * FROM training_sessions WHERE id = :sessionId")
     suspend fun getSessionById(sessionId: String): TrainingSession?

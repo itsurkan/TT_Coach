@@ -30,6 +30,7 @@ import com.ttcoachai.databinding.FragmentDrillsBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
 import com.ttcoachai.repository.CustomDrillRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -165,7 +166,6 @@ class DrillsFragment : Fragment() {
         )
         binding.rvDrills.adapter = adapter
 
-        binding.btnAddCustomDrill.setOnClickListener { launchCustomDrillCalibration() }
         binding.fabAddDrill.setOnClickListener { launchCustomDrillCalibration() }
 
         attachSwipeActions()
@@ -230,7 +230,9 @@ class DrillsFragment : Fragment() {
     private fun bindRecentAndPrograms(allDrills: List<Exercise>) {
         currentDrills = allDrills
         viewLifecycleOwner.lifecycleScope.launch {
-            val session = withContext(Dispatchers.IO) { trainingDao.getMostRecentSession() }
+            val session = FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
+                withContext(Dispatchers.IO) { trainingDao.getMostRecentSessionForUser(uid) }
+            }
             if (_binding == null) return@launch
             val (recent, programs) = DrillActions.partition(allDrills, session?.exerciseId)
 
