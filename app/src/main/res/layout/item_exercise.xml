@@ -6,68 +6,78 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp">
 
-    <!-- Delete panel (left edge) — revealed by swiping RIGHT -->
+    <!-- Delete panel (left edge) — revealed by swiping RIGHT. Outer width drives the reveal
+         distance; the inner tile insets on its card-facing (end) edge to leave a gap. -->
     <LinearLayout
         android:id="@+id/swipe_delete_panel"
-        android:layout_width="84dp"
+        android:layout_width="96dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:layout_marginStart="4dp"
         android:orientation="vertical"
-        android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/bg_swipe_delete"
         android:contentDescription="@string/drill_action_delete">
 
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/ic_trash"
-            app:tint="@color/ttc_error"
-            android:contentDescription="@null"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_delete">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/drill_action_delete"
-            android:textColor="@color/ttc_error"
-            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_trash"
+                app:tint="@color/ttc_error"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_delete"
+                android:textColor="@color/ttc_error"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <!-- Clone panel (right edge) — revealed by swiping LEFT -->
+    <!-- Clone panel (right edge) — revealed by swiping LEFT. Inner tile insets on its
+         card-facing (start) edge to leave a gap between card and tile. -->
     <LinearLayout
         android:id="@+id/swipe_clone_panel"
-        android:layout_width="84dp"
+        android:layout_width="96dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:layout_marginTop="6dp"
-        android:layout_marginBottom="6dp"
-        android:layout_marginEnd="4dp"
         android:orientation="vertical"
-        android:gravity="center"
         android:clickable="true"
         android:focusable="true"
-        android:background="@drawable/bg_swipe_clone"
         android:contentDescription="@string/drill_action_clone">
 
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:src="@drawable/ic_content_copy"
-            app:tint="@color/ttc_gold_accent"
-            android:contentDescription="@null"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_clone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/drill_action_clone"
-            android:textColor="@color/ttc_gold_accent"
-            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_content_copy"
+                app:tint="@color/ttc_gold_accent"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_clone"
+                android:textColor="@color/ttc_gold_accent"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Foreground: the existing card (opaque so panels are hidden when closed) -->
@@ -80,7 +90,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp">
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
 
             <FrameLayout
                 android:id="@+id/fl_icon_container"
