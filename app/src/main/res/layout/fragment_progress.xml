@@ -20,8 +20,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/progress_title"
-                android:textAppearance="?attr/textAppearanceHeadlineMedium"
-                android:textColor="?attr/colorOnSurface"
+                android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
                 android:layout_marginBottom="4dp" />
 
             <TextView
@@ -30,8 +29,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:text="@string/progress_subtitle"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="?attr/colorOnSurfaceVariant" />
+                android:textAppearance="@style/TextAppearance.TTC.Body" />
 
             <!-- Stats Overview Cards -->
             <LinearLayout
@@ -47,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
-                    style="@style/AppTheme.Card.Grid">
+                    style="@style/TTC.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -61,14 +59,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="?attr/colorPrimaryContainer">
+                            android:backgroundTint="@color/ttc_gold_container">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_calendar"
-                                app:tint="?attr/colorPrimary" />
+                                app:tint="@color/ttc_gold_accent" />
                         </FrameLayout>
 
                         <TextView
@@ -76,17 +74,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_days_streak"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textAppearance="?attr/textAppearanceLabelSmall" />
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -96,7 +91,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
-                    style="@style/AppTheme.Card.Grid">
+                    style="@style/TTC.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -110,14 +105,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="?attr/colorSecondaryContainer">
+                            android:backgroundTint="@color/ttc_surface_elevated">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_target"
-                                app:tint="?attr/colorSecondary" />
+                                app:tint="@color/ttc_text_2" />
                         </FrameLayout>
 
                         <TextView
@@ -125,17 +120,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_total_hours"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -145,7 +137,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
-                        style="@style/AppTheme.Card.Grid">
+                    style="@style/TTC.Card">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -159,14 +151,14 @@
                             android:layout_height="40dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_card_rounded"
-                            android:backgroundTint="?attr/colorTertiaryContainer">
+                            android:backgroundTint="@color/ttc_gold_container">
 
                             <ImageView
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_award"
-                                app:tint="?attr/colorTertiary" />
+                                app:tint="@color/ttc_gold_accent" />
                         </FrameLayout>
 
                         <TextView
@@ -174,17 +166,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="--"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="@string/stats_achievements"
-                            android:textAppearance="?attr/textAppearanceLabelSmall"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
@@ -194,8 +183,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="@style/AppTheme.Card.Grid"
-                app:cardCornerRadius="16dp">
+                style="@style/TTC.Card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -214,7 +202,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_training_time"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            style="@style/TTC.Button.Ghost"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
@@ -222,7 +210,7 @@
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_accuracy"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            style="@style/TTC.Button.Ghost"
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
@@ -234,21 +222,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/chart_training_title"
-                        android:textAppearance="?attr/textAppearanceTitleMedium"
-                        android:textColor="?attr/colorOnSurface"/>
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
 
                     <TextView
                         android:id="@+id/tv_chart_subtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/chart_training_subtitle"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
                         android:layout_marginBottom="16dp"/>
 
                     <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="200dp">
+                        android:layout_height="200dp"
+                        android:background="@color/ttc_surface_elevated">
 
                         <com.github.mikephil.charting.charts.BarChart
                             android:id="@+id/training_bar_chart"
@@ -269,8 +256,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="@style/AppTheme.Card.Grid"
-                app:cardCornerRadius="16dp">
+                style="@style/TTC.Card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -288,16 +274,14 @@
                             android:layout_width="20dp"
                             android:layout_height="20dp"
                             android:src="@drawable/ic_trending_up"
-                            app:tint="?attr/colorPrimary"
+                            app:tint="@color/ttc_gold_accent"
                             android:layout_marginEnd="8dp"/>
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/skill_levels_title"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="?attr/colorOnSurface"/>
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
                     </LinearLayout>
 
                     <!-- Skills Container (Populated dynamically) -->
@@ -314,8 +298,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                style="@style/AppTheme.Card.Grid"
-                app:cardCornerRadius="16dp">
+                style="@style/TTC.Card">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -327,9 +310,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/milestones_title"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface"
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Card"
                         android:layout_marginBottom="16dp"/>
 
                     <!-- Milestones Container (Populated dynamically) -->
