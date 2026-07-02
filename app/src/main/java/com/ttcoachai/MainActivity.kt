@@ -44,10 +44,13 @@ class MainActivity : BaseActivity() {
         val navController = navHostFragment.navController
         binding.navView.setupWithNavController(navController)
 
-        // Keep the Settings tab highlighted on the pushed Feedback/Detection child screens.
+        // Keep the Settings/Progress tabs highlighted on their pushed child screens.
         navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.navigation_feedback || destination.id == R.id.navigation_detection) {
-                binding.navView.menu.findItem(R.id.navigation_settings)?.isChecked = true
+            when (destination.id) {
+                R.id.navigation_feedback, R.id.navigation_detection ->
+                    binding.navView.menu.findItem(R.id.navigation_settings)?.isChecked = true
+                R.id.navigation_session_history, R.id.navigation_session_review ->
+                    binding.navView.menu.findItem(R.id.navigation_progress)?.isChecked = true
             }
         }
     }

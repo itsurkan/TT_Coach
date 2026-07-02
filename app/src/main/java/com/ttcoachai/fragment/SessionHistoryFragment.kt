@@ -2,7 +2,6 @@ package com.ttcoachai.fragment
 
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -139,14 +138,11 @@ class SessionHistoryFragment : Fragment() {
         binding.listContainer.addView(rb.root)
     }
 
-    /**
-     * TODO(Task 12): wire navigation to SessionReview once `action_history_to_review`
-     * (and the `navigation_session_history` / `navigation_session_review` destinations)
-     * are added to nav_graph.xml. Safe stub for now so this task stays independently
-     * buildable.
-     */
     private fun openReview(sessionId: String) {
-        Log.d(TAG, "openReview stub: sessionId=$sessionId (nav wired in Task 12)")
+        findNavController().navigate(
+            R.id.action_history_to_review,
+            android.os.Bundle().apply { putString("sessionId", sessionId) }
+        )
     }
 
     private fun bindTrend(tv: TextView, trend: Trend, delta: Int) {
@@ -185,9 +181,5 @@ class SessionHistoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    companion object {
-        private const val TAG = "SessionHistoryFragment"
     }
 }

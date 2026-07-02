@@ -48,6 +48,27 @@
         tools:layout="@layout/fragment_detection" />
 
     <fragment
+        android:id="@+id/navigation_session_history"
+        android:name="com.ttcoachai.fragment.SessionHistoryFragment"
+        android:label="@string/history_title"
+        tools:layout="@layout/fragment_session_history">
+        <action
+            android:id="@+id/action_history_to_review"
+            app:destination="@id/navigation_session_review" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_session_review"
+        android:name="com.ttcoachai.fragment.SessionReviewFragment"
+        android:label="@string/review_eyebrow"
+        tools:layout="@layout/fragment_session_review">
+        <argument
+            android:name="sessionId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
         android:id="@+id/permissions_fragment"
         android:name="com.ttcoachai.fragment.PermissionsFragment"
         android:label="Permissions">
