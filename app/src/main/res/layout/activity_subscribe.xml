@@ -91,41 +91,91 @@
             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
 
         <!-- 3. Billing toggle -->
-        <com.google.android.material.button.MaterialButtonToggleGroup
+        <LinearLayout
             android:id="@+id/toggle_billing"
+            style="@style/TTC.SegmentedTrack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:background="@drawable/bg_pill_track"
-            android:padding="4dp"
-            app:checkedButton="@id/btn_yearly"
-            app:selectionRequired="true"
-            app:singleSelection="true">
+            android:layout_marginBottom="20dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_monthly"
-                style="@style/TTC.Segment.Button.Paywall"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="6dp"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter_tight_semibold"
+                app:strokeWidth="0dp"
+                app:elevation="0dp"
+                app:cornerRadius="999dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="13sp"
+                app:autoSizeStepGranularity="1sp"
                 android:text="@string/plan_monthly" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_quarterly"
-                style="@style/TTC.Segment.Button.Paywall"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="6dp"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter_tight_semibold"
+                app:strokeWidth="0dp"
+                app:elevation="0dp"
+                app:cornerRadius="999dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="13sp"
+                app:autoSizeStepGranularity="1sp"
                 android:text="@string/plan_quarterly" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_yearly"
-                style="@style/TTC.Segment.Button.Paywall"
+                style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:insetLeft="0dp"
+                android:insetRight="0dp"
+                android:paddingVertical="10dp"
+                android:paddingHorizontal="6dp"
+                android:textAllCaps="false"
+                android:textSize="13sp"
+                android:fontFamily="@font/inter_tight_semibold"
+                app:strokeWidth="0dp"
+                app:elevation="0dp"
+                app:cornerRadius="999dp"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="13sp"
+                app:autoSizeStepGranularity="1sp"
                 android:text="@string/plan_yearly" />
-        </com.google.android.material.button.MaterialButtonToggleGroup>
+        </LinearLayout>
 
         <!-- 4. Price hero -->
         <com.google.android.material.card.MaterialCardView

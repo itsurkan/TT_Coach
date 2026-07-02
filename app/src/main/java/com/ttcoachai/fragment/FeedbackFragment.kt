@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentFeedbackBinding
 import com.ttcoachai.managers.SettingsManager
@@ -37,14 +40,15 @@ class FeedbackFragment : Fragment() {
         // ===== Coaching =====
 
         // Playing hand
-        binding.togglePlayingHand.check(
-            if (sm.isPlayingHandRight()) R.id.btn_hand_right else R.id.btn_hand_left
-        )
-        binding.togglePlayingHand.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                sm.setPlayingHandRight(checkedId == R.id.btn_hand_right)
-            }
+        val handButtons = listOf(binding.btnHandRight, binding.btnHandLeft)
+        fun selectHand(right: Boolean, persist: Boolean) {
+            val selected = if (right) binding.btnHandRight else binding.btnHandLeft
+            handButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) sm.setPlayingHandRight(right)
         }
+        binding.btnHandRight.setOnClickListener { selectHand(right = true, persist = true) }
+        binding.btnHandLeft.setOnClickListener { selectHand(right = false, persist = true) }
+        selectHand(right = sm.isPlayingHandRight(), persist = false)
 
         // Voice cues + volume gating
         binding.switchVoiceCues.isChecked = sm.isAudioFeedbackEnabled()
@@ -135,24 +139,20 @@ class FeedbackFragment : Fragment() {
         }
 
         // Cues per session (3/5/10)
-        binding.toggleCuesPerSession.check(
-            when (sm.getFeedbackFrequency()) {
-                5 -> R.id.btn_cues_5
-                10 -> R.id.btn_cues_10
-                else -> R.id.btn_cues_3
+        val cuesButtons = listOf(binding.btnCues3, binding.btnCues5, binding.btnCues10)
+        fun selectCues(count: Int, persist: Boolean) {
+            val selected = when (count) {
+                5 -> binding.btnCues5
+                10 -> binding.btnCues10
+                else -> binding.btnCues3
             }
-        )
-        binding.toggleCuesPerSession.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                sm.setFeedbackFrequency(
-                    when (checkedId) {
-                        R.id.btn_cues_5 -> 5
-                        R.id.btn_cues_10 -> 10
-                        else -> 3
-                    }
-                )
-            }
+            cuesButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) sm.setFeedbackFrequency(count)
         }
+        binding.btnCues3.setOnClickListener { selectCues(3, persist = true) }
+        binding.btnCues5.setOnClickListener { selectCues(5, persist = true) }
+        binding.btnCues10.setOnClickListener { selectCues(10, persist = true) }
+        selectCues(sm.getFeedbackFrequency(), persist = false)
 
         // ===== Praise =====
 
@@ -179,6 +179,18 @@ class FeedbackFragment : Fragment() {
             sm.setPraiseStreakLen(value.toInt())
             binding.tvStreakLen.text = value.toInt().toString()
         }
+    }
+
+    private fun styleSegment(btn: MaterialButton, active: Boolean) {
+        val ctx = requireContext()
+        val bgColor = if (active) R.color.ttc_gold_container else android.R.color.transparent
+        val textColor = if (active) R.color.ttc_gold_accent else R.color.ttc_text_2
+        val font = if (active) R.font.inter_tight_bold else R.font.inter_tight_semibold
+        btn.backgroundTintList = ContextCompat.getColorStateList(ctx, bgColor)
+        btn.setTextColor(ContextCompat.getColor(ctx, textColor))
+        btn.strokeColor = ContextCompat.getColorStateList(ctx, R.color.ttc_gold_container_outline)
+        btn.strokeWidth = if (active) resources.displayMetrics.density.toInt().coerceAtLeast(1) else 0
+        btn.typeface = ResourcesCompat.getFont(ctx, font)
     }
 
     private fun applyPraiseEnabled(enabled: Boolean) {

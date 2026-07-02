@@ -47,6 +47,7 @@ class SwipeRevealLayout @JvmOverloads constructor(
         deletePanel = findViewById(R.id.swipe_delete_panel)
         clonePanel = findViewById(R.id.swipe_clone_panel)
         foreground = findViewById(R.id.swipe_foreground)
+        updatePanelVisibility(0)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -56,6 +57,7 @@ class SwipeRevealLayout @JvmOverloads constructor(
         // (matters when a recycled/laid-out row should stay open).
         val target = leftFor(state)
         if (foreground.left != target) foreground.offsetLeftAndRight(target - foreground.left)
+        updatePanelVisibility(foreground.left)
     }
 
     /** Locks/unlocks the right (Delete) side. Built-in presets pass false. */
@@ -76,6 +78,13 @@ class SwipeRevealLayout @JvmOverloads constructor(
         SwipeState.OPEN_DELETE -> buttonWidth
     }
 
+    /** Reveals only the panel on the side being swiped; both hidden at rest so a
+     *  non-opaque (e.g. lock-dimmed) foreground can't let them bleed through. */
+    private fun updatePanelVisibility(left: Int) {
+        clonePanel.visibility = if (left < 0) View.VISIBLE else View.INVISIBLE
+        deletePanel.visibility = if (left > 0) View.VISIBLE else View.INVISIBLE
+    }
+
     private fun moveTo(target: SwipeState, animate: Boolean) {
         val finalLeft = leftFor(target)
         if (animate) {
@@ -85,6 +94,7 @@ class SwipeRevealLayout @JvmOverloads constructor(
         } else {
             dragHelper.abort()
             foreground.offsetLeftAndRight(finalLeft - foreground.left)
+            updatePanelVisibility(finalLeft)
         }
         setStateInternal(target)
     }
@@ -138,6 +148,10 @@ class SwipeRevealLayout @JvmOverloads constructor(
         override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int = child.top
 
         override fun getViewHorizontalDragRange(child: View): Int = buttonWidth
+
+        override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
+            updatePanelVisibility(left)
+        }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val target = decideSwipeSettle(

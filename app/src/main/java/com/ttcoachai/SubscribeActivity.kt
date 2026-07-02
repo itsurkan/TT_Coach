@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import com.google.android.material.button.MaterialButton
 import com.ttcoachai.databinding.ActivitySubscribeBinding
 import com.ttcoachai.managers.SettingsManager
 
@@ -23,19 +26,51 @@ class SubscribeActivity : AppCompatActivity() {
 
         setupToggle()
         setupButtons()
-        renderPlan()
+
+        selectedPlan = Plan.YEARLY
+        applyPlanSelection()
     }
 
     private fun setupToggle() {
-        binding.toggleBilling.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (!isChecked) return@addOnButtonCheckedListener
-            selectedPlan = when (checkedId) {
-                R.id.btn_monthly -> Plan.MONTHLY
-                R.id.btn_quarterly -> Plan.QUARTERLY
-                else -> Plan.YEARLY
-            }
-            renderPlan()
+        binding.btnMonthly.setOnClickListener {
+            selectedPlan = Plan.MONTHLY
+            applyPlanSelection()
         }
+        binding.btnQuarterly.setOnClickListener {
+            selectedPlan = Plan.QUARTERLY
+            applyPlanSelection()
+        }
+        binding.btnYearly.setOnClickListener {
+            selectedPlan = Plan.YEARLY
+            applyPlanSelection()
+        }
+    }
+
+    private fun applyPlanSelection() {
+        val selected = when (selectedPlan) {
+            Plan.MONTHLY -> binding.btnMonthly
+            Plan.QUARTERLY -> binding.btnQuarterly
+            Plan.YEARLY -> binding.btnYearly
+        }
+        listOf(binding.btnMonthly, binding.btnQuarterly, binding.btnYearly)
+            .forEach { styleSegment(it, it === selected) }
+        renderPlan()
+    }
+
+    /**
+     * Paywall selected segment = solid bright-gold pill with on-gold bold text (spec 12b/13a),
+     * distinct from Settings' muted gold-container style. Inactive = transparent with muted
+     * secondary text. Each button keeps its own 999dp corners (plain LinearLayout track, not
+     * MaterialButtonToggleGroup) so the selected pill is fully rounded in every position.
+     */
+    private fun styleSegment(btn: MaterialButton, active: Boolean) {
+        val bgColor = if (active) R.color.ttc_gold_bright else android.R.color.transparent
+        val textColor = if (active) R.color.ttc_on_gold else R.color.ttc_text_2
+        val font = if (active) R.font.inter_tight_bold else R.font.inter_tight_semibold
+        btn.backgroundTintList = ContextCompat.getColorStateList(this, bgColor)
+        btn.setTextColor(ContextCompat.getColor(this, textColor))
+        btn.strokeWidth = 0
+        btn.typeface = ResourcesCompat.getFont(this, font)
     }
 
     private fun renderPlan() {

@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.button.MaterialButton
 import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentDetectionBinding
 import com.ttcoachai.managers.SettingsManager
@@ -68,31 +71,40 @@ class DetectionFragment : Fragment() {
             onValueChanged = { sm.setDetPreStrokeBufferMs(it.toInt()) }
         }
 
-        when (sm.getBallDetectionFps()) {
-            10 -> binding.toggleBallFps.check(R.id.btn_ball_fps_10)
-            30 -> binding.toggleBallFps.check(R.id.btn_ball_fps_30)
-            60 -> binding.toggleBallFps.check(R.id.btn_ball_fps_60)
-            120 -> binding.toggleBallFps.check(R.id.btn_ball_fps_120)
-            else -> binding.toggleBallFps.check(R.id.btn_ball_fps_30)
-        }
-
-        binding.toggleBallFps.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                val fps = when (checkedId) {
-                    R.id.btn_ball_fps_10 -> 10
-                    R.id.btn_ball_fps_30 -> 30
-                    R.id.btn_ball_fps_60 -> 60
-                    R.id.btn_ball_fps_120 -> 120
-                    else -> 30
-                }
-                sm.setBallDetectionFps(fps)
+        // Ball detection FPS
+        val fpsButtons = listOf(binding.btnBallFps10, binding.btnBallFps30, binding.btnBallFps60, binding.btnBallFps120)
+        fun selectBallFps(fps: Int, persist: Boolean) {
+            val selected = when (fps) {
+                10 -> binding.btnBallFps10
+                60 -> binding.btnBallFps60
+                120 -> binding.btnBallFps120
+                else -> binding.btnBallFps30
             }
+            fpsButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) sm.setBallDetectionFps(fps)
         }
+        binding.btnBallFps10.setOnClickListener { selectBallFps(10, persist = true) }
+        binding.btnBallFps30.setOnClickListener { selectBallFps(30, persist = true) }
+        binding.btnBallFps60.setOnClickListener { selectBallFps(60, persist = true) }
+        binding.btnBallFps120.setOnClickListener { selectBallFps(120, persist = true) }
+        selectBallFps(sm.getBallDetectionFps(), persist = false)
 
         binding.switchDistanceMode.isChecked = sm.isDistanceModeEnabled()
         binding.switchDistanceMode.setOnCheckedChangeListener { _, isChecked ->
             sm.setDistanceModeEnabled(isChecked)
         }
+    }
+
+    private fun styleSegment(btn: MaterialButton, active: Boolean) {
+        val ctx = requireContext()
+        val bgColor = if (active) R.color.ttc_gold_container else android.R.color.transparent
+        val textColor = if (active) R.color.ttc_gold_accent else R.color.ttc_text_2
+        val font = if (active) R.font.inter_tight_bold else R.font.inter_tight_semibold
+        btn.backgroundTintList = ContextCompat.getColorStateList(ctx, bgColor)
+        btn.setTextColor(ContextCompat.getColor(ctx, textColor))
+        btn.strokeColor = ContextCompat.getColorStateList(ctx, R.color.ttc_gold_container_outline)
+        btn.strokeWidth = if (active) resources.displayMetrics.density.toInt().coerceAtLeast(1) else 0
+        btn.typeface = ResourcesCompat.getFont(ctx, font)
     }
 
     override fun onDestroyView() {

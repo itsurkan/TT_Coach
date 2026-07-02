@@ -91,31 +91,48 @@
                             android:textSize="13.5sp"
                             android:text="@string/feedback_playing_hand" />
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <LinearLayout
                             android:id="@+id/toggle_playing_hand"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_hand_right"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="72dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/feedback_hand_right" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_hand_left"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:minWidth="72dp"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/feedback_hand_left" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View
@@ -611,39 +628,66 @@
                             android:text="@string/feedback_cues_per_session"
                             android:layout_marginBottom="12dp" />
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <LinearLayout
                             android:id="@+id/toggle_cues_per_session"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_cues_3"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="3" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_cues_5"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="5" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_cues_10"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="10" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View

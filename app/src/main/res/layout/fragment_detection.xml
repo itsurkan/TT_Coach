@@ -392,47 +392,84 @@
                             android:text="@string/detection_ball_fps_sub"
                             android:layout_marginBottom="12dp" />
 
-                        <com.google.android.material.button.MaterialButtonToggleGroup
+                        <LinearLayout
                             android:id="@+id/toggle_ball_fps"
+                            style="@style/TTC.SegmentedTrack"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_track"
-                            android:padding="4dp"
-                            app:singleSelection="true"
-                            app:selectionRequired="true">
+                            android:layout_height="wrap_content">
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_ball_fps_10"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/ball_fps_10" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_ball_fps_30"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/ball_fps_30" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_ball_fps_60"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/ball_fps_60" />
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_ball_fps_120"
-                                style="@style/TTC.Segment.Button"
+                                style="@style/Widget.Material3.Button.TextButton"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
                                 android:text="@string/ball_fps_120" />
-                        </com.google.android.material.button.MaterialButtonToggleGroup>
+                        </LinearLayout>
                     </LinearLayout>
 
                     <View
