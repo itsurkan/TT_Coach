@@ -169,7 +169,12 @@ and writes `SessionAnalyticsEntity` for the new `sessionId`.
 ### 4.5 Navigation
 `nav_graph.xml`: add `navigation_session_history` (Progress → it) and `navigation_session_review`
 (`<action>` from history, `<argument name="sessionId" type="string">`, Bundle). Progress gets a
-"Session history" tile below the Skills card (`ProgressFragment`, existing click pattern).
+**prominent "Session history" entry card near the top** of the screen (above the Skills card —
+not buried below it), optionally previewing the most recent session (name · when · accuracy) so
+it reads almost as prominently as a tab without adding a 6th bottom-nav item. Decision: History
+stays a **child of Progress** (it is the session log behind Progress's aggregates), and the
+bottom nav keeps 5 tabs per Material's 3–5 guidance; discoverability is solved by the prominent
+entry, not a new tab. (`ProgressFragment`, existing click pattern.)
 Extend the `MainActivity` `addOnDestinationChangedListener` to keep `navigation_progress` checked
 for both new destinations. Back button mirrors the Feedback/Detection header pattern
 (`btn_back` → `navigateUp()`). Bottom nav is provided by the shell.
@@ -216,7 +221,7 @@ names, button labels, content descriptions.
 - [ ] `AccuracyLineChartView` + `ShotQualityBarView`
 - [ ] `SessionHistoryFragment` + `fragment_session_history.xml` (+ empty state, filter, grouping, trend)
 - [ ] `SessionReviewFragment` + `fragment_session_review.xml`
-- [ ] Progress "Session history" tile + nav graph + args + MainActivity tab-highlight
+- [ ] Progress prominent top "Session history" entry card (with recent-session preview) + nav graph + args + MainActivity tab-highlight
 - [ ] New color tokens (light + dark), UK + EN strings
 - [ ] Debug-only seeder (FLAG_DEBUGGABLE)
 - [ ] Tests green: `:shared:jvmTest`, `:app:assembleDebug`
