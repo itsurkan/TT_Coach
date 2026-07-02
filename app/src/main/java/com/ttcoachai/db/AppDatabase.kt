@@ -19,7 +19,7 @@ import com.ttcoachai.models.UserProgress
         DrillConfigEntity::class,
         CustomDrillEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(BaselineConverters::class)
