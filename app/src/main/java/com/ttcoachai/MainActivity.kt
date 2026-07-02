@@ -43,6 +43,13 @@ class MainActivity : BaseActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         binding.navView.setupWithNavController(navController)
+
+        // Keep the Settings tab highlighted on the pushed Feedback/Detection child screens.
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.navigation_feedback || destination.id == R.id.navigation_detection) {
+                binding.navView.menu.findItem(R.id.navigation_settings)?.isChecked = true
+            }
+        }
     }
 
     override fun onResume() {
