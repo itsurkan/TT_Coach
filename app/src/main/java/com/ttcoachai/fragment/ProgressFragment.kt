@@ -26,7 +26,6 @@ import com.google.android.material.tabs.TabLayout
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.databinding.FragmentProgressBinding
-import com.ttcoachai.databinding.ItemMilestoneCardBinding
 import com.ttcoachai.databinding.ItemSkillProgressBinding
 import kotlinx.coroutines.launch
 
@@ -72,7 +71,6 @@ class ProgressFragment : Fragment() {
             applyHeaderStats(progressData)
             applyChartData(progressData.weeklyChartData)
             applySkillsData(progressData.skillsData)
-            applyMilestonesData(progressData.milestonesData)
         }
     }
     
@@ -169,45 +167,6 @@ class ProgressFragment : Fragment() {
         binding.skillsContainer.addView(skillBinding.root)
     }
     
-    private fun applyMilestonesData(milestonesData: List<com.ttcoachai.helpers.MilestoneData>) {
-        binding.milestonesContainer.removeAllViews()
-
-        milestonesData.forEach { milestone ->
-            val (title, date, bgTint, iconTint) = when (milestone.type) {
-                com.ttcoachai.helpers.MilestoneType.HITS_100 -> {
-                    val statusText = if (milestone.achieved) getString(R.string.milestone_achieved) else getString(R.string.milestone_in_progress)
-                    listOf(getString(R.string.milestone_100_hits), statusText, R.color.bg_card_target, R.color.text_card_target)
-                }
-                com.ttcoachai.helpers.MilestoneType.HITS_500 -> {
-                    listOf("500 Hits", getString(R.string.milestone_achieved), R.color.bg_card_target, R.color.text_card_target)
-                }
-                com.ttcoachai.helpers.MilestoneType.HITS_1000 -> {
-                    listOf("1000 Hits", getString(R.string.milestone_achieved), R.color.bg_card_target, R.color.text_card_target)
-                }
-                com.ttcoachai.helpers.MilestoneType.STREAK_DAYS -> {
-                    listOf(getString(R.string.milestone_30_days), "${milestone.value} ${getString(R.string.days_streak)}", R.color.bg_card_calendar, R.color.text_card_calendar)
-                }
-                com.ttcoachai.helpers.MilestoneType.MASTER_SERVER -> {
-                    listOf(getString(R.string.milestone_master_server), getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
-                }
-                com.ttcoachai.helpers.MilestoneType.TIME_1_HOUR -> {
-                    listOf("1 Hour Trained", getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
-                }
-                com.ttcoachai.helpers.MilestoneType.TIME_10_HOURS -> {
-                    listOf("10 Hours Trained", getString(R.string.milestone_achieved), R.color.bg_card_award, R.color.text_card_award)
-                }
-            }
-            
-            val msBinding = ItemMilestoneCardBinding.inflate(layoutInflater, binding.milestonesContainer, false)
-            msBinding.tvMilestoneTitle.text = title as String
-            msBinding.tvMilestoneDate.text = date as String
-            msBinding.ivMilestoneIcon.setImageResource(R.drawable.ic_award)
-            msBinding.ivMilestoneIcon.setColorFilter(ContextCompat.getColor(requireContext(), iconTint as Int))
-            msBinding.root.backgroundTintList = ContextCompat.getColorStateList(requireContext(), bgTint as Int)
-            binding.milestonesContainer.addView(msBinding.root)
-        }
-    }
-
     private fun setupCharts() {
         val days = listOf(
             getString(R.string.days_mon),
@@ -359,32 +318,6 @@ class ProgressFragment : Fragment() {
         addSkillRow(getString(R.string.exercise_backhand_name), 78, R.drawable.ic_skill_backhand, 3)
         addSkillRow(getString(R.string.exercise_service_name), 92, R.drawable.ic_skill_topspin, -2)
         addSkillRow(getString(R.string.exercise_footwork_name), 73, R.drawable.ic_skill_footwork, 1)
-
-
-        // LOAD MILESTONES
-        data class Milestone(val title: String, val date: String, val iconRes: Int, val bgTint: Int, val iconTint: Int)
-        
-        val milestones = listOf(
-            Milestone(getString(R.string.milestone_100_hits), getString(R.string.time_ago_2_days), R.drawable.ic_award, R.color.bg_card_target, R.color.text_card_target),
-            Milestone(getString(R.string.milestone_30_days), getString(R.string.time_ago_5_days), R.drawable.ic_award, R.color.bg_card_calendar, R.color.text_card_calendar),
-            Milestone(getString(R.string.milestone_master_server), getString(R.string.time_ago_1_week), R.drawable.ic_award, R.color.bg_card_award, R.color.text_card_award)
-        )
-
-        milestones.forEach { milestone ->
-            val msBinding = ItemMilestoneCardBinding.inflate(layoutInflater, binding.milestonesContainer, false)
-            msBinding.tvMilestoneTitle.text = milestone.title
-            msBinding.tvMilestoneDate.text = milestone.date
-            msBinding.ivMilestoneIcon.setImageResource(milestone.iconRes)
-            msBinding.ivMilestoneIcon.setColorFilter(ContextCompat.getColor(requireContext(), milestone.iconTint))
-            msBinding.root.background.setTint(ContextCompat.getColor(requireContext(), milestone.bgTint))
-            // Note: Background tint on layer-list might cover everything if not careful. 
-            // The item_milestone_card uses bg_card_rounded which is a shape. setTint works on the drawable.
-            // Better to find the shape and tint it, or set background color.
-            // But we can just set backgroundTint if AP level allows or use ViewCompat.
-             msBinding.root.backgroundTintList = ContextCompat.getColorStateList(requireContext(), milestone.bgTint)
-
-            binding.milestonesContainer.addView(msBinding.root)
-        }
     }
 
     override fun onDestroyView() {
