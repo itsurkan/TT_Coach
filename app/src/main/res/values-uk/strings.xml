@@ -738,4 +738,43 @@
     <string name="subscribe_privacy">Конфіденційність</string>
     <string name="subscribe_restore_none">Немає покупок для відновлення</string>
     <string name="subscribe_activated">Підписку активовано!</string>
+
+    <!-- Exercise editor (10c New / 10d Clone/Edit) -->
+    <string name="exercise_editor_title_new">Нова вправа</string>
+    <string name="exercise_editor_title_clone">Дублювати</string>
+    <string name="exercise_editor_title_edit">Редагувати вправу</string>
+    <string name="exercise_editor_copy_badge">КОПІЯ</string>
+    <string name="exercise_editor_clone_subtitle">Скопійовано з %1$s</string>
+    <string name="exercise_editor_name_label">НАЗВА</string>
+    <string name="exercise_editor_name_hint">напр., Форхенд контр-удар</string>
+    <string name="exercise_editor_focus_label">ФОКУС</string>
+    <string name="focus_arm">Рука</string>
+    <string name="focus_shoulders">Плечі</string>
+    <string name="focus_legs">Ноги</string>
+    <string name="focus_core">Корпус</string>
+    <string name="focus_hips">Стегна</string>
+    <string name="exercise_editor_active_metrics">Активні метрики: %1$s</string>
+    <string name="exercise_editor_reference_label">ЕТАЛОН</string>
+    <string name="exercise_editor_reference_baseline">Мій базовий рівень (калібрування під мене)</string>
+    <string name="exercise_editor_reference_standard">Стандартна техніка</string>
+    <string name="exercise_editor_strictness_label">СУВОРІСТЬ</string>
+    <string name="exercise_editor_advanced_header">Розширено — цілі за фазами</string>
+    <string name="exercise_editor_advanced_hint">Перевизначте ідеальні діапазони для кожної фази. Порожньо = стандартні значення.</string>
+    <string name="exercise_editor_col_metric">МЕТРИКА · ФАЗА</string>
+    <string name="exercise_editor_col_from">ВІД°</string>
+    <string name="exercise_editor_col_to">ДО°</string>
+    <string name="exercise_editor_action_create">Створити вправу</string>
+    <string name="exercise_editor_action_save_copy">Зберегти копію</string>
+    <string name="exercise_editor_action_save">Зберегти</string>
+    <string name="exercise_editor_action_cancel">Скасувати</string>
+    <string name="exercise_editor_row_elbow_backswing">Лікоть · замах</string>
+    <string name="exercise_editor_row_elbow_finish">Лікоть · завершення</string>
+    <string name="exercise_editor_row_shoulder_backswing">Плече · замах</string>
+    <string name="exercise_editor_row_shoulder_finish">Плече · завершення</string>
+    <string name="exercise_editor_row_knees_backswing">Коліна · замах</string>
+    <string name="exercise_editor_row_knees_strike">Коліна · удар</string>
+    <string name="exercise_editor_row_hips_backswing">Стегна · замах</string>
+    <string name="exercise_editor_row_hips_strike">Стегна · удар</string>
+    <string name="exercise_editor_row_torso_backswing">Нахил корпусу · замах</string>
+    <string name="exercise_editor_row_torso_strike">Нахил корпусу · удар</string>
 </resources>

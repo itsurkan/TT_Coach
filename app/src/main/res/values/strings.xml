@@ -897,4 +897,43 @@
     <string name="subscribe_privacy">Privacy</string>
     <string name="subscribe_restore_none">No purchases to restore</string>
     <string name="subscribe_activated">Subscription activated!</string>
+
+    <!-- Exercise editor (10c New / 10d Clone/Edit) -->
+    <string name="exercise_editor_title_new">New exercise</string>
+    <string name="exercise_editor_title_clone">Duplicate</string>
+    <string name="exercise_editor_title_edit">Edit exercise</string>
+    <string name="exercise_editor_copy_badge">COPY</string>
+    <string name="exercise_editor_clone_subtitle">Cloned from %1$s</string>
+    <string name="exercise_editor_name_label">NAME</string>
+    <string name="exercise_editor_name_hint">e.g. Forehand counter-drive</string>
+    <string name="exercise_editor_focus_label">FOCUS</string>
+    <string name="focus_arm">Arm</string>
+    <string name="focus_shoulders">Shoulders</string>
+    <string name="focus_legs">Legs</string>
+    <string name="focus_core">Core</string>
+    <string name="focus_hips">Hips</string>
+    <string name="exercise_editor_active_metrics">Active metrics: %1$s</string>
+    <string name="exercise_editor_reference_label">REFERENCE</string>
+    <string name="exercise_editor_reference_baseline">My baseline (calibrate to me)</string>
+    <string name="exercise_editor_reference_standard">Standard technique</string>
+    <string name="exercise_editor_strictness_label">STRICTNESS</string>
+    <string name="exercise_editor_advanced_header">Advanced — per-phase targets</string>
+    <string name="exercise_editor_advanced_hint">Redefine ideal ranges per phase. Empty = standard values.</string>
+    <string name="exercise_editor_col_metric">METRIC · PHASE</string>
+    <string name="exercise_editor_col_from">FROM°</string>
+    <string name="exercise_editor_col_to">TO°</string>
+    <string name="exercise_editor_action_create">Create exercise</string>
+    <string name="exercise_editor_action_save_copy">Save copy</string>
+    <string name="exercise_editor_action_save">Save</string>
+    <string name="exercise_editor_action_cancel">Cancel</string>
+    <string name="exercise_editor_row_elbow_backswing">Elbow · backswing</string>
+    <string name="exercise_editor_row_elbow_finish">Elbow · finish</string>
+    <string name="exercise_editor_row_shoulder_backswing">Shoulder · backswing</string>
+    <string name="exercise_editor_row_shoulder_finish">Shoulder · finish</string>
+    <string name="exercise_editor_row_knees_backswing">Knees · backswing</string>
+    <string name="exercise_editor_row_knees_strike">Knees · strike</string>
+    <string name="exercise_editor_row_hips_backswing">Hips · backswing</string>
+    <string name="exercise_editor_row_hips_strike">Hips · strike</string>
+    <string name="exercise_editor_row_torso_backswing">Torso tilt · backswing</string>
+    <string name="exercise_editor_row_torso_strike">Torso tilt · strike</string>
 </resources>
