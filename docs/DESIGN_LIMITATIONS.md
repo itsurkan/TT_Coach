@@ -272,6 +272,16 @@ it as a QUALITATIVE label (`'tucked' | 'flying_out'`), styled like `shoulderCoil
 **Refs:** `AngleCalculations2D.shoulderAngle`; `shoulderCoil.ts`;
 `CameraAngleEstimator` (same foreshortening math, shipped for yaw); trust rule (L-21).
 
+### L-34 · Non-forehand drills reuse forehand-tuned detection — `ACCEPTED` (revisit post-MVP)
+`StrokeDetector2D` / `ForwardStrokeFilter` are tuned for the forehand drive. The
+Exercises tab (2026-07-02 redesign) launches every program — backhand, footwork,
+multiball, custom clones — through the existing training flow, but only forehand
+drills produce calibrated feedback. Editing params for a non-forehand drill (this
+slice / the deferred editor slice) does not yet yield accurate coaching.
+Generalizing stroke detection per drill type is deferred; until then, non-forehand
+feedback accuracy is not claimed.
+**Refs:** `docs/superpowers/specs/2026-07-02-android-exercises-tab-gold-dark-design.md`.
+
 ---
 
 ## Resolved
