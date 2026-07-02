@@ -45,6 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
+                    app:contentPadding="0dp"
                     style="@style/TTC.Card">
 
                     <LinearLayout
@@ -52,17 +53,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="14dp">
 
                         <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_icon_tile_gold">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_calendar"
                                 app:tint="@color/ttc_gold_accent" />
@@ -76,9 +78,13 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
                             android:text="@string/stats_days_streak"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
@@ -90,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="4dp"
                     android:layout_weight="1"
+                    app:contentPadding="0dp"
                     style="@style/TTC.Card">
 
                     <LinearLayout
@@ -97,17 +104,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="14dp">
 
                         <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_icon_tile_neutral">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_target"
                                 app:tint="@color/ttc_text_2" />
@@ -121,9 +129,13 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
                             android:text="@string/stats_total_hours"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
@@ -135,6 +147,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:layout_weight="1"
+                    app:contentPadding="0dp"
                     style="@style/TTC.Card">
 
                     <LinearLayout
@@ -142,17 +155,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="14dp">
 
                         <FrameLayout
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
                             android:layout_marginBottom="8dp"
                             android:background="@drawable/bg_icon_tile_gold">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="18dp"
+                                android:layout_height="18dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_award"
                                 app:tint="@color/ttc_gold_accent" />
@@ -166,9 +180,13 @@
                             android:textAppearance="@style/TextAppearance.TTC.Stat.Medium"/>
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
+                            android:maxLines="1"
+                            app:autoSizeTextType="uniform"
+                            app:autoSizeMinTextSize="8sp"
+                            app:autoSizeMaxTextSize="12sp"
                             android:text="@string/stats_achievements"
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
                     </LinearLayout>
@@ -180,6 +198,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:contentPadding="0dp"
                 style="@style/TTC.Card">
 
                 <LinearLayout
@@ -188,16 +207,13 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <!-- Pill segmented control (restyled toggle group; IDs preserved for ProgressFragment) -->
-                    <com.google.android.material.button.MaterialButtonToggleGroup
+                    <!-- Pill segmented control: plain pill track + two segments styled manually in ProgressFragment -->
+                    <LinearLayout
                         android:id="@+id/toggle_group_chart"
                         style="@style/TTC.SegmentedTrack"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
-                        app:singleSelection="true"
-                        app:checkedButton="@id/btn_training_time"
-                        app:selectionRequired="true">
+                        android:layout_marginBottom="24dp">
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btn_training_time"
@@ -205,16 +221,16 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:minHeight="0dp"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
+                            android:paddingVertical="10dp"
                             android:textAllCaps="false"
                             android:textSize="13sp"
                             android:fontFamily="@font/inter_tight_semibold"
-                            android:textColor="@color/ttc_chip_text"
-                            app:backgroundTint="@color/ttc_chip_bg"
                             app:strokeWidth="0dp"
                             app:elevation="0dp"
-                            app:cornerRadius="18dp"
+                            app:cornerRadius="999dp"
                             android:text="@string/tab_training_time" />
 
                         <com.google.android.material.button.MaterialButton
@@ -223,18 +239,18 @@
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
+                            android:minHeight="0dp"
                             android:insetTop="0dp"
                             android:insetBottom="0dp"
+                            android:paddingVertical="10dp"
                             android:textAllCaps="false"
                             android:textSize="13sp"
                             android:fontFamily="@font/inter_tight_semibold"
-                            android:textColor="@color/ttc_chip_text"
-                            app:backgroundTint="@color/ttc_chip_bg"
                             app:strokeWidth="0dp"
                             app:elevation="0dp"
-                            app:cornerRadius="18dp"
+                            app:cornerRadius="999dp"
                             android:text="@string/tab_accuracy" />
-                    </com.google.android.material.button.MaterialButtonToggleGroup>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_chart_title"
@@ -274,6 +290,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:contentPadding="0dp"
                 style="@style/TTC.Card">
 
                 <LinearLayout
@@ -316,6 +333,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
+                app:contentPadding="0dp"
                 style="@style/TTC.Card">
 
                 <LinearLayout

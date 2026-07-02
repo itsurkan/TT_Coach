@@ -1,5 +1,6 @@
 package com.ttcoachai.fragment
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.github.mikephil.charting.charts.BarChart
@@ -131,21 +133,40 @@ class ProgressFragment : Fragment() {
     
     private fun applySkillsData(skillsData: Map<String, Int>) {
         binding.skillsContainer.removeAllViews()
-        
-        val skills = listOf(
-            Triple(getString(R.string.exercise_forehand_name), skillsData["forehand_drive"] ?: 0, R.color.blue_600),
-            Triple(getString(R.string.exercise_backhand_name), skillsData["backhand_drive"] ?: 0, R.color.blue_600),
-            Triple(getString(R.string.exercise_service_name), skillsData["service"] ?: 0, R.color.blue_600),
-            Triple(getString(R.string.exercise_footwork_name), skillsData["footwork"] ?: 0, R.color.blue_600)
-        )
 
-        skills.forEach { (name, level, _) ->
-            val skillBinding = ItemSkillProgressBinding.inflate(layoutInflater, binding.skillsContainer, false)
-            skillBinding.tvSkillName.text = name
-            skillBinding.tvSkillLevel.text = "$level%"
-            skillBinding.progressSkill.progress = level
-            binding.skillsContainer.addView(skillBinding.root)
+        // Trend (rank change) is not carried by cloud progress data yet, so it is hidden here.
+        addSkillRow(getString(R.string.exercise_forehand_name), skillsData["forehand_drive"] ?: 0, R.drawable.ic_skill_forehand, null)
+        addSkillRow(getString(R.string.exercise_backhand_name), skillsData["backhand_drive"] ?: 0, R.drawable.ic_skill_backhand, null)
+        addSkillRow(getString(R.string.exercise_service_name), skillsData["service"] ?: 0, R.drawable.ic_skill_topspin, null)
+        addSkillRow(getString(R.string.exercise_footwork_name), skillsData["footwork"] ?: 0, R.drawable.ic_skill_footwork, null)
+    }
+
+    /** Inflates one skill row: icon tile + name + percentage + gold bar, with an optional green/red trend chip. */
+    private fun addSkillRow(name: String, level: Int, iconRes: Int, trend: Int?) {
+        val skillBinding = ItemSkillProgressBinding.inflate(layoutInflater, binding.skillsContainer, false)
+        skillBinding.tvSkillName.text = name
+        skillBinding.tvSkillLevel.text = "$level%"
+        skillBinding.progressSkill.progress = level
+        skillBinding.ivSkillIcon.setImageResource(iconRes)
+
+        val trendView = skillBinding.tvSkillTrend
+        if (trend == null || trend == 0) {
+            trendView.visibility = View.GONE
+        } else {
+            trendView.visibility = View.VISIBLE
+            val up = trend > 0
+            trendView.text = kotlin.math.abs(trend).toString()
+            val color = ContextCompat.getColor(
+                requireContext(),
+                if (up) R.color.ttc_success else R.color.ttc_error
+            )
+            trendView.setTextColor(color)
+            trendView.setCompoundDrawablesWithIntrinsicBounds(
+                if (up) R.drawable.ic_trend_up else R.drawable.ic_trend_down, 0, 0, 0
+            )
+            TextViewCompat.setCompoundDrawableTintList(trendView, ColorStateList.valueOf(color))
         }
+        binding.skillsContainer.addView(skillBinding.root)
     }
     
     private fun applyMilestonesData(milestonesData: List<com.ttcoachai.helpers.MilestoneData>) {
@@ -252,26 +273,36 @@ class ProgressFragment : Fragment() {
     }
 
     private fun setupSegmentedButtons() {
-        binding.toggleGroupChart.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if (isChecked) {
-                when (checkedId) {
-                    R.id.btn_training_time -> {
-                        binding.trainingBarChart.visibility = View.VISIBLE
-                        binding.accuracyLineChart.visibility = View.GONE
-                        binding.tvChartTitle.text = getString(R.string.chart_training_title)
-                        binding.tvChartSubtitle.text = getString(R.string.chart_training_subtitle)
-                        binding.trainingBarChart.animateY(1000)
-                    }
-                    R.id.btn_accuracy -> {
-                        binding.trainingBarChart.visibility = View.GONE
-                        binding.accuracyLineChart.visibility = View.VISIBLE
-                        binding.tvChartTitle.text = getString(R.string.chart_accuracy_title)
-                        binding.tvChartSubtitle.text = getString(R.string.chart_accuracy_subtitle)
-                        binding.accuracyLineChart.animateX(1000)
-                    }
-                }
-            }
+        binding.btnTrainingTime.setOnClickListener { selectChartTab(training = true) }
+        binding.btnAccuracy.setOnClickListener { selectChartTab(training = false) }
+        selectChartTab(training = true)
+    }
+
+    private fun selectChartTab(training: Boolean) {
+        styleSegment(binding.btnTrainingTime, training)
+        styleSegment(binding.btnAccuracy, !training)
+
+        if (training) {
+            binding.trainingBarChart.visibility = View.VISIBLE
+            binding.accuracyLineChart.visibility = View.GONE
+            binding.tvChartTitle.text = getString(R.string.chart_training_title)
+            binding.tvChartSubtitle.text = getString(R.string.chart_training_subtitle)
+            binding.trainingBarChart.animateY(1000)
+        } else {
+            binding.trainingBarChart.visibility = View.GONE
+            binding.accuracyLineChart.visibility = View.VISIBLE
+            binding.tvChartTitle.text = getString(R.string.chart_accuracy_title)
+            binding.tvChartSubtitle.text = getString(R.string.chart_accuracy_subtitle)
+            binding.accuracyLineChart.animateX(1000)
         }
+    }
+
+    /** Active segment = bright-gold pill with dark text; inactive = transparent with muted text. */
+    private fun styleSegment(btn: com.google.android.material.button.MaterialButton, active: Boolean) {
+        val bg = if (active) R.color.ttc_gold_bright else android.R.color.transparent
+        val txt = if (active) R.color.ttc_on_gold else R.color.ttc_text_2
+        btn.backgroundTintList = ContextCompat.getColorStateList(requireContext(), bg)
+        btn.setTextColor(ContextCompat.getColor(requireContext(), txt))
     }
 
     private fun loadDummyData() {
@@ -323,21 +354,11 @@ class ProgressFragment : Fragment() {
 
 
         // LOAD SKILLS
-        val skills = listOf(
-            Triple(getString(R.string.exercise_forehand_name), 85, R.color.blue_600),
-            Triple(getString(R.string.exercise_backhand_name), 78, R.color.blue_600),
-            Triple(getString(R.string.exercise_service_name), 92, R.color.blue_600),
-            Triple(getString(R.string.exercise_footwork_name), 73, R.color.blue_600)
-        )
-
-        skills.forEach { (name, level, colorRes) ->
-            val skillBinding = ItemSkillProgressBinding.inflate(layoutInflater, binding.skillsContainer, false)
-            skillBinding.tvSkillName.text = name
-            skillBinding.tvSkillLevel.text = "$level%"
-            skillBinding.progressSkill.progress = level
-            // We could change progress color dynamically but we set a drawable with gradient already.
-            binding.skillsContainer.addView(skillBinding.root)
-        }
+        binding.skillsContainer.removeAllViews()
+        addSkillRow(getString(R.string.exercise_forehand_name), 85, R.drawable.ic_skill_forehand, 4)
+        addSkillRow(getString(R.string.exercise_backhand_name), 78, R.drawable.ic_skill_backhand, 3)
+        addSkillRow(getString(R.string.exercise_service_name), 92, R.drawable.ic_skill_topspin, -2)
+        addSkillRow(getString(R.string.exercise_footwork_name), 73, R.drawable.ic_skill_footwork, 1)
 
 
         // LOAD MILESTONES
