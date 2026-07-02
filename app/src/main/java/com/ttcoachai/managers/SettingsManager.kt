@@ -157,4 +157,67 @@ class SettingsManager(context: Context) {
         prefs.edit().clear().apply()
         posePrefs.edit().clear().apply()
     }
+
+    // --- Detection tuning (persist-only; real defaults from StrokeDetector2D / CameraAngleEstimator / LocomotionFilter) ---
+    fun getDetCameraAngle(): Int = prefs.getInt("det_camera_angle", 0)
+    fun setDetCameraAngle(value: Int) = prefs.edit().putInt("det_camera_angle", value).apply()
+
+    fun getDetPeakSpeed(): Float = prefs.getFloat("det_peak_speed", 1.0f)
+    fun setDetPeakSpeed(value: Float) = prefs.edit().putFloat("det_peak_speed", value).apply()
+
+    fun getDetMinPeakIntervalMs(): Int = prefs.getInt("det_min_peak_interval", 500)
+    fun setDetMinPeakIntervalMs(value: Int) = prefs.edit().putInt("det_min_peak_interval", value).apply()
+
+    fun getDetSpeedSmoothingMs(): Int = prefs.getInt("det_speed_smoothing", 300)
+    fun setDetSpeedSmoothingMs(value: Int) = prefs.edit().putInt("det_speed_smoothing", value).apply()
+
+    fun getDetWalkGate(): Float = prefs.getFloat("det_walk_gate", 0.4f)
+    fun setDetWalkGate(value: Float) = prefs.edit().putFloat("det_walk_gate", value).apply()
+
+    fun isDetSkipStaleReps(): Boolean = prefs.getBoolean("det_skip_stale", true)
+    fun setDetSkipStaleReps(value: Boolean) = prefs.edit().putBoolean("det_skip_stale", value).apply()
+
+    fun getDetPreStrokeBufferMs(): Int = prefs.getInt("det_prestroke_buffer", 1000)
+    fun setDetPreStrokeBufferMs(value: Int) = prefs.edit().putInt("det_prestroke_buffer", value).apply()
+
+    // --- Feedback tuning (real defaults from feedbackSettings.ts DEFAULT_FEEDBACK_SETTINGS) ---
+    fun isPlayingHandRight(): Boolean = prefs.getBoolean("fb_playing_hand_right", true)
+    fun setPlayingHandRight(value: Boolean) = prefs.edit().putBoolean("fb_playing_hand_right", value).apply()
+
+    fun getFbZoneWidth(): Float = prefs.getFloat("fb_zone_width", 1.4f)
+    fun setFbZoneWidth(value: Float) = prefs.edit().putFloat("fb_zone_width", value).apply()
+
+    fun getFbSignificanceDeg(): Int = prefs.getInt("fb_significance", 7)
+    fun setFbSignificanceDeg(value: Int) = prefs.edit().putInt("fb_significance", value).apply()
+
+    fun getFbReminderIntervalMs(): Int = prefs.getInt("fb_reminder_ms", 10000)
+    fun setFbReminderIntervalMs(value: Int) = prefs.edit().putInt("fb_reminder_ms", value).apply()
+
+    fun isFbAlternateCues(): Boolean = prefs.getBoolean("fb_alternate_cues", true)
+    fun setFbAlternateCues(value: Boolean) = prefs.edit().putBoolean("fb_alternate_cues", value).apply()
+
+    fun getFbPauseBetweenMs(): Int = prefs.getInt("fb_pause_between_ms", 5000)
+    fun setFbPauseBetweenMs(value: Int) = prefs.edit().putInt("fb_pause_between_ms", value).apply()
+
+    fun getFbSilenceBeforePraiseMs(): Int = prefs.getInt("fb_silence_before_praise_ms", 10000)
+    fun setFbSilenceBeforePraiseMs(value: Int) = prefs.edit().putInt("fb_silence_before_praise_ms", value).apply()
+
+    fun getFbPauseAfterStrokeMs(): Int = prefs.getInt("fb_pause_after_stroke_ms", 300)
+    fun setFbPauseAfterStrokeMs(value: Int) = prefs.edit().putInt("fb_pause_after_stroke_ms", value).apply()
+
+    fun isPraiseEnabled(): Boolean = prefs.getBoolean("fb_praise_enabled", true)
+    fun setPraiseEnabled(value: Boolean) = prefs.edit().putBoolean("fb_praise_enabled", value).apply()
+
+    fun isPraiseOnCorrections(): Boolean = prefs.getBoolean("fb_praise_on_corrections", true)
+    fun setPraiseOnCorrections(value: Boolean) = prefs.edit().putBoolean("fb_praise_on_corrections", value).apply()
+
+    fun isPraiseOnStreak(): Boolean = prefs.getBoolean("fb_praise_on_streak", false)
+    fun setPraiseOnStreak(value: Boolean) = prefs.edit().putBoolean("fb_praise_on_streak", value).apply()
+
+    fun getPraiseStreakLen(): Int = prefs.getInt("fb_praise_streak_len", 3)
+    fun setPraiseStreakLen(value: Int) = prefs.edit().putInt("fb_praise_streak_len", value).apply()
+
+    // --- Language (coach voice-cue language; distinct from interface language `app_language`) ---
+    fun getCoachLanguage(): String = prefs.getString("coach_language", "en") ?: "en"
+    fun setCoachLanguage(value: String) = prefs.edit().putString("coach_language", value).apply()
 }
