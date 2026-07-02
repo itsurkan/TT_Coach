@@ -91,9 +91,9 @@ class ExerciseEditorActivity : BaseActivity() {
         binding = ActivityExerciseEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        mode = EditorMode.valueOf(
-            intent.getStringExtra(EXTRA_MODE) ?: EditorMode.NEW.name
-        )
+        mode = runCatching {
+            EditorMode.valueOf(intent.getStringExtra(EXTRA_MODE) ?: EditorMode.NEW.name)
+        }.getOrDefault(EditorMode.NEW)
         sourceName = intent.getStringExtra(EXTRA_SOURCE_NAME) ?: ""
         baseTemplateExtra = intent.getStringExtra(EXTRA_BASE_TEMPLATE) ?: ""
 
@@ -275,7 +275,7 @@ class ExerciseEditorActivity : BaseActivity() {
     }
 
     private fun updateStrictnessLabel(value: Float) {
-        binding.tvStrictnessValue.text = String.format("×%.2f", value)
+        binding.tvStrictnessValue.text = String.format(java.util.Locale.US, "×%.2f", value)
     }
 
     private fun toggleAdvanced() {
