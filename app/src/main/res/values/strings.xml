@@ -876,4 +876,25 @@
     <string name="detection_distance_mode">Distance mode</string>
     <string name="detection_distance_mode_sub">Track ball distance from table</string>
     <string name="cd_back">Back</string>
+
+    <!-- Subscription paywall — billing-toggle redesign (12b/13a) -->
+    <string name="subscribe_restore">Restore</string>
+    <string name="subscribe_start_premium">Start Premium</string>
+    <string name="subscribe_per_month_format">Just %1$s / month</string>
+    <string name="subscribe_savings_format">Save %1$d%% vs monthly</string>
+    <string name="subscribe_billed_monthly">$9.99 billed monthly · cancel anytime</string>
+    <string name="subscribe_billed_quarterly">$24.99 billed every 3 months · cancel anytime</string>
+    <string name="subscribe_billed_yearly">$79.99 billed yearly · cancel anytime</string>
+    <string name="subscribe_period_month">/mo</string>
+    <string name="subscribe_period_quarter">/3 mo</string>
+    <string name="subscribe_period_year">/yr</string>
+    <string name="subscribe_per_month_quarterly_value">$8.33</string>
+    <string name="subscribe_per_month_yearly_value">$6.67</string>
+    <string name="subscribe_feature_analysis">Advanced pose &amp; stroke analysis</string>
+    <string name="subscribe_feature_analytics">Advanced analytics &amp; error breakdown</string>
+    <string name="subscribe_feature_reports">Detailed post-session reports</string>
+    <string name="subscribe_terms">Terms</string>
+    <string name="subscribe_privacy">Privacy</string>
+    <string name="subscribe_restore_none">No purchases to restore</string>
+    <string name="subscribe_activated">Subscription activated!</string>
 </resources>
