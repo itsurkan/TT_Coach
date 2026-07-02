@@ -770,4 +770,26 @@
     <string name="focus_placeholder_desc">Complete more sessions to see your most-flagged corrections.</string>
 
     <string name="btn_new_session">New session</string>
+
+    <!-- Exercises tab redesign (2a / 10a / 10b) -->
+    <string name="drills_section_recent">RECENT</string>
+    <string name="drills_section_all_programs">ALL PROGRAMS</string>
+    <string name="drills_recent_last_session">Last session</string>
+    <string name="drills_recent_accuracy">%1$d%% accuracy</string>
+    <string name="drills_continue_training">Continue training</string>
+    <string name="drills_add_own_exercise">+ Add your own exercise · calibration</string>
+    <string name="drill_action_continue">Continue training</string>
+    <string name="drill_action_edit">Edit</string>
+    <string name="drill_action_clone">Clone</string>
+    <string name="drill_action_rename">Rename</string>
+    <string name="drill_action_delete">Delete</string>
+    <string name="drill_clone_copy_suffix">(copy)</string>
+    <string name="drill_clone_toast">Cloned as \"%1$s\"</string>
+    <string name="drill_rename_title">Rename exercise</string>
+    <string name="drill_rename_save">Save</string>
+    <string name="drill_delete_title">Delete exercise?</string>
+    <string name="drill_delete_message">\"%1$s\" will be removed. This cannot be undone.</string>
+    <string name="drill_delete_confirm">Delete</string>
+    <string name="drill_delete_toast">Deleted \"%1$s\"</string>
+    <string name="drill_cancel">Cancel</string>
 </resources>

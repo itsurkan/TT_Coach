@@ -599,4 +599,26 @@
     <string name="focus_placeholder_desc">Проведіть більше сесій, щоб побачити найчастіші зауваження.</string>
 
     <string name="btn_new_session">Нова сесія</string>
+
+    <!-- Exercises tab redesign (2a / 10a / 10b) -->
+    <string name="drills_section_recent">НЕЩОДАВНІ</string>
+    <string name="drills_section_all_programs">ВСІ ПРОГРАМИ</string>
+    <string name="drills_recent_last_session">Останнє тренування</string>
+    <string name="drills_recent_accuracy">%1$d%% точності</string>
+    <string name="drills_continue_training">Продовжити тренування</string>
+    <string name="drills_add_own_exercise">+ Додати свою вправу · калібрування</string>
+    <string name="drill_action_continue">Продовжити тренування</string>
+    <string name="drill_action_edit">Редагувати</string>
+    <string name="drill_action_clone">Клонувати</string>
+    <string name="drill_action_rename">Перейменувати</string>
+    <string name="drill_action_delete">Видалити</string>
+    <string name="drill_clone_copy_suffix">(копія)</string>
+    <string name="drill_clone_toast">Клоновано як «%1$s»</string>
+    <string name="drill_rename_title">Перейменувати вправу</string>
+    <string name="drill_rename_save">Зберегти</string>
+    <string name="drill_delete_title">Видалити вправу?</string>
+    <string name="drill_delete_message">«%1$s» буде видалено. Цю дію не можна скасувати.</string>
+    <string name="drill_delete_confirm">Видалити</string>
+    <string name="drill_delete_toast">Видалено «%1$s»</string>
+    <string name="drill_cancel">Скасувати</string>
 </resources>
