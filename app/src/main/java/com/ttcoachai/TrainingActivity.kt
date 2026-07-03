@@ -194,7 +194,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 if (stateManager.isTrainingActive) {
                     pauseTraining()
                 }
-                androidx.appcompat.app.AlertDialog.Builder(this@TrainingActivity)
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@TrainingActivity)
                     .setTitle(getString(R.string.finish_training_title))
                     .setMessage(getString(R.string.finish_training_message))
                     .setNeutralButton(getString(R.string.dialog_no)) { _, _ -> resumeTraining() }
@@ -204,7 +204,12 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     // rather than resuming and returning to the camera view.
                     .setOnCancelListener { stopTraining(discard = true) }
                     .show()
-                    .apply { setCanceledOnTouchOutside(false) }
+                    .apply {
+                        setCanceledOnTouchOutside(false)
+                        // Discard is destructive → red, matching the drill-menu Delete action.
+                        getButton(android.content.DialogInterface.BUTTON_NEGATIVE)
+                            ?.setTextColor(getColor(R.color.ttc_error))
+                    }
             }
         })
     }

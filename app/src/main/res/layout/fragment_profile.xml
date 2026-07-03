@@ -63,14 +63,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="24dp">
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="12dp">
 
                     <FrameLayout
                         android:layout_width="64dp"
@@ -123,50 +124,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/ttc_outline"
-                    android:layout_marginBottom="16dp"/>
+                    android:layout_marginBottom="12dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:paddingTop="16dp"
                     android:baselineAligned="false">
-
-                    <!-- Skill Score -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tv_profile_skill_score"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/placeholder_score"
-                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large"
-                            android:textColor="@color/ttc_gold_bright"/>
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/skill_score"
-                            android:gravity="center"
-                            android:maxLines="1"
-                            app:autoSizeTextType="uniform"
-                            app:autoSizeMinTextSize="8sp"
-                            app:autoSizeMaxTextSize="14sp"
-                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
-                    </LinearLayout>
-
-                    <!-- Divider 1 -->
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="40dp"
-                        android:background="@color/ttc_outline"
-                        android:layout_marginHorizontal="4dp"/>
 
                     <!-- Total Hours -->
                     <LinearLayout
@@ -231,40 +195,6 @@
                             android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
                     </LinearLayout>
 
-                    <!-- Divider 3 -->
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="40dp"
-                        android:background="@color/ttc_outline"
-                        android:layout_marginHorizontal="4dp"/>
-
-                    <!-- Achievements -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tv_profile_achievements"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/placeholder_streak"
-                            android:textAppearance="@style/TextAppearance.TTC.Stat.Large" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/stats_achievements"
-                            android:gravity="center"
-                            android:maxLines="1"
-                            app:autoSizeTextType="uniform"
-                            app:autoSizeMinTextSize="8sp"
-                            app:autoSizeMaxTextSize="14sp"
-                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
-                    </LinearLayout>
                 </LinearLayout>
 
             </LinearLayout>
@@ -442,125 +372,6 @@
                             app:tint="@color/ttc_gold_bright"
                             android:layout_marginStart="4dp"/>
                     </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Training Goals Section -->
-        <TextView
-            style="@style/TTC.SectionHeader"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/training_goals_section"
-            android:layout_marginBottom="12dp"/>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TTC.Card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:divider="?android:attr/listDivider"
-                android:showDividers="middle">
-
-                <!-- Weekly Sessions -->
-                <LinearLayout
-                    android:id="@+id/layout_weekly_sessions"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20dp"
-                    android:gravity="center_vertical"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
-
-                    <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_icon_tile_gold">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_target"
-                            app:tint="@color/ttc_gold_accent"
-                            android:layout_gravity="center"/>
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/weekly_sessions"
-                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/weekly_sessions_desc"
-                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right"
-                        app:tint="?attr/colorOnSurfaceVariant"/>
-                </LinearLayout>
-
-                <!-- Skill Target -->
-                <LinearLayout
-                    android:id="@+id/layout_skill_target"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20dp"
-                    android:gravity="center_vertical"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
-
-                    <FrameLayout
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:background="@drawable/bg_icon_tile_gold">
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/ic_award"
-                            app:tint="@color/ttc_gold_accent"
-                            android:layout_gravity="center"/>
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:layout_marginStart="16dp">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/skill_target"
-                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/skill_target_desc"
-                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
-                    </LinearLayout>
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_chevron_right"
-                        app:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>

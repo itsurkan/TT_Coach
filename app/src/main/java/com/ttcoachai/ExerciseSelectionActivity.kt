@@ -86,7 +86,7 @@ class ExerciseSelectionActivity : BaseActivity() {
 
     private fun onExerciseSelected(exercise: Exercise) {
         if (exercise.isLocked) {
-            androidx.appcompat.app.AlertDialog.Builder(this)
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.exercise_locked_title)
                 .setMessage(R.string.exercise_locked_message)
                 .setPositiveButton(R.string.dialog_ok, null)

@@ -69,13 +69,14 @@
                 <com.google.android.material.card.MaterialCardView
                     style="@style/TTC.Card.Highlighted"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    app:contentPadding="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="16dp">
+                        android:padding="15dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -85,16 +86,16 @@
 
                             <FrameLayout
                                 android:id="@+id/fl_recent_icon"
-                                android:layout_width="56dp"
-                                android:layout_height="56dp"
+                                android:layout_width="46dp"
+                                android:layout_height="46dp"
                                 android:background="@drawable/bg_icon_tile_gold">
 
                                 <ImageView
                                     android:id="@+id/iv_recent_icon"
-                                    android:layout_width="28dp"
-                                    android:layout_height="28dp"
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
                                     android:layout_gravity="center"
-                                    android:src="@drawable/ic_target"
+                                    android:src="@drawable/ic_skill_forehand"
                                     app:tint="@color/ttc_gold_accent" />
                             </FrameLayout>
 
@@ -102,7 +103,7 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:layout_marginStart="12dp"
+                                android:layout_marginStart="13dp"
                                 android:orientation="vertical">
 
                                 <TextView
@@ -114,7 +115,7 @@
                                 <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
+                                    android:layout_marginTop="4dp"
                                     android:orientation="horizontal"
                                     android:gravity="center_vertical">
 
@@ -148,7 +149,7 @@
                             style="@style/TTC.Button.Primary"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="14dp"
+                            android:layout_marginTop="13dp"
                             android:text="@string/drills_continue_training" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>

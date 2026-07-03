@@ -164,7 +164,7 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
                     finish()
                     return
                 }
-                AlertDialog.Builder(this@CalibrationActivity)
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@CalibrationActivity)
                     .setTitle(R.string.calibration_discard_title)
                     .setMessage(
                         getString(
@@ -179,6 +179,11 @@ class CalibrationActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListe
                         finish()
                     }
                     .show()
+                    .apply {
+                        // Discard is destructive → red.
+                        getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+                            ?.setTextColor(getColor(R.color.ttc_error))
+                    }
             }
         })
     }

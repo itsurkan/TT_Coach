@@ -125,7 +125,7 @@ class DebugActivity : AppCompatActivity() {
         }
         videoFiles.sort()
 
-        AlertDialog.Builder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Select Video (${videoFiles.size})")
             .setItems(videoFiles.toTypedArray()) { _, which ->
                 videoLoader.loadVideoFromAssets("Videos/${videoFiles[which]}") { _, _ -> }

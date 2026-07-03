@@ -295,7 +295,7 @@ class DrillsFragment : Fragment() {
 
     private fun renameDrill(exercise: Exercise) {
         val input = EditText(requireContext()).apply { setText(exercise.name) }
-        AlertDialog.Builder(requireContext())
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.drill_rename_title)
             .setView(input)
             .setPositiveButton(R.string.drill_rename_save) { _, _ ->
@@ -318,7 +318,7 @@ class DrillsFragment : Fragment() {
     }
 
     private fun deleteDrill(exercise: Exercise) {
-        AlertDialog.Builder(requireContext())
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.drill_delete_title)
             .setMessage(getString(R.string.drill_delete_message, exercise.name))
             .setPositiveButton(R.string.drill_delete_confirm) { _, _ ->
@@ -332,6 +332,11 @@ class DrillsFragment : Fragment() {
             }
             .setNegativeButton(R.string.drill_cancel, null)
             .show()
+            .apply {
+                // Delete is destructive → red, matching the drill-menu Delete action.
+                getButton(android.content.DialogInterface.BUTTON_POSITIVE)
+                    ?.setTextColor(requireContext().getColor(R.color.ttc_error))
+            }
     }
 
     private fun reloadCustomDrills() {
@@ -355,7 +360,7 @@ class DrillsFragment : Fragment() {
 
     private fun onExerciseSelected(exercise: Exercise) {
         if (exercise.isLocked) {
-            AlertDialog.Builder(requireContext())
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
                 .setTitle(R.string.exercise_locked_title)
                 .setMessage(R.string.exercise_locked_message)
                 .setPositiveButton(R.string.dialog_ok, null)
