@@ -1020,4 +1020,5 @@
     <string name="live_cd_back">Back</string>
     <string name="live_cd_flip_camera">Flip camera</string>
     <string name="live_cd_recording">Recording</string>
+    <string name="dot_separator">·</string>
 </resources>

@@ -52,83 +52,7 @@
 
     </LinearLayout>
 
-    <!-- Session Stats -->
-    <TextView
-        style="@style/TTC.SectionHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_focus_consistency"
-        android:layout_marginBottom="8dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TTC.Card"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tv_total_hits"
-                    style="@style/TextAppearance.TTC.Stat.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_hits"
-                    android:textColor="@color/ttc_gold_accent"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    style="@style/TextAppearance.TTC.Body.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_total_hits"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <com.google.android.material.card.MaterialCardView
-            style="@style/TTC.Card"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:id="@+id/tv_accuracy"
-                    style="@style/TextAppearance.TTC.Stat.Small"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/placeholder_percent"
-                    android:textColor="@color/ttc_gold_accent"
-                    android:layout_marginBottom="4dp"/>
-
-                <TextView
-                    style="@style/TextAppearance.TTC.Body.Secondary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_accuracy"/>
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
-
-    <!-- Current Drill Info -->
+    <!-- Session Focus card: consolidated stats + drill info -->
     <com.google.android.material.card.MaterialCardView
         style="@style/TTC.Card"
         android:layout_width="match_parent"
@@ -140,36 +64,84 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/TTC.SectionHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/live_session_focus"/>
+
+                <TextView
+                    android:id="@+id/tv_accuracy"
+                    style="@style/TextAppearance.TTC.Stat.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/placeholder_percent"
+                    android:textColor="@color/ttc_gold_accent"/>
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tv_drill_name"
                 style="@style/TextAppearance.TTC.Title.Card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/training_session_title"
-                android:layout_marginBottom="2dp"/>
-
-            <TextView
-                style="@style/TextAppearance.TTC.Body.Secondary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/label_focus_consistency"
-                android:layout_marginBottom="12dp"/>
+                android:layout_marginTop="8dp"
+                android:text="@string/training_session_title"/>
 
             <ProgressBar
                 android:id="@+id/progress_drill"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:progressDrawable="@drawable/bg_progressbar_gold"
                 android:progress="0"/>
 
-            <TextView
-                android:id="@+id/tv_drill_progress"
-                style="@style/TextAppearance.TTC.Body.Secondary"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/hits_progress_format"/>
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/tv_drill_progress"
+                    style="@style/TextAppearance.TTC.Mono.Meta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/hits_progress_format"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/dot_separator"
+                    android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                    android:textColor="@color/ttc_text_2"/>
+
+                <TextView
+                    android:id="@+id/tv_total_hits"
+                    style="@style/TextAppearance.TTC.Mono.Meta"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/placeholder_hits"
+                    android:textColor="@color/ttc_text_2"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/label_total_hits"
+                    android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                    android:textColor="@color/ttc_text_2"/>
+
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -233,15 +205,7 @@
         android:descendantFocusability="blocksDescendants"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Feedback Settings -->
-    <TextView
-        style="@style/TTC.SectionHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/header_feedback_settings_debug"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
-
+    <!-- Feedback Settings (subordinate debug section) -->
     <com.google.android.material.card.MaterialCardView
         style="@style/TTC.Card"
         android:layout_width="match_parent"
@@ -253,8 +217,38 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="12dp"
+                    android:src="@drawable/ic_sliders"
+                    app:tint="@color/ttc_text_2" />
+
+                <TextView
+                    style="@style/TTC.SectionHeader"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/live_feedback_settings" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/live_feedback_cadence"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+
+            </LinearLayout>
+
             <TextView
-                style="@style/TextAppearance.TTC.Body.Secondary"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/label_frequency_n"
@@ -268,7 +262,7 @@
                 android:paddingBottom="8dp" />
 
             <TextView
-                style="@style/TextAppearance.TTC.Body.Secondary"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/label_enabled_corrections"

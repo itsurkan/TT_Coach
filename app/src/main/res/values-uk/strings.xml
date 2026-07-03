@@ -859,4 +859,5 @@
     <string name="live_cd_back">Назад</string>
     <string name="live_cd_flip_camera">Перемкнути камеру</string>
     <string name="live_cd_recording">Запис</string>
+    <string name="dot_separator">·</string>
 </resources>
