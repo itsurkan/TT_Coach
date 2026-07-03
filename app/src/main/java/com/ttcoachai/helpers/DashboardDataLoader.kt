@@ -80,6 +80,7 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
         } else 0
 
         return LastSessionUi(
+            sessionId = last.id,
             exerciseName = last.exerciseName,
             startTime = last.startTime,
             strokes = strokes,
@@ -139,6 +140,7 @@ class DashboardDataLoader(private val cloudSyncManager: CloudSyncManager) {
  * Summary of the most recent training session for the Last Session card.
  */
 data class LastSessionUi(
+    val sessionId: String,
     val exerciseName: String,
     val startTime: Long,
     val strokes: Int,

@@ -9,7 +9,11 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.ttcoachai.fragment.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_review"
+            app:destination="@id/navigation_session_review" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_progress"

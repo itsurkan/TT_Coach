@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.ttcoachai.R
@@ -22,6 +23,9 @@ class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
     private val binding get() = _binding!!
+
+    /** Id of the most recent session; set once dashboard data loads. Drives the "full report" row. */
+    private var lastSessionId: String? = null
 
     private val bars by lazy {
         listOf(
@@ -56,8 +60,18 @@ class DashboardFragment : Fragment() {
     private fun setupClickListeners() {
         // FAB → start a new session (existing behaviour: switch to the Drills tab).
         binding.btnBeginSession.setOnClickListener { navigateToTab(R.id.navigation_drills) }
-        // View full report → Progress tab.
-        binding.rowFullReport.setOnClickListener { navigateToTab(R.id.navigation_progress) }
+        // View full report → last session review; fall back to the Progress tab if none yet.
+        binding.rowFullReport.setOnClickListener {
+            val sessionId = lastSessionId
+            if (sessionId != null) {
+                findNavController().navigate(
+                    R.id.action_dashboard_to_review,
+                    Bundle().apply { putString("sessionId", sessionId) }
+                )
+            } else {
+                navigateToTab(R.id.navigation_progress)
+            }
+        }
         // Avatar → Profile tab.
         binding.avatarContainer.setOnClickListener { navigateToTab(R.id.navigation_profile) }
     }
@@ -119,6 +133,7 @@ class DashboardFragment : Fragment() {
 
         // Last session card.
         val ls = data.lastSession
+        lastSessionId = ls?.sessionId
         if (ls != null) {
             binding.tvLastWhen.text = formatWhenLabel(ls.startTime)
             binding.tvLastDrill.text = ls.exerciseName.ifBlank { getString(R.string.placeholder_no_sessions) }
