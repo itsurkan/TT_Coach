@@ -77,4 +77,12 @@ class StrokeDetector2D(
         xScale: Float,
         intervalMs: Long
     ): List<Stroke2D> = delegate.detect(frames, handedness, xScale, intervalMs)
+
+    /**
+     * Exposes the underlying [MovementDetector] so callers migrating to
+     * [com.ttcoachai.shared.drill.MovementRepPipeline] can build a pipeline around
+     * an existing (possibly custom-tuned) `StrokeDetector2D` instance without
+     * re-deriving its [DetectionConfig].
+     */
+    fun asMovementDetector(): MovementDetector = delegate
 }
