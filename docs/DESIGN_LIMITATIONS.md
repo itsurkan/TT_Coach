@@ -98,6 +98,43 @@ Phase 3 live loop should derive dt from per-frame timestamps
 (`PoseFrame2D.timestampMs` already exists).
 **Refs:** `StrokeDetector2D.kt` kdoc; Task 5 review.
 
+### L-36 · ms→frame window quantization sensitivity in `StrokeDetector2D` — `ACCEPTED` (mitigated; residual by design)
+`StrokeDetector2D.framesFor()` converts ms-based tuning windows (smoothing,
+peak-radius, `minPeakGapMs`) into integer frame counts via `intervalMs`; the result
+depends on the estimated frame interval. A **sustained** interval change (e.g. a
+17ms→18ms mean-fps shift) can move a window by ±1 frame at a floor boundary and
+change which peaks survive NMS — on `andrii_1_rtm` a deliberately-constructed
+sustained +1ms shift split 1 stroke into 2 in several places (23→27 raw strokes).
+**Mitigation applied (this task):** `framesFor()` was changed from truncation
+(`(ms / intervalMs).toInt()`) to integer rounding
+(`((ms + intervalMs / 2) / intervalMs).toInt()`) so a small interval-estimate change
+doesn't cross a floor boundary as sharply. **Kept experimental, not shipped**: the
+rounding change regressed `LiveDrillSessionParityTest` (A3) — because
+`LiveDrillSession` re-runs `StrokeDetector2D.detect` on the growing/trimmed live
+buffer every frame (not once over the full sequence like the batch analyzer), the
+rounding shifted a frame-count boundary on an early, small buffer and flipped one
+rep's emitted direction (`TOO_LOW`→`TOO_HIGH` at cue index 3) relative to batch. Per
+the proven-gate guardrail this was reverted; `framesFor()` still truncates. The
+live-path re-detection-on-growing-buffer interaction is a separate, deeper
+finding — not yet root-caused — and should be investigated before rounding is
+retried.
+**What DOES hold (proven by the reworked A4 `LiveDrillSessionStabilityTest`):** the
+live path estimates `intervalMs` as the MEDIAN of consecutive frame deltas over the
+buffer (L-26), and realistic **symmetric** sub-frame jitter (a deterministic
+cancelling-pulse model, most deltas untouched, a few ±2ms nudges that cancel) leaves
+that median exactly equal to the true capture interval — verified empirically
+(logged `jitteredMedian == seq.intervalMs`) — and the emitted cue sequence is then
+provably identical to the unjittered reference. Small per-frame timing noise is
+genuinely absorbed; this task's quantization concern is about a *sustained* interval
+change, not ordinary jitter.
+**Residual (by design, not a bug):** a real sustained fps change still moves the
+median and can legitimately shift detected/emitted reps — the on-device
+calibrate+feedback loop stays mutually self-consistent (both read the same live
+median), but device-vs-desktop rep-count divergence from a true fps difference is a
+known, accepted possibility, gated separately by T7 (on-device parity fixture).
+**Refs:** `StrokeDetector2D.kt` (`framesFor`, truncating); `LiveDrillSessionStabilityTest.kt`
+(A4, reworked); `LiveDrillSessionParityTest.kt` (A3, the regressed gate); L-26.
+
 ### L-27 · Forward-stroke detection assumes drives are faster than recoveries — `ACCEPTED` (revisit per drill)
 `ForwardStrokeFilter`'s session-level speed-dominance vote (median peak speed by
 wrist-dx group, ratio ≥ 1.2, minority group ≥ 2) was validated on ONE fixture

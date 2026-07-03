@@ -70,7 +70,7 @@ android {
         }
     }
     androidResources {
-        noCompress 'task', 'tflite'
+        noCompress 'task', 'tflite', 'onnx'
     }
 }
 
@@ -162,4 +162,7 @@ dependencies {
     // TensorFlow Lite (ball detection)
     implementation 'org.tensorflow:tensorflow-lite:2.16.1'
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.16.1'
+
+    // ONNX Runtime Mobile (Phase 3 RTMPose backend; arm64-v8a only)
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.20.0'
 }

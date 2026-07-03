@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Minimal live-drill screen (Phase 3 / P4c). PreviewView + Coco17OverlayView stacked in a
+    FrameLayout (camera preview underneath, skeleton overlay on top), plus a status/feedback
+    TextView and two buttons (start/finish calibration, switch to feedback) pinned to the
+    bottom. Not styled to the gold-dark system — this is a dev-only debug entry point.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#000000">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.ttcoachai.pose.Coco17OverlayView
+            android:id="@+id/overlayView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:minLines="2"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:background="#22000000"
+        android:text="@string/rtmpose_drill_status_calibrate" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <Button
+            android:id="@+id/btnPrimary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="@string/rtmpose_drill_finish_calibration" />
+
+        <Button
+            android:id="@+id/btnSwitchMode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="@string/rtmpose_drill_switch_to_feedback" />
+
+    </LinearLayout>
+
+</LinearLayout>

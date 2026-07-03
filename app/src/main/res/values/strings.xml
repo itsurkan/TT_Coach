@@ -685,6 +685,44 @@
     <string name="calibration_capture_excluded_subtext">+%1$d excluded</string>
     <string name="calibration_outlier_banner">Rep excluded — %1$s off by %2$.1fσ</string>
 
+    <!-- Calibration dev tooling (debug builds only) -->
+    <string name="debug_baseline_title">Baseline Debug Dump</string>
+    <string name="debug_baseline_empty">No active baseline found for the requested drill type.</string>
+    <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
+
+    <!-- RTMPose live drill (Phase 3 dev tool, debug builds only) -->
+    <string name="rtmpose_drill_status_calibrate">Calibrating — perform forehand drives, then tap Finish Calibration.</string>
+    <string name="rtmpose_drill_finish_calibration">Finish Calibration</string>
+    <string name="rtmpose_drill_switch_to_feedback">Switch to Feedback</string>
+    <string name="rtmpose_drill_calibrating_busy">Calibrating…</string>
+    <string name="rtmpose_drill_calibration_failed">Calibration failed: %1$s</string>
+    <string name="rtmpose_drill_calibration_saved">Baseline saved (%1$d reps). Switch to Feedback to start coaching.</string>
+    <string name="rtmpose_drill_need_calibration">No baseline yet — calibrate first.</string>
+    <string name="rtmpose_drill_backend_unavailable">RTMPose models unavailable: %1$s</string>
+    <string name="rtmpose_drill_status_feedback">Feedback mode — play your forehand drive.</string>
+
+    <!-- Drill parameter editor (Phase 7 dev tool) -->
+    <string name="preview_title">Drill Shape Editor</string>
+    <string name="preview_status_mean">Mean stroke from %1$d rep(s), %2$d frames</string>
+    <string name="preview_status_raw_fallback">No stroke detected — replaying raw fixture</string>
+    <string name="preview_play">▶</string>
+    <string name="preview_pause">⏸</string>
+    <string name="preview_humanize">Humanize</string>
+    <string name="preview_frame_label">Frame %1$d / %2$d</string>
+    <string name="preview_slider_body_rotation">Ротація корпусу (yaw) %1$+.0f°</string>
+    <string name="preview_slider_torso_tilt">Нахил тулуба (pitch) %1$+.0f°</string>
+    <string name="preview_slider_shoulder">Кут плеча (right) %1$+.0f°</string>
+    <string name="preview_slider_elbow_angle">Кут ліктя %1$+.0f°</string>
+    <string name="preview_slider_elbow_x">Позиція ліктя X %1$+.3f</string>
+    <string name="preview_slider_wrist">Кут зап\'ястка %1$+.0f°</string>
+    <string name="preview_slider_knee_bend">Згин колін %1$+.0f°</string>
+    <string name="preview_save">Save overrides</string>
+    <string name="preview_reset">Reset</string>
+    <string name="preview_export">Export JSON</string>
+    <string name="preview_saved_toast">Drill overrides saved.</string>
+    <string name="preview_exported_toast">Overrides copied to clipboard + logcat (BaselineDump tag).</string>
+    <string name="preview_camera_hint">%s · %.0f°</string>
+    <string name="preview_rotation_label">Camera position: %s</string>
     <string name="calibration_review_save">Save baseline</string>
     <string name="calibration_review_redo">Redo</string>
     <string name="calibration_saved_toast">Baseline saved.</string>
