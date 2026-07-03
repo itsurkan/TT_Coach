@@ -170,6 +170,7 @@
     <color name="ttc_error">#C4463C</color>
     <color name="ttc_error_container">#FDECEA</color>
     <color name="ttc_error_container_outline">#F5C9C4</color>
+    <color name="ttc_on_error">#FFFFFF</color>
     <color name="ttc_amber">#E9A25E</color>
     <color name="ttc_cream">#FBF4E1</color>
     <color name="ttc_text_disabled">#A0A5AF</color>

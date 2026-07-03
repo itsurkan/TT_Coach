@@ -157,6 +157,7 @@
     <color name="ttc_error">#E8817A</color>
     <color name="ttc_error_container">#3A1A18</color>
     <color name="ttc_error_container_outline">#5A2B27</color>
+    <color name="ttc_on_error">#3A1212</color>
     <color name="ttc_amber">#E9A25E</color>
     <color name="ttc_cream">#FBF3DE</color>
     <color name="ttc_text_disabled">#8A909E</color>
