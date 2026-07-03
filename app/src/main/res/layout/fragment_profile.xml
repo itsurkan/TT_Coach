@@ -630,6 +630,7 @@
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
             android:minHeight="56dp"
             android:text="@string/log_out"
             android:textAppearance="?attr/textAppearanceTitleMedium"
