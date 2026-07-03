@@ -998,6 +998,7 @@
 
     <!-- Live Session screen (1a/1e) -->
     <string name="live_pause">Pause</string>
+    <string name="live_resume">Resume</string>
     <string name="live_end_session">End Session</string>
     <string name="live_session_focus">Session focus</string>
     <string name="live_focus_consistency">Consistency</string>

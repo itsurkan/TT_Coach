@@ -837,6 +837,7 @@
 
     <!-- Live Session screen (1a/1e) -->
     <string name="live_pause">Пауза</string>
+    <string name="live_resume">Продовжити</string>
     <string name="live_end_session">Завершити</string>
     <string name="live_session_focus">Фокус сесії</string>
     <string name="live_focus_consistency">Стабільність</string>
