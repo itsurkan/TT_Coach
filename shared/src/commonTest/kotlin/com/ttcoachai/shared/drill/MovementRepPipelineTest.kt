@@ -53,6 +53,11 @@ class MovementRepPipelineTest {
         val frames = wristXs.mapIndexed { i, wx ->
             val kp = MutableList(17) { Keypoint2D(0.5f, 0.5f, 1f) }
             val hipShift = i * 0.05f // large horizontal travel vs torso length (~0.25)
+            // Nose travels WITH the torso, ahead of shoulder-mid (+x): otherwise the
+            // walking shoulder-mid crosses the default-filled nose (x=0.5) mid-stroke and
+            // the head-facing fallback reads the stroke as a recovery swing — the stroke
+            // would be dropped by ForwardStrokeFilter before the locomotion gate is tested.
+            kp[Coco17.NOSE] = Keypoint2D(0.56f + hipShift, 0.28f, 1f)
             kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.43f + hipShift, 0.30f, 1f)
             kp[Coco17.RIGHT_SHOULDER] = Keypoint2D(0.45f + hipShift, 0.30f, 1f)
             kp[Coco17.LEFT_HIP] = Keypoint2D(0.43f + hipShift, 0.55f, 1f)
