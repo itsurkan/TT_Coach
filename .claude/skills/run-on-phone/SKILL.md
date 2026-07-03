@@ -9,16 +9,34 @@ Builds the debug APK, installs it on the connected Android device, and launches 
 
 ## Commands
 
-```bash
-# 1. Build + install the debug APK (JDK 21 pin lives in ~/.gradle/gradle.properties)
-./gradlew :app:installDebug
+Run the one-step script from the project root:
 
-# 2. Launch the launcher activity
-adb shell am start -n com.ttcoachai/.MainActivity
+```bash
+# Build + install + launch (whole "reinstall and run" flow)
+scripts/run_on_phone.sh
+
+# Multiple devices attached → target one explicitly
+scripts/run_on_phone.sh -s <serial>   # serial from `adb devices -l`
 ```
 
-That's the whole "reinstall and run" flow. `installDebug` both compiles and pushes the
-APK, so no separate `adb install` is needed. Run from the project root.
+The script resolves the project root and `adb` location itself, checks that a device is
+in the `device` state, builds with `./gradlew :app:assembleDebug`, then installs the
+resulting APK via `adb install -r` and launches `com.ttcoachai/.MainActivity`. It fails
+fast with a clear message if no device is attached or multiple devices need `-s`.
+
+It is resilient to flaky wireless adb-tls: it waits for the device to settle
+(`wait_for_device`, polls `adb get-state` up to 30 s) and retries the install up to 3×,
+restarting the adb server between attempts. This is why it uses `adb install` rather than
+`:app:installDebug` — gradle pushes via ddmlib, which dies with **"Broken pipe"** when the
+wireless link hiccups mid-transfer.
+
+Underlying steps (if you need to run them by hand):
+
+```bash
+./gradlew :app:assembleDebug
+adb install -r app/build/outputs/apk/debug/app-arm64-v8a-debug.apk
+adb shell am start -n com.ttcoachai/.MainActivity
+```
 
 ## Facts (this project)
 
@@ -29,8 +47,10 @@ APK, so no separate `adb install` is needed. Run from the project root.
 
 ## Rules
 
-- **Always `./gradlew :app:installDebug`**, not `assembleDebug` + manual install — one
-  step, and it targets the right ABI split (`app-arm64-v8a-debug.apk`) automatically.
+- **Prefer the script** (`assembleDebug` + `adb install -r` with device-wait + retry)
+  over a bare `./gradlew :app:installDebug` — installDebug pushes via ddmlib and dies
+  with "Broken pipe" on flaky wireless. The script auto-picks the right ABI-split APK
+  (`app-arm64-v8a-debug.apk`) via `ls -t`.
 - The `source/target version 8` deprecation warning during `compileDebugJavaWithJavac`
   is expected and harmless — do not "fix" it.
 - After launching, confirm visually with the **phone-screenshot** skill if the user
@@ -48,5 +68,8 @@ APK, so no separate `adb install` is needed. Run from the project root.
   and gitignored; without it the build fails.
 - **`adb` not on PATH** → it's at `~/Library/Android/sdk/platform-tools/adb`.
 - **INSTALL_FAILED_UPDATE_INCOMPATIBLE** (signature mismatch after a release build) →
-  `adb uninstall com.ttcoachai` then re-run `installDebug`. Note this wipes local Room
+  `adb uninstall com.ttcoachai` then re-run the script. Note this wipes local Room
   data (the DB uses `fallbackToDestructiveMigration`).
+- **"Broken pipe" / device drops mid-install** → transient wireless adb-tls hiccup. The
+  script already waits + retries 3×; if it still fails, re-pair (`adb connect <ip>:<port>`)
+  or switch to USB.
