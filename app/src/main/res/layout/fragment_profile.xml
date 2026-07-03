@@ -56,6 +56,7 @@
         <!-- Profile Identity Card -->
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
+            app:contentPadding="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp">
@@ -229,6 +230,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_subscription_active"
             style="@style/TTC.Card"
+            app:contentPadding="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp"
@@ -305,6 +307,7 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_subscription_upgrade"
             style="@style/TTC.Card"
+            app:contentPadding="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/ttc_gold_bright"
@@ -419,6 +422,7 @@
 
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
+            app:contentPadding="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp">
@@ -521,6 +525,7 @@
 
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
+            app:contentPadding="0dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="0dp">
