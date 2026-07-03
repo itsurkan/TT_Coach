@@ -5,16 +5,14 @@ package com.ttcoachai.shared.drill
  * only as sanity bounds). A value outside its band is a tracking glitch — the metric
  * is dropped for that frame, never coached on. Personal baselines, not these bounds,
  * define "correct".
+ *
+ * Bounds are sourced from [CoreMetricSpecs] (single source of truth); this object's
+ * public `isSane` contract is unchanged.
  */
 object SanityBounds {
 
-    private val bounds: Map<String, ClosedFloatingPointRange<Double>> = mapOf(
-        DrillMetrics.METRIC_ELBOW_ANGLE to 20.0..170.0,    // spec example
-        DrillMetrics.METRIC_SHOULDER_ANGLE to 5.0..175.0,
-        DrillMetrics.METRIC_KNEE_BEND to 60.0..180.0,
-        DrillMetrics.METRIC_TORSO_LEAN to -60.0..60.0,
-        DrillMetrics.METRIC_SHOULDER_TILT to -60.0..60.0
-    )
+    private val bounds: Map<String, ClosedFloatingPointRange<Double>> =
+        CoreMetricSpecs.ALL.mapNotNull { spec -> spec.sanityBounds?.let { spec.key to it } }.toMap()
 
     /** Metrics without a registered band pass through (bounds are opt-in). */
     fun isSane(metricKey: String, value: Double): Boolean =
