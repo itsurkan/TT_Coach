@@ -90,9 +90,4 @@
         tools:layout="@layout/activity_training">
 
     </activity>
-    <activity
-        android:id="@+id/navigation_developer"
-        android:name="com.ttcoachai.DebugActivity"
-        android:label="Developer"
-        tools:layout="@layout/activity_debug" />
 </navigation>

@@ -11,7 +11,6 @@ import com.ttcoachai.AppSettingsActivity
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.SubscribeActivity
-import com.ttcoachai.DebugActivity
 import com.ttcoachai.databinding.FragmentProfileBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
@@ -208,20 +207,7 @@ class ProfileFragment : Fragment() {
         super.onResume()
         // Refresh subscription status when returning
         setupSubscriptionSection()
-        setupDebugMode()
         loadProfileStats()
-    }
-
-    private fun setupDebugMode() {
-        if (settingsManager.isDeveloperModeEnabled()) {
-            binding.layoutDebugMode.visibility = View.VISIBLE
-            binding.layoutDebugMode.setOnClickListener {
-                val intent = Intent(requireContext(), DebugActivity::class.java)
-                startActivity(intent)
-            }
-        } else {
-            binding.layoutDebugMode.visibility = View.GONE
-        }
     }
 
     private fun loadProfileStats() {
