@@ -3,6 +3,7 @@
 - [Product positioning](product_positioning.md) — don't re-teach; calibrate to player's existing technique, check against personal baseline
 - [Staged roadmap](staged_roadmap.md) — PIVOT 2026-06-10 (branch `2d`): 2D fixed-drill MVP on RTMPose, desktop-first, baseline-derived reference angles; ball/audio/video analysis frozen
 - [Commit cadence](feedback_commit_cadence.md) — commit after each logical change, don't batch end-of-task
+- [Merge to main](feedback_merge_to_main.md) — always merge finished branch to main automatically; never ask or open a PR
 - [Screenshot save location](feedback_screenshots.md) — save adb screencaps to `tmp/screenshots/` in project root, not `/tmp/`, so they're visible in VSCode
 - [Stay in scope](feedback_scope_discipline.md) — fix exactly what was asked; don't expand to adjacent problems (e.g., fix legs → don't also touch torso) without confirmation
 - [Never revert uncommitted](feedback_never_revert_uncommitted.md) — never git-checkout/restore uncommitted working-tree changes (unrestorable); leave unrelated modified files alone

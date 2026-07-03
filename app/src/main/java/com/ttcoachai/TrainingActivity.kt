@@ -49,7 +49,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         stateManager = TrainingStateManager.getInstance(this)
         uiController = TrainingUIController(
             this, binding, SettingsManager(this), stateManager,
-            ::toggleTraining
+            ::toggleTraining,
+            { stopTraining(discard = false) }
         )
         mediaManager = TrainingMediaManager(this, binding, useVideo)
     }
