@@ -102,7 +102,7 @@
     <string name="waiting_calibration">Waiting for calibration…</string>
     <string name="btn_calibrate">📍 Calibrate</string>
     <string name="btn_start">▶️ Start</string>
-    <string name="btn_pause">⏸️ Pause</string>
+    <string name="btn_pause">Pause</string>
     <string name="btn_finish">🏁 Finish</string>
     <string name="press_calibrate">Press \'Calibrate\' to begin</string>
     <string name="calibrating">Calibrating… Hold position</string>

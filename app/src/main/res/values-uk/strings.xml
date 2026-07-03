@@ -80,7 +80,7 @@
     <string name="waiting_calibration">Очікування калібрування…</string>
     <string name="btn_calibrate">📍 Калібрувати</string>
     <string name="btn_start">▶️ Почати</string>
-    <string name="btn_pause">⏸️ Пауза</string>
+    <string name="btn_pause">Пауза</string>
     <string name="btn_finish">🏁 Завершити</string>
     <string name="press_calibrate">Натисніть \'Калібрувати\' для початку</string>
     <string name="calibrating">Калібрування… Утримуйте позицію</string>
