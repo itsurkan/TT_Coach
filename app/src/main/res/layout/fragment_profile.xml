@@ -4,6 +4,7 @@
     android:id="@+id/profile_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ttc_canvas"
     android:fillViewport="true"
     android:padding="16dp">
 
@@ -202,7 +203,7 @@
 
         <!-- Subscription Section -->
         <TextView
-            style="@style/TTC.SectionHeader"
+            style="@style/TTC.SectionHeader.Gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/subscription_section"
@@ -378,7 +379,7 @@
 
         <!-- Settings Section -->
         <TextView
-            style="@style/TTC.SectionHeader"
+            style="@style/TTC.SectionHeader.Gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/title_settings"
@@ -513,7 +514,7 @@
 
         <!-- More Section -->
         <TextView
-            style="@style/TTC.SectionHeader"
+            style="@style/TTC.SectionHeader.Gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/more_section"
