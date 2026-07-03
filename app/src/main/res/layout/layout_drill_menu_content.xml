@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/ttc_canvas"
     android:fillViewport="true">
 
     <LinearLayout
@@ -17,7 +18,7 @@
         android:layout_height="4dp"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
-        android:background="?attr/colorOutlineVariant" />
+        android:background="@color/ttc_outline" />
 
     <!-- Control Buttons -->
     <LinearLayout
@@ -31,117 +32,97 @@
             android:id="@+id/btn_pause_resume"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="56dp"
+            android:minHeight="48dp"
             android:layout_weight="1"
             android:text="@string/btn_resume"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"
             android:layout_marginEnd="8dp"
-            style="?attr/materialButtonOutlinedStyle"/>
+            style="@style/TTC.Button.Ghost"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_end_session"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="56dp"
+            android:minHeight="48dp"
             android:layout_weight="1"
             android:text="@string/btn_end_session"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
             android:layout_marginStart="8dp"
-            android:textColor="?attr/colorOnError"
-            app:backgroundTint="?attr/colorError"/>
+            style="@style/TTC.Button.Danger"/>
 
     </LinearLayout>
 
-    <!-- Stats Cards -->
+    <!-- Session Stats -->
+    <TextView
+        style="@style/TTC.SectionHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/label_focus_consistency"
+        android:layout_marginBottom="8dp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="12dp">
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/green_500"
             android:layout_marginEnd="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
                 android:gravity="center">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_target"
-                    app:tint="@android:color/holo_green_dark"
-                    android:layout_marginBottom="8dp"/>
 
                 <TextView
                     android:id="@+id/tv_total_hits"
+                    style="@style/TextAppearance.TTC.Stat.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/placeholder_hits"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
+                    android:textColor="@color/ttc_gold_accent"
                     android:layout_marginBottom="4dp"/>
 
                 <TextView
+                    style="@style/TextAppearance.TTC.Body.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_total_hits"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_muted"/>
+                    android:text="@string/label_total_hits"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <com.google.android.material.card.MaterialCardView
+            style="@style/TTC.Card"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="2dp"
-            app:strokeWidth="1dp"
-            app:strokeColor="@color/orange_500"
             android:layout_marginStart="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp"
                 android:gravity="center">
-
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_target"
-                    app:tint="@android:color/holo_orange_dark"
-                    android:layout_marginBottom="8dp"/>
 
                 <TextView
                     android:id="@+id/tv_accuracy"
+                    style="@style/TextAppearance.TTC.Stat.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/placeholder_percent"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
+                    android:textColor="@color/ttc_gold_accent"
                     android:layout_marginBottom="4dp"/>
 
                 <TextView
+                    style="@style/TextAppearance.TTC.Body.Secondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_accuracy"
-                    android:textSize="12sp"
-                    android:textColor="@color/text_muted"/>
+                    android:text="@string/label_accuracy"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -149,115 +130,98 @@
 
     <!-- Current Drill Info -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/TTC.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/blue_500"
         android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tv_drill_name"
+                style="@style/TextAppearance.TTC.Title.Card"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:text="@string/training_session_title"
+                android:layout_marginBottom="2dp"/>
 
-                <ImageView
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/ic_target"
-                    app:tint="@android:color/holo_blue_dark"
-                    android:layout_marginEnd="12dp"/>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_drill_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/training_session_title"
-                        android:textSize="16sp"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_focus_consistency"
-                        android:textSize="12sp"
-                        android:textColor="@color/text_muted"/>
-                </LinearLayout>
-            </LinearLayout>
+            <TextView
+                style="@style/TextAppearance.TTC.Body.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_focus_consistency"
+                android:layout_marginBottom="12dp"/>
 
             <ProgressBar
                 android:id="@+id/progress_drill"
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
+                android:layout_height="6dp"
                 android:layout_marginBottom="8dp"
                 style="?android:attr/progressBarStyleHorizontal"
+                android:progressDrawable="@drawable/bg_progressbar_gold"
                 android:progress="0"/>
 
             <TextView
                 android:id="@+id/tv_drill_progress"
+                style="@style/TextAppearance.TTC.Body.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/hits_progress_format"
-                android:textSize="12sp"
-                android:textColor="@color/text_muted"/>
+                android:text="@string/hits_progress_format"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- AI Coach Tip -->
     <com.google.android.material.card.MaterialCardView
+        style="@style/TTC.Card.GoldTint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="?attr/materialCardViewFilledStyle"
-        app:cardBackgroundColor="?attr/colorTertiaryContainer"
         android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/tip_title_ai_coach"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textColor="?attr/colorOnTertiaryContainer"
-                android:layout_marginBottom="8dp"/>
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_lightbulb"
+                    app:tint="@color/ttc_gold_accent"
+                    android:layout_marginEnd="6dp"/>
+
+                <TextView
+                    style="@style/TTC.SectionHeader.Gold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/live_ai_coach"/>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_ai_tip"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tip_camera_position"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnTertiaryContainer"
-                android:alpha="0.8"/>
+                android:textColor="@color/ttc_text_1"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Real-time Feedback List -->
     <TextView
+        style="@style/TTC.SectionHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_realtime_feedback"
-        android:textSize="14sp"
-        android:textStyle="bold"
+        android:text="@string/live_realtime_feedback"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"/>
 
@@ -271,34 +235,29 @@
 
     <!-- Feedback Settings -->
     <TextView
+        style="@style/TTC.SectionHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/header_feedback_settings_debug"
-        android:textSize="14sp"
-        android:textStyle="bold"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"/>
 
     <com.google.android.material.card.MaterialCardView
+        style="@style/TTC.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="?attr/colorOutlineVariant"
         android:layout_marginBottom="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
             <TextView
+                style="@style/TextAppearance.TTC.Body.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/label_frequency_n"
-                android:textSize="13sp"
                 android:paddingBottom="4dp" />
 
             <Spinner
@@ -309,54 +268,54 @@
                 android:paddingBottom="8dp" />
 
             <TextView
+                style="@style/TextAppearance.TTC.Body.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/label_enabled_corrections"
-                android:textSize="13sp"
                 android:paddingTop="8dp"
                 android:paddingBottom="4dp" />
 
             <CheckBox
                 android:id="@+id/cb_wrist"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_wrist_angle"
-                android:textSize="12sp" />
+                android:text="@string/correction_wrist_angle"/>
 
             <CheckBox
                 android:id="@+id/cb_body_rotation"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_body_rotation"
-                android:textSize="12sp" />
+                android:text="@string/correction_body_rotation"/>
 
             <CheckBox
                 android:id="@+id/cb_follow_through"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_follow_through"
-                android:textSize="12sp" />
+                android:text="@string/correction_follow_through"/>
 
             <CheckBox
                 android:id="@+id/cb_contact_height"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_contact_height"
-                android:textSize="12sp" />
+                android:text="@string/correction_contact_height"/>
 
             <CheckBox
                 android:id="@+id/cb_elbow_position"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_elbow_position"
-                android:textSize="12sp" />
+                android:text="@string/correction_elbow_position"/>
 
             <CheckBox
                 android:id="@+id/cb_stroke_speed"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_stroke_speed"
-                android:textSize="12sp" />
+                android:text="@string/correction_stroke_speed"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

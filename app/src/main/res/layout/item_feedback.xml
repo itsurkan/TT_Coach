@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/TTC.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:contentPadding="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,32 +22,33 @@
             android:gravity="center_vertical"
             android:background="?attr/selectableItemBackground">
 
-            <!-- Icon -->
+            <!-- Status dot -->
             <View
                 android:id="@+id/iv_feedback_icon"
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:background="@android:drawable/ic_menu_info_details"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/bg_dot"
+                android:backgroundTint="@color/ttc_gold_bright"
                 android:layout_marginEnd="12dp"/>
 
             <!-- Message -->
             <TextView
                 android:id="@+id/tv_feedback_message"
+                style="@style/TextAppearance.TTC.Body"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/placeholder_feedback_title_perfect"
-                android:textSize="14sp"
-                android:textColor="?android:textColorPrimary"/>
+                android:textColor="@color/ttc_text_1"/>
 
             <!-- Expand Icon -->
             <ImageView
                 android:id="@+id/iv_expand_icon"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/ic_baseline_add_24"
-                app:tint="@color/text_muted"
-                android:rotation="0"/>
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/ttc_text_3"
+                android:rotation="90"/>
         </LinearLayout>
 
         <!-- Expandable Details Section -->
@@ -62,45 +63,38 @@
             <!-- Details Text -->
             <TextView
                 android:id="@+id/tv_feedback_details"
+                style="@style/TextAppearance.TTC.Body.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder_feedback_desc_perfect"
-                android:textSize="12sp"
-                android:textColor="@color/text_muted"
                 android:lineSpacingExtra="2dp"
                 android:padding="12dp"
-                android:background="@color/card_background"
+                android:background="@color/ttc_surface_elevated"
                 android:layout_marginBottom="12dp"/>
 
             <!-- Pose Visualization Card -->
             <com.google.android.material.card.MaterialCardView
+                style="@style/TTC.Card"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="1dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="@color/border_color">
+                android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:orientation="vertical">
 
                     <TextView
+                        style="@style/TextAppearance.TTC.Title.Card"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/label_movement_analysis"
-                        android:textStyle="bold"
-                        android:textSize="12sp"
                         android:layout_marginBottom="4dp"/>
 
                     <TextView
+                        style="@style/TextAppearance.TTC.Body.Secondary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/desc_movement_analysis"
-                        android:textSize="10sp"
-                        android:textColor="@color/text_muted"
                         android:layout_marginBottom="12dp"/>
 
                     <!-- Pose Replay View Placeholder -->
@@ -108,7 +102,7 @@
                         android:id="@+id/pose_visualizer"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
-                        android:background="@color/background_surface_alt"/>
+                        android:background="@color/ttc_surface_elevated"/>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
