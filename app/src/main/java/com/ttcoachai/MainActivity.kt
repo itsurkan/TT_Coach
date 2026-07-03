@@ -17,9 +17,14 @@
 package com.ttcoachai
 
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.ttcoachai.databinding.ActivityMainBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class MainActivity : BaseActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -51,6 +56,25 @@ class MainActivity : BaseActivity() {
                     binding.navView.menu.findItem(R.id.navigation_settings)?.isChecked = true
                 R.id.navigation_session_history, R.id.navigation_session_review ->
                     binding.navView.menu.findItem(R.id.navigation_progress)?.isChecked = true
+            }
+        }
+
+        // Finish-to-summary handoff: TrainingActivity's async save-completion callback sets
+        // this on the Application; navigate to the session review screen exactly once, then
+        // consume (reset to null) so backing out of review doesn't re-trigger it. See
+        // docs/superpowers/specs/2026-07-03-finish-to-session-summary-flow-design.md.
+        val app = application as TTCoachApplication
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                app.pendingReviewSessionId.collectLatest { sessionId ->
+                    if (sessionId != null) {
+                        navController.navigate(
+                            R.id.navigation_session_review,
+                            Bundle().apply { putString("sessionId", sessionId) }
+                        )
+                        app.pendingReviewSessionId.value = null
+                    }
+                }
             }
         }
     }
