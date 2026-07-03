@@ -87,9 +87,6 @@
     <string name="ready_to_train">Готово! Натисніть \'Почати\' для тренування</string>
     <string name="ready_toast">Готово до тренування!</string>
     <string name="training_paused">Тренування призупинено</string>
-    <string name="training_summary_title">Підсумок тренування</string>
-    <string name="btn_complete">Завершити</string>
-    <string name="btn_continue">Продовжити</string>
     <string name="finish_training_title">Завершити тренування?</string>
     <string name="finish_training_message">Ви дійсно бажаєте завершити поточне тренування?</string>
     
@@ -193,17 +190,7 @@
     <string name="session_good">👍 Гарне тренування! Продовжуйте працювати!</string>
     <string name="session_improvement">💪 Є покращення! Тренуйтесь регулярно!</string>
     <string name="session_keep_trying">🎯 Не здавайтесь! Кожне тренування робить вас кращим!</string>
-    
-    <!-- Статистика підсумку тренування -->
-    <string name="summary_total_strokes">Всього ударів: %d</string>
-    <string name="summary_successful_strokes">Успішні удари: %1$d (%2$d%%)</string>
-    <string name="summary_average_accuracy">Середня точність: %1$.1f%%</string>
-    
-    <!-- Поради для покращення сесії -->
-    <string name="tip_excellent">🎯 Відмінно! Продовжуйте тренування для закріплення техніки.</string>
-    <string name="tip_good">👍 Добре! Зосередьтесь на стабільності ударів.</string>
-    <string name="tip_not_bad">💪 Непогано! Покращуйте положення тіла та ракетки.</string>
-    <string name="tip_needs_practice">🎓 Потрібна практика. Зосередьтесь на базовій техніці.</string>
+
     <string name="motivational_5_strokes">🔥 5 гарних ударів підряд! Продовжуйте!</string>
     <string name="motivational_10_strokes">🎯 10 відмінних ударів! Ви в ударі!</string>
     <string name="motivational_20_strokes">⭐ 20 ударів поспіль! Неймовірно!</string>

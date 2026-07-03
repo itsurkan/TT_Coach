@@ -105,15 +105,6 @@ class TrainingUIController(
         feedbackAdapter.updateFeedback(stateManager.getLatestFeedbackItems())
     }
 
-    fun showSummary(summary: String, tip: String) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
-            .setTitle(activity.getString(R.string.training_summary_title))
-            .setMessage("$summary\n\n$tip")
-            .setPositiveButton(activity.getString(R.string.btn_complete)) { _, _ -> activity.finish() }
-            .setNegativeButton(activity.getString(R.string.btn_continue)) { dialog, _ -> dialog.dismiss() }
-            .show()
-    }
-
     private fun showEndSessionDialog() {
         // Delegate to the back-navigation handler so the End Session button shows the
         // same save/discard dialog as the back button (single source of truth).

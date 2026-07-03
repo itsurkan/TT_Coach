@@ -109,9 +109,6 @@
     <string name="ready_to_train">Ready! Press \'Start\' for training</string>
     <string name="ready_toast">Ready to train!</string>
     <string name="training_paused">Training paused</string>
-    <string name="training_summary_title">Training Summary</string>
-    <string name="btn_complete">Finish</string>
-    <string name="btn_continue">Continue</string>
     <string name="btn_finish_save">Finish &amp; Save</string>
     <string name="btn_discard">Discard</string>
     <string name="finish_training_title">Finish training?</string>
@@ -218,18 +215,7 @@
     <string name="session_good">👍 Good training! Keep working!</string>
     <string name="session_improvement">💪 Improvement! Practice regularly!</string>
     <string name="session_keep_trying">🎯 Don\'t give up! Every practice makes you better!</string>
-    
-    <!-- Training Summary Stats -->
-    <string name="summary_total_strokes">Total Strokes: %d</string>
-    <string name="summary_successful_strokes">Successful Strokes: %1$d (%2$d%%)</string>
-    <string name="summary_average_accuracy">Average Score: %1$.1f%%</string>
-    
-    <!-- Improvement Tips for Session -->
-    <string name="tip_excellent">🎯 Excellent! Keep practicing to master the technique.</string>
-    <string name="tip_good">👍 Good! Focus on stroke stability.</string>
-    <string name="tip_not_bad">💪 Not bad! Improve body and racket position.</string>
-    <string name="tip_needs_practice">🎓 Needs practice. Focus on basic technique.</string>
-    
+
     <string name="positive_flawless">✅ Flawless! Continue!</string>
     <string name="positive_perfect">✅ Perfect! Well done!</string>
     <string name="positive_super">✅ Super stroke! Very good!</string>
@@ -242,9 +228,6 @@
     <string name="camera_started">📹 Camera started. Press \'Calibrate\'</string>
     <string name="calibration_skipped">✅ Calibration skipped (video mode)</string>
     <string name="pose_detection_error">❌ Pose detection error: %s</string>
-    
-    <!-- Training State Messages -->
-    <string name="start_training_advice">Start training to get advice</string>
     
     <!-- Exercise Selection -->
     <string name="select_exercise_hint">Select an exercise to start training</string>
