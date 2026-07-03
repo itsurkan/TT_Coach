@@ -848,4 +848,17 @@
     <string name="live_cd_flip_camera">Перемкнути камеру</string>
     <string name="live_cd_recording">Запис</string>
     <string name="dot_separator">·</string>
+    <string name="end_session_title">Завершити цю сесію?</string>
+    <string name="end_session_body">Ви тренуєтесь %1$s. Збережіть прогрес перед виходом.</string>
+    <string name="end_session_finish_save">Завершити і зберегти</string>
+    <string name="end_session_keep">Продовжити тренування</string>
+    <string name="end_session_discard">Скасувати без збереження</string>
+    <string name="session_summary_sheet_title">Підсумок сесії</string>
+    <string name="session_summary_meta">%1$s · %2$s</string>
+    <string name="stat_strokes">Удари</string>
+    <string name="stat_clean">Чисто · %1$d%%</string>
+    <string name="stat_accuracy">Точність</string>
+    <string name="stat_duration">Тривалість</string>
+    <string name="summary_continue">Продовжити</string>
+    <string name="summary_finish">Завершити</string>
 </resources>

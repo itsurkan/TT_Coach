@@ -140,13 +140,16 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             return
         }
 
-        // Save training session to cloud (async, app-scoped — survives this finish()).
-        // On success, onSaved (inside saveSessionToCloud) sets
-        // TTCoachApplication.pendingReviewSessionId, which MainActivity picks up and
-        // navigates to SessionReviewFragment. Close this screen immediately rather than
-        // waiting on the save.
+        // Save training session to cloud
         saveSessionToCloud()
-        finish()
+        
+        uiController.showSummary(
+            drillName = exerciseName ?: getString(R.string.exercise_forehand_name),
+            durationSeconds = stateManager.getSessionDurationSeconds(),
+            strokeCount = stateManager.getStrokeCount(),
+            cleanCount = stateManager.getGoodStrokesCount(),
+            accuracyPercent = stateManager.getAverageScore().toInt()
+        )
     }
     
     private fun saveSessionToCloud() {
@@ -187,7 +190,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     results = stateManager.getAnalysisResults(),
                     feedback = stateManager.getLatestFeedbackItems()
                 )
-                app.pendingReviewSessionId.value = sessionId
             }
         )
     }
@@ -198,22 +200,15 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 if (stateManager.isTrainingActive) {
                     pauseTraining()
                 }
-                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@TrainingActivity)
-                    .setTitle(getString(R.string.finish_training_title))
-                    .setMessage(getString(R.string.finish_training_message))
-                    .setNeutralButton(getString(R.string.dialog_no)) { _, _ -> resumeTraining() }
-                    .setNegativeButton(getString(R.string.btn_discard)) { _, _ -> stopTraining(discard = true) }
-                    .setPositiveButton(getString(R.string.btn_finish_save)) { _, _ -> stopTraining(discard = false) }
-                    // A second back press cancels the dialog and discards the training,
-                    // rather than resuming and returning to the camera view.
-                    .setOnCancelListener { stopTraining(discard = true) }
-                    .show()
-                    .apply {
-                        setCanceledOnTouchOutside(false)
-                        // Discard is destructive → red, matching the drill-menu Delete action.
-                        getButton(android.content.DialogInterface.BUTTON_NEGATIVE)
-                            ?.setTextColor(getColor(R.color.ttc_error))
-                    }
+                val sheet = com.ttcoachai.ui.dialogs.EndSessionSheet.newInstance(
+                    durationSeconds = stateManager.getSessionDurationSeconds(),
+                    strokeCount = stateManager.getStrokeCount(),
+                    accuracyPercent = stateManager.getAverageScore().toInt()
+                )
+                sheet.onKeepTraining = { resumeTraining() }
+                sheet.onDiscard = { stopTraining(discard = true) }
+                sheet.onFinishSave = { stopTraining(discard = false) }
+                sheet.show(supportFragmentManager, com.ttcoachai.ui.dialogs.EndSessionSheet.TAG)
             }
         })
     }

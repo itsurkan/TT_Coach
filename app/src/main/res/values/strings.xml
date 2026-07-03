@@ -978,4 +978,17 @@
     <string name="live_cd_flip_camera">Flip camera</string>
     <string name="live_cd_recording">Recording</string>
     <string name="dot_separator">·</string>
+    <string name="end_session_title">End this session?</string>
+    <string name="end_session_body">You\'ve been training for %1$s. Save your progress before you leave.</string>
+    <string name="end_session_finish_save">Finish &amp; save</string>
+    <string name="end_session_keep">Keep training</string>
+    <string name="end_session_discard">Discard</string>
+    <string name="session_summary_sheet_title">Session summary</string>
+    <string name="session_summary_meta">%1$s · %2$s</string>
+    <string name="stat_strokes">Strokes</string>
+    <string name="stat_clean">Clean · %1$d%%</string>
+    <string name="stat_accuracy">Accuracy</string>
+    <string name="stat_duration">Duration</string>
+    <string name="summary_continue">Continue</string>
+    <string name="summary_finish">Finish</string>
 </resources>

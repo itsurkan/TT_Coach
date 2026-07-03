@@ -333,25 +333,23 @@ class DrillsFragment : Fragment() {
     }
 
     private fun deleteDrill(exercise: Exercise) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-            .setTitle(R.string.drill_delete_title)
-            .setMessage(getString(R.string.drill_delete_message, exercise.name))
-            .setPositiveButton(R.string.drill_delete_confirm) { _, _ ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    withContext(Dispatchers.IO) { customDrillRepo.delete(exercise.id) }
-                    if (_binding == null) return@launch
-                    Toast.makeText(requireContext(),
-                        getString(R.string.drill_delete_toast, exercise.name), Toast.LENGTH_SHORT).show()
-                    reloadCustomDrills()
-                }
+        com.ttcoachai.ui.dialogs.ConfirmDialog.show(
+            context = requireContext(),
+            iconRes = R.drawable.ic_trash,
+            title = getString(R.string.drill_delete_title),
+            body = getString(R.string.drill_delete_message, exercise.name),
+            confirmLabel = getString(R.string.drill_delete_confirm),
+            cancelLabel = getString(R.string.drill_cancel),
+            destructive = true
+        ) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                withContext(Dispatchers.IO) { customDrillRepo.delete(exercise.id) }
+                if (_binding == null) return@launch
+                Toast.makeText(requireContext(),
+                    getString(R.string.drill_delete_toast, exercise.name), Toast.LENGTH_SHORT).show()
+                reloadCustomDrills()
             }
-            .setNegativeButton(R.string.drill_cancel, null)
-            .show()
-            .apply {
-                // Delete is destructive → red, matching the drill-menu Delete action.
-                getButton(android.content.DialogInterface.BUTTON_POSITIVE)
-                    ?.setTextColor(requireContext().getColor(R.color.ttc_error))
-            }
+        }
     }
 
     private fun reloadCustomDrills() {
