@@ -969,6 +969,8 @@
     <string name="live_fb_contact_height">Contact height</string>
     <string name="live_fb_elbow_position">Elbow position</string>
     <string name="live_fb_stroke_speed">Stroke speed</string>
+    <string name="live_fb_follow_through">Follow-through</string>
+    <string name="live_fb_general">Technique</string>
     <string name="live_full_report_title">Full session report</string>
     <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>
     <string name="live_premium_badge">Premium</string>

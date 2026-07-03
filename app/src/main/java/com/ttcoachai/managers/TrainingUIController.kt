@@ -20,7 +20,8 @@ class TrainingUIController(
     private val binding: ActivityTrainingBinding,
     private val settingsManager: SettingsManager,
     private val stateManager: TrainingStateManager,
-    private val onToggleTraining: () -> Unit
+    private val onToggleTraining: () -> Unit,
+    private val onEndSession: () -> Unit
 ) {
     private val feedbackAdapter = FeedbackListAdapter()
 
@@ -40,7 +41,7 @@ class TrainingUIController(
 
     private fun setupButtons() {
         binding.drillMenu.btnPauseResume.setOnClickListener { onToggleTraining() }
-        binding.drillMenu.btnEndSession.setOnClickListener { showEndSessionDialog() }
+        binding.drillMenu.btnEndSession.setOnClickListener { onEndSession() }
         binding.root.findViewById<View>(R.id.fab_pause_play)?.setOnClickListener { onToggleTraining() }
     }
 
@@ -103,7 +104,8 @@ class TrainingUIController(
         binding.drillMenu.progressDrill.progress = (successfulHits.toFloat() / targetHits * 100).toInt()
         binding.drillMenu.tvDrillProgress.text = activity.getString(R.string.hits_progress_format, successfulHits, targetHits)
         
-        feedbackAdapter.updateFeedback(stateManager.getLatestFeedbackItems())
+        feedbackAdapter.updateFeedback(stateManager.getFeedbackCounts())
+        binding.drillMenu.tvFlagged.text = activity.getString(R.string.live_flagged_count, stateManager.getFlaggedTotal())
     }
 
     fun showSummary(
@@ -123,11 +125,5 @@ class TrainingUIController(
         sheet.onContinue = { /* stay on the live session, sheet already dismissed */ }
         sheet.onFinish = { activity.finish() }
         sheet.show(activity.supportFragmentManager, com.ttcoachai.ui.dialogs.SessionSummarySheet.TAG)
-    }
-
-    private fun showEndSessionDialog() {
-        // Delegate to the back-navigation handler so the End Session button shows the
-        // same 14b end-session sheet as the hardware back button (single source of truth).
-        activity.onBackPressedDispatcher.onBackPressed()
     }
 }

@@ -321,8 +321,7 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             root.findViewById<android.widget.TextView>(R.id.tv_accuracy_percent)?.text = getString(R.string.format_percent_simple, accuracy)
             
             // Update feedback list
-            val latestFeedback = stateManager.getLatestFeedbackItems()
-            feedbackAdapter.updateFeedback(latestFeedback)
+            feedbackAdapter.updateFeedback(stateManager.getFeedbackCounts())
             
             updateTrainingUIState()
         }

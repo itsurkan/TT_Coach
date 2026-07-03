@@ -1,30 +1,27 @@
 package com.ttcoachai.adapters
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.RotateAnimation
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.R
-import com.ttcoachai.databinding.ItemFeedbackBinding
-import com.ttcoachai.shared.models.FeedbackItem
-import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.util.Optional
+import com.ttcoachai.databinding.ItemLiveFeedbackRowBinding
+import com.ttcoachai.shared.models.CorrectionType
 
 class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackViewHolder>() {
 
-    private val feedbackItems = mutableListOf<FeedbackItem>()
-    private val expandedPositions = mutableSetOf<Int>()
+    private val feedbackCounts = mutableListOf<Pair<CorrectionType, Int>>()
 
-    fun updateFeedback(newItems: List<FeedbackItem>) {
-        feedbackItems.clear()
-        feedbackItems.addAll(newItems)
+    fun updateFeedback(newItems: List<Pair<CorrectionType, Int>>) {
+        feedbackCounts.clear()
+        feedbackCounts.addAll(newItems)
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedbackViewHolder {
-        val binding = ItemFeedbackBinding.inflate(
+        val binding = ItemLiveFeedbackRowBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
@@ -33,139 +30,43 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
     }
 
     override fun onBindViewHolder(holder: FeedbackViewHolder, position: Int) {
-        holder.bind(feedbackItems[position], position)
+        holder.bind(feedbackCounts[position])
     }
 
-    override fun getItemCount(): Int = feedbackItems.size
+    override fun getItemCount(): Int = feedbackCounts.size
 
     inner class FeedbackViewHolder(
-        private val binding: ItemFeedbackBinding
+        private val binding: ItemLiveFeedbackRowBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: FeedbackItem, position: Int) {
-            val isExpanded = expandedPositions.contains(position)
+        fun bind(item: Pair<CorrectionType, Int>) {
+            val (type, count) = item
+            val context = binding.root.context
 
-            // Set message
-            binding.tvFeedbackMessage.text = item.message
-
-            // Set icon color based on type
-            val color = when (item.type) {
-                com.ttcoachai.shared.models.CorrectionType.WRIST,
-                com.ttcoachai.shared.models.CorrectionType.BODY_ROTATION,
-                com.ttcoachai.shared.models.CorrectionType.FOLLOW_THROUGH,
-                com.ttcoachai.shared.models.CorrectionType.CONTACT_HEIGHT,
-                com.ttcoachai.shared.models.CorrectionType.ELBOW_POSITION,
-                com.ttcoachai.shared.models.CorrectionType.STROKE_SPEED -> {
-                    if (item.isPositive) {
-                        android.R.color.holo_green_dark
-                    } else {
-                        android.R.color.holo_orange_dark
-                    }
-                }
-                com.ttcoachai.shared.models.CorrectionType.GENERAL -> {
-                    android.R.color.holo_blue_dark
-                }
-            }
-            binding.ivFeedbackIcon.setBackgroundColor(
-                binding.root.context.getColor(color)
+            binding.tvLabel.setText(labelRes(type))
+            binding.tvCount.text = "×$count"
+            binding.badgePremium.visibility = View.GONE
+            binding.dot.backgroundTintList = ColorStateList.valueOf(
+                ContextCompat.getColor(context, dotColorRes(count))
             )
-
-            // Set details (use message as details for now since FeedbackItem doesn't have details field)
-            binding.tvFeedbackDetails.text = binding.root.context.getString(R.string.format_feedback_details, item.type.name, if (item.isPositive) binding.root.context.getString(R.string.feedback_good_simple) else binding.root.context.getString(R.string.feedback_needs_improvement))
-
-            // Set expanded state
-            binding.layoutFeedbackDetails.visibility = if (isExpanded) View.VISIBLE else View.GONE
-            binding.ivExpandIcon.rotation = if (isExpanded) 180f else 0f
-
-            // Handle Pose Visualizer
-            if (isExpanded) {
-                // Use real captured landmarks if available, fall back to mock.
-                // Convert Landmark3D back to NormalizedLandmark for the visualizer.
-                val frames: List<List<NormalizedLandmark>> = if (item.strokeLandmarks.isNotEmpty()) {
-                    item.strokeLandmarks.map { frame ->
-                        frame.map { lm ->
-                            NormalizedLandmark.create(lm.x, lm.y, lm.z,
-                                Optional.of(lm.visibility), Optional.of(lm.presence))
-                        }
-                    }
-                } else {
-                    MockPoseGenerator.generateMockStroke(item.type)
-                }
-                binding.poseVisualizer.setFrames(frames)
-                binding.poseVisualizer.playAnimation()
-            } else {
-                binding.poseVisualizer.stopAnimation()
-            }
-
-            // Click listener
-            binding.layoutFeedbackHeader.setOnClickListener {
-                val newPosition = adapterPosition
-                if (newPosition != RecyclerView.NO_POSITION) {
-                    if (expandedPositions.contains(newPosition)) {
-                        expandedPositions.remove(newPosition)
-                    } else {
-                        expandedPositions.add(newPosition)
-                    }
-                    notifyItemChanged(newPosition)
-                    animateExpandIcon(binding.ivExpandIcon, !isExpanded)
-                }
-            }
-        }
-
-        private fun animateExpandIcon(view: View, expand: Boolean) {
-            val fromDegrees = if (expand) 0f else 180f
-            val toDegrees = if (expand) 180f else 0f
-            val rotate = RotateAnimation(
-                fromDegrees, toDegrees,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f
-            )
-            rotate.duration = 200
-            rotate.fillAfter = true
-            view.startAnimation(rotate)
         }
     }
-}
 
-object MockPoseGenerator {
-    fun generateMockStroke(type: com.ttcoachai.shared.models.CorrectionType): List<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>> {
-        val frames = mutableListOf<List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>>()
-        val numFrames = 30
-        
-        // Base pose (standing)
-        // We need 33 landmarks. We'll just mock the main ones and leave others at 0,0
-        // Landmarks: 11/12 shoulders, 13/14 elbows, 15/16 wrists
-        
-        for (i in 0 until numFrames) {
-            val t = i.toFloat() / numFrames
-            // Simple swing animation for right arm (12, 14, 16)
-            
-            val landmarks = ArrayList<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>()
-            for (j in 0 until 33) {
-                var x = 0.5f
-                var y = 0.5f
-                
-                when (j) {
-                    11 -> { x = 0.4f; y = 0.3f } // Left Shoulder
-                    12 -> { x = 0.6f; y = 0.3f } // Right Shoulder
-                    13 -> { x = 0.3f; y = 0.5f } // Left Elbow
-                    14 -> { // Right Elbow - moves
-                        x = 0.65f + 0.1f * kotlin.math.sin(t * Math.PI).toFloat()
-                        y = 0.5f
-                    } 
-                    15 -> { x = 0.3f; y = 0.7f } // Left Wrist
-                    16 -> { // Right Wrist - moves more
-                        x = 0.7f + 0.2f * kotlin.math.sin(t * Math.PI).toFloat()
-                        y = 0.7f - 0.2f * kotlin.math.sin(t * Math.PI).toFloat()
-                    } 
-                    23 -> { x = 0.45f; y = 0.7f } // Left Hip
-                    24 -> { x = 0.55f; y = 0.7f } // Right Hip
-                }
-                
-                landmarks.add(com.google.mediapipe.tasks.components.containers.NormalizedLandmark.create(x, y, 0f))
-            }
-            frames.add(landmarks)
+    companion object {
+        private fun dotColorRes(count: Int): Int = when {
+            count >= 3 -> R.color.ttc_danger
+            count == 2 -> R.color.ttc_amber
+            else -> R.color.ttc_gold_bright
         }
-        return frames
+
+        private fun labelRes(type: CorrectionType): Int = when (type) {
+            CorrectionType.WRIST -> R.string.live_fb_wrist_angle
+            CorrectionType.BODY_ROTATION -> R.string.live_fb_body_rotation
+            CorrectionType.CONTACT_HEIGHT -> R.string.live_fb_contact_height
+            CorrectionType.ELBOW_POSITION -> R.string.live_fb_elbow_position
+            CorrectionType.STROKE_SPEED -> R.string.live_fb_stroke_speed
+            CorrectionType.FOLLOW_THROUGH -> R.string.live_fb_follow_through
+            CorrectionType.GENERAL -> R.string.live_fb_general
+        }
     }
 }

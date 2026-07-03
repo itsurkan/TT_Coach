@@ -8,6 +8,7 @@ package com.ttcoachai.managers
 import android.content.Context
 import com.ttcoachai.R
 import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
 
 class TrainingStateManager internal constructor(private val context: Context) {
@@ -17,6 +18,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
     private val lock = Any()
     private val feedbackHistory = mutableListOf<String>()
     private val feedbackItemsHistory = mutableListOf<List<FeedbackItem>>()
+    private val feedbackTypeCounts = LinkedHashMap<CorrectionType, Int>()
     private val analysisResults = mutableListOf<AnalysisResult>()
     private var currentFeedbackItems = listOf<FeedbackItem>()
     var consecutiveGoodStrokes = 0
@@ -116,11 +118,22 @@ class TrainingStateManager internal constructor(private val context: Context) {
         if (feedbackItemsHistory.size > 10) {
             feedbackItemsHistory.removeAt(0)
         }
+        items.forEach {
+            if (!it.isPositive) {
+                feedbackTypeCounts.merge(it.type, 1) { a, b -> a + b }
+            }
+        }
     }
-    
+
     fun getLatestFeedbackItems(): List<FeedbackItem> = synchronized(lock) {
         feedbackItemsHistory.lastOrNull() ?: emptyList()
     }
+
+    fun getFeedbackCounts(): List<Pair<CorrectionType, Int>> = synchronized(lock) {
+        feedbackTypeCounts.entries.sortedByDescending { it.value }.map { it.key to it.value }
+    }
+
+    fun getFlaggedTotal(): Int = synchronized(lock) { feedbackTypeCounts.values.sum() }
     
     fun addAnalysisResult(result: AnalysisResult) = synchronized(lock) {
         analysisResults.add(result)
@@ -151,6 +164,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
         isTrainingActive = false
         feedbackHistory.clear()
         analysisResults.clear()
+        feedbackTypeCounts.clear()
         consecutiveGoodStrokes = 0
         startTime = 0
         endTime = 0

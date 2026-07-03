@@ -839,6 +839,8 @@
     <string name="live_fb_contact_height">Висота контакту</string>
     <string name="live_fb_elbow_position">Положення ліктя</string>
     <string name="live_fb_stroke_speed">Швидкість удару</string>
+    <string name="live_fb_follow_through">Проводка</string>
+    <string name="live_fb_general">Техніка</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
     <string name="live_full_report_sub">Розбір кожного удару після завершення</string>
     <string name="live_premium_badge">Premium</string>
