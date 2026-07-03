@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_ttc_bottom_sheet_handle"/>
+
+    <TextView
+        android:id="@+id/tv_end_session_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/end_session_title"
+        android:fontFamily="@font/inter_tight_bold"
+        android:textSize="18sp"
+        android:textColor="@color/ttc_text_1"/>
+
+    <TextView
+        android:id="@+id/tv_end_session_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/inter_tight_regular"
+        android:textSize="13sp"
+        android:textColor="@color/ttc_text_2"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/tile_duration"
+            layout="@layout/view_stat_tile"/>
+
+        <Space android:layout_width="8dp" android:layout_height="0dp"/>
+
+        <include
+            android:id="@+id/tile_strokes"
+            layout="@layout/view_stat_tile"/>
+
+        <Space android:layout_width="8dp" android:layout_height="0dp"/>
+
+        <include
+            android:id="@+id/tile_accuracy"
+            layout="@layout/view_stat_tile"/>
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_end_session_finish_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/end_session_finish_save"
+        app:icon="@drawable/ic_check_circle_2"
+        app:iconTint="@color/ttc_on_gold"
+        style="@style/TTC.Button.Primary"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_end_session_keep"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="10dp"
+            android:text="@string/end_session_keep"
+            style="@style/TTC.Button.Confirm.Cancel"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_end_session_discard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/end_session_discard"
+            style="@style/TTC.Button.Discard"/>
+    </LinearLayout>
+</LinearLayout>

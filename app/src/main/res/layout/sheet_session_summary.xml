@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_ttc_bottom_sheet_handle"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_ttc_gold_badge">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                app:tint="@color/ttc_gold_bright"
+                android:src="@drawable/ic_target"
+                android:contentDescription="@null"/>
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_summary_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/session_summary_sheet_title"
+                android:fontFamily="@font/inter_tight_bold"
+                android:textSize="17sp"
+                android:textColor="@color/ttc_text_1"/>
+
+            <TextView
+                android:id="@+id/tv_summary_meta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/jetbrains_mono_medium"
+                android:textSize="11.5sp"
+                android:textColor="@color/ttc_text_3"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal">
+
+        <include
+            android:id="@+id/tile_strokes"
+            layout="@layout/view_stat_tile"/>
+
+        <Space android:layout_width="8dp" android:layout_height="0dp"/>
+
+        <include
+            android:id="@+id/tile_clean"
+            layout="@layout/view_stat_tile"/>
+
+        <Space android:layout_width="8dp" android:layout_height="0dp"/>
+
+        <include
+            android:id="@+id/tile_accuracy"
+            layout="@layout/view_stat_tile"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_summary_continue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="10dp"
+            android:text="@string/summary_continue"
+            app:icon="@drawable/ic_menu_play"
+            app:iconTint="@color/ttc_gold_bright"
+            style="@style/TTC.Button.Confirm.Cancel"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_summary_finish"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/summary_finish"
+            style="@style/TTC.Button.Primary"/>
+    </LinearLayout>
+</LinearLayout>

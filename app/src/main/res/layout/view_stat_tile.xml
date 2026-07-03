@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/bg_ttc_stat_tile"
+    android:paddingHorizontal="6dp"
+    android:paddingVertical="12dp">
+
+    <ImageView
+        android:id="@+id/iv_tile_icon"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
+        app:tint="@color/ttc_text_2"
+        android:contentDescription="@null"/>
+
+    <TextView
+        android:id="@+id/tv_tile_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:fontFamily="@font/jetbrains_mono_semibold"
+        android:textSize="16sp"
+        android:textColor="@color/ttc_text_1"/>
+
+    <TextView
+        android:id="@+id/tv_tile_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:fontFamily="@font/inter_tight_bold"
+        android:textSize="9sp"
+        android:textAllCaps="true"
+        android:letterSpacing="0.08"
+        android:textColor="@color/ttc_text_3"/>
+</LinearLayout>
