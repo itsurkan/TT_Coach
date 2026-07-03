@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:background="@color/ttc_canvas">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="34dp"
+                    android:layout_height="34dp"
+                    android:layout_marginEnd="12dp"
+                    android:background="@drawable/bg_link_icon_tile"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="@color/ttc_text_1"
+                    android:contentDescription="@string/cd_back"
+                    android:padding="7dp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detection_title"
+                        android:textAppearance="@style/TextAppearance.TTC.Title.Screen" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/detection_subtitle"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TTC.Card"
+                app:contentPadding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <!-- Camera angle -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_camera_angle" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_camera_angle_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_camera_angle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="-45"
+                            app:ttcMax="45"
+                            app:ttcStep="5"
+                            app:ttcDecimals="0"
+                            app:ttcSuffix="°" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Peak speed threshold -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_peak_speed" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_peak_speed_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_peak_speed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="0.2"
+                            app:ttcMax="3.0"
+                            app:ttcStep="0.1"
+                            app:ttcDecimals="1"
+                            app:ttcSuffix="" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Min peak interval -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_min_interval" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_min_interval_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_min_interval"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="100"
+                            app:ttcMax="2000"
+                            app:ttcStep="50"
+                            app:ttcDecimals="0"
+                            app:ttcSuffix="ms" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Speed smoothing -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_smoothing" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_smoothing_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_smoothing"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="50"
+                            app:ttcMax="1000"
+                            app:ttcStep="50"
+                            app:ttcDecimals="0"
+                            app:ttcSuffix="ms" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Walk gate -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_walk_gate" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_walk_gate_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_walk_gate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="0"
+                            app:ttcMax="1.5"
+                            app:ttcStep="0.1"
+                            app:ttcDecimals="1"
+                            app:ttcSuffix="" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Skip stale reps -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_skip_stale" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_skip_stale_sub" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_skip_stale"
+                            style="@style/TTC.Toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Pre-stroke buffer -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_prestroke_buffer" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_prestroke_buffer_sub" />
+                        </LinearLayout>
+
+                        <com.ttcoachai.views.TtcStepperView
+                            android:id="@+id/stepper_prestroke"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:ttcMin="0"
+                            app:ttcMax="2000"
+                            app:ttcStep="50"
+                            app:ttcDecimals="0"
+                            app:ttcSuffix="ms" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Ball detection FPS -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                            android:textSize="13.5sp"
+                            android:text="@string/detection_ball_fps" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                            android:text="@string/detection_ball_fps_sub"
+                            android:layout_marginBottom="12dp" />
+
+                        <LinearLayout
+                            android:id="@+id/toggle_ball_fps"
+                            style="@style/TTC.SegmentedTrack"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_ball_fps_10"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
+                                android:text="@string/ball_fps_10" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_ball_fps_30"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
+                                android:text="@string/ball_fps_30" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_ball_fps_60"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
+                                android:text="@string/ball_fps_60" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_ball_fps_120"
+                                style="@style/Widget.Material3.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:minHeight="0dp"
+                                android:insetTop="0dp"
+                                android:insetBottom="0dp"
+                                android:paddingVertical="10dp"
+                                android:textAllCaps="false"
+                                android:textSize="13sp"
+                                android:fontFamily="@font/inter_tight_semibold"
+                                app:strokeWidth="0dp"
+                                app:elevation="0dp"
+                                app:cornerRadius="999dp"
+                                android:text="@string/ball_fps_120" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/ttc_outline"
+                        android:layout_marginVertical="12dp" />
+
+                    <!-- Distance mode -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                                android:textSize="13.5sp"
+                                android:text="@string/detection_distance_mode" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                                android:text="@string/detection_distance_mode_sub" />
+                        </LinearLayout>
+
+                        <com.google.android.material.switchmaterial.SwitchMaterial
+                            android:id="@+id/switch_distance_mode"
+                            style="@style/TTC.Toggle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

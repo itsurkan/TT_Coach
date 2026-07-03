@@ -63,8 +63,13 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 minBodyRotation = prefs.getInt("min_body_rotation", 45).toFloat(),
                 followThroughAngle = prefs.getInt("follow_through_angle", 120).toFloat()
             )
+            "forehand_andrii" -> ExerciseParameters.forehandDrive().copy(exerciseId = "forehand_andrii")
             "backhand_drive" -> ExerciseParameters.backhandDrive()
-            else -> ExerciseParameters.forehandDrive()
+            else -> if (exerciseId?.startsWith("custom_") == true) {
+                ExerciseParameters.forehandDrive().copy(exerciseId = exerciseId!!)
+            } else {
+                ExerciseParameters.forehandDrive()
+            }
         }
         
         poseAnalysisProcessor = PoseAnalysisProcessor(
@@ -172,7 +177,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             strokeCount = strokeCount,
             correctStrokes = correctStrokes,
             averageScore = averageScore,
-            appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" }
+            appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" },
+            onSaved = { sessionId ->
+                app.sessionAnalyticsRecorder.record(
+                    sessionId = sessionId,
+                    results = stateManager.getAnalysisResults(),
+                    feedback = stateManager.getLatestFeedbackItems()
+                )
+            }
         )
     }
 
@@ -182,14 +194,22 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 if (stateManager.isTrainingActive) {
                     pauseTraining()
                 }
-                androidx.appcompat.app.AlertDialog.Builder(this@TrainingActivity)
+                com.google.android.material.dialog.MaterialAlertDialogBuilder(this@TrainingActivity)
                     .setTitle(getString(R.string.finish_training_title))
                     .setMessage(getString(R.string.finish_training_message))
                     .setNeutralButton(getString(R.string.dialog_no)) { _, _ -> resumeTraining() }
                     .setNegativeButton(getString(R.string.btn_discard)) { _, _ -> stopTraining(discard = true) }
                     .setPositiveButton(getString(R.string.btn_finish_save)) { _, _ -> stopTraining(discard = false) }
-                    .setOnCancelListener { resumeTraining() }
+                    // A second back press cancels the dialog and discards the training,
+                    // rather than resuming and returning to the camera view.
+                    .setOnCancelListener { stopTraining(discard = true) }
                     .show()
+                    .apply {
+                        setCanceledOnTouchOutside(false)
+                        // Discard is destructive → red, matching the drill-menu Delete action.
+                        getButton(android.content.DialogInterface.BUTTON_NEGATIVE)
+                            ?.setTextColor(getColor(R.color.ttc_error))
+                    }
             }
         })
     }

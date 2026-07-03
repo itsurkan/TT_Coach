@@ -11,14 +11,10 @@ import com.ttcoachai.AppSettingsActivity
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.SubscribeActivity
-import com.ttcoachai.WeeklySessionsActivity
-import com.ttcoachai.SkillTargetActivity
 import com.ttcoachai.DebugActivity
 import com.ttcoachai.databinding.FragmentProfileBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
-import android.widget.ArrayAdapter
-import android.widget.AdapterView
 import com.ttcoachai.viewmodels.AuthViewModel
 import coil.load
 import kotlinx.coroutines.flow.collect
@@ -55,9 +51,7 @@ class ProfileFragment : Fragment() {
         viewModel = androidx.lifecycle.ViewModelProvider(this, factory)[com.ttcoachai.viewmodels.AuthViewModel::class.java]
 
         setupSubscriptionSection()
-        setupLanguageSection()
         setupThemeButtons()
-        setupLevelSelector()
         setupMenuItems()
         
         // Initialize ProgressDataLoader
@@ -136,38 +130,6 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun setupLanguageSection() {
-        val languages = resources.getStringArray(R.array.language_options)
-        val languageCodes = resources.getStringArray(R.array.language_codes)
-        
-        val adapter = ArrayAdapter(requireContext(), R.layout.list_item_dropdown, languages)
-        binding.autoCompleteLanguage.setAdapter(adapter)
-
-        // Set current selection based on saved language
-        val currentLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
-        val selectionIndex = languageCodes.indexOf(currentLanguage).coerceAtLeast(0)
-        binding.autoCompleteLanguage.setText(languages[selectionIndex], false)
-
-        binding.autoCompleteLanguage.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val newLanguage = languageCodes[position]
-            val savedLanguage = com.ttcoachai.LocaleHelper.getSavedLanguage(requireContext())
-            
-            if (newLanguage != savedLanguage) {
-                com.ttcoachai.LocaleHelper.setLocale(requireContext(), newLanguage)
-                // Trigger cloud sync before restart
-                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
-                restartApp()
-            }
-        }
-    }
-
-    private fun restartApp() {
-        val intent = Intent(requireContext(), com.ttcoachai.MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        startActivity(intent)
-        requireActivity().finish()
-    }
-
     private fun setupThemeButtons() {
         // Get current theme from settings
         val currentMode = settingsManager.getNightMode()
@@ -194,54 +156,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun setupLevelSelector() {
-        val currentLevel = settingsManager.getSkillLevel()
-        
-        when (currentLevel) {
-            "Beginner" -> binding.toggleGroupLevel.check(R.id.btn_level_beginner)
-            "Advanced" -> binding.toggleGroupLevel.check(R.id.btn_level_advanced)
-            else -> binding.toggleGroupLevel.check(R.id.btn_level_intermediate)
-        }
-        
-        refreshLevelHeader(currentLevel)
-        
-        binding.toggleGroupLevel.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                val newLevel = when (checkedId) {
-                    R.id.btn_level_beginner -> "Beginner"
-                    R.id.btn_level_advanced -> "Advanced"
-                    else -> "Intermediate"
-                }
-                settingsManager.setSkillLevel(newLevel)
-                refreshLevelHeader(newLevel)
-                // Trigger cloud sync
-                (requireActivity().application as TTCoachApplication).cloudSyncManager.uploadSettings()
-            }
-        }
-    }
-
-    private fun refreshLevelHeader(level: String) {
-        val localizedLevel = when (level) {
-            "Beginner" -> getString(R.string.level_beginner)
-            "Advanced" -> getString(R.string.level_advanced)
-            else -> getString(R.string.level_intermediate)
-        }
-        binding.tvProfileLevel.text = getString(R.string.level_format, localizedLevel)
-    }
-
     private fun setupMenuItems() {
-        // Weekly Sessions
-        binding.layoutWeeklySessions.setOnClickListener {
-            val intent = Intent(requireContext(), WeeklySessionsActivity::class.java)
-            startActivity(intent)
-        }
-        
-        // Skill Target
-        binding.layoutSkillTarget.setOnClickListener {
-            val intent = Intent(requireContext(), SkillTargetActivity::class.java)
-            startActivity(intent)
-        }
-        
         // App Settings
         binding.layoutAppSettings.setOnClickListener {
             val intent = Intent(requireContext(), AppSettingsActivity::class.java)
@@ -261,7 +176,7 @@ class ProfileFragment : Fragment() {
     }
 
     private fun showLogoutConfirmationDialog() {
-        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.logout_title)
             .setMessage(R.string.logout_message)
             .setPositiveButton(R.string.dialog_yes) { _, _ ->
@@ -320,17 +235,12 @@ class ProfileFragment : Fragment() {
         if (_binding == null) return
 
         progressData?.userProgress?.let { progress ->
-            binding.tvProfileSkillScore.text = progress.getAccuracyPercent().toString()
             binding.tvProfileStreak.text = progress.currentStreak.toString()
             binding.tvProfileHours.text = progress.totalHours.toString()
         } ?: run {
-            binding.tvProfileSkillScore.text = "0"
             binding.tvProfileStreak.text = "0"
             binding.tvProfileHours.text = "0"
         }
-
-        val achievementCount = progressData?.milestonesData?.count { it.achieved } ?: 0
-        binding.tvProfileAchievements.text = achievementCount.toString()
     }
 
     override fun onDestroyView() {

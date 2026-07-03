@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit
 class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
 
     companion object {
-        private const val TAG = "TT AI Coach 1"
+        private const val TAG = "TT Coach AI"
     }
 
     private var _fragmentCameraBinding: FragmentCameraBinding? = null
@@ -160,8 +160,11 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
             }
         )
 
-        // Initialize analysis processor for standalone mode only if not in TrainingActivity
-        if (activity !is com.ttcoachai.TrainingActivity) {
+        // Initialize analysis processor only when no host activity owns one.
+        // Activities that implement LandmarkerListener (TrainingActivity,
+        // CalibrationActivity) supply their own processor via onResults().
+        if (activity !is com.ttcoachai.TrainingActivity &&
+            activity !is com.ttcoachai.calibration.CalibrationActivity) {
             val params = com.ttcoachai.shared.models.ExerciseParameters(
                 exerciseId = "forehand_drive"
             )

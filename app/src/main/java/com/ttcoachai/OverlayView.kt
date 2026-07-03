@@ -75,6 +75,51 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         }
     }
 
+    // Dev-only additive renderers (Phase 7: BaselinePreviewActivity).
+    // Non-null jointTint returns a highlight color for landmarks that should stand
+    // out (e.g., a rule failed at this frame for a metric tied to this joint).
+    // Humanization draws filled body parts on top of the wireframe so an
+    // unfamiliar pose reads as a human figure instead of a cloud of dots.
+    private var jointTint: ((Int) -> Int?)? = null
+    private var humanizationEnabled: Boolean = false
+    private val humanizedBonePaint = Paint().apply {
+        color = Color.argb(200, 60, 140, 230)
+        style = Paint.Style.FILL
+        strokeCap = Paint.Cap.ROUND
+        isAntiAlias = true
+    }
+    private val humanizedHeadPaint = Paint().apply {
+        color = Color.argb(220, 230, 200, 170)
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val humanizedTorsoPaint = Paint().apply {
+        color = Color.argb(180, 60, 100, 170)
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val paddleHandlePaint = Paint().apply {
+        color = Color.argb(255, 90, 60, 30) // warm wood tone
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val paddleBladeFillPaint = Paint().apply {
+        color = Color.argb(255, 200, 30, 30) // classic TT-blade red
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+    private val paddleBladeRimPaint = Paint().apply {
+        color = Color.argb(255, 20, 20, 20)
+        strokeWidth = 4f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
+    }
+    private val highlightedJointPaint = Paint().apply {
+        color = Color.RED
+        style = Paint.Style.FILL
+        isAntiAlias = true
+    }
+
     init {
         initPaints()
     }
@@ -179,6 +224,47 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
     }
 
     /**
+     * Dev-only (Phase 7): provide a per-landmark-index color override. Returning
+     * null keeps the default point paint. Pass null to clear.
+     */
+    fun setJointTint(tint: ((Int) -> Int?)?) {
+        jointTint = tint
+        postInvalidate()
+    }
+
+    /**
+     * Dev-only (Phase 7): toggle the humanized body overlay (filled bones,
+     * head circle, torso polygon, racket stick). Drawn on top of the
+     * wireframe so the default pose-landmark debugging view still works.
+     */
+    fun setHumanizationEnabled(enabled: Boolean) {
+        humanizationEnabled = enabled
+        postInvalidate()
+    }
+
+    /**
+     * Convenience for the editor — lets it render a static [com.ttcoachai.shared.models.PoseFrame]
+     * without constructing a [com.ttcoachai.shared.models.SynchronizedFrame].
+     */
+    fun setPoseFrame(frame: com.ttcoachai.shared.models.PoseFrame?) {
+        if (frame == null) {
+            rawLandmarks = null
+            results = null
+            postInvalidate()
+            return
+        }
+        val normalized: List<NormalizedLandmark> = frame.landmarks.map { lm ->
+            NormalizedLandmark.create(
+                lm.x, lm.y, lm.z,
+                Optional.of(lm.visibility), Optional.of(lm.presence)
+            )
+        }
+        rawLandmarks = listOf(normalized)
+        results = null
+        postInvalidate()
+    }
+
+    /**
      * Enable/disable phase-based coloring
      */
     fun setPhaseColoringEnabled(enabled: Boolean) {
@@ -228,12 +314,20 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
         val landmarks = rawLandmarks ?: results?.landmarks() ?: return
 
         for (landmark in landmarks) {
-            for (normalizedLandmark in landmark) {
-                canvas.drawPoint(
-                    normalizedLandmark.x() * imageWidth * scaleFactor + offsetX,
-                    normalizedLandmark.y() * imageHeight * scaleFactor + offsetY,
-                    pointPaint
-                )
+            if (humanizationEnabled && landmark.size >= 33) {
+                drawHumanizedFigure(canvas, landmark)
+            }
+
+            for ((idx, normalizedLandmark) in landmark.withIndex()) {
+                val px = normalizedLandmark.x() * imageWidth * scaleFactor + offsetX
+                val py = normalizedLandmark.y() * imageHeight * scaleFactor + offsetY
+                val tint = jointTint?.invoke(idx)
+                if (tint != null) {
+                    highlightedJointPaint.color = tint
+                    canvas.drawCircle(px, py, LANDMARK_STROKE_WIDTH * 0.9f, highlightedJointPaint)
+                } else {
+                    canvas.drawPoint(px, py, pointPaint)
+                }
             }
 
             if (landmarks.isNotEmpty() && landmarks[0].size >= 33) {
@@ -257,6 +351,86 @@ class OverlayView(context: Context?, attrs: AttributeSet?) :
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Phase 7 humanization Tier 1. Draws filled torso polygon, capsule bones
+     * for arms/legs, head circle at nose, and a racket stick from the right
+     * wrist. Kept simple — this is a dev-only orientation aid, not production UI.
+     */
+    private fun drawHumanizedFigure(canvas: Canvas, lm: List<NormalizedLandmark>) {
+        fun px(i: Int) = lm[i].x() * imageWidth * scaleFactor + offsetX
+        fun py(i: Int) = lm[i].y() * imageHeight * scaleFactor + offsetY
+
+        // Torso polygon: right shoulder (12) → left shoulder (11) → left hip (23) → right hip (24)
+        val torso = Path().apply {
+            moveTo(px(12), py(12))
+            lineTo(px(11), py(11))
+            lineTo(px(23), py(23))
+            lineTo(px(24), py(24))
+            close()
+        }
+        canvas.drawPath(torso, humanizedTorsoPaint)
+
+        // Capsule bones — stroke-style thick lines with rounded caps approximate the look.
+        humanizedBonePaint.style = Paint.Style.STROKE
+        humanizedBonePaint.strokeWidth = LANDMARK_STROKE_WIDTH * 2.2f
+        val capsuleBones = listOf(
+            11 to 13, 13 to 15,   // left arm
+            12 to 14, 14 to 16,   // right arm
+            23 to 25, 25 to 27,   // left leg
+            24 to 26, 26 to 28    // right leg
+        )
+        for ((a, b) in capsuleBones) canvas.drawLine(px(a), py(a), px(b), py(b), humanizedBonePaint)
+        humanizedBonePaint.style = Paint.Style.FILL
+
+        // Head circle sized to ~shoulder-to-nose distance
+        val noseX = px(0); val noseY = py(0)
+        val shoulderMidX = (px(11) + px(12)) / 2f
+        val shoulderMidY = (py(11) + py(12)) / 2f
+        val headRadius = kotlin.math.hypot(noseX - shoulderMidX, noseY - shoulderMidY) * 0.55f
+        if (headRadius > 0f) canvas.drawCircle(noseX, noseY, headRadius, humanizedHeadPaint)
+
+        // Table-tennis paddle: short filled handle in hand-direction, then a
+        // round red blade. Falls back to forearm direction when index-finger
+        // visibility is poor (MediaPipe hand landmarks are noisy on fast swings).
+        val wristX = px(16); val wristY = py(16)
+        val indexVisibility = lm.getOrNull(20)?.visibility()?.orElse(0f) ?: 0f
+        val (dirX, dirY) = if (indexVisibility >= 0.5f) {
+            px(20) - wristX to py(20) - wristY
+        } else {
+            wristX - px(14) to wristY - py(14)
+        }
+        val dirLen = kotlin.math.hypot(dirX, dirY)
+        if (dirLen > 1e-3f) {
+            val nx = dirX / dirLen
+            val ny = dirY / dirLen
+            val totalLen = headRadius.coerceAtLeast(LANDMARK_STROKE_WIDTH * 6f) * 1.0f
+            val handleLen = totalLen * 0.38f
+            val bladeRadius = totalLen * 0.30f
+
+            val handleEndX = wristX + nx * handleLen
+            val handleEndY = wristY + ny * handleLen
+
+            // Handle: thin rectangle from wrist → handle end, rotated along paddle axis.
+            val halfHandleW = LANDMARK_STROKE_WIDTH * 0.5f
+            val perpX = -ny * halfHandleW
+            val perpY = nx * halfHandleW
+            val handlePath = Path().apply {
+                moveTo(wristX + perpX, wristY + perpY)
+                lineTo(handleEndX + perpX, handleEndY + perpY)
+                lineTo(handleEndX - perpX, handleEndY - perpY)
+                lineTo(wristX - perpX, wristY - perpY)
+                close()
+            }
+            canvas.drawPath(handlePath, paddleHandlePaint)
+
+            // Blade: red filled circle centered past the handle, black rim outline.
+            val bladeCenterX = handleEndX + nx * bladeRadius
+            val bladeCenterY = handleEndY + ny * bladeRadius
+            canvas.drawCircle(bladeCenterX, bladeCenterY, bladeRadius, paddleBladeFillPaint)
+            canvas.drawCircle(bladeCenterX, bladeCenterY, bladeRadius, paddleBladeRimPaint)
         }
     }
 

@@ -1,0 +1,124 @@
+# XcodeGen project definition for the TT Coach iOS app.
+#
+# Generate the Xcode project on your Mac with:
+#   brew install xcodegen        # once
+#   cd iosApp && xcodegen generate
+#   open TTCoach.xcodeproj
+#
+# The pre-build script invokes the KMP direct-integration task
+# (:shared:embedAndSignAppleFrameworkForXcode), which compiles the shared
+# Kotlin module into TTCoachShared.framework for the current SDK/config and
+# drops it into shared/build/xcode-frameworks/. Nothing here touches app/
+# (Android) or the frozen pipelines.
+
+name: TTCoach
+
+options:
+  bundleIdPrefix: com.ttcoachai
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+# ONNX Runtime via Swift Package Manager (Microsoft's official SPM distribution).
+# Product "onnxruntime" wraps onnxruntime.xcframework; Swift import is `OnnxRuntimeBindings`.
+# Ships both iOS (>=15) and macOS (>=14) slices, and bundles the CoreML Execution Provider.
+packages:
+  onnxruntime:
+    url: https://github.com/microsoft/onnxruntime-swift-package-manager
+    exactVersion: "1.20.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    # KMP pre-build scripts need to write outside the sandbox (gradle caches).
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+
+targets:
+  TTCoach:
+    type: application
+    platform: iOS
+    sources:
+      - path: TTCoach
+        excludes:
+          - "**/*Tests.swift"
+          - "Models/*.onnx"
+      # Bundle the ONNX models as app resources so the in-app backend can load them.
+      - path: TTCoach/Models
+        buildPhase: resources
+        includes:
+          - "*.onnx"
+    dependencies:
+      - package: onnxruntime
+        product: onnxruntime
+    info:
+      path: TTCoach/Info.plist
+      properties:
+        CFBundleDisplayName: TT Coach
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCameraUsageDescription: >-
+          TT Coach uses the camera to analyze your table-tennis strokes and give
+          real-time coaching feedback. Video is processed on-device and never uploaded.
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.ttcoachai.ttcoach
+        # Where :shared:embedAndSignAppleFrameworkForXcode puts the framework.
+        FRAMEWORK_SEARCH_PATHS: "$(inherited) $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS: "$(inherited) -framework TTCoachShared"
+    preBuildScripts:
+      - name: Build TTCoachShared (Kotlin Multiplatform)
+        script: |
+          cd "$SRCROOT/.."
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/TTCoachShared.framework
+
+  TTCoachTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TTCoach/Pose
+        includes:
+          - "*Tests.swift"
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: TTCoach
+
+  VisionPoseExport:
+    type: tool
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources:
+      - VisionPoseExport
+      - path: TTCoach/Pose
+        includes:
+          - VisionCoco17Mapper.swift
+
+  # macOS CLI spike: proves ONNX Runtime loads the bundled RTMPose/YOLOX models.
+  # ORT's SPM macOS slice requires macOS 14.0, so this tool targets 14.0 (vs Vision's 13.0).
+  RTMPoseExport:
+    type: tool
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - RTMPoseExport
+      # The real exporter composes the same pipeline as the in-app backend. It does
+      # NOT import RTMPoseBackend/TTCoachShared (TTCoachShared is an iOS-only KMP
+      # framework), so it pulls the ORT-backed stages + their pure math directly.
+      - path: TTCoach/Pose
+        includes:
+          - ORTSessionFactory.swift
+          - RTMPoseMath.swift
+          - PixelBufferSampler.swift
+          - YoloxDetector.swift
+          - RtmposeEstimator.swift
+    dependencies:
+      - package: onnxruntime
+        product: onnxruntime

@@ -58,9 +58,9 @@
 
 
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">?attr/colorSurface</item>
-        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
-        
+        <item name="android:statusBarColor">?android:attr/colorBackground</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">?attr/isLightTheme</item>
+
         <!-- Typography scale -->
         <item name="textAppearanceDisplayLarge">@style/TextAppearance.Material3.DisplayLarge</item>
         <item name="textAppearanceDisplayMedium">@style/TextAppearance.Material3.DisplayMedium</item>
@@ -77,6 +77,232 @@
         <item name="textAppearanceLabelLarge">@style/TextAppearance.Material3.LabelLarge</item>
         <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.LabelMedium</item>
         <item name="textAppearanceLabelSmall">@style/TextAppearance.Material3.LabelSmall</item>
+
+        <!-- TTC foundation: default font + shape (Slice 1) -->
+        <item name="android:fontFamily">@font/inter_tight</item>
+        <item name="fontFamily">@font/inter_tight</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.TTC.Small</item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.TTC.Medium</item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.TTC.Large</item>
+
+        <!-- Gold-dark house style for all MaterialAlertDialogBuilder dialogs -->
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.TTC.Dialog</item>
+    </style>
+
+    <!-- ===== TTC typography (Slice 1) ===== -->
+    <style name="TextAppearance.TTC.Stat.Hero" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Large" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Medium" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Stat.Small" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Mono.Meta" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono_medium</item>
+        <item name="fontFamily">@font/jetbrains_mono_medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Title.Screen" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Title.Card" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TextAppearance.TTC.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter_tight_regular</item>
+        <item name="fontFamily">@font/inter_tight_regular</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+    </style>
+    <style name="TextAppearance.TTC.Body.Secondary" parent="TextAppearance.TTC.Body">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Eyebrow" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:letterSpacing">0.11</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+    <style name="TextAppearance.TTC.Nav.Label" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter_tight_medium</item>
+        <item name="fontFamily">@font/inter_tight_medium</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/ttc_text_3</item>
+    </style>
+
+    <!-- ===== TTC components (Slice 1) ===== -->
+    <style name="TTC.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">@color/ttc_surface</item>
+        <item name="strokeColor">@color/ttc_outline</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TTC.Medium</item>
+        <item name="contentPadding">16dp</item>
+    </style>
+    <!-- Gold-outlined card variant for the RECENT drill card -->
+    <style name="TTC.Card.Highlighted" parent="TTC.Card">
+        <item name="strokeColor">@color/ttc_gold_container_outline</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="TTC.SegmentedTrack" parent="">
+        <item name="android:background">@drawable/bg_pill_track</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="TTC.Segment.Inactive" parent="">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Body</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="TTC.Segment.Active" parent="TTC.Segment.Inactive">
+        <item name="android:textColor">@color/ttc_gold_accent</item>
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="android:background">@drawable/bg_pill_gold_container</item>
+    </style>
+
+    <style name="TTC.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/ttc_gold_bright</item>
+        <item name="android:textColor">@color/ttc_on_gold</item>
+        <item name="iconTint">@color/ttc_on_gold</item>
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TTC.Small</item>
+    </style>
+    <style name="TTC.Button.Ghost" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/ttc_text_2</item>
+        <item name="strokeColor">@color/ttc_outline</item>
+        <item name="iconTint">@color/ttc_text_2</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TTC.Small</item>
+    </style>
+    <style name="TTC.Fab.Extended" parent="Widget.Material3.ExtendedFloatingActionButton.Primary">
+        <item name="backgroundTint">@color/ttc_gold_bright</item>
+        <item name="android:textColor">@color/ttc_on_gold</item>
+        <item name="iconTint">@color/ttc_on_gold</item>
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.TTC.Large</item>
+    </style>
+
+    <!-- Segmented-control button for use inside a MaterialButtonToggleGroup:
+         active = gold-container fill + gold text, inactive = transparent + text_2, pill corners, no outline. -->
+    <style name="TTC.Segment.Button" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/ttc_segment_bg_tint</item>
+        <item name="android:textColor">@color/ttc_segment_text</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="cornerRadius">999dp</item>
+        <item name="rippleColor">@color/ttc_gold_container_outline</item>
+    </style>
+    <!-- Bold gold-fill segment for the subscription paywall toggle (12b/13a). -->
+    <style name="TTC.Segment.Button.Paywall" parent="TTC.Segment.Button">
+        <item name="backgroundTint">@color/ttc_paywall_segment_bg_tint</item>
+        <item name="android:textColor">@color/ttc_paywall_segment_text</item>
+    </style>
+
+    <style name="TTC.SectionHeader" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Eyebrow</item>
+    </style>
+    <style name="TTC.StatNumber" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Stat.Medium</item>
+    </style>
+    <style name="TTC.StatNumber.Gold">
+        <item name="android:textColor">@color/ttc_gold_accent</item>
+    </style>
+    <style name="TTC.StatNumber.Positive">
+        <item name="android:textColor">@color/ttc_success</item>
+    </style>
+
+    <style name="TTC.TrendChip.Positive" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Mono.Meta</item>
+        <item name="android:textColor">@color/ttc_success</item>
+        <item name="android:drawableStart">@drawable/ic_trend_up</item>
+        <item name="android:drawableTint">@color/ttc_success</item>
+        <item name="android:drawablePadding">3dp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+    <style name="TTC.TrendChip.Negative" parent="TTC.TrendChip.Positive">
+        <item name="android:textColor">@color/ttc_error</item>
+        <item name="android:drawableStart">@drawable/ic_trend_down</item>
+        <item name="android:drawableTint">@color/ttc_error</item>
+    </style>
+
+    <style name="TTC.Toggle" parent="Widget.Material3.CompoundButton.MaterialSwitch">
+        <item name="trackTint">@color/ttc_switch_track</item>
+        <item name="thumbTint">@color/ttc_switch_thumb</item>
+    </style>
+    <style name="TTC.Slider" parent="Widget.Material3.Slider">
+        <item name="trackColorActive">@color/ttc_gold_bright</item>
+        <item name="trackColorInactive">@color/ttc_sink</item>
+        <item name="thumbColor">@color/ttc_gold_bright</item>
+        <item name="haloColor">@color/ttc_gold_container_outline</item>
+        <item name="tickVisible">false</item>
+        <item name="trackHeight">4dp</item>
+        <item name="thumbWidth">18dp</item>
+        <item name="thumbHeight">18dp</item>
+        <item name="thumbTrackGapSize">0dp</item>
+        <item name="trackStopIndicatorSize">0dp</item>
+    </style>
+    <style name="TTC.Chip.Filter" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/ttc_chip_bg</item>
+        <item name="chipStrokeColor">@color/ttc_chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/ttc_chip_text</item>
+        <item name="checkedIconTint">@color/ttc_gold_accent</item>
+        <item name="rippleColor">@color/ttc_gold_container_outline</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="chipCornerRadius">999dp</item>
+    </style>
+
+    <!-- Focus chip (10c editor): green-selected palette, filled unselected bg -->
+    <style name="TTC.Chip.Focus" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/ttc_chip_focus_bg</item>
+        <item name="chipStrokeColor">@color/ttc_chip_focus_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/ttc_chip_focus_text</item>
+        <item name="checkedIcon">@null</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="rippleColor">@color/ttc_focus_chip_stroke_on</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="chipCornerRadius">999dp</item>
     </style>
 
     <style name="BottomSheetSpinnerItemStyle" parent="Widget.AppCompat.Light.DropDownItem.Spinner">
@@ -103,5 +329,81 @@
         <item name="strokeColor">@color/colorOutlineVariant</item>
         <item name="strokeWidth">1dp</item>
         <item name="cardElevation">0dp</item>
+    </style>
+
+    <!-- ===== TTC gold-tint card + gold section header (Settings/Feedback/Detection) ===== -->
+    <style name="TTC.Card.GoldTint" parent="TTC.Card">
+        <item name="cardBackgroundColor">@color/ttc_gold_container</item>
+        <item name="strokeColor">@color/ttc_gold_container_outline</item>
+    </style>
+
+    <style name="TextAppearance.TTC.Eyebrow.Gold" parent="TextAppearance.TTC.Eyebrow">
+        <item name="android:textColor">@color/ttc_gold_accent</item>
+    </style>
+
+    <style name="TTC.SectionHeader.Gold" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.TTC.Eyebrow.Gold</item>
+    </style>
+
+    <!-- ===== TTC stepper control (Settings/Feedback/Detection) ===== -->
+    <style name="TtcStepper.Button" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">33dp</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="TtcStepper.Value" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">50dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingTop">9dp</item>
+        <item name="android:paddingBottom">9dp</item>
+        <item name="android:fontFamily">@font/jetbrains_mono_semibold</item>
+        <item name="android:textSize">13.5sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+
+    <!-- ===== TTC dialogs: gold-dark house style ===== -->
+    <!-- Applied app-wide via materialAlertDialogTheme; give dialogs the same rounded
+         elevated-surface look as the drill long-press menu. Use MaterialAlertDialogBuilder
+         (not appcompat AlertDialog.Builder) at call sites so this overlay takes effect. -->
+    <style name="ShapeAppearance.TTC.Dialog" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">24dp</item>
+    </style>
+    <style name="TTC.Dialog.Title.Panel" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:fontFamily">@font/inter_tight_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/ttc_text_1</item>
+    </style>
+    <style name="TTC.Dialog.Body.Panel" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:fontFamily">@font/inter_tight_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/ttc_text_2</item>
+    </style>
+    <style name="TTC.Dialog.Button.Positive" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/ttc_gold_accent</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="TTC.Dialog.Button.Neutral" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/ttc_text_2</item>
+        <item name="android:fontFamily">@font/inter_tight_semibold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="ThemeOverlay.TTC.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/ttc_surface_elevated</item>
+        <item name="colorSurfaceContainerHigh">@color/ttc_surface_elevated</item>
+        <item name="android:colorBackground">@color/ttc_surface_elevated</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.TTC.Dialog</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TTC.Dialog.Title.Panel</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TTC.Dialog.Body.Panel</item>
+        <item name="buttonBarPositiveButtonStyle">@style/TTC.Dialog.Button.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/TTC.Dialog.Button.Neutral</item>
+        <item name="buttonBarNeutralButtonStyle">@style/TTC.Dialog.Button.Neutral</item>
     </style>
 </resources>

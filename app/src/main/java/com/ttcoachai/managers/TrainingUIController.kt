@@ -107,7 +107,7 @@ class TrainingUIController(
     }
 
     fun showSummary(summary: String, tip: String) {
-        androidx.appcompat.app.AlertDialog.Builder(activity)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
             .setTitle(activity.getString(R.string.training_summary_title))
             .setMessage("$summary\n\n$tip")
             .setPositiveButton(activity.getString(R.string.btn_complete)) { _, _ -> activity.finish() }
@@ -121,21 +121,26 @@ class TrainingUIController(
             activity.runOnUiThread { onToggleTraining() } // Pause
         }
 
-        androidx.appcompat.app.AlertDialog.Builder(activity)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
             .setTitle(activity.getString(R.string.finish_training_title))
             .setMessage(activity.getString(R.string.finish_training_message))
-            .setNeutralButton(activity.getString(R.string.dialog_no)) { _, _ -> 
+            .setNeutralButton(activity.getString(R.string.dialog_no)) { _, _ ->
                 if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
             }
-            .setNegativeButton(activity.getString(R.string.btn_discard)) { _, _ -> 
+            .setNegativeButton(activity.getString(R.string.btn_discard)) { _, _ ->
                 (activity as? TrainingActivity)?.let { it.javaClass.getDeclaredMethod("stopTraining", Boolean::class.java).apply { isAccessible = true }.invoke(it, true) }
             }
-            .setPositiveButton(activity.getString(R.string.btn_finish_save)) { _, _ -> 
+            .setPositiveButton(activity.getString(R.string.btn_finish_save)) { _, _ ->
                 onStopTraining()
             }
             .setOnCancelListener {
                 if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
             }
             .show()
+            .apply {
+                // Discard is destructive → red, matching the drill-menu Delete action.
+                getButton(android.content.DialogInterface.BUTTON_NEGATIVE)
+                    ?.setTextColor(activity.getColor(R.color.ttc_error))
+            }
     }
 }

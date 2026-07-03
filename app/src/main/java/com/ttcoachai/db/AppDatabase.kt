@@ -4,13 +4,34 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.ttcoachai.models.CustomDrillEntity
+import com.ttcoachai.models.DrillConfigEntity
+import com.ttcoachai.models.PersonalBaselineEntity
+import com.ttcoachai.models.SessionAnalyticsEntity
 import com.ttcoachai.models.TrainingSession
 import com.ttcoachai.models.UserProgress
 
-@Database(entities = [TrainingSession::class, UserProgress::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        TrainingSession::class,
+        UserProgress::class,
+        PersonalBaselineEntity::class,
+        DrillConfigEntity::class,
+        CustomDrillEntity::class,
+        SessionAnalyticsEntity::class
+    ],
+    version = 6,
+    exportSchema = false
+)
+@TypeConverters(BaselineConverters::class, SessionAnalyticsConverters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun trainingDao(): TrainingDao
     abstract fun progressDao(): ProgressDao
+    abstract fun personalBaselineDao(): PersonalBaselineDao
+    abstract fun drillConfigDao(): DrillConfigDao
+    abstract fun customDrillDao(): CustomDrillDao
+    abstract fun sessionAnalyticsDao(): SessionAnalyticsDao
 
     companion object {
         @Volatile

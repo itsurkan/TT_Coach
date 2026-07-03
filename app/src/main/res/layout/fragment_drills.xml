@@ -1,168 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
-    android:padding="20dp">
+    android:background="@color/ttc_canvas">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/tv_drills_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/title_drills_header"
-        android:textAppearance="?attr/textAppearanceHeadlineMedium"
-        android:textColor="?attr/colorOnSurface"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_drills_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/subtitle_drills"
-        android:textAppearance="?attr/textAppearanceBodyMedium"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:layout_marginTop="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_drills_title" />
-
-    <!-- Featured Drill -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_featured_drill"
-        style="@style/Widget.Material3.CardView.Elevated"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar_drills"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:cardBackgroundColor="?attr/colorPrimary"
-        app:layout_constraintTop_toBottomOf="@id/tv_drills_subtitle">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="24dp">
-
-            <TextView
-                android:id="@+id/tv_featured_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/section_recommended"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:background="@drawable/bg_card_rounded"
-                android:backgroundTint="@color/white_20"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <ImageView
-                android:id="@+id/iv_featured_icon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_target"
-                app:tint="@color/white"
-                android:alpha="0.3"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/tv_featured_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/exercise_forehand_name"
-                android:textColor="@color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_marginTop="12dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_featured_badge" />
-
-            <TextView
-                android:id="@+id/tv_featured_desc"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/exercise_forehand_desc_short"
-                android:textColor="@color/blue_100_70"
-                android:textSize="14sp"
-                android:layout_marginTop="4dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tv_featured_title" />
-                
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_start_featured"
-                style="@style/Widget.Material3.Button.TonalButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="56dp"
-                android:text="@string/btn_start_drill"
-                android:textColor="?attr/colorPrimary"
-                app:backgroundTint="?attr/colorOnPrimary"
-                android:layout_marginTop="20dp"
-                app:layout_constraintTop_toBottomOf="@id/tv_featured_desc"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Filter Chips -->
-    <HorizontalScrollView
-        android:id="@+id/scroll_chips"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/card_featured_drill">
+        android:background="@color/ttc_canvas"
+        app:elevation="0dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="20dp"
+            app:layout_scrollFlags="scroll|enterAlways">
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_all"
-                style="@style/Widget.Material3.Chip.Filter"
+            <!-- Screen header -->
+            <TextView
+                android:id="@+id/tv_drills_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/section_all_drills"
-                android:checked="true"
-                android:layout_marginEnd="8dp"/>
+                android:text="@string/title_drills_header"
+                android:textAppearance="@style/TextAppearance.TTC.Title.Screen" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_beginner"
-                style="@style/Widget.Material3.Chip.Filter"
+            <TextView
+                android:id="@+id/tv_drills_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/difficulty_beginner"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginTop="2dp"
+                android:text="@string/subtitle_drills"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_intermediate"
-                style="@style/Widget.Material3.Chip.Filter"
+            <!-- RECENT section -->
+            <LinearLayout
+                android:id="@+id/section_recent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:text="@string/drills_section_recent"
+                        android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
+
+                    <TextView
+                        android:id="@+id/tv_recent_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
+                </RelativeLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/TTC.Card.Highlighted"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:contentPadding="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="15dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <FrameLayout
+                                android:id="@+id/fl_recent_icon"
+                                android:layout_width="46dp"
+                                android:layout_height="46dp"
+                                android:background="@drawable/bg_icon_tile_gold">
+
+                                <ImageView
+                                    android:id="@+id/iv_recent_icon"
+                                    android:layout_width="22dp"
+                                    android:layout_height="22dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_skill_forehand"
+                                    app:tint="@color/ttc_gold_accent" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="13dp"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/tv_recent_name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textAppearance="@style/TextAppearance.TTC.Title.Card" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:orientation="horizontal"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/tv_recent_meta"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/drills_recent_last_session"
+                                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="6dp"
+                                        android:layout_marginEnd="6dp"
+                                        android:text="·"
+                                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
+
+                                    <TextView
+                                        android:id="@+id/tv_recent_accuracy"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/ttc_success"
+                                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_recent_continue"
+                            style="@style/TTC.Button.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="13dp"
+                            android:text="@string/drills_continue_training" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- ALL PROGRAMS header -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/difficulty_intermediate"
-                android:layout_marginEnd="8dp"/>
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chip_advanced"
-                style="@style/Widget.Material3.Chip.Filter"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/difficulty_advanced"/>
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="4dp"
+                android:text="@string/drills_section_all_programs"
+                android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
         </LinearLayout>
-    </HorizontalScrollView>
+    </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Drills RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_drills"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/scroll_chips"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="96dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_drill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_plus"
+        android:contentDescription="@string/drills_add_own_exercise"
+        app:backgroundTint="@color/ttc_gold_bright"
+        app:tint="@color/ttc_on_gold" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -19,6 +19,7 @@ import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import com.ttcoachai.shared.models.BallDetection
 import com.ttcoachai.shared.models.RegionOfInterest
+import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.tracking.BallDetector
 import com.ttcoachai.tracking.ROIManager
 
@@ -45,7 +46,7 @@ class PoseLandmarkerProcessor(
     private val matrix = Matrix()
 
     private var lastProcessedFrameTime = 0L
-    private val frameIntervalMs = 66L // Limit to ~15 FPS to reduce system load
+    private val frameIntervalMs: Long = (1000L / SettingsManager(context).getBallDetectionFps())
 
     // Ball detection components — lazily initialised on first use
     private val ballDetector: BallDetector by lazy { BallDetector() }

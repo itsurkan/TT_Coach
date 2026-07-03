@@ -15,47 +15,42 @@
     ~ limitations under the License.
 -->
 <resources>
-    <!-- Material 3 Standard Tonal Palette -->
-    <color name="colorPrimary">#2563EB</color>
-    <color name="colorOnPrimary">#FFFFFF</color>
-    <color name="colorPrimaryContainer">#EBF2FF</color>
-    <color name="colorOnPrimaryContainer">#001A43</color>
-    
-    <color name="colorSecondary">#5B5D72</color>
-    <color name="colorOnSecondary">#FFFFFF</color>
-    <color name="colorSecondaryContainer">#F2F2F7</color>
-    <color name="colorOnSecondaryContainer">#181A2C</color>
-
-    <color name="colorTertiary">#F59E0B</color>
-    <color name="colorOnTertiary">#000000</color>
-    <color name="colorTertiaryContainer">#FFD78F</color>
-    <color name="colorOnTertiaryContainer">#281900</color>
-
-    <color name="colorError">#BA1A1A</color>
+    <!-- Material 3 Standard Tonal Palette — remapped to TTC tokens -->
+    <color name="colorPrimary">@color/ttc_gold_accent</color>
+    <color name="colorOnPrimary">@color/ttc_on_gold</color>
+    <color name="colorPrimaryContainer">@color/ttc_gold_container</color>
+    <color name="colorOnPrimaryContainer">@color/ttc_gold_accent</color>
+    <color name="colorPrimaryInverse">@color/ttc_gold_deep</color>
+    <color name="colorSecondary">@color/ttc_text_2</color>
+    <color name="colorOnSecondary">@color/ttc_canvas</color>
+    <color name="colorSecondaryContainer">@color/ttc_surface_elevated</color>
+    <color name="colorOnSecondaryContainer">@color/ttc_text_1</color>
+    <color name="colorTertiary">@color/ttc_amber</color>
+    <color name="colorOnTertiary">@color/ttc_on_gold</color>
+    <color name="colorTertiaryContainer">@color/ttc_gold_container</color>
+    <color name="colorOnTertiaryContainer">@color/ttc_amber</color>
+    <color name="colorError">@color/ttc_error</color>
     <color name="colorOnError">#FFFFFF</color>
-    <color name="colorErrorContainer">#FFDAD6</color>
-    <color name="colorOnErrorContainer">#410002</color>
-
-    <color name="colorSurface">#FFFFFF</color>
-    <color name="colorOnSurface">#191C1E</color>
-    <color name="colorSurfaceVariant">#F4F4F5</color>
-    <color name="colorOnSurfaceVariant">#44474F</color>
+    <color name="colorErrorContainer">@color/ttc_error_container</color>
+    <color name="colorOnErrorContainer">#7A1B14</color>
+    <color name="colorSurface">@color/ttc_surface</color>
+    <color name="colorOnSurface">@color/ttc_text_1</color>
+    <color name="colorSurfaceVariant">@color/ttc_surface_elevated</color>
+    <color name="colorOnSurfaceVariant">@color/ttc_text_2</color>
+    <color name="colorSurfaceInverse">@color/ttc_text_1</color>
+    <color name="colorOnSurfaceInverse">@color/ttc_canvas</color>
+    <color name="colorOutline">@color/ttc_outline</color>
+    <color name="colorOutlineVariant">@color/ttc_outline_strong</color>
+    <color name="colorSurfaceTint">@color/ttc_gold_accent</color>
 
     <!-- Material 3 Surface Containers (Explicit Overrides for Light Theme) -->
-    <color name="surfaceBright">#FFFFFF</color>
-    <color name="surfaceDim">#F5F5F7</color>
-    <color name="surfaceContainerLowest">#FFFFFF</color>
-    <color name="surfaceContainerLow">#F7F9FC</color>
-    <color name="surfaceContainer">#F0F2F5</color>
-    <color name="surfaceContainerHigh">#ECEEF2</color>
-    <color name="surfaceContainerHighest">#E6E8ED</color>
-    
-    <color name="colorOutline">#74777F</color>
-    <color name="colorOutlineVariant">#C4C6D0</color>
-    <color name="colorSurfaceInverse">#2E3032</color>
-    <color name="colorOnSurfaceInverse">#F0F0F3</color>
-    <color name="colorPrimaryInverse">#ADC6FF</color>
-    <color name="colorSurfaceTint">@color/colorPrimary</color>
+    <color name="surfaceBright">@color/ttc_surface_elevated</color>
+    <color name="surfaceDim">@color/ttc_canvas</color>
+    <color name="surfaceContainerLowest">@color/ttc_sink</color>
+    <color name="surfaceContainerLow">@color/ttc_surface</color>
+    <color name="surfaceContainer">@color/ttc_surface_elevated</color>
+    <color name="surfaceContainerHigh">@color/ttc_outline</color>
+    <color name="surfaceContainerHighest">@color/ttc_outline_strong</color>
 
     <!-- App Specific / Brand Colors (Mapped to M3 roles where possible) -->
     <color name="mp_color_primary">@color/colorPrimary</color>
@@ -150,4 +145,45 @@
     <color name="text_card_calendar">#15803D</color>
     <color name="bg_card_award">#EEF2FF</color>
     <color name="text_card_award">#4338CA</color>
+
+    <!-- ===== TTC gold-dark design system (Slice 1) — LIGHT ===== -->
+    <color name="ttc_canvas">#FFFFFF</color>
+    <color name="ttc_sink">#EFF1F4</color>
+    <color name="ttc_surface">#F7F8FA</color>
+    <color name="ttc_surface_elevated">#EFF1F4</color>
+    <color name="ttc_outline">#E4E6EC</color>
+    <color name="ttc_outline_strong">#D8DBE2</color>
+    <color name="ttc_gold_bright">#E9C46A</color>
+    <color name="ttc_gold_accent">#9A6F0F</color>
+    <color name="ttc_gold_deep">#997219</color>
+    <color name="ttc_gold_container">#FBF3DE</color>
+    <color name="ttc_gold_container_outline">#ECDBAC</color>
+    <color name="ttc_on_gold">#2A2008</color>
+    <color name="ttc_toggle_knob">#2A2008</color>
+    <color name="ttc_text_1">#1A1D23</color>
+    <color name="ttc_text_2">#545B68</color>
+    <color name="ttc_text_3">#868D99</color>
+    <color name="ttc_text_faint">#A0A5AF</color>
+    <color name="ttc_text_on_gold_card">#4E3F18</color>
+    <color name="ttc_success">#12A05F</color>
+    <color name="ttc_success_soft">#3BAF6B</color>
+    <color name="ttc_error">#C4463C</color>
+    <color name="ttc_error_container">#FDECEA</color>
+    <color name="ttc_error_container_outline">#F5C9C4</color>
+    <color name="ttc_amber">#E9A25E</color>
+    <color name="ttc_cream">#FBF4E1</color>
+    <color name="ttc_text_disabled">#A0A5AF</color>
+    <color name="ttc_paywall_bg">#F5F6F8</color>
+    <color name="ttc_success_container">#E9F7EF</color>
+
+    <!-- Focus chip (10c editor) — green selected state -->
+    <color name="ttc_focus_chip_bg_on">#E4F5EA</color>
+    <color name="ttc_focus_chip_stroke_on">#A8D9B9</color>
+    <color name="ttc_focus_chip_text_on">#1E7F4B</color>
+
+    <!-- Session History / Review screens (Slice 3) -->
+    <color name="ttc_trend_up">#12A05F</color>
+    <color name="ttc_trend_down">#C4463C</color>
+    <color name="ttc_shot_error">#D9645C</color>
+    <color name="ttc_chart_grid">#E9EBEF</color>
 </resources>

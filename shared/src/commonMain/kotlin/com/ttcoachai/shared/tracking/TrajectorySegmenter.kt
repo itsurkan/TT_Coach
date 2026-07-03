@@ -147,7 +147,7 @@ class TrajectorySegmenter(
         val contacts = detectContacts(detected)
 
         // Build split points from contact frame indices
-        val splitAfter = contacts.map { it.frameIndex }.toSortedSet()
+        val splitAfter = contacts.map { it.frameIndex }.toSet()
 
         // Partition detected frames into groups separated by contacts
         val groups = mutableListOf<MutableList<BallDetection>>()

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Title.Screen"
+            android:text="Design System · Slice 1" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow" android:text="Color tokens" />
+        <LinearLayout android:id="@+id/swatchContainer"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:layout_marginTop="8dp" />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow" android:text="Typography" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.TTC.Stat.Hero" android:text="68" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Stat.Large" android:text="12:04.7  ·  1234" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Title.Screen" android:text="Screen title (Inter Tight)" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Title.Card" android:text="Card title" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Body" android:text="Body text — the quick brown fox." />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" android:text="Secondary caption text." />
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow" android:text="Components" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" style="@style/TTC.Card">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Card" android:text="TTC.Card" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="10dp" android:gravity="center_vertical">
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        style="@style/TTC.StatNumber.Gold" android:text="68%" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" style="@style/TTC.TrendChip.Positive" android:text="+2" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp" style="@style/TTC.TrendChip.Negative" android:text="-3" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" style="@style/TTC.SegmentedTrack">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                style="@style/TTC.Segment.Active" android:text="Training time" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                style="@style/TTC.Segment.Inactive" android:text="Accuracy" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="12dp" style="@style/TTC.Button.Primary" android:text="New session" />
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" style="@style/TTC.Button.Ghost" android:text="Secondary" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" style="@style/TTC.Toggle"
+            android:checked="true" android:text="Show pose skeleton"
+            android:textAppearance="@style/TextAppearance.TTC.Body" />
+
+        <com.google.android.material.slider.Slider
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" style="@style/TTC.Slider"
+            android:valueFrom="0" android:valueTo="100" android:value="50" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginTop="14dp" android:layout_gravity="end"
+            style="@style/TTC.Fab.Extended" android:text="New session" />
+
+    </LinearLayout>
+</ScrollView>

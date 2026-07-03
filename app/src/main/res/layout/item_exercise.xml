@@ -1,117 +1,190 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.ttcoachai.ui.SwipeRevealLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/swipe_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    style="@style/Widget.Material3.CardView.Outlined"
-    app:cardCornerRadius="12dp">
+    android:layout_marginBottom="12dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp">
+    <!-- Delete panel (left edge) — revealed by swiping RIGHT. Outer width drives the reveal
+         distance; the inner tile insets on its card-facing (end) edge to leave a gap. -->
+    <LinearLayout
+        android:id="@+id/swipe_delete_panel"
+        android:layout_width="96dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/drill_action_delete">
 
-        <!-- Icon Container -->
-        <FrameLayout
-            android:id="@+id/fl_icon_container"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:background="@drawable/bg_icon_container_blue"
-            android:backgroundTint="?attr/colorPrimaryContainer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="12dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_delete">
 
             <ImageView
-                android:id="@+id/iv_exercise_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:contentDescription="@null"
-                android:src="@drawable/ic_target"
-                app:tint="?attr/colorPrimary"
-                android:layout_gravity="center" />
-        </FrameLayout>
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_trash"
+                app:tint="@color/ttc_error"
+                android:contentDescription="@null"/>
 
-        <!-- Content -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_delete"
+                android:textColor="@color/ttc_error"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Clone panel (right edge) — revealed by swiping LEFT. Inner tile insets on its
+         card-facing (start) edge to leave a gap between card and tile. -->
+    <LinearLayout
+        android:id="@+id/swipe_clone_panel"
+        android:layout_width="96dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/drill_action_clone">
+
         <LinearLayout
-            android:id="@+id/ll_content"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginStart="12dp"
             android:orientation="vertical"
-            app:layout_constraintEnd_toStartOf="@id/iv_chevron"
-            app:layout_constraintStart_toEndOf="@id/fl_icon_container"
-            app:layout_constraintTop_toTopOf="parent">
+            android:gravity="center"
+            android:background="@drawable/bg_swipe_clone">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_content_copy"
+                app:tint="@color/ttc_gold_accent"
+                android:contentDescription="@null"/>
 
             <TextView
-                android:id="@+id/tv_exercise_name"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/exercise_forehand_name"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
-                android:textStyle="bold"
-                android:textColor="?attr/colorOnSurface"/>
+                android:layout_marginTop="6dp"
+                android:text="@string/drill_action_clone"
+                android:textColor="@color/ttc_gold_accent"
+                android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+        </LinearLayout>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/tv_exercise_description"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/exercise_forehand_desc"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginTop="2dp"/>
+    <!-- Foreground: the existing card (opaque so panels are hidden when closed) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/swipe_foreground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        style="@style/TTC.Card">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
+
+            <FrameLayout
+                android:id="@+id/fl_icon_container"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/bg_icon_tile_gold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <ImageView
+                    android:id="@+id/iv_exercise_icon"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_target"
+                    app:tint="@color/ttc_gold_accent"
+                    android:layout_gravity="center" />
+            </FrameLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/ll_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="8dp">
-                
-                <TextView
-                    android:id="@+id/tv_difficulty"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/difficulty_beginner"
-                    android:textAppearance="?attr/textAppearanceLabelSmall"
-                    android:textColor="?attr/colorOnTertiaryContainer"
-                    android:background="@drawable/bg_badge_bordered_green"
-                    android:backgroundTint="?attr/colorTertiaryContainer"
-                    android:paddingHorizontal="10dp"
-                    android:paddingVertical="2dp"
-                    android:layout_marginEnd="8dp"/>
+                android:layout_marginStart="12dp"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toStartOf="@id/iv_chevron"
+                app:layout_constraintStart_toEndOf="@id/fl_icon_container"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:id="@+id/tv_duration"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_exercise_name"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/duration_10_15"
-                    android:textAppearance="?attr/textAppearanceLabelSmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"/>
-                    
+                    android:text="@string/exercise_forehand_name"
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
+
                 <TextView
-                    android:id="@+id/tv_category"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_exercise_description"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/label_technique"
-                    android:textAppearance="?attr/textAppearanceLabelSmall"
-                    android:textColor="?attr/colorOnSurfaceVariant"
-                    android:layout_marginStart="8dp"/>
+                    android:text="@string/exercise_forehand_desc"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:layout_marginTop="2dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_difficulty"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/difficulty_beginner"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                        android:textColor="@color/ttc_text_2"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/duration_10_15"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"/>
+
+                    <TextView
+                        android:id="@+id/tv_category"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/label_technique"
+                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                        android:textColor="@color/ttc_text_2"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
-        <ImageView
-            android:id="@+id/iv_chevron"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_chevron_right" 
-            app:tint="?attr/colorOnSurfaceVariant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-            
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/iv_chevron"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/ttc_text_3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
-</com.google.android.material.card.MaterialCardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</com.ttcoachai.ui.SwipeRevealLayout>

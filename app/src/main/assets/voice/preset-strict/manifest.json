@@ -1,0 +1,401 @@
+{
+  "styleId": "preset-strict",
+  "clips": {
+    "uk__sikz5h": {
+      "file": "uk/uk__sikz5h.mp3",
+      "durationMs": 1149,
+      "text": "зігни лікоть",
+      "lang": "uk"
+    },
+    "uk__1lj8wq4": {
+      "file": "uk/uk__1lj8wq4.mp3",
+      "durationMs": 1881,
+      "text": "більше випрями руку",
+      "lang": "uk"
+    },
+    "uk__1w6czen": {
+      "file": "uk/uk__1w6czen.mp3",
+      "durationMs": 1724,
+      "text": "опусти плече",
+      "lang": "uk"
+    },
+    "uk__vow359": {
+      "file": "uk/uk__vow359.mp3",
+      "durationMs": 1411,
+      "text": "відкрий плече",
+      "lang": "uk"
+    },
+    "uk__tj5386": {
+      "file": "uk/uk__tj5386.mp3",
+      "durationMs": 914,
+      "text": "зігни коліна",
+      "lang": "uk"
+    },
+    "uk__1d5f18x": {
+      "file": "uk/uk__1d5f18x.mp3",
+      "durationMs": 1071,
+      "text": "стань вище",
+      "lang": "uk"
+    },
+    "uk__1285n6e": {
+      "file": "uk/uk__1285n6e.mp3",
+      "durationMs": 1228,
+      "text": "тримайся рівніше",
+      "lang": "uk"
+    },
+    "uk__18wiksz": {
+      "file": "uk/uk__18wiksz.mp3",
+      "durationMs": 1306,
+      "text": "нахились уперед",
+      "lang": "uk"
+    },
+    "uk__1w98xz4": {
+      "file": "uk/uk__1w98xz4.mp3",
+      "durationMs": 1071,
+      "text": "вирівняй плечі",
+      "lang": "uk"
+    },
+    "uk__xvcsnn": {
+      "file": "uk/uk__xvcsnn.mp3",
+      "durationMs": 601,
+      "text": "вище",
+      "lang": "uk"
+    },
+    "uk__mir2t": {
+      "file": "uk/uk__mir2t.mp3",
+      "durationMs": 1959,
+      "text": "нахились у стегнах",
+      "lang": "uk"
+    },
+    "uk__111yc4e": {
+      "file": "uk/uk__111yc4e.mp3",
+      "durationMs": 2038,
+      "text": "не блокуй лікоть на замаху",
+      "lang": "uk"
+    },
+    "uk__sxi94m": {
+      "file": "uk/uk__sxi94m.mp3",
+      "durationMs": 1802,
+      "text": "розправ лікоть на замаху",
+      "lang": "uk"
+    },
+    "uk__1doqu7w": {
+      "file": "uk/uk__1doqu7w.mp3",
+      "durationMs": 993,
+      "text": "доводь лікоть",
+      "lang": "uk"
+    },
+    "uk__1qllgx0": {
+      "file": "uk/uk__1qllgx0.mp3",
+      "durationMs": 1724,
+      "text": "не затискай на завершенні",
+      "lang": "uk"
+    },
+    "uk__1t78erx": {
+      "file": "uk/uk__1t78erx.mp3",
+      "durationMs": 1411,
+      "text": "рука нижче на замаху",
+      "lang": "uk"
+    },
+    "uk__cr9hxu": {
+      "file": "uk/uk__cr9hxu.mp3",
+      "durationMs": 1724,
+      "text": "рука назад на замаху",
+      "lang": "uk"
+    },
+    "uk__ajdg9t": {
+      "file": "uk/uk__ajdg9t.mp3",
+      "durationMs": 1228,
+      "text": "не перемахуй",
+      "lang": "uk"
+    },
+    "uk__1crmblp": {
+      "file": "uk/uk__1crmblp.mp3",
+      "durationMs": 1149,
+      "text": "доводь руку вгору",
+      "lang": "uk"
+    },
+    "uk__prr3k8": {
+      "file": "uk/uk__prr3k8.mp3",
+      "durationMs": 993,
+      "text": "присядь глибше",
+      "lang": "uk"
+    },
+    "uk__ldzwat": {
+      "file": "uk/uk__ldzwat.mp3",
+      "durationMs": 1306,
+      "text": "не присідай надто",
+      "lang": "uk"
+    },
+    "uk__2je8p9": {
+      "file": "uk/uk__2je8p9.mp3",
+      "durationMs": 1567,
+      "text": "тримай присід в ударі",
+      "lang": "uk"
+    },
+    "uk__nscd61": {
+      "file": "uk/uk__nscd61.mp3",
+      "durationMs": 1411,
+      "text": "не перегинай коліна",
+      "lang": "uk"
+    },
+    "uk__11mteyj": {
+      "file": "uk/uk__11mteyj.mp3",
+      "durationMs": 2273,
+      "text": "стегна вище",
+      "lang": "uk"
+    },
+    "uk__mtjwg2": {
+      "file": "uk/uk__mtjwg2.mp3",
+      "durationMs": 2194,
+      "text": "тримай нахил в ударі",
+      "lang": "uk"
+    },
+    "uk__1hiyn88": {
+      "file": "uk/uk__1hiyn88.mp3",
+      "durationMs": 1881,
+      "text": "стегна вище в ударі",
+      "lang": "uk"
+    },
+    "uk__1kcaiuv": {
+      "file": "uk/uk__1kcaiuv.mp3",
+      "durationMs": 1724,
+      "text": "рівніше на замаху",
+      "lang": "uk"
+    },
+    "uk__mru8aj": {
+      "file": "uk/uk__mru8aj.mp3",
+      "durationMs": 1567,
+      "text": "нахились на замаху",
+      "lang": "uk"
+    },
+    "uk__1m59u8k": {
+      "file": "uk/uk__1m59u8k.mp3",
+      "durationMs": 1489,
+      "text": "рівніше в ударі",
+      "lang": "uk"
+    },
+    "uk__a2hty0": {
+      "file": "uk/uk__a2hty0.mp3",
+      "durationMs": 1489,
+      "text": "нахились в ударі",
+      "lang": "uk"
+    },
+    "uk__rkjcfy": {
+      "file": "uk/uk__rkjcfy.mp3",
+      "durationMs": 1411,
+      "text": "оце форма",
+      "lang": "uk"
+    },
+    "uk__restac": {
+      "file": "uk/uk__restac.mp3",
+      "durationMs": 1646,
+      "text": "чисто — повтори",
+      "lang": "uk"
+    },
+    "uk__1nprot0": {
+      "file": "uk/uk__1nprot0.mp3",
+      "durationMs": 836,
+      "text": "правильно",
+      "lang": "uk"
+    },
+    "en__8d7a1u": {
+      "file": "en/en__8d7a1u.mp3",
+      "durationMs": 993,
+      "text": "bend the elbow",
+      "lang": "en"
+    },
+    "en__k0sw2e": {
+      "file": "en/en__k0sw2e.mp3",
+      "durationMs": 1306,
+      "text": "extend more",
+      "lang": "en"
+    },
+    "en__kwywcr": {
+      "file": "en/en__kwywcr.mp3",
+      "durationMs": 1411,
+      "text": "drop the shoulder",
+      "lang": "en"
+    },
+    "en__1bmq2qe": {
+      "file": "en/en__1bmq2qe.mp3",
+      "durationMs": 914,
+      "text": "open the shoulder",
+      "lang": "en"
+    },
+    "en__8ekbtz": {
+      "file": "en/en__8ekbtz.mp3",
+      "durationMs": 1411,
+      "text": "bend the knees",
+      "lang": "en"
+    },
+    "en__xw0igb": {
+      "file": "en/en__xw0igb.mp3",
+      "durationMs": 1802,
+      "text": "stand taller",
+      "lang": "en"
+    },
+    "en__1edxc4": {
+      "file": "en/en__1edxc4.mp3",
+      "durationMs": 679,
+      "text": "lean in",
+      "lang": "en"
+    },
+    "en__4g353": {
+      "file": "en/en__4g353.mp3",
+      "durationMs": 1724,
+      "text": "level the shoulders",
+      "lang": "en"
+    },
+    "en__1ftj95o": {
+      "file": "en/en__1ftj95o.mp3",
+      "durationMs": 1149,
+      "text": "stand tall",
+      "lang": "en"
+    },
+    "en__g5s5qr": {
+      "file": "en/en__g5s5qr.mp3",
+      "durationMs": 1228,
+      "text": "hinge forward",
+      "lang": "en"
+    },
+    "en__c8xtgl": {
+      "file": "en/en__c8xtgl.mp3",
+      "durationMs": 2847,
+      "text": "don't lock the elbow on the backswing",
+      "lang": "en"
+    },
+    "en__5n9lws": {
+      "file": "en/en__5n9lws.mp3",
+      "durationMs": 2508,
+      "text": "open the elbow on the backswing",
+      "lang": "en"
+    },
+    "en__8h07wn": {
+      "file": "en/en__8h07wn.mp3",
+      "durationMs": 2116,
+      "text": "finish the elbow through",
+      "lang": "en"
+    },
+    "en__195s5az": {
+      "file": "en/en__195s5az.mp3",
+      "durationMs": 2038,
+      "text": "don't over-fold the finish",
+      "lang": "en"
+    },
+    "en__mda5dk": {
+      "file": "en/en__mda5dk.mp3",
+      "durationMs": 2116,
+      "text": "arm low on the backswing",
+      "lang": "en"
+    },
+    "en__1rvxll3": {
+      "file": "en/en__1rvxll3.mp3",
+      "durationMs": 2194,
+      "text": "arm back on the backswing",
+      "lang": "en"
+    },
+    "en__1qebifo": {
+      "file": "en/en__1qebifo.mp3",
+      "durationMs": 1724,
+      "text": "don't over-swing",
+      "lang": "en"
+    },
+    "en__1rpjuyk": {
+      "file": "en/en__1rpjuyk.mp3",
+      "durationMs": 1802,
+      "text": "sweep up to finish",
+      "lang": "en"
+    },
+    "en__1gee305": {
+      "file": "en/en__1gee305.mp3",
+      "durationMs": 2038,
+      "text": "sit deeper to load",
+      "lang": "en"
+    },
+    "en__nexz3j": {
+      "file": "en/en__nexz3j.mp3",
+      "durationMs": 1149,
+      "text": "don't over-sink",
+      "lang": "en"
+    },
+    "en__r1p1ul": {
+      "file": "en/en__r1p1ul.mp3",
+      "durationMs": 2116,
+      "text": "stay down at contact",
+      "lang": "en"
+    },
+    "en__nfb2fx": {
+      "file": "en/en__nfb2fx.mp3",
+      "durationMs": 1228,
+      "text": "don't over-bend",
+      "lang": "en"
+    },
+    "en__1w6cccu": {
+      "file": "en/en__1w6cccu.mp3",
+      "durationMs": 2116,
+      "text": "hinge forward to load",
+      "lang": "en"
+    },
+    "en__59eh4s": {
+      "file": "en/en__59eh4s.mp3",
+      "durationMs": 2038,
+      "text": "hips up on the load",
+      "lang": "en"
+    },
+    "en__7nhqfz": {
+      "file": "en/en__7nhqfz.mp3",
+      "durationMs": 2429,
+      "text": "keep the hinge at contact",
+      "lang": "en"
+    },
+    "en__qjncl3": {
+      "file": "en/en__qjncl3.mp3",
+      "durationMs": 2194,
+      "text": "hips up at contact",
+      "lang": "en"
+    },
+    "en__19r6r5c": {
+      "file": "en/en__19r6r5c.mp3",
+      "durationMs": 1881,
+      "text": "taller on the backswing",
+      "lang": "en"
+    },
+    "en__2e4fbt": {
+      "file": "en/en__2e4fbt.mp3",
+      "durationMs": 2586,
+      "text": "lean in to load",
+      "lang": "en"
+    },
+    "en__1x4iyaa": {
+      "file": "en/en__1x4iyaa.mp3",
+      "durationMs": 2038,
+      "text": "taller at contact",
+      "lang": "en"
+    },
+    "en__yr6ntd": {
+      "file": "en/en__yr6ntd.mp3",
+      "durationMs": 2194,
+      "text": "lean in at contact",
+      "lang": "en"
+    },
+    "en__1kdrzf2": {
+      "file": "en/en__1kdrzf2.mp3",
+      "durationMs": 993,
+      "text": "that's the shape",
+      "lang": "en"
+    },
+    "en__1h8yn3e": {
+      "file": "en/en__1h8yn3e.mp3",
+      "durationMs": 2194,
+      "text": "clean — repeat that",
+      "lang": "en"
+    },
+    "en__1puczff": {
+      "file": "en/en__1puczff.mp3",
+      "durationMs": 993,
+      "text": "correct",
+      "lang": "en"
+    }
+  }
+}

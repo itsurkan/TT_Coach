@@ -9,7 +9,11 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.ttcoachai.fragment.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_review"
+            app:destination="@id/navigation_session_review" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_progress"
@@ -34,6 +38,39 @@
         android:name="com.ttcoachai.fragment.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/navigation_feedback"
+        android:name="com.ttcoachai.fragment.FeedbackFragment"
+        android:label="@string/feedback_title"
+        tools:layout="@layout/fragment_feedback" />
+
+    <fragment
+        android:id="@+id/navigation_detection"
+        android:name="com.ttcoachai.fragment.DetectionFragment"
+        android:label="@string/detection_title"
+        tools:layout="@layout/fragment_detection" />
+
+    <fragment
+        android:id="@+id/navigation_session_history"
+        android:name="com.ttcoachai.fragment.SessionHistoryFragment"
+        android:label="@string/history_title"
+        tools:layout="@layout/fragment_session_history">
+        <action
+            android:id="@+id/action_history_to_review"
+            app:destination="@id/navigation_session_review" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_session_review"
+        android:name="com.ttcoachai.fragment.SessionReviewFragment"
+        android:label="@string/review_eyebrow"
+        tools:layout="@layout/fragment_session_review">
+        <argument
+            android:name="sessionId"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
     <fragment
         android:id="@+id/permissions_fragment"

@@ -16,3 +16,36 @@ local.properties
 *.wav
 main-poselandmaker/*
 shared/build/*
+data_regressor/val/images/*
+data_regressor/train/images/*
+data_regressor.zip
+/Videos/**
+!/Videos/*/
+!/Videos/*/*_anchor_fixtures.json
+
+datasets/*
+tthq_annotations/*
+*.zip
+build_log.txt
+scripts/**/__pycache__/
+/tmp/screenshots/
+# Build artifacts (never track)
+node_modules/
+*.tsbuildinfo
+.kotlin/
+tmp/*
+
+# iOS RTMPose ONNX models (fetched via iosApp/TTCoach/Models/fetch_models.sh)
+iosApp/TTCoach/Models/*.onnx
+
+# 3D-lift experiment (scripts/poses/lift_pose3d.py): vendored model + weights + torch env
+# are large and re-fetchable — see scripts/poses/LIFT.md. Never track.
+scripts/poses/vendor/
+.venv-lift/
+Videos/**/*_pose3d_lift*.json
+
+# Claude memory: local-only (machine/account-specific, never push)
+.claude/memory/project_git_push_auth.md
+# Claude local settings & runtime locks
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

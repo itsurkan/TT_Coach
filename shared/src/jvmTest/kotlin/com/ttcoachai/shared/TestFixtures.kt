@@ -23,6 +23,15 @@ object TestFixtures {
 
     fun loadForehandDrive2(): List<PoseFrame> = parseFrames(loadResource("fixtures/forehand_drive2.json"))
 
+    fun loadForehandAndrii(): List<PoseFrame> = parseFrames(loadResource("fixtures/andrii_1.json"))
+
+    /** Read interval from a fixture's header. Defaults to 100ms if absent. */
+    fun loadIntervalMs(fixturePath: String): Long {
+        val json = loadResource(fixturePath)
+        val m = Regex(""""intervalMs"\s*:\s*(\d+)""").find(json) ?: return 100L
+        return m.groupValues[1].toLong()
+    }
+
     // ── Resource loading ──────────────────────────────────────────────────────
 
     private fun loadResource(path: String): String {

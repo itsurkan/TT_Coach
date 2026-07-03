@@ -25,13 +25,19 @@ import java.io.File
     }
 
     private fun findJsonFile(filename: String): String {
-        val possiblePaths = listOf(
-            "app/src/main/assets/Videos/$filename",
-            "src/main/assets/Videos/$filename",
-            "../app/src/main/assets/Videos/$filename"
+        // Accept both legacy "_poses.json" suffix and the current shared fixture names.
+        val candidateNames = listOf(filename, filename.removeSuffix("_poses.json") + ".json")
+        val candidateDirs = listOf(
+            "shared/src/commonTest/resources/fixtures",
+            "../shared/src/commonTest/resources/fixtures",
+            "app/src/main/assets/Videos",
+            "src/main/assets/Videos",
+            "../app/src/main/assets/Videos"
         )
-        val file = possiblePaths.map { File(it) }.find { it.exists() }
-        assertNotNull("JSON file $filename must exist. Tried: $possiblePaths", file)
+        val file = candidateDirs.asSequence()
+            .flatMap { dir -> candidateNames.asSequence().map { n -> File("$dir/$n") } }
+            .find { it.exists() }
+        assertNotNull("JSON file $filename must exist. Tried dirs: $candidateDirs names: $candidateNames", file)
         return file!!.absolutePath
     }
 

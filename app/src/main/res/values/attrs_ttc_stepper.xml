@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="TtcStepperView">
+        <attr name="ttcMin" format="float" />
+        <attr name="ttcMax" format="float" />
+        <attr name="ttcStep" format="float" />
+        <attr name="ttcDecimals" format="integer" />
+        <attr name="ttcSuffix" format="string" />
+    </declare-styleable>
+</resources>

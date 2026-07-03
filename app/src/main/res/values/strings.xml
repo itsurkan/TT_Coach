@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TT AI Coach 1</string>
+    <string name="app_name">TT Coach AI</string>
     <string name="use_video_debug">🎬 Use video (debug)</string>
     <string name="media_pipe">MediaPipe</string>
     <string name="alt_bottom_sheet_chevron">Bottom sheet expandable indicator</string>
@@ -59,6 +59,8 @@
     <string name="exercise_locked_message">This exercise will be available in future versions.</string>
     <string name="exercise_forehand_name">Forehand Drive</string>
     <string name="exercise_forehand_desc">Basic forehand stroke with body rotation</string>
+    <string name="exercise_forehand_andrii_name">Forehand Andrii</string>
+    <string name="exercise_forehand_andrii_desc">Forehand modeled on Andrii\'s captured stroke</string>
     <string name="exercise_backhand_name">Backhand Drive</string>
     <string name="exercise_backhand_desc">Basic backhand stroke</string>
     <string name="exercise_topspin_name">Forehand Topspin</string>
@@ -377,6 +379,9 @@
     <string name="subscription_how_works_profile">• This setting affects the subscription status shown in your Profile</string>
     
     <!-- Profile Updates -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_subtitle">Your account &amp; goals</string>
+    <string name="settings">Settings</string>
     <string name="subscription_section">Subscription</string>
     <string name="premium_active_badge">Active</string>
     <string name="premium_active_title">Premium Active</string>
@@ -394,11 +399,6 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_system">System</string>
-    <string name="skill_level_title">Skill Level</string>
-    <string name="level_beginner">Beginner</string>
-    <string name="level_intermediate">Intermediate</string>
-    <string name="level_advanced">Advanced</string>
-    <string name="level_format">%s Player</string>
     
     <!-- Language Settings -->
     <string name="language_section">Language</string>
@@ -512,7 +512,6 @@
     <string name="placeholder_feedback_desc_perfect">You made contact with the ball at the optimal point in front of your body.</string>
     <string name="placeholder_user_initials">JD</string>
     <string name="placeholder_user_name">John Doe</string>
-    <string name="placeholder_user_level">Intermediate Player</string>
     <string name="placeholder_score">86</string>
     <string name="placeholder_streak">12</string>
     <string name="placeholder_hits">0</string>
@@ -587,6 +586,7 @@
     <string name="btn_load_video">📂 Load Video</string>
     <string name="btn_log_poses">💾 Log Poses</string>
     <string name="btn_portrait_mode">📱 Portrait Mode</string>
+    <string name="btn_seed_sessions">🌱 Seed demo sessions</string>
     <string name="btn_load">📂 Load</string>
     <string name="btn_log">💾 Log</string>
     <string name="btn_landscape">🖥 Landscape</string>
@@ -662,7 +662,337 @@
     <string name="fps_24">24</string>
     <string name="fps_30">30</string>
     <string name="fps_60">60</string>
+    <string name="ball_detection_fps_label">Ball Detection FPS</string>
+    <string name="ball_detection_fps_desc">How often to run ball detection. Higher = more precise tracking, more battery usage</string>
+    <string name="ball_fps_10">10</string>
+    <string name="ball_fps_30">30</string>
+    <string name="ball_fps_60">60</string>
+    <string name="ball_fps_120">120</string>
     <string name="btn_landscape_mode">🖥 Landscape Mode</string>
     <string name="btn_pause_text">⏸ Pause</string>
     <string name="btn_play_text">▶ Play</string>
+
+    <!-- Personal Baseline Calibration (Stage 1 · Phase 1) -->
+    <string name="calibration_title">Personal Baseline</string>
+    <string name="drill_menu_calibrate">Calibrate</string>
+    <string name="drill_menu_edit_ui_mode">Edit in UI mode</string>
+    <string name="drills_add_custom_cta">Add custom drill (calibrate)</string>
+    <string name="drills_custom_name_title">Name this drill</string>
+    <string name="drills_custom_name_hint">e.g. My forehand</string>
+    <string name="drills_custom_name_save">Save</string>
+    <string name="drills_custom_default_name">Custom drill %1$d</string>
+    <string name="drills_custom_category">Custom</string>
+    <string name="drills_custom_saved_toast">Drill saved: %1$s</string>
+    <string name="calibration_cta_first_time">Calibrate: Forehand Shadow</string>
+    <string name="calibration_cta_recalibrate">Recalibrate (current: %1$d reps, %2$d days old)</string>
+    <string name="calibration_onboarding_headline">Set up your camera</string>
+    <string name="calibration_onboarding_instructions">Place the phone 2–3 m to your side, waist-height, at your hitting angle. You should be fully visible in frame during the stroke.\n\nYou\'ll perform %1$d reference reps of the forehand shadow swing in your natural technique — no coaching, just your normal stroke.</string>
+    <string name="calibration_onboarding_start">Start Capture</string>
+    <string name="calibration_rep_counter">Rep %1$d / %2$d</string>
+    <string name="calibration_finish_early">Finish Early</string>
+    <string name="calibration_discard_title">Discard calibration?</string>
+    <string name="calibration_discard_message">You\'ve captured %1$d reps — at least %2$d are required to save a baseline. Exit anyway?</string>
+    <string name="calibration_review_headline">Your baseline</string>
+    <string name="calibration_review_quality">Quality score: %1$.2f</string>
+    <string name="calibration_review_quality_low">Low calibration quality — redo recommended</string>
+    <string name="calibration_review_metric_row">%1$s: %2$.1f ± %3$.1f (n=%4$d)</string>
+    <string name="calibration_review_excluded">%1$d rep(s) excluded as outliers.</string>
+    <string name="calibration_capture_excluded_subtext">+%1$d excluded</string>
+    <string name="calibration_outlier_banner">Rep excluded — %1$s off by %2$.1fσ</string>
+
+    <!-- Calibration dev tooling (debug builds only) -->
+    <string name="debug_baseline_title">Baseline Debug Dump</string>
+    <string name="debug_baseline_empty">No active baseline found for the requested drill type.</string>
+    <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
+
+    <!-- Drill parameter editor (Phase 7 dev tool) -->
+    <string name="preview_title">Drill Shape Editor</string>
+    <string name="preview_status_mean">Mean stroke from %1$d rep(s), %2$d frames</string>
+    <string name="preview_status_raw_fallback">No stroke detected — replaying raw fixture</string>
+    <string name="preview_play">▶</string>
+    <string name="preview_pause">⏸</string>
+    <string name="preview_humanize">Humanize</string>
+    <string name="preview_frame_label">Frame %1$d / %2$d</string>
+    <string name="preview_slider_body_rotation">Ротація корпусу (yaw) %1$+.0f°</string>
+    <string name="preview_slider_torso_tilt">Нахил тулуба (pitch) %1$+.0f°</string>
+    <string name="preview_slider_shoulder">Кут плеча (right) %1$+.0f°</string>
+    <string name="preview_slider_elbow_angle">Кут ліктя %1$+.0f°</string>
+    <string name="preview_slider_elbow_x">Позиція ліктя X %1$+.3f</string>
+    <string name="preview_slider_wrist">Кут зап\'ястка %1$+.0f°</string>
+    <string name="preview_slider_knee_bend">Згин колін %1$+.0f°</string>
+    <string name="preview_save">Save overrides</string>
+    <string name="preview_reset">Reset</string>
+    <string name="preview_export">Export JSON</string>
+    <string name="preview_saved_toast">Drill overrides saved.</string>
+    <string name="preview_exported_toast">Overrides copied to clipboard + logcat (BaselineDump tag).</string>
+    <string name="preview_camera_hint">%s · %.0f°</string>
+    <string name="preview_rotation_label">Camera position: %s</string>
+    <string name="calibration_review_save">Save baseline</string>
+    <string name="calibration_review_redo">Redo</string>
+    <string name="calibration_saved_toast">Baseline saved.</string>
+    <string name="calibration_insufficient_reps">Not enough valid reps to derive a baseline. Try again with steadier strokes.</string>
+
+    <!-- Dashboard (gold-dark Home) -->
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="greeting_name_fallback">there</string>
+    <string name="format_greeting_prefix">%1$s,</string>
+    <string name="cd_avatar">Profile picture</string>
+
+    <string name="eyebrow_last_session">LAST SESSION</string>
+    <string name="placeholder_dash_dash">--</string>
+    <string name="placeholder_no_sessions">No sessions yet</string>
+    <string name="eyebrow_strokes">STROKES</string>
+    <string name="eyebrow_accuracy">ACCURACY</string>
+    <string name="eyebrow_consistency">CONSISTENCY</string>
+    <string name="action_view_full_report">View full report</string>
+    <string name="pill_premium">PREMIUM</string>
+    <string name="format_percent">%1$d%%</string>
+    <string name="day_today">Today</string>
+    <string name="day_yesterday">Yesterday</string>
+    <string name="format_when_label">%1$s · %2$s</string>
+
+    <string name="eyebrow_this_week">THIS WEEK</string>
+    <string name="format_streak_days">%1$d-day streak</string>
+    <string name="dow_mon_short">M</string>
+    <string name="dow_tue_short">T</string>
+    <string name="dow_wed_short">W</string>
+    <string name="dow_thu_short">T</string>
+    <string name="dow_fri_short">F</string>
+    <string name="dow_sat_short">S</string>
+    <string name="dow_sun_short">S</string>
+    <string name="format_weekly_sessions">%1$d / %2$d sessions</string>
+
+    <string name="eyebrow_focus_this_week">FOCUS THIS WEEK</string>
+    <string name="focus_placeholder_title">Focus areas coming soon</string>
+    <string name="focus_placeholder_desc">Complete more sessions to see your most-flagged corrections.</string>
+
+    <string name="btn_new_session">New session</string>
+
+    <!-- Exercises tab redesign (2a / 10a / 10b) -->
+    <string name="drills_section_recent">RECENT</string>
+    <string name="drills_section_all_programs">ALL PROGRAMS</string>
+    <string name="drills_show_locked">Show locked drills</string>
+    <string name="drills_hide_locked">Hide locked drills</string>
+    <string name="drills_recent_last_session">Last session</string>
+    <string name="drills_recent_accuracy">%1$d%% accuracy</string>
+    <string name="drills_continue_training">Continue training</string>
+    <string name="drills_add_own_exercise">+ Add your own exercise · calibration</string>
+    <string name="calibration_intro_title">Exercise calibration</string>
+    <string name="calibration_intro_body">1. Place the camera to the side, at waist height, 2–3 m away.\n2. Perform 8–10 strokes at your natural pace.\n3. The app will remember your angles as the baseline — this is your own technique, not a "correct" form.</string>
+    <string name="calibration_intro_proceed">Start</string>
+    <string name="calibration_intro_cancel">Cancel</string>
+    <string name="drill_action_continue">Continue training</string>
+    <string name="drill_action_edit">Edit</string>
+    <string name="drill_action_clone">Clone</string>
+    <string name="drill_action_rename">Rename</string>
+    <string name="drill_action_delete">Delete</string>
+    <string name="drill_action_swipe_forward">swipe →</string>
+    <string name="drill_action_swipe_back">swipe ←</string>
+    <string name="drill_clone_copy_suffix">(copy)</string>
+    <string name="drill_clone_toast">Cloned as \"%1$s\"</string>
+    <string name="drill_rename_title">Rename exercise</string>
+    <string name="drill_rename_save">Save</string>
+    <string name="drill_delete_title">Delete exercise?</string>
+    <string name="drill_delete_message">\"%1$s\" will be removed. This cannot be undone.</string>
+    <string name="drill_delete_confirm">Delete</string>
+    <string name="drill_delete_toast">Deleted \"%1$s\"</string>
+    <string name="drill_cancel">Cancel</string>
+
+    <!-- Settings 8a -->
+    <string name="settings_screen_title">Training settings</string>
+    <string name="settings_subtitle">Tune how your coach watches and talks to you</string>
+    <string name="settings_section_ai_coach">AI Coach</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_section_feedback_detection">Feedback &amp; detection</string>
+    <string name="settings_section_camera">Camera</string>
+    <string name="settings_choose_coach">Choose your coach</string>
+    <string name="settings_choose_coach_sub">Pick a coaching style that fits how you like to train</string>
+    <string name="settings_interface_language">Interface language</string>
+    <string name="settings_interface_language_sub">Language of the app\'s screens and menus</string>
+    <string name="settings_coach_language">Coach language</string>
+    <string name="settings_coach_language_sub">Language your coach speaks and writes in</string>
+    <string name="settings_link_feedback">Feedback</string>
+    <string name="settings_link_feedback_sub">Cues, cadence &amp; praise · applies to all sessions</string>
+    <string name="settings_link_detection">Detection</string>
+    <string name="settings_link_detection_sub">Stroke picking · thresholds, smoothing &amp; timing</string>
+    <string name="settings_video_quality">Video quality</string>
+    <string name="settings_video_quality_sub">Higher quality improves pose detection</string>
+    <string name="settings_frame_rate">Frame rate</string>
+    <string name="settings_frame_rate_sub">Higher captures faster motion</string>
+    <string name="settings_show_skeleton">Show pose skeleton</string>
+    <string name="settings_show_skeleton_sub">Overlay skeleton visualization during training</string>
+    <string name="settings_tip">TIP</string>
+    <string name="settings_tip_body">Use 720p at 30 FPS with the pose skeleton on. This balance keeps feedback accurate without draining your battery.</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_uk">UK</string>
+    <!-- Feedback 11a -->
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_subtitle">Applies to every session</string>
+    <string name="feedback_section_coaching">Coaching</string>
+    <string name="feedback_section_corrections">Corrections</string>
+    <string name="feedback_section_cue_zones">Cue zones</string>
+    <string name="feedback_section_cue_zones_sub">Global — layered on top of exercise strictness</string>
+    <string name="feedback_section_cadence">Cadence</string>
+    <string name="feedback_section_praise">Praise</string>
+    <string name="feedback_playing_hand">Playing hand</string>
+    <string name="feedback_hand_right">Right</string>
+    <string name="feedback_hand_left">Left</string>
+    <string name="feedback_voice_cues">Voice cues</string>
+    <string name="feedback_voice_cues_sub">Speak corrections aloud during play</string>
+    <string name="feedback_voice_volume">Voice volume</string>
+    <string name="feedback_zone_width">Zone width</string>
+    <string name="feedback_significance">Significance threshold</string>
+    <string name="feedback_alternate_cues">Alternate cues</string>
+    <string name="feedback_alternate_cues_sub">Rotate between flagged issues</string>
+    <string name="feedback_reminder_interval">Reminder interval</string>
+    <string name="feedback_pause_between">Pause between cues</string>
+    <string name="feedback_silence_before_praise">Silence before praise</string>
+    <string name="feedback_pause_after_stroke">Pause after stroke</string>
+    <string name="feedback_cues_per_session">Cues per session</string>
+    <string name="feedback_praise_enabled">Praise enabled</string>
+    <string name="feedback_praise_on_corrections">On corrections</string>
+    <string name="feedback_praise_on_streak">On streak</string>
+    <string name="feedback_streak_length">Streak length</string>
+    <string name="correction_wrist">Wrist Angle</string>
+    <string name="correction_rotation">Body Rotation</string>
+    <string name="correction_elbow">Elbow Position</string>
+    <string name="correction_speed">Stroke Speed</string>
+    <!-- Detection 11b -->
+    <string name="detection_title">Detection</string>
+    <string name="detection_subtitle">Advanced — how strokes are picked out</string>
+    <string name="detection_camera_angle">Camera angle</string>
+    <string name="detection_camera_angle_sub">Manual override · degrees</string>
+    <string name="detection_peak_speed">Peak speed threshold</string>
+    <string name="detection_peak_speed_sub">Torso-widths / second</string>
+    <string name="detection_min_interval">Min peak interval</string>
+    <string name="detection_min_interval_sub">Milliseconds</string>
+    <string name="detection_smoothing">Speed smoothing</string>
+    <string name="detection_smoothing_sub">Milliseconds · lower = more sensitive</string>
+    <string name="detection_walk_gate">Walk gate</string>
+    <string name="detection_walk_gate_sub">Pelvis shift · 0 = off</string>
+    <string name="detection_skip_stale">Skip stale reps</string>
+    <string name="detection_skip_stale_sub">Drop late-detected strokes</string>
+    <string name="detection_prestroke_buffer">Pre-stroke buffer</string>
+    <string name="detection_prestroke_buffer_sub">Milliseconds</string>
+    <string name="detection_ball_fps">Ball detection FPS</string>
+    <string name="detection_ball_fps_sub">Ball tracking capture rate</string>
+    <string name="detection_distance_mode">Distance mode</string>
+    <string name="detection_distance_mode_sub">Track ball distance from table</string>
+    <string name="cd_back">Back</string>
+
+    <!-- Subscription paywall — billing-toggle redesign (12b/13a) -->
+    <string name="subscribe_restore">Restore</string>
+    <string name="subscribe_start_premium">Start Premium</string>
+    <string name="subscribe_per_month_format">Just %1$s / month</string>
+    <string name="subscribe_savings_format">Save %1$d%% vs monthly</string>
+    <string name="subscribe_billed_monthly">$9.99 billed monthly · cancel anytime</string>
+    <string name="subscribe_billed_quarterly">$24.99 billed every 3 months · cancel anytime</string>
+    <string name="subscribe_billed_yearly">$79.99 billed yearly · cancel anytime</string>
+    <string name="subscribe_period_month">/mo</string>
+    <string name="subscribe_period_quarter">/3 mo</string>
+    <string name="subscribe_period_year">/yr</string>
+    <string name="subscribe_per_month_quarterly_value">$8.33</string>
+    <string name="subscribe_per_month_yearly_value">$6.67</string>
+    <string name="subscribe_feature_analysis">Advanced pose &amp; stroke analysis</string>
+    <string name="subscribe_feature_analytics">Advanced analytics &amp; error breakdown</string>
+    <string name="subscribe_feature_reports">Detailed post-session reports</string>
+    <string name="subscribe_terms">Terms</string>
+    <string name="subscribe_privacy">Privacy</string>
+    <string name="subscribe_restore_none">No purchases to restore</string>
+    <string name="subscribe_activated">Subscription activated!</string>
+
+    <!-- Exercise editor (10c New / 10d Clone/Edit) -->
+    <string name="exercise_editor_title_new">New exercise</string>
+    <string name="exercise_editor_title_clone">Duplicate</string>
+    <string name="exercise_editor_title_edit">Edit exercise</string>
+    <string name="exercise_editor_copy_badge">COPY</string>
+    <string name="exercise_editor_clone_subtitle">Cloned from %1$s</string>
+    <string name="exercise_editor_name_label">NAME</string>
+    <string name="exercise_editor_name_hint">e.g. Forehand counter-drive</string>
+    <string name="exercise_editor_focus_label">FOCUS</string>
+    <string name="focus_arm">Arm</string>
+    <string name="focus_shoulders">Shoulders</string>
+    <string name="focus_legs">Legs</string>
+    <string name="focus_core">Core</string>
+    <string name="focus_hips">Hips</string>
+    <string name="exercise_editor_active_metrics">Active metrics: %1$s</string>
+    <string name="exercise_editor_reference_label">REFERENCE</string>
+    <string name="exercise_editor_reference_baseline">My baseline (calibrate to me)</string>
+    <string name="exercise_editor_reference_standard">Standard technique</string>
+    <string name="exercise_editor_strictness_label">STRICTNESS</string>
+    <string name="exercise_editor_advanced_header">Advanced — per-phase targets</string>
+    <string name="exercise_editor_advanced_hint">Redefine ideal ranges per phase. Empty = standard values.</string>
+    <string name="exercise_editor_col_metric">METRIC · PHASE</string>
+    <string name="exercise_editor_col_from">FROM°</string>
+    <string name="exercise_editor_col_to">TO°</string>
+    <string name="exercise_editor_action_create">Create exercise</string>
+    <string name="exercise_editor_action_save_copy">Save copy</string>
+    <string name="exercise_editor_action_save">Save</string>
+    <string name="exercise_editor_action_cancel">Cancel</string>
+    <string name="exercise_editor_row_elbow_backswing">Elbow · backswing</string>
+    <string name="exercise_editor_row_elbow_finish">Elbow · finish</string>
+    <string name="exercise_editor_row_shoulder_backswing">Shoulder · backswing</string>
+    <string name="exercise_editor_row_shoulder_finish">Shoulder · finish</string>
+    <string name="exercise_editor_row_knees_backswing">Knees · backswing</string>
+    <string name="exercise_editor_row_knees_strike">Knees · strike</string>
+    <string name="exercise_editor_row_hips_backswing">Hips · backswing</string>
+    <string name="exercise_editor_row_hips_strike">Hips · strike</string>
+    <string name="exercise_editor_row_torso_backswing">Torso tilt · backswing</string>
+    <string name="exercise_editor_row_torso_strike">Torso tilt · strike</string>
+    <!-- Session Review (Slice 3) -->
+    <string name="review_eyebrow">SESSION REVIEW</string>
+    <string name="review_kpi_accuracy">Accuracy</string>
+    <string name="review_kpi_strokes">Strokes</string>
+    <string name="review_kpi_duration">Duration</string>
+    <string name="review_accuracy_card_title">ACCURACY THROUGH SESSION</string>
+    <string name="review_accuracy_caption">Clean-stroke rate across the session</string>
+    <string name="review_peak_pill">Peak %1$d%%</string>
+    <string name="review_x_label_start">0 min</string>
+    <string name="review_shot_quality_title">SHOT QUALITY · %1$d strokes</string>
+    <string name="review_legend_clean">Clean %1$d</string>
+    <string name="review_legend_error">Error %1$d</string>
+    <string name="review_focus_title">TOP FOCUS AREAS</string>
+    <string name="review_top_focus_chip">TOP FOCUS</string>
+    <string name="review_focus_count">%1$d×</string>
+    <string name="review_view_all_focus">View all %1$d focus areas ›</string>
+    <string name="review_summary_title">AI COACH SUMMARY</string>
+    <string name="review_action_train_again">Train this again</string>
+    <string name="review_action_overview">Overview</string>
+    <string name="review_no_analytics">No detailed analytics for this session</string>
+    <string name="review_when_meta">%1$s · %2$s · %3$d min</string>
+    <string name="review_kpi_duration_value">%1$dm</string>
+    <string name="review_x_axis_min">%1$d min</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="cd_share">Share session</string>
+    <!-- Focus-area display names (keys match SessionAnalyticsBuilder.displayNameKey) -->
+    <string name="focus_wrist">Wrist angle</string>
+    <string name="focus_body_rotation">Body rotation</string>
+    <string name="focus_follow_through">Follow-through</string>
+    <string name="focus_contact_height">Contact height</string>
+    <string name="focus_elbow_position">Elbow position</string>
+    <string name="focus_stroke_speed">Stroke speed</string>
+    <string name="focus_general">General technique</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Session history</string>
+    <string name="history_subtitle">%1$d sessions · last 30 days</string>
+    <string name="history_kpi_sessions">Sessions</string>
+    <string name="history_kpi_accuracy">Avg accuracy</string>
+    <string name="history_kpi_time">Total time</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_filter_forehand">Forehand</string>
+    <string name="history_filter_backhand">Backhand</string>
+    <string name="history_filter_topspin">Topspin</string>
+    <string name="history_section_this_week">THIS WEEK</string>
+    <string name="history_section_last_week">LAST WEEK</string>
+    <string name="history_section_earlier">EARLIER · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d min</string>
+    <string name="history_show_earlier">Show %1$d earlier sessions ⌄</string>
+    <string name="history_empty_title">No sessions yet — start a drill</string>
+    <string name="history_empty_cta">Go to Drills</string>
+    <string name="history_total_hours">%1$.1fh</string>
+    <string name="cd_filter">Filter sessions</string>
 </resources>

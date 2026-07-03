@@ -24,6 +24,13 @@ class ExerciseSelectionActivity : BaseActivity() {
                 duration = getString(R.string.duration_10_15)
             ),
             Exercise(
+                id = "forehand_andrii",
+                name = getString(R.string.exercise_forehand_andrii_name),
+                description = getString(R.string.exercise_forehand_andrii_desc),
+                difficulty = getString(R.string.difficulty_beginner),
+                duration = getString(R.string.duration_10_15)
+            ),
+            Exercise(
                 id = "backhand_drive",
                 name = getString(R.string.exercise_backhand_name),
                 description = getString(R.string.exercise_backhand_desc),
@@ -67,9 +74,10 @@ class ExerciseSelectionActivity : BaseActivity() {
 
         // Setup RecyclerView
         binding.exerciseRecyclerView.layoutManager = LinearLayoutManager(this)
-        val adapter = ExerciseAdapter(exercises) { exercise ->
-            onExerciseSelected(exercise)
-        }
+        val adapter = ExerciseAdapter(
+            exercises = exercises,
+            onExerciseClick = { onExerciseSelected(it) }
+        )
         binding.exerciseRecyclerView.adapter = adapter
 
         // Текст підказки
@@ -78,7 +86,7 @@ class ExerciseSelectionActivity : BaseActivity() {
 
     private fun onExerciseSelected(exercise: Exercise) {
         if (exercise.isLocked) {
-            androidx.appcompat.app.AlertDialog.Builder(this)
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.exercise_locked_title)
                 .setMessage(R.string.exercise_locked_message)
                 .setPositiveButton(R.string.dialog_ok, null)

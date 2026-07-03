@@ -19,7 +19,7 @@ plugins {
     id 'org.jetbrains.kotlin.android'
     id 'de.undercouch.download'
     id 'com.google.gms.google-services'
-    id 'com.google.devtools.ksp' version '2.1.0-1.0.29' // Fits Kotlin 2.1.0
+    id 'com.google.devtools.ksp' version '2.2.21-2.0.5' // Matches Kotlin 2.2.21
 }
 
 android {
@@ -70,7 +70,7 @@ android {
         }
     }
     androidResources {
-        noCompress 'task'
+        noCompress 'task', 'tflite'
     }
 }
 
@@ -84,7 +84,7 @@ dependencies {
     implementation project(':shared')
 
     // Kotlin lang
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.2.21"
     implementation 'androidx.core:core-ktx:1.15.0'
 
     // App compat and UI things
@@ -92,6 +92,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.5'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
     // Navigation library
     def nav_version = "2.9.7"
@@ -157,4 +158,8 @@ dependencies {
 
     // OpenCV Android SDK 4.9.0 (ball detection via color/shape analysis)
     implementation 'org.opencv:opencv:4.9.0'
+
+    // TensorFlow Lite (ball detection)
+    implementation 'org.tensorflow:tensorflow-lite:2.16.1'
+    implementation 'org.tensorflow:tensorflow-lite-gpu:2.16.1'
 }

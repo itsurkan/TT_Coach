@@ -43,6 +43,16 @@ class MainActivity : BaseActivity() {
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         binding.navView.setupWithNavController(navController)
+
+        // Keep the Settings/Progress tabs highlighted on their pushed child screens.
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.navigation_feedback, R.id.navigation_detection ->
+                    binding.navView.menu.findItem(R.id.navigation_settings)?.isChecked = true
+                R.id.navigation_session_history, R.id.navigation_session_review ->
+                    binding.navView.menu.findItem(R.id.navigation_progress)?.isChecked = true
+            }
+        }
     }
 
     override fun onResume() {

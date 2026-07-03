@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">TT AI Coach 1</string>
+    <string name="app_name">TT Coach AI</string>
     <string name="use_video_debug">🎬 Використати відео (відлагодження)</string>
 
     <string name="media_pipe">MediaPipe</string>
@@ -57,6 +57,8 @@
     <string name="exercise_locked_message">Ця вправа буде доступна у наступних версіях додатку.</string>
     <string name="exercise_forehand_name">Накат справа (Forehand Drive)</string>
     <string name="exercise_forehand_desc">Базовий удар справа з ротацією корпусу</string>
+    <string name="exercise_forehand_andrii_name">Накат справа (Андрій)</string>
+    <string name="exercise_forehand_andrii_desc">Форхенд за еталонним ударом Андрія</string>
     <string name="exercise_backhand_name">Накат зліва (Backhand Drive)</string>
     <string name="exercise_backhand_desc">Базовий удар зліва</string>
     <string name="exercise_topspin_name">Топ-спін справа</string>
@@ -240,7 +242,6 @@
     <string name="placeholder_feedback_desc_perfect">Ви зробили контакт з м\'ячем у оптимальній точці перед собою.</string>
     <string name="placeholder_user_initials">ІП</string>
     <string name="placeholder_user_name">Іван Петренко</string>
-    <string name="placeholder_user_level">Середній рівень</string>
     <string name="placeholder_score">86</string>
     <string name="placeholder_streak">12</string>
     <string name="placeholder_hits">0</string>
@@ -314,6 +315,7 @@
     <string name="btn_load_video">📂 Завантажити відео</string>
     <string name="btn_log_poses">💾 Логувати пози</string>
     <string name="btn_portrait_mode">📱 Портретний режим</string>
+    <string name="btn_seed_sessions">🌱 Заповнити тестовими сесіями</string>
     <string name="btn_load">📂 Завантажити</string>
     <string name="btn_log">💾 Лог</string>
     <string name="btn_landscape">🖥 Ландшафтний режим</string>
@@ -429,11 +431,6 @@
     <string name="theme_light">Світла</string>
     <string name="theme_dark">Темна</string>
     <string name="theme_system">Системна</string>
-    <string name="skill_level_title">Рівень навичок</string>
-    <string name="level_beginner">Початківець</string>
-    <string name="level_intermediate">Середній</string>
-    <string name="level_advanced">Просунутий</string>
-    <string name="level_format">%s гравець</string>
     <string name="language_section">Мова</string>
     <string name="language_title">Мова інтерфейсу</string>
     <string name="language_desc">Оберіть бажану мову для додатка</string>
@@ -552,4 +549,289 @@
     <string name="skill_tip_desc">Почніть з реалістичної цілі та поступово підвищуйте її. Стабільність важливіша за досконалість!</string>
     <string name="save_target">Зберегти ціль</string>
     <string name="target_saved">Ціль успішно збережено!</string>
+
+    <string name="drills_add_custom_cta">Додати свою вправу (калібрування)</string>
+    <string name="drills_custom_name_title">Назвіть вправу</string>
+    <string name="drills_custom_name_hint">напр., Мій форхенд</string>
+    <string name="drills_custom_name_save">Зберегти</string>
+    <string name="drills_custom_default_name">Своя вправа %1$d</string>
+    <string name="drills_custom_category">Своя</string>
+    <string name="drills_custom_saved_toast">Вправу збережено: %1$s</string>
+
+    <!-- Dashboard (gold-dark Home) -->
+    <string name="greeting_morning">Доброго ранку</string>
+    <string name="greeting_afternoon">Доброго дня</string>
+    <string name="greeting_evening">Доброго вечора</string>
+    <string name="greeting_name_fallback">друже</string>
+    <string name="format_greeting_prefix">%1$s,</string>
+    <string name="cd_avatar">Фото профілю</string>
+
+    <string name="eyebrow_last_session">ОСТАННЯ СЕСІЯ</string>
+    <string name="placeholder_dash_dash">--</string>
+    <string name="placeholder_no_sessions">Ще немає сесій</string>
+    <string name="eyebrow_strokes">УДАРИ</string>
+    <string name="eyebrow_accuracy">ТОЧНІСТЬ</string>
+    <string name="eyebrow_consistency">СТАБІЛЬНІСТЬ</string>
+    <string name="action_view_full_report">Повний звіт</string>
+    <string name="pill_premium">ПРЕМІУМ</string>
+    <string name="format_percent">%1$d%%</string>
+    <string name="day_today">Сьогодні</string>
+    <string name="day_yesterday">Учора</string>
+    <string name="format_when_label">%1$s · %2$s</string>
+
+    <string name="eyebrow_this_week">ЦЬОГО ТИЖНЯ</string>
+    <string name="format_streak_days">Серія: %1$d дн.</string>
+    <string name="dow_mon_short">Пн</string>
+    <string name="dow_tue_short">Вт</string>
+    <string name="dow_wed_short">Ср</string>
+    <string name="dow_thu_short">Чт</string>
+    <string name="dow_fri_short">Пт</string>
+    <string name="dow_sat_short">Сб</string>
+    <string name="dow_sun_short">Нд</string>
+    <string name="format_weekly_sessions">%1$d / %2$d сесій</string>
+
+    <string name="eyebrow_focus_this_week">ФОКУС ЦЬОГО ТИЖНЯ</string>
+    <string name="focus_placeholder_title">Напрямки роботи скоро з’являться</string>
+    <string name="focus_placeholder_desc">Проведіть більше сесій, щоб побачити найчастіші зауваження.</string>
+
+    <string name="btn_new_session">Нова сесія</string>
+
+    <!-- Exercises tab redesign (2a / 10a / 10b) -->
+    <string name="drills_section_recent">НЕЩОДАВНІ</string>
+    <string name="drills_section_all_programs">ВСІ ПРОГРАМИ</string>
+    <string name="drills_show_locked">Показати заблоковані</string>
+    <string name="drills_hide_locked">Сховати заблоковані</string>
+    <string name="drills_recent_last_session">Останнє тренування</string>
+    <string name="drills_recent_accuracy">%1$d%% точності</string>
+    <string name="drills_continue_training">Продовжити тренування</string>
+    <string name="drills_add_own_exercise">+ Додати свою вправу · калібрування</string>
+    <string name="calibration_intro_title">Калібрування вправи</string>
+    <string name="calibration_intro_body">1. Розташуйте камеру збоку, на рівні пояса, на відстані 2–3 м.\n2. Виконайте 8–10 ударів у своєму звичному темпі.\n3. Система запам\'ятає ваші кути як еталон — це ваша особиста техніка, а не «правильна» форма.</string>
+    <string name="calibration_intro_proceed">Розпочати</string>
+    <string name="calibration_intro_cancel">Скасувати</string>
+    <string name="drill_action_continue">Продовжити тренування</string>
+    <string name="drill_action_edit">Редагувати</string>
+    <string name="drill_action_clone">Клонувати</string>
+    <string name="drill_action_rename">Перейменувати</string>
+    <string name="drill_action_delete">Видалити</string>
+    <string name="drill_clone_copy_suffix">(копія)</string>
+    <string name="drill_clone_toast">Клоновано як «%1$s»</string>
+    <string name="drill_rename_title">Перейменувати вправу</string>
+    <string name="drill_rename_save">Зберегти</string>
+    <string name="drill_delete_title">Видалити вправу?</string>
+    <string name="drill_delete_message">«%1$s» буде видалено. Цю дію не можна скасувати.</string>
+    <string name="drill_delete_confirm">Видалити</string>
+    <string name="drill_delete_toast">Видалено «%1$s»</string>
+    <string name="drill_cancel">Скасувати</string>
+
+    <!-- Settings / Feedback / Detection redesign (gold-dark) -->
+    <string name="settings_screen_title">Налаштування тренувань</string>
+    <string name="settings_subtitle">Налаштуйте, як ваш тренер спостерігає та розмовляє з вами</string>
+    <string name="settings_section_ai_coach">AI Тренер</string>
+    <string name="settings_section_language">Мова</string>
+    <string name="settings_section_feedback_detection">Зворотний зв\'язок і виявлення</string>
+    <string name="settings_section_camera">Камера</string>
+    <string name="settings_choose_coach">Оберіть свого тренера</string>
+    <string name="settings_choose_coach_sub">Оберіть стиль тренування, що відповідає вашим уподобанням</string>
+    <string name="settings_interface_language">Мова інтерфейсу</string>
+    <string name="settings_interface_language_sub">Мова екранів і меню додатка</string>
+    <string name="settings_coach_language">Мова тренера</string>
+    <string name="settings_coach_language_sub">Мова, якою тренер говорить і пише</string>
+    <string name="settings_link_feedback">Зворотний зв\'язок</string>
+    <string name="settings_link_feedback_sub">Підказки, ритм і похвала · застосовується до всіх сесій</string>
+    <string name="settings_link_detection">Виявлення</string>
+    <string name="settings_link_detection_sub">Розпізнавання ударів · пороги, згладжування та таймінг</string>
+    <string name="settings_video_quality">Якість відео</string>
+    <string name="settings_video_quality_sub">Вища якість покращує виявлення пози</string>
+    <string name="settings_frame_rate">Частота кадрів</string>
+    <string name="settings_frame_rate_sub">Вища частота фіксує швидші рухи</string>
+    <string name="settings_show_skeleton">Показувати скелет пози</string>
+    <string name="settings_show_skeleton_sub">Накладання візуалізації скелету під час тренування</string>
+    <string name="settings_tip">ПОРАДА</string>
+    <string name="settings_tip_body">Використовуйте 720p при 30 FPS з увімкненим скелетом пози. Цей баланс забезпечує точний фідбек без розрядження батареї.</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_uk">UK</string>
+
+    <string name="feedback_title">Зворотний зв\'язок</string>
+    <string name="feedback_subtitle">Застосовується до кожної сесії</string>
+    <string name="feedback_section_coaching">Тренування</string>
+    <string name="feedback_section_corrections">Корекції</string>
+    <string name="feedback_section_cue_zones">Зони підказок</string>
+    <string name="feedback_section_cue_zones_sub">Глобально — накладається поверх суворості вправи</string>
+    <string name="feedback_section_cadence">Ритм</string>
+    <string name="feedback_section_praise">Похвала</string>
+    <string name="feedback_playing_hand">Ігрова рука</string>
+    <string name="feedback_hand_right">Права</string>
+    <string name="feedback_hand_left">Ліва</string>
+    <string name="feedback_voice_cues">Голосові підказки</string>
+    <string name="feedback_voice_cues_sub">Озвучувати корекції під час гри</string>
+    <string name="feedback_voice_volume">Гучність голосу</string>
+    <string name="feedback_zone_width">Ширина зони</string>
+    <string name="feedback_significance">Поріг значущості</string>
+    <string name="feedback_alternate_cues">Чергування підказок</string>
+    <string name="feedback_alternate_cues_sub">Чергувати між позначеними проблемами</string>
+    <string name="feedback_reminder_interval">Інтервал нагадування</string>
+    <string name="feedback_pause_between">Пауза між підказками</string>
+    <string name="feedback_silence_before_praise">Тиша перед похвалою</string>
+    <string name="feedback_pause_after_stroke">Пауза після удару</string>
+    <string name="feedback_cues_per_session">Підказок за сесію</string>
+    <string name="feedback_praise_enabled">Похвала увімкнена</string>
+    <string name="feedback_praise_on_corrections">При корекціях</string>
+    <string name="feedback_praise_on_streak">При серії</string>
+    <string name="feedback_streak_length">Довжина серії</string>
+    <string name="correction_wrist">Кут зап\'ястя</string>
+    <string name="correction_rotation">Ротація корпусу</string>
+    <string name="correction_elbow">Позиція ліктя</string>
+    <string name="correction_speed">Швидкість удару</string>
+
+    <string name="detection_title">Виявлення</string>
+    <string name="detection_subtitle">Розширені — як розпізнаються удари</string>
+    <string name="detection_camera_angle">Кут камери</string>
+    <string name="detection_camera_angle_sub">Ручне перевизначення · градуси</string>
+    <string name="detection_peak_speed">Поріг пікової швидкості</string>
+    <string name="detection_peak_speed_sub">Ширин тулуба / секунду</string>
+    <string name="detection_min_interval">Мін. інтервал між піками</string>
+    <string name="detection_min_interval_sub">Мілісекунди</string>
+    <string name="detection_smoothing">Згладжування швидкості</string>
+    <string name="detection_smoothing_sub">Мілісекунди · менше = чутливіше</string>
+    <string name="detection_walk_gate">Поріг ходьби</string>
+    <string name="detection_walk_gate_sub">Зміщення таза · 0 = вимкнено</string>
+    <string name="detection_skip_stale">Пропускати застарілі удари</string>
+    <string name="detection_skip_stale_sub">Відкидати пізно виявлені удари</string>
+    <string name="detection_prestroke_buffer">Буфер перед ударом</string>
+    <string name="detection_prestroke_buffer_sub">Мілісекунди</string>
+    <string name="detection_ball_fps">FPS виявлення м\'яча</string>
+    <string name="detection_ball_fps_sub">Частота захоплення відстеження м\'яча</string>
+    <string name="detection_distance_mode">Режим на відстані</string>
+    <string name="detection_distance_mode_sub">Відстежувати відстань м\'яча від столу</string>
+    <string name="cd_back">Назад</string>
+
+    <!-- Subscription paywall — billing-toggle redesign (12b/13a) -->
+    <!-- Reused strings (previously EN-only) — added here for EN/UK parity -->
+    <string name="subscribe_title">Відкрийте Premium</string>
+    <string name="subscribe_subtitle">Необмежений доступ до ШІ-тренера та розширених інструментів тренування</string>
+    <string name="plan_monthly">Щомісячно</string>
+    <string name="plan_quarterly">Щокварталу</string>
+    <string name="plan_yearly">Щороку</string>
+    <string name="plan_monthly_price">$9.99</string>
+    <string name="plan_quarterly_price">$24.99</string>
+    <string name="plan_yearly_price">$79.99</string>
+    <string name="badge_popular">Популярний</string>
+    <string name="badge_best_value">Найвигідніше</string>
+    <string name="whats_included">Що входить</string>
+    <string name="feature_unlimited_coaching">Необмежені сесії з ШІ-тренером</string>
+    <string name="feature_training_plans">Персоналізовані плани тренувань</string>
+    <!-- New strings -->
+    <string name="subscribe_restore">Відновити</string>
+    <string name="subscribe_start_premium">Почати Premium</string>
+    <string name="subscribe_per_month_format">Лише %1$s / місяць</string>
+    <string name="subscribe_savings_format">Заощаджуйте %1$d%% порівняно з місячним</string>
+    <string name="subscribe_billed_monthly">$9.99 щомісяця · скасування будь-коли</string>
+    <string name="subscribe_billed_quarterly">$24.99 кожні 3 місяці · скасування будь-коли</string>
+    <string name="subscribe_billed_yearly">$79.99 щороку · скасування будь-коли</string>
+    <string name="subscribe_period_month">/міс</string>
+    <string name="subscribe_period_quarter">/3 міс</string>
+    <string name="subscribe_period_year">/рік</string>
+    <string name="subscribe_per_month_quarterly_value">$8.33</string>
+    <string name="subscribe_per_month_yearly_value">$6.67</string>
+    <string name="subscribe_feature_analysis">Розширений аналіз пози та удару</string>
+    <string name="subscribe_feature_analytics">Розширена аналітика та розбір помилок</string>
+    <string name="subscribe_feature_reports">Детальні звіти після сесії</string>
+    <string name="subscribe_terms">Умови</string>
+    <string name="subscribe_privacy">Конфіденційність</string>
+    <string name="subscribe_restore_none">Немає покупок для відновлення</string>
+    <string name="subscribe_activated">Підписку активовано!</string>
+
+    <!-- Exercise editor (10c New / 10d Clone/Edit) -->
+    <string name="exercise_editor_title_new">Нова вправа</string>
+    <string name="exercise_editor_title_clone">Дублювати</string>
+    <string name="exercise_editor_title_edit">Редагувати вправу</string>
+    <string name="exercise_editor_copy_badge">КОПІЯ</string>
+    <string name="exercise_editor_clone_subtitle">Скопійовано з %1$s</string>
+    <string name="exercise_editor_name_label">НАЗВА</string>
+    <string name="exercise_editor_name_hint">напр., Форхенд контр-удар</string>
+    <string name="exercise_editor_focus_label">ФОКУС</string>
+    <string name="focus_arm">Рука</string>
+    <string name="focus_shoulders">Плечі</string>
+    <string name="focus_legs">Ноги</string>
+    <string name="focus_core">Корпус</string>
+    <string name="focus_hips">Стегна</string>
+    <string name="exercise_editor_active_metrics">Активні метрики: %1$s</string>
+    <string name="exercise_editor_reference_label">ЕТАЛОН</string>
+    <string name="exercise_editor_reference_baseline">Мій базовий рівень (калібрування під мене)</string>
+    <string name="exercise_editor_reference_standard">Стандартна техніка</string>
+    <string name="exercise_editor_strictness_label">СУВОРІСТЬ</string>
+    <string name="exercise_editor_advanced_header">Розширено — цілі за фазами</string>
+    <string name="exercise_editor_advanced_hint">Перевизначте ідеальні діапазони для кожної фази. Порожньо = стандартні значення.</string>
+    <string name="exercise_editor_col_metric">МЕТРИКА · ФАЗА</string>
+    <string name="exercise_editor_col_from">ВІД°</string>
+    <string name="exercise_editor_col_to">ДО°</string>
+    <string name="exercise_editor_action_create">Створити вправу</string>
+    <string name="exercise_editor_action_save_copy">Зберегти копію</string>
+    <string name="exercise_editor_action_save">Зберегти</string>
+    <string name="exercise_editor_action_cancel">Скасувати</string>
+    <string name="exercise_editor_row_elbow_backswing">Лікоть · замах</string>
+    <string name="exercise_editor_row_elbow_finish">Лікоть · завершення</string>
+    <string name="exercise_editor_row_shoulder_backswing">Плече · замах</string>
+    <string name="exercise_editor_row_shoulder_finish">Плече · завершення</string>
+    <string name="exercise_editor_row_knees_backswing">Коліна · замах</string>
+    <string name="exercise_editor_row_knees_strike">Коліна · удар</string>
+    <string name="exercise_editor_row_hips_backswing">Стегна · замах</string>
+    <string name="exercise_editor_row_hips_strike">Стегна · удар</string>
+    <string name="exercise_editor_row_torso_backswing">Нахил корпусу · замах</string>
+    <string name="exercise_editor_row_torso_strike">Нахил корпусу · удар</string>
+    <!-- Session Review (Slice 3) -->
+    <string name="review_eyebrow">ОГЛЯД СЕСІЇ</string>
+    <string name="review_kpi_accuracy">Точність</string>
+    <string name="review_kpi_strokes">Удари</string>
+    <string name="review_kpi_duration">Тривалість</string>
+    <string name="review_accuracy_card_title">ТОЧНІСТЬ ПРОТЯГОМ СЕСІЇ</string>
+    <string name="review_accuracy_caption">Частка чистих ударів протягом сесії</string>
+    <string name="review_peak_pill">Пік %1$d%%</string>
+    <string name="review_x_label_start">0 хв</string>
+    <string name="review_shot_quality_title">ЯКІСТЬ УДАРІВ · %1$d ударів</string>
+    <string name="review_legend_clean">Чисті %1$d</string>
+    <string name="review_legend_error">Помилки %1$d</string>
+    <string name="review_focus_title">ГОЛОВНІ ЗОНИ УВАГИ</string>
+    <string name="review_top_focus_chip">ГОЛОВНЕ</string>
+    <string name="review_focus_count">%1$d×</string>
+    <string name="review_view_all_focus">Показати всі зони уваги (%1$d) ›</string>
+    <string name="review_summary_title">ПІДСУМОК ВІД ТРЕНЕРА</string>
+    <string name="review_action_train_again">Повторити тренування</string>
+    <string name="review_action_overview">Огляд</string>
+    <string name="review_no_analytics">Немає детальної аналітики для цієї сесії</string>
+    <string name="review_when_meta">%1$s · %2$s · %3$d хв</string>
+    <string name="review_kpi_duration_value">%1$dхв</string>
+    <string name="review_x_axis_min">%1$d хв</string>
+    <string name="date_today">Сьогодні</string>
+    <string name="date_yesterday">Вчора</string>
+    <string name="cd_share">Поділитися сесією</string>
+    <!-- Focus-area display names -->
+    <string name="focus_wrist">Кут зап\'ястя</string>
+    <string name="focus_body_rotation">Обертання тіла</string>
+    <string name="focus_follow_through">Проводка</string>
+    <string name="focus_contact_height">Висота контакту</string>
+    <string name="focus_elbow_position">Положення ліктя</string>
+    <string name="focus_stroke_speed">Швидкість удару</string>
+    <string name="focus_general">Загальна техніка</string>
+
+    <!-- Session History (Slice 3) -->
+    <string name="history_title">Історія сесій</string>
+    <string name="history_subtitle">%1$d сесій · останні 30 днів</string>
+    <string name="history_kpi_sessions">Сесії</string>
+    <string name="history_kpi_accuracy">Сер. точність</string>
+    <string name="history_kpi_time">Загальний час</string>
+    <string name="history_filter_all">Усі</string>
+    <string name="history_filter_forehand">Форхенд</string>
+    <string name="history_filter_backhand">Бекхенд</string>
+    <string name="history_filter_topspin">Топспін</string>
+    <string name="history_section_this_week">ЦЬОГО ТИЖНЯ</string>
+    <string name="history_section_last_week">МИНУЛОГО ТИЖНЯ</string>
+    <string name="history_section_earlier">РАНІШЕ · %1$s</string>
+    <string name="history_row_meta">%1$s · %2$d хв</string>
+    <string name="history_show_earlier">Показати ще %1$d сесій ⌄</string>
+    <string name="history_empty_title">Ще немає сесій — почніть вправу</string>
+    <string name="history_empty_cta">До вправ</string>
+    <string name="history_total_hours">%1$.1f год</string>
+    <string name="cd_filter">Фільтрувати сесії</string>
 </resources>

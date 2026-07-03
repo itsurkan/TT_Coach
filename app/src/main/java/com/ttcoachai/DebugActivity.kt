@@ -69,6 +69,8 @@ class DebugActivity : AppCompatActivity() {
         binding.btnToggleViewMode.setOnClickListener { toggleViewMode() }
         binding.btnToggleViewModePortrait.setOnClickListener { toggleViewMode() }
         
+        binding.btnSeedSessions.setOnClickListener { seedDemoSessions() }
+
         binding.btnPlayPause.setOnClickListener { playbackManager.togglePlayPause() }
         binding.btnStepBack.setOnClickListener { playbackManager.stepPosition(-300) }
         binding.btnStepForward.setOnClickListener { playbackManager.stepPosition(300) }
@@ -123,7 +125,7 @@ class DebugActivity : AppCompatActivity() {
         }
         videoFiles.sort()
 
-        AlertDialog.Builder(this)
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
             .setTitle("Select Video (${videoFiles.size})")
             .setItems(videoFiles.toTypedArray()) { _, which ->
                 videoLoader.loadVideoFromAssets("Videos/${videoFiles[which]}") { _, _ -> }
@@ -134,6 +136,13 @@ class DebugActivity : AppCompatActivity() {
     private fun resetAnalysis() {
         playbackManager.reset()
         videoLoader.reset()
+    }
+
+    private fun seedDemoSessions() {
+        lifecycleScope.launch {
+            com.ttcoachai.debug.SessionAnalyticsSeeder.seed(this@DebugActivity)
+            Toast.makeText(this@DebugActivity, "Seeded demo sessions", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun exportPoses() {

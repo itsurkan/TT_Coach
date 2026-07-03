@@ -9,22 +9,71 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.databinding.ItemExerciseBinding
+import com.ttcoachai.databinding.ItemLockedToggleBinding
+import com.ttcoachai.fragment.DrillActions
+import com.ttcoachai.ui.SwipeRevealLayout
+import com.ttcoachai.ui.SwipeState
 
 class ExerciseAdapter(
     private var exercises: List<Exercise>,
-    private val onExerciseClick: (Exercise) -> Unit
-) : RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>() {
+    private val onExerciseClick: (Exercise) -> Unit,
+    private val onExerciseLongClick: ((Exercise) -> Unit)? = null,
+    private val onCloneClick: (Exercise) -> Unit = {},
+    private val onDeleteClick: (Exercise) -> Unit = {},
+    private val onToggleLocked: () -> Unit = {}
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    fun updateList(newExercises: List<Exercise>) {
+    /** The single row currently open, if any — enforces one-open-at-a-time. */
+    private var openRow: SwipeRevealLayout? = null
+
+    /** When there are hidden locked drills, a footer toggle row is appended. */
+    private var hasLocked = false
+    private var lockedExpanded = false
+
+    /**
+     * Replaces the visible drill list. [hasLocked] controls whether the expand/collapse
+     * footer is shown; [expanded] drives its label + chevron direction.
+     */
+    fun setData(newExercises: List<Exercise>, hasLocked: Boolean, expanded: Boolean) {
         exercises = newExercises
+        this.hasLocked = hasLocked
+        this.lockedExpanded = expanded
+        openRow = null
         notifyDataSetChanged()
     }
+
+    /** Closes whichever row is open (used by the fragment's scroll listener). */
+    fun closeOpenRow() {
+        openRow?.close(animate = true)
+    }
+
+    override fun getItemCount(): Int = exercises.size + if (hasLocked) 1 else 0
+
+    override fun getItemViewType(position: Int): Int =
+        if (hasLocked && position == exercises.size) VIEW_TYPE_FOOTER else VIEW_TYPE_ITEM
 
     inner class ExerciseViewHolder(
         private val binding: ItemExerciseBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(exercise: Exercise) {
+            val layout = binding.root // SwipeRevealLayout
+
+            // CRITICAL: reset the recycled row to CLOSED before rebinding, or a recycled view
+            // shows a stale open state. Null the listener first so the reset's state callback
+            // does not disturb the coordinator, then wire the fresh listener.
+            layout.onStateChanged = null
+            layout.close(animate = false)
+            layout.setDeleteEnabled(DrillActions.canDelete(exercise))
+            layout.onStateChanged = { newState ->
+                if (newState != SwipeState.CLOSED) {
+                    if (openRow != null && openRow !== layout) openRow?.close(animate = true)
+                    openRow = layout
+                } else if (openRow === layout) {
+                    openRow = null
+                }
+            }
+
             binding.apply {
                 tvExerciseName.text = exercise.name
                 tvExerciseDescription.text = exercise.description
@@ -32,66 +81,86 @@ class ExerciseAdapter(
                 tvDuration.text = exercise.duration
                 tvCategory.text = exercise.category
 
-                // Set icon, tint and background based on exercise ID
-                val (iconRes, iconTint, iconBackground) = when (exercise.id) {
-                    "forehand_drive" -> Triple(R.drawable.ic_target, R.color.blue_500, R.drawable.bg_icon_container_blue)
-                    "backhand_loop" -> Triple(R.drawable.ic_trending_up, R.color.green_500, R.drawable.bg_icon_container_green)
-                    "serve_practice" -> Triple(R.drawable.ic_target, R.color.purple_500, R.drawable.bg_icon_container_purple)
-                    "footwork_drill" -> Triple(R.drawable.ic_person, R.color.orange_500, R.drawable.bg_icon_container_orange)
-                    "multiball_rally" -> Triple(R.drawable.ic_alert_circle, R.color.red_500, R.drawable.bg_icon_container_red)
-                    "consistency_challenge" -> Triple(R.drawable.ic_check_circle_2, R.color.blue_500, R.drawable.bg_icon_container_blue)
-                    else -> Triple(R.drawable.ic_target, R.color.blue_500, R.drawable.bg_icon_container_blue)
+                // Single consistent gold icon treatment for every drill (design system).
+                // Icon glyph still varies per drill; ring/tile + tint do not.
+                val iconRes = when (exercise.id) {
+                    "forehand_drive", "forehand_andrii" -> R.drawable.ic_skill_forehand
+                    "backhand_loop" -> R.drawable.ic_skill_backhand
+                    "serve_practice" -> R.drawable.ic_skill_topspin
+                    "footwork_drill" -> R.drawable.ic_skill_footwork
+                    "multiball_rally" -> R.drawable.ic_alert_circle
+                    "consistency_challenge" -> R.drawable.ic_check_circle_2
+                    else -> R.drawable.ic_target
                 }
-                
+
                 ivExerciseIcon.setImageResource(iconRes)
-                ivExerciseIcon.setColorFilter(root.context.getColor(iconTint))
-                flIconContainer.setBackgroundResource(iconBackground)
+                ivExerciseIcon.setColorFilter(root.context.getColor(R.color.ttc_gold_accent))
+                flIconContainer.setBackgroundResource(R.drawable.bg_icon_tile_gold)
+                flIconContainer.backgroundTintList = null
 
-                // Set difficulty badge background based on difficulty level
-                val (badgeBackground, badgeColor) = when {
-                    exercise.difficulty.contains("Beginner", ignoreCase = true) || 
-                    exercise.difficulty.contains("Початковий", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_filled_green, R.color.badge_text_green)
-                    exercise.difficulty.contains("Intermediate", ignoreCase = true) || 
-                    exercise.difficulty.contains("Середній", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_filled_orange, R.color.badge_text_orange)
-                    exercise.difficulty.contains("Advanced", ignoreCase = true) || 
-                    exercise.difficulty.contains("Просунутий", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_filled_red, R.color.badge_text_red)
-                    exercise.difficulty.contains("All Level", ignoreCase = true) || 
-                    exercise.difficulty.contains("Всі рівні", ignoreCase = true) -> 
-                        Pair(R.drawable.bg_badge_filled_blue, R.color.badge_text_blue)
-                    else -> Pair(R.drawable.bg_badge_filled_green, R.color.badge_text_green)
+                // Difficulty is muted meta text (no colored pill).
+                tvDifficulty.background = null
+                tvDifficulty.setTextColor(root.context.getColor(R.color.ttc_text_2))
+
+                // Lock status display (using alpha) — applied to the foreground card only.
+                swipeForeground.alpha = if (exercise.isLocked) 0.5f else 1.0f
+
+                // Action buttons: run the action, then close the row.
+                swipeClonePanel.setOnClickListener {
+                    onCloneClick(exercise)
+                    layout.close(animate = true)
                 }
-                tvDifficulty.setBackgroundResource(badgeBackground)
-                tvDifficulty.setTextColor(root.context.getColor(badgeColor))
-
-                // Lock status display (using alpha and clickability)
-                if (exercise.isLocked) {
-                    root.alpha = 0.5f
-                } else {
-                    root.alpha = 1.0f
+                swipeDeletePanel.setOnClickListener {
+                    onDeleteClick(exercise)
+                    layout.close(animate = true)
                 }
 
-                root.setOnClickListener {
-                    onExerciseClick(exercise)
+                // Foreground tap: select only when closed (the open case is consumed inside
+                // SwipeRevealLayout, which closes the row). Long-press → options menu when closed.
+                swipeForeground.setOnClickListener {
+                    if (!layout.isOpen) onExerciseClick(exercise)
+                }
+                swipeForeground.setOnLongClickListener {
+                    if (!layout.isOpen) {
+                        onExerciseLongClick?.invoke(exercise)
+                        onExerciseLongClick != null
+                    } else false
                 }
             }
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
-        val binding = ItemExerciseBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return ExerciseViewHolder(binding)
+    inner class LockedToggleViewHolder(
+        private val binding: ItemLockedToggleBinding
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        fun bind() {
+            binding.btnToggleLocked.apply {
+                setText(if (lockedExpanded) R.string.drills_hide_locked else R.string.drills_show_locked)
+                setIconResource(if (lockedExpanded) R.drawable.icn_chevron_up else R.drawable.ic_chevron_down)
+                setOnClickListener { onToggleLocked() }
+            }
+        }
     }
 
-    override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
-        holder.bind(exercises[position])
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return if (viewType == VIEW_TYPE_FOOTER) {
+            LockedToggleViewHolder(ItemLockedToggleBinding.inflate(inflater, parent, false))
+        } else {
+            ExerciseViewHolder(ItemExerciseBinding.inflate(inflater, parent, false))
+        }
     }
 
-    override fun getItemCount() = exercises.size
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (holder) {
+            is ExerciseViewHolder -> holder.bind(exercises[position])
+            is LockedToggleViewHolder -> holder.bind()
+        }
+    }
+
+    companion object {
+        private const val VIEW_TYPE_ITEM = 0
+        private const val VIEW_TYPE_FOOTER = 1
+    }
 }

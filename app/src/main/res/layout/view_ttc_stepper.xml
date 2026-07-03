@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <TextView android:id="@+id/stepper_minus" style="@style/TtcStepper.Button" android:text="−" />
+    <View android:layout_width="1dp" android:layout_height="match_parent"
+        android:background="@color/ttc_outline" />
+    <TextView android:id="@+id/stepper_value" style="@style/TtcStepper.Value" tools:text="500ms" />
+    <View android:layout_width="1dp" android:layout_height="match_parent"
+        android:background="@color/ttc_outline" />
+    <TextView android:id="@+id/stepper_plus" style="@style/TtcStepper.Button" android:text="+" />
+</merge>
