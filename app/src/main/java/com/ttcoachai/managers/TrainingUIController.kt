@@ -1,10 +1,11 @@
 package com.ttcoachai.managers
 
 import android.view.View
-import android.widget.AdapterView
-import android.widget.CheckBox
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.button.MaterialButton
 import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
 import com.ttcoachai.adapters.FeedbackListAdapter
@@ -53,31 +54,53 @@ class TrainingUIController(
     }
 
     private fun setupFeedbackSettings() {
-        val frequencies = listOf(3, 5, 10)
-        val currentFreq = settingsManager.getFeedbackFrequency()
-        val freqIndex = frequencies.indexOf(currentFreq).coerceAtLeast(0)
-        binding.drillMenu.spinnerFrequency.setSelection(freqIndex)
-        
-        binding.drillMenu.spinnerFrequency.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                settingsManager.setFeedbackFrequency(frequencies[position])
+        // Cues per session (3/5/10)
+        val cuesButtons = listOf(
+            binding.drillMenu.btnCues3,
+            binding.drillMenu.btnCues5,
+            binding.drillMenu.btnCues10
+        )
+        fun selectCues(count: Int, persist: Boolean) {
+            val selected = when (count) {
+                5 -> binding.drillMenu.btnCues5
+                10 -> binding.drillMenu.btnCues10
+                else -> binding.drillMenu.btnCues3
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            cuesButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) settingsManager.setFeedbackFrequency(count)
         }
-        
-        setupCorrectionCheckbox(binding.drillMenu.cbWrist, CorrectionType.WRIST)
-        setupCorrectionCheckbox(binding.drillMenu.cbBodyRotation, CorrectionType.BODY_ROTATION)
-        setupCorrectionCheckbox(binding.drillMenu.cbFollowThrough, CorrectionType.FOLLOW_THROUGH)
-        setupCorrectionCheckbox(binding.drillMenu.cbContactHeight, CorrectionType.CONTACT_HEIGHT)
-        setupCorrectionCheckbox(binding.drillMenu.cbElbowPosition, CorrectionType.ELBOW_POSITION)
-        setupCorrectionCheckbox(binding.drillMenu.cbStrokeSpeed, CorrectionType.STROKE_SPEED)
+        binding.drillMenu.btnCues3.setOnClickListener { selectCues(3, persist = true) }
+        binding.drillMenu.btnCues5.setOnClickListener { selectCues(5, persist = true) }
+        binding.drillMenu.btnCues10.setOnClickListener { selectCues(10, persist = true) }
+        selectCues(settingsManager.getFeedbackFrequency(), persist = false)
+
+        // Corrections
+        val correctionChips = listOf(
+            binding.drillMenu.chipWrist to CorrectionType.WRIST,
+            binding.drillMenu.chipRotation to CorrectionType.BODY_ROTATION,
+            binding.drillMenu.chipFollowThrough to CorrectionType.FOLLOW_THROUGH,
+            binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
+            binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
+            binding.drillMenu.chipSpeed to CorrectionType.STROKE_SPEED,
+        )
+        correctionChips.forEach { (chip, type) ->
+            chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                settingsManager.setCorrectionTypeEnabled(type, isChecked)
+            }
+        }
     }
 
-    private fun setupCorrectionCheckbox(checkbox: CheckBox, type: CorrectionType) {
-        checkbox.isChecked = settingsManager.isCorrectionTypeEnabled(type)
-        checkbox.setOnCheckedChangeListener { _, isChecked ->
-            settingsManager.setCorrectionTypeEnabled(type, isChecked)
-        }
+    private fun styleSegment(btn: MaterialButton, active: Boolean) {
+        val ctx = activity
+        val bgColor = if (active) R.color.ttc_gold_container else android.R.color.transparent
+        val textColor = if (active) R.color.ttc_gold_accent else R.color.ttc_text_2
+        val font = if (active) R.font.inter_tight_bold else R.font.inter_tight_semibold
+        btn.backgroundTintList = ContextCompat.getColorStateList(ctx, bgColor)
+        btn.setTextColor(ContextCompat.getColor(ctx, textColor))
+        btn.strokeColor = ContextCompat.getColorStateList(ctx, R.color.ttc_gold_container_outline)
+        btn.strokeWidth = if (active) ctx.resources.displayMetrics.density.toInt().coerceAtLeast(1) else 0
+        btn.typeface = ResourcesCompat.getFont(ctx, font)
     }
 
     fun updateUIForTrainingState(isActive: Boolean) {

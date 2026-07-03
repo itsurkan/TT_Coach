@@ -321,68 +321,137 @@
             </LinearLayout>
 
             <TextView
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_frequency_n"
-                android:paddingBottom="4dp" />
+                android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                android:textSize="13.5sp"
+                android:text="@string/feedback_cues_per_session"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp" />
 
-            <Spinner
-                android:id="@+id/spinner_frequency"
+            <LinearLayout
+                android:id="@+id/toggle_cues_per_session"
+                style="@style/TTC.SegmentedTrack"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/feedback_frequencies"
-                android:paddingBottom="8dp" />
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cues_3"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingVertical="10dp"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/inter_tight_semibold"
+                    app:strokeWidth="0dp"
+                    app:elevation="0dp"
+                    app:cornerRadius="999dp"
+                    android:text="3" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cues_5"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingVertical="10dp"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/inter_tight_semibold"
+                    app:strokeWidth="0dp"
+                    app:elevation="0dp"
+                    app:cornerRadius="999dp"
+                    android:text="5" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_cues_10"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:minHeight="0dp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:paddingVertical="10dp"
+                    android:textAllCaps="false"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/inter_tight_semibold"
+                    app:strokeWidth="0dp"
+                    app:elevation="0dp"
+                    app:cornerRadius="999dp"
+                    android:text="10" />
+            </LinearLayout>
 
             <TextView
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/label_enabled_corrections"
-                android:paddingTop="8dp"
-                android:paddingBottom="4dp" />
+                style="@style/TTC.SectionHeader.Gold"
+                android:text="@string/feedback_section_corrections"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp" />
 
-            <CheckBox
-                android:id="@+id/cb_wrist"
-                style="@style/TextAppearance.TTC.Body"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group_corrections"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/correction_wrist_angle"/>
+                app:singleLine="false">
 
-            <CheckBox
-                android:id="@+id/cb_body_rotation"
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/correction_body_rotation"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_wrist"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_wrist" />
 
-            <CheckBox
-                android:id="@+id/cb_follow_through"
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/correction_follow_through"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_rotation"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_rotation" />
 
-            <CheckBox
-                android:id="@+id/cb_contact_height"
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/correction_contact_height"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_follow_through"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_follow_through" />
 
-            <CheckBox
-                android:id="@+id/cb_elbow_position"
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/correction_elbow_position"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_contact_height"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_contact_height" />
 
-            <CheckBox
-                android:id="@+id/cb_stroke_speed"
-                style="@style/TextAppearance.TTC.Body"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/correction_stroke_speed"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_elbow"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_elbow" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chip_speed"
+                    style="@style/TTC.Chip.Filter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checkable="true"
+                    android:text="@string/correction_speed" />
+            </com.google.android.material.chip.ChipGroup>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
