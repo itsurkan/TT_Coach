@@ -1,6 +1,7 @@
 package com.ttcoachai.shared.drill
 
 import com.ttcoachai.shared.analysis.AngleCalculations2D
+import com.ttcoachai.shared.analysis.SignalMath
 import com.ttcoachai.shared.models.Coco17
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.PoseFrame2D
@@ -113,8 +114,8 @@ object ForwardStrokeFilter {
         val posSpeeds = verified.filter { it.second > 0f }.map { it.first.peakSpeed }
         val negSpeeds = verified.filter { it.second < 0f }.map { it.first.peakSpeed }
         if (posSpeeds.size < MIN_GROUP_SIZE || negSpeeds.size < MIN_GROUP_SIZE) return null
-        val posMed = median(posSpeeds)
-        val negMed = median(negSpeeds)
+        val posMed = SignalMath.median(posSpeeds)
+        val negMed = SignalMath.median(negSpeeds)
         return when {
             posMed >= negMed * SPEED_DOMINANCE_RATIO -> 1f
             negMed >= posMed * SPEED_DOMINANCE_RATIO -> -1f
@@ -131,11 +132,5 @@ object ForwardStrokeFilter {
         val ls = kp.getOrNull(Coco17.LEFT_SHOULDER)?.takeIf { it.score >= minScore } ?: return null
         val rs = kp.getOrNull(Coco17.RIGHT_SHOULDER)?.takeIf { it.score >= minScore } ?: return null
         return AngleCalculations2D.facingSign(kp, (ls.x + rs.x) / 2f, minScore)
-    }
-
-    private fun median(values: List<Float>): Float {
-        val sorted = values.sorted()
-        val mid = sorted.size / 2
-        return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2f
     }
 }

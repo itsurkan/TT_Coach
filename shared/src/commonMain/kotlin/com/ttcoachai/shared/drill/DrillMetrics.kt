@@ -1,6 +1,7 @@
 package com.ttcoachai.shared.drill
 
 import com.ttcoachai.shared.analysis.AngleCalculations2D
+import com.ttcoachai.shared.analysis.SignalMath
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.PoseFrame2D
 
@@ -74,10 +75,6 @@ object DrillMetrics {
                 byKey.getOrPut(key) { mutableListOf() }.add(value)
             }
         }
-        return byKey.mapValues { (_, values) ->
-            val sorted = values.sorted()
-            val mid = sorted.size / 2
-            if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2.0
-        }
+        return byKey.mapValues { (_, values) -> SignalMath.median(values) }
     }
 }
