@@ -188,14 +188,28 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Real-time Feedback List -->
-    <TextView
-        style="@style/TTC.SectionHeader"
-        android:layout_width="wrap_content"
+    <!-- Real-time Feedback List (1a/1e) -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/live_realtime_feedback"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            style="@style/TTC.SectionHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/live_realtime_feedback"/>
+
+        <TextView
+            android:id="@+id/tv_flagged"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"/>
+    </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_feedback_list"
