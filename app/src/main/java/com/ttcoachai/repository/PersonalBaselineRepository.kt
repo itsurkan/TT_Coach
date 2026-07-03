@@ -27,18 +27,37 @@ class PersonalBaselineRepository(
             excludedRepIndicesJson = BaselineConverters.intListToJson(baseline.excludedRepIndices),
             isActive = true
         )
+        // Write path stays keyed by the literal drillType the caller calibrated against —
+        // never remapped. Only read lookups below share baselines across drillTypes.
         return dao.archiveAndInsert(baseline.drillType, entity)
     }
 
     fun getActiveBaseline(drillType: String): Flow<PersonalBaseline?> =
-        dao.getActiveByDrillType(drillType).map { it?.toDomainBaseline() }
+        dao.getActiveByDrillType(baselineDrillType(drillType)).map { it?.toDomainBaseline() }
 
     suspend fun getBaselineHistory(drillType: String): List<PersonalBaseline> =
-        dao.getAllForDrillType(drillType).map { it.toDomainBaseline() }
+        dao.getAllForDrillType(baselineDrillType(drillType)).map { it.toDomainBaseline() }
 
     private fun PersonalBaselineEntity.toDomainBaseline(): PersonalBaseline = toDomain(
         metricStats = BaselineConverters.jsonToMetricStatsMap(metricStatsJson),
         phaseDurations = BaselineConverters.jsonToMetricStatsMap(phaseDurationsJson),
         excludedRepIndices = BaselineConverters.jsonToIntList(excludedRepIndicesJson)
     )
+
+    companion object {
+        /**
+         * Maps a drill's baseline lookup key onto the drillType its [PersonalBaseline] is
+         * actually stored under. "forehand_drive_general" (the movement-tolerant general-
+         * practice profile, see [com.ttcoachai.shared.drill.movements.ForehandDriveGeneral])
+         * shares the player's forehand technique baseline with "forehand_drive" — only rep
+         * gating (locomotion tolerance) differs between the two, not the reference angles, so
+         * there is no separate calibration pass for the General profile. Identity for every
+         * other drillType. Read-only: calibration/save paths must keep using the literal
+         * drillType, never this mapping.
+         */
+        fun baselineDrillType(drillType: String): String = when (drillType) {
+            "forehand_drive_general" -> "forehand_drive"
+            else -> drillType
+        }
+    }
 }
