@@ -1,6 +1,5 @@
 package com.ttcoachai.shared.drill
 
-import com.ttcoachai.shared.detection.DetectionConfig
 import com.ttcoachai.shared.detection.MovementDetector
 import com.ttcoachai.shared.models.Coco17
 import com.ttcoachai.shared.models.Handedness
@@ -14,16 +13,19 @@ import kotlin.test.assertTrue
 
 class MovementRepPipelineTest {
 
-    // Same fixture shape as StrokeDetector2DTest/DrillCalibratorTest: only the right
-    // wrist x moves; shoulders/hips fixed so torso length and yaw are well-defined.
+    // Same fixture shape as DrillCalibratorTest.repFrames: shoulder mid at 0.44 (not
+    // 0.5) so it's offset from the default-filled NOSE keypoint (x=0.5) — ForwardStrokeFilter's
+    // head-facing fallback (facingSign) needs that offset to resolve a direction when
+    // speed-dominance can't (single stroke, or uniform-direction strokes below MIN_GROUP_SIZE=2
+    // per side). Hips/shoulders fixed so torso length and yaw are well-defined.
     private fun repFrames(startIndex: Int): List<PoseFrame2D> {
         val wristXs = listOf(0.50f, 0.50f, 0.50f, 0.50f, 0.51f, 0.53f, 0.57f, 0.63f, 0.68f, 0.71f, 0.72f)
         return wristXs.mapIndexed { i, wx ->
             val kp = MutableList(17) { Keypoint2D(0.5f, 0.5f, 1f) }
-            kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.49f, 0.30f, 1f)
-            kp[Coco17.RIGHT_SHOULDER] = Keypoint2D(0.51f, 0.30f, 1f)
-            kp[Coco17.LEFT_HIP] = Keypoint2D(0.49f, 0.55f, 1f)
-            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.51f, 0.55f, 1f)
+            kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.43f, 0.30f, 1f)
+            kp[Coco17.RIGHT_SHOULDER] = Keypoint2D(0.45f, 0.30f, 1f)
+            kp[Coco17.LEFT_HIP] = Keypoint2D(0.43f, 0.55f, 1f)
+            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.45f, 0.55f, 1f)
             kp[Coco17.RIGHT_WRIST] = Keypoint2D(wx, 0.5f, 1f)
             PoseFrame2D(startIndex + i, (startIndex + i) * 100L, kp)
         }
@@ -40,16 +42,21 @@ class MovementRepPipelineTest {
         )
     }
 
-    /** Locomotion: hip-mid also translates across the stroke window (walking). */
+    /**
+     * Locomotion: hip-mid also translates across the stroke window (walking).
+     * Shoulder mid starts at 0.44 (offset from the default-filled NOSE x=0.5) so
+     * ForwardStrokeFilter's head-facing fallback can resolve a direction for this
+     * single stroke; see [repFrames] for the same rationale.
+     */
     private fun walkingSequence(): PoseSequence2D {
         val wristXs = listOf(0.50f, 0.50f, 0.50f, 0.50f, 0.51f, 0.53f, 0.57f, 0.63f, 0.68f, 0.71f, 0.72f)
         val frames = wristXs.mapIndexed { i, wx ->
             val kp = MutableList(17) { Keypoint2D(0.5f, 0.5f, 1f) }
             val hipShift = i * 0.05f // large horizontal travel vs torso length (~0.25)
-            kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.49f + hipShift, 0.30f, 1f)
-            kp[Coco17.RIGHT_SHOULDER] = Keypoint2D(0.51f + hipShift, 0.30f, 1f)
-            kp[Coco17.LEFT_HIP] = Keypoint2D(0.49f + hipShift, 0.55f, 1f)
-            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.51f + hipShift, 0.55f, 1f)
+            kp[Coco17.LEFT_SHOULDER] = Keypoint2D(0.43f + hipShift, 0.30f, 1f)
+            kp[Coco17.RIGHT_SHOULDER] = Keypoint2D(0.45f + hipShift, 0.30f, 1f)
+            kp[Coco17.LEFT_HIP] = Keypoint2D(0.43f + hipShift, 0.55f, 1f)
+            kp[Coco17.RIGHT_HIP] = Keypoint2D(0.45f + hipShift, 0.55f, 1f)
             kp[Coco17.RIGHT_WRIST] = Keypoint2D(wx, 0.5f, 1f)
             PoseFrame2D(i, i * 100L, kp)
         }
