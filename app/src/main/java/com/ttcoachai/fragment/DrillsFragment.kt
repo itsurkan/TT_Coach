@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ttcoachai.Exercise
 import com.ttcoachai.ExerciseAdapter
 import com.ttcoachai.R
-import com.ttcoachai.LiveSessionActivity
+import com.ttcoachai.TrainingActivity
 import com.ttcoachai.databinding.FragmentDrillsBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
@@ -382,7 +382,7 @@ class DrillsFragment : Fragment() {
             return
         }
 
-        val intent = Intent(requireContext(), LiveSessionActivity::class.java).apply {
+        val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
             putExtra("EXERCISE_ID", exercise.id)
             putExtra("EXERCISE_NAME", exercise.name)
             putExtra("USE_VIDEO", exercise.useVideo)
