@@ -101,4 +101,26 @@ class DrillFeedbackEngineTest {
         assertEquals(MetricPrecision.QUALITATIVE, MetricPrecisionPolicy.precisionFor("body_rotation"))
         assertEquals(MetricPrecision.PRECISE_DEGREES, MetricPrecisionPolicy.precisionFor(DrillMetrics.METRIC_ELBOW_ANGLE))
     }
+
+    @Test
+    fun fourArgOverloadUsesSuppliedPrecisionFunctionInsteadOfPolicy() {
+        val b = baseline(DrillMetrics.METRIC_ELBOW_ANGLE to elbowStats)
+        val rules = BaselineRuleFactory.defaultRules(b)
+        val cues = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_ELBOW_ANGLE to 115.0), b, rules
+        ) { MetricPrecision.QUALITATIVE }
+        assertEquals(1, cues.size)
+        assertEquals(MetricPrecision.QUALITATIVE, cues[0].precision)
+    }
+
+    @Test
+    fun threeArgOverloadDelegatesToMetricPrecisionPolicy() {
+        val b = baseline(DrillMetrics.METRIC_ELBOW_ANGLE to elbowStats)
+        val rules = BaselineRuleFactory.defaultRules(b)
+        val threeArg = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_ELBOW_ANGLE to 115.0), b, rules)
+        val fourArg = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_ELBOW_ANGLE to 115.0), b, rules, MetricPrecisionPolicy::precisionFor
+        )
+        assertEquals(fourArg, threeArg)
+    }
 }
