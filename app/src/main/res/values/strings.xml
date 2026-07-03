@@ -995,4 +995,29 @@
     <string name="history_empty_cta">Go to Drills</string>
     <string name="history_total_hours">%1$.1fh</string>
     <string name="cd_filter">Filter sessions</string>
+
+    <!-- Live Session screen (1a/1e) -->
+    <string name="live_pause">Pause</string>
+    <string name="live_end_session">End Session</string>
+    <string name="live_session_focus">Session focus</string>
+    <string name="live_focus_consistency">Consistency</string>
+    <string name="live_focus_consistency_sub">clean strokes in a row</string>
+    <string name="live_clean_count">%1$d / %2$d clean</string>
+    <string name="live_ai_coach">AI coach</string>
+    <string name="live_coach_message">Frame your whole body and keep rallying — I\'ll flag technique as you go.</string>
+    <string name="live_realtime_feedback">Real-time feedback</string>
+    <string name="live_flagged_count">%1$d flagged</string>
+    <string name="live_fb_wrist_angle">Wrist angle</string>
+    <string name="live_fb_body_rotation">Body rotation</string>
+    <string name="live_fb_contact_height">Contact height</string>
+    <string name="live_fb_elbow_position">Elbow position</string>
+    <string name="live_fb_stroke_speed">Stroke speed</string>
+    <string name="live_full_report_title">Full session report</string>
+    <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>
+    <string name="live_premium_badge">Premium</string>
+    <string name="live_feedback_settings">Feedback settings</string>
+    <string name="live_feedback_cadence">Every 3 strokes</string>
+    <string name="live_cd_back">Back</string>
+    <string name="live_cd_flip_camera">Flip camera</string>
+    <string name="live_cd_recording">Recording</string>
 </resources>

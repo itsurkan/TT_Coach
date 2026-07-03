@@ -834,4 +834,29 @@
     <string name="history_empty_cta">До вправ</string>
     <string name="history_total_hours">%1$.1f год</string>
     <string name="cd_filter">Фільтрувати сесії</string>
+
+    <!-- Live Session screen (1a/1e) -->
+    <string name="live_pause">Пауза</string>
+    <string name="live_end_session">Завершити</string>
+    <string name="live_session_focus">Фокус сесії</string>
+    <string name="live_focus_consistency">Стабільність</string>
+    <string name="live_focus_consistency_sub">чистих ударів поспіль</string>
+    <string name="live_clean_count">%1$d / %2$d чистих</string>
+    <string name="live_ai_coach">AI-тренер</string>
+    <string name="live_coach_message">Тримай у кадрі все тіло й продовжуй грати — я підкажу щодо техніки на ходу.</string>
+    <string name="live_realtime_feedback">Фідбек у реальному часі</string>
+    <string name="live_flagged_count">Позначено: %1$d</string>
+    <string name="live_fb_wrist_angle">Кут зап\'ястя</string>
+    <string name="live_fb_body_rotation">Оберт тіла</string>
+    <string name="live_fb_contact_height">Висота контакту</string>
+    <string name="live_fb_elbow_position">Положення ліктя</string>
+    <string name="live_fb_stroke_speed">Швидкість удару</string>
+    <string name="live_full_report_title">Повний звіт сесії</string>
+    <string name="live_full_report_sub">Розбір кожного удару після завершення</string>
+    <string name="live_premium_badge">Premium</string>
+    <string name="live_feedback_settings">Налаштування фідбеку</string>
+    <string name="live_feedback_cadence">Кожні 3 удари</string>
+    <string name="live_cd_back">Назад</string>
+    <string name="live_cd_flip_camera">Перемкнути камеру</string>
+    <string name="live_cd_recording">Запис</string>
 </resources>
