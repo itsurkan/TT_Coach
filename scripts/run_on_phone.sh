@@ -32,8 +32,10 @@ if [[ "${1:-}" == "-s" && -n "${2:-}" ]]; then
   SERIAL="$2"
 fi
 
-# Verify a usable device is attached.
-DEVICES="$("$ADB" devices | awk 'NR>1 && $2=="device" {print $1}')"
+# Verify a usable device is attached. `adb devices` tab-separates serial and
+# state; wireless adb-tls serials can contain spaces (the mDNS name), so split on
+# TAB — whitespace splitting mis-parses those serials and fails the check.
+DEVICES="$("$ADB" devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')"
 if [[ -z "$DEVICES" ]]; then
   echo "error: no device in 'device' state. Check 'adb devices' (offline/unauthorized?)." >&2
   exit 1

@@ -55,7 +55,7 @@
     <string name="exercise_hint">Оберіть вправу для початку тренування</string>
     <string name="exercise_locked_title">Заблоковано</string>
     <string name="exercise_locked_message">Ця вправа буде доступна у наступних версіях додатку.</string>
-    <string name="exercise_forehand_name">Накат справа (Forehand Drive)</string>
+    <string name="exercise_forehand_name">Накат справа</string>
     <string name="exercise_forehand_desc">Базовий удар справа з ротацією корпусу</string>
     <string name="exercise_forehand_andrii_name">Накат справа (Андрій)</string>
     <string name="exercise_forehand_andrii_desc">Форхенд за еталонним ударом Андрія</string>

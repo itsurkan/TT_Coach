@@ -77,7 +77,6 @@ class ExerciseAdapter(
             binding.apply {
                 tvExerciseName.text = exercise.name
                 tvExerciseDescription.text = exercise.description
-                tvDifficulty.text = exercise.difficulty
                 tvDuration.text = exercise.duration
                 tvCategory.text = exercise.category
 
@@ -97,10 +96,6 @@ class ExerciseAdapter(
                 ivExerciseIcon.setColorFilter(root.context.getColor(R.color.ttc_gold_accent))
                 flIconContainer.setBackgroundResource(R.drawable.bg_icon_tile_gold)
                 flIconContainer.backgroundTintList = null
-
-                // Difficulty is muted meta text (no colored pill).
-                tvDifficulty.background = null
-                tvDifficulty.setTextColor(root.context.getColor(R.color.ttc_text_2))
 
                 // Lock status display (using alpha) — applied to the foreground card only.
                 swipeForeground.alpha = if (exercise.isLocked) 0.5f else 1.0f

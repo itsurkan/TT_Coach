@@ -34,11 +34,11 @@ class DrillActionsTest {
     }
 
     @Test
-    fun partition_pullsRecentOutAndKeepsOrder() {
+    fun partition_identifiesRecentButKeepsItInList() {
         val all = listOf(ex("a"), ex("b"), ex("c"))
         val (recent, programs) = DrillActions.partition(all, "b")
         assertEquals("b", recent?.id)
-        assertEquals(listOf("a", "c"), programs.map { it.id })
+        assertEquals(listOf("a", "b", "c"), programs.map { it.id })
     }
 
     @Test

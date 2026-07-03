@@ -11,4 +11,5 @@
 - [Viewer fast iteration](feedback_viewer_fast_iteration.md) — for poses_viewer-visible fixes the user wants direct TS iteration, not the full Kotlin-first subagent plan; back-port to Kotlin separately
 - [iOS app planned](project_ios_future.md) — iPhone app is a firm future target; default new logic to `shared/commonMain`, keep Android APIs quarantined in `app/`
 - [Git push auth](project_git_push_auth.md) — gh account switch required before push (details in local-only file, gitignored)
+- [Live Session = panel over camera](project_live_session_panel_over_camera.md) — Slice 4 (1a/1e) restyles TrainingActivity's slide-up bottom sheet over the live camera; NEVER a camera-replacing screen
 - Future-work ideas live in `docs/DESIGN_LIMITATIONS.md` (L-numbered register), NOT in memory — e.g. L-33 arm elbow-flyout depth metric

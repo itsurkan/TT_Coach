@@ -109,6 +109,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/exercise_editor_name_hint"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:maxLength="27"
                     android:textAppearance="@style/TextAppearance.TTC.Body"
                     android:textColor="@color/ttc_text_1"
                     android:textColorHint="@color/ttc_text_3" />

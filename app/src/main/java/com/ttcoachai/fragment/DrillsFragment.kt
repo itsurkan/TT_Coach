@@ -155,7 +155,7 @@ class DrillsFragment : Fragment() {
     private fun setupUI() {
         binding.rvDrills.layoutManager = LinearLayoutManager(context)
         adapter = ExerciseAdapter(
-            exercises = builtInExercises.filter { !it.isLocked },
+            exercises = emptyList(),
             onExerciseClick = { onExerciseSelected(it) },
             onExerciseLongClick = { showDrillOptions(it) },
             onCloneClick = { cloneDrill(it) },
@@ -163,6 +163,15 @@ class DrillsFragment : Fragment() {
             onToggleLocked = { toggleLocked() }
         )
         binding.rvDrills.adapter = adapter
+
+        // If custom drills were already loaded this session, render the COMPLETE list
+        // (built-ins + customs + footer) synchronously on the first frame. Without a
+        // cache we render nothing yet and let reloadCustomDrills() do a single combined
+        // render after the DB read — so custom rows never pop in after the built-ins.
+        cachedCustomExercises?.let { cached ->
+            customExercises = cached
+            bindRecentAndPrograms(builtInExercises + cached)
+        }
 
         // Close any open swipe row when the list scrolls.
         binding.rvDrills.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -177,19 +186,30 @@ class DrillsFragment : Fragment() {
     }
 
     /**
-     * Binds the RECENT card from the most recent [com.ttcoachai.models.TrainingSession]
-     * and splits [allDrills] into (recent, programs) via [DrillActions.partition], updating
-     * the adapter with the ALL PROGRAMS list only. Guards against a torn-down view since
-     * this runs inside a coroutine.
+     * Renders the drill list ([allDrills], split into unlocked + locked for the footer
+     * toggle) synchronously, then fills the RECENT card asynchronously from the most
+     * recent [com.ttcoachai.models.TrainingSession]. The list render is deliberately not
+     * gated on the recent-session query so items/footer don't pop in one pass later; the
+     * async card block guards against a torn-down view.
      */
     private fun bindRecentAndPrograms(allDrills: List<Exercise>) {
         currentDrills = allDrills
+
+        // Program list + locked footer render immediately — never gated on the
+        // recent-session DB query, so the list doesn't pop in item-by-item.
+        val (locked, unlocked) = allDrills.partition { it.isLocked }
+        programsUnlocked = unlocked
+        programsLocked = locked
+        renderPrograms()
+
+        // The RECENT card fills in asynchronously; its space is already reserved
+        // (section_recent is INVISIBLE, not GONE) so this never shifts the list.
         viewLifecycleOwner.lifecycleScope.launch {
             val session = FirebaseAuth.getInstance().currentUser?.uid?.let { uid ->
                 withContext(Dispatchers.IO) { trainingDao.getMostRecentSessionForUser(uid) }
             }
             if (_binding == null) return@launch
-            val (recent, programs) = DrillActions.partition(allDrills, session?.exerciseId)
+            val recent = DrillActions.partition(allDrills, session?.exerciseId).first
 
             val sectionRecent = binding.sectionRecent
             if (recent == null || session == null) {
@@ -209,11 +229,6 @@ class DrillsFragment : Fragment() {
 
                 binding.btnRecentContinue.setOnClickListener { onExerciseSelected(recent) }
             }
-
-            val (locked, unlocked) = programs.partition { it.isLocked }
-            programsUnlocked = unlocked
-            programsLocked = locked
-            renderPrograms()
         }
     }
 
@@ -344,6 +359,7 @@ class DrillsFragment : Fragment() {
         lifecycleScope.launch {
             val rows = withContext(Dispatchers.IO) { customDrillRepo.getAll() }
             customExercises = rows.map { it.toExercise() }
+            cachedCustomExercises = customExercises
             if (_binding == null) return@launch
             bindRecentAndPrograms(builtInExercises + customExercises)
         }
@@ -383,5 +399,13 @@ class DrillsFragment : Fragment() {
 
     companion object {
         private const val CUSTOM_DRILL_PREFIX = "custom_"
+
+        /**
+         * Session-level cache of custom drills so a re-opened (recreated) fragment can
+         * render the COMPLETE list — built-ins + customs + footer — on the first frame,
+         * instead of showing built-ins first and popping the custom rows in after the DB
+         * read. Refreshed on every [reloadCustomDrills].
+         */
+        private var cachedCustomExercises: List<Exercise>? = null
     }
 }

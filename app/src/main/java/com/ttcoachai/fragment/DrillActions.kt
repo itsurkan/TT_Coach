@@ -21,13 +21,13 @@ object DrillActions {
     fun canDelete(exercise: Exercise): Boolean = isCustom(exercise)
 
     /**
-     * Splits [all] into (mostRecent, programs). The recent drill is removed from
-     * the programs list; original order is otherwise preserved. Returns null recent
-     * and the full list when [recentId] is null or not present in [all].
+     * Identifies the most-recent drill for the RECENT card without disturbing the
+     * programs list — the recent drill STAYS in [all] so the list doesn't reflow
+     * when the recent card loads. Returns null recent when [recentId] is null or
+     * not present in [all]; programs is always [all] unchanged.
      */
     fun partition(all: List<Exercise>, recentId: String?): Pair<Exercise?, List<Exercise>> {
         val recent = recentId?.let { id -> all.firstOrNull { it.id == id } }
-        val programs = if (recent == null) all else all.filter { it.id != recent.id }
-        return recent to programs
+        return recent to all
     }
 }

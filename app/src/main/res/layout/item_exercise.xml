@@ -91,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="12dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="6dp">
 
             <FrameLayout
                 android:id="@+id/fl_icon_container"
@@ -120,14 +120,17 @@
                 android:orientation="vertical"
                 app:layout_constraintEnd_toStartOf="@id/iv_chevron"
                 app:layout_constraintStart_toEndOf="@id/fl_icon_container"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
 
                 <TextView
                     android:id="@+id/tv_exercise_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/exercise_forehand_name"
-                    android:textAppearance="@style/TextAppearance.TTC.Title.Card"/>
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
 
                 <TextView
                     android:id="@+id/tv_exercise_description"
@@ -144,16 +147,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginTop="8dp">
-
-                    <TextView
-                        android:id="@+id/tv_difficulty"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/difficulty_beginner"
-                        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
-                        android:textColor="@color/ttc_text_2"
-                        android:layout_marginEnd="8dp"/>
+                    android:layout_marginTop="6dp">
 
                     <TextView
                         android:id="@+id/tv_duration"
