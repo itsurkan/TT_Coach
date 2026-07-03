@@ -28,7 +28,7 @@ import kotlin.math.min
 class RtmposeBackend(
     private val detector: YoloxDetector,
     private val estimator: RtmposeEstimator
-) : PoseBackend {
+) : PoseBackend, AutoCloseable {
 
     // MARK: - Init
 
@@ -60,6 +60,11 @@ class RtmposeBackend(
         val bestIdx = selectBest(candidates) ?: return emptyList()
         val chosen = candidates[bestIdx]
         return normalize(chosen.keypoints, chosen.scores, frameWidth, frameHeight)
+    }
+
+    override fun close() {
+        detector.close()
+        estimator.close()
     }
 
     companion object {

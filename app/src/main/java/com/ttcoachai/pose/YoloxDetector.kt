@@ -31,7 +31,7 @@ data class BoundingBox(val x1: Float, val y1: Float, val x2: Float, val y2: Floa
 class YoloxDetector(
     private val session: OrtSession,
     private val scoreThreshold: Float = RtmposeMath.detScoreThreshold
-) {
+) : AutoCloseable {
 
     /** Android: build a CPU-only session from a bundled `.onnx` asset. */
     constructor(
@@ -104,6 +104,12 @@ class YoloxDetector(
             ?.let { return it.value }
         entries.firstOrNull { isBoxes(it.value) }?.let { return it.value }
         return null
+    }
+
+    /** Closes the owned ONNX session — do NOT call when a session was injected via the DI
+     *  constructor and is shared. */
+    override fun close() {
+        session.close()
     }
 
     companion object {

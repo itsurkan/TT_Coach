@@ -407,6 +407,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         processor?.close()
+        (backend as? AutoCloseable)?.close()
         ttsController?.shutdown()
         analysisExecutor.shutdown()
         cameraProvider?.unbindAll()

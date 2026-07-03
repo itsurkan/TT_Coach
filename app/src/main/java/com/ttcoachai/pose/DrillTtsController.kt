@@ -22,7 +22,7 @@ class DrillTtsController(
     private val onScreen: (String) -> Unit,
 ) {
     private var tts: TextToSpeech? = null
-    private var speechAvailable: Boolean = false
+    @Volatile private var speechAvailable: Boolean = false
     private var muted: Boolean = false
     private var utteranceCounter: Long = 0
 

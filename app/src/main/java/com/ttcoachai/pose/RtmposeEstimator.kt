@@ -28,7 +28,7 @@ import java.nio.FloatBuffer
  * parity/determinism comes first; NNAPI/ncnn is a later latency swap behind the same seam). Built
  * via [OrtSessionFactory]'s CPU path (`cpuOnly = true`), never NNAPI.
  */
-class RtmposeEstimator(private val runner: SimccRunner) {
+class RtmposeEstimator(private val runner: SimccRunner) : AutoCloseable {
 
     /** Already-built session/runner (DI/tests). */
     constructor(session: OrtSession) : this(OrtSessionRunner(session))
@@ -130,7 +130,11 @@ class RtmposeEstimator(private val runner: SimccRunner) {
     }
 
     /** Production [SimccRunner]: wraps an [OrtSession], building the `[1,3,256,192]` input tensor. */
-    class OrtSessionRunner(private val session: OrtSession) : SimccRunner {
+    class OrtSessionRunner(private val session: OrtSession) : SimccRunner, AutoCloseable {
+        override fun close() {
+            session.close()
+        }
+
         override fun run(inputTensor: FloatArray): Map<String, SimccAxis> {
             val env = OrtEnvironment.getEnvironment()
             val inputName = session.inputNames.firstOrNull() ?: "input"
@@ -148,6 +152,12 @@ class RtmposeEstimator(private val runner: SimccRunner) {
                 }
             }
         }
+    }
+
+    /** Closes the underlying runner's owned ONNX session when it is [AutoCloseable] (the
+     *  production [OrtSessionRunner]); a no-op for stub runners used in tests. */
+    override fun close() {
+        (runner as? AutoCloseable)?.close()
     }
 
     companion object {
