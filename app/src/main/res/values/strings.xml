@@ -705,6 +705,17 @@
     <string name="debug_baseline_empty">No active baseline found for the requested drill type.</string>
     <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
 
+    <!-- RTMPose live drill (Phase 3 dev tool, debug builds only) -->
+    <string name="rtmpose_drill_status_calibrate">Calibrating — perform forehand drives, then tap Finish Calibration.</string>
+    <string name="rtmpose_drill_finish_calibration">Finish Calibration</string>
+    <string name="rtmpose_drill_switch_to_feedback">Switch to Feedback</string>
+    <string name="rtmpose_drill_calibrating_busy">Calibrating…</string>
+    <string name="rtmpose_drill_calibration_failed">Calibration failed: %1$s</string>
+    <string name="rtmpose_drill_calibration_saved">Baseline saved (%1$d reps). Switch to Feedback to start coaching.</string>
+    <string name="rtmpose_drill_need_calibration">No baseline yet — calibrate first.</string>
+    <string name="rtmpose_drill_backend_unavailable">RTMPose models unavailable: %1$s</string>
+    <string name="rtmpose_drill_status_feedback">Feedback mode — play your forehand drive.</string>
+
     <!-- Drill parameter editor (Phase 7 dev tool) -->
     <string name="preview_title">Drill Shape Editor</string>
     <string name="preview_status_mean">Mean stroke from %1$d rep(s), %2$d frames</string>

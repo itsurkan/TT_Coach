@@ -103,6 +103,14 @@
             android:exported="true"
             android:parentActivityName=".MainActivity" />
 
+        <!-- RTMPose Live Drill (Phase 3 P4c, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
+             Exported so `adb shell am start` can launch it directly. -->
+        <activity
+            android:name=".pose.RtmposeDrillActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Baseline Dump Receiver (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
         <receiver
             android:name=".debug.BaselineDumpReceiver"
