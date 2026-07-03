@@ -49,7 +49,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         stateManager = TrainingStateManager.getInstance(this)
         uiController = TrainingUIController(
             this, binding, SettingsManager(this), stateManager,
-            ::toggleTraining, ::stopTraining
+            ::toggleTraining
         )
         mediaManager = TrainingMediaManager(this, binding, useVideo)
     }

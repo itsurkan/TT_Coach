@@ -20,8 +20,7 @@ class TrainingUIController(
     private val binding: ActivityTrainingBinding,
     private val settingsManager: SettingsManager,
     private val stateManager: TrainingStateManager,
-    private val onToggleTraining: () -> Unit,
-    private val onStopTraining: () -> Unit
+    private val onToggleTraining: () -> Unit
 ) {
     private val feedbackAdapter = FeedbackListAdapter()
 
@@ -116,31 +115,8 @@ class TrainingUIController(
     }
 
     private fun showEndSessionDialog() {
-        val wasActive = stateManager.isTrainingActive
-        if (wasActive) {
-            activity.runOnUiThread { onToggleTraining() } // Pause
-        }
-
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(activity)
-            .setTitle(activity.getString(R.string.finish_training_title))
-            .setMessage(activity.getString(R.string.finish_training_message))
-            .setNeutralButton(activity.getString(R.string.dialog_no)) { _, _ ->
-                if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
-            }
-            .setNegativeButton(activity.getString(R.string.btn_discard)) { _, _ ->
-                (activity as? TrainingActivity)?.let { it.javaClass.getDeclaredMethod("stopTraining", Boolean::class.java).apply { isAccessible = true }.invoke(it, true) }
-            }
-            .setPositiveButton(activity.getString(R.string.btn_finish_save)) { _, _ ->
-                onStopTraining()
-            }
-            .setOnCancelListener {
-                if (wasActive) activity.runOnUiThread { onToggleTraining() } // Resume
-            }
-            .show()
-            .apply {
-                // Discard is destructive → red, matching the drill-menu Delete action.
-                getButton(android.content.DialogInterface.BUTTON_NEGATIVE)
-                    ?.setTextColor(activity.getColor(R.color.ttc_error))
-            }
+        // Delegate to the back-navigation handler so the End Session button shows the
+        // same save/discard dialog as the back button (single source of truth).
+        activity.onBackPressedDispatcher.onBackPressed()
     }
 }
