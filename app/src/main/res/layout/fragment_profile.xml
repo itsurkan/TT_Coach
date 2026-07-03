@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -58,7 +58,7 @@
             style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -207,7 +207,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:layout_width="16dp"
@@ -230,13 +231,13 @@
             style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="0dp"
             android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp"
+                android:padding="16dp"
                 android:orientation="horizontal">
 
                 <FrameLayout
@@ -307,14 +308,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="@color/ttc_gold_bright"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="0dp"
             android:clickable="true"
             android:focusable="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="20dp"
+                android:padding="16dp"
                 android:orientation="horizontal">
 
                 <FrameLayout
@@ -398,7 +399,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:layout_width="16dp"
@@ -419,7 +421,7 @@
             style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -490,55 +492,6 @@
                     </com.google.android.material.button.MaterialButtonToggleGroup>
                 </LinearLayout>
 
-                <!-- Push Notifications -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_bell"
-                        app:tint="@color/text_muted"
-                        android:layout_marginEnd="12dp"/>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/push_notifications"/>
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_push_notifications"
-                        style="@style/TTC.Toggle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"/>
-                </LinearLayout>
-
-                <!-- Daily Reminders -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:gravity="center_vertical">
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/ic_target"
-                        app:tint="@color/text_muted"
-                        android:layout_marginEnd="12dp"/>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/daily_reminders"/>
-                    <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switch_daily_reminders"
-                        style="@style/TTC.Toggle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="true"/>
-                </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -548,7 +501,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp">
 
             <ImageView
                 android:layout_width="16dp"
@@ -569,7 +523,7 @@
             style="@style/TTC.Card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:layout_marginBottom="0dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
