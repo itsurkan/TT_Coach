@@ -50,12 +50,28 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
                         android:layout_alignParentStart="true"
-                        android:text="@string/drills_section_recent"
-                        android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
+                        android:layout_centerVertical="true">
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_activity"
+                            app:tint="@color/ttc_gold_accent"
+                            android:layout_marginEnd="6dp"
+                            android:contentDescription="@null"/>
+
+                        <TextView
+                            style="@style/TTC.SectionHeader.Gold"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/drills_section_recent"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tv_recent_date"
@@ -156,13 +172,28 @@
             </LinearLayout>
 
             <!-- ALL PROGRAMS header -->
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="4dp"
-                android:text="@string/drills_section_all_programs"
-                android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
+                android:layout_marginBottom="4dp">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_target"
+                    app:tint="@color/ttc_gold_accent"
+                    android:layout_marginEnd="6dp"
+                    android:contentDescription="@null"/>
+
+                <TextView
+                    style="@style/TTC.SectionHeader.Gold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/drills_section_all_programs"/>
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

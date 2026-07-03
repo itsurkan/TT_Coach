@@ -202,12 +202,27 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Subscription Section -->
-        <TextView
-            style="@style/TTC.SectionHeader.Gold"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/subscription_section"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_crown"
+                app:tint="@color/ttc_gold_accent"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@null"/>
+
+            <TextView
+                style="@style/TTC.SectionHeader.Gold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/subscription_section"/>
+        </LinearLayout>
 
         <!-- Premium Active Card (visible when subscribed) -->
         <com.google.android.material.card.MaterialCardView
@@ -378,12 +393,27 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Settings Section -->
-        <TextView
-            style="@style/TTC.SectionHeader.Gold"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/title_settings"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_settings"
+                app:tint="@color/ttc_gold_accent"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@null"/>
+
+            <TextView
+                style="@style/TTC.SectionHeader.Gold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_settings"/>
+        </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
@@ -513,12 +543,27 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- More Section -->
-        <TextView
-            style="@style/TTC.SectionHeader.Gold"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/more_section"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_info"
+                app:tint="@color/ttc_gold_accent"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@null"/>
+
+            <TextView
+                style="@style/TTC.SectionHeader.Gold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/more_section"/>
+        </LinearLayout>
 
         <com.google.android.material.card.MaterialCardView
             style="@style/TTC.Card"
