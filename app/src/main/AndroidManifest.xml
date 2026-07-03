@@ -94,6 +94,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Live Session Screen (1a/1e) -->
+        <activity
+            android:name=".LiveSessionActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Exercise Editor Screen (New / Clone / Edit, 10c/10d) -->
         <activity
             android:name=".ui.ExerciseEditorActivity"

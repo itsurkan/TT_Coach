@@ -11,17 +11,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:background="@drawable/bg_card_rounded"
-        android:backgroundTint="?attr/colorSurfaceInverse"
+        android:background="@drawable/bg_overlay_pill"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:text="@string/placeholder_duration"
-        android:textColor="?attr/colorOnSurfaceInverse"
-        android:textAppearance="?attr/textAppearanceTitleLarge"
-        android:textStyle="bold"
-        android:fontFamily="monospace"
+        android:textColor="@color/ttc_text_1"
+        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+        android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
@@ -32,29 +30,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/overlay_scrim"
+        android:background="@drawable/bg_overlay_pill"
         android:padding="12dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-        
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_hits"
-            android:textColor="@color/text_secondary_contrast"
-            android:textSize="12sp"/>
-        
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
+            android:textColor="@color/ttc_text_3"/>
+
         <TextView
             android:id="@+id/tv_hits_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/placeholder_hits"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textAppearance="@style/TextAppearance.TTC.Stat.Small"
+            android:textColor="@color/ttc_gold_accent"/>
     </LinearLayout>
 
     <LinearLayout
@@ -62,29 +59,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/overlay_scrim"
+        android:background="@drawable/bg_overlay_pill"
         android:padding="12dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/label_accuracy"
-            android:textColor="@color/text_secondary_contrast"
-            android:textSize="12sp"/>
-        
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
+            android:textColor="@color/ttc_text_3"/>
+
         <TextView
             android:id="@+id/tv_accuracy_percent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/placeholder_percent"
-            android:textColor="@android:color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"/>
+            android:textAppearance="@style/TextAppearance.TTC.Stat.Small"
+            android:textColor="@color/ttc_gold_accent"/>
     </LinearLayout>
 
     <!-- Pause/Play Button (Center) -->
@@ -94,8 +90,8 @@
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_media_pause"
         android:contentDescription="Pause/Resume"
-        app:backgroundTint="?attr/colorPrimary"
-        app:tint="?attr/colorOnPrimary"
+        app:backgroundTint="@color/ttc_gold_bright"
+        app:tint="@color/ttc_on_gold"
         app:fabSize="normal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

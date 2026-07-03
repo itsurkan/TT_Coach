@@ -81,6 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="bottom"
+        app:cardBackgroundColor="@color/ttc_surface_elevated"
         app:cardCornerRadius="28dp"
         app:behavior_peekHeight="100dp"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

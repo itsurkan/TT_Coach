@@ -29,6 +29,7 @@ class TrainingUIController(
         setupButtons()
         setupRecyclerView()
         setupFeedbackSettings()
+        updateStats() // render formatted 0/0 · 0% at start, before the first stroke fires
     }
 
     private fun setupBottomSheet() {

@@ -176,6 +176,8 @@
     <color name="ttc_text_disabled">#A0A5AF</color>
     <color name="ttc_paywall_bg">#F5F6F8</color>
     <color name="ttc_success_container">#E9F7EF</color>
+    <color name="ttc_danger">#E8817A</color>
+    <color name="ttc_on_danger">#2A1210</color>
 
     <!-- Focus chip (10c editor) — green selected state -->
     <color name="ttc_focus_chip_bg_on">#E4F5EA</color>

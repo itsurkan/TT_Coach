@@ -95,7 +95,7 @@ class ExerciseSelectionActivity : BaseActivity() {
         }
 
         // Перехід до екрану тренування
-        val intent = Intent(this, TrainingActivity::class.java).apply {
+        val intent = Intent(this, LiveSessionActivity::class.java).apply {
             putExtra("EXERCISE_ID", exercise.id)
             putExtra("EXERCISE_NAME", exercise.name)
             putExtra("USE_VIDEO", exercise.useVideo)
