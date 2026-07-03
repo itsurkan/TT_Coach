@@ -93,11 +93,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:boxCornerRadiusBottomEnd="11dp"
-                app:boxCornerRadiusBottomStart="11dp"
-                app:boxCornerRadiusTopEnd="11dp"
-                app:boxCornerRadiusTopStart="11dp"
-                app:boxStrokeColor="@color/ttc_gold_bright"
+                app:boxCornerRadiusBottomEnd="10dp"
+                app:boxCornerRadiusBottomStart="10dp"
+                app:boxCornerRadiusTopEnd="10dp"
+                app:boxCornerRadiusTopStart="10dp"
+                app:boxBackgroundColor="@color/ttc_sink"
+                app:boxStrokeColor="@color/ttc_outline_strong"
+                app:boxStrokeWidth="1dp"
+                app:boxStrokeWidthFocused="1dp"
                 app:hintEnabled="false"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
@@ -129,7 +132,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_focus_arm"
-                    style="@style/TTC.Chip.Filter"
+                    style="@style/TTC.Chip.Focus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
@@ -137,7 +140,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_focus_shoulders"
-                    style="@style/TTC.Chip.Filter"
+                    style="@style/TTC.Chip.Focus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
@@ -145,7 +148,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_focus_legs"
-                    style="@style/TTC.Chip.Filter"
+                    style="@style/TTC.Chip.Focus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
@@ -153,7 +156,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_focus_core"
-                    style="@style/TTC.Chip.Filter"
+                    style="@style/TTC.Chip.Focus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
@@ -161,7 +164,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_focus_hips"
-                    style="@style/TTC.Chip.Filter"
+                    style="@style/TTC.Chip.Focus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checkable="true"
@@ -231,7 +234,7 @@
                     android:layout_height="wrap_content"
                     android:text="×1.00"
                     android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                    android:textColor="@color/ttc_gold_accent" />
+                    android:textColor="@color/ttc_text_1" />
             </LinearLayout>
 
             <com.google.android.material.slider.Slider
@@ -250,27 +253,30 @@
                 android:id="@+id/row_advanced_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
+                android:background="@drawable/bg_advanced_tile"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:paddingVertical="10dp">
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="13dp">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:fontFamily="@font/inter_tight_semibold"
                     android:text="@string/exercise_editor_advanced_header"
-                    android:textAppearance="@style/TextAppearance.TTC.Title.Card" />
+                    android:textColor="@color/ttc_text_2"
+                    android:textSize="13.5sp" />
 
                 <ImageView
                     android:id="@+id/iv_advanced_chevron"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_chevron_down"
-                    app:tint="@color/ttc_text_2" />
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="@color/ttc_text_faint" />
             </LinearLayout>
 
             <LinearLayout
@@ -768,10 +774,10 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_editor_cancel"
             style="@style/TTC.Button.Ghost"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
-            android:layout_marginEnd="12dp"
-            android:layout_weight="1"
+            android:layout_marginEnd="10dp"
+            android:paddingHorizontal="18dp"
             android:text="@string/exercise_editor_action_cancel" />
 
         <com.google.android.material.button.MaterialButton

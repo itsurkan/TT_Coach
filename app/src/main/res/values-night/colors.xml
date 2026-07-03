@@ -163,6 +163,11 @@
     <color name="ttc_paywall_bg">#0E1115</color>
     <color name="ttc_success_container">#0E241B</color>
 
+    <!-- Focus chip (10c editor) — green selected state -->
+    <color name="ttc_focus_chip_bg_on">#17392A</color>
+    <color name="ttc_focus_chip_stroke_on">#2E6B4B</color>
+    <color name="ttc_focus_chip_text_on">#9BE3A6</color>
+
     <!-- Session History / Review screens (Slice 3) -->
     <color name="ttc_trend_up">#2FD08A</color>
     <color name="ttc_trend_down">#E8817A</color>

@@ -281,7 +281,7 @@ class ExerciseEditorActivity : BaseActivity() {
     private fun toggleAdvanced() {
         val expanding = binding.containerAdvanced.visibility != View.VISIBLE
         binding.containerAdvanced.visibility = if (expanding) View.VISIBLE else View.GONE
-        binding.ivAdvancedChevron.rotation = if (expanding) 180f else 0f
+        binding.ivAdvancedChevron.rotation = if (expanding) 90f else 0f
     }
 
     private fun setReferenceChecked(referenceType: String) {
