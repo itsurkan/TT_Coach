@@ -92,7 +92,10 @@ class ForehandDriveGeneralTest {
         val banded = com.ttcoachai.shared.drill.RepFilter.filter(forward)
         assertEquals(1, banded.size, "fixture must produce exactly one candidate stroke: $banded")
         val ratio = LocomotionFilter.hipMidTravelTorso(seq.frames, banded[0], seq.aspectRatio)
-        assertEquals(0.6f, ratio)
+        // ~0.6 by construction (5 frames × 0.03 hipShift / 0.25 torso); float arithmetic
+        // forbids exact equality. What matters is sitting strictly between the strict
+        // (0.4) and tolerant (0.8) gates.
+        assertTrue(ratio != null && ratio > 0.55f && ratio < 0.65f, "travel ratio ~0.6 expected, got $ratio")
     }
 
     @Test
