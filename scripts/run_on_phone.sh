@@ -32,6 +32,21 @@ if [[ "${1:-}" == "-s" && -n "${2:-}" ]]; then
   SERIAL="$2"
 fi
 
+# Drop stale wireless duplicates first. When the same phone re-advertises over
+# mDNS without the old transport dying, adb keeps both and disambiguates the new
+# one by appending " (N)" to the instance name — so any serial carrying a
+# " (N)" suffix is by definition a duplicate of a still-listed sibling. Detach
+# them so a single live device remains and no -s is needed. `adb disconnect`
+# accepts the full mDNS instance name.
+DUP_SERIALS="$("$ADB" devices | awk -F'\t' 'NR>1 && $1 ~ / \([0-9]+\)\./ {print $1}')"
+if [[ -n "$DUP_SERIALS" ]]; then
+  while IFS= read -r dup; do
+    [[ -z "$dup" ]] && continue
+    echo "==> detaching duplicate wireless entry: $dup"
+    "$ADB" disconnect "$dup" >/dev/null 2>&1 || true
+  done <<< "$DUP_SERIALS"
+fi
+
 # Verify a usable device is attached. `adb devices` tab-separates serial and
 # state; wireless adb-tls serials can contain spaces (the mDNS name), so split on
 # TAB — whitespace splitting mis-parses those serials and fails the check.
@@ -45,6 +60,14 @@ if [[ -z "$SERIAL" && "$DEVICE_COUNT" -gt 1 ]]; then
   echo "error: multiple devices attached; pass -s <serial>:" >&2
   echo "$DEVICES" >&2
   exit 1
+fi
+
+# Auto-pin to the sole device so every adb call targets it explicitly. Wireless
+# mDNS can re-advertise a stale duplicate mid-run (e.g. right after the install
+# loop's kill-server), which would otherwise make a later `adb install`/`am start`
+# fail with "more than one device". Pinning -s makes those calls immune.
+if [[ -z "$SERIAL" ]]; then
+  SERIAL="$DEVICES"
 fi
 
 ADB_TARGET=()
