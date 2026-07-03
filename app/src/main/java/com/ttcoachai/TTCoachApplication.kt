@@ -12,6 +12,7 @@ import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
 import com.ttcoachai.core.logging.providers.LocalFileLogger
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.MutableStateFlow
 
 import androidx.appcompat.app.AppCompatDelegate
 
@@ -38,6 +39,11 @@ class TTCoachApplication : Application() {
     val sessionAnalyticsRecorder: com.ttcoachai.managers.SessionAnalyticsRecorder by lazy {
         com.ttcoachai.managers.SessionAnalyticsRecorder(database.sessionAnalyticsDao())
     }
+
+    // One-shot signal: set by TrainingActivity's async save-completion callback, consumed by
+    // MainActivity to navigate to SessionReviewFragment exactly once. See
+    // docs/superpowers/specs/2026-07-03-finish-to-session-summary-flow-design.md.
+    val pendingReviewSessionId = MutableStateFlow<String?>(null)
 
     override fun attachBaseContext(base: Context) {
         // Apply saved locale before any activity is created
