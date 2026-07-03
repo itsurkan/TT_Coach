@@ -16,6 +16,20 @@ object DrillFeedbackEngine {
         metrics: Map<String, Double>,
         baseline: PersonalBaseline,
         rules: List<BaselineRule>
+    ): List<FeedbackCue> = evaluateRep(metrics, baseline, rules, MetricPrecisionPolicy::precisionFor)
+
+    /**
+     * Generalized form: precision comes from [precisionFor] rather than the
+     * hard-coded [MetricPrecisionPolicy] (docs/superpowers/specs/
+     * 2026-07-02-generic-movement-pipeline-design.md) — lets a future
+     * MovementDefinition supply its own per-metric trust-rule policy. The 3-arg
+     * overload keeps [MetricPrecisionPolicy.precisionFor] as the default, unchanged.
+     */
+    fun evaluateRep(
+        metrics: Map<String, Double>,
+        baseline: PersonalBaseline,
+        rules: List<BaselineRule>,
+        precisionFor: (String) -> MetricPrecision
     ): List<FeedbackCue> {
         val cues = mutableListOf<FeedbackCue>()
         for (rule in rules) {
@@ -30,7 +44,7 @@ object DrillFeedbackEngine {
                 direction = if (delta > 0) CueDirection.TOO_HIGH else CueDirection.TOO_LOW,
                 deltaFromMean = delta,
                 severity = if (stats.std > 0.0) abs(delta) / stats.std else 0.0,
-                precision = MetricPrecisionPolicy.precisionFor(rule.metricKey)
+                precision = precisionFor(rule.metricKey)
             )
         }
         return cues.sortedByDescending { it.severity }

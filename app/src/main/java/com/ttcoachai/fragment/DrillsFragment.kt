@@ -105,6 +105,14 @@ class DrillsFragment : Fragment() {
                 category = getString(R.string.cat_technique)
             ),
             Exercise(
+                id = "forehand_drive_general",
+                name = getString(R.string.exercise_forehand_general_name),
+                description = getString(R.string.exercise_forehand_general_desc),
+                difficulty = getString(R.string.difficulty_beginner),
+                duration = getString(R.string.duration_10_15),
+                category = getString(R.string.cat_technique)
+            ),
+            Exercise(
                 id = "backhand_loop",
                 name = getString(R.string.exercise_backhand_loop_name),
                 description = getString(R.string.exercise_backhand_loop_desc),
@@ -245,7 +253,7 @@ class DrillsFragment : Fragment() {
     }
 
     private fun iconForDrill(id: String): Int = when (id) {
-        "forehand_drive", "forehand_andrii" -> R.drawable.ic_skill_forehand
+        "forehand_drive", "forehand_andrii", "forehand_drive_general" -> R.drawable.ic_skill_forehand
         "backhand_loop" -> R.drawable.ic_skill_backhand
         "serve_practice" -> R.drawable.ic_skill_topspin
         "footwork_drill" -> R.drawable.ic_skill_footwork

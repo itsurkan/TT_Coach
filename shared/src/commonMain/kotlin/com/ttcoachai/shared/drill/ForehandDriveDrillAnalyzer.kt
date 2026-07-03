@@ -2,49 +2,11 @@ package com.ttcoachai.shared.drill
 
 import com.ttcoachai.shared.analysis.BaselineRule
 import com.ttcoachai.shared.analysis.BaselineRuleFactory
-import com.ttcoachai.shared.analysis.CameraAngleEstimator
 import com.ttcoachai.shared.detection.StrokeDetector2D
+import com.ttcoachai.shared.drill.movements.ForehandDrive
+import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.PersonalBaseline
 import com.ttcoachai.shared.models.PoseSequence2D
-import com.ttcoachai.shared.models.Handedness
-import com.ttcoachai.shared.models.Stroke2D
-import com.ttcoachai.shared.models.ViewGeometry
-import kotlin.math.abs
-
-data class RepAnalysis(
-    val stroke: Stroke2D,
-    val metrics: Map<String, Double>,
-    val cues: List<FeedbackCue>,
-    /**
-     * Camera yaw used for THIS rep (pre-stroke estimate or the override), degrees.
-     * null = yaw was unmeasurable (no scored shoulders+hips in the pre-stroke or
-     * stroke window) → placement unverifiable → [placementOk] is false.
-     */
-    val cameraYawDeg: Float?,
-    /**
-     * false → camera was too far off the required side view at this rep: cues and
-     * spoken feedback were skipped (trust rule); metrics are diagnostics only.
-     */
-    val placementOk: Boolean
-)
-
-data class SpokenFeedback(
-    val timestampMs: Long,
-    val message: String,
-    /** null = positive reinforcement, not a correction. */
-    val cue: FeedbackCue?
-)
-
-data class DrillAnalysisReport(
-    val reps: List<RepAnalysis>,
-    val feedback: List<SpokenFeedback>,
-    /**
-     * Session summary: false → more than half the reps had bad camera placement;
-     * the UI should surface a "reposition camera" prompt. Per-rep detail is on
-     * [RepAnalysis.placementOk].
-     */
-    val placementOk: Boolean
-)
 
 /**
  * Phase 2 exit-gate orchestrator: pose sequence → strokes → per-rep metrics →
@@ -54,6 +16,12 @@ data class DrillAnalysisReport(
  * Forehand drive requires the side camera. Yaw is resolved PER REP (the player
  * moves their feet between reps): within [maxCameraYawDeg] it is corrected via that
  * rep's ViewGeometry.xScale; beyond it the rep gets no feedback.
+ *
+ * Thin delegating wrapper: the generalized orchestrator — any [MovementDefinition],
+ * not just forehand drive — lives in [MovementAnalyzer], driven by
+ * [ForehandDrive.DEFINITION] (docs/superpowers/specs/
+ * 2026-07-02-generic-movement-pipeline-design.md). Kept for API compatibility;
+ * behavior for forehand drive is unchanged bit-for-bit.
  */
 class ForehandDriveDrillAnalyzer(
     private val baseline: PersonalBaseline,
@@ -70,64 +38,21 @@ class ForehandDriveDrillAnalyzer(
     private val hipTravelMaxTorso: Float = LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO
 ) {
 
-    init {
-        require(maxCameraYawDeg <= ViewGeometry.MAX_YAW_DEG) {
-            "maxCameraYawDeg must be <= ViewGeometry.MAX_YAW_DEG (${ViewGeometry.MAX_YAW_DEG}°), " +
-                "got $maxCameraYawDeg — the 1/cos xScale correction is undefined beyond it"
-        }
-    }
+    private val definition = ForehandDrive.DEFINITION.copy(
+        repValidation = ForehandDrive.DEFINITION.repValidation.copy(hipTravelMaxTorso = hipTravelMaxTorso)
+    )
 
-    fun analyze(sequence: PoseSequence2D): DrillAnalysisReport {
-        // analyze() is self-contained: a reused analyzer must not inherit the previous run's window
-        cadence.reset()
-        // Detection on plain aspect; per-rep corrected xScale below. ForwardStrokeFilter
-        // keeps recovery swings out of feedback; RepFilter drops junk peaks (L-03).
-        val detected = detector.detect(sequence.frames, handedness, sequence.aspectRatio, sequence.intervalMs)
-        // detect → ForwardStrokeFilter → RepFilter → locomotion gate (xScale = aspectRatio
-        // since detection runs on plain aspect / yaw 0).
-        val strokes = LocomotionFilter.filterStationary(
-            RepFilter.filter(ForwardStrokeFilter.filter(detected, sequence.frames, handedness)),
-            sequence.frames, sequence.aspectRatio, hipTravelMaxTorso
-        )
+    private val delegate = MovementAnalyzer(
+        definition = definition,
+        baseline = baseline,
+        rules = rules,
+        handedness = handedness,
+        lang = lang,
+        cadence = cadence,
+        cameraYawDeg = cameraYawDeg,
+        maxCameraYawDeg = maxCameraYawDeg,
+        pipeline = MovementRepPipeline(definition, detector.asMovementDetector())
+    )
 
-        val reps = strokes.map { stroke ->
-            val yaw = cameraYawDeg
-                ?: CameraAngleEstimator.estimateYawForStroke(
-                    sequence.frames, stroke, sequence.aspectRatio, sequence.intervalMs
-                )
-            // Null yaw = placement unverifiable → fails the gate (conservatism: an
-            // unverifiable rep must not trigger feedback), same handling as over-yaw.
-            val placementOk = yaw != null && abs(yaw) <= maxCameraYawDeg
-            // Beyond the gate (or unmeasurable) the 1/cos model is unreliable: fall back
-            // to plain aspect (this rep's metrics become diagnostics only; no cues).
-            val view = if (yaw != null && placementOk) ViewGeometry(sequence.aspectRatio, yaw)
-                       else ViewGeometry(sequence.aspectRatio)
-            val metrics = DrillMetrics.extractAtPeak(
-                sequence.frames, stroke.peakFrame, handedness, view.xScale, sequence.intervalMs
-            )
-            val cues = if (placementOk) DrillFeedbackEngine.evaluateRep(metrics, baseline, rules)
-                       else emptyList()
-            RepAnalysis(stroke, metrics, cues, cameraYawDeg = yaw, placementOk = placementOk)
-        }
-
-        val feedback = mutableListOf<SpokenFeedback>()
-        for (rep in reps) {
-            if (!rep.placementOk) continue // silent rep; UI surfaces the placement flag
-            val atMs = rep.stroke.endFrame * sequence.intervalMs
-            val cue = cadence.offer(atMs, rep.cues)
-            when {
-                cue != null ->
-                    feedback += SpokenFeedback(atMs, FeedbackMessageCatalog.format(cue, lang), cue)
-                rep.cues.isEmpty() && rep.metrics.isNotEmpty() && cadence.offerPositive(atMs) ->
-                    feedback += SpokenFeedback(atMs, FeedbackMessageCatalog.positive(lang), null)
-            }
-        }
-
-        val okCount = reps.count { it.placementOk }
-        return DrillAnalysisReport(
-            reps = reps,
-            feedback = feedback,
-            placementOk = reps.isEmpty() || okCount * 2 >= reps.size
-        )
-    }
+    fun analyze(sequence: PoseSequence2D): DrillAnalysisReport = delegate.analyze(sequence)
 }

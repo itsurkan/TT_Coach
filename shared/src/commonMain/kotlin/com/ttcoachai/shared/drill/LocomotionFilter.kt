@@ -1,6 +1,7 @@
 package com.ttcoachai.shared.drill
 
 import com.ttcoachai.shared.analysis.AngleCalculations2D
+import com.ttcoachai.shared.analysis.SignalMath
 import com.ttcoachai.shared.models.Coco17
 import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.shared.models.PoseFrame2D
@@ -58,7 +59,7 @@ object LocomotionFilter {
             if (len >= MIN_TORSO_LEN) torsos.add(len)
         }
         if (xs.isEmpty() || torsos.isEmpty()) return null
-        val torsoLen = median(torsos)
+        val torsoLen = SignalMath.median(torsos)
         val travel = (xs.max() - xs.min()) * xScale
         return travel / torsoLen
     }
@@ -85,10 +86,4 @@ object LocomotionFilter {
 
     private fun Keypoint2D.scoredOrNull(minScore: Float): Keypoint2D? =
         if (score >= minScore) this else null
-
-    private fun median(values: List<Float>): Float {
-        val sorted = values.sorted()
-        val mid = sorted.size / 2
-        return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2f
-    }
 }

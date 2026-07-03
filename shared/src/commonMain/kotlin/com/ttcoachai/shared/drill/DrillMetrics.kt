@@ -7,6 +7,10 @@ import com.ttcoachai.shared.models.PoseFrame2D
 /**
  * Per-frame extraction of the five Phase 2 in-plane metrics (context doc §3) at the
  * stroke's wrist-speed peak. Score-gated per joint; sanity-bounded per value.
+ *
+ * Thin wrapper: the generalized algorithm — any [MetricSpec] list, not just these
+ * five — lives in [MovementMetrics]. Kept for API compatibility; behavior for the
+ * five core metrics is unchanged bit-for-bit.
  */
 object DrillMetrics {
 
@@ -21,30 +25,16 @@ object DrillMetrics {
         METRIC_TORSO_LEAN, METRIC_SHOULDER_TILT
     )
 
+    /** Half-width of the peak-metric smoothing window, in ms (±2 frames at 30 fps). */
+    const val DEFAULT_PEAK_RADIUS_MS = 70L
+
     fun extractAtFrame(
         frame: PoseFrame2D,
         handedness: Handedness,
         xScale: Float,
         minScore: Float = AngleCalculations2D.DEFAULT_MIN_SCORE
-    ): Map<String, Double> {
-        val kp = frame.keypoints
-        if (kp.isEmpty()) return emptyMap()
-        val out = mutableMapOf<String, Double>()
-        AngleCalculations2D.elbowAngle(kp, handedness, xScale, minScore)
-            ?.let { out[METRIC_ELBOW_ANGLE] = it.toDouble() }
-        AngleCalculations2D.shoulderAngle(kp, handedness, xScale, minScore)
-            ?.let { out[METRIC_SHOULDER_ANGLE] = it.toDouble() }
-        AngleCalculations2D.kneeBend(kp, handedness, xScale, minScore)
-            ?.let { out[METRIC_KNEE_BEND] = it.toDouble() }
-        AngleCalculations2D.torsoLean(kp, xScale, minScore)
-            ?.let { out[METRIC_TORSO_LEAN] = it.toDouble() }
-        AngleCalculations2D.shoulderTilt(kp, xScale, minScore)
-            ?.let { out[METRIC_SHOULDER_TILT] = it.toDouble() }
-        return out.filter { (k, v) -> SanityBounds.isSane(k, v) }
-    }
-
-    /** Half-width of the peak-metric smoothing window, in ms (±2 frames at 30 fps). */
-    const val DEFAULT_PEAK_RADIUS_MS = 70L
+    ): Map<String, Double> =
+        MovementMetrics.extractAtFrame(frame, handedness, xScale, CoreMetricSpecs.ALL, minScore)
 
     /**
      * Per-rep metrics: MEDIAN of each metric over the frames within ±[radiusMs] of
@@ -62,22 +52,6 @@ object DrillMetrics {
         intervalMs: Long,
         minScore: Float = AngleCalculations2D.DEFAULT_MIN_SCORE,
         radiusMs: Long = DEFAULT_PEAK_RADIUS_MS
-    ): Map<String, Double> {
-        require(intervalMs > 0) { "intervalMs must be > 0, got $intervalMs" }
-        require(peakFrame in frames.indices) { "peakFrame $peakFrame out of bounds for ${frames.size} frames" }
-        val radius = (radiusMs / intervalMs).toInt()
-        val lo = (peakFrame - radius).coerceAtLeast(0)
-        val hi = (peakFrame + radius).coerceAtMost(frames.lastIndex)
-        val byKey = mutableMapOf<String, MutableList<Double>>()
-        for (i in lo..hi) {
-            for ((key, value) in extractAtFrame(frames[i], handedness, xScale, minScore)) {
-                byKey.getOrPut(key) { mutableListOf() }.add(value)
-            }
-        }
-        return byKey.mapValues { (_, values) ->
-            val sorted = values.sorted()
-            val mid = sorted.size / 2
-            if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2.0
-        }
-    }
+    ): Map<String, Double> =
+        MovementMetrics.extractAtPeak(frames, peakFrame, handedness, xScale, intervalMs, CoreMetricSpecs.ALL, minScore, radiusMs)
 }

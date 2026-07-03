@@ -65,6 +65,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 followThroughAngle = prefs.getInt("follow_through_angle", 120).toFloat()
             )
             "forehand_andrii" -> ExerciseParameters.forehandDrive().copy(exerciseId = "forehand_andrii")
+            "forehand_drive_general" -> ExerciseParameters.forehandDrive().copy(exerciseId = "forehand_drive_general")
             "backhand_drive" -> ExerciseParameters.backhandDrive()
             else -> if (exerciseId?.startsWith("custom_") == true) {
                 ExerciseParameters.forehandDrive().copy(exerciseId = exerciseId!!)
