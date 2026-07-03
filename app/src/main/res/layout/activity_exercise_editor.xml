@@ -93,13 +93,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:hint="@string/exercise_editor_name_hint"
                 app:boxCornerRadiusBottomEnd="11dp"
                 app:boxCornerRadiusBottomStart="11dp"
                 app:boxCornerRadiusTopEnd="11dp"
                 app:boxCornerRadiusTopStart="11dp"
                 app:boxStrokeColor="@color/ttc_gold_bright"
-                app:hintTextColor="@color/ttc_text_3"
+                app:hintEnabled="false"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -108,7 +107,8 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/exercise_editor_name_hint"
                     android:textAppearance="@style/TextAppearance.TTC.Body"
-                    android:textColor="@color/ttc_text_1" />
+                    android:textColor="@color/ttc_text_1"
+                    android:textColorHint="@color/ttc_text_3" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- FOCUS -->

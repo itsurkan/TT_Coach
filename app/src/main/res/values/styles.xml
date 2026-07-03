@@ -273,7 +273,8 @@
         <item name="haloColor">@color/ttc_gold_container_outline</item>
         <item name="tickVisible">false</item>
         <item name="trackHeight">4dp</item>
-        <item name="thumbRadius">10dp</item>
+        <item name="thumbWidth">18dp</item>
+        <item name="thumbHeight">18dp</item>
         <item name="thumbTrackGapSize">0dp</item>
         <item name="trackStopIndicatorSize">0dp</item>
     </style>
