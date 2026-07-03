@@ -140,10 +140,13 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             return
         }
 
-        // Save training session to cloud
+        // Save training session to cloud (async, app-scoped — survives this finish()).
+        // On success, onSaved (inside saveSessionToCloud) sets
+        // TTCoachApplication.pendingReviewSessionId, which MainActivity picks up and
+        // navigates to SessionReviewFragment. Close this screen immediately rather than
+        // waiting on the save.
         saveSessionToCloud()
-        
-        uiController.showSummary(stateManager.getSummaryText(), stateManager.getImprovementTip())
+        finish()
     }
     
     private fun saveSessionToCloud() {
@@ -184,6 +187,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     results = stateManager.getAnalysisResults(),
                     feedback = stateManager.getLatestFeedbackItems()
                 )
+                app.pendingReviewSessionId.value = sessionId
             }
         )
     }
