@@ -59,6 +59,8 @@
     <string name="exercise_forehand_desc">Базовий удар справа з ротацією корпусу</string>
     <string name="exercise_forehand_andrii_name">Накат справа (Андрій)</string>
     <string name="exercise_forehand_andrii_desc">Форхенд за еталонним ударом Андрія</string>
+    <string name="exercise_forehand_general_name">Накат справа General</string>
+    <string name="exercise_forehand_general_desc">Накат справа з рухливим (general) профілем аналізу</string>
     <string name="exercise_backhand_name">Накат зліва (Backhand Drive)</string>
     <string name="exercise_backhand_desc">Базовий удар зліва</string>
     <string name="exercise_topspin_name">Топ-спін справа</string>

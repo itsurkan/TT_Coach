@@ -61,6 +61,8 @@
     <string name="exercise_forehand_desc">Basic forehand stroke with body rotation</string>
     <string name="exercise_forehand_andrii_name">Forehand Andrii</string>
     <string name="exercise_forehand_andrii_desc">Forehand modeled on Andrii\'s captured stroke</string>
+    <string name="exercise_forehand_general_name">Forehand Drive General</string>
+    <string name="exercise_forehand_general_desc">Forehand drive with the movement-tolerant general profile</string>
     <string name="exercise_backhand_name">Backhand Drive</string>
     <string name="exercise_backhand_desc">Basic backhand stroke</string>
     <string name="exercise_topspin_name">Forehand Topspin</string>

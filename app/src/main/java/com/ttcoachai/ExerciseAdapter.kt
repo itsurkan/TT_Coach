@@ -84,7 +84,7 @@ class ExerciseAdapter(
                 // Single consistent gold icon treatment for every drill (design system).
                 // Icon glyph still varies per drill; ring/tile + tint do not.
                 val iconRes = when (exercise.id) {
-                    "forehand_drive", "forehand_andrii" -> R.drawable.ic_skill_forehand
+                    "forehand_drive", "forehand_andrii", "forehand_drive_general" -> R.drawable.ic_skill_forehand
                     "backhand_loop" -> R.drawable.ic_skill_backhand
                     "serve_practice" -> R.drawable.ic_skill_topspin
                     "footwork_drill" -> R.drawable.ic_skill_footwork
