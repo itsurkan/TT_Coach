@@ -38,6 +38,9 @@ tmp/*
 # iOS RTMPose ONNX models (fetched via iosApp/TTCoach/Models/fetch_models.sh)
 iosApp/TTCoach/Models/*.onnx
 
+# Android RTMPose ONNX models (fetched via app/src/main/assets/fetch_models.sh)
+app/src/main/assets/*.onnx
+
 # 3D-lift experiment (scripts/poses/lift_pose3d.py): vendored model + weights + torch env
 # are large and re-fetchable — see scripts/poses/LIFT.md. Never track.
 scripts/poses/vendor/
