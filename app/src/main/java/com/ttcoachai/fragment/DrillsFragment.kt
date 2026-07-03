@@ -4,6 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateUtils
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -243,28 +245,40 @@ class DrillsFragment : Fragment() {
      * presets only offer Continue/Clone; custom drills offer all five.
      */
     private fun showDrillOptions(exercise: Exercise) {
-        data class Action(val label: String, val run: () -> Unit)
-        val actions = buildList {
-            if (DrillActions.canContinue(exercise))
-                add(Action(getString(R.string.drill_action_continue)) { onExerciseSelected(exercise) })
-            if (DrillActions.canEdit(exercise))
-                add(Action(getString(R.string.drill_action_edit)) {
-                    exerciseEditorLauncher.launch(
-                        ExerciseEditorActivity.newIntentEdit(requireContext(), exercise.id)
-                    )
-                })
-            if (DrillActions.canClone(exercise))
-                add(Action(getString(R.string.drill_action_clone)) { cloneDrill(exercise) })
-            if (DrillActions.canRename(exercise))
-                add(Action(getString(R.string.drill_action_rename)) { renameDrill(exercise) })
-            if (DrillActions.canDelete(exercise))
-                add(Action(getString(R.string.drill_action_delete)) { deleteDrill(exercise) })
+        val view = layoutInflater.inflate(R.layout.dialog_drill_menu, null)
+        val dialog = AlertDialog.Builder(requireContext()).setView(view).create()
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val rowContinue = view.findViewById<View>(R.id.rowContinue)
+        val rowEdit = view.findViewById<View>(R.id.rowEdit)
+        val rowClone = view.findViewById<View>(R.id.rowClone)
+        val rowRename = view.findViewById<View>(R.id.rowRename)
+        val rowDelete = view.findViewById<View>(R.id.rowDelete)
+
+        fun wire(row: View, enabled: Boolean, run: () -> Unit) {
+            if (enabled) row.setOnClickListener { dialog.dismiss(); run() }
+            else row.visibility = View.GONE
         }
-        val labels = actions.map { it.label }.toTypedArray()
-        AlertDialog.Builder(requireContext())
-            .setTitle(exercise.name)
-            .setItems(labels) { _, which -> actions[which].run() }
-            .show()
+        wire(rowContinue, DrillActions.canContinue(exercise)) { onExerciseSelected(exercise) }
+        wire(rowEdit, DrillActions.canEdit(exercise)) {
+            exerciseEditorLauncher.launch(
+                ExerciseEditorActivity.newIntentEdit(requireContext(), exercise.id)
+            )
+        }
+        wire(rowClone, DrillActions.canClone(exercise)) { cloneDrill(exercise) }
+        wire(rowRename, DrillActions.canRename(exercise)) { renameDrill(exercise) }
+        wire(rowDelete, DrillActions.canDelete(exercise)) { deleteDrill(exercise) }
+
+        // Dividers only separate visible groups (continue | edit/clone/rename | delete).
+        val midVisible = rowEdit.visibility == View.VISIBLE ||
+            rowClone.visibility == View.VISIBLE ||
+            rowRename.visibility == View.VISIBLE
+        view.findViewById<View>(R.id.divider1).visibility =
+            if (rowContinue.visibility == View.VISIBLE && midVisible) View.VISIBLE else View.GONE
+        view.findViewById<View>(R.id.divider2).visibility =
+            if (midVisible && rowDelete.visibility == View.VISIBLE) View.VISIBLE else View.GONE
+
+        dialog.show()
     }
 
     private fun cloneDrill(source: Exercise) {

@@ -788,6 +788,8 @@
     <string name="drill_action_clone">Clone</string>
     <string name="drill_action_rename">Rename</string>
     <string name="drill_action_delete">Delete</string>
+    <string name="drill_action_swipe_forward">swipe →</string>
+    <string name="drill_action_swipe_back">swipe ←</string>
     <string name="drill_clone_copy_suffix">(copy)</string>
     <string name="drill_clone_toast">Cloned as \"%1$s\"</string>
     <string name="drill_rename_title">Rename exercise</string>

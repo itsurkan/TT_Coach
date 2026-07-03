@@ -5,6 +5,7 @@
 - [Commit cadence](feedback_commit_cadence.md) — commit after each logical change, don't batch end-of-task
 - [Screenshot save location](feedback_screenshots.md) — save adb screencaps to `tmp/screenshots/` in project root, not `/tmp/`, so they're visible in VSCode
 - [Stay in scope](feedback_scope_discipline.md) — fix exactly what was asked; don't expand to adjacent problems (e.g., fix legs → don't also touch torso) without confirmation
+- [Never revert uncommitted](feedback_never_revert_uncommitted.md) — never git-checkout/restore uncommitted working-tree changes (unrestorable); leave unrelated modified files alone
 - [Prefer subagents](feedback_subagents.md) — delegate exploration/research/planning to Agent subagents whenever it avoids loading large output into main context
 - [Plan execution = subagents](feedback_plan_execution_subagents.md) — always run plans via subagent-driven-development; never ask which approach (overrides the skill's "offer execution choice" step)
 - [Viewer fast iteration](feedback_viewer_fast_iteration.md) — for poses_viewer-visible fixes the user wants direct TS iteration, not the full Kotlin-first subagent plan; back-port to Kotlin separately

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:minWidth="220dp"
+    android:orientation="vertical"
+    android:clipToOutline="true"
+    android:outlineProvider="background"
+    android:background="@drawable/bg_drill_menu">
+
+    <LinearLayout
+        android:id="@+id/rowContinue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_menu_play"
+            app:tint="@color/ttc_gold_accent"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_tight_semibold"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@string/drill_action_continue"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/ttc_outline"/>
+
+    <LinearLayout
+        android:id="@+id/rowEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_edit_pencil"
+            app:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@string/drill_action_edit"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowClone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_content_copy"
+            app:tint="@color/ttc_gold_accent"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_tight_semibold"
+            android:textColor="@color/ttc_gold_accent"
+            android:text="@string/drill_action_clone"/>
+
+        <TextView
+            android:id="@+id/hintClone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:text="@string/drill_action_swipe_forward"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rowRename"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_rename_type"
+            app:tint="?attr/colorOnSurfaceVariant"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:text="@string/drill_action_rename"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/ttc_outline"/>
+
+    <LinearLayout
+        android:id="@+id/rowDelete"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="13dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_trash"
+            app:tint="@color/ttc_error"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
+            android:textSize="14sp"
+            android:fontFamily="@font/inter_tight_semibold"
+            android:textColor="@color/ttc_error"
+            android:text="@string/drill_action_delete"/>
+
+        <TextView
+            android:id="@+id/hintDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="11sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:text="@string/drill_action_swipe_back"/>
+    </LinearLayout>
+
+</LinearLayout>

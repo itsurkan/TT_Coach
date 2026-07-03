@@ -271,6 +271,11 @@
         <item name="trackColorInactive">@color/ttc_sink</item>
         <item name="thumbColor">@color/ttc_gold_bright</item>
         <item name="haloColor">@color/ttc_gold_container_outline</item>
+        <item name="tickVisible">false</item>
+        <item name="trackHeight">4dp</item>
+        <item name="thumbRadius">10dp</item>
+        <item name="thumbTrackGapSize">0dp</item>
+        <item name="trackStopIndicatorSize">0dp</item>
     </style>
     <style name="TTC.Chip.Filter" parent="Widget.Material3.Chip.Filter">
         <item name="chipBackgroundColor">@color/ttc_chip_bg</item>
