@@ -2,14 +2,12 @@ package com.ttcoachai.shared.drill
 
 import com.ttcoachai.shared.analysis.BaselineRule
 import com.ttcoachai.shared.analysis.BaselineRuleFactory
-import com.ttcoachai.shared.analysis.CameraAngleEstimator
 import com.ttcoachai.shared.detection.StrokeDetector2D
 import com.ttcoachai.shared.models.PersonalBaseline
 import com.ttcoachai.shared.models.PoseSequence2D
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.Stroke2D
 import com.ttcoachai.shared.models.ViewGeometry
-import kotlin.math.abs
 
 data class RepAnalysis(
     val stroke: Stroke2D,
@@ -91,36 +89,24 @@ class ForehandDriveDrillAnalyzer(
         )
 
         val reps = strokes.map { stroke ->
-            val yaw = cameraYawDeg
-                ?: CameraAngleEstimator.estimateYawForStroke(
-                    sequence.frames, stroke, sequence.aspectRatio, sequence.intervalMs
-                )
-            // Null yaw = placement unverifiable → fails the gate (conservatism: an
-            // unverifiable rep must not trigger feedback), same handling as over-yaw.
-            val placementOk = yaw != null && abs(yaw) <= maxCameraYawDeg
-            // Beyond the gate (or unmeasurable) the 1/cos model is unreliable: fall back
-            // to plain aspect (this rep's metrics become diagnostics only; no cues).
-            val view = if (yaw != null && placementOk) ViewGeometry(sequence.aspectRatio, yaw)
-                       else ViewGeometry(sequence.aspectRatio)
-            val metrics = DrillMetrics.extractAtPeak(
-                sequence.frames, stroke.peakFrame, handedness, view.xScale, sequence.intervalMs
+            DrillRepProcessor.computeRep(
+                frames = sequence.frames,
+                stroke = stroke,
+                aspectRatio = sequence.aspectRatio,
+                intervalMs = sequence.intervalMs,
+                handedness = handedness,
+                baseline = baseline,
+                rules = rules,
+                cameraYawOverride = cameraYawDeg,
+                maxCameraYawDeg = maxCameraYawDeg
             )
-            val cues = if (placementOk) DrillFeedbackEngine.evaluateRep(metrics, baseline, rules)
-                       else emptyList()
-            RepAnalysis(stroke, metrics, cues, cameraYawDeg = yaw, placementOk = placementOk)
         }
 
         val feedback = mutableListOf<SpokenFeedback>()
         for (rep in reps) {
-            if (!rep.placementOk) continue // silent rep; UI surfaces the placement flag
             val atMs = rep.stroke.endFrame * sequence.intervalMs
-            val cue = cadence.offer(atMs, rep.cues)
-            when {
-                cue != null ->
-                    feedback += SpokenFeedback(atMs, FeedbackMessageCatalog.format(cue, lang), cue)
-                rep.cues.isEmpty() && rep.metrics.isNotEmpty() && cadence.offerPositive(atMs) ->
-                    feedback += SpokenFeedback(atMs, FeedbackMessageCatalog.positive(lang), null)
-            }
+            val spoken = DrillRepProcessor.emitRepFeedback(rep, atMs, cadence, lang)
+            if (spoken != null) feedback += spoken
         }
 
         val okCount = reps.count { it.placementOk }
