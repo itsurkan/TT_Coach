@@ -18,9 +18,12 @@ import com.ttcoachai.shared.models.CorrectionType
 object LiveFeedbackFormatter {
 
     /**
-     * Mirrors `FeedbackGenerator.generateShortFeedback`: positive pool if the
-     * score is >= 85, else the first non-positive feedback item's resolved
-     * short message, else the positive pool as a fallback.
+     * Mirrors `FeedbackGenerator.generateShortFeedback` bit-for-bit: positive
+     * pool if the score is >= 85, else the first non-positive feedback item's
+     * RAW `message` key (the original returns `item.message` unresolved — it
+     * does not run it through the short_/full resource lookup — so we
+     * preserve that behavior here rather than "fixing" it), else the positive
+     * pool as a fallback.
      *
      * @param pickIndex given the pool size, returns the index to use (caller
      *   supplies e.g. `Random::nextInt` on Android).
@@ -28,11 +31,7 @@ object LiveFeedbackFormatter {
     fun shortFeedback(result: AnalysisResult, lang: FeedbackLang, pickIndex: (Int) -> Int): String {
         if (result.overallScore >= 85) return randomPositive(lang, pickIndex)
         val firstNegative = result.feedbackItems.firstOrNull { !it.isPositive }
-        return if (firstNegative != null) {
-            resolveKeyOrFallback(firstNegative.message, short = true, lang = lang)
-        } else {
-            randomPositive(lang, pickIndex)
-        }
+        return firstNegative?.message ?: randomPositive(lang, pickIndex)
     }
 
     private fun randomPositive(lang: FeedbackLang, pickIndex: (Int) -> Int): String {

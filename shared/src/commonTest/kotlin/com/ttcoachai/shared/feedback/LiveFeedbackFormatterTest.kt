@@ -20,12 +20,14 @@ class LiveFeedbackFormatterTest {
     }
 
     @Test
-    fun shortFeedbackReturnsFirstNegativeItemBelow85() {
+    fun shortFeedbackReturnsFirstNegativeItemsRawMessageKeyBelow85() {
+        // Bit-for-bit port of the original: FeedbackGenerator.generateShortFeedback
+        // returns FeedbackItem.message UNRESOLVED (not run through short_/full lookup).
         val result = AnalysisResult(overallScore = 50f, feedbackItems = listOf(
             FeedbackItem(message = "error_low_rotation", type = CorrectionType.BODY_ROTATION, isPositive = false),
             FeedbackItem(message = "error_wrist_bent", type = CorrectionType.WRIST, isPositive = false)
         ))
-        assertEquals("More rotation", LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.EN) { 0 })
+        assertEquals("error_low_rotation", LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.EN) { 0 })
     }
 
     @Test
@@ -38,11 +40,20 @@ class LiveFeedbackFormatterTest {
     }
 
     @Test
-    fun shortFeedbackUsesUkrainianCatalogWhenRequested() {
+    fun shortFeedbackRawMessagePassthroughIsLangIndependent() {
+        // lang only matters for the positive-pool branch; the raw-message
+        // passthrough branch ignores it entirely, same as the original.
         val result = AnalysisResult(overallScore = 50f, feedbackItems = listOf(
             FeedbackItem(message = "error_high_contact", type = CorrectionType.CONTACT_HEIGHT, isPositive = false)
         ))
-        assertEquals("Нижче контакт", LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.UA) { 0 })
+        assertEquals("error_high_contact", LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.UA) { 0 })
+    }
+
+    @Test
+    fun shortFeedbackPositivePoolUsesUkrainianWhenRequested() {
+        val result = AnalysisResult(overallScore = 90f, feedbackItems = emptyList())
+        val picked = LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.UA) { 0 }
+        assertTrue(picked in LiveFeedbackCatalog.positiveFeedback(FeedbackLang.UA))
     }
 
     @Test
