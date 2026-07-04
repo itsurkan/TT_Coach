@@ -37,7 +37,7 @@ class SessionAnalyticsBuilderTest {
 
     @Test
     fun timeline_bucketsCappedAtTwelve_peakIsMaxBucket() {
-        // 24 results sorted by ts: first 12 all clean (100%), last 12 all error (0%)
+        // 24 results sorted by ts: first 12 score 100, last 12 score 0 -> bucket means 100/0
         val results = (1..24).map { i -> result(i.toLong(), if (i <= 12) 100f else 0f) }
         val a = SessionAnalyticsBuilder.build("s", results, emptyList())
         assertEquals(12, a.accuracyTimeline.size)
@@ -45,6 +45,18 @@ class SessionAnalyticsBuilderTest {
         assertEquals(0f, a.accuracyTimeline.last())
         assertEquals(100f, a.peakAccuracy)
         assertEquals(0, a.peakBucketIndex)
+    }
+
+    @Test
+    fun timeline_bucketValue_isMeanOverallScore_notCleanShare() {
+        // 13 results over the 12-bucket cap: the last bucket gets the extra result (2 total:
+        // scores 40, 60 -- mean 50), the rest get 1 each. Neither 40 nor 60 is "clean" (>=80),
+        // so the old clean-share semantics would have produced 0 for the last bucket, not 50.
+        val results = (1..11).map { i -> result(i.toLong(), 100f) } +
+            listOf(result(12, 40f), result(13, 60f))
+        val a = SessionAnalyticsBuilder.build("s", results, emptyList())
+        assertEquals(12, a.accuracyTimeline.size)
+        assertEquals(50f, a.accuracyTimeline.last())
     }
 
     @Test

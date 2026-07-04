@@ -8,15 +8,21 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.ttcoachai.LocaleHelper
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.TrainingActivity
 import com.ttcoachai.databinding.FragmentSessionReviewBinding
 import com.ttcoachai.databinding.ItemFocusAreaRowBinding
+import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.models.SessionAnalyticsEntity
 import com.ttcoachai.models.TrainingSession
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
+import com.ttcoachai.shared.drill.FeedbackLang
+import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
+import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -132,8 +138,44 @@ class SessionReviewFragment : Fragment() {
         binding.tvLegendClean.text = getString(R.string.review_legend_clean, analytics.cleanCount)
         binding.tvLegendError.text = getString(R.string.review_legend_error, analytics.errorCount)
 
-        bindFocusAreas(analytics.focusAreas())
-        binding.tvSummary.text = analytics.summaryText
+        val focusAreas = analytics.focusAreas()
+        bindFocusAreas(focusAreas)
+        binding.tvSummary.text = buildSummaryText(timeline, analytics.peakAccuracy, focusAreas, analytics.summaryText)
+    }
+
+    private fun currentLang(): FeedbackLang =
+        if (LocaleHelper.getSavedLanguage(requireContext()) == "uk") FeedbackLang.UA else FeedbackLang.EN
+
+    private fun focusDisplayName(type: CorrectionType): String {
+        val key = SessionAnalyticsBuilder.displayNameKey(type)
+        val nameRes = resources.getIdentifier(key, "string", requireContext().packageName)
+        return if (nameRes != 0) getString(nameRes) else type.name
+    }
+
+    /**
+     * Regenerates the coach summary from persisted entity data at render time so it renders in
+     * the active app locale, mirroring SessionAnalyticsBuilder.buildSummary's exact trend
+     * thresholds (delta = last - first bucket, rounded). analytics.summaryText (EN, persisted at
+     * save time) is kept only as the empty-timeline fallback.
+     */
+    private fun buildSummaryText(
+        timeline: List<Float>,
+        peakAccuracy: Float,
+        focusAreas: List<FocusArea>,
+        fallback: String,
+    ): String {
+        if (timeline.isEmpty()) return fallback
+        val peakPct = peakAccuracy.roundToInt()
+        val delta = (timeline.last() - timeline.first()).roundToInt()
+        val trendRes = when {
+            delta > 0 -> R.string.review_summary_improved
+            delta < 0 -> R.string.review_summary_declined
+            else -> R.string.review_summary_steady
+        }
+        val focusPhrase = focusAreas.firstOrNull()
+            ?.let { getString(R.string.review_summary_focus, focusDisplayName(it.type)) }
+            ?: ""
+        return getString(trendRes, peakPct) + focusPhrase
     }
 
     private fun bindFocusAreas(areas: List<FocusArea>) {
@@ -146,13 +188,12 @@ class SessionReviewFragment : Fragment() {
         val maxCount = areas.first().count.coerceAtLeast(1)
         areas.take(3).forEachIndexed { index, area ->
             val row = ItemFocusAreaRowBinding.inflate(layoutInflater, binding.focusContainer, false)
-            val key = SessionAnalyticsBuilder.displayNameKey(area.type)
-            val nameRes = resources.getIdentifier(key, "string", requireContext().packageName)
-            row.tvFocusName.text = if (nameRes != 0) getString(nameRes) else area.type.name
+            row.tvFocusName.text = focusDisplayName(area.type)
             row.tvFocusCount.text = getString(R.string.review_focus_count, area.count)
             row.barFocus.max = maxCount
             row.barFocus.progress = area.count
             row.chipTopFocus.visibility = if (index == 0) View.VISIBLE else View.GONE
+            row.root.setOnClickListener { showFocusAreaExplanation(area) }
             binding.focusContainer.addView(row.root)
         }
         if (areas.size > 3) {
@@ -161,6 +202,27 @@ class SessionReviewFragment : Fragment() {
         } else {
             binding.tvViewAllFocus.visibility = View.GONE
         }
+    }
+
+    /**
+     * Same tap-to-explain flow as TrainingUIController.showFeedbackExplanation on the live
+     * training screen. TrainingStateManager is an in-memory singleton: right after a session
+     * ends this still holds that session's reps (desired); for older sessions opened from
+     * history it may reflect a different session's data — acceptable, not gated here.
+     */
+    private fun showFocusAreaExplanation(area: FocusArea) {
+        val lang = currentLang()
+        val stateManager = TrainingStateManager.getInstance(requireContext())
+        val recentMessages = stateManager.getRecentMessagesFor(area.type).map { message ->
+            LiveFeedbackCatalog.resolve(message, short = false, lang = lang) ?: message
+        }
+        val sheet = FeedbackExplanationSheet.newInstance(
+            type = area.type,
+            flaggedCount = area.count,
+            lang = lang,
+            recentMessages = recentMessages
+        )
+        sheet.show(childFragmentManager, FeedbackExplanationSheet.TAG)
     }
 
     override fun onDestroyView() {

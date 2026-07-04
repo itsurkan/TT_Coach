@@ -8,7 +8,7 @@ import com.ttcoachai.shared.models.CorrectionType
  */
 data class SessionAnalytics(
     val sessionId: String,
-    /** Bucketed accuracy %, 0..100, up to 12 points, oldest-first. */
+    /** Bucketed mean stroke quality (average overallScore), 0..100, up to 12 points, oldest-first. */
     val accuracyTimeline: List<Float>,
     val peakAccuracy: Float,
     val peakBucketIndex: Int,

@@ -60,9 +60,8 @@ object SessionAnalyticsBuilder {
             val start = b * sorted.size / bucketCount
             val end = (b + 1) * sorted.size / bucketCount
             val slice = sorted.subList(start, end)
-            val clean = slice.count { it.overallScore >= CLEAN_THRESHOLD }
-            val pct = if (slice.isEmpty()) 0f else clean.toFloat() / slice.size * 100f
-            out.add(pct)
+            val mean = if (slice.isEmpty()) 0f else slice.sumOf { it.overallScore.toDouble() }.toFloat() / slice.size
+            out.add(mean)
         }
         return out
     }
