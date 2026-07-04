@@ -907,6 +907,7 @@
     <string name="subscribe_privacy">Privacy</string>
     <string name="subscribe_restore_none">No purchases to restore</string>
     <string name="subscribe_activated">Subscription activated!</string>
+    <string name="subscribe_no_browser_app">No app found to open this link</string>
 
     <!-- Exercise editor (10c New / 10d Clone/Edit) -->
     <string name="exercise_editor_title_new">New exercise</string>

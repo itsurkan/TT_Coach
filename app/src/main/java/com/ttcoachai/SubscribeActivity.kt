@@ -1,5 +1,8 @@
 package com.ttcoachai
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -7,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import com.google.android.material.button.MaterialButton
+import com.ttcoachai.core.LegalLinks
 import com.ttcoachai.databinding.ActivitySubscribeBinding
 import com.ttcoachai.managers.SettingsManager
 
@@ -124,8 +128,15 @@ class SubscribeActivity : AppCompatActivity() {
             Toast.makeText(this, getString(R.string.subscribe_restore_none), Toast.LENGTH_SHORT).show()
         }
 
-        // Terms / Privacy — stubbed no-ops, ready to wire to URLs later.
-        binding.btnTerms.setOnClickListener { /* TODO: open Terms URL */ }
-        binding.btnPrivacy.setOnClickListener { /* TODO: open Privacy URL */ }
+        binding.btnTerms.setOnClickListener { openUrl(LegalLinks.TERMS_URL) }
+        binding.btnPrivacy.setOnClickListener { openUrl(LegalLinks.PRIVACY_URL) }
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(this, R.string.subscribe_no_browser_app, Toast.LENGTH_SHORT).show()
+        }
     }
 }
