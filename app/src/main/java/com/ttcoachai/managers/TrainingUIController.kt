@@ -47,6 +47,7 @@ class TrainingUIController(
     private fun setupButtons() {
         binding.drillMenu.btnPauseResume.setOnClickListener { onToggleTraining() }
         binding.drillMenu.btnEndSession.setOnClickListener { onEndSession() }
+        binding.drillMenu.cardFullReport.setOnClickListener { onEndSession() }
         binding.root.findViewById<View>(R.id.fab_pause_play)?.setOnClickListener { onToggleTraining() }
     }
 
@@ -152,22 +153,4 @@ class TrainingUIController(
         sheet.show(activity.supportFragmentManager, FeedbackExplanationSheet.TAG)
     }
 
-    fun showSummary(
-        drillName: String,
-        durationSeconds: Int,
-        strokeCount: Int,
-        cleanCount: Int,
-        accuracyPercent: Int
-    ) {
-        val sheet = com.ttcoachai.ui.dialogs.SessionSummarySheet.newInstance(
-            drillName = drillName,
-            durationSeconds = durationSeconds,
-            strokeCount = strokeCount,
-            cleanCount = cleanCount,
-            accuracyPercent = accuracyPercent
-        )
-        sheet.onContinue = { /* stay on the live session, sheet already dismissed */ }
-        sheet.onFinish = { activity.finish() }
-        sheet.show(activity.supportFragmentManager, com.ttcoachai.ui.dialogs.SessionSummarySheet.TAG)
-    }
 }
