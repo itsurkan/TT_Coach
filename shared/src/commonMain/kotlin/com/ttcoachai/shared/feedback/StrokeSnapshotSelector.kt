@@ -5,8 +5,10 @@
 
 package com.ttcoachai.shared.feedback
 
+import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Landmark3D
 import kotlin.math.abs
+import kotlin.math.sign
 import kotlin.math.sqrt
 
 /**
@@ -20,8 +22,10 @@ import kotlin.math.sqrt
 object StrokeSnapshotSelector {
 
     private const val WRIST_INDEX = 16
+    private const val HIP_INDEX = 24
     private const val MIN_VISIBILITY = 0.5f
     private const val SNAPSHOT_WINDOW = 4
+    private const val MIN_CORE_VISIBLE = 6
 
     /** Landmark indices used to judge pose-render completeness for [bestSnapshotFrameIndex]. */
     private val CORE_LANDMARKS = intArrayOf(11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28)
@@ -63,13 +67,116 @@ object StrokeSnapshotSelector {
     }
 
     /**
-     * Index of the frame representing ball contact. Currently an alias of [peakFrameIndex]:
-     * contact time ≈ wrist-speed peak for a fixed forehand-drive drill. Kept as a distinct
-     * entry point so callers express intent and this can diverge later (e.g. once a dedicated
-     * contact-frame detector exists). See [bestSnapshotFrameIndex] for the render-quality-aware
-     * choice, which searches a small window around this peak for a more completely-tracked frame.
+     * Index of the frame representing ball contact.
+     *
+     * The wrist-speed peak ([peakFrameIndex]) is a proxy for contact, but on real footage it can
+     * drift up to a few frames away from the actual moment the racket meets the ball. This uses a
+     * sturdier proxy: the frame where the wrist reaches its farthest forward extension (relative
+     * to the hip) in the stroke's direction of travel — i.e. the point of maximum reach into the
+     * shot, which tracks contact more reliably than raw wrist speed.
+     *
+     * Algorithm:
+     * 1. `peak` = [peakFrameIndex]; if negative, propagate -1.
+     * 2. Stroke direction `d` = sign of `wrist.x[peak] − wrist.x[prevUsable]`, where `prevUsable`
+     *    is the nearest earlier frame with a visible wrist. If there is no such frame, or the
+     *    direction is degenerate (zero delta), fall back to [bestSnapshotFrameIndex].
+     * 3. Among frames where the wrist (16) and hip (24) are both visible
+     *    (`visibility >= [MIN_VISIBILITY]`) and at least [MIN_CORE_VISIBLE] of the
+     *    [CORE_LANDMARKS] are visible, pick the one maximizing `d * (wrist.x − hip.x)` — the
+     *    farthest forward wrist extension in the stroke direction, on a renderable frame.
+     * 4. If no frame qualifies, fall back to [bestSnapshotFrameIndex].
      */
-    fun contactFrameIndex(frames: List<List<Landmark3D>>): Int = peakFrameIndex(frames)
+    fun contactFrameIndex(frames: List<List<Landmark3D>>): Int {
+        val peak = peakFrameIndex(frames)
+        if (peak < 0) return -1
+
+        val prevUsable = (peak - 1 downTo 0).firstOrNull { isWristVisible(frames[it]) }
+        if (prevUsable == null) return bestSnapshotFrameIndex(frames)
+
+        val peakWristX = frames[peak].getOrNull(WRIST_INDEX)?.x
+        val prevWristX = frames[prevUsable].getOrNull(WRIST_INDEX)?.x
+        if (peakWristX == null || prevWristX == null) return bestSnapshotFrameIndex(frames)
+
+        val direction = sign(peakWristX - prevWristX)
+        if (direction == 0f) return bestSnapshotFrameIndex(frames)
+
+        var bestIndex = -1
+        var bestExtension = Float.NEGATIVE_INFINITY
+
+        for (idx in frames.indices) {
+            val frame = frames[idx]
+            val wrist = frame.getOrNull(WRIST_INDEX) ?: continue
+            val hip = frame.getOrNull(HIP_INDEX) ?: continue
+            if (wrist.visibility < MIN_VISIBILITY || hip.visibility < MIN_VISIBILITY) continue
+
+            val (coreCount, _) = coreCompleteness(frame)
+            if (coreCount < MIN_CORE_VISIBLE) continue
+
+            val extension = direction * (wrist.x - hip.x)
+            if (extension > bestExtension) {
+                bestExtension = extension
+                bestIndex = idx
+            }
+        }
+
+        return if (bestIndex >= 0) bestIndex else bestSnapshotFrameIndex(frames)
+    }
+
+    /**
+     * Index of the frame representing the follow-through: among frames *after* [contactFrameIndex]
+     * with a visible wrist and at least [MIN_CORE_VISIBLE] visible [CORE_LANDMARKS], the one with
+     * the minimum wrist `y` (highest raised wrist — normalized y grows downward).
+     *
+     * Falls back to [contactFrameIndex] if no qualifying frame exists after contact.
+     */
+    fun followThroughFrameIndex(frames: List<List<Landmark3D>>): Int {
+        val contact = contactFrameIndex(frames)
+        if (contact < 0) return contact
+
+        var bestIndex = -1
+        var bestWristY = Float.POSITIVE_INFINITY
+
+        for (idx in (contact + 1) until frames.size) {
+            val frame = frames[idx]
+            val wrist = frame.getOrNull(WRIST_INDEX) ?: continue
+            if (wrist.visibility < MIN_VISIBILITY) continue
+
+            val (coreCount, _) = coreCompleteness(frame)
+            if (coreCount < MIN_CORE_VISIBLE) continue
+
+            if (wrist.y < bestWristY) {
+                bestWristY = wrist.y
+                bestIndex = idx
+            }
+        }
+
+        return if (bestIndex >= 0) bestIndex else contact
+    }
+
+    /**
+     * Dispatches to the appropriate frame-selection strategy for a given [CorrectionType]:
+     * - [CorrectionType.WRIST], [CorrectionType.CONTACT_HEIGHT], [CorrectionType.ELBOW_POSITION],
+     *   [CorrectionType.BODY_ROTATION] -> [contactFrameIndex] (these are all measured at contact).
+     * - [CorrectionType.FOLLOW_THROUGH] -> [followThroughFrameIndex].
+     * - [CorrectionType.STROKE_SPEED], [CorrectionType.GENERAL] -> [bestSnapshotFrameIndex].
+     */
+    fun snapshotFrameFor(type: CorrectionType, frames: List<List<Landmark3D>>): Int = when (type) {
+        CorrectionType.WRIST,
+        CorrectionType.CONTACT_HEIGHT,
+        CorrectionType.ELBOW_POSITION,
+        CorrectionType.BODY_ROTATION -> contactFrameIndex(frames)
+        CorrectionType.FOLLOW_THROUGH -> followThroughFrameIndex(frames)
+        CorrectionType.STROKE_SPEED,
+        CorrectionType.GENERAL -> bestSnapshotFrameIndex(frames)
+    }
+
+    /**
+     * True if at least one frame has [MIN_CORE_VISIBLE] or more of the [CORE_LANDMARKS] visible
+     * (`visibility >= [MIN_VISIBILITY]`) — i.e. the rep has at least one renderable frame. Backs a
+     * "no data" rep state in the UI for reps where pose tracking never produced a usable frame.
+     */
+    fun hasUsablePose(frames: List<List<Landmark3D>>): Boolean =
+        frames.any { coreCompleteness(it).first >= MIN_CORE_VISIBLE }
 
     /**
      * Like [peakFrameIndex], but guards against motion-blur frames where many landmarks drop
