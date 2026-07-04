@@ -843,6 +843,13 @@
     <string name="live_fb_stroke_speed">Швидкість удару</string>
     <string name="live_fb_follow_through">Проводка</string>
     <string name="live_fb_general">Техніка</string>
+    <string name="feedback_explanation_sheet_title">Чому це позначено?</string>
+    <string name="feedback_explanation_what_it_checks">Що перевіряється</string>
+    <string name="feedback_explanation_why_it_matters">Чому це важливо</string>
+    <string name="feedback_explanation_how_to_fix">Як виправити</string>
+    <string name="feedback_explanation_flagged_count">Позначено %1$d раз(ів) за цю сесію</string>
+    <string name="feedback_explanation_recent_observations">Останні спостереження</string>
+    <string name="feedback_explanation_close">Зрозуміло</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
     <string name="live_full_report_sub">Розбір кожного удару після завершення</string>
     <string name="live_premium_badge">Premium</string>

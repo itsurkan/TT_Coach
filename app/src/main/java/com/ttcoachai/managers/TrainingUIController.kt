@@ -6,12 +6,16 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
+import com.ttcoachai.LocaleHelper
 import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
 import com.ttcoachai.adapters.FeedbackListAdapter
 import com.ttcoachai.databinding.ActivityTrainingBinding
+import com.ttcoachai.shared.drill.FeedbackLang
+import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
+import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
 
 /**
  * Manages UI interactions and updates for TrainingActivity
@@ -24,7 +28,7 @@ class TrainingUIController(
     private val onToggleTraining: () -> Unit,
     private val onEndSession: () -> Unit
 ) {
-    private val feedbackAdapter = FeedbackListAdapter()
+    private val feedbackAdapter = FeedbackListAdapter(onRowClick = ::showFeedbackExplanation)
 
     fun setup() {
         setupBottomSheet()
@@ -129,6 +133,23 @@ class TrainingUIController(
         
         feedbackAdapter.updateFeedback(stateManager.getFeedbackCounts())
         binding.drillMenu.tvFlagged.text = activity.getString(R.string.live_flagged_count, stateManager.getFlaggedTotal())
+    }
+
+    private fun currentLang(): FeedbackLang =
+        if (LocaleHelper.getSavedLanguage(activity) == "uk") FeedbackLang.UA else FeedbackLang.EN
+
+    private fun showFeedbackExplanation(type: CorrectionType, count: Int) {
+        val lang = currentLang()
+        val recentMessages = stateManager.getRecentMessagesFor(type).map { message ->
+            LiveFeedbackCatalog.resolve(message, short = false, lang = lang) ?: message
+        }
+        val sheet = FeedbackExplanationSheet.newInstance(
+            type = type,
+            flaggedCount = count,
+            lang = lang,
+            recentMessages = recentMessages
+        )
+        sheet.show(activity.supportFragmentManager, FeedbackExplanationSheet.TAG)
     }
 
     fun showSummary(

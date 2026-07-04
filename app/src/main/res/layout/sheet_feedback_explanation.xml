@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:maxHeight="560dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="24dp">
+
+        <View
+            android:layout_width="38dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_ttc_bottom_sheet_handle"/>
+
+        <TextView
+            android:id="@+id/tv_explanation_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/feedback_explanation_sheet_title"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+        <TextView
+            android:id="@+id/tv_explanation_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="@font/inter_tight_bold"
+            android:textSize="19sp"
+            android:textColor="@color/ttc_text_1"/>
+
+        <TextView
+            android:id="@+id/tv_explanation_flagged_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/jetbrains_mono_medium"
+            android:textSize="11.5sp"
+            android:textColor="@color/ttc_gold_accent"/>
+
+        <!-- What it checks -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/feedback_explanation_what_it_checks"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+        <TextView
+            android:id="@+id/tv_what_it_checks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textAppearance="@style/TextAppearance.TTC.Body"/>
+
+        <!-- Why it matters -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/feedback_explanation_why_it_matters"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+        <TextView
+            android:id="@+id/tv_why_it_matters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textAppearance="@style/TextAppearance.TTC.Body"/>
+
+        <!-- How to fix -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/feedback_explanation_how_to_fix"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+        <TextView
+            android:id="@+id/tv_how_to_fix"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textAppearance="@style/TextAppearance.TTC.Body"/>
+
+        <!-- Recent observations (hidden when empty) -->
+        <LinearLayout
+            android:id="@+id/group_recent_observations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/feedback_explanation_recent_observations"
+                android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/TTC.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/tv_recent_observations"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                    android:lineSpacingExtra="4dp"/>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_explanation_close"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/feedback_explanation_close"
+            style="@style/TTC.Button.Primary"/>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

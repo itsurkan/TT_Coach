@@ -10,7 +10,9 @@ import com.ttcoachai.R
 import com.ttcoachai.databinding.ItemLiveFeedbackRowBinding
 import com.ttcoachai.shared.models.CorrectionType
 
-class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackViewHolder>() {
+class FeedbackListAdapter(
+    private val onRowClick: (CorrectionType, Int) -> Unit = { _, _ -> }
+) : RecyclerView.Adapter<FeedbackListAdapter.FeedbackViewHolder>() {
 
     private val feedbackCounts = mutableListOf<Pair<CorrectionType, Int>>()
 
@@ -49,6 +51,7 @@ class FeedbackListAdapter : RecyclerView.Adapter<FeedbackListAdapter.FeedbackVie
             binding.dot.backgroundTintList = ColorStateList.valueOf(
                 ContextCompat.getColor(context, dotColorRes(count))
             )
+            binding.root.setOnClickListener { onRowClick(type, count) }
         }
     }
 

@@ -133,6 +133,20 @@ class TrainingStateManager internal constructor(private val context: Context) {
         feedbackItemsHistory.lastOrNull() ?: emptyList()
     }
 
+    /**
+     * Distinct non-positive messages recorded for [type] across the last 10 strokes'
+     * feedback history, newest first. Backs the "Recent observations" section of the
+     * tap-to-explain sheet on the live-feedback list.
+     */
+    fun getRecentMessagesFor(type: CorrectionType, limit: Int = 5): List<String> = synchronized(lock) {
+        feedbackItemsHistory.asReversed()
+            .flatten()
+            .filter { !it.isPositive && it.type == type }
+            .map { it.message }
+            .distinct()
+            .take(limit)
+    }
+
     fun getFeedbackCounts(): List<Pair<CorrectionType, Int>> = synchronized(lock) {
         SessionStatsCalculator.sortedFeedbackCounts(feedbackTypeCounts)
     }

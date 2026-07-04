@@ -1011,6 +1011,13 @@
     <string name="live_fb_stroke_speed">Stroke speed</string>
     <string name="live_fb_follow_through">Follow-through</string>
     <string name="live_fb_general">Technique</string>
+    <string name="feedback_explanation_sheet_title">Why was this flagged?</string>
+    <string name="feedback_explanation_what_it_checks">What it checks</string>
+    <string name="feedback_explanation_why_it_matters">Why it matters</string>
+    <string name="feedback_explanation_how_to_fix">How to fix</string>
+    <string name="feedback_explanation_flagged_count">Flagged %1$d time(s) this session</string>
+    <string name="feedback_explanation_recent_observations">Recent observations</string>
+    <string name="feedback_explanation_close">Got it</string>
     <string name="live_full_report_title">Full session report</string>
     <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>
     <string name="live_premium_badge">Premium</string>
