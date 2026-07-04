@@ -9,6 +9,7 @@ import android.content.Context
 import com.ttcoachai.shared.models.AnalysisResult
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
+import com.ttcoachai.shared.models.Landmark3D
 import com.ttcoachai.shared.session.SessionStatsCalculator
 
 /**
@@ -145,6 +146,30 @@ class TrainingStateManager internal constructor(private val context: Context) {
             .map { it.message }
             .distinct()
             .take(limit)
+    }
+
+    /**
+     * Chronological (oldest -> newest) per-rep pass/fail flags for [type]: true if that rep's
+     * feedback items include any non-positive item of [type]. Backs the rep-strip visual on the
+     * tap-to-explain sheet.
+     */
+    fun getRepFlagsFor(type: CorrectionType): List<Boolean> = synchronized(lock) {
+        feedbackItemsHistory.map { items ->
+            items.any { it.type == type && !it.isPositive }
+        }
+    }
+
+    /**
+     * `strokeLandmarks` of the most recent rep that had a flagged (non-positive) item of [type]
+     * with non-empty landmarks; empty if no such rep exists. Backs the pose-snapshot visual on
+     * the tap-to-explain sheet.
+     */
+    fun getLatestStrokeLandmarksFor(type: CorrectionType): List<List<Landmark3D>> = synchronized(lock) {
+        feedbackItemsHistory.asReversed()
+            .flatten()
+            .firstOrNull { it.type == type && !it.isPositive && it.strokeLandmarks.isNotEmpty() }
+            ?.strokeLandmarks
+            ?: emptyList()
     }
 
     fun getFeedbackCounts(): List<Pair<CorrectionType, Int>> = synchronized(lock) {

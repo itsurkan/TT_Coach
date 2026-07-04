@@ -858,6 +858,9 @@
     <string name="feedback_explanation_how_to_fix">Як виправити</string>
     <string name="feedback_explanation_flagged_count">Позначено %1$d раз(ів) за цю сесію</string>
     <string name="feedback_explanation_recent_observations">Останні спостереження</string>
+    <string name="feedback_snapshot_caption_peak">Пік удару — позначений повтор</string>
+    <string name="feedback_rep_strip_label">Останні повтори</string>
+    <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено</string>
     <string name="feedback_explanation_close">Зрозуміло</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
     <string name="live_full_report_sub">Розбір кожного удару після завершення</string>

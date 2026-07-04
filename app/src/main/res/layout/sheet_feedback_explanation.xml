@@ -48,6 +48,61 @@
             android:textSize="11.5sp"
             android:textColor="@color/ttc_gold_accent"/>
 
+        <!-- Pose snapshot + rep strip (hidden as one unit when no captured stroke data) -->
+        <LinearLayout
+            android:id="@+id/group_stroke_visual"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_pose_snapshot"
+                style="@style/TTC.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.ttcoachai.views.PoseSnapshotView
+                        android:id="@+id/pose_snapshot"
+                        android:layout_width="match_parent"
+                        android:layout_height="220dp"/>
+
+                    <TextView
+                        android:id="@+id/tv_snapshot_caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_rep_strip_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+            <com.ttcoachai.views.RepStripView
+                android:id="@+id/rep_strip"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:layout_marginTop="6dp"/>
+
+            <TextView
+                android:id="@+id/tv_rep_strip_legend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="11sp"
+                android:textColor="@color/ttc_text_3"/>
+        </LinearLayout>
+
         <!-- What it checks -->
         <TextView
             android:layout_width="wrap_content"
