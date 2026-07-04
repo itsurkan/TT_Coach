@@ -76,27 +76,6 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Baseline Debug Screen (dev-only, runtime FLAG_DEBUGGABLE gate protects release).
-             Exported so `adb shell am start` can launch it directly. -->
-        <activity
-            android:name=".debug.BaselineDebugActivity"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Baseline Parameter Editor (Phase 7, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
-             Exported so `adb shell am start` can launch it directly. -->
-        <activity
-            android:name=".debug.BaselinePreviewActivity"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Design System Preview (dev-only, runtime FLAG_DEBUGGABLE gate protects release).
-             Exported so `adb shell am start` can launch it directly. -->
-        <activity
-            android:name=".debug.DesignSystemPreviewActivity"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
-
         <!-- RTMPose Live Drill (Phase 3 P4c, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
              Exported so `adb shell am start` can launch it directly. -->
         <activity
@@ -104,16 +83,6 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
-
-        <!-- Baseline Dump Receiver (dev-only, gated at runtime by FLAG_DEBUGGABLE) -->
-        <receiver
-            android:name=".debug.BaselineDumpReceiver"
-            android:exported="true"
-            tools:ignore="ExportedReceiver">
-            <intent-filter>
-                <action android:name="com.ttcoachai.debug.DUMP_BASELINE" />
-            </intent-filter>
-        </receiver>
 
         <!-- Activity Settings Screen -->
         <activity
