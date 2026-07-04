@@ -47,8 +47,12 @@ class SessionReviewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.btnBack.setOnClickListener { findNavController().navigateUp() }
-        binding.btnOverview.setOnClickListener { findNavController().navigateUp() }
+        binding.btnBack.setOnClickListener {
+            // After the training-finish handoff this screen can be the only back-stack entry;
+            // navigateUp() would then be a no-op, so fall back to the sessions overview.
+            if (!findNavController().navigateUp()) navigateToOverview()
+        }
+        binding.btnOverview.setOnClickListener { navigateToOverview() }
         binding.btnTrainAgain.setOnClickListener { onTrainAgain() }
         // No dedicated "all focus areas" screen exists; the feedback/corrections screen is
         // the closest existing destination that surfaces per-correction focus data, so send
@@ -223,6 +227,22 @@ class SessionReviewFragment : Fragment() {
             recentMessages = recentMessages
         )
         sheet.show(childFragmentManager, FeedbackExplanationSheet.TAG)
+    }
+
+    /**
+     * "Overview" = the sessions overview (Progress tab with session history). Explicit
+     * navigation instead of navigateUp(): after the finish-training handoff the review screen
+     * may have no back stack, and even when it does, "Overview" should always land on Progress.
+     */
+    private fun navigateToOverview() {
+        findNavController().navigate(
+            R.id.navigation_progress,
+            null,
+            androidx.navigation.NavOptions.Builder()
+                .setPopUpTo(R.id.navigation_dashboard, false)
+                .setLaunchSingleTop(true)
+                .build()
+        )
     }
 
     override fun onDestroyView() {
