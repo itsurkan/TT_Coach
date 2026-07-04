@@ -12,6 +12,7 @@ import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.feedback.FeedbackExplanationCatalog
 import com.ttcoachai.shared.feedback.StrokeSnapshotSelector
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.Landmark3D
 
 /**
  * Tap-to-explain bottom sheet for a real-time feedback row: shows why a correction
@@ -22,6 +23,11 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
 
     private var _binding: SheetFeedbackExplanationBinding? = null
     private val binding get() = _binding!!
+
+    // Per-rep pose/flag state for the tappable rep strip -> snapshot wiring (see [showRep]).
+    private var repLandmarks: List<List<List<Landmark3D>>> = emptyList()
+    private var flags: List<Boolean> = emptyList()
+    private var correctionType: CorrectionType = CorrectionType.GENERAL
 
     companion object {
         const val TAG = "FeedbackExplanationSheet"
@@ -86,22 +92,9 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
         // Fragment Bundle — read them straight from the singleton here rather than threading them
         // through newInstance()/arguments.
         val stateManager = TrainingStateManager.getInstance(requireContext())
-        val frames = stateManager.getLatestStrokeLandmarksFor(type)
-        val flags = stateManager.getRepFlagsFor(type)
-
-        var showSnapshot = false
-        if (frames.isNotEmpty()) {
-            val peakIdx = StrokeSnapshotSelector.peakFrameIndex(frames)
-            if (peakIdx >= 0) {
-                binding.poseSnapshot.setSnapshot(frames[peakIdx], type)
-                binding.tvSnapshotCaption.text = getString(R.string.feedback_snapshot_caption_peak)
-                binding.cardPoseSnapshot.visibility = View.VISIBLE
-                showSnapshot = true
-            }
-        }
-        if (!showSnapshot) {
-            binding.cardPoseSnapshot.visibility = View.GONE
-        }
+        this.repLandmarks = stateManager.getRepStrokeLandmarks()
+        this.flags = stateManager.getRepFlagsFor(type)
+        this.correctionType = type
 
         var showRepStrip = false
         if (flags.size >= 2) {
@@ -117,11 +110,50 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
             binding.repStrip.visibility = View.GONE
             binding.tvRepStripLegend.visibility = View.GONE
         }
+        binding.repStrip.onRepClick = { i ->
+            if (repLandmarks.getOrNull(i)?.isNotEmpty() == true) {
+                showRep(i)
+            }
+        }
+
+        // Default selected rep: last flagged rep with a captured pose, else last rep with any
+        // captured pose, else no snapshot at all.
+        val defaultIndex = flags.indices.lastOrNull { i -> flags[i] && repLandmarks.getOrNull(i)?.isNotEmpty() == true }
+            ?: repLandmarks.indices.lastOrNull { i -> repLandmarks[i].isNotEmpty() }
+
+        val showSnapshot = defaultIndex != null
+        if (defaultIndex != null) {
+            showRep(defaultIndex)
+        } else {
+            binding.cardPoseSnapshot.visibility = View.GONE
+        }
 
         binding.groupStrokeVisual.visibility =
             if (showSnapshot || showRepStrip) View.VISIBLE else View.GONE
 
         binding.btnExplanationClose.setOnClickListener { dismiss() }
+    }
+
+    /**
+     * Renders rep [index]'s captured pose in the snapshot card and reflects the selection on the
+     * rep strip. Assumes `repLandmarks[index]` is non-empty (callers guard this).
+     */
+    private fun showRep(index: Int) {
+        val frames = repLandmarks[index]
+        val frameIdx = StrokeSnapshotSelector.bestSnapshotFrameIndex(frames)
+        if (frameIdx < 0) return
+
+        binding.poseSnapshot.setSnapshot(frames[frameIdx], correctionType)
+        val flagged = flags.getOrNull(index) == true
+        val statusRes = if (flagged) {
+            R.string.feedback_snapshot_rep_flagged
+        } else {
+            R.string.feedback_snapshot_rep_clean
+        }
+        binding.tvSnapshotCaption.text =
+            "${getString(R.string.feedback_snapshot_caption_rep, index + 1)} · ${getString(statusRes)}"
+        binding.cardPoseSnapshot.visibility = View.VISIBLE
+        binding.repStrip.setSelected(index)
     }
 
     override fun onDestroyView() {

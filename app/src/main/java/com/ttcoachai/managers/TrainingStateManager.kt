@@ -160,6 +160,19 @@ class TrainingStateManager internal constructor(private val context: Context) {
     }
 
     /**
+     * Chronological (oldest -> newest) per-rep `strokeLandmarks`, index-aligned with
+     * [getRepFlagsFor]: for each rep in [feedbackItemsHistory], the rep's first [FeedbackItem]
+     * with non-empty `strokeLandmarks`, else an empty list. Backs the tappable rep-strip ->
+     * snapshot wiring on the tap-to-explain sheet, where a tap on rep i needs that rep's own
+     * pose regardless of which correction type is currently displayed.
+     */
+    fun getRepStrokeLandmarks(): List<List<List<Landmark3D>>> = synchronized(lock) {
+        feedbackItemsHistory.map { items ->
+            items.firstOrNull { it.strokeLandmarks.isNotEmpty() }?.strokeLandmarks ?: emptyList()
+        }
+    }
+
+    /**
      * `strokeLandmarks` of the most recent rep that had a flagged (non-positive) item of [type]
      * with non-empty landmarks; empty if no such rep exists. Backs the pose-snapshot visual on
      * the tap-to-explain sheet.

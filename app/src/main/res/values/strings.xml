@@ -1027,7 +1027,9 @@
     <string name="feedback_explanation_how_to_fix">How to fix</string>
     <string name="feedback_explanation_flagged_count">Flagged %1$d time(s) this session</string>
     <string name="feedback_explanation_recent_observations">Recent observations</string>
-    <string name="feedback_snapshot_caption_peak">Peak of stroke — flagged rep</string>
+    <string name="feedback_snapshot_caption_rep">Rep %1$d — peak of stroke</string>
+    <string name="feedback_snapshot_rep_flagged">flagged</string>
+    <string name="feedback_snapshot_rep_clean">clean</string>
     <string name="feedback_rep_strip_label">Recent reps</string>
     <string name="feedback_rep_strip_legend">green — within your form · amber — flagged</string>
     <string name="feedback_explanation_close">Got it</string>

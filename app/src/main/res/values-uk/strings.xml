@@ -858,7 +858,9 @@
     <string name="feedback_explanation_how_to_fix">Як виправити</string>
     <string name="feedback_explanation_flagged_count">Позначено %1$d раз(ів) за цю сесію</string>
     <string name="feedback_explanation_recent_observations">Останні спостереження</string>
-    <string name="feedback_snapshot_caption_peak">Пік удару — позначений повтор</string>
+    <string name="feedback_snapshot_caption_rep">Повтор %1$d — пік удару</string>
+    <string name="feedback_snapshot_rep_flagged">позначено</string>
+    <string name="feedback_snapshot_rep_clean">чисто</string>
     <string name="feedback_rep_strip_label">Останні повтори</string>
     <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено</string>
     <string name="feedback_explanation_close">Зрозуміло</string>
