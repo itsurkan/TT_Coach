@@ -12,10 +12,10 @@ import com.ttcoachai.R
 
 /**
  * Horizontal filmstrip of recent reps for the training feedback-explanation bottom sheet: one
- * rounded-rect segment per rep, gold-dark design system. Data source: recent per-rep pass/fail
- * flags for a single [com.ttcoachai.shared.models.CorrectionType], derived from session history
- * (`TrainingStateManager` / captured `FeedbackItem`s) — this view only renders booleans, it does
- * not know about correction types or landmarks.
+ * rounded-rect segment per rep, gold-dark design system. Data source: recent per-rep tri-state
+ * marks for a single [com.ttcoachai.shared.models.CorrectionType], derived from session history
+ * (`TrainingStateManager` / captured `FeedbackItem`s) — this view only renders [RepMark]s, it
+ * does not know about correction types or landmarks.
  */
 class RepStripView @JvmOverloads constructor(
     context: Context,
@@ -23,12 +23,15 @@ class RepStripView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var flags: List<Boolean> = emptyList()
+    /** Per-rep classification rendered by a single segment. */
+    enum class RepMark { CLEAN, FLAGGED, NO_DATA }
+
+    private var marks: List<RepMark> = emptyList()
     private var selectedIndex: Int? = null
 
     /**
-     * Invoked with the index into the ORIGINAL (pre-[MAX_SEGMENTS] windowing) flags list passed
-     * to [setReps] when the user taps a segment. Null when tap handling is not wired up.
+     * Invoked with the index into the ORIGINAL (pre-[MAX_SEGMENTS] windowing) marks list passed
+     * to [setRepMarks] when the user taps a segment. Null when tap handling is not wired up.
      */
     var onRepClick: ((Int) -> Unit)? = null
         set(value) {
@@ -60,14 +63,14 @@ class RepStripView @JvmOverloads constructor(
 
     private val segmentRect = RectF()
 
-    /** Chronological per-rep flags; true = this correction type fired on that rep. */
-    fun setReps(flags: List<Boolean>) {
-        this.flags = flags
+    /** Chronological per-rep marks; see [RepMark]. */
+    fun setRepMarks(marks: List<RepMark>) {
+        this.marks = marks
         selectedIndex = null
         invalidate()
     }
 
-    /** Marks segment [index] (index into the original flags list passed to [setReps]) as selected. */
+    /** Marks segment [index] (index into the original marks list passed to [setRepMarks]) as selected. */
     fun setSelected(index: Int?) {
         selectedIndex = index
         invalidate()
@@ -79,27 +82,36 @@ class RepStripView @JvmOverloads constructor(
         val h = height.toFloat()
         if (w <= 0f || h <= 0f) return
 
-        if (flags.isEmpty()) {
+        if (marks.isEmpty()) {
             val inset = emptyStrokePaint.strokeWidth / 2f
             segmentRect.set(inset, inset, w - inset, h - inset)
             canvas.drawRoundRect(segmentRect, dp(CORNER_RADIUS_DP), dp(CORNER_RADIUS_DP), emptyStrokePaint)
             return
         }
 
-        val visible = flags.takeLast(MAX_SEGMENTS)
+        val visible = marks.takeLast(MAX_SEGMENTS)
         val count = visible.size
         val gap = dp(GAP_DP)
         val totalGap = gap * (count - 1)
         val segmentWidth = (w - totalGap) / count
         if (segmentWidth <= 0f) return
 
-        val originalStart = flags.size - count
+        val originalStart = marks.size - count
         val corner = dp(CORNER_RADIUS_DP)
-        for ((i, flagged) in visible.withIndex()) {
+        for ((i, mark) in visible.withIndex()) {
             val left = i * (segmentWidth + gap)
-            segmentRect.set(left, 0f, left + segmentWidth, h)
-            val paint = if (flagged) flaggedPaint else cleanPaint
-            canvas.drawRoundRect(segmentRect, corner, corner, paint)
+            when (mark) {
+                RepMark.NO_DATA -> {
+                    val inset = emptyStrokePaint.strokeWidth / 2f
+                    segmentRect.set(left + inset, inset, left + segmentWidth - inset, h - inset)
+                    canvas.drawRoundRect(segmentRect, corner, corner, emptyStrokePaint)
+                }
+                else -> {
+                    segmentRect.set(left, 0f, left + segmentWidth, h)
+                    val paint = if (mark == RepMark.FLAGGED) flaggedPaint else cleanPaint
+                    canvas.drawRoundRect(segmentRect, corner, corner, paint)
+                }
+            }
 
             if (selectedIndex == originalStart + i) {
                 val inset = selectedStrokePaint.strokeWidth / 2f
@@ -110,14 +122,14 @@ class RepStripView @JvmOverloads constructor(
     }
 
     /**
-     * Maps a touch x-coordinate to an index into the ORIGINAL flags list (accounting for the
+     * Maps a touch x-coordinate to an index into the ORIGINAL marks list (accounting for the
      * [MAX_SEGMENTS] `takeLast` windowing in [onDraw]), or null if [x] doesn't land on a segment.
      */
     private fun hitTestOriginalIndex(x: Float): Int? {
         val w = width.toFloat()
-        if (w <= 0f || flags.isEmpty()) return null
+        if (w <= 0f || marks.isEmpty()) return null
 
-        val visible = flags.takeLast(MAX_SEGMENTS)
+        val visible = marks.takeLast(MAX_SEGMENTS)
         val count = visible.size
         val gap = dp(GAP_DP)
         val totalGap = gap * (count - 1)
@@ -130,12 +142,12 @@ class RepStripView @JvmOverloads constructor(
         val segLeft = visibleIndex * stride
         if (x < segLeft || x > segLeft + segmentWidth) return null
 
-        val originalStart = flags.size - count
+        val originalStart = marks.size - count
         return originalStart + visibleIndex
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (onRepClick == null || flags.isEmpty()) return super.onTouchEvent(event)
+        if (onRepClick == null || marks.isEmpty()) return super.onTouchEvent(event)
 
         return when (event.action) {
             MotionEvent.ACTION_DOWN -> hitTestOriginalIndex(event.x) != null

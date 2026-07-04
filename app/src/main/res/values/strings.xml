@@ -953,7 +953,7 @@
     <string name="review_kpi_strokes">Strokes</string>
     <string name="review_kpi_duration">Duration</string>
     <string name="review_accuracy_card_title">ACCURACY THROUGH SESSION</string>
-    <string name="review_accuracy_caption">Clean-stroke rate across the session</string>
+    <string name="review_accuracy_caption">Average stroke quality across the session</string>
     <string name="review_peak_pill">Peak %1$d%%</string>
     <string name="review_x_label_start">0 min</string>
     <string name="review_shot_quality_title">SHOT QUALITY · %1$d strokes</string>
@@ -964,6 +964,10 @@
     <string name="review_focus_count">%1$d×</string>
     <string name="review_view_all_focus">View all %1$d focus areas ›</string>
     <string name="review_summary_title">AI COACH SUMMARY</string>
+    <string name="review_summary_improved">You peaked at %1$d%% quality and improved as the session went on.</string>
+    <string name="review_summary_declined">You peaked at %1$d%% quality but faded toward the end.</string>
+    <string name="review_summary_steady">You peaked at %1$d%% quality and held steady.</string>
+    <string name="review_summary_focus"> Focus next on %1$s.</string>
     <string name="review_action_train_again">Train this again</string>
     <string name="review_action_overview">Overview</string>
     <string name="review_no_analytics">No detailed analytics for this session</string>
@@ -1028,10 +1032,12 @@
     <string name="feedback_explanation_flagged_count">Flagged %1$d time(s) this session</string>
     <string name="feedback_explanation_recent_observations">Recent observations</string>
     <string name="feedback_snapshot_caption_rep">Rep %1$d — peak of stroke</string>
+    <string name="feedback_snapshot_caption_rep_contact">Rep %1$d — at contact</string>
+    <string name="feedback_snapshot_caption_rep_follow">Rep %1$d — follow-through</string>
     <string name="feedback_snapshot_rep_flagged">flagged</string>
     <string name="feedback_snapshot_rep_clean">clean</string>
     <string name="feedback_rep_strip_label">Recent reps</string>
-    <string name="feedback_rep_strip_legend">green — within your form · amber — flagged</string>
+    <string name="feedback_rep_strip_legend">green — within your form · amber — flagged · outline — no capture</string>
     <string name="feedback_explanation_close">Got it</string>
     <string name="live_full_report_title">Full session report</string>
     <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>

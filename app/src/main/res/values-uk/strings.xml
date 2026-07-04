@@ -784,7 +784,7 @@
     <string name="review_kpi_strokes">Удари</string>
     <string name="review_kpi_duration">Тривалість</string>
     <string name="review_accuracy_card_title">ТОЧНІСТЬ ПРОТЯГОМ СЕСІЇ</string>
-    <string name="review_accuracy_caption">Частка чистих ударів протягом сесії</string>
+    <string name="review_accuracy_caption">Середня якість удару протягом сесії</string>
     <string name="review_peak_pill">Пік %1$d%%</string>
     <string name="review_x_label_start">0 хв</string>
     <string name="review_shot_quality_title">ЯКІСТЬ УДАРІВ · %1$d ударів</string>
@@ -795,6 +795,10 @@
     <string name="review_focus_count">%1$d×</string>
     <string name="review_view_all_focus">Показати всі зони уваги (%1$d) ›</string>
     <string name="review_summary_title">ПІДСУМОК ВІД ТРЕНЕРА</string>
+    <string name="review_summary_improved">Пік якості — %1$d%%, і протягом сесії ти прогресував.</string>
+    <string name="review_summary_declined">Пік якості — %1$d%%, але під кінець якість просіла.</string>
+    <string name="review_summary_steady">Пік якості — %1$d%%, і ти тримався рівно.</string>
+    <string name="review_summary_focus"> Наступний фокус — %1$s.</string>
     <string name="review_action_train_again">Повторити тренування</string>
     <string name="review_action_overview">Огляд</string>
     <string name="review_no_analytics">Немає детальної аналітики для цієї сесії</string>
@@ -859,10 +863,12 @@
     <string name="feedback_explanation_flagged_count">Позначено %1$d раз(ів) за цю сесію</string>
     <string name="feedback_explanation_recent_observations">Останні спостереження</string>
     <string name="feedback_snapshot_caption_rep">Повтор %1$d — пік удару</string>
+    <string name="feedback_snapshot_caption_rep_contact">Повтор %1$d — момент контакту</string>
+    <string name="feedback_snapshot_caption_rep_follow">Повтор %1$d — проведення</string>
     <string name="feedback_snapshot_rep_flagged">позначено</string>
     <string name="feedback_snapshot_rep_clean">чисто</string>
     <string name="feedback_rep_strip_label">Останні повтори</string>
-    <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено</string>
+    <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено · контур — немає запису</string>
     <string name="feedback_explanation_close">Зрозуміло</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
     <string name="live_full_report_sub">Розбір кожного удару після завершення</string>

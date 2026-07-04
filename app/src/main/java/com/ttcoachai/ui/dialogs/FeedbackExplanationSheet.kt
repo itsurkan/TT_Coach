@@ -13,6 +13,7 @@ import com.ttcoachai.shared.feedback.FeedbackExplanationCatalog
 import com.ttcoachai.shared.feedback.StrokeSnapshotSelector
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Landmark3D
+import com.ttcoachai.views.RepStripView
 
 /**
  * Tap-to-explain bottom sheet for a real-time feedback row: shows why a correction
@@ -96,9 +97,22 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
         this.flags = stateManager.getRepFlagsFor(type)
         this.correctionType = type
 
+        // Per-rep tri-state classification: NO_DATA when tracking never produced a usable pose
+        // for that rep, else FLAGGED/CLEAN from the recorded flag.
+        val repMarks = flags.indices.map { i ->
+            val frames = repLandmarks.getOrNull(i)
+            if (frames.isNullOrEmpty() || !StrokeSnapshotSelector.hasUsablePose(frames)) {
+                RepStripView.RepMark.NO_DATA
+            } else if (flags[i]) {
+                RepStripView.RepMark.FLAGGED
+            } else {
+                RepStripView.RepMark.CLEAN
+            }
+        }
+
         var showRepStrip = false
         if (flags.size >= 2) {
-            binding.repStrip.setReps(flags)
+            binding.repStrip.setRepMarks(repMarks)
             binding.tvRepStripLabel.text = getString(R.string.feedback_rep_strip_label)
             binding.tvRepStripLegend.text = getString(R.string.feedback_rep_strip_legend)
             binding.tvRepStripLabel.visibility = View.VISIBLE
@@ -111,15 +125,14 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
             binding.tvRepStripLegend.visibility = View.GONE
         }
         binding.repStrip.onRepClick = { i ->
-            if (repLandmarks.getOrNull(i)?.isNotEmpty() == true) {
+            if (repMarks.getOrNull(i) != RepStripView.RepMark.NO_DATA) {
                 showRep(i)
             }
         }
 
-        // Default selected rep: last flagged rep with a captured pose, else last rep with any
-        // captured pose, else no snapshot at all.
-        val defaultIndex = flags.indices.lastOrNull { i -> flags[i] && repLandmarks.getOrNull(i)?.isNotEmpty() == true }
-            ?: repLandmarks.indices.lastOrNull { i -> repLandmarks[i].isNotEmpty() }
+        // Default selected rep: last flagged rep, else last non-NO_DATA rep, else no snapshot.
+        val defaultIndex = repMarks.indices.lastOrNull { i -> repMarks[i] == RepStripView.RepMark.FLAGGED }
+            ?: repMarks.indices.lastOrNull { i -> repMarks[i] != RepStripView.RepMark.NO_DATA }
 
         val showSnapshot = defaultIndex != null
         if (defaultIndex != null) {
@@ -140,7 +153,7 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
      */
     private fun showRep(index: Int) {
         val frames = repLandmarks[index]
-        val frameIdx = StrokeSnapshotSelector.bestSnapshotFrameIndex(frames)
+        val frameIdx = StrokeSnapshotSelector.snapshotFrameFor(correctionType, frames)
         if (frameIdx < 0) return
 
         binding.poseSnapshot.setSnapshot(frames[frameIdx], correctionType)
@@ -150,8 +163,19 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
         } else {
             R.string.feedback_snapshot_rep_clean
         }
+        // Caption names the rendered moment: contact frame for contact-anchored metrics,
+        // follow-through frame for FOLLOW_THROUGH, wrist-speed peak otherwise
+        // (must match StrokeSnapshotSelector.snapshotFrameFor's dispatch).
+        val captionRes = when (correctionType) {
+            CorrectionType.WRIST,
+            CorrectionType.CONTACT_HEIGHT,
+            CorrectionType.ELBOW_POSITION,
+            CorrectionType.BODY_ROTATION -> R.string.feedback_snapshot_caption_rep_contact
+            CorrectionType.FOLLOW_THROUGH -> R.string.feedback_snapshot_caption_rep_follow
+            else -> R.string.feedback_snapshot_caption_rep
+        }
         binding.tvSnapshotCaption.text =
-            "${getString(R.string.feedback_snapshot_caption_rep, index + 1)} · ${getString(statusRes)}"
+            "${getString(captionRes, index + 1)} · ${getString(statusRes)}"
         binding.cardPoseSnapshot.visibility = View.VISIBLE
         binding.repStrip.setSelected(index)
     }
