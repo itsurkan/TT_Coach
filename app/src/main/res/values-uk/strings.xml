@@ -868,7 +868,10 @@
     <string name="feedback_snapshot_rep_flagged">позначено</string>
     <string name="feedback_snapshot_rep_clean">чисто</string>
     <string name="feedback_rep_strip_label">Останні повтори</string>
-    <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено · контур — немає запису</string>
+    <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено · сірий — не зараховано · контур — немає запису</string>
+    <string name="feedback_rep_discarded_recovery">не зараховано — замах назад / шум</string>
+    <string name="feedback_rep_discarded_outlier">не зараховано — швидкість/тривалість поза смугою</string>
+    <string name="feedback_rep_discarded_locomotion">не зараховано — хода</string>
     <string name="feedback_explanation_close">Зрозуміло</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
     <string name="live_full_report_sub">Розбір кожного удару після завершення</string>

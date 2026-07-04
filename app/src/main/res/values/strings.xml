@@ -1037,7 +1037,10 @@
     <string name="feedback_snapshot_rep_flagged">flagged</string>
     <string name="feedback_snapshot_rep_clean">clean</string>
     <string name="feedback_rep_strip_label">Recent reps</string>
-    <string name="feedback_rep_strip_legend">green — within your form · amber — flagged · outline — no capture</string>
+    <string name="feedback_rep_strip_legend">green — within your form · amber — flagged · gray — not counted · outline — no capture</string>
+    <string name="feedback_rep_discarded_recovery">not counted — backswing / noise</string>
+    <string name="feedback_rep_discarded_outlier">not counted — speed/duration out of band</string>
+    <string name="feedback_rep_discarded_locomotion">not counted — walking</string>
     <string name="feedback_explanation_close">Got it</string>
     <string name="live_full_report_title">Full session report</string>
     <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>

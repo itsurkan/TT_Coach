@@ -10,6 +10,8 @@ import com.ttcoachai.databinding.SheetFeedbackExplanationBinding
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.feedback.FeedbackExplanationCatalog
+import com.ttcoachai.shared.feedback.RepClassifier
+import com.ttcoachai.shared.feedback.RepVerdict
 import com.ttcoachai.shared.feedback.StrokeSnapshotSelector
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Landmark3D
@@ -28,6 +30,7 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
     // Per-rep pose/flag state for the tappable rep strip -> snapshot wiring (see [showRep]).
     private var repLandmarks: List<List<List<Landmark3D>>> = emptyList()
     private var flags: List<Boolean> = emptyList()
+    private var verdicts: List<RepVerdict> = emptyList()
     private var correctionType: CorrectionType = CorrectionType.GENERAL
 
     companion object {
@@ -95,18 +98,25 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
         val stateManager = TrainingStateManager.getInstance(requireContext())
         this.repLandmarks = stateManager.getRepStrokeLandmarks()
         this.flags = stateManager.getRepFlagsFor(type)
+        this.verdicts = RepClassifier.classify(repLandmarks)
         this.correctionType = type
 
-        // Per-rep tri-state classification: NO_DATA when tracking never produced a usable pose
-        // for that rep, else FLAGGED/CLEAN from the recorded flag.
+        // Per-rep four-state classification, mirroring the poses_viewer validity taxonomy:
+        // NO_DATA when tracking never produced a usable pose; DISCARDED when the rep-validity
+        // pipeline excluded the rep (locomotion/recovery-swing/speed-duration-outlier); else
+        // FLAGGED/CLEAN from the recorded flag.
         val repMarks = flags.indices.map { i ->
             val frames = repLandmarks.getOrNull(i)
-            if (frames.isNullOrEmpty() || !StrokeSnapshotSelector.hasUsablePose(frames)) {
-                RepStripView.RepMark.NO_DATA
-            } else if (flags[i]) {
-                RepStripView.RepMark.FLAGGED
-            } else {
-                RepStripView.RepMark.CLEAN
+            val verdict = verdicts.getOrNull(i)
+            when {
+                frames.isNullOrEmpty() || !StrokeSnapshotSelector.hasUsablePose(frames) ->
+                    RepStripView.RepMark.NO_DATA
+                verdict == RepVerdict.NO_POSE -> RepStripView.RepMark.NO_DATA
+                verdict == RepVerdict.LOCOMOTION ||
+                    verdict == RepVerdict.RECOVERY_SWING ||
+                    verdict == RepVerdict.SPEED_DURATION_OUTLIER -> RepStripView.RepMark.DISCARDED
+                flags[i] -> RepStripView.RepMark.FLAGGED
+                else -> RepStripView.RepMark.CLEAN
             }
         }
 
@@ -130,9 +140,10 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
             }
         }
 
-        // Default selected rep: last flagged rep, else last non-NO_DATA rep, else no snapshot.
+        // Default selected rep: last FLAGGED, else last CLEAN, else last DISCARDED, else no snapshot.
         val defaultIndex = repMarks.indices.lastOrNull { i -> repMarks[i] == RepStripView.RepMark.FLAGGED }
-            ?: repMarks.indices.lastOrNull { i -> repMarks[i] != RepStripView.RepMark.NO_DATA }
+            ?: repMarks.indices.lastOrNull { i -> repMarks[i] == RepStripView.RepMark.CLEAN }
+            ?: repMarks.indices.lastOrNull { i -> repMarks[i] == RepStripView.RepMark.DISCARDED }
 
         val showSnapshot = defaultIndex != null
         if (defaultIndex != null) {
@@ -157,11 +168,15 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
         if (frameIdx < 0) return
 
         binding.poseSnapshot.setSnapshot(frames[frameIdx], correctionType)
-        val flagged = flags.getOrNull(index) == true
-        val statusRes = if (flagged) {
-            R.string.feedback_snapshot_rep_flagged
-        } else {
-            R.string.feedback_snapshot_rep_clean
+        val verdict = verdicts.getOrNull(index)
+        val statusRes = when (verdict) {
+            RepVerdict.RECOVERY_SWING -> R.string.feedback_rep_discarded_recovery
+            RepVerdict.SPEED_DURATION_OUTLIER -> R.string.feedback_rep_discarded_outlier
+            RepVerdict.LOCOMOTION -> R.string.feedback_rep_discarded_locomotion
+            else -> {
+                val flagged = flags.getOrNull(index) == true
+                if (flagged) R.string.feedback_snapshot_rep_flagged else R.string.feedback_snapshot_rep_clean
+            }
         }
         // Caption names the rendered moment: contact frame for contact-anchored metrics,
         // follow-through frame for FOLLOW_THROUGH, wrist-speed peak otherwise

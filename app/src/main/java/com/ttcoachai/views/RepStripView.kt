@@ -24,7 +24,7 @@ class RepStripView @JvmOverloads constructor(
 ) : View(context, attrs, defStyleAttr) {
 
     /** Per-rep classification rendered by a single segment. */
-    enum class RepMark { CLEAN, FLAGGED, NO_DATA }
+    enum class RepMark { CLEAN, FLAGGED, DISCARDED, NO_DATA }
 
     private var marks: List<RepMark> = emptyList()
     private var selectedIndex: Int? = null
@@ -49,6 +49,10 @@ class RepStripView @JvmOverloads constructor(
     private val flaggedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
         color = ContextCompat.getColor(context, R.color.ttc_amber)
+    }
+    private val discardedPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        color = ContextCompat.getColor(context, R.color.ttc_text_faint)
     }
     private val emptyStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -108,7 +112,11 @@ class RepStripView @JvmOverloads constructor(
                 }
                 else -> {
                     segmentRect.set(left, 0f, left + segmentWidth, h)
-                    val paint = if (mark == RepMark.FLAGGED) flaggedPaint else cleanPaint
+                    val paint = when (mark) {
+                        RepMark.FLAGGED -> flaggedPaint
+                        RepMark.DISCARDED -> discardedPaint
+                        else -> cleanPaint
+                    }
                     canvas.drawRoundRect(segmentRect, corner, corner, paint)
                 }
             }
