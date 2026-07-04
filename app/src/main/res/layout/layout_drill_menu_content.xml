@@ -219,59 +219,12 @@
         android:descendantFocusability="blocksDescendants"
         android:layout_marginBottom="16dp"/>
 
-    <!-- Full session report card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_full_report"
-        style="@style/TTC.Card"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:layout_marginEnd="12dp"
-                android:src="@drawable/ic_target"
-                app:tint="@color/ttc_gold_accent" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/live_full_report_title"
-                    android:textAppearance="@style/TextAppearance.TTC.Title.Card" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="@string/live_full_report_sub"
-                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
-
     <!-- Feedback Settings (subordinate debug section) -->
     <com.google.android.material.card.MaterialCardView
         style="@style/TTC.Card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp">
+        android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -279,11 +232,14 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/header_feedback_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
 
                 <ImageView
                     android:layout_width="20dp"
@@ -306,7 +262,23 @@
                     android:text="@string/live_feedback_cadence"
                     android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
 
+                <ImageView
+                    android:id="@+id/iv_feedback_settings_chevron"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_chevron_down"
+                    android:contentDescription="@string/alt_feedback_settings_toggle"
+                    app:tint="@color/ttc_text_2" />
+
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/group_feedback_settings_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -440,7 +412,56 @@
                     android:checkable="true"
                     android:text="@string/correction_speed" />
             </com.google.android.material.chip.ChipGroup>
+            </LinearLayout>
         </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Full session report card (ends the session — kept last so it's not above frequently-used controls) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_full_report"
+        style="@style/TTC.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_target"
+                app:tint="@color/ttc_gold_accent" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/live_full_report_title"
+                    android:textAppearance="@style/TextAppearance.TTC.Title.Card" />
+
+                <TextView
+                    android:id="@+id/tv_full_report_sub"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="@string/live_full_report_sub"
+                    android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+                    android:visibility="visible" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
     </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>

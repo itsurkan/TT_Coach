@@ -1043,10 +1043,11 @@
     <string name="feedback_rep_discarded_locomotion">not counted — walking</string>
     <string name="feedback_explanation_close">Got it</string>
     <string name="live_full_report_title">Full session report</string>
-    <string name="live_full_report_sub">Shot-by-shot breakdown after you finish</string>
+    <string name="live_full_report_sub">Tap to end the session and see a shot-by-shot breakdown</string>
     <string name="live_premium_badge">Premium</string>
     <string name="live_feedback_settings">Feedback settings</string>
     <string name="live_feedback_cadence">Every 3 strokes</string>
+    <string name="alt_feedback_settings_toggle">Expand feedback settings</string>
     <string name="live_cd_back">Back</string>
     <string name="live_cd_flip_camera">Flip camera</string>
     <string name="live_cd_recording">Recording</string>

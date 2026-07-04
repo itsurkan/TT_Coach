@@ -874,10 +874,11 @@
     <string name="feedback_rep_discarded_locomotion">не зараховано — хода</string>
     <string name="feedback_explanation_close">Зрозуміло</string>
     <string name="live_full_report_title">Повний звіт сесії</string>
-    <string name="live_full_report_sub">Розбір кожного удару після завершення</string>
+    <string name="live_full_report_sub">Клік завершує сесію і відкриває розбір кожного удару</string>
     <string name="live_premium_badge">Premium</string>
     <string name="live_feedback_settings">Налаштування фідбеку</string>
     <string name="live_feedback_cadence">Кожні 3 удари</string>
+    <string name="alt_feedback_settings_toggle">Розгорнути налаштування фідбеку</string>
     <string name="live_cd_back">Назад</string>
     <string name="live_cd_flip_camera">Перемкнути камеру</string>
     <string name="live_cd_recording">Запис</string>

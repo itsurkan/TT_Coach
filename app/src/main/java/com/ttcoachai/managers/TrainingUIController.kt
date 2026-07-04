@@ -35,6 +35,7 @@ class TrainingUIController(
         setupButtons()
         setupRecyclerView()
         setupFeedbackSettings()
+        setupFeedbackSettingsCollapse()
         updateStats() // render formatted 0/0 · 0% at start, before the first stroke fires
     }
 
@@ -93,6 +94,19 @@ class TrainingUIController(
             chip.setOnCheckedChangeListener { _, isChecked ->
                 settingsManager.setCorrectionTypeEnabled(type, isChecked)
             }
+        }
+    }
+
+    private fun setupFeedbackSettingsCollapse() {
+        val content = binding.drillMenu.groupFeedbackSettingsContent
+        val chevron = binding.drillMenu.ivFeedbackSettingsChevron
+        content.visibility = View.GONE // collapsed by default each time the screen opens
+        chevron.rotation = 0f
+
+        binding.drillMenu.headerFeedbackSettings.setOnClickListener {
+            val expanding = content.visibility != View.VISIBLE
+            content.visibility = if (expanding) View.VISIBLE else View.GONE
+            chevron.animate().rotation(if (expanding) 180f else 0f).setDuration(150).start()
         }
     }
 
