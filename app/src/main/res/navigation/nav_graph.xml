@@ -70,6 +70,9 @@
             android:name="sessionId"
             app:argType="string"
             android:defaultValue="" />
+        <action
+            android:id="@+id/action_review_to_feedback"
+            app:destination="@id/navigation_feedback" />
     </fragment>
 
     <fragment

@@ -1,5 +1,6 @@
 package com.ttcoachai.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
+import com.ttcoachai.TrainingActivity
 import com.ttcoachai.databinding.FragmentSessionReviewBinding
 import com.ttcoachai.databinding.ItemFocusAreaRowBinding
 import com.ttcoachai.models.SessionAnalyticsEntity
@@ -29,6 +31,9 @@ class SessionReviewFragment : Fragment() {
     private var _binding: FragmentSessionReviewBinding? = null
     private val binding get() = _binding!!
 
+    /** Cached once the session loads, so btnTrainAgain can re-launch the same drill. */
+    private var loadedSession: TrainingSession? = null
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, s: Bundle?): View {
         _binding = FragmentSessionReviewBinding.inflate(inflater, container, false)
         return binding.root
@@ -38,8 +43,13 @@ class SessionReviewFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.btnBack.setOnClickListener { findNavController().navigateUp() }
         binding.btnOverview.setOnClickListener { findNavController().navigateUp() }
-        binding.btnTrainAgain.setOnClickListener { findNavController().navigateUp() } // stub: routes to overview this slice
-        binding.tvViewAllFocus.setOnClickListener { /* stub this slice */ }
+        binding.btnTrainAgain.setOnClickListener { onTrainAgain() }
+        // No dedicated "all focus areas" screen exists; the feedback/corrections screen is
+        // the closest existing destination that surfaces per-correction focus data, so send
+        // the user there rather than leaving the affordance dead.
+        binding.tvViewAllFocus.setOnClickListener {
+            findNavController().navigate(R.id.action_review_to_feedback)
+        }
 
         val sessionId = arguments?.getString("sessionId").orEmpty()
         val app = requireActivity().application as TTCoachApplication
@@ -47,8 +57,29 @@ class SessionReviewFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             val session = app.database.trainingDao().getSessionById(sessionId)
             val analytics = app.database.sessionAnalyticsDao().getForSession(sessionId)
+            loadedSession = session
             bind(session, analytics)
         }
+    }
+
+    /**
+     * Re-launches the reviewed session's drill via [TrainingActivity], mirroring
+     * DrillsFragment.onExerciseSelected. TrainingSession doesn't persist the `useVideo`
+     * flag, so it's omitted — TrainingActivity defaults USE_VIDEO to false, matching the
+     * common (non-video) drill case. Falls back to the Drills tab if the session hasn't
+     * loaded yet (e.g. tapped before the DB query completes).
+     */
+    private fun onTrainAgain() {
+        val session = loadedSession
+        if (session == null || session.exerciseId.isBlank()) {
+            findNavController().navigate(R.id.navigation_drills)
+            return
+        }
+        val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
+            putExtra("EXERCISE_ID", session.exerciseId)
+            putExtra("EXERCISE_NAME", session.exerciseName)
+        }
+        startActivity(intent)
     }
 
     private fun bind(session: TrainingSession?, analytics: SessionAnalyticsEntity?) {
