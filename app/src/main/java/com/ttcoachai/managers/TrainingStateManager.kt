@@ -6,11 +6,18 @@
 package com.ttcoachai.managers
 
 import android.content.Context
-import com.ttcoachai.R
 import com.ttcoachai.shared.models.AnalysisResult
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
+import com.ttcoachai.shared.session.SessionStatsCalculator
 
+/**
+ * Storage/locking/singleton/timer state for a live training session. All pure
+ * stats arithmetic (counts, average score, sorted feedback counts, the
+ * consecutive-good-streak rule, MM:SS formatting) is delegated to
+ * [SessionStatsCalculator] (shared/commonMain) so it's covered by JVM tests
+ * and reusable from iOS later. Public API is unchanged.
+ */
 class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false
         private set
@@ -79,13 +86,10 @@ class TrainingStateManager internal constructor(private val context: Context) {
     
     fun getSessionTimeFormatted(): String {
         if (startTime == 0L) return "00:00"
-        
+
         val currentTime = if (isTrainingActive) System.currentTimeMillis() else (if (pausedTime > 0L) pausedTime else System.currentTimeMillis())
         val durationMs = currentTime - startTime - totalPausedDuration
-        val durationSec = (durationMs / 1000).toInt()
-        val minutes = durationSec / 60
-        val seconds = durationSec % 60
-        return String.format("%02d:%02d", minutes, seconds)
+        return SessionStatsCalculator.formatSessionTime(durationMs)
     }
     
     fun getStartTime(): Long = startTime
@@ -130,35 +134,26 @@ class TrainingStateManager internal constructor(private val context: Context) {
     }
 
     fun getFeedbackCounts(): List<Pair<CorrectionType, Int>> = synchronized(lock) {
-        feedbackTypeCounts.entries.sortedByDescending { it.value }.map { it.key to it.value }
+        SessionStatsCalculator.sortedFeedbackCounts(feedbackTypeCounts)
     }
 
-    fun getFlaggedTotal(): Int = synchronized(lock) { feedbackTypeCounts.values.sum() }
-    
+    fun getFlaggedTotal(): Int = synchronized(lock) { SessionStatsCalculator.flaggedTotal(feedbackTypeCounts) }
+
     fun addAnalysisResult(result: AnalysisResult) = synchronized(lock) {
         analysisResults.add(result)
-        
-        // Update consecutive good strokes
-        if (result.overallScore >= 80) {
-            consecutiveGoodStrokes++
-        } else {
-            consecutiveGoodStrokes = 0
-        }
+        consecutiveGoodStrokes = SessionStatsCalculator.updateConsecutiveGoodStrokes(consecutiveGoodStrokes, result)
     }
-    
+
     fun getAnalysisResults(): List<AnalysisResult> = synchronized(lock) { analysisResults.toList() }
-    
+
     // Helper methods for UI
-    fun getTotalHits(): Int = synchronized(lock) { analysisResults.size }
-    fun getSuccessfulHits(): Int = synchronized(lock) { analysisResults.count { it.overallScore >= 70 } } // Threshold for "successful"
-    
-    fun getAverageScore(): Double = synchronized(lock) {
-        if (analysisResults.isEmpty()) return 0.0
-        analysisResults.map { it.overallScore }.average()
-    }
-    
-    fun getStrokeCount(): Int = synchronized(lock) { analysisResults.size }
-    fun getGoodStrokesCount(): Int = synchronized(lock) { analysisResults.count { it.overallScore >= 80 } }
+    fun getTotalHits(): Int = synchronized(lock) { SessionStatsCalculator.totalHits(analysisResults) }
+    fun getSuccessfulHits(): Int = synchronized(lock) { SessionStatsCalculator.successfulHits(analysisResults) } // Threshold for "successful"
+
+    fun getAverageScore(): Double = synchronized(lock) { SessionStatsCalculator.averageScore(analysisResults) }
+
+    fun getStrokeCount(): Int = synchronized(lock) { SessionStatsCalculator.totalHits(analysisResults) }
+    fun getGoodStrokesCount(): Int = synchronized(lock) { SessionStatsCalculator.goodStrokesCount(analysisResults) }
     
     fun reset() = synchronized(lock) {
         isTrainingActive = false
