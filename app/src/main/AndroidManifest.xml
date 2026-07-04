@@ -127,6 +127,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Help & Support Screen -->
+        <activity
+            android:name=".HelpSupportActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Subscribe Screen -->
         <activity
             android:name=".SubscribeActivity"

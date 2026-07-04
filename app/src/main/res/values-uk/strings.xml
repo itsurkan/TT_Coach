@@ -433,7 +433,16 @@
     <string name="log_out">Вийти</string>
     <string name="logout_title">Вихід</string>
     <string name="logout_message">Ви впевнені, що хочете вийти?</string>
-    
+
+    <!-- Help & Support Screen -->
+    <string name="help_faq_section_title">Часті запитання</string>
+    <string name="help_contact_section_title">Контакти</string>
+    <string name="help_contact_support_label">Зв\'язатися з підтримкою</string>
+    <string name="help_contact_support_subtitle">Напишіть нам про питання чи проблему</string>
+    <string name="help_support_email_subject">TT Coach AI — підтримка</string>
+    <string name="help_support_email_body">\n\n---\nВерсія додатка: %1$s\nВерсія Android: %2$s (API %3$d)</string>
+    <string name="help_support_no_email_app">Поштовий застосунок не знайдено. Напишіть нам на itsurkan.1@gmail.com</string>
+
     <!-- Training Settings -->
     <string name="training_settings_title">Налаштування тренування</string>
     <string name="training_settings_subtitle">Налаштуйте параметри тренувальної сесії</string>

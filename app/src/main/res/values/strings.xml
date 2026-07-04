@@ -404,6 +404,15 @@
     <string name="logout_message">Are you sure you want to log out?</string>
     <string name="version_format">Version %s</string>
 
+    <!-- Help & Support Screen -->
+    <string name="help_faq_section_title">Frequently Asked Questions</string>
+    <string name="help_contact_section_title">Contact</string>
+    <string name="help_contact_support_label">Contact support</string>
+    <string name="help_contact_support_subtitle">Email us with a question or an issue</string>
+    <string name="help_support_email_subject">TT Coach AI — support</string>
+    <string name="help_support_email_body">\n\n---\nApp version: %1$s\nAndroid version: %2$s (API %3$d)</string>
+    <string name="help_support_no_email_app">No email app found. Please contact us at itsurkan.1@gmail.com</string>
+
     <!-- Subscribe Page -->
     <string name="subscribe_title">Unlock Premium Features</string>
     <string name="subscribe_subtitle">Get unlimited access to AI coaching and advanced training tools</string>

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import com.ttcoachai.AppSettingsActivity
+import com.ttcoachai.HelpSupportActivity
 import com.ttcoachai.R
 import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.SubscribeActivity
@@ -163,9 +164,10 @@ class ProfileFragment : Fragment() {
         }
         
         
-        // Help & Support - placeholder
+        // Help & Support
         binding.layoutHelpSupport.setOnClickListener {
-            // TODO: Implement help & support
+            val intent = Intent(requireContext(), HelpSupportActivity::class.java)
+            startActivity(intent)
         }
         
         // Log Out
