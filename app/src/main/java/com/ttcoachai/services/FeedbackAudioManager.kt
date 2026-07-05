@@ -3,13 +3,14 @@ package com.ttcoachai.services
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
+import android.media.MediaPlayer
 import android.media.SoundPool
 import android.media.ToneGenerator
 import android.util.Log
 import com.ttcoachai.R
 
 /**
- * Manages audio resources (SoundPool, ToneGenerator) for FeedbackGenerator.
+ * Manages audio resources (SoundPool, ToneGenerator, voice-clip MediaPlayer) for FeedbackGenerator.
  */
 class FeedbackAudioManager(private val context: Context) {
     private var soundPool: SoundPool? = null
@@ -17,6 +18,7 @@ class FeedbackAudioManager(private val context: Context) {
     private var ticSoundId: Int = 0
     private var tacSoundId: Int = 0
     private val loadedSounds = mutableSetOf<Int>()
+    private var voicePlayer: MediaPlayer? = null
 
     companion object {
         private const val TAG = "FeedbackAudioManager"
@@ -79,10 +81,52 @@ class FeedbackAudioManager(private val context: Context) {
         toneGenerator?.startTone(type, duration)
     }
 
+    /**
+     * Play a pre-recorded voice clip by raw resource id. Releases any
+     * in-flight clip first (barge-in: the latest feedback wins), then creates
+     * a fresh [MediaPlayer] for [resId]. Returns true if playback started.
+     */
+    fun playVoiceClip(resId: Int, volumePercent: Int): Boolean {
+        releaseVoicePlayer()
+        return try {
+            val player = MediaPlayer.create(context, resId)
+            if (player == null) {
+                Log.e(TAG, "Failed to create MediaPlayer for resId=$resId")
+                return false
+            }
+            val v = volumePercent.coerceIn(0, 100) / 100f
+            player.setVolume(v, v)
+            player.setOnCompletionListener {
+                it.release()
+                if (voicePlayer === it) voicePlayer = null
+            }
+            voicePlayer = player
+            player.start()
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to play voice clip resId=$resId", e)
+            false
+        }
+    }
+
+    private fun releaseVoicePlayer() {
+        try {
+            voicePlayer?.let {
+                if (it.isPlaying) it.stop()
+                it.release()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to release previous voice clip", e)
+        } finally {
+            voicePlayer = null
+        }
+    }
+
     fun release() {
         soundPool?.release()
         soundPool = null
         toneGenerator?.release()
         toneGenerator = null
+        releaseVoicePlayer()
     }
 }
