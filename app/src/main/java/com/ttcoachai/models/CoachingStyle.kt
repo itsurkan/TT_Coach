@@ -12,33 +12,37 @@ enum class CoachingStyle(
     val subtitleResId: Int,
     val descriptionResId: Int,
     val avatarInitial: String,
-    val avatarColor: Int
+    val avatarColor: Int,
+    val styleId: String
 ) {
-    MOTIVATIONAL_ENERGETIC(
-        displayNameResId = R.string.coach_ivan_name,
-        subtitleResId = R.string.coach_ivan_style,
-        descriptionResId = R.string.coach_ivan_desc,
-        avatarInitial = "I",
-        avatarColor = R.color.ttc_gold_bright
+    PLAYFUL(
+        displayNameResId = R.string.coach_playful_name,
+        subtitleResId = R.string.coach_playful_style,
+        descriptionResId = R.string.coach_playful_desc,
+        avatarInitial = "P",
+        avatarColor = R.color.ttc_gold_bright,
+        styleId = "preset-playful"
     ),
-    PRECISE_TECHNICAL(
-        displayNameResId = R.string.coach_andriy_name,
-        subtitleResId = R.string.coach_andriy_style,
-        descriptionResId = R.string.coach_andriy_desc,
-        avatarInitial = "A",
-        avatarColor = R.color.ttc_gold_bright
+    STRICT(
+        displayNameResId = R.string.coach_strict_name,
+        subtitleResId = R.string.coach_strict_style,
+        descriptionResId = R.string.coach_strict_desc,
+        avatarInitial = "S",
+        avatarColor = R.color.ttc_gold_bright,
+        styleId = "preset-strict"
     ),
-    GENTLE_SUPPORTIVE(
-        displayNameResId = R.string.coach_vadym_name,
-        subtitleResId = R.string.coach_vadym_style,
-        descriptionResId = R.string.coach_vadym_desc,
-        avatarInitial = "V",
-        avatarColor = R.color.ttc_gold_bright
+    EFFICIENT(
+        displayNameResId = R.string.coach_efficient_name,
+        subtitleResId = R.string.coach_efficient_style,
+        descriptionResId = R.string.coach_efficient_desc,
+        avatarInitial = "E",
+        avatarColor = R.color.ttc_gold_bright,
+        styleId = "preset-efficient"
     );
 
     companion object {
         fun fromOrdinal(ordinal: Int): CoachingStyle {
-            return values().getOrNull(ordinal) ?: MOTIVATIONAL_ENERGETIC
+            return values().getOrNull(ordinal) ?: PLAYFUL
         }
     }
 }

@@ -110,6 +110,9 @@ class SettingsManager(context: Context) {
         prefs.edit().putInt("coaching_style", style.ordinal).apply()
     }
 
+    /** Voice-clip pack id for the selected coaching style (assets/voice/<styleId>/). */
+    fun getVoiceStyleId(): String = getCoachingStyle().styleId
+
     // Login State
     fun isLoggedIn(): Boolean = prefs.getBoolean("is_logged_in", false)
     fun setLoggedIn(loggedIn: Boolean) = prefs.edit().putBoolean("is_logged_in", loggedIn).apply()
