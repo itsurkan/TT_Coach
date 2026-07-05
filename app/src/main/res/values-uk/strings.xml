@@ -896,4 +896,7 @@
     <string name="stat_duration">Тривалість</string>
     <string name="summary_continue">Продовжити</string>
     <string name="summary_finish">Завершити</string>
+
+    <!-- RTMPose live drill on the main training screen -->
+    <string name="rtmpose_drill_need_calibration">Ще немає базового профілю — спочатку відкалібруйтеся.</string>
 </resources>

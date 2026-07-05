@@ -16,11 +16,21 @@ class TrainingMediaManager(
 ) {
     private var videoPlayerManager: VideoPlayerManager? = null
 
-    fun setup() {
+    /**
+     * @param skipCamera true when a caller (e.g. [com.ttcoachai.pose.RtmposeTrainingController])
+     * is already taking over `cameraPreviewContainer` itself — the legacy [CameraFragment] must
+     * not also be attached to the same container in that case. Has no effect on the video branch.
+     */
+    fun setup(skipCamera: Boolean = false) {
         if (useVideo) {
             setupVideo()
-        } else {
+        } else if (!skipCamera) {
             setupCamera()
+        } else {
+            binding.videoContainer.visibility = View.GONE
+            binding.videoView.visibility = View.GONE
+            binding.overlay.visibility = View.GONE
+            binding.cameraPreviewContainer.visibility = View.VISIBLE
         }
     }
 
