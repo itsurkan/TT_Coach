@@ -113,24 +113,13 @@
   @media screen and (max-width: 700px) { .g3, .g4 { grid-template-columns: 1fr 1fr; } .g2 { grid-template-columns: 1fr; } .contact { text-align: left; } }
   @media screen and (max-width: 460px) { .g3, .g4 { grid-template-columns: 1fr; } }
 
-  /* print: light paper, A4 */
+  /* print/PDF: dark brand design preserved, single custom-size page (~screen layout) */
   @media print {
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    :root {
-      --bg: #FFFFFF; --sink: #F5F2EA; --card: #FAF8F2; --card-hi: #F1EDE2;
-      --line: #E2DCCB; --line-strong: #CFC7B0;
-      --gold: #A9862F; --gold-container: #F7EFDA; --gold-border: #D9C68E;
-      --on-gold: #2A2008; --gold-deep: #8A6D24;
-      --text: #1A1B1E; --text-2: #45484F; --muted: #6B6F78; --faint: #92959D;
-      --cream: #4A3A10; --coral: #B4483F; --green: #1E7A52;
-    }
-    body { background: #fff; }
-    .page { max-width: none; padding: 8mm 10mm; }
+    html, body { background: var(--bg); }
+    .page { max-width: 900px; }
     .brand .mark, .cta { box-shadow: none; }
-    .sec { margin-top: 16px; }
-    h1 { margin-top: 14px; }
-    a { color: inherit; text-decoration: none; }
-    @page { size: A4; margin: 6mm; }
+    @page { size: 960px 1540px; margin: 0; }
   }
 </style>
 </head>
