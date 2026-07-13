@@ -174,12 +174,33 @@
   .roaditem { font: 400 14px/1.5 'Inter Tight'; color: var(--text-2); padding: 4px 0; }
   .roaditem b { color: var(--text); font-weight: 600; }
 
-  @media (max-width: 900px) {
+  /* responsive rules are screen-scoped: Chrome evaluates print media queries
+     against letter-size paper before @page applies, which falsely matched these */
+  @media screen and (max-width: 900px) {
     .g3, .g4 { grid-template-columns: 1fr 1fr; }
     .slide { padding: 4vh 6vw 11vh; overflow-y: auto; justify-content: flex-start; }
     .timehint, .keys { display: none; }
   }
-  @media (max-width: 600px) { .g3, .g4, .g2 { grid-template-columns: 1fr; } }
+  @media screen and (max-width: 600px) { .g3, .g4, .g2 { grid-template-columns: 1fr; } }
+
+  /* print / PDF export: one 16:9 page per slide, dark design preserved */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body { overflow: visible; height: auto; background: var(--bg); }
+    .deck { width: auto; height: auto; }
+    .slide {
+      position: relative; inset: auto;
+      opacity: 1 !important; visibility: visible !important; transform: none !important;
+      width: 100%; height: 720px;
+      page-break-after: always; break-after: page;
+      background: var(--bg);
+    }
+    .slide:last-of-type { page-break-after: auto; break-after: auto; }
+    .slide .st { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .chrome, .progress { display: none !important; }
+    .chip .dot { animation: none; }
+    @page { size: 1280px 720px; margin: 0; }
+  }
 </style>
 </head>
 <body>
