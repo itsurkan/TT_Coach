@@ -109,11 +109,13 @@
   }
   .foot .sig { font: 500 10.5px 'JetBrains Mono', monospace; color: var(--faint); letter-spacing: .08em; }
 
-  @media (max-width: 700px) { .g3, .g4 { grid-template-columns: 1fr 1fr; } .g2 { grid-template-columns: 1fr; } .contact { text-align: left; } }
-  @media (max-width: 460px) { .g3, .g4 { grid-template-columns: 1fr; } }
+  /* screen-scoped: Chrome print evaluates width queries against letter paper before @page */
+  @media screen and (max-width: 700px) { .g3, .g4 { grid-template-columns: 1fr 1fr; } .g2 { grid-template-columns: 1fr; } .contact { text-align: left; } }
+  @media screen and (max-width: 460px) { .g3, .g4 { grid-template-columns: 1fr; } }
 
   /* print: light paper, A4 */
   @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     :root {
       --bg: #FFFFFF; --sink: #F5F2EA; --card: #FAF8F2; --card-hi: #F1EDE2;
       --line: #E2DCCB; --line-strong: #CFC7B0;
@@ -284,5 +286,14 @@
   <p class="sig" style="margin-top:10px; font:500 10px 'JetBrains Mono'; color:var(--faint); letter-spacing:.08em;">TT COACH AI · ВИПРАВ ЛІКОТЬ.</p>
 
 </div>
+<script>
+// ?fit — масштабує сторінку під висоту вікна (для JPG/PNG експорту фіксованого розміру)
+if (new URLSearchParams(location.search).has('fit')) {
+  addEventListener('load', () => {
+    const h = document.documentElement.scrollHeight;
+    if (h > innerHeight) document.body.style.zoom = innerHeight / h;
+  });
+}
+</script>
 </body>
 </html>
