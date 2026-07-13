@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TT Coach AI — One-pager</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%230E1115'/%3E%3Ccircle cx='24' cy='21' r='12' fill='none' stroke='%23E9C46A' stroke-width='3'/%3E%3Cpath d='M24 33v8' stroke='%23E9C46A' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1115; --sink: #0B0E12; --card: #141820; --card-hi: #1A1F28;
+    --line: #232833; --line-strong: #2F3542;
+    --gold: #E9C46A; --gold-container: #221C0F; --gold-border: #5C4A22;
+    --on-gold: #2A2008; --gold-deep: #A9862F;
+    --text: #E7EAF0; --text-2: #B4BAC5; --muted: #7F8694; --faint: #565C68;
+    --green: #2FD08A; --coral: #E8817A; --cream: #FBF3DE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .gold { color: var(--gold); }
+
+  .page { max-width: 900px; margin: 0 auto; padding: 40px 36px 32px; }
+
+  /* header */
+  .head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .brand .mark {
+    width: 46px; height: 46px; border-radius: 12px; background: var(--gold);
+    display: grid; place-items: center; flex: none;
+    box-shadow: 0 8px 22px -6px rgba(233,196,106,.45);
+  }
+  .brand .name { font: 800 19px 'Inter Tight'; letter-spacing: -.01em; }
+  .brand .tag { font: 500 11px 'JetBrains Mono', monospace; color: var(--muted); margin-top: 2px; }
+  .contact { text-align: right; font: 500 12px 'Inter Tight'; color: var(--text-2); line-height: 1.6; }
+  .contact .mono { font-size: 11.5px; color: var(--muted); }
+
+  h1 { font: 800 clamp(28px, 4.4vw, 40px)/1.08 'Inter Tight'; letter-spacing: -.02em; margin-top: 26px; text-wrap: balance; }
+  .gold-i { color: var(--gold); font-style: italic; font-weight: 400; }
+  .lede { font: 400 14.5px/1.55 'Inter Tight'; color: var(--text-2); margin-top: 12px; max-width: 640px; }
+
+  .eyebrow {
+    font: 700 10.5px 'Inter Tight'; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold); display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+  }
+  .eyebrow::before { content: ''; width: 20px; height: 2px; background: var(--gold); border-radius: 2px; }
+
+  .sec { margin-top: 26px; }
+  .grid { display: grid; gap: 12px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .card.goldc { background: var(--gold-container); border-color: var(--gold-border); }
+  .ct { font: 700 13.5px 'Inter Tight'; letter-spacing: -.01em; }
+  .cb { font: 400 12px/1.5 'Inter Tight'; color: var(--text-2); margin-top: 5px; }
+  .goldc .ct { color: var(--cream); }
+  .goldc .cb { color: #D9CFB4; }
+
+  .num { font: 700 24px/1 'JetBrains Mono', monospace; color: var(--gold); letter-spacing: -.02em; }
+  .num small { font-size: .55em; }
+  .nl { font: 500 10px 'Inter Tight'; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 7px; }
+  .ns { font: 400 11px/1.45 'Inter Tight'; color: var(--faint); margin-top: 3px; }
+
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+  .row > * { flex: 1; min-width: 150px; }
+
+  .strip {
+    background: var(--sink); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+    font: 400 12.5px/1.5 'Inter Tight'; color: var(--text-2);
+  }
+  .strip .k { font: 700 11px 'JetBrains Mono', monospace; color: var(--gold); letter-spacing: .08em; flex: none; }
+
+  .wedge { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .wedge .op { font: 700 15px 'JetBrains Mono', monospace; color: var(--faint); }
+  .wedge .t { text-align: center; }
+  .wedge .t .v { font: 700 17px 'JetBrains Mono', monospace; color: var(--text); }
+  .wedge .t .l { font: 500 9.5px 'Inter Tight'; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .wedge .t.res .v { color: var(--gold); }
+
+  .ph {
+    border: 1px dashed var(--gold-border); background: rgba(233,196,106,.04);
+    border-radius: 8px; padding: 1px 8px; color: var(--gold-deep);
+    font: 600 11px 'JetBrains Mono', monospace; display: inline-block;
+  }
+  .src { font: 400 9.5px/1.5 'Inter Tight'; color: var(--faint); margin-top: 10px; }
+
+  ul.tick { list-style: none; margin-top: 6px; }
+  ul.tick li { font: 400 12px/1.55 'Inter Tight'; color: var(--text-2); padding: 3px 0 3px 20px; position: relative; }
+  ul.tick li::before { content: '✓'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
+  ul.tick li b { color: var(--text); font-weight: 600; }
+
+  .foot {
+    margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .cta {
+    display: inline-flex; align-items: center; gap: 9px; background: var(--gold); color: var(--on-gold);
+    font: 700 13px 'Inter Tight'; border-radius: 10px; padding: 11px 20px;
+    box-shadow: 0 8px 20px -6px rgba(233,196,106,.4);
+  }
+  .foot .sig { font: 500 10.5px 'JetBrains Mono', monospace; color: var(--faint); letter-spacing: .08em; }
+
+  /* screen-scoped: Chrome print evaluates width queries against letter paper before @page */
+  @media screen and (max-width: 700px) { .g3, .g4 { grid-template-columns: 1fr 1fr; } .g2 { grid-template-columns: 1fr; } .contact { text-align: left; } }
+  @media screen and (max-width: 460px) { .g3, .g4 { grid-template-columns: 1fr; } }
+
+  /* print: light paper, A4 */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    :root {
+      --bg: #FFFFFF; --sink: #F5F2EA; --card: #FAF8F2; --card-hi: #F1EDE2;
+      --line: #E2DCCB; --line-strong: #CFC7B0;
+      --gold: #A9862F; --gold-container: #F7EFDA; --gold-border: #D9C68E;
+      --on-gold: #2A2008; --gold-deep: #8A6D24;
+      --text: #1A1B1E; --text-2: #45484F; --muted: #6B6F78; --faint: #92959D;
+      --cream: #4A3A10; --coral: #B4483F; --green: #1E7A52;
+    }
+    body { background: #fff; }
+    .page { max-width: none; padding: 8mm 10mm; }
+    .brand .mark, .cta { box-shadow: none; }
+    .sec { margin-top: 16px; }
+    h1 { margin-top: 14px; }
+    a { color: inherit; text-decoration: none; }
+    @page { size: A4; margin: 6mm; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- header -->
+  <div class="head">
+    <div class="brand">
+      <div class="mark">
+        <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="20" r="12.5" stroke="#2A2008" stroke-width="3.4"/>
+          <path d="M24 32.5V42" stroke="#2A2008" stroke-width="3.4" stroke-linecap="round"/>
+          <circle cx="36.5" cy="9.5" r="4" fill="#2A2008"/>
+        </svg>
+      </div>
+      <div>
+        <div class="name">TT Coach AI</div>
+        <div class="tag">on-device · real-time · Android</div>
+      </div>
+    </div>
+    <div class="contact">
+      Іван Цуркан · Founder<br/>
+      <span class="mono">itsurkan.1@gmail.com</span><br/>
+      <a href="https://itsurkan.github.io/TT_Coach_AA_site/" class="mono" style="color:var(--gold); text-decoration:none;">itsurkan.github.io/TT_Coach_AA_site</a>
+    </div>
+  </div>
+
+  <h1>Тренер, що говорить <span class="gold-i">у тебе у вусі.</span></h1>
+  <p class="lede">
+    AI-коуч із настільного тенісу: телефон збоку від столу стежить за 17 суглобами
+    120 разів на секунду і вголос виправляє техніку <b style="color:var(--text);">тим самим повтором</b>,
+    коли помилка стається — а не у відео ввечері.
+  </p>
+
+  <!-- problem / solution -->
+  <div class="sec grid g2">
+    <div>
+      <div class="eyebrow">Проблема</div>
+      <div class="card" style="height:calc(100% - 25px);">
+        <div class="ct">Помилки закріплюються в м'язовій пам'яті</div>
+        <p class="cb">Тренер — $40–80/год і кілька годин на тиждень; решту часу гравець тренується наосліп.
+        Відео показує помилку після факту. Виправлення приходить на 240-му повторенні замість 4-го —
+        далі місяці пере-навчання.</p>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow">Рішення</div>
+      <div class="card goldc" style="height:calc(100% - 25px);">
+        <div class="ct">Голос у вусі, в реальному часі</div>
+        <p class="cb">Оцінка пози on-device (0 мс хмари), порівняння з <b>персональним бейзлайном</b> —
+        найкращим виконанням самого гравця, не абстрактним «ідеалом». Одна конкретна порада
+        кожні 3–5 с: «Тримай лікоть ближче до корпусу».</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- product -->
+  <div class="sec">
+    <div class="eyebrow">Продукт — три інструменти</div>
+    <div class="grid g3">
+      <div class="card"><div class="ct gold">Live виявлення техніки</div><p class="cb">дрейф ліктя, поворот стегон, кут ракетки — що виправити першим</p></div>
+      <div class="card"><div class="ct gold">Кастомні дрили</div><p class="cb">обери удар, еталон і суворість тренера; рахуються лише потрібні удари</p></div>
+      <div class="card"><div class="ct gold">Аналіз сесії</div><p class="cb">кожен повтор збережено; AI-звіт після гри — що спрацювало, що далі</p></div>
+    </div>
+  </div>
+
+  <!-- market + why now -->
+  <div class="sec grid g2">
+    <div>
+      <div class="eyebrow">Ринок · США</div>
+      <div class="row">
+        <div class="card"><div class="num">15.9<small>млн</small></div><div class="nl">гравців у США</div><div class="ns">стабільно 15–16 млн щороку</div></div>
+        <div class="card"><div class="num">$1.5B→$11.2B</div><div class="nl">AI sports coaching · 25→36</div><div class="ns">~20% CAGR</div></div>
+      </div>
+      <div class="card" style="margin-top:12px;">
+        <div class="wedge">
+          <div class="t"><div class="v">16M</div><div class="l">гравців</div></div>
+          <div class="op">×</div>
+          <div class="t"><div class="v">1%</div><div class="l">проникн.</div></div>
+          <div class="op">×</div>
+          <div class="t"><div class="v">$60</div><div class="l">на рік</div></div>
+          <div class="op">=</div>
+          <div class="t res"><div class="v">~$9.6M</div><div class="l">ARR · США</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="eyebrow">Чому ми — і чому зараз</div>
+      <ul class="tick">
+        <li><b>Персональний бейзлайн</b> — калібруємо під техніку гравця, не перевчаємо</li>
+        <li><b>100% on-device live</b> — нуль затримки, нуль відео в хмарі, працює офлайн</li>
+        <li><b>Why now:</b> mobile pose estimation щойно досягла real-time якості на телефоні</li>
+        <li><b>Конкуренти</b> (SwingVision, Tennis AI, OnForm) — відео-аналіз <i>після</i> гри, теніс/піклбол. Real-time нішу в настільному тенісі не зайняв ніхто</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- business model + unit econ -->
+  <div class="sec">
+    <div class="eyebrow">B2C-модель і юніт-економіка <span class="ph" style="margin-left:8px;">модельні припущення</span></div>
+    <div class="grid g4">
+      <div class="card"><div class="num">$8–10<small>/міс</small></div><div class="nl">Підписка</div><div class="ns">14 днів безкоштовно; год. тренера = 6–8 міс апки</div></div>
+      <div class="card"><div class="num">80%</div><div class="nl">Маржа</div><div class="ns">store 15% + AI-звіти ~5%; live-сесія $0 on-device</div></div>
+      <div class="card"><div class="num">~$58</div><div class="nl">LTV</div><div class="ns">$8 × 9 міс (~11% churn — медіана підписок) × 80%</div></div>
+      <div class="card"><div class="num">~1.5×<small> →3×</small></div><div class="nl">LTV:CAC · payback ~6 міс</div><div class="ns">CAC $70 paid → $40 blended (клуби, тренери, контент)</div></div>
+    </div>
+    <div class="strip" style="margin-top:12px;">
+      <span class="k">ШЛЯХ ДО 3× →</span>
+      річні плани (лайфтайм ↑) + 50%+ органіки зі спільноти (CAC ↓). Канал №1 — клуби й тренери-амбасадори, не закупівля трафіку.
+    </div>
+  </div>
+
+  <!-- traction/status + roadmap -->
+  <div class="sec grid g2">
+    <div>
+      <div class="eyebrow">Статус</div>
+      <ul class="tick">
+        <li><b>Android-застосунок працює:</b> live-коучинг, перший структурований дрил (форхенд-драйв), калібрування бейзлайну</li>
+        <li>Озвучка українською та англійською</li>
+        <li>Ядро аналізу — Kotlin Multiplatform без залежностей: <b>iOS — порт, не переписування</b></li>
+      </ul>
+    </div>
+    <div>
+      <div class="eyebrow">Дорожня карта</div>
+      <ul class="tick">
+        <li><b>6–12 міс:</b> iOS, бібліотека ударів (бекхенд, топспін, подача), спільнота дрилів</li>
+        <li><b>Візія:</b> кишеньковий тренер для всіх ракеточних видів — теніс, бадмінтон, падел на тій самій pose-технології</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ask -->
+  <div class="foot">
+    <div>
+      <div class="eyebrow" style="margin-bottom:6px;">Ask</div>
+      <div style="font:700 15px 'Inter Tight';">Шукаємо <span class="ph">$ СУМА</span> на <span class="ph">N місяців</span> — iOS, бібліотека ударів, перші платні когорти у США.</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:18px;">
+      <span class="cta">Демо — за столом, 10 хвилин</span>
+      <a href="https://itsurkan.github.io/TT_Coach_AA_site/" style="text-decoration:none; text-align:center;">
+        <span style="display:block; background:#fff; border-radius:10px; padding:5px; border:1px solid var(--line);">
+          <img src="data:image/png;base64,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" width="82" height="82" alt="QR — сайт TT Coach AI" style="display:block;"/>
+        </span>
+        <span class="mono" style="display:block; margin-top:5px; font-size:9px; color:var(--muted); letter-spacing:.05em;">сайт · демо</span>
+      </a>
+    </div>
+  </div>
+  <p class="src">
+    Джерела: Statista — Table tennis participation, USA (2025) · Fact.MR — AI Sports Coaching Apps Market (2025–2036) ·
+    RevenueCat — State of Subscription Apps (churn-медіана). Юніт-економіка: pitch/unit_economics.py.
+  </p>
+  <p class="sig" style="margin-top:10px; font:500 10px 'JetBrains Mono'; color:var(--faint); letter-spacing:.08em;">TT COACH AI · ВИПРАВ ЛІКОТЬ.</p>
+
+</div>
+<script>
+// ?fit — масштабує сторінку під висоту вікна (для JPG/PNG експорту фіксованого розміру)
+if (new URLSearchParams(location.search).has('fit')) {
+  addEventListener('load', () => {
+    const h = document.documentElement.scrollHeight;
+    if (h > innerHeight) document.body.style.zoom = innerHeight / h;
+  });
+}
+</script>
+</body>
+</html>

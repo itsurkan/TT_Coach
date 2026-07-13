@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TT Coach AI — Пітч</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%230E1115'/%3E%3Ccircle cx='24' cy='21' r='12' fill='none' stroke='%23E9C46A' stroke-width='3'/%3E%3Cpath d='M24 33v8' stroke='%23E9C46A' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E1115;
+    --sink: #0B0E12;
+    --card: #141820;
+    --card-hi: #1A1F28;
+    --line: #232833;
+    --line-strong: #2F3542;
+    --gold: #E9C46A;
+    --gold-container: #221C0F;
+    --gold-border: #5C4A22;
+    --on-gold: #2A2008;
+    --gold-deep: #A9862F;
+    --text: #E7EAF0;
+    --text-2: #B4BAC5;
+    --muted: #7F8694;
+    --faint: #565C68;
+    --green: #2FD08A;
+    --coral: #E8817A;
+    --amber: #E9A25E;
+    --cream: #FBF3DE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+
+  /* ---- deck mechanics ---- */
+  .deck { position: relative; width: 100vw; height: 100vh; }
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 5vh 7vw 9vh;
+    opacity: 0; visibility: hidden;
+    transform: translateX(40px);
+    transition: opacity .45s cubic-bezier(.2,.7,.2,1), transform .45s cubic-bezier(.2,.7,.2,1), visibility 0s .45s;
+  }
+  .slide.active {
+    opacity: 1; visibility: visible;
+    transform: translateX(0);
+    transition: opacity .45s cubic-bezier(.2,.7,.2,1), transform .45s cubic-bezier(.2,.7,.2,1), visibility 0s;
+  }
+  .slide.prev { transform: translateX(-40px); }
+  .inner { width: 100%; max-width: 1080px; }
+
+  /* staged entrance inside the active slide */
+  .slide .st { opacity: 0; transform: translateY(18px); transition: opacity .6s cubic-bezier(.2,.7,.2,1), transform .6s cubic-bezier(.2,.7,.2,1); }
+  .slide.active .st { opacity: 1; transform: translateY(0); }
+  .slide.active .st:nth-of-type(1), .slide.active [data-st="1"] { transition-delay: .05s; }
+  .slide.active [data-st="2"] { transition-delay: .18s; }
+  .slide.active [data-st="3"] { transition-delay: .31s; }
+  .slide.active [data-st="4"] { transition-delay: .44s; }
+  .slide.active [data-st="5"] { transition-delay: .57s; }
+
+  /* ---- typography ---- */
+  .eyebrow {
+    font: 700 12px 'Inter Tight'; letter-spacing: .15em; text-transform: uppercase;
+    color: var(--gold); display: flex; align-items: center; gap: 10px; margin-bottom: 26px;
+  }
+  .eyebrow::before { content: ''; width: 26px; height: 2px; background: var(--gold); border-radius: 2px; }
+  h1 { font-weight: 800; font-size: clamp(40px, 5.6vw, 76px); line-height: 1.02; letter-spacing: -.025em; text-wrap: balance; }
+  h2 { font-weight: 800; font-size: clamp(32px, 4.2vw, 56px); line-height: 1.05; letter-spacing: -.02em; text-wrap: balance; }
+  .lede { font-size: clamp(16px, 1.5vw, 21px); line-height: 1.5; color: var(--text-2); max-width: 720px; }
+  .gold { color: var(--gold); }
+  .gold-i { color: var(--gold); font-style: italic; font-weight: 400; }
+
+  /* ---- components (house system) ---- */
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+  }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--gold-container); border: 1px solid var(--gold-border); border-radius: 999px;
+    padding: 6px 15px; font: 700 12.5px 'Inter Tight'; color: var(--gold);
+  }
+  .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .tile {
+    width: 44px; height: 44px; border-radius: 11px; background: var(--card-hi);
+    border: 1px solid var(--line); display: grid; place-items: center; flex: none;
+  }
+  .tile.goldbg { background: var(--gold-container); border-color: var(--gold-border); }
+  .statnum { font: 700 clamp(38px, 4.4vw, 64px)/1 'JetBrains Mono', monospace; color: var(--text); letter-spacing: -.02em; }
+  .statnum.g { color: var(--gold); }
+  .statlabel { font: 500 12px 'Inter Tight'; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
+  .statsub { font: 400 13px/1.45 'Inter Tight'; color: var(--faint); margin-top: 5px; }
+  .grid { display: grid; gap: 16px; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .cardtitle { font: 700 18px 'Inter Tight'; letter-spacing: -.01em; }
+  .cardbody { font: 400 14px/1.55 'Inter Tight'; color: var(--text-2); }
+  .src { font: 400 11px/1.6 'Inter Tight'; color: var(--faint); }
+  .src a { color: var(--faint); }
+  .ph {
+    border: 1px dashed var(--gold-border); background: rgba(233,196,106,.04);
+    border-radius: 10px; padding: 3px 10px; color: var(--gold-deep);
+    font: 600 12px 'JetBrains Mono', monospace; display: inline-block;
+  }
+
+  /* ---- chrome: progress, dots, counter ---- */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--gold); width: 0; z-index: 50; transition: width .45s cubic-bezier(.2,.7,.2,1); border-radius: 0 2px 2px 0; }
+  .chrome {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px; pointer-events: none;
+  }
+  .brandmark { display: flex; align-items: center; gap: 10px; font: 700 13px 'Inter Tight'; color: var(--muted); }
+  .brandmark svg { flex: none; }
+  .dots { display: flex; gap: 8px; pointer-events: auto; }
+  .dots button {
+    width: 8px; height: 8px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--line-strong); transition: all .3s; padding: 0;
+  }
+  .dots button.on { background: var(--gold); width: 22px; border-radius: 999px; }
+  .counter { font: 600 12px 'JetBrains Mono', monospace; color: var(--muted); display: flex; align-items: center; gap: 14px; }
+  .timehint { color: var(--faint); }
+  kbd {
+    font: 600 10px 'JetBrains Mono', monospace; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 5px; padding: 2px 6px; background: var(--card);
+  }
+
+  /* ---- slide-specific ---- */
+  .hero-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; }
+  .hero-logo .mark {
+    width: 58px; height: 58px; border-radius: 15px; background: var(--gold);
+    display: grid; place-items: center;
+    box-shadow: 0 10px 30px -6px rgba(233,196,106,.45);
+  }
+  .hero-logo .name { font: 800 22px 'Inter Tight'; letter-spacing: -.01em; }
+  .hero-logo .tag { font: 500 12px 'JetBrains Mono', monospace; color: var(--muted); margin-top: 3px; }
+
+  .bigline { font: 700 clamp(22px, 2.6vw, 34px)/1.25 'Inter Tight'; letter-spacing: -.015em; text-wrap: balance; }
+
+  .steprow { display: flex; align-items: flex-start; gap: 18px; padding: 20px 0; border-top: 1px solid var(--line); }
+  .steprow:last-child { border-bottom: 1px solid var(--line); }
+  .stepnum { font: 700 15px 'JetBrains Mono', monospace; color: var(--gold); width: 34px; flex: none; padding-top: 2px; }
+  .steptitle { font: 700 19px 'Inter Tight'; letter-spacing: -.01em; margin-bottom: 5px; }
+  .stepbody { font: 400 14px/1.5 'Inter Tight'; color: var(--text-2); max-width: 640px; }
+
+  .wedge { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .wedge .op { font: 700 22px 'JetBrains Mono', monospace; color: var(--faint); }
+  .wedge .term { text-align: center; }
+  .wedge .term .v { font: 700 clamp(22px,2.4vw,32px) 'JetBrains Mono', monospace; color: var(--text); }
+  .wedge .term .l { font: 500 11px 'Inter Tight'; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .wedge .term.res .v { color: var(--gold); }
+
+  .quote-card {
+    background: var(--gold-container); border: 1px solid var(--gold-border); border-radius: 14px;
+    padding: 22px 24px; color: #D9CFB4; font: 400 15px/1.55 'Inter Tight';
+  }
+
+  .roadcol { position: relative; padding-left: 22px; }
+  .roadcol::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: var(--line); }
+  .roadcol.now::before { background: var(--gold); }
+  .roadphase { font: 700 11px 'Inter Tight'; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .roadcol.now .roadphase { color: var(--gold); }
+  .roaditem { font: 400 14px/1.5 'Inter Tight'; color: var(--text-2); padding: 4px 0; }
+  .roaditem b { color: var(--text); font-weight: 600; }
+
+  /* responsive rules are screen-scoped: Chrome evaluates print media queries
+     against letter-size paper before @page applies, which falsely matched these */
+  @media screen and (max-width: 900px) {
+    .g3, .g4 { grid-template-columns: 1fr 1fr; }
+    .slide { padding: 4vh 6vw 11vh; overflow-y: auto; justify-content: flex-start; }
+    .timehint, .keys { display: none; }
+  }
+  @media screen and (max-width: 600px) { .g3, .g4, .g2 { grid-template-columns: 1fr; } }
+
+  /* print / PDF export: one 16:9 page per slide, dark design preserved */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    html, body { overflow: visible; height: auto; background: var(--bg); }
+    .deck { width: auto; height: auto; }
+    .slide {
+      position: relative; inset: auto;
+      opacity: 1 !important; visibility: visible !important; transform: none !important;
+      width: 100%; height: 720px;
+      page-break-after: always; break-after: page;
+      background: var(--bg);
+    }
+    .slide:last-of-type { page-break-after: auto; break-after: auto; }
+    .slide .st { opacity: 1 !important; transform: none !important; transition: none !important; }
+    .chrome, .progress { display: none !important; }
+    .chip .dot { animation: none; }
+    @page { size: 1280px 720px; margin: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 · HOOK -->
+  <section class="slide" data-time="0:00">
+    <div class="inner">
+      <div class="hero-logo st" data-st="1">
+        <div class="mark">
+          <svg width="30" height="30" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="20" r="12.5" stroke="#2A2008" stroke-width="3.4"/>
+            <path d="M24 32.5V42" stroke="#2A2008" stroke-width="3.4" stroke-linecap="round"/>
+            <circle cx="36.5" cy="9.5" r="4" fill="#2A2008"/>
+          </svg>
+        </div>
+        <div>
+          <div class="name">TT Coach AI</div>
+          <div class="tag">on-device · real-time · Android</div>
+        </div>
+      </div>
+      <h1 class="st" data-st="2">Тренер, що говорить<br/><span class="gold-i">у тебе у вусі.</span></h1>
+      <p class="lede st" data-st="3" style="margin-top:28px;">
+        AI-коуч із настільного тенісу, який стежить за кожним ударом і вголос
+        виправляє техніку в момент, коли помилка стається — а не після тренування.
+      </p>
+      <div class="st" data-st="4" style="margin-top:36px; display:flex; gap:12px; flex-wrap:wrap;">
+        <span class="chip"><span class="dot"></span>Live-коучинг · вже на Android</span>
+        <span class="chip" style="background:var(--card); border-color:var(--line); color:var(--text-2);">Пітч · 5 хвилин</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · PROBLEM -->
+  <section class="slide" data-time="0:30">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Проблема</div>
+      <h2 class="st" data-st="2">Гравці роками закріплюють помилки<br/>у м'язовій пам'яті.</h2>
+      <div class="grid g3 st" data-st="3" style="margin-top:44px;">
+        <div class="card">
+          <div class="tile" style="margin-bottom:16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E8817A" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </div>
+          <div class="cardtitle">Тренер — дорогий і рідкісний</div>
+          <p class="cardbody" style="margin-top:8px;">$40–80 за годину, кілька годин на тиждень. Решту часу гравець тренується наосліп.</p>
+        </div>
+        <div class="card">
+          <div class="tile" style="margin-bottom:16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9A25E" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 12h18" opacity=".5"/></svg>
+          </div>
+          <div class="cardtitle">Відео — вже після факту</div>
+          <p class="cardbody" style="margin-top:8px;">Запис показує помилку ввечері, коли вона вже вкотре відпрацьована. Дзеркало не бачить дрейф ліктя.</p>
+        </div>
+        <div class="card" style="border-color:var(--gold-border); background:var(--gold-container);">
+          <div class="tile goldbg" style="margin-bottom:16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9C46A" stroke-width="1.8" stroke-linecap="round"><path d="M4 19c3-9 5-13 8-13s5 4 8 13"/><path d="M9 13h6"/></svg>
+          </div>
+          <div class="cardtitle" style="color:var(--cream);">Результат</div>
+          <p class="cardbody" style="margin-top:8px; color:#D9CFB4;">Помилку виправляють на <b class="mono" style="color:var(--gold);">240-му</b> повторенні, а не на <b class="mono" style="color:var(--gold);">4-му</b>. Потім місяці на пере-навчання.</p>
+        </div>
+      </div>
+      <p class="bigline st" data-st="4" style="margin-top:40px; color:var(--text-2);">
+        Зворотний зв'язок існує. Він просто <span class="gold">запізнюється на 236 повторень.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- 3 · SOLUTION -->
+  <section class="slide" data-time="1:10">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Рішення</div>
+      <h2 class="st" data-st="2">Голос у вусі.<br/><span class="gold-i">В реальному часі.</span></h2>
+      <p class="lede st" data-st="3" style="margin-top:24px;">
+        Телефон на підставці збоку від столу. TT&nbsp;Coach&nbsp;AI відстежує позу гравця,
+        порівнює кожен удар з еталоном і озвучує одне конкретне виправлення —
+        тим самим повтором, коли помилка сталася.
+      </p>
+      <div class="grid g4 st" data-st="4" style="margin-top:48px;">
+        <div>
+          <div class="statnum g">17</div>
+          <div class="statlabel">Суглобів</div>
+          <div class="statsub">повне відстеження пози тіла</div>
+        </div>
+        <div>
+          <div class="statnum g">120</div>
+          <div class="statlabel">Кадрів/с</div>
+          <div class="statsub">жоден рух не губиться</div>
+        </div>
+        <div>
+          <div class="statnum g">0<span style="font-size:.55em;">мс</span></div>
+          <div class="statlabel">Затримка хмари</div>
+          <div class="statsub">все працює на пристрої</div>
+        </div>
+        <div>
+          <div class="statnum g">3–5<span style="font-size:.55em;">с</span></div>
+          <div class="statlabel">Каденція підказок</div>
+          <div class="statsub">одна порада за раз, без шуму</div>
+        </div>
+      </div>
+      <div class="quote-card st" data-st="5" style="margin-top:40px; display:flex; align-items:center; gap:14px;">
+        <div class="tile goldbg" style="width:38px;height:38px;border-radius:10px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E9C46A" stroke-width="1.9" stroke-linecap="round"><path d="M12 3a3 3 0 0 1 3 3v6a3 3 0 1 1-6 0V6a3 3 0 0 1 3-3Z"/><path d="M6 12a6 6 0 0 0 12 0M12 18v3"/></svg>
+        </div>
+        <span>«Тримай лікоть ближче до корпусу.» — <span style="color:var(--gold);">і ти чуєш це на 4-му повторі, а не на 240-му.</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · HOW IT WORKS -->
+  <section class="slide" data-time="1:50">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Як це працює</div>
+      <h2 class="st" data-st="2">Чотири кроки від <span style="color:var(--coral); font-style:italic; font-weight:400;">розчарування</span> до <span class="gold-i">результату</span>.</h2>
+      <div style="margin-top:40px;">
+        <div class="steprow st" data-st="2">
+          <div class="stepnum">01</div>
+          <div>
+            <div class="steptitle">Постав телефон збоку від столу</div>
+            <div class="stepbody">Будь-яка підставка, будь-який кут — модель знаходить гравця приблизно за три секунди.</div>
+          </div>
+        </div>
+        <div class="steprow st" data-st="3">
+          <div class="stepnum">02</div>
+          <div>
+            <div class="steptitle">Грай — ми стежимо за 17 суглобами, 120 разів на секунду</div>
+            <div class="stepbody">Механіка кожного удару порівнюється з еталоном: власним найкращим виконанням гравця, відкаліброваним за його персональним бейзлайном.</div>
+          </div>
+        </div>
+        <div class="steprow st" data-st="4">
+          <div class="stepnum">03</div>
+          <div>
+            <div class="steptitle">Слухай — голос повертає тебе на правильний шлях</div>
+            <div class="stepbody">Спокійний, енергійний або лише текст. Гравець сам налаштовує, наскільки «балакучий» тренер.</div>
+          </div>
+        </div>
+        <div class="steprow st" data-st="5">
+          <div class="stepnum">04</div>
+          <div>
+            <div class="steptitle">Аналізуй — після сесії видно, що саме змінилося</div>
+            <div class="stepbody">Одне, що спрацювало. Одне, на чому зосередитись наступного разу. Цифри по суглобах — для тих, хто хоче деталей.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · PRODUCT -->
+  <section class="slide" data-time="2:25">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Продукт</div>
+      <h2 class="st" data-st="2">Три інструменти — один кишеньковий тренер.</h2>
+      <div class="grid g3 st" data-st="3" style="margin-top:44px;">
+        <div class="card">
+          <span class="chip" style="margin-bottom:18px;"><span class="dot"></span>Наживо</span>
+          <div class="cardtitle" style="margin-top:2px;">Виявлення техніки</div>
+          <p class="cardbody" style="margin-top:10px;">Оцінка пози на пристрої помічає відхилення, яких не покаже дзеркало: дрейф ліктя, недостатній поворот стегон, кут ракетки — і каже, що виправити першим.</p>
+        </div>
+        <div class="card">
+          <span class="chip" style="margin-bottom:18px; background:var(--card-hi); border-color:var(--line-strong); color:var(--text-2);">Створи</span>
+          <div class="cardtitle" style="margin-top:2px;">Кастомні дрили</div>
+          <p class="cardbody" style="margin-top:10px;">Вправа, що рахує лише потрібні удари: обери удар, еталон і суворість тренера. Структуровані дрили — основа надійного розпізнавання.</p>
+        </div>
+        <div class="card">
+          <span class="chip" style="margin-bottom:18px; background:var(--card-hi); border-color:var(--line-strong); color:var(--text-2);">Огляд</span>
+          <div class="cardtitle" style="margin-top:2px;">Аналіз сесії</div>
+          <p class="cardbody" style="margin-top:10px;">Кожен повтор збережено. Таймлайн ударів, порівняння з власним рекордом і саме ті удари, які виділив тренер.</p>
+        </div>
+      </div>
+      <p class="lede st" data-st="4" style="margin-top:36px; font-size:16px;">
+        Без гейміфікації. Без серій і трофеїв. <span style="color:var(--text);">Лише те, чим гравець реально користується за столом.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- 6 · DIFFERENTIATION -->
+  <section class="slide" data-time="2:55">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Чому ми — і чому зараз</div>
+      <h2 class="st" data-st="2">Ми не перевчаємо гравця.<br/>Ми калібруємо під <span class="gold-i">його</span> техніку.</h2>
+      <div class="grid g3 st" data-st="3" style="margin-top:44px;">
+        <div class="card">
+          <div class="cardtitle gold" style="font-size:16px;">Персональний бейзлайн</div>
+          <p class="cardbody" style="margin-top:8px;">Еталон — не абстрактний «ідеал», а найкраще виконання самого гравця. App порівнює тебе з тобою — так, як це робить живий тренер.</p>
+        </div>
+        <div class="card">
+          <div class="cardtitle gold" style="font-size:16px;">100% on-device</div>
+          <p class="cardbody" style="margin-top:8px;">Нуль затримки, нуль відео в хмарі, працює без інтернету. Приватність — вбудована, а собівартість сесії — нульова.</p>
+        </div>
+        <div class="card">
+          <div class="cardtitle gold" style="font-size:16px;">Why now</div>
+          <p class="cardbody" style="margin-top:8px;">Mobile pose estimation лише щойно досягла real-time якості на звичайному телефоні. Вікно для категорії відкрилося.</p>
+        </div>
+      </div>
+      <div class="card st" data-st="4" style="margin-top:24px; display:flex; gap:18px; align-items:center; flex-wrap:wrap; background:var(--sink);">
+        <span class="mono" style="font:700 13px 'JetBrains Mono'; color:var(--gold); letter-spacing:.08em;">СУТЬ →</span>
+        <span class="cardbody">усі інші аналізують <i>після</i> тренування. Ніхто не говорить із гравцем <b style="color:var(--gold);">під час</b> удару.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · COMPETITORS -->
+  <section class="slide" data-time="3:05">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Конкуренти</div>
+      <h2 class="st" data-st="2">Категорія існує.<br/>Real-time нішу — <span class="gold-i">ніхто не зайняв.</span></h2>
+      <div class="card st" data-st="3" style="margin-top:40px; padding:0; overflow:hidden;">
+        <table style="width:100%; border-collapse:collapse; font:400 14px 'Inter Tight';">
+          <thead>
+            <tr style="background:var(--sink);">
+              <th style="text-align:left; padding:14px 20px; font:700 11px 'Inter Tight'; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);"></th>
+              <th style="text-align:center; padding:14px 16px; font:700 13px 'Inter Tight'; color:var(--gold); background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border);">TT Coach AI</th>
+              <th style="text-align:center; padding:14px 16px; font:600 12.5px 'Inter Tight'; color:var(--text-2);">Відео-аналіз апки<br/><span style="font:400 10.5px 'Inter Tight'; color:var(--faint);">SwingVision · Tennis AI · OnForm</span></th>
+              <th style="text-align:center; padding:14px 16px; font:600 12.5px 'Inter Tight'; color:var(--text-2);">Живий тренер</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:12px 20px; color:var(--text-2);">Виправлення <b style="color:var(--text);">під час</b> удару</td>
+              <td style="text-align:center; background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border);"><span style="color:var(--gold); font-weight:700;">✓ голосом</span></td>
+              <td style="text-align:center; color:var(--coral);">— після сесії</td>
+              <td style="text-align:center; color:var(--green);">✓</td>
+            </tr>
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:12px 20px; color:var(--text-2);">Доступний на кожному тренуванні</td>
+              <td style="text-align:center; background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border);"><span style="color:var(--gold); font-weight:700;">✓</span></td>
+              <td style="text-align:center; color:var(--green);">✓</td>
+              <td style="text-align:center; color:var(--coral);">— $40–80/год</td>
+            </tr>
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:12px 20px; color:var(--text-2);">Персональний еталон, не «ідеал»</td>
+              <td style="text-align:center; background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border);"><span style="color:var(--gold); font-weight:700;">✓ бейзлайн</span></td>
+              <td style="text-align:center; color:var(--coral);">— узагальнені рухи</td>
+              <td style="text-align:center; color:var(--green);">✓</td>
+            </tr>
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:12px 20px; color:var(--text-2);">On-device · без відео в хмарі</td>
+              <td style="text-align:center; background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border);"><span style="color:var(--gold); font-weight:700;">✓ 0 мс</span></td>
+              <td style="text-align:center; color:var(--coral);">— хмарна обробка</td>
+              <td style="text-align:center; color:var(--faint);">n/a</td>
+            </tr>
+            <tr style="border-top:1px solid var(--line);">
+              <td style="padding:12px 20px; color:var(--text-2);">Настільний теніс</td>
+              <td style="text-align:center; background:rgba(233,196,106,.06); border-left:1px solid var(--gold-border); border-right:1px solid var(--gold-border); border-bottom:1px solid var(--gold-border);"><span style="color:var(--gold); font-weight:700;">✓ перший фокус</span></td>
+              <td style="text-align:center; color:var(--coral);">— теніс / піклбол</td>
+              <td style="text-align:center; color:var(--green);">✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="src st" data-st="4" style="margin-top:16px;">
+        SwingVision, Tennis AI, Baseline Vision, OnForm — пост-фактум відео-статистика для великого тенісу/піклболу.
+        У настільному тенісі домінантного AI-коуча немає — ніша відкрита.
+      </p>
+    </div>
+  </section>
+
+  <!-- 8 · MARKET (USA) -->
+  <section class="slide" data-time="3:30">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Ринок · США</div>
+      <h2 class="st" data-st="2">Стабільна аудиторія.<br/>Категорія, що вибухає.</h2>
+      <div class="grid g2 st" data-st="3" style="margin-top:44px;">
+        <div class="card" style="padding:30px;">
+          <div class="statnum g">15.9<span style="font-size:.5em;">млн</span></div>
+          <div class="statlabel">Гравців у настільний теніс у США</div>
+          <div class="statsub">стабільно 15–16 млн щороку — сформована звичка, не мода</div>
+        </div>
+        <div class="card" style="padding:30px;">
+          <div class="statnum g">$1.5B <span style="color:var(--faint); font-size:.5em;">→</span> $11.2B</div>
+          <div class="statlabel">AI sports coaching apps · 2025 → 2036</div>
+          <div class="statsub">~20% CAGR — категорія росте на порядок за десятиліття</div>
+        </div>
+      </div>
+      <div class="card st" data-st="4" style="margin-top:24px; padding:28px;">
+        <div style="font:700 11px 'Inter Tight'; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px;">Проста математика клину</div>
+        <div class="wedge">
+          <div class="term"><div class="v">16M</div><div class="l">гравців США</div></div>
+          <div class="op">×</div>
+          <div class="term"><div class="v">1%</div><div class="l">проникнення</div></div>
+          <div class="op">×</div>
+          <div class="term"><div class="v">$60</div><div class="l">на рік</div></div>
+          <div class="op">=</div>
+          <div class="term res"><div class="v">~$9.6M</div><div class="l">ARR лише у США</div></div>
+        </div>
+      </div>
+      <p class="src st" data-st="5" style="margin-top:18px;">
+        Джерела: Statista — Table tennis participation, USA (2025) · Fact.MR — AI Sports Coaching Apps Market (2025–2036).
+        Настільний теніс — перший клин; та сама технологія покриває теніс, бадмінтон, падел.
+      </p>
+    </div>
+  </section>
+
+  <!-- 8 · BUSINESS MODEL -->
+  <section class="slide" data-time="3:55">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Бізнес-модель · B2C</div>
+      <h2 class="st" data-st="2">Підписка, що коштує менше,<br/>ніж <span class="gold-i">15 хвилин</span> живого тренера.</h2>
+      <div class="grid g3 st" data-st="3" style="margin-top:44px;">
+        <div class="card">
+          <div class="statnum" style="font-size:clamp(28px,3vw,42px);">14 днів</div>
+          <div class="statlabel">Безкоштовно</div>
+          <div class="statsub">повний доступ, без картки — гравець чує цінність у першій сесії</div>
+        </div>
+        <div class="card" style="border-color:var(--gold-border);">
+          <div class="statnum g" style="font-size:clamp(28px,3vw,42px);">$8–10<span style="font-size:.5em;">/міс</span></div>
+          <div class="statlabel">Підписка <span class="ph" style="margin-left:6px;">ціна тестується</span></div>
+          <div class="statsub">одна година тренера = 6–8 місяців TT Coach AI</div>
+        </div>
+        <div class="card">
+          <div class="statnum" style="font-size:clamp(28px,3vw,42px);">~0<span style="font-size:.5em;">$</span></div>
+          <div class="statlabel">Собівартість сесії</div>
+          <div class="statsub">on-device inference — без GPU-хмари, маржа підписки ~повна</div>
+        </div>
+      </div>
+      <p class="bigline st" data-st="4" style="margin-top:40px; color:var(--text-2);">
+        Гравець платить за те, що чує різницю <span class="gold">кожного тренування</span> — не за звіт раз на місяць.
+      </p>
+    </div>
+  </section>
+
+  <!-- 9b · UNIT ECONOMICS -->
+  <section class="slide" data-time="4:05">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Юніт-економіка <span class="ph" style="margin-left:10px;">модельні припущення</span></div>
+      <h2 class="st" data-st="2">On-device робить економіку <span class="gold-i">жирною</span> з першого клієнта.</h2>
+      <div class="card st" data-st="3" style="margin-top:40px; padding:28px;">
+        <div style="font:700 11px 'Inter Tight'; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px;">Один підписник</div>
+        <div class="wedge">
+          <div class="term"><div class="v">$8</div><div class="l">ARPU / міс</div></div>
+          <div class="op">×</div>
+          <div class="term"><div class="v">9</div><div class="l">міс лайфтайм (~11% churn —<br/>медіана consumer-підписок)</div></div>
+          <div class="op">×</div>
+          <div class="term"><div class="v">80%</div><div class="l">маржа (store 15%<br/>+ AI-звіти ~5%)</div></div>
+          <div class="op">=</div>
+          <div class="term res"><div class="v">~$58</div><div class="l">LTV</div></div>
+        </div>
+      </div>
+      <div class="grid g3 st" data-st="4" style="margin-top:20px;">
+        <div class="card">
+          <div class="statnum" style="font-size:clamp(26px,2.8vw,38px);">$70 <span style="font-size:.5em; color:var(--muted);">→</span> ~$40</div>
+          <div class="statlabel">CAC · paid → blended</div>
+          <div class="statsub">чистий paid у США дорогий; blended тягнуть вниз клуби, тренери-амбасадори та контент техніки (TikTok/YT)</div>
+        </div>
+        <div class="card" style="border-color:var(--gold-border);">
+          <div class="statnum g" style="font-size:clamp(26px,2.8vw,38px);">~1.5×<span style="font-size:.5em; color:var(--muted);"> → 3×</span></div>
+          <div class="statlabel">LTV : CAC</div>
+          <div class="statsub">консервативна база; до 3× ведуть річні плани (лайфтайм ↑) і 50%+ органіки (CAC ↓)</div>
+        </div>
+        <div class="card">
+          <div class="statnum" style="font-size:clamp(26px,2.8vw,38px);">~6 <span style="font-size:.55em;">міс</span></div>
+          <div class="statlabel">Payback · blended</div>
+          <div class="statsub">на чистому paid — ~11 міс: тому канал №1 — спільнота, не закупівля трафіку</div>
+        </div>
+      </div>
+      <p class="bigline st" data-st="5" style="margin-top:32px; color:var(--text-2); font-size:clamp(18px,2vw,26px);">
+        Live-коучинг — on-device, <span class="gold">$0/сесія.</span> Хмарний AI-аналіз після гри — <span class="gold">центи за звіт:</span> у хмару йдуть кути й метрики, не відео.
+      </p>
+    </div>
+  </section>
+
+  <!-- 10 · ROADMAP -->
+  <section class="slide" data-time="4:25">
+    <div class="inner">
+      <div class="eyebrow st" data-st="1">Дорожня карта</div>
+      <h2 class="st" data-st="2">Один удар → всі удари → <span class="gold-i">всі ракетки.</span></h2>
+      <div class="grid g3" style="margin-top:48px;">
+        <div class="roadcol now st" data-st="2">
+          <div class="roadphase">Зараз</div>
+          <div class="roaditem"><b>Android</b> — live-коучинг</div>
+          <div class="roaditem"><b>Форхенд-драйв</b> — перший структурований дрил</div>
+          <div class="roaditem">Персональний бейзлайн і калібрування</div>
+          <div class="roaditem">Українська + англійська озвучка</div>
+        </div>
+        <div class="roadcol st" data-st="3">
+          <div class="roadphase">6–12 місяців</div>
+          <div class="roaditem"><b>iOS</b> — спільне KMP-ядро вже готове</div>
+          <div class="roaditem">Бібліотека ударів: бекхенд, топспін, подача</div>
+          <div class="roaditem">Спільнота дрилів — гравці діляться вправами</div>
+        </div>
+        <div class="roadcol st" data-st="4">
+          <div class="roadphase">Візія</div>
+          <div class="roaditem"><b>Кишеньковий тренер</b> для кожного ракеточного спорту</div>
+          <div class="roaditem">Теніс · бадмінтон · падел — та сама pose-технологія</div>
+          <div class="roaditem">Еталони від професійних тренерів</div>
+        </div>
+      </div>
+      <div class="card st" data-st="5" style="margin-top:36px; background:var(--sink); display:flex; align-items:center; gap:14px;">
+        <span class="mono" style="font:700 13px 'JetBrains Mono'; color:var(--gold);">TECH →</span>
+        <span class="cardbody">ядро аналізу — спільний Kotlin Multiplatform модуль із нульовими залежностями: один код техніки для Android та iOS.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · ASK -->
+  <section class="slide" data-time="4:45">
+    <div class="inner" style="text-align:center; max-width:860px;">
+      <div class="eyebrow st" data-st="1" style="justify-content:center;">Ask</div>
+      <h1 class="st" data-st="2" style="font-size:clamp(36px,4.8vw,64px);">Досить гадати,<br/>що пішло не так.</h1>
+      <p class="lede st" data-st="3" style="margin:28px auto 0;">
+        Шукаємо <span class="ph">$ СУМА</span> на <span class="ph">N місяців</span>:
+        запуск iOS, розширення бібліотеки ударів і перші платні когорти у США.
+      </p>
+      <div class="st" data-st="4" style="margin-top:44px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+        <span style="display:inline-flex; align-items:center; gap:10px; background:var(--gold); color:var(--on-gold); font:700 15px 'Inter Tight'; border-radius:12px; padding:15px 26px; box-shadow:0 10px 26px -6px rgba(233,196,106,.45);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2A2008" stroke-width="2.2" stroke-linecap="round"><path d="M4 12h16M13 5l7 7-7 7"/></svg>
+          Демо — просто зараз, за столом
+        </span>
+        <span style="display:inline-flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--line); color:var(--text-2); font:600 15px 'Inter Tight'; border-radius:12px; padding:15px 26px;">
+          Іван Цуркан · <span class="mono" style="font-size:13px;">itsurkan.1@gmail.com</span>
+        </span>
+      </div>
+      <p class="st" data-st="5" style="margin-top:48px; font:500 13px 'JetBrains Mono', monospace; color:var(--faint); letter-spacing:.08em;">
+        TT COACH AI · ВИПРАВ ЛІКОТЬ.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<!-- chrome -->
+<div class="chrome">
+  <div class="brandmark">
+    <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><rect width="48" height="48" rx="12" fill="#141820"/><circle cx="24" cy="20" r="11" stroke="#E9C46A" stroke-width="3"/><path d="M24 31v9" stroke="#E9C46A" stroke-width="3" stroke-linecap="round"/></svg>
+    TT Coach AI
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="counter">
+    <span class="timehint mono" id="timehint">0:00</span>
+    <span id="counter">1 / 10</span>
+    <span class="keys"><kbd>←</kbd> <kbd>→</kbd></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsBox = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const timehint = document.getElementById('timehint');
+  const progress = document.getElementById('progress');
+  let cur = 0;
+
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', 'Слайд ' + (i + 1));
+    b.addEventListener('click', () => go(i));
+    dotsBox.appendChild(b);
+  });
+  const dots = Array.from(dotsBox.children);
+
+  function go(n) {
+    n = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, i) => {
+      s.classList.toggle('active', i === n);
+      s.classList.toggle('prev', i < n);
+    });
+    dots.forEach((d, i) => d.classList.toggle('on', i === n));
+    counter.textContent = (n + 1) + ' / ' + slides.length;
+    timehint.textContent = slides[n].dataset.time || '';
+    progress.style.width = ((n + 1) / slides.length * 100) + '%';
+    cur = n;
+    try { history.replaceState(null, '', '#' + (n + 1)); } catch (e) {}
+  }
+
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(cur + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(cur - 1); }
+    else if (e.key === 'Home') { go(0); }
+    else if (e.key === 'End') { go(slides.length - 1); }
+    else if (e.key === 'f' || e.key === 'F') {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen().catch(() => {});
+    }
+  });
+
+  // click / tap navigation: right two-thirds forward, left third back
+  document.getElementById('deck').addEventListener('click', (e) => {
+    if (e.target.closest('a, button')) return;
+    const x = e.clientX / innerWidth;
+    go(x < 0.33 ? cur - 1 : cur + 1);
+  });
+
+  // swipe
+  let tx = null;
+  addEventListener('touchstart', (e) => { tx = e.touches[0].clientX; }, { passive: true });
+  addEventListener('touchend', (e) => {
+    if (tx == null) return;
+    const dx = e.changedTouches[0].clientX - tx;
+    if (Math.abs(dx) > 50) go(cur + (dx < 0 ? 1 : -1));
+    tx = null;
+  }, { passive: true });
+
+  const h = parseInt((location.hash || '').slice(1), 10);
+  go(isNaN(h) ? 0 : h - 1);
+})();
+</script>
+
+</body>
+</html>
