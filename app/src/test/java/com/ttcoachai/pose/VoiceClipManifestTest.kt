@@ -3,7 +3,14 @@ package com.ttcoachai.pose
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+// Robolectric so android.util.Log (hit on the parse() error paths) is shadowed
+// rather than throwing "not mocked" — same pattern as the other app unit tests.
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest = Config.NONE)
 class VoiceClipManifestTest {
 
     private val sampleJson = """
