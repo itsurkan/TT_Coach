@@ -52,3 +52,6 @@ Videos/**/*_pose3d_lift*.json
 # Claude local settings & runtime locks
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# wireless adb endpoint cache for run_on_phone.sh
+.last_wireless_device
