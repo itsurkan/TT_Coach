@@ -74,6 +74,24 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             }
         }
         
+        val targetsJson = intent.getStringExtra("PER_PHASE_TARGETS_JSON").orEmpty()
+        if (targetsJson.isNotBlank()) {
+            runCatching { org.json.JSONObject(targetsJson) }.getOrNull()?.let { json ->
+                json.optJSONArray("knees · backswing")?.takeIf { it.length() >= 2 }?.let {
+                    exerciseParameters = exerciseParameters.copy(
+                        kneeBendBackswingMin = it.optInt(0).toFloat(),
+                        kneeBendBackswingMax = it.optInt(1).toFloat()
+                    )
+                }
+                json.optJSONArray("knees · strike")?.takeIf { it.length() >= 2 }?.let {
+                    exerciseParameters = exerciseParameters.copy(
+                        kneeBendStrikeMin = it.optInt(0).toFloat(),
+                        kneeBendStrikeMax = it.optInt(1).toFloat()
+                    )
+                }
+            }
+        }
+
         poseAnalysisProcessor = PoseAnalysisProcessor(
             application as TTCoachApplication,
             MotionAnalyzer(exerciseParameters),

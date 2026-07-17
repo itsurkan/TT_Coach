@@ -390,6 +390,21 @@ class DrillsFragment : Fragment() {
             return
         }
 
+        if (exercise.id.startsWith(CUSTOM_DRILL_PREFIX)) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val entity = withContext(Dispatchers.IO) { customDrillRepo.get(exercise.id) }
+                if (_binding == null) return@launch
+                val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
+                    putExtra("EXERCISE_ID", exercise.id)
+                    putExtra("EXERCISE_NAME", exercise.name)
+                    putExtra("USE_VIDEO", exercise.useVideo)
+                    putExtra("PER_PHASE_TARGETS_JSON", entity?.perPhaseTargetsJson ?: "")
+                }
+                startActivity(intent)
+            }
+            return
+        }
+
         val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
             putExtra("EXERCISE_ID", exercise.id)
             putExtra("EXERCISE_NAME", exercise.name)
