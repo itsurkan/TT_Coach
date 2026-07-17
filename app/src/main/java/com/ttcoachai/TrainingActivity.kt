@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.db.AppDatabase
@@ -14,6 +15,7 @@ import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -129,6 +131,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     PersonalBaselineRepository(AppDatabase.getDatabase(this@TrainingActivity).personalBaselineDao())
                         .getActiveBaseline("forehand_drive_rtm")
                         .first()
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to load RTMPose baseline", e)
                     null
@@ -136,6 +140,12 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             } else {
                 null
             }
+
+            // Coroutine resumed after the suspend point above (baseline read) — if the
+            // activity has since dropped below STARTED (e.g. backgrounded), any fragment
+            // transaction below would throw "Can not perform this action after
+            // onSaveInstanceState". Bail out before touching the fragment manager or views.
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
 
             if (baseline != null) {
                 mediaManager.setup(skipCamera = true)
