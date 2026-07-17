@@ -88,6 +88,7 @@ class TrainingUIController(
             binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
             binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
             binding.drillMenu.chipSpeed to CorrectionType.STROKE_SPEED,
+            binding.drillMenu.chipKneeBend to CorrectionType.KNEE_BEND,
         )
         correctionChips.forEach { (chip, type) ->
             chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)

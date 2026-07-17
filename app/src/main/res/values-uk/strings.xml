@@ -681,6 +681,7 @@
     <string name="correction_rotation">Ротація корпусу</string>
     <string name="correction_elbow">Позиція ліктя</string>
     <string name="correction_speed">Швидкість удару</string>
+    <string name="correction_knee_bend">Згин колін</string>
 
     <string name="detection_title">Виявлення</string>
     <string name="detection_subtitle">Розширені — як розпізнаються удари</string>
@@ -815,6 +816,7 @@
     <string name="focus_contact_height">Висота контакту</string>
     <string name="focus_elbow_position">Положення ліктя</string>
     <string name="focus_stroke_speed">Швидкість удару</string>
+    <string name="focus_knee_bend">Згин колін</string>
     <string name="focus_general">Загальна техніка</string>
 
     <!-- Session History (Slice 3) -->
@@ -855,6 +857,7 @@
     <string name="live_fb_elbow_position">Положення ліктя</string>
     <string name="live_fb_stroke_speed">Швидкість удару</string>
     <string name="live_fb_follow_through">Проводка</string>
+    <string name="live_fb_knee_bend">Згин колін</string>
     <string name="live_fb_general">Техніка</string>
     <string name="feedback_explanation_sheet_title">Чому це позначено?</string>
     <string name="feedback_explanation_what_it_checks">Що перевіряється</string>

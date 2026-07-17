@@ -71,6 +71,7 @@ class FeedbackFragment : Fragment() {
             R.id.chip_contact_height to CorrectionType.CONTACT_HEIGHT,
             R.id.chip_elbow to CorrectionType.ELBOW_POSITION,
             R.id.chip_speed to CorrectionType.STROKE_SPEED,
+            R.id.chip_knee_bend to CorrectionType.KNEE_BEND,
         )
         correctionChips.forEach { (chipId, type) ->
             val chip = binding.root.findViewById<com.google.android.material.chip.Chip>(chipId)

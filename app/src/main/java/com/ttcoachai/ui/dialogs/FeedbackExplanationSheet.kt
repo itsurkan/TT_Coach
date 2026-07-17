@@ -185,7 +185,8 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
             CorrectionType.WRIST,
             CorrectionType.CONTACT_HEIGHT,
             CorrectionType.ELBOW_POSITION,
-            CorrectionType.BODY_ROTATION -> R.string.feedback_snapshot_caption_rep_contact
+            CorrectionType.BODY_ROTATION,
+            CorrectionType.KNEE_BEND -> R.string.feedback_snapshot_caption_rep_contact
             CorrectionType.FOLLOW_THROUGH -> R.string.feedback_snapshot_caption_rep_follow
             else -> R.string.feedback_snapshot_caption_rep
         }
