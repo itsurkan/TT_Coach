@@ -96,6 +96,7 @@ class SessionAnalyticsBuilderTest {
     fun displayNameKey_mapsAllTypes() {
         assertEquals("focus_wrist", SessionAnalyticsBuilder.displayNameKey(CorrectionType.WRIST))
         assertEquals("focus_body_rotation", SessionAnalyticsBuilder.displayNameKey(CorrectionType.BODY_ROTATION))
+        assertEquals("focus_knee_bend", SessionAnalyticsBuilder.displayNameKey(CorrectionType.KNEE_BEND))
         assertEquals("focus_general", SessionAnalyticsBuilder.displayNameKey(CorrectionType.GENERAL))
     }
 }

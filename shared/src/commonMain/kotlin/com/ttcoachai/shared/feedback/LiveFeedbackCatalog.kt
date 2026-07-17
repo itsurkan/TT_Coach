@@ -40,6 +40,8 @@ object LiveFeedbackCatalog {
         "error_elbow_close" to ShortFull("Elbow looser", "Elbow pressed to body - keep it looser"),
         "error_slow_stroke" to ShortFull("Faster", "Stroke too slow - add speed"),
         "error_fast_stroke" to ShortFull("Slower", "Stroke too fast - control speed"),
+        "error_straight_legs" to ShortFull("Bend your knees", "Legs straighter than ideal - bend the knees more"),
+        "error_legs_too_bent" to ShortFull("Rise a little", "Knees more bent than ideal - rise a little"),
 
         "rec_straighten_wrist" to ShortFull("Wrist straight", "Keep wrist straight during stroke"),
         "rec_rotate_more" to ShortFull("Body rotation", "More body rotation for power"),
@@ -48,7 +50,9 @@ object LiveFeedbackCatalog {
         "rec_keep_elbow_close" to ShortFull("Elbow close", "Keep elbow close to body"),
         "rec_move_elbow_away" to ShortFull("Release elbow", "Don't press your elbow too tightly"),
         "rec_increase_speed" to ShortFull("More speed", "Add speed for efficiency"),
-        "rec_control_speed" to ShortFull("Less speed", "Reduce speed for better control")
+        "rec_control_speed" to ShortFull("Less speed", "Reduce speed for better control"),
+        "rec_bend_knees" to ShortFull("Stay down", "Stay in a slightly crouched stance, knees bent"),
+        "rec_rise_stance" to ShortFull("Stand taller", "Don't crouch too low - rise slightly")
     )
 
     private val UA: Map<String, ShortFull> = mapOf(
@@ -61,6 +65,8 @@ object LiveFeedbackCatalog {
         "error_elbow_close" to ShortFull("Лікоть вільніше", "Лікоть притиснутий до тіла - тримайте його вільніше"),
         "error_slow_stroke" to ShortFull("Швидше", "Занадто повільний удар - додайте швидкості"),
         "error_fast_stroke" to ShortFull("Повільніше", "Занадто швидкий удар - контролюйте швидкість"),
+        "error_straight_legs" to ShortFull("Зігни коліна", "Ноги пряміші за ідеал - зігни коліна більше"),
+        "error_legs_too_bent" to ShortFull("Підведись трохи", "Коліна зігнуті більше за ідеал - підведись трохи"),
 
         "rec_straighten_wrist" to ShortFull("Зап’ястя рівно", "Тримайте зап’ястя рівно під час удару"),
         "rec_rotate_more" to ShortFull("Ротація корпусу", "Більше ротації корпусу для потужності"),
@@ -69,7 +75,9 @@ object LiveFeedbackCatalog {
         "rec_keep_elbow_close" to ShortFull("Лікоть близько", "Тримайте лікоть близько до тіла"),
         "rec_move_elbow_away" to ShortFull("Відпустіть лікоть", "Не притискайте лікоть занадто сильно"),
         "rec_increase_speed" to ShortFull("Більше швидкості", "Додайте швидкості для ефективності"),
-        "rec_control_speed" to ShortFull("Менше швидкості", "Зменшіть швидкість для кращого контролю")
+        "rec_control_speed" to ShortFull("Менше швидкості", "Зменшіть швидкість для кращого контролю"),
+        "rec_bend_knees" to ShortFull("Тримай присід", "Тримай стійку з трохи зігнутими колінами"),
+        "rec_rise_stance" to ShortFull("Стань вище", "Не присідай занадто низько - трохи випрямись")
     )
 
     /**

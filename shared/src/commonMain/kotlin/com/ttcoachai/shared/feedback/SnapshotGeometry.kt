@@ -36,6 +36,10 @@ object SnapshotGeometry {
     private const val HIP_R = 24
     private const val HIP_L = 23
 
+    // Standard MediaPipe pose indices: 26 = right knee, 28 = right ankle
+    private const val KNEE_R = 26
+    private const val ANKLE_R = 28
+
     /**
      * 2D-projected angle in degrees at [vertex] between rays to [a] and [b] (x,y only, ignores z).
      * Null if any of the three landmarks is missing (index out of bounds) or has
@@ -121,6 +125,12 @@ object SnapshotGeometry {
             jointTriple = null,
             highlightJoints = listOf(WRIST),
             showArc = false
+        )
+
+        CorrectionType.KNEE_BEND -> SnapshotHighlight(
+            jointTriple = Triple(HIP_R, KNEE_R, ANKLE_R),
+            highlightJoints = listOf(HIP_R, KNEE_R, ANKLE_R),
+            showArc = true
         )
 
         CorrectionType.GENERAL -> SnapshotHighlight(

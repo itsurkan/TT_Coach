@@ -211,6 +211,7 @@ class StrokeSnapshotSelectorTest {
             CorrectionType.WRIST,
             CorrectionType.CONTACT_HEIGHT,
             CorrectionType.ELBOW_POSITION,
+            CorrectionType.KNEE_BEND,
             CorrectionType.BODY_ROTATION
         )) {
             assertEquals(contact, StrokeSnapshotSelector.snapshotFrameFor(type, frames), "type=$type")

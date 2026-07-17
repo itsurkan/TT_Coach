@@ -96,6 +96,7 @@ object SessionAnalyticsBuilder {
         CorrectionType.CONTACT_HEIGHT -> "focus_contact_height"
         CorrectionType.ELBOW_POSITION -> "focus_elbow_position"
         CorrectionType.STROKE_SPEED -> "focus_stroke_speed"
+        CorrectionType.KNEE_BEND -> "focus_knee_bend"
         CorrectionType.GENERAL -> "focus_general"
     }
 
@@ -107,6 +108,7 @@ object SessionAnalyticsBuilder {
         CorrectionType.CONTACT_HEIGHT -> "contact height"
         CorrectionType.ELBOW_POSITION -> "elbow position"
         CorrectionType.STROKE_SPEED -> "stroke speed"
+        CorrectionType.KNEE_BEND -> "knee bend"
         CorrectionType.GENERAL -> "general technique"
     }
 }

@@ -146,6 +146,14 @@ class SnapshotGeometryTest {
     }
 
     @Test
+    fun highlightFor_kneeBend_hasArcAtHipKneeAnkleTriple() {
+        val highlight = SnapshotGeometry.highlightFor(CorrectionType.KNEE_BEND)
+        assertTrue(highlight.showArc)
+        assertEquals(Triple(24, 26, 28), highlight.jointTriple)
+        assertTrue(highlight.highlightJoints.containsAll(listOf(24, 26, 28)))
+    }
+
+    @Test
     fun highlightFor_general_noArc_emptyHighlights() {
         val highlight = SnapshotGeometry.highlightFor(CorrectionType.GENERAL)
         assertEquals(false, highlight.showArc)
@@ -154,9 +162,12 @@ class SnapshotGeometryTest {
     }
 
     @Test
-    fun highlightFor_onlyWristAndFollowThroughShowArc() {
+    fun highlightFor_onlyWristFollowThroughAndKneeBendShowArc() {
         val arcTypes = CorrectionType.entries.filter { SnapshotGeometry.highlightFor(it).showArc }
-        assertEquals(setOf(CorrectionType.WRIST, CorrectionType.FOLLOW_THROUGH), arcTypes.toSet())
+        assertEquals(
+            setOf(CorrectionType.WRIST, CorrectionType.FOLLOW_THROUGH, CorrectionType.KNEE_BEND),
+            arcTypes.toSet()
+        )
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -116,6 +116,20 @@ object FeedbackExplanationCatalog {
                 howToFix = "Тримай темп, як у твоїх найкращих повторах: не прискорюй удар заради додаткової сили і не гальмуй його з обережності — плавний, впевнений рух у власному темпі легше контролювати."
             )
         ),
+        CorrectionType.KNEE_BEND to mapOf(
+            FeedbackLang.EN to FeedbackExplanation(
+                title = "Knee Bend",
+                whatItChecks = "How bent your knees are (the hip-knee-ankle angle) during the backswing and the strike, i.e. whether you stay in a loaded, slightly crouched stance instead of standing up straight.",
+                whyItMatters = "Bent knees are where balance and leg drive come from — standing tall kills power transfer and makes it much harder to recover quickly between shots.",
+                howToFix = "Stay low in an athletic ready stance with knees softly bent and weight on the balls of your feet, and keep that bend through the stroke instead of straightening up into contact."
+            ),
+            FeedbackLang.UA to FeedbackExplanation(
+                title = "Згин колін",
+                whatItChecks = "Наскільки зігнуті твої коліна (кут стегно-коліно-гомілка) під час замаху й удару, тобто чи тримаєшся ти в завантаженій, трохи присадкуватій стійці, замість того щоб стояти прямо.",
+                whyItMatters = "Саме зігнуті коліна дають баланс і силу ніг — рівна стійка вбиває передачу сили в удар і сильно ускладнює швидке відновлення між ударами.",
+                howToFix = "Тримайся низько в атлетичній готовій стійці з м'яко зігнутими колінами й вагою на передній частині стоп, і зберігай цей згин протягом усього удару, замість того щоб випрямлятись у момент контакту."
+            )
+        ),
         CorrectionType.GENERAL to mapOf(
             FeedbackLang.EN to FeedbackExplanation(
                 title = "Technique",

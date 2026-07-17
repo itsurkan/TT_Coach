@@ -3,7 +3,9 @@ package com.ttcoachai.shared.feedback
 import com.ttcoachai.shared.drill.FeedbackLang
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class LiveFeedbackCatalogTest {
 
@@ -43,6 +45,54 @@ class LiveFeedbackCatalogTest {
             "Тримайте зап’ястя рівно під час удару",
             LiveFeedbackCatalog.resolve("rec_straighten_wrist", short = false, lang = FeedbackLang.UA)
         )
+    }
+
+    @Test
+    fun resolveKneeBendKeysMatchBothLanguages() {
+        val keys = listOf("error_straight_legs", "error_legs_too_bent", "rec_bend_knees", "rec_rise_stance")
+        for (key in keys) {
+            val enShort = LiveFeedbackCatalog.resolve(key, short = true, lang = FeedbackLang.EN)
+            val enFull = LiveFeedbackCatalog.resolve(key, short = false, lang = FeedbackLang.EN)
+            val uaShort = LiveFeedbackCatalog.resolve(key, short = true, lang = FeedbackLang.UA)
+            val uaFull = LiveFeedbackCatalog.resolve(key, short = false, lang = FeedbackLang.UA)
+
+            assertTrue(!enShort.isNullOrBlank(), "$key EN short must resolve")
+            assertTrue(!enFull.isNullOrBlank(), "$key EN full must resolve")
+            assertTrue(!uaShort.isNullOrBlank(), "$key UA short must resolve")
+            assertTrue(!uaFull.isNullOrBlank(), "$key UA full must resolve")
+        }
+
+        assertEquals("Bend your knees", LiveFeedbackCatalog.resolve("error_straight_legs", short = true, lang = FeedbackLang.EN))
+        assertEquals(
+            "Legs straighter than ideal - bend the knees more",
+            LiveFeedbackCatalog.resolve("error_straight_legs", short = false, lang = FeedbackLang.EN)
+        )
+        assertEquals("Rise a little", LiveFeedbackCatalog.resolve("error_legs_too_bent", short = true, lang = FeedbackLang.EN))
+        assertEquals("Stay down", LiveFeedbackCatalog.resolve("rec_bend_knees", short = true, lang = FeedbackLang.EN))
+        assertEquals("Stand taller", LiveFeedbackCatalog.resolve("rec_rise_stance", short = true, lang = FeedbackLang.EN))
+
+        assertEquals("Зігни коліна", LiveFeedbackCatalog.resolve("error_straight_legs", short = true, lang = FeedbackLang.UA))
+        assertEquals(
+            "Ноги пряміші за ідеал - зігни коліна більше",
+            LiveFeedbackCatalog.resolve("error_straight_legs", short = false, lang = FeedbackLang.UA)
+        )
+        assertEquals("Підведись трохи", LiveFeedbackCatalog.resolve("error_legs_too_bent", short = true, lang = FeedbackLang.UA))
+        assertEquals("Тримай присід", LiveFeedbackCatalog.resolve("rec_bend_knees", short = true, lang = FeedbackLang.UA))
+        assertEquals("Стань вище", LiveFeedbackCatalog.resolve("rec_rise_stance", short = true, lang = FeedbackLang.UA))
+
+        // Confirm UA is an actual translation, not an EN fallback.
+        for (key in listOf("error_straight_legs", "error_legs_too_bent")) {
+            assertNotEquals(
+                LiveFeedbackCatalog.resolve(key, short = true, lang = FeedbackLang.EN),
+                LiveFeedbackCatalog.resolve(key, short = true, lang = FeedbackLang.UA),
+                "$key short should differ between EN and UA"
+            )
+            assertNotEquals(
+                LiveFeedbackCatalog.resolve(key, short = false, lang = FeedbackLang.EN),
+                LiveFeedbackCatalog.resolve(key, short = false, lang = FeedbackLang.UA),
+                "$key full should differ between EN and UA"
+            )
+        }
     }
 
     @Test
