@@ -56,6 +56,7 @@ class GalleryMediaProcessor(
         minPosePresenceConfidence: Float,
         currentDelegate: Int
     ) {
+        shutdownPreviousRun()
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
 
         val bitmap = loadBitmapFromUri(uri) ?: run {
@@ -95,6 +96,7 @@ class GalleryMediaProcessor(
         minPosePresenceConfidence: Float,
         currentDelegate: Int
     ) {
+        shutdownPreviousRun()
         backgroundExecutor = Executors.newSingleThreadScheduledExecutor()
 
         backgroundExecutor.execute {
@@ -176,6 +178,20 @@ class GalleryMediaProcessor(
      * Shutdown executor
      */
     fun shutdown() {
+        if (::backgroundExecutor.isInitialized && !backgroundExecutor.isShutdown) {
+            backgroundExecutor.shutdown()
+        }
+    }
+
+    /**
+     * Shuts down the previous [processImage]/[processVideo] executor before a new pick
+     * reassigns [backgroundExecutor]. Without this, each gallery pick leaks the prior
+     * single-thread executor (only [shutdown] from [GalleryFragment.onPause] ever stopped it).
+     * The helper itself is NOT cleared here: shutdown() lets an in-flight task finish, and
+     * that task releases its own [poseLandmarkerHelper] at the end — clearing it from this
+     * thread could close the landmarker mid-detection.
+     */
+    private fun shutdownPreviousRun() {
         if (::backgroundExecutor.isInitialized && !backgroundExecutor.isShutdown) {
             backgroundExecutor.shutdown()
         }

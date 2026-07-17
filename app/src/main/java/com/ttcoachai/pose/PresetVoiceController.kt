@@ -51,15 +51,16 @@ class PresetVoiceController(
     private var muted: Boolean = false
     private var utteranceCounter: Long = 0
 
-    private var manifest: VoiceClipManifest? = null
-    private var manifestLoaded: Boolean = false
+    @Volatile private var manifest: VoiceClipManifest? = null
     private var clipPlayer: MediaPlayer? = null
 
     /**
      * Creates the TextToSpeech engine and resolves the locale via [DrillTtsLocale]
      * (same pattern as [DrillTtsController.init]). Never throws. The clip manifest
-     * is intentionally NOT loaded here — it's loaded lazily on first [speak] so
-     * init() stays cheap on the camera-setup path.
+     * is preloaded here on a plain background thread (asset read is blocking I/O)
+     * so init() itself stays cheap and [speak] never blocks the UI thread on the
+     * manifest read; [manifest] is `@Volatile` so the background write is visible
+     * to later reads on the UI thread without extra handoff.
      */
     fun init() {
         tts = TextToSpeech(context) { status ->
@@ -82,6 +83,7 @@ class PresetVoiceController(
                 speechAvailable = false
             }
         }
+        Thread({ manifest = VoiceClipManifest.load(context, styleId) }, "PresetVoiceManifestLoad").start()
     }
 
     /**
@@ -98,8 +100,6 @@ class PresetVoiceController(
         onScreen(feedback.message)
 
         if (muted) return
-
-        ensureManifestLoaded()
 
         val cue = feedback.cue
         val phrase = if (cue != null) {
@@ -119,26 +119,25 @@ class PresetVoiceController(
         speakTts(phrase ?: feedback.message)
     }
 
-    private fun ensureManifestLoaded() {
-        if (manifestLoaded) return
-        manifestLoaded = true
-        manifest = VoiceClipManifest.load(context, styleId)
-    }
-
     /**
      * Plays [entry] from assets. Barge-in: stops/releases any in-flight clip AND
      * cancels any pending/speaking TTS first (mirrors `cancelPlayback()` stopping
-     * both channels before dispatching the next item). Returns true if playback
-     * started successfully.
+     * both channels before dispatching the next item). Playback is prepared
+     * asynchronously ([MediaPlayer.prepareAsync] + [MediaPlayer.setOnPreparedListener])
+     * so this call never blocks the UI thread; returns true if the clip was
+     * successfully handed to the player to prepare (not whether playback has
+     * actually started yet — that happens later, off this call, on the prepared
+     * listener).
      */
     private fun playClip(manifest: VoiceClipManifest, entry: VoiceClipManifest.Entry): Boolean {
         stopClip()
         stopTts()
 
         var afd: AssetFileDescriptor? = null
+        var player: MediaPlayer? = null
         return try {
             afd = context.assets.openFd(manifest.assetPath(entry))
-            val player = MediaPlayer()
+            player = MediaPlayer()
             player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
             afd.close()
             afd = null
@@ -146,12 +145,20 @@ class PresetVoiceController(
                 it.release()
                 if (clipPlayer === it) clipPlayer = null
             }
-            player.prepare()
+            player.setOnErrorListener { mp, _, _ ->
+                mp.release()
+                if (clipPlayer === mp) clipPlayer = null
+                true
+            }
+            player.setOnPreparedListener {
+                if (clipPlayer === it) it.start()
+            }
             clipPlayer = player
-            player.start()
+            player.prepareAsync()
             true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to play voice clip for styleId=$styleId file=${entry.file}", e)
+            player?.release()
             clipPlayer = null
             false
         } finally {
