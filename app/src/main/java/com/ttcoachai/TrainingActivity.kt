@@ -4,14 +4,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.databinding.ActivityTrainingBinding
+import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.managers.*
+import com.ttcoachai.pose.RtmposeTrainingController
+import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
@@ -19,15 +24,24 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private var exerciseId: String? = null
     private var exerciseName: String? = null
     private var useVideo: Boolean = false
-    
+
     private lateinit var stateManager: TrainingStateManager
     private lateinit var uiController: TrainingUIController
     private lateinit var mediaManager: TrainingMediaManager
     private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
     private lateinit var exerciseParameters: ExerciseParameters
 
+    /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
+     *  Legacy path leaves this null and PoseAnalysisProcessor/CameraFragment run as before. */
+    private var rtmController: RtmposeTrainingController? = null
+
     companion object {
         private const val TAG = "TrainingActivity"
+
+        /** Same forehand-family gate RtmposeDrillActivity's baseline lineage implies:
+         *  the RTMPose path only has reference angles for the forehand drive. */
+        private fun isForehandRtmEligible(exerciseId: String?): Boolean =
+            exerciseId == null || exerciseId.startsWith("forehand") || exerciseId.startsWith("custom_")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,9 +123,79 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         }
 
         uiController.setup()
-        mediaManager.setup()
         startTimerLoop()
-        binding.root.postDelayed({ startTraining() }, 500)
+        decideCameraModeAndStart()
+    }
+
+    /**
+     * Camera-mode decision is async (baseline lookup is a suspend Flow read). Video-debug
+     * mode is unaffected (still legacy, still synchronous). For live camera: if a forehand
+     * RTMPose baseline exists, hand the whole camera+drill path to [RtmposeTrainingController];
+     * PoseAnalysisProcessor is never started and [TrainingMediaManager] is told to skip
+     * attaching the legacy [com.ttcoachai.fragment.CameraFragment] so the two pipelines never
+     * double-process the same container. Any failure (no baseline, ineligible exercise,
+     * controller start() failure) falls back to the legacy MediaPipe path unchanged.
+     */
+    private fun decideCameraModeAndStart() {
+        if (useVideo) {
+            mediaManager.setup()
+            binding.root.postDelayed({ startTraining() }, 500)
+            return
+        }
+
+        lifecycleScope.launch {
+            val baseline = if (isForehandRtmEligible(exerciseId)) {
+                try {
+                    PersonalBaselineRepository(AppDatabase.getDatabase(this@TrainingActivity).personalBaselineDao())
+                        .getActiveBaseline("forehand_drive_rtm")
+                        .first()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to load RTMPose baseline", e)
+                    null
+                }
+            } else {
+                null
+            }
+
+            // Coroutine resumed after the suspend point above (baseline read) — if the
+            // activity has since dropped below STARTED (e.g. backgrounded), any fragment
+            // transaction below would throw "Can not perform this action after
+            // onSaveInstanceState". Bail out before touching the fragment manager or views.
+            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+
+            if (baseline != null) {
+                mediaManager.setup(skipCamera = true)
+                val controller = RtmposeTrainingController(
+                    activity = this@TrainingActivity,
+                    container = binding.cameraPreviewContainer,
+                    stateManager = stateManager,
+                    settingsManager = SettingsManager(this@TrainingActivity),
+                    baseline = baseline,
+                    onUiUpdate = { uiController.updateStats() }
+                )
+                if (controller.start()) {
+                    rtmController = controller
+                } else {
+                    // Backend construction failed inside start() — nothing was attached to
+                    // the container by the controller, so the legacy camera path is safe to
+                    // set up fresh here.
+                    mediaManager.setup()
+                }
+            } else {
+                mediaManager.setup()
+                if (isForehandRtmEligible(exerciseId)) {
+                    android.widget.Toast.makeText(
+                        this@TrainingActivity,
+                        R.string.rtmpose_drill_need_calibration,
+                        android.widget.Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+
+            binding.root.postDelayed({ startTraining() }, 500)
+        }
     }
 
     private fun toggleTraining() {
@@ -133,10 +217,15 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun startTraining() {
         stateManager.startTraining()
         uiController.updateUIForTrainingState(true)
-        poseAnalysisProcessor.startSession(
-            exerciseId ?: "forehand_drive",
-            exerciseName ?: getString(R.string.exercise_forehand_name)
-        )
+        // RTM mode: CameraFragment is never attached (see decideCameraModeAndStart), so
+        // PoseAnalysisProcessor would never receive onResults() anyway — skip starting its
+        // session so its internal counters stay at their initial state instead of drifting.
+        if (rtmController == null) {
+            poseAnalysisProcessor.startSession(
+                exerciseId ?: "forehand_drive",
+                exerciseName ?: getString(R.string.exercise_forehand_name)
+            )
+        }
     }
 
     private fun pauseTraining() {
@@ -243,6 +332,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     override fun onDestroy() {
         super.onDestroy()
         mediaManager.release()
+        rtmController?.release()
         if (::poseAnalysisProcessor.isInitialized) poseAnalysisProcessor.release()
     }
     

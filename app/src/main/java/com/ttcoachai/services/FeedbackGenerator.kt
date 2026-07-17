@@ -5,6 +5,7 @@ import com.ttcoachai.LocaleHelper
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.feedback.LiveFeedbackFormatter
+import com.ttcoachai.shared.feedback.VoiceClipSelector
 import com.ttcoachai.shared.models.AnalysisResult
 import java.util.Random
 
@@ -44,11 +45,28 @@ class FeedbackGenerator(private val context: Context) {
     }   
 
     /**
-     * Play audio feedback based on analysis results
+     * Play audio feedback based on analysis results.
+     *
+     * Clip-first, tone-fallback: picks the base key for the first enabled
+     * correction via [VoiceClipSelector.clipBaseKey] (same order/filter as
+     * [generateDetailedFeedback]) and plays the matching pre-recorded clip from
+     * `res/raw`/`res/raw-uk` (short_/`_full` per [SettingsManager.getFeedbackType]).
+     * Falls back to the original ACK/NACK beep behavior when there is no
+     * qualifying correction (good stroke), or when the clip resource is
+     * missing or fails to play.
      */
     fun playFeedbackAudio(result: AnalysisResult) {
         if (!settingsManager.isAudioFeedbackEnabled()) return
-        
+
+        val key = VoiceClipSelector.clipBaseKey(result) { type -> settingsManager.isCorrectionTypeEnabled(type) }
+        if (key != null) {
+            val resName = VoiceClipSelector.clipResourceName(key, settingsManager.getFeedbackType() == 0)
+            val resId = context.resources.getIdentifier(resName, "raw", context.packageName)
+            if (resId != 0 && audioManager.playVoiceClip(resId, settingsManager.getFeedbackVolume())) {
+                return
+            }
+        }
+
         if (result.overallScore >= 80) {
             audioManager.playTone(android.media.ToneGenerator.TONE_PROP_ACK, 200)
         } else if (result.overallScore < 50) {

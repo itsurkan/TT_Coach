@@ -42,6 +42,16 @@ class LiveDrillSession(
         }
     }
 
+    /**
+     * Optional per-rep observer, fired once per newly-stabilized/emitted stroke
+     * (same dedup point as the [SpokenFeedback] emission below), for UI rep
+     * counters that need every rep — not just the ones with something to say
+     * (a clean rep still increments a counter, even though [SpokenFeedback] may
+     * be null/cadence-suppressed for it). Defaults to null so existing callers
+     * that never set it see no behavior change (`?.invoke` is a no-op).
+     */
+    var onRep: ((RepEvent) -> Unit)? = null
+
     /** Rolling buffer; each [PoseFrame2D] already carries its own real timestampMs. */
     private val frames = mutableListOf<PoseFrame2D>()
 
@@ -96,6 +106,7 @@ class LiveDrillSession(
                 // Mark processed exactly once, whether or not feedback is spoken, so
                 // cadence.offer fires once per rep — matching the batch analyzer.
                 emittedPeaks.add(peakTimestamp)
+                onRep?.invoke(RepEvent(atMs = atMs, cueCount = rep.cues.size, placementOk = rep.placementOk))
                 val spoken = DrillRepProcessor.emitRepFeedback(rep, atMs, cadence, lang)
                 if (spoken != null) feedback += spoken
             } else if (!stabilized) {
@@ -142,3 +153,10 @@ class LiveDrillSession(
         }
     }
 }
+
+/**
+ * Fired once per rep [LiveDrillSession] emits (whether or not it produced
+ * spoken feedback), for UI rep counters that need to tally every completed
+ * rep rather than only the ones with a cue to speak.
+ */
+public data class RepEvent(val atMs: Long, val cueCount: Int, val placementOk: Boolean)

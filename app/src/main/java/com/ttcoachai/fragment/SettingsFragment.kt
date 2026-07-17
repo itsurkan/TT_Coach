@@ -41,22 +41,22 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupAITrainerSettings() {
-        val coachButtons = listOf(binding.btnCoachVadym, binding.btnCoachIvan, binding.btnCoachAndriy)
+        val coachButtons = listOf(binding.btnCoachPlayful, binding.btnCoachStrict, binding.btnCoachEfficient)
 
         fun select(style: CoachingStyle, persist: Boolean) {
             val selected = when (style) {
-                CoachingStyle.GENTLE_SUPPORTIVE -> binding.btnCoachVadym
-                CoachingStyle.MOTIVATIONAL_ENERGETIC -> binding.btnCoachIvan
-                CoachingStyle.PRECISE_TECHNICAL -> binding.btnCoachAndriy
+                CoachingStyle.PLAYFUL -> binding.btnCoachPlayful
+                CoachingStyle.STRICT -> binding.btnCoachStrict
+                CoachingStyle.EFFICIENT -> binding.btnCoachEfficient
             }
             coachButtons.forEach { styleSegment(it, it === selected) }
             updateCoachInfoCard(style)
             if (persist) settingsManager.setCoachingStyle(style)
         }
 
-        binding.btnCoachVadym.setOnClickListener { select(CoachingStyle.GENTLE_SUPPORTIVE, persist = true) }
-        binding.btnCoachIvan.setOnClickListener { select(CoachingStyle.MOTIVATIONAL_ENERGETIC, persist = true) }
-        binding.btnCoachAndriy.setOnClickListener { select(CoachingStyle.PRECISE_TECHNICAL, persist = true) }
+        binding.btnCoachPlayful.setOnClickListener { select(CoachingStyle.PLAYFUL, persist = true) }
+        binding.btnCoachStrict.setOnClickListener { select(CoachingStyle.STRICT, persist = true) }
+        binding.btnCoachEfficient.setOnClickListener { select(CoachingStyle.EFFICIENT, persist = true) }
 
         select(settingsManager.getCoachingStyle(), persist = false)
     }

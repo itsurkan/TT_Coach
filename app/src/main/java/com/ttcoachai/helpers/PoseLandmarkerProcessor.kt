@@ -193,6 +193,12 @@ class PoseLandmarkerProcessor(
                         Log.e(TAG, "Invalid bitmap state at frame $i: mutable=${argb8888Frame.isMutable}, recycled=${argb8888Frame.isRecycled}")
                         didErrorOccurred = true
                         onError?.invoke("Bitmap validation failed")
+                        if (argb8888Frame != frame && !argb8888Frame.isRecycled) {
+                            argb8888Frame.recycle()
+                        }
+                        if (!frame.isRecycled) {
+                            frame.recycle()
+                        }
                         return@let
                     }
 
@@ -211,6 +217,10 @@ class PoseLandmarkerProcessor(
                         // Free memory if we created a copy
                         if (argb8888Frame != frame) {
                             argb8888Frame.recycle()
+                        }
+                        // Always recycle the original frame from the retriever to avoid leaking it
+                        if (!frame.isRecycled) {
+                            frame.recycle()
                         }
                     }
                 } ?: run {

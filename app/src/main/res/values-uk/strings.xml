@@ -380,15 +380,15 @@
     <string name="fps_24">24</string>
     <string name="fps_30">30</string>
     <string name="fps_60">60</string>
-    <string name="coach_ivan_name">Іван</string>
-    <string name="coach_ivan_style">Мотиваційний та Енергійний</string>
-    <string name="coach_ivan_desc">Енергійне тренування з великою кількістю заохочень та позитивного підкріплення</string>
-    <string name="coach_andriy_name">Андрій</string>
-    <string name="coach_andriy_style">Точний та прискіпливий до техніки</string>
-    <string name="coach_andriy_desc">Тренування, орієнтоване на деталі та ідеальну форму. Ідеально для тих, хто хоче опанувати технічну точність.</string>
-    <string name="coach_vadym_name">Вадим</string>
-    <string name="coach_vadym_style">Коротко та м\'яко</string>
-    <string name="coach_vadym_desc">М\'яке заохочення з лаконічним фідбеком. Ідеально для початківців, які віддають перевагу підтримці.</string>
+    <string name="coach_playful_name">Грайливий</string>
+    <string name="coach_playful_style">Теплий та підбадьорливий</string>
+    <string name="coach_playful_desc">Енергійні дружні підказки з великою кількістю заохочення — як партнер, що підтримує.</string>
+    <string name="coach_strict_name">Суворий</string>
+    <string name="coach_strict_style">Точний та вимогливий до техніки</string>
+    <string name="coach_strict_desc">Прямі прискіпливі корекції, орієнтовані на ідеальну форму. Для тих, хто прагне технічної точності.</string>
+    <string name="coach_efficient_name">Лаконічний</string>
+    <string name="coach_efficient_style">Коротко та по суті</string>
+    <string name="coach_efficient_desc">Стислі підказки-ключові слова без зайвих слів. Мінімум розмов, максимум повторів.</string>
     <string name="select_coach_label">Оберіть свого тренера</string>
     <string name="select_coach_desc">Оберіть стиль тренування, що відповідає вашим перевагам</string>
     <string name="btn_landscape_mode">🖥 Ландшафтний режим</string>
@@ -899,4 +899,7 @@
     <string name="stat_duration">Тривалість</string>
     <string name="summary_continue">Продовжити</string>
     <string name="summary_finish">Завершити</string>
+
+    <!-- RTMPose live drill on the main training screen -->
+    <string name="rtmpose_drill_need_calibration">Ще немає базового профілю — спочатку відкалібруйтеся.</string>
 </resources>

@@ -32,6 +32,43 @@ if [[ "${1:-}" == "-s" && -n "${2:-}" ]]; then
   SERIAL="$2"
 fi
 
+# Remember the last wireless endpoint so a dropped phone can be reconnected
+# without hand-typing its address. The wireless adb-tls port rotates on reboot,
+# so mDNS discovery is the primary path; the cached ip:port is only a fallback.
+DEVICE_CACHE="$ROOT/.last_wireless_device"
+
+# Ensure at least one device is reachable. If none is in 'device' state, try to
+# reconnect: first via mDNS discovery (survives port rotation), then via the
+# cached ip:port. No-op when a device is already attached (e.g. USB).
+ensure_connected() {
+  if "$ADB" devices | awk -F'\t' 'NR>1 && $2=="device"' | grep -q .; then
+    return 0
+  fi
+
+  # mDNS: pick the first advertised adb-tls endpoint (host:port on the last field).
+  local mdns_ep
+  mdns_ep="$("$ADB" mdns services 2>/dev/null \
+    | awk '/_adb-tls-connect\._tcp/ {print $NF}' | grep -E '^[0-9.]+:[0-9]+$' | head -n1 || true)"
+  if [[ -n "$mdns_ep" ]]; then
+    echo "==> reconnecting via mDNS: $mdns_ep"
+    if "$ADB" connect "$mdns_ep" >/dev/null 2>&1; then
+      printf '%s\n' "$mdns_ep" > "$DEVICE_CACHE"
+    fi
+  fi
+
+  # Still nothing? Fall back to the last remembered endpoint.
+  if ! "$ADB" devices | awk -F'\t' 'NR>1 && $2=="device"' | grep -q . \
+      && [[ -f "$DEVICE_CACHE" ]]; then
+    local cached
+    cached="$(head -n1 "$DEVICE_CACHE" 2>/dev/null || true)"
+    if [[ -n "$cached" ]]; then
+      echo "==> reconnecting via cached endpoint: $cached"
+      "$ADB" connect "$cached" >/dev/null 2>&1 || true
+    fi
+  fi
+}
+ensure_connected
+
 # Drop stale wireless duplicates first. When the same phone re-advertises over
 # mDNS without the old transport dying, adb keeps both and disambiguates the new
 # one by appending " (N)" to the instance name — so any serial carrying a
@@ -45,6 +82,25 @@ if [[ -n "$DUP_SERIALS" ]]; then
     echo "==> detaching duplicate wireless entry: $dup"
     "$ADB" disconnect "$dup" >/dev/null 2>&1 || true
   done <<< "$DUP_SERIALS"
+fi
+
+# Collapse same-phone dual transports. adb auto-connects a wireless phone via
+# BOTH its ip:port and its mDNS instance name (adb-XXXX._adb-tls-connect._tcp),
+# so one physical device shows up twice and trips the multi-device guard below.
+# When an ip:port transport exists, the mDNS-name transports are its auto-
+# connected duplicates — drop those, keeping the ip:port form (what we cache and
+# reconnect through). Only fires when an ip:port sibling is present, so a phone
+# reachable solely by its mDNS name is never disconnected. (bash 3.2-safe: no
+# associative arrays — macOS default bash.)
+COLLAPSE_SERIALS="$("$ADB" devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')"
+if echo "$COLLAPSE_SERIALS" | grep -qE '^[0-9.]+:[0-9]+$'; then
+  while IFS= read -r s; do
+    [[ -z "$s" ]] && continue
+    if [[ "$s" == *._adb-tls-connect._tcp ]]; then
+      echo "==> collapsing duplicate transport: dropping $s"
+      "$ADB" disconnect "$s" >/dev/null 2>&1 || true
+    fi
+  done <<< "$COLLAPSE_SERIALS"
 fi
 
 # Verify a usable device is attached. `adb devices` tab-separates serial and
@@ -68,6 +124,11 @@ fi
 # fail with "more than one device". Pinning -s makes those calls immune.
 if [[ -z "$SERIAL" ]]; then
   SERIAL="$DEVICES"
+fi
+
+# Remember a wireless (ip:port) target for next time's reconnect fallback.
+if [[ "$SERIAL" =~ ^[0-9.]+:[0-9]+$ ]]; then
+  printf '%s\n' "$SERIAL" > "$DEVICE_CACHE"
 fi
 
 ADB_TARGET=()

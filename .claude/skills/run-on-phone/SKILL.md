@@ -1,6 +1,6 @@
 ---
 name: run-on-phone
-description: Use when you need to build, reinstall, and launch the TT_Coach Android app on the connected phone/device — "run the app on my phone", "reinstall and run", "install the debug build", "deploy to device", "launch the app on device". Not for taking screenshots (see phone-screenshot).
+description: Use when you need to build, reinstall, and launch the TT_Coach Android app on the connected phone/device — "run the app on my phone", "reinstall and run", "install the debug build", "deploy to device", "launch the app on device", or the shorthand "rof". Not for taking screenshots (see phone-screenshot).
 ---
 
 # Reinstall & run the app on the phone
@@ -61,8 +61,13 @@ adb shell am start -n com.ttcoachai/.MainActivity
 - **`adb devices` shows nothing / `offline` / `unauthorized`** → phone not connected or
   USB-debugging prompt not accepted. Reconnect (USB or `adb connect <ip>`), accept the
   prompt on the phone.
-- **Multiple devices** → add `-s <serial>` to the `adb` command (serial from
-  `adb devices -l`), e.g. `adb -s adb-RFCWB0AZP2D-1oe5GR shell am start -n com.ttcoachai/.MainActivity`.
+- **Multiple devices** → the script already auto-handles the common case: it
+  collapses duplicate wireless (`_adb-tls-connect` mDNS) transports of the *same*
+  phone — adb re-advertising a stale copy disambiguated with a `(N)` suffix — and
+  auto-pins `-s` to the sole surviving device (immune to a duplicate re-appearing
+  mid-run). So `-s <serial>` is only needed for two *genuinely different* devices:
+  add it to the `adb` command (serial from `adb devices -l`), e.g.
+  `adb -s adb-RFCWB0AZP2D-1oe5GR shell am start -n com.ttcoachai/.MainActivity`.
 - **Gradle JDK error** (Gradle 8.14 needs JDK 21, this Mac defaults to Java 25) → the pin
   `org.gradle.java.home` must be set in `~/.gradle/gradle.properties`. It's machine-local
   and gitignored; without it the build fails.

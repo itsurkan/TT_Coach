@@ -197,4 +197,44 @@ class LiveDrillSessionTest {
         session.reset()
         assertNull(session.latestSkeleton())
     }
+
+    // ---- onRep (rep-event side channel for UI counters) ----
+
+    @Test
+    fun onRepFiresExactlyOncePerEmittedRepWithPlausibleValues() {
+        val session = newSession()
+        val events = mutableListOf<RepEvent>()
+        session.onRep = { events += it }
+
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        val feedback = feedAll(session, singleStrokeXs, timestamps)
+
+        assertEquals(1, feedback.size, "sanity: exactly one rep's feedback expected")
+        assertEquals(1, events.size, "onRep must fire exactly once for the one emitted rep")
+        val event = events.single()
+        assertTrue(event.atMs >= 0L, "atMs must be a real (non-negative) timestamp")
+        assertTrue(event.cueCount >= 0, "cueCount must be non-negative")
+        assertTrue(event.placementOk, "cameraYawDeg=0 override in newSession() should always gate placementOk=true")
+    }
+
+    @Test
+    fun onRepDefaultsToNullAndDoesNotAffectExistingBehavior() {
+        // No onRep assigned — this is the exact fixture/assertions from
+        // resetReproducesTheSameFirstEmission, run unmodified to prove the
+        // ?.invoke(...) no-op path changes nothing when onRep is left null.
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+
+        val session = newSession()
+        val first = feedAll(session, singleStrokeXs, timestamps)
+        assertTrue(first.isNotEmpty())
+
+        session.reset()
+        val second = feedAll(session, singleStrokeXs, timestamps)
+
+        assertEquals(first.size, second.size)
+        assertEquals(first.map { it.message }, second.map { it.message })
+        assertEquals(first.map { it.timestampMs }, second.map { it.timestampMs })
+    }
 }
