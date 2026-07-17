@@ -1,5 +1,6 @@
 package com.ttcoachai.db
 
+import android.util.Log
 import androidx.room.TypeConverter
 import com.ttcoachai.shared.models.MetricStats
 import org.json.JSONArray
@@ -13,6 +14,8 @@ import org.json.JSONObject
  * a serialization plugin into the shared KMP module.
  */
 object BaselineConverters {
+
+    private const val TAG = "BaselineConverters"
 
     @TypeConverter
     @JvmStatic
@@ -28,12 +31,17 @@ object BaselineConverters {
     @JvmStatic
     fun jsonToMetricStatsMap(json: String): Map<String, MetricStats> {
         if (json.isBlank()) return emptyMap()
-        val root = JSONObject(json)
-        val out = LinkedHashMap<String, MetricStats>(root.length())
-        for (key in root.keys()) {
-            out[key] = jsonToStats(root.getJSONObject(key))
+        return try {
+            val root = JSONObject(json)
+            val out = LinkedHashMap<String, MetricStats>(root.length())
+            for (key in root.keys()) {
+                out[key] = jsonToStats(root.getJSONObject(key))
+            }
+            out
+        } catch (e: Exception) {
+            Log.w(TAG, "Malformed metric stats JSON, returning empty map", e)
+            emptyMap()
         }
-        return out
     }
 
     @TypeConverter
@@ -48,8 +56,13 @@ object BaselineConverters {
     @JvmStatic
     fun jsonToIntList(json: String): List<Int> {
         if (json.isBlank()) return emptyList()
-        val array = JSONArray(json)
-        return List(array.length()) { array.getInt(it) }
+        return try {
+            val array = JSONArray(json)
+            List(array.length()) { array.getInt(it) }
+        } catch (e: Exception) {
+            Log.w(TAG, "Malformed int list JSON, returning empty list", e)
+            emptyList()
+        }
     }
 
     private fun statsToJson(stats: MetricStats): JSONObject = JSONObject().apply {
