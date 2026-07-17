@@ -10,4 +10,6 @@ object TechniqueErrors {
     const val ELBOW_CLOSE = "error_elbow_close"
     const val SLOW_STROKE = "error_slow_stroke"
     const val FAST_STROKE = "error_fast_stroke"
+    const val STRAIGHT_LEGS = "error_straight_legs"
+    const val LEGS_TOO_BENT = "error_legs_too_bent"
 }

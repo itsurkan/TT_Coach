@@ -9,4 +9,6 @@ object TechniqueRecommendations {
     const val MOVE_ELBOW_AWAY = "rec_move_elbow_away"
     const val INCREASE_SPEED = "rec_increase_speed"
     const val CONTROL_SPEED = "rec_control_speed"
+    const val BEND_KNEES = "rec_bend_knees"
+    const val RISE_STANCE = "rec_rise_stance"
 }

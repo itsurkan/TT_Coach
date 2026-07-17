@@ -10,6 +10,7 @@ data class AnalysisResult(
     val contactHeight: Float? = null,
     val strokeSpeed: Float? = null,
     val elbowBodyDistance: Float? = null,
+    val kneeAngle: Float? = null,
 
     // Оцінки валідності
     val isWristAngleValid: Boolean = false,
@@ -18,6 +19,7 @@ data class AnalysisResult(
     val isContactHeightValid: Boolean = false,
     val isStrokeSpeedValid: Boolean = false,
     val isElbowPositionValid: Boolean = false,
+    val isKneeBendValid: Boolean = false,
 
     // Загальна оцінка
     val overallScore: Float = 0f, // 0-100%

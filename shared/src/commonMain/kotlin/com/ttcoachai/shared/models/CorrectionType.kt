@@ -7,5 +7,6 @@ enum class CorrectionType {
     CONTACT_HEIGHT,
     ELBOW_POSITION,
     STROKE_SPEED,
+    KNEE_BEND,
     GENERAL
 }

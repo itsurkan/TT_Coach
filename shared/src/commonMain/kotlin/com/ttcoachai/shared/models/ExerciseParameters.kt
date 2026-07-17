@@ -28,6 +28,12 @@ data class ExerciseParameters(
     val maxElbowBodyDistance: Float = 0.3f, // метри
     val minElbowBodyDistance: Float = 0.1f,
 
+    // Параметри згинання коліна (hip-knee-ankle, 180° = прямі ноги)
+    val kneeBendBackswingMin: Float = 106f,
+    val kneeBendBackswingMax: Float = 134f,
+    val kneeBendStrikeMin: Float = 106f,
+    val kneeBendStrikeMax: Float = 134f,
+
     // Порогові значення для детекції руху
     val movementStartThreshold: Float = 0.5f, // м/с
     val movementEndThreshold: Float = 0.3f,
@@ -55,6 +61,10 @@ data class ExerciseParameters(
                 maxStrokeSpeed = 4.0f,
                 maxElbowBodyDistance = 0.25f,
                 minElbowBodyDistance = 0.12f,
+                kneeBendBackswingMin = 106f,
+                kneeBendBackswingMax = 134f,
+                kneeBendStrikeMin = 106f,
+                kneeBendStrikeMax = 134f,
                 movementStartThreshold = 0.5f,
                 movementEndThreshold = 0.3f,
                 minStrokeDuration = 400,
@@ -80,6 +90,10 @@ data class ExerciseParameters(
                 maxStrokeSpeed = 4.0f,
                 maxElbowBodyDistance = 0.2f,
                 minElbowBodyDistance = 0.1f,
+                kneeBendBackswingMin = 106f,
+                kneeBendBackswingMax = 134f,
+                kneeBendStrikeMin = 106f,
+                kneeBendStrikeMax = 134f,
                 movementStartThreshold = 0.5f,
                 movementEndThreshold = 0.3f,
                 minStrokeDuration = 400,
@@ -105,6 +119,10 @@ data class ExerciseParameters(
                 maxStrokeSpeed = 10.0f,
                 maxElbowBodyDistance = 0.8f, // Лікоть може бути дуже далеко
                 minElbowBodyDistance = 0.0f, // No minimum for beginner
+                kneeBendBackswingMin = 95f,  // Looser band, still catches truly straight legs ~175°+
+                kneeBendBackswingMax = 160f,
+                kneeBendStrikeMin = 95f,
+                kneeBendStrikeMax = 160f,
                 movementStartThreshold = 0.3f,
                 movementEndThreshold = 0.2f,
                 minStrokeDuration = 300,
@@ -160,5 +178,19 @@ data class ExerciseParameters(
      */
     fun isElbowNotTooClose(distance: Float): Boolean {
         return distance >= minElbowBodyDistance
+    }
+
+    /**
+     * Перевірити чи згинання коліна в замаху в межах норми
+     */
+    fun isKneeBendBackswingValid(angle: Float): Boolean {
+        return angle in kneeBendBackswingMin..kneeBendBackswingMax
+    }
+
+    /**
+     * Перевірити чи згинання коліна в ударі в межах норми
+     */
+    fun isKneeBendStrikeValid(angle: Float): Boolean {
+        return angle in kneeBendStrikeMin..kneeBendStrikeMax
     }
 }
