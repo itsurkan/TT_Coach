@@ -122,6 +122,122 @@ class StrokeAnalyzerTest {
         )
     }
 
+    // ── Knee bend validation ─────────────────────────────────────────────────
+
+    @Test
+    fun analyzeStroke_straightLegs_reportsStraightLegsError() {
+        // hip(0,0,0) - knee(0,1,0) - ankle(0,2,0) → 180° (perfectly straight leg)
+        val landmarks = makeLandmarks(33)
+        landmarks[24] = Landmark3D(0f, 0f, 0f)   // right hip
+        landmarks[26] = Landmark3D(0f, 1f, 0f)   // right knee
+        landmarks[28] = Landmark3D(0f, 2f, 0f)   // right ankle
+
+        val result = StrokeAnalyzer.analyzeStroke(
+            landmarks,
+            ExerciseParameters.forehandDrive(),
+            StrokePhase.CONTACT
+        )
+
+        assertEquals(180f, result.kneeAngle)
+        assertFalse(result.isKneeBendValid, "180° knee angle should be invalid (straight legs)")
+
+        val kneeFeedback = result.feedbackItems.firstOrNull { it.type == CorrectionType.KNEE_BEND }
+        assertNotNull(kneeFeedback, "Should have KNEE_BEND feedback item")
+        assertEquals(com.ttcoachai.shared.models.TechniqueErrors.STRAIGHT_LEGS, kneeFeedback.message)
+    }
+
+    @Test
+    fun analyzeStroke_bentKneeInBand_passesKneeValidation() {
+        // hip(0,0,0) - knee(0,1,0) - ankle(0.866,1.5,0) → 120° interior angle (in-band)
+        val landmarks = makeLandmarks(33)
+        landmarks[24] = Landmark3D(0f, 0f, 0f)
+        landmarks[26] = Landmark3D(0f, 1f, 0f)
+        landmarks[28] = Landmark3D(0.866f, 1.5f, 0f)
+
+        val result = StrokeAnalyzer.analyzeStroke(
+            landmarks,
+            ExerciseParameters.forehandDrive(),
+            StrokePhase.CONTACT
+        )
+
+        assertNotNull(result.kneeAngle)
+        assertTrue(
+            result.kneeAngle!! in 106f..134f,
+            "Expected knee angle in [106,134], got ${result.kneeAngle}"
+        )
+        assertTrue(result.isKneeBendValid, "~120° knee angle should be valid")
+        assertTrue(
+            result.feedbackItems.none { it.type == CorrectionType.KNEE_BEND },
+            "Should have no KNEE_BEND feedback item when in-band"
+        )
+    }
+
+    @Test
+    fun analyzeStroke_overBentKnee_reportsLegsTooBentError() {
+        // hip(0,0,0) - knee(0,1,0) - ankle(1,1,0) → 90° interior angle (over-bent)
+        val landmarks = makeLandmarks(33)
+        landmarks[24] = Landmark3D(0f, 0f, 0f)
+        landmarks[26] = Landmark3D(0f, 1f, 0f)
+        landmarks[28] = Landmark3D(1f, 1f, 0f)
+
+        val result = StrokeAnalyzer.analyzeStroke(
+            landmarks,
+            ExerciseParameters.forehandDrive(),
+            StrokePhase.CONTACT
+        )
+
+        assertEquals(90f, result.kneeAngle)
+        assertFalse(result.isKneeBendValid, "90° knee angle should be invalid (over-bent)")
+
+        val kneeFeedback = result.feedbackItems.firstOrNull { it.type == CorrectionType.KNEE_BEND }
+        assertNotNull(kneeFeedback, "Should have KNEE_BEND feedback item")
+        assertEquals(com.ttcoachai.shared.models.TechniqueErrors.LEGS_TOO_BENT, kneeFeedback.message)
+    }
+
+    @Test
+    fun analyzeStroke_kneeBend_isPhaseSensitive() {
+        // hip(0,0,0) - knee(0,1,0) - ankle(0.98481,1.17365,0) → 100° interior angle
+        val landmarks = makeLandmarks(33)
+        landmarks[24] = Landmark3D(0f, 0f, 0f)
+        landmarks[26] = Landmark3D(0f, 1f, 0f)
+        landmarks[28] = Landmark3D(0.98481f, 1.17365f, 0f)
+
+        val disjointParams = ExerciseParameters.forehandDrive().copy(
+            kneeBendBackswingMin = 90f,
+            kneeBendBackswingMax = 110f,
+            kneeBendStrikeMin = 150f,
+            kneeBendStrikeMax = 170f
+        )
+
+        val backswingResult = StrokeAnalyzer.analyzeStroke(landmarks, disjointParams, StrokePhase.BACKSWING)
+        val contactResult = StrokeAnalyzer.analyzeStroke(landmarks, disjointParams, StrokePhase.CONTACT)
+
+        assertNotNull(backswingResult.kneeAngle)
+        assertTrue(
+            backswingResult.kneeAngle!! in 95f..105f,
+            "Expected knee angle near 100°, got ${backswingResult.kneeAngle}"
+        )
+        assertEquals(backswingResult.kneeAngle, contactResult.kneeAngle)
+
+        assertTrue(backswingResult.isKneeBendValid, "100° knee angle should be valid in BACKSWING band [90,110]")
+        assertFalse(contactResult.isKneeBendValid, "100° knee angle should be invalid in CONTACT band [150,170]")
+    }
+
+    @Test
+    fun analyzeStroke_shortLandmarkList_kneeAngleIsNullNoCrash() {
+        // Fewer than 29 entries → index 28 (right ankle) is out of bounds
+        val landmarks = makeLandmarks(25)
+        val result = StrokeAnalyzer.analyzeStroke(landmarks, ExerciseParameters.forehandDrive(), StrokePhase.CONTACT)
+
+        assertNotNull(result)
+        assertEquals(null, result.kneeAngle)
+        assertFalse(result.isKneeBendValid)
+        assertTrue(
+            result.feedbackItems.none { it.type == CorrectionType.KNEE_BEND },
+            "Should have no KNEE_BEND feedback item when knee angle cannot be computed"
+        )
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun makeLandmarks(count: Int): MutableList<Landmark3D> =

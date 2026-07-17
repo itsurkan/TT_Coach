@@ -26,7 +26,8 @@ object StrokeAnalyzer {
         val bodyRotation: Float?,
         val followThroughAngle: Float?,
         val contactHeight: Float?,
-        val elbowBodyDistance: Float?
+        val elbowBodyDistance: Float?,
+        val kneeAngle: Float?
     )
 
     private data class ValidationResult(
@@ -59,7 +60,7 @@ object StrokeAnalyzer {
         val metrics = extractMetrics(landmarks)
 
         // 2. Validate metrics and generate feedback items
-        val validations = performValidations(metrics, parameters)
+        val validations = performValidations(metrics, parameters, phase)
         val feedbackItems = validations.filter { !it.isValid }.map { it.feedback }
         val errors = feedbackItems.map { it.message }
         val recommendations = validations.filter { !it.isValid }.map { it.recommendation }
@@ -81,11 +82,13 @@ object StrokeAnalyzer {
             followThroughAngle = metrics.followThroughAngle,
             contactHeight = metrics.contactHeight,
             elbowBodyDistance = metrics.elbowBodyDistance,
+            kneeAngle = metrics.kneeAngle,
             isWristAngleValid = validations.find { it.type == CorrectionType.WRIST }?.isValid ?: false,
             isBodyRotationValid = validations.find { it.type == CorrectionType.BODY_ROTATION }?.isValid ?: false,
             isFollowThroughValid = validations.find { it.type == CorrectionType.FOLLOW_THROUGH }?.isValid ?: false,
             isContactHeightValid = validations.find { it.type == CorrectionType.CONTACT_HEIGHT }?.isValid ?: false,
             isElbowPositionValid = validations.find { it.type == CorrectionType.ELBOW_POSITION }?.isValid ?: false,
+            isKneeBendValid = validations.find { it.type == CorrectionType.KNEE_BEND }?.isValid ?: false,
             overallScore = overallScore,
             phase = phase,
             errors = errors,
@@ -100,20 +103,37 @@ object StrokeAnalyzer {
             bodyRotation = AngleCalculations.calculateBodyRotation(landmarks),
             followThroughAngle = AngleCalculations.calculateFollowThroughAngle(landmarks),
             contactHeight = MetricCalculations.calculateContactHeight(landmarks),
-            elbowBodyDistance = MetricCalculations.calculateElbowBodyDistance(landmarks)
+            elbowBodyDistance = MetricCalculations.calculateElbowBodyDistance(landmarks),
+            kneeAngle = calculateKneeAngle(landmarks)
         )
+    }
+
+    /**
+     * Calculate knee bend angle using landmarks:
+     *   24 = right hip, 26 = right knee, 28 = right ankle
+     * 180° = straight leg. Returns null when required landmark indices are out of bounds.
+     */
+    private fun calculateKneeAngle(landmarks: List<Landmark3D>): Float? {
+        val hip = landmarks.getOrNull(24) ?: return null
+        val knee = landmarks.getOrNull(26) ?: return null
+        val ankle = landmarks.getOrNull(28) ?: return null
+
+        val angle = AngleCalculations.calculate3DAngle(hip, knee, ankle)
+        return if (angle.isNaN() || angle.isInfinite()) null else angle
     }
 
     private fun performValidations(
         metrics: StrokeMetrics,
-        parameters: ExerciseParameters
+        parameters: ExerciseParameters,
+        phase: StrokePhase
     ): List<ValidationResult> {
         return listOfNotNull(
             validateWrist(metrics.wristAngle, parameters),
             validateRotation(metrics.bodyRotation, parameters),
             validateFollowThrough(metrics.followThroughAngle, parameters),
             validateHeight(metrics.contactHeight, parameters),
-            validateElbow(metrics.elbowBodyDistance, parameters)
+            validateElbow(metrics.elbowBodyDistance, parameters),
+            validateKnees(metrics.kneeAngle, parameters, phase)
         )
     }
 
@@ -179,6 +199,40 @@ object StrokeAnalyzer {
             CorrectionType.ELBOW_POSITION,
             isValid,
             FeedbackItem(errorMsg, CorrectionType.ELBOW_POSITION),
+            recommendation
+        )
+    }
+
+    private fun validateKnees(
+        angle: Float?,
+        parameters: ExerciseParameters,
+        phase: StrokePhase
+    ): ValidationResult? = angle?.let {
+        val isBackswingPhase = phase == StrokePhase.READY || phase == StrokePhase.BACKSWING
+        val min = if (isBackswingPhase) parameters.kneeBendBackswingMin else parameters.kneeBendStrikeMin
+        val max = if (isBackswingPhase) parameters.kneeBendBackswingMax else parameters.kneeBendStrikeMax
+        val isValid = if (isBackswingPhase) {
+            parameters.isKneeBendBackswingValid(it)
+        } else {
+            parameters.isKneeBendStrikeValid(it)
+        }
+
+        val errorMsg = when {
+            it > max -> TechniqueErrors.STRAIGHT_LEGS
+            it < min -> TechniqueErrors.LEGS_TOO_BENT
+            else -> ""
+        }
+
+        val recommendation = when {
+            it > max -> TechniqueRecommendations.BEND_KNEES
+            it < min -> TechniqueRecommendations.RISE_STANCE
+            else -> ""
+        }
+
+        ValidationResult(
+            CorrectionType.KNEE_BEND,
+            isValid,
+            FeedbackItem(errorMsg, CorrectionType.KNEE_BEND),
             recommendation
         )
     }
