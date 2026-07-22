@@ -23,4 +23,7 @@ interface CustomDrillDao {
 
     @Query("DELETE FROM custom_drills WHERE drillType = :drillType")
     suspend fun deleteByDrillType(drillType: String)
+
+    @Query("SELECT * FROM custom_drills WHERE sharedCommunityId = :communityId LIMIT 1")
+    suspend fun getBySharedCommunityId(communityId: String): CustomDrillEntity?
 }

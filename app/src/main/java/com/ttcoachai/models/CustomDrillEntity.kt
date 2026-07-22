@@ -13,5 +13,6 @@ data class CustomDrillEntity(
     val referenceType: String = "standard",
     val baselineId: Long? = null,
     val strictnessX: Float = 1.0f,
-    val perPhaseTargetsJson: String = ""
+    val perPhaseTargetsJson: String = "",
+    val sharedCommunityId: String? = null
 )
