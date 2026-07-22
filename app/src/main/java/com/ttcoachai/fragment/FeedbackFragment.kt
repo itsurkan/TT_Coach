@@ -13,7 +13,6 @@ import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentFeedbackBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.shared.models.CorrectionType
-import com.ttcoachai.shared.models.CorrectionTypeAvailability
 
 class FeedbackFragment : Fragment() {
 
@@ -78,15 +77,6 @@ class FeedbackFragment : Fragment() {
             chip.isChecked = sm.isCorrectionTypeEnabled(type)
             chip.setOnCheckedChangeListener { _, isChecked ->
                 sm.setCorrectionTypeEnabled(type, isChecked)
-            }
-        }
-
-        // Drill context is unknown here; default to the RTM view (the shipping path) and
-        // hide chips that control nothing on it. Visibility only — settings above stay bound.
-        val visibleOnRtm = CorrectionTypeAvailability.visibleFor(true)
-        correctionChips.forEach { (chipId, type) ->
-            if (type !in visibleOnRtm) {
-                binding.root.findViewById<com.google.android.material.chip.Chip>(chipId).visibility = View.GONE
             }
         }
 

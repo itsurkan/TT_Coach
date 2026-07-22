@@ -6,7 +6,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
 import com.ttcoachai.LocaleHelper
 import com.ttcoachai.R
 import com.ttcoachai.TrainingActivity
@@ -15,7 +14,6 @@ import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
 import com.ttcoachai.shared.models.CorrectionType
-import com.ttcoachai.shared.models.CorrectionTypeAvailability
 import com.ttcoachai.shared.models.FeedbackItem
 import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
 
@@ -31,16 +29,6 @@ class TrainingUIController(
     private val onEndSession: () -> Unit
 ) {
     private val feedbackAdapter = FeedbackListAdapter(onRowClick = ::showFeedbackExplanation)
-    private val correctionChipPairs: List<Pair<Chip, CorrectionType>> by lazy {
-        listOf(
-            binding.drillMenu.chipWrist to CorrectionType.WRIST,
-            binding.drillMenu.chipRotation to CorrectionType.BODY_ROTATION,
-            binding.drillMenu.chipFollowThrough to CorrectionType.FOLLOW_THROUGH,
-            binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
-            binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
-            binding.drillMenu.chipKneeBend to CorrectionType.KNEE_BEND,
-        )
-    }
 
     fun setup() {
         setupBottomSheet()
@@ -93,23 +81,19 @@ class TrainingUIController(
         selectCues(settingsManager.getFeedbackFrequency(), persist = false)
 
         // Corrections
-        correctionChipPairs.forEach { (chip, type) ->
+        val correctionChips = listOf(
+            binding.drillMenu.chipWrist to CorrectionType.WRIST,
+            binding.drillMenu.chipRotation to CorrectionType.BODY_ROTATION,
+            binding.drillMenu.chipFollowThrough to CorrectionType.FOLLOW_THROUGH,
+            binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
+            binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
+            binding.drillMenu.chipKneeBend to CorrectionType.KNEE_BEND,
+        )
+        correctionChips.forEach { (chip, type) ->
             chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)
             chip.setOnCheckedChangeListener { _, isChecked ->
                 settingsManager.setCorrectionTypeEnabled(type, isChecked)
             }
-        }
-        setCorrectionChipsForPath(true) // RTM is the default/shipping path
-    }
-
-    /**
-     * Shows only the correction chips whose type is effective on the given live-feedback
-     * path. Visibility only — never touches stored per-type enabled settings.
-     */
-    fun setCorrectionChipsForPath(rtmPath: Boolean) {
-        val visible = CorrectionTypeAvailability.visibleFor(rtmPath)
-        correctionChipPairs.forEach { (chip, type) ->
-            chip.visibility = if (type in visible) View.VISIBLE else View.GONE
         }
     }
 
