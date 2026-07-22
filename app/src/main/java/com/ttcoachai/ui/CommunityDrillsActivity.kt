@@ -22,8 +22,8 @@ import kotlinx.coroutines.launch
 
 /**
  * Community browse screen: one bounded [CommunityDrillRepository.fetchAll] cached in memory,
- * filtered client-side by [CommunityDrillSort.search]/[CommunityDrillSort.sort]. Row click will
- * open a detail sheet in Task 7 — [openDetail] is a stub for now.
+ * filtered client-side by [CommunityDrillSort.search]/[CommunityDrillSort.sort]. Row click opens
+ * the [com.ttcoachai.ui.dialogs.CommunityDrillDetailSheet] via [openDetail].
  */
 class CommunityDrillsActivity : BaseActivity() {
 
