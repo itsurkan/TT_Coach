@@ -73,21 +73,23 @@ class RtmposeTrainingController(
         private const val TAG = "RtmposeTrainingCtrl"
 
         /**
-         * Pragmatic UI-counts bridge: maps a [com.ttcoachai.shared.drill.FeedbackCue.metricKey]
-         * (or null, for positive reinforcement) onto the coarser [CorrectionType] buckets the
-         * existing live-feedback list/chips UI already understands. This is NOT a semantic
-         * equivalence — e.g. "torso_lean"/"shoulder_tilt"/"shoulder_angle" all collapse onto
-         * BODY_ROTATION purely because that's the closest existing UI bucket, not because they
-         * measure the same thing as legacy body-rotation feedback. `knee_bend` maps to the
-         * dedicated [CorrectionType.KNEE_BEND] bucket (not GENERAL) so the per-type toggle in
-         * Settings can actually gate knee-bend cues.
+         * Maps a [com.ttcoachai.shared.drill.FeedbackCue.metricKey] (or null, for positive
+         * reinforcement) onto [CorrectionType] buckets for the live-feedback list/chips UI.
+         * Each RTM metric now has a dedicated 1:1 mapping after Task 8 introduced dedicated
+         * CorrectionType buckets (ELBOW_BEND, POSTURE, FOLLOW_THROUGH, STROKE_SPEED) to match
+         * the derived metrics and distinct coaching feedback per-metric. Unmapped keys
+         * (including the dropped shoulder_tilt, no longer coached) fall to GENERAL.
          */
         internal fun mapMetricToCorrectionType(metricKey: String?): CorrectionType = when (metricKey) {
             null -> CorrectionType.GENERAL
-            "elbow_angle" -> CorrectionType.ELBOW_POSITION
-            "torso_lean", "shoulder_tilt", "shoulder_angle" -> CorrectionType.BODY_ROTATION
+            "elbow_angle" -> CorrectionType.ELBOW_BEND               // forearm flexion (shoulder-elbow-wrist)
+            "shoulder_angle" -> CorrectionType.ELBOW_POSITION         // upper-arm vs torso (hip-shoulder-elbow)
+            "torso_lean" -> CorrectionType.POSTURE                    // spine vs vertical
             "knee_bend" -> CorrectionType.KNEE_BEND
-            else -> CorrectionType.GENERAL
+            "follow_through_angle_2d" -> CorrectionType.FOLLOW_THROUGH
+            "stroke_speed" -> CorrectionType.STROKE_SPEED
+            "coil_ratio" -> CorrectionType.BODY_ROTATION             // trunk-coil proxy (qualitative)
+            else -> CorrectionType.GENERAL                            // incl. dropped shoulder_tilt
         }
 
         /**

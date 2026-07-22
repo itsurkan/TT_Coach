@@ -55,7 +55,34 @@ object CoreMessageTemplates {
             TemplateKey(DrillMetrics.METRIC_SHOULDER_TILT, CueDirection.TOO_LOW, FeedbackLang.EN) to
                 "Shoulder line flatter than your usual — let the playing shoulder drop a touch",
             TemplateKey(DrillMetrics.METRIC_SHOULDER_TILT, CueDirection.TOO_LOW, FeedbackLang.UA) to
-                "Лінія плечей рівніша, ніж зазвичай — дай ігровому плечу трохи опуститись"
+                "Лінія плечей рівніша, ніж зазвичай — дай ігровому плечу трохи опуститись",
+
+            TemplateKey(DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D, CueDirection.TOO_HIGH, FeedbackLang.EN) to
+                "Follow-through straighter than your usual — let the arm fold in sooner",
+            TemplateKey(DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D, CueDirection.TOO_HIGH, FeedbackLang.UA) to
+                "Завершення пряміше, ніж зазвичай — дай руці скластися раніше",
+            TemplateKey(DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D, CueDirection.TOO_LOW, FeedbackLang.EN) to
+                "Shorter follow-through than your usual — swing through and finish higher",
+            TemplateKey(DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D, CueDirection.TOO_LOW, FeedbackLang.UA) to
+                "Завершення коротше, ніж зазвичай — проведи крізь мʼяч і закінчи вище",
+
+            TemplateKey(DrillMetrics.METRIC_STROKE_SPEED, CueDirection.TOO_HIGH, FeedbackLang.EN) to
+                "Swinging faster than your usual — ease off and stay smooth",
+            TemplateKey(DrillMetrics.METRIC_STROKE_SPEED, CueDirection.TOO_HIGH, FeedbackLang.UA) to
+                "Замах швидший, ніж зазвичай — стримай і тримай плавність",
+            TemplateKey(DrillMetrics.METRIC_STROKE_SPEED, CueDirection.TOO_LOW, FeedbackLang.EN) to
+                "Slower than your usual — commit and swing through a bit quicker",
+            TemplateKey(DrillMetrics.METRIC_STROKE_SPEED, CueDirection.TOO_LOW, FeedbackLang.UA) to
+                "Повільніше, ніж зазвичай — сміливіше і трохи швидше крізь мʼяч",
+
+            TemplateKey(DrillMetrics.METRIC_COIL_RATIO, CueDirection.TOO_HIGH, FeedbackLang.EN) to
+                "Rotating more than your usual — stay a touch more compact through the ball",
+            TemplateKey(DrillMetrics.METRIC_COIL_RATIO, CueDirection.TOO_HIGH, FeedbackLang.UA) to
+                "Скрутка більша, ніж зазвичай — тримайся трохи компактніше крізь мʼяч",
+            TemplateKey(DrillMetrics.METRIC_COIL_RATIO, CueDirection.TOO_LOW, FeedbackLang.EN) to
+                "Less rotation than your usual — open up and rotate through the ball",
+            TemplateKey(DrillMetrics.METRIC_COIL_RATIO, CueDirection.TOO_LOW, FeedbackLang.UA) to
+                "Скрутка менша, ніж зазвичай — розкрийся і прокрути корпус крізь мʼяч"
         ),
         positiveMessages = mapOf(
             FeedbackLang.EN to "Good rep — keep that rhythm",

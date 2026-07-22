@@ -67,9 +67,11 @@ class FeedbackListAdapter(
             CorrectionType.BODY_ROTATION -> R.string.live_fb_body_rotation
             CorrectionType.CONTACT_HEIGHT -> R.string.live_fb_contact_height
             CorrectionType.ELBOW_POSITION -> R.string.live_fb_elbow_position
+            CorrectionType.ELBOW_BEND -> R.string.live_fb_elbow_bend
             CorrectionType.STROKE_SPEED -> R.string.live_fb_stroke_speed
             CorrectionType.FOLLOW_THROUGH -> R.string.live_fb_follow_through
             CorrectionType.KNEE_BEND -> R.string.live_fb_knee_bend
+            CorrectionType.POSTURE -> R.string.live_fb_posture
             CorrectionType.GENERAL -> R.string.live_fb_general
         }
     }

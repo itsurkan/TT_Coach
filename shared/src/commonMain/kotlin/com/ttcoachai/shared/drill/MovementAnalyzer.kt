@@ -98,7 +98,7 @@ class MovementAnalyzer(
                        else ViewGeometry(sequence.aspectRatio)
             val metrics = MovementMetrics.extractAtPeak(
                 sequence.frames, stroke.peakFrame, handedness, view.xScale, sequence.intervalMs, definition.metrics
-            )
+            ) + DerivedMetrics.merge(sequence.frames, stroke, handedness, view.xScale, sequence.intervalMs)
             val cues = if (placementOk) {
                 DrillFeedbackEngine.evaluateRep(metrics, baseline, rules, definition::precisionFor)
             } else {

@@ -162,10 +162,15 @@ class SnapshotGeometryTest {
     }
 
     @Test
-    fun highlightFor_onlyWristFollowThroughAndKneeBendShowArc() {
+    fun highlightFor_onlyWristFollowThroughKneeBendAndElbowBendShowArc() {
         val arcTypes = CorrectionType.entries.filter { SnapshotGeometry.highlightFor(it).showArc }
         assertEquals(
-            setOf(CorrectionType.WRIST, CorrectionType.FOLLOW_THROUGH, CorrectionType.KNEE_BEND),
+            setOf(
+                CorrectionType.WRIST,
+                CorrectionType.FOLLOW_THROUGH,
+                CorrectionType.KNEE_BEND,
+                CorrectionType.ELBOW_BEND
+            ),
             arcTypes.toSet()
         )
     }

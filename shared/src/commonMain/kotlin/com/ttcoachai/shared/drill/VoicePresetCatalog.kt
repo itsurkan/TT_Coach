@@ -21,10 +21,13 @@ package com.ttcoachai.shared.drill
  * Metric-key vocabulary check (see task report for full detail): the runtime
  * metric keys this pipeline actually produces are [DrillMetrics.ALL_KEYS]
  * (`elbow_angle`, `shoulder_angle`, `knee_bend`, `torso_lean`,
- * `shoulder_tilt`) — a strict subset of voiceStyle.ts's `MetricKey` union,
- * which additionally has `hip_flexion` (a metric this pipeline never emits,
- * so its phrases are ported here for completeness/future-proofing but
- * [phraseFor] can never be asked for it via a real [FeedbackCue]).
+ * `follow_through_angle_2d`, `stroke_speed`, `coil_ratio`) — `shoulder_tilt`
+ * is no longer part of [DrillMetrics.ALL_KEYS] but its preset entries stay
+ * below (still valid text, still matches voiceStyle.ts; harmless to keep).
+ * voiceStyle.ts's `MetricKey` union additionally has `hip_flexion` (a metric
+ * this pipeline never emits, so its phrases are ported here for
+ * completeness/future-proofing but [phraseFor] can never be asked for it via
+ * a real [FeedbackCue]).
  */
 object VoicePresetCatalog {
 
@@ -47,6 +50,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("stand a bit taller", "lean into the ball"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("level the shoulders", "level the shoulders"),
             METRIC_HIP_FLEXION to CuePhrases("ease the hips up a touch", "sink into the hips"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("shorten the follow-through a touch", "finish a little higher"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("ease off the speed a touch", "swing with a bit more pace"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("ease off the rotation a touch", "rotate through the ball a bit more"),
         ),
         praise = listOf(
             "that's the shape!", "yes — that follow-through", "clean — do that again",
@@ -62,6 +68,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("тримайся трохи рівніше", "нахились до мʼяча"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("вирівняй плечі", "вирівняй плечі"),
             METRIC_HIP_FLEXION to CuePhrases("трохи вище стегнами", "присядь у стегнах"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("трохи коротший фініш", "завершуй трохи вище"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("трохи скинь швидкість", "додай швидкості удару"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("трохи менше крутись", "розкручуйся у мʼяч трохи більше"),
         ),
         praise = listOf(
             "оце форма!", "так — оце завершення", "чисто — ще раз так",
@@ -79,6 +88,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("stand taller", "lean in"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("level the shoulders", "level the shoulders"),
             METRIC_HIP_FLEXION to CuePhrases("stand tall", "hinge forward"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("shorten the follow-through", "finish higher"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("ease off the speed", "swing faster"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("reduce the rotation", "rotate more through the ball"),
         ),
         praise = listOf("that's the shape", "clean — repeat that", "correct")
     )
@@ -91,6 +103,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("тримайся рівніше", "нахились уперед"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("вирівняй плечі", "вирівняй плечі"),
             METRIC_HIP_FLEXION to CuePhrases("вище", "нахились у стегнах"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("коротший завершальний рух", "завершуй вище"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("зменш швидкість", "бий швидше"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("менше обертання тулуба", "більше розкручуйся у мʼяч"),
         ),
         praise = listOf("оце форма", "чисто — повтори", "правильно")
     )
@@ -105,6 +120,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("taller", "lean in"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("level shoulders", "level shoulders"),
             METRIC_HIP_FLEXION to CuePhrases("hips up", "hinge"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("shorten follow-through", "finish higher"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("slow down", "swing faster"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("less rotation", "rotate more"),
         ),
         praise = listOf("clean", "yes", "good")
     )
@@ -117,6 +135,9 @@ object VoicePresetCatalog {
             DrillMetrics.METRIC_TORSO_LEAN to CuePhrases("вище", "нахились"),
             DrillMetrics.METRIC_SHOULDER_TILT to CuePhrases("рівніше плечі", "рівніше плечі"),
             METRIC_HIP_FLEXION to CuePhrases("вище", "нахились"),
+            DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D to CuePhrases("коротший фініш", "вище фініш"),
+            DrillMetrics.METRIC_STROKE_SPEED to CuePhrases("повільніше", "швидше"),
+            DrillMetrics.METRIC_COIL_RATIO to CuePhrases("менше обертання", "більше розкрутки"),
         ),
         praise = listOf("чисто", "так", "добре")
     )

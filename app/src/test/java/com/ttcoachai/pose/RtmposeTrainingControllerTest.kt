@@ -20,33 +20,33 @@ class RtmposeTrainingControllerTest {
     }
 
     @Test
-    fun mapMetricToCorrectionType_elbowAngle_isElbowPosition() {
+    fun mapMetricToCorrectionType_elbowAngle_isElbowBend() {
         assertEquals(
-            CorrectionType.ELBOW_POSITION,
+            CorrectionType.ELBOW_BEND,
             RtmposeTrainingController.mapMetricToCorrectionType("elbow_angle")
         )
     }
 
     @Test
-    fun mapMetricToCorrectionType_torsoLean_isBodyRotation() {
+    fun mapMetricToCorrectionType_torsoLean_isPosture() {
         assertEquals(
-            CorrectionType.BODY_ROTATION,
+            CorrectionType.POSTURE,
             RtmposeTrainingController.mapMetricToCorrectionType("torso_lean")
         )
     }
 
     @Test
-    fun mapMetricToCorrectionType_shoulderTilt_isBodyRotation() {
+    fun mapMetricToCorrectionType_shoulderTilt_isGeneral() {
         assertEquals(
-            CorrectionType.BODY_ROTATION,
+            CorrectionType.GENERAL,
             RtmposeTrainingController.mapMetricToCorrectionType("shoulder_tilt")
         )
     }
 
     @Test
-    fun mapMetricToCorrectionType_shoulderAngle_isBodyRotation() {
+    fun mapMetricToCorrectionType_shoulderAngle_isElbowPosition() {
         assertEquals(
-            CorrectionType.BODY_ROTATION,
+            CorrectionType.ELBOW_POSITION,
             RtmposeTrainingController.mapMetricToCorrectionType("shoulder_angle")
         )
     }
@@ -56,6 +56,30 @@ class RtmposeTrainingControllerTest {
         assertEquals(
             CorrectionType.KNEE_BEND,
             RtmposeTrainingController.mapMetricToCorrectionType("knee_bend")
+        )
+    }
+
+    @Test
+    fun mapMetricToCorrectionType_followThroughAngle2d_isFollowThrough() {
+        assertEquals(
+            CorrectionType.FOLLOW_THROUGH,
+            RtmposeTrainingController.mapMetricToCorrectionType("follow_through_angle_2d")
+        )
+    }
+
+    @Test
+    fun mapMetricToCorrectionType_strokeSpeed_isStrokeSpeed() {
+        assertEquals(
+            CorrectionType.STROKE_SPEED,
+            RtmposeTrainingController.mapMetricToCorrectionType("stroke_speed")
+        )
+    }
+
+    @Test
+    fun mapMetricToCorrectionType_coilRatio_isBodyRotation() {
+        assertEquals(
+            CorrectionType.BODY_ROTATION,
+            RtmposeTrainingController.mapMetricToCorrectionType("coil_ratio")
         )
     }
 

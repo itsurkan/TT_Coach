@@ -103,9 +103,23 @@ object SnapshotGeometry {
             showArc = true
         )
 
+        // Legacy elbow-to-hip DISTANCE metric — distinct from ELBOW_BEND's flexion angle below;
+        // do not merge the two branches.
         CorrectionType.ELBOW_POSITION -> SnapshotHighlight(
             jointTriple = null,
             highlightJoints = listOf(ELBOW, HIP_R),
+            showArc = false
+        )
+
+        CorrectionType.ELBOW_BEND -> SnapshotHighlight(
+            jointTriple = Triple(SHOULDER_R, ELBOW, WRIST),   // elbow flexion arc
+            highlightJoints = listOf(SHOULDER_R, ELBOW, WRIST),
+            showArc = true
+        )
+
+        CorrectionType.POSTURE -> SnapshotHighlight(
+            jointTriple = null,                                // spine-vs-vertical line, no 3-joint arc
+            highlightJoints = listOf(SHOULDER_L, SHOULDER_R, HIP_L, HIP_R),
             showArc = false
         )
 

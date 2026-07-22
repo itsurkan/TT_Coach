@@ -96,8 +96,10 @@ object SessionAnalyticsBuilder {
         CorrectionType.FOLLOW_THROUGH -> "focus_follow_through"
         CorrectionType.CONTACT_HEIGHT -> "focus_contact_height"
         CorrectionType.ELBOW_POSITION -> "focus_elbow_position"
+        CorrectionType.ELBOW_BEND -> "focus_elbow_bend"
         CorrectionType.STROKE_SPEED -> "focus_stroke_speed"
         CorrectionType.KNEE_BEND -> "focus_knee_bend"
+        CorrectionType.POSTURE -> "focus_posture"
         CorrectionType.GENERAL -> "focus_general"
     }
 
@@ -108,8 +110,10 @@ object SessionAnalyticsBuilder {
         CorrectionType.FOLLOW_THROUGH -> "follow-through"
         CorrectionType.CONTACT_HEIGHT -> "contact height"
         CorrectionType.ELBOW_POSITION -> "elbow position"
+        CorrectionType.ELBOW_BEND -> "elbow bend"
         CorrectionType.STROKE_SPEED -> "stroke speed"
         CorrectionType.KNEE_BEND -> "knee bend"
+        CorrectionType.POSTURE -> "posture"
         CorrectionType.GENERAL -> "general technique"
     }
 }

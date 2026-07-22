@@ -17,7 +17,20 @@ class MovementDefinitionTest {
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_SHOULDER_ANGLE))
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_KNEE_BEND))
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_TORSO_LEAN))
-        assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_SHOULDER_TILT))
+    }
+
+    @Test
+    fun followThroughAngle2dDerivedMetricIsPreciseDegrees() {
+        // follow_through_angle_2d is NOT in metrics (which only has the 4 peak specs),
+        // but is PRECISE per MetricPrecisionPolicy — proves batch-path parity.
+        assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D))
+    }
+
+    @Test
+    fun strokeSpeedAndCoilRatioDerivedMetricsAreQualitative() {
+        // stroke_speed and coil_ratio are NOT in metrics, and are QUALITATIVE per policy.
+        assertEquals(MetricPrecision.QUALITATIVE, definition.precisionFor(DrillMetrics.METRIC_STROKE_SPEED))
+        assertEquals(MetricPrecision.QUALITATIVE, definition.precisionFor(DrillMetrics.METRIC_COIL_RATIO))
     }
 
     @Test

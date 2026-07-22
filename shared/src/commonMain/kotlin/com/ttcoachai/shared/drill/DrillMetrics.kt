@@ -25,12 +25,28 @@ object DrillMetrics {
      */
     const val METRIC_KNEE_BEND = "knee_bend"
     const val METRIC_TORSO_LEAN = "torso_lean"
+    /**
+     * Still defined and used by [com.ttcoachai.shared.analysis.AngleCalculations2D.shoulderTilt],
+     * [VoicePresetCatalog], and [CoreMessageTemplates] — just no longer part of [PEAK_KEYS]/[ALL_KEYS]
+     * (removed from [CoreMetricSpecs.ALL], the peak-extracted spec list).
+     */
     const val METRIC_SHOULDER_TILT = "shoulder_tilt"
+    /** Legacy 3D owns `"follow_through_angle"` ([MetricKeyDisjointTest]) — this 2D key takes the `_2d` suffix. */
+    const val METRIC_FOLLOW_THROUGH_ANGLE_2D = "follow_through_angle_2d"
+    const val METRIC_STROKE_SPEED = "stroke_speed"
+    const val METRIC_COIL_RATIO = "coil_ratio"
 
-    val ALL_KEYS = listOf(
-        METRIC_ELBOW_ANGLE, METRIC_SHOULDER_ANGLE, METRIC_KNEE_BEND,
-        METRIC_TORSO_LEAN, METRIC_SHOULDER_TILT
+    /** The four metrics extracted at the stroke's wrist-speed peak (see [CoreMetricSpecs.ALL]). */
+    val PEAK_KEYS = listOf(
+        METRIC_ELBOW_ANGLE, METRIC_SHOULDER_ANGLE, METRIC_KNEE_BEND, METRIC_TORSO_LEAN
     )
+
+    /** The three derived metrics computed from the peak metrics + stroke window (later tasks own the computation). */
+    val DERIVED_KEYS = listOf(
+        METRIC_FOLLOW_THROUGH_ANGLE_2D, METRIC_STROKE_SPEED, METRIC_COIL_RATIO
+    )
+
+    val ALL_KEYS = PEAK_KEYS + DERIVED_KEYS
 
     /** Half-width of the peak-metric smoothing window, in ms (±2 frames at 30 fps). */
     const val DEFAULT_PEAK_RADIUS_MS = 70L

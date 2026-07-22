@@ -144,6 +144,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun decideCameraModeAndStart() {
         if (useVideo) {
             mediaManager.setup()
+            uiController.setCorrectionChipsForPath(false)
             binding.root.postDelayed({ startTraining() }, 500)
             return
         }
@@ -183,14 +184,17 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 )
                 if (controller.start()) {
                     rtmController = controller
+                    uiController.setCorrectionChipsForPath(true)
                 } else {
                     // Backend construction failed inside start() — nothing was attached to
                     // the container by the controller, so the legacy camera path is safe to
                     // set up fresh here.
                     mediaManager.setup()
+                    uiController.setCorrectionChipsForPath(false)
                 }
             } else {
                 mediaManager.setup()
+                uiController.setCorrectionChipsForPath(false)
                 if (isForehandRtmEligible(exerciseId)) {
                     android.widget.Toast.makeText(
                         this@TrainingActivity,

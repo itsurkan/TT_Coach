@@ -895,9 +895,12 @@
     <string name="feedback_praise_on_streak">On streak</string>
     <string name="feedback_streak_length">Streak length</string>
     <string name="correction_wrist">Wrist Angle</string>
-    <string name="correction_rotation">Body Rotation</string>
+    <string name="correction_rotation">Rotation</string>
     <string name="correction_elbow">Elbow Position</string>
     <string name="correction_knee_bend">Knee Bend</string>
+    <string name="correction_elbow_bend">Elbow Bend</string>
+    <string name="correction_posture">Posture</string>
+    <string name="correction_speed">Speed</string>
     <!-- Detection 11b -->
     <string name="detection_title">Detection</string>
     <string name="detection_subtitle">Advanced — how strokes are picked out</string>
@@ -1013,12 +1016,14 @@
     <string name="cd_share">Share session</string>
     <!-- Focus-area display names (keys match SessionAnalyticsBuilder.displayNameKey) -->
     <string name="focus_wrist">Wrist angle</string>
-    <string name="focus_body_rotation">Body rotation</string>
+    <string name="focus_body_rotation">Rotation</string>
     <string name="focus_follow_through">Follow-through</string>
     <string name="focus_contact_height">Contact height</string>
     <string name="focus_elbow_position">Elbow position</string>
     <string name="focus_stroke_speed">Stroke speed</string>
     <string name="focus_knee_bend">Knee bend</string>
+    <string name="focus_elbow_bend">Elbow bend</string>
+    <string name="focus_posture">Posture</string>
     <string name="focus_general">General technique</string>
 
     <!-- Session History (Slice 3) -->
@@ -1054,12 +1059,14 @@
     <string name="live_realtime_feedback">Real-time feedback</string>
     <string name="live_flagged_count">%1$d flagged</string>
     <string name="live_fb_wrist_angle">Wrist angle</string>
-    <string name="live_fb_body_rotation">Body rotation</string>
+    <string name="live_fb_body_rotation">Rotation</string>
     <string name="live_fb_contact_height">Contact height</string>
     <string name="live_fb_elbow_position">Elbow position</string>
     <string name="live_fb_stroke_speed">Stroke speed</string>
     <string name="live_fb_follow_through">Follow-through</string>
     <string name="live_fb_knee_bend">Knee bend</string>
+    <string name="live_fb_elbow_bend">Elbow bend</string>
+    <string name="live_fb_posture">Posture</string>
     <string name="live_fb_general">Technique</string>
     <string name="feedback_explanation_sheet_title">Why was this flagged?</string>
     <string name="feedback_explanation_what_it_checks">What it checks</string>

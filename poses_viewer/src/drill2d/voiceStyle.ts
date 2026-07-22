@@ -9,9 +9,17 @@
 // Type-only: Phase keys the per-phase phrase map is indexed by (pattern metrics).
 import type { Phase } from './drillMetrics'
 
-export type MetricKey = 'elbow_angle' | 'shoulder_angle' | 'knee_bend' | 'torso_lean' | 'shoulder_tilt' | 'hip_flexion'
+export type MetricKey =
+  | 'elbow_angle' | 'shoulder_angle' | 'knee_bend' | 'torso_lean' | 'shoulder_tilt' | 'hip_flexion'
+  | 'follow_through_angle_2d' | 'stroke_speed' | 'coil_ratio'
 
-/** The coachable metrics (drive both the table and the voice), fixed order for tie stability. */
+/**
+ * The coachable metrics (drive both the table and the voice), fixed order for tie stability.
+ * Deliberately NOT the full [MetricKey] union: `follow_through_angle_2d`/`stroke_speed`/
+ * `coil_ratio` are new derived-metric keys added to the type (and given `cues` phrases below,
+ * for the Kotlin `VoicePresetCatalog` port) but are not yet wired into this viewer's live
+ * grading pipeline (decideRepCues/exercise focus areas) — that wiring is a separate task.
+ */
 export const VOICE_METRIC_KEYS: MetricKey[] = [
   'elbow_angle', 'shoulder_angle', 'knee_bend', 'torso_lean', 'shoulder_tilt', 'hip_flexion',
 ]
@@ -73,6 +81,9 @@ const PLAYFUL_EN: PhraseSet = {
     torso_lean: { up: 'stand a bit taller', down: 'lean into the ball' },
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
     hip_flexion: { up: 'ease the hips up a touch', down: 'sink into the hips' },
+    follow_through_angle_2d: { up: 'shorten the follow-through a touch', down: 'finish a little higher' },
+    stroke_speed: { up: 'ease off the speed a touch', down: 'swing with a bit more pace' },
+    coil_ratio: { up: 'ease off the rotation a touch', down: 'rotate through the ball a bit more' },
   },
   phaseCues: {
     elbow_angle: {
@@ -106,6 +117,9 @@ const PLAYFUL_UK: PhraseSet = {
     torso_lean: { up: 'тримайся трохи рівніше', down: 'нахились до мʼяча' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
     hip_flexion: { up: 'трохи вище стегнами', down: 'присядь у стегнах' },
+    follow_through_angle_2d: { up: 'трохи коротший фініш', down: 'завершуй трохи вище' },
+    stroke_speed: { up: 'трохи скинь швидкість', down: 'додай швидкості удару' },
+    coil_ratio: { up: 'трохи менше крутись', down: 'розкручуйся у мʼяч трохи більше' },
   },
   phaseCues: {
     elbow_angle: {
@@ -140,6 +154,9 @@ const STRICT_EN: PhraseSet = {
     torso_lean: { up: 'stand taller', down: 'lean in' },
     shoulder_tilt: { up: 'level the shoulders', down: 'level the shoulders' },
     hip_flexion: { up: 'stand tall', down: 'hinge forward' },
+    follow_through_angle_2d: { up: 'shorten the follow-through', down: 'finish higher' },
+    stroke_speed: { up: 'ease off the speed', down: 'swing faster' },
+    coil_ratio: { up: 'reduce the rotation', down: 'rotate more through the ball' },
   },
   phaseCues: {
     elbow_angle: {
@@ -173,6 +190,9 @@ const STRICT_UK: PhraseSet = {
     torso_lean: { up: 'тримайся рівніше', down: 'нахились уперед' },
     shoulder_tilt: { up: 'вирівняй плечі', down: 'вирівняй плечі' },
     hip_flexion: { up: 'вище', down: 'нахились у стегнах' },
+    follow_through_angle_2d: { up: 'коротший завершальний рух', down: 'завершуй вище' },
+    stroke_speed: { up: 'зменш швидкість', down: 'бий швидше' },
+    coil_ratio: { up: 'менше обертання тулуба', down: 'більше розкручуйся у мʼяч' },
   },
   phaseCues: {
     elbow_angle: {
@@ -207,6 +227,9 @@ const EFFICIENT_EN: PhraseSet = {
     torso_lean: { up: 'taller', down: 'lean in' },
     shoulder_tilt: { up: 'level shoulders', down: 'level shoulders' },
     hip_flexion: { up: 'hips up', down: 'hinge' },
+    follow_through_angle_2d: { up: 'shorten follow-through', down: 'finish higher' },
+    stroke_speed: { up: 'slow down', down: 'swing faster' },
+    coil_ratio: { up: 'less rotation', down: 'rotate more' },
   },
   phaseCues: {
     elbow_angle: {
@@ -240,6 +263,9 @@ const EFFICIENT_UK: PhraseSet = {
     torso_lean: { up: 'вище', down: 'нахились' },
     shoulder_tilt: { up: 'рівніше плечі', down: 'рівніше плечі' },
     hip_flexion: { up: 'вище', down: 'нахились' },
+    follow_through_angle_2d: { up: 'коротший фініш', down: 'вище фініш' },
+    stroke_speed: { up: 'повільніше', down: 'швидше' },
+    coil_ratio: { up: 'менше обертання', down: 'більше розкрутки' },
   },
   phaseCues: {
     elbow_angle: {

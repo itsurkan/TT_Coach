@@ -156,7 +156,8 @@ object StrokeSnapshotSelector {
     /**
      * Dispatches to the appropriate frame-selection strategy for a given [CorrectionType]:
      * - [CorrectionType.WRIST], [CorrectionType.CONTACT_HEIGHT], [CorrectionType.ELBOW_POSITION],
-     *   [CorrectionType.KNEE_BEND], [CorrectionType.BODY_ROTATION] -> [contactFrameIndex] (these are all measured at contact).
+     *   [CorrectionType.ELBOW_BEND], [CorrectionType.KNEE_BEND], [CorrectionType.POSTURE],
+     *   [CorrectionType.BODY_ROTATION] -> [contactFrameIndex] (these are all measured at contact).
      * - [CorrectionType.FOLLOW_THROUGH] -> [followThroughFrameIndex].
      * - [CorrectionType.STROKE_SPEED], [CorrectionType.GENERAL] -> [bestSnapshotFrameIndex].
      */
@@ -164,7 +165,9 @@ object StrokeSnapshotSelector {
         CorrectionType.WRIST,
         CorrectionType.CONTACT_HEIGHT,
         CorrectionType.ELBOW_POSITION,
+        CorrectionType.ELBOW_BEND,
         CorrectionType.KNEE_BEND,
+        CorrectionType.POSTURE,
         CorrectionType.BODY_ROTATION -> contactFrameIndex(frames)
         CorrectionType.FOLLOW_THROUGH -> followThroughFrameIndex(frames)
         CorrectionType.STROKE_SPEED,

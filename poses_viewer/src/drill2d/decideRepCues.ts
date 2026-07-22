@@ -7,7 +7,7 @@
  */
 import { FeedbackCue } from './feedbackCue'
 import { precisionFor } from './metricPrecision'
-import { ReferenceStandard, perPhaseRange, type PerPhaseRanges } from './referenceStandard'
+import { ReferenceStandard, perPhaseRange, type PerPhaseRanges, type MetricKey as PatternRangeMetricKey } from './referenceStandard'
 import { FeedbackSettings } from './feedbackSettings'
 import { MetricKey } from './voiceStyle'
 import type { Phase } from './drillMetrics'
@@ -92,7 +92,7 @@ export function decidePatternCues(
 ): FeedbackCue[] {
   const enabled = new Set<string>(settings.enabledMetrics as MetricKey[])
   const lookup = (metricKey: string, phase: Phase) =>
-    ranges ? (ranges[metricKey as MetricKey]?.[phase] ?? null) : perPhaseRange(metricKey, phase)
+    ranges ? (ranges[metricKey as PatternRangeMetricKey]?.[phase] ?? null) : perPhaseRange(metricKey, phase)
   const cues: FeedbackCue[] = []
   for (const metricKey of PATTERN_METRICS) {
     if (!enabled.has(metricKey)) continue
