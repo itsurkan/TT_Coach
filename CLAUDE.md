@@ -12,6 +12,23 @@ The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-a
 - **Phase 1 — desktop pose pipeline: DONE.** `scripts/poses/export_poses_rtmpose.py` (RTMPose-m + RTMDet-nano via MMPose, Mac M4) exports pose JSON **schema v2** (COCO-17; `--feet` flag → Halpe26 with foot keypoints). poses_viewer renders COCO-17/Halpe26 skeletons with an RTM header toggle.
 - **Phase 2 — drill logic in shared KMP: DONE (executed).** `models/` 2D types (Keypoint2D, PoseFrame2D, PoseSequence2D, Topology, Coco17, Handedness, Stroke2D, ViewGeometry w/ xScale); `io/PoseJsonV2Parser` (strict, field-order tripwire); `analysis/AngleCalculations2D` (xScale-corrected in-plane angles, facing-normalized torso lean), `analysis/CameraAngleEstimator` (per-stroke |yaw| from shoulder foreshortening); `detection/StrokeDetector2D` (torso-lengths/sec, ms windows, keep-max NMS, valley-clamped boundaries); `BaselineDeriver.deriveFromMetrics`; `drill/` (DrillMetrics extractAtPeak ±70ms median, SanityBounds, ForwardStrokeFilter speed-dominance, RepFilter banding, DrillFeedbackEngine, FeedbackMessageCatalog UA+EN, FeedbackCadencePolicy 3–5s, DrillCalibrator w/ per-rep yaw gate + CameraPlacementException, ForehandDriveDrillAnalyzer). Fixtures: full-fps `*_rtm.json` (andrii_1 @17ms, video_2 @20ms) + TestFixturesV2. E2E exit gate green (15 forward reps from 23 raw peaks on andrii_1).
 - **Phase 3 — Android port: DONE (2026-07-03).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface + `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a); `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory` loads models from assets or file path); `RtmposeFrameProcessor` camera bridge; `RtmposeDrillActivity`/`RtmposeTrainingController` live drill with baseline save — the main training screen runs the RTMPose live drill (`523161f`); `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
+- **Phase 4 — AI Coach (cloud-LLM premium): VALIDATED 2026-07-22, NOT STARTED (Phase 3 prerequisite met; parked while current-state delivery is the focus).**
+  Post-session LLM coach report + "Ask the coach" chat, grounded in the player's PersonalBaseline
+  (calibrate-don't-re-teach positioning). Subscription-gated: $11.99–12.99/mo + annual ~$79/yr
+  (unit econ via `pitch/unit_economics.py`: $12 ARPU + annual-plan churn ~8% → LTV:CAC 3.0×;
+  COGS ≈ $0.4–0.5/user/mo on Sonnet 5 with prompt caching). **Real-time cloud-LLM feedback
+  REJECTED — do not re-propose:** no shipped competitor does it (SwingVision/Sportsbox/Mustard/
+  SpinCoach are all post-session; Whoop/Strava LLMs are async-only), a 1.5–5s cloud round-trip vs
+  ~200ms motor reaction lands cues 1–2 strokes late (negative transfer), and per-user cost kills
+  margin; real-time stays on-device (existing 3–5s cue catalog). Payload = derived per-rep metrics
+  + baseline (~KB per session), **never raw poses** (2–3M tokens/session — economically
+  impossible). Ball/table/racket detection stays deferred to Stage 2 (no value post-session
+  without ball-interaction data). Remaining prerequisites before implementation: real Google Play
+  Billing (`SubscribeActivity` is currently a mock, nothing is gated), a thin backend proxy
+  holding the Anthropic API key (repo has zero backend code), server-side entitlement (Firestore
+  `isPremium` exists but unused). Prompt must mirror the trust rule (precise degrees only for the
+  5 in-plane metrics). Flow when picked up: brainstorming → spec → plan → subagent execution,
+  sliced billing → backend proxy → report → chat → UI (Session Review `6b`).
 
 **Canonical docs (read in this order when orienting):**
 1. [docs/superpowers/specs/2026-06-10-2d-pivot-design.md](docs/superpowers/specs/2026-06-10-2d-pivot-design.md) — pivot decisions + phase plan
