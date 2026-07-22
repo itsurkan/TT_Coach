@@ -91,6 +91,8 @@ class CommunityDrillsActivity : BaseActivity() {
     }
 
     private fun openDetail(drill: CommunityDrill) {
-        // TODO(Task 7): launch CommunityDrillDetailSheet
+        com.ttcoachai.ui.dialogs.CommunityDrillDetailSheet
+            .newInstance(drill.id)
+            .show(supportFragmentManager, com.ttcoachai.ui.dialogs.CommunityDrillDetailSheet.TAG)
     }
 }

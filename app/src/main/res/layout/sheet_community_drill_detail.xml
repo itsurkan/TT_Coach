@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="24dp">
+
+    <View
+        android:layout_width="38dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_ttc_bottom_sheet_handle"/>
+
+    <TextView
+        android:id="@+id/tvDetailName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textAppearance="@style/TextAppearance.TTC.Title.Card"
+        tools:text="Forehand Drive — advanced"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/ivDetailAvatar"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_marginEnd="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_person"
+            android:contentDescription="@null"/>
+
+        <TextView
+            android:id="@+id/tvDetailCreator"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.TTC.Body"
+            tools:text="by Andrii"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvDetailAverage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+        tools:text="★ 4.3 (12)"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/community_detail_focus_label"
+        android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+    <TextView
+        android:id="@+id/tvDetailFocus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="@style/TextAppearance.TTC.Body"
+        tools:text="Arm, shoulders, legs"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:text="@string/community_detail_template_label"
+        android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+    <TextView
+        android:id="@+id/tvDetailTemplate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textAppearance="@style/TextAppearance.TTC.Body"
+        tools:text="forehand_drive"/>
+
+    <TextView
+        android:id="@+id/tvDetailStrictness"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+        tools:text="Strictness ×1.0"/>
+
+    <LinearLayout
+        android:id="@+id/groupDetailPhaseTargets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="@string/community_detail_phase_targets_label"
+            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+        <TextView
+            android:id="@+id/tvDetailPhaseTargets"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="@style/TextAppearance.TTC.Body"
+            tools:text="knees · strike: 60–90°"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvRateHint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/community_rate_hint"
+        android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+    <RatingBar
+        android:id="@+id/rbDetailRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:numStars="5"
+        android:stepSize="1"
+        android:isIndicator="false"/>
+
+    <TextView
+        android:id="@+id/tvSignInToRate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/community_sign_in_to_rate"
+        android:textAppearance="@style/TextAppearance.TTC.Body.Secondary"
+        android:visibility="gone"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCopyToMyDrills"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/community_copy_button"
+        style="@style/TTC.Button.Primary"/>
+
+</LinearLayout>

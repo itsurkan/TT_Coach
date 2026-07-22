@@ -641,6 +641,18 @@
     <string name="community_empty_state">Поки що немає вправ спільноти</string>
     <string name="community_rating_format">★ %1$.1f (%2$d)</string>
     <string name="community_load_error">Не вдалося завантажити вправи спільноти</string>
+    <string name="community_copy_button">Скопіювати до моїх вправ</string>
+    <string name="community_copy_success_toast">Додано до моїх вправ</string>
+    <string name="community_rate_hint">Ваша оцінка</string>
+    <string name="community_sign_in_to_rate">Увійдіть, щоб оцінити</string>
+    <string name="community_rate_error">Не вдалося надіслати оцінку</string>
+    <string name="community_detail_by_format">від %1$s</string>
+    <string name="community_detail_focus_label">Фокус</string>
+    <string name="community_detail_no_focus">Загальна</string>
+    <string name="community_detail_template_label">Базовий шаблон</string>
+    <string name="community_detail_strictness_format">Суворість ×%1$.1f</string>
+    <string name="community_detail_phase_targets_label">Цілі по фазах</string>
+    <string name="community_detail_phase_target_format">%1$s: %2$d–%3$d°</string>
 
     <!-- Settings / Feedback / Detection redesign (gold-dark) -->
     <string name="settings_screen_title">Налаштування тренувань</string>

@@ -824,6 +824,18 @@
     <string name="community_empty_state">No community drills yet</string>
     <string name="community_rating_format">★ %1$.1f (%2$d)</string>
     <string name="community_load_error">Couldn\'t load community drills</string>
+    <string name="community_copy_button">Copy to my drills</string>
+    <string name="community_copy_success_toast">Added to My Drills</string>
+    <string name="community_rate_hint">Your rating</string>
+    <string name="community_sign_in_to_rate">Sign in to rate</string>
+    <string name="community_rate_error">Couldn\'t submit rating</string>
+    <string name="community_detail_by_format">by %1$s</string>
+    <string name="community_detail_focus_label">Focus areas</string>
+    <string name="community_detail_no_focus">General</string>
+    <string name="community_detail_template_label">Base template</string>
+    <string name="community_detail_strictness_format">Strictness ×%1$.1f</string>
+    <string name="community_detail_phase_targets_label">Per-phase targets</string>
+    <string name="community_detail_phase_target_format">%1$s: %2$d–%3$d°</string>
 
     <!-- Settings 8a -->
     <string name="settings_screen_title">Training settings</string>
