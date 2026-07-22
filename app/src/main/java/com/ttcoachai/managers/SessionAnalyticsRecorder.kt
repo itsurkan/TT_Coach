@@ -5,6 +5,7 @@ import com.ttcoachai.db.SessionAnalyticsDao
 import com.ttcoachai.models.SessionAnalyticsEntity
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
 import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
 
 /**
@@ -17,9 +18,10 @@ class SessionAnalyticsRecorder(private val dao: SessionAnalyticsDao) {
         sessionId: String,
         results: List<AnalysisResult>,
         feedback: List<FeedbackItem>,
+        isTypeEnabled: (CorrectionType) -> Boolean = { true },
     ) {
         if (sessionId.isBlank()) return
-        val analytics = SessionAnalyticsBuilder.build(sessionId, results, feedback)
+        val analytics = SessionAnalyticsBuilder.build(sessionId, results, feedback, isTypeEnabled)
         val entity = SessionAnalyticsEntity.fromDomain(analytics, System.currentTimeMillis())
         runCatching { dao.upsert(entity) }
             .onFailure { Log.e(TAG, "Failed to persist session analytics for $sessionId", it) }

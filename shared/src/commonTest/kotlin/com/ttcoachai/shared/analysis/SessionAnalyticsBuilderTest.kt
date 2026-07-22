@@ -86,6 +86,32 @@ class SessionAnalyticsBuilderTest {
     }
 
     @Test
+    fun focusAreas_defaultPredicate_includesAllNonGeneralTypes() {
+        val feedback = listOf(
+            fb(CorrectionType.WRIST), fb(CorrectionType.ELBOW_POSITION), fb(CorrectionType.KNEE_BEND)
+        )
+        val a = SessionAnalyticsBuilder.build("s", listOf(result(1, 50f)), feedback)
+        assertEquals(3, a.focusAreas.size)
+    }
+
+    @Test
+    fun focusAreas_onlyIncludesEnabledCorrectionTypes() {
+        val feedback = listOf(
+            fb(CorrectionType.WRIST), fb(CorrectionType.ELBOW_POSITION),
+            fb(CorrectionType.KNEE_BEND), fb(CorrectionType.KNEE_BEND)
+        )
+        val a = SessionAnalyticsBuilder.build(
+            sessionId = "s",
+            results = listOf(result(1, 50f)),
+            feedback = feedback,
+            isTypeEnabled = { type -> type == CorrectionType.KNEE_BEND }
+        )
+        assertEquals(1, a.focusAreas.size)
+        assertEquals(CorrectionType.KNEE_BEND, a.focusAreas[0].type)
+        assertEquals(2, a.focusAreas[0].count)
+    }
+
+    @Test
     fun summaryText_mentionsPeakPercent() {
         val results = listOf(result(1, 100f), result(2, 100f))
         val a = SessionAnalyticsBuilder.build("s", results, emptyList())

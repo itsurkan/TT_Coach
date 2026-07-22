@@ -292,10 +292,12 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             averageScore = averageScore,
             appVersion = try { packageManager.getPackageInfo(packageName, 0).versionName ?: "1.0" } catch (e: Exception) { "1.0" },
             onSaved = { sessionId ->
+                val settingsManager = SettingsManager(this@TrainingActivity)
                 app.sessionAnalyticsRecorder.record(
                     sessionId = sessionId,
                     results = stateManager.getAnalysisResults(),
-                    feedback = stateManager.getLatestFeedbackItems()
+                    feedback = stateManager.getLatestFeedbackItems(),
+                    isTypeEnabled = { type -> settingsManager.isCorrectionTypeEnabled(type) }
                 )
                 app.pendingReviewSessionId.value = sessionId
             }

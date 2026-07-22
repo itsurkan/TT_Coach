@@ -20,6 +20,7 @@ object SessionAnalyticsBuilder {
         sessionId: String,
         results: List<AnalysisResult>,
         feedback: List<FeedbackItem>,
+        isTypeEnabled: (CorrectionType) -> Boolean = { true },
     ): SessionAnalytics {
         val sorted = results.sortedBy { it.timestamp }
 
@@ -32,7 +33,7 @@ object SessionAnalyticsBuilder {
         timeline.forEachIndexed { i, v -> if (v > peak) { peak = v; peakIndex = i } }
 
         val focusAreas = feedback
-            .filter { it.type != CorrectionType.GENERAL }
+            .filter { it.type != CorrectionType.GENERAL && isTypeEnabled(it.type) }
             .groupingBy { it.type }
             .eachCount()
             .map { (type, count) -> FocusArea(type, count) }
