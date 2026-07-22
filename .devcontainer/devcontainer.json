@@ -1,0 +1,29 @@
+{
+  "name": "TT_Coach",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.13",
+      "installTools": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["anthropic.claude-code"]
+    }
+  },
+  "runArgs": ["--cap-add=NET_ADMIN", "--cap-add=NET_RAW"],
+  // Persist ~/.claude (auth + settings) across container rebuilds in a named volume.
+  // Auth can alternatively be provided via an ANTHROPIC_API_KEY env var instead of
+  // this persisted login state — set it in containerEnv or your shell profile if so.
+  "mounts": [
+    "source=ttcoach-claude-config,target=/home/vscode/.claude,type=volume"
+  ],
+  // Reapply the egress firewall on every container start — a restart drops the
+  // iptables rules, and a postCreate hook would only run once at creation.
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "remoteUser": "vscode"
+}
