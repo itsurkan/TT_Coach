@@ -112,6 +112,12 @@
             android:exported="false"
             android:parentActivityName=".MainActivity" />
 
+        <!-- Community Drills browse screen -->
+        <activity
+            android:name=".ui.CommunityDrillsActivity"
+            android:exported="false"
+            android:parentActivityName=".MainActivity" />
+
         <!-- Weekly Sessions Screen -->
         <activity
             android:name=".WeeklySessionsActivity"

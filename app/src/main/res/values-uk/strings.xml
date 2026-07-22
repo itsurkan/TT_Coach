@@ -633,6 +633,14 @@
     <string name="drill_share_error_toast">Не вдалося поділитися — спробуйте ще раз</string>
     <string name="drill_unshare_success_toast">Прибрано зі спільноти</string>
     <string name="drill_unshare_error_toast">Не вдалося прибрати — спробуйте ще раз</string>
+    <string name="community_title">Вправи спільноти</string>
+    <string name="community_search_hint">Пошук вправ</string>
+    <string name="community_sort_rating">Найкращі</string>
+    <string name="community_sort_newest">Найновіші</string>
+    <string name="community_sort_creator">Автор</string>
+    <string name="community_empty_state">Поки що немає вправ спільноти</string>
+    <string name="community_rating_format">★ %1$.1f (%2$d)</string>
+    <string name="community_load_error">Не вдалося завантажити вправи спільноти</string>
 
     <!-- Settings / Feedback / Detection redesign (gold-dark) -->
     <string name="settings_screen_title">Налаштування тренувань</string>

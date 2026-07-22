@@ -816,6 +816,14 @@
     <string name="drill_share_error_toast">Couldn\'t share — try again</string>
     <string name="drill_unshare_success_toast">Removed from community</string>
     <string name="drill_unshare_error_toast">Couldn\'t remove — try again</string>
+    <string name="community_title">Community drills</string>
+    <string name="community_search_hint">Search drills</string>
+    <string name="community_sort_rating">Top rated</string>
+    <string name="community_sort_newest">Newest</string>
+    <string name="community_sort_creator">Creator</string>
+    <string name="community_empty_state">No community drills yet</string>
+    <string name="community_rating_format">★ %1$.1f (%2$d)</string>
+    <string name="community_load_error">Couldn\'t load community drills</string>
 
     <!-- Settings 8a -->
     <string name="settings_screen_title">Training settings</string>
