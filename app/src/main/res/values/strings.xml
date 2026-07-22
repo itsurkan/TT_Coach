@@ -784,6 +784,8 @@
     <string name="drills_recent_accuracy">%1$d%% accuracy</string>
     <string name="drills_continue_training">Continue training</string>
     <string name="drills_add_own_exercise">+ Add your own exercise · calibration</string>
+    <string name="drills_community_entry_title">Community drills</string>
+    <string name="drills_community_entry_subtitle">Browse and copy drills shared by other players</string>
     <string name="calibration_intro_title">Exercise calibration</string>
     <string name="calibration_intro_body">1. Place the camera to the side, at waist height, 2–3 m away.\n2. Perform 8–10 strokes at your natural pace.\n3. The app will remember your angles as the baseline — this is your own technique, not a "correct" form.</string>
     <string name="calibration_intro_proceed">Start</string>

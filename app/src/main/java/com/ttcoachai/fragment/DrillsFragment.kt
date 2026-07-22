@@ -193,6 +193,10 @@ class DrillsFragment : Fragment() {
         binding.fabAddDrill.setOnClickListener {
             exerciseEditorLauncher.launch(ExerciseEditorActivity.newIntentNew(requireContext()))
         }
+
+        binding.cardCommunity.setOnClickListener {
+            startActivity(Intent(requireContext(), com.ttcoachai.ui.CommunityDrillsActivity::class.java))
+        }
     }
 
     /**
