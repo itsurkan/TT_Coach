@@ -76,7 +76,7 @@ object MovementCalibrator {
             val view = ViewGeometry(sequence.aspectRatio, yaw)
             MovementMetrics.extractAtPeak(
                 sequence.frames, stroke.peakFrame, handedness, view.xScale, sequence.intervalMs, definition.metrics
-            )
+            ) + DerivedMetrics.merge(sequence.frames, stroke, handedness, view.xScale, sequence.intervalMs)
         }
         val repPhases = placed.map { (stroke, _) ->
             mapOf(

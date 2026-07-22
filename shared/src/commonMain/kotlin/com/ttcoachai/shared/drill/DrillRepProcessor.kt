@@ -42,7 +42,8 @@ internal object DrillRepProcessor {
         // to plain aspect (this rep's metrics become diagnostics only; no cues).
         val view = if (yaw != null && placementOk) ViewGeometry(aspectRatio, yaw)
                    else ViewGeometry(aspectRatio)
-        val metrics = DrillMetrics.extractAtPeak(frames, stroke.peakFrame, handedness, view.xScale, intervalMs)
+        val metrics = DrillMetrics.extractAtPeak(frames, stroke.peakFrame, handedness, view.xScale, intervalMs) +
+            DerivedMetrics.merge(frames, stroke, handedness, view.xScale, intervalMs)
         val cues = if (placementOk) DrillFeedbackEngine.evaluateRep(metrics, baseline, rules)
                    else emptyList()
         return RepAnalysis(stroke, metrics, cues, cameraYawDeg = yaw, placementOk = placementOk)
