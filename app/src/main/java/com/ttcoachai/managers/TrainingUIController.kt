@@ -14,6 +14,7 @@ import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.CorrectionTypeAvailability
 import com.ttcoachai.shared.models.FeedbackItem
 import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
 
@@ -29,6 +30,32 @@ class TrainingUIController(
     private val onEndSession: () -> Unit
 ) {
     private val feedbackAdapter = FeedbackListAdapter(onRowClick = ::showFeedbackExplanation)
+
+    /** All 9 correction-toggle chips (drill-menu bottom sheet), paired with their [CorrectionType].
+     *  Visibility per live path is driven by [setCorrectionChipsForPath]; the stored per-type
+     *  enabled setting is never touched by hiding a chip. */
+    private val correctionChipPairs by lazy {
+        listOf(
+            binding.drillMenu.chipWrist to CorrectionType.WRIST,
+            binding.drillMenu.chipRotation to CorrectionType.BODY_ROTATION,
+            binding.drillMenu.chipFollowThrough to CorrectionType.FOLLOW_THROUGH,
+            binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
+            binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
+            binding.drillMenu.chipKneeBend to CorrectionType.KNEE_BEND,
+            binding.drillMenu.chipElbowBend to CorrectionType.ELBOW_BEND,
+            binding.drillMenu.chipPosture to CorrectionType.POSTURE,
+            binding.drillMenu.chipSpeed to CorrectionType.STROKE_SPEED,
+        )
+    }
+
+    /** Toggles chip VISIBILITY only for the given live path — never mutates the stored
+     *  `settingsManager.isCorrectionTypeEnabled` state for a hidden chip's type. */
+    fun setCorrectionChipsForPath(rtmPath: Boolean) {
+        val visible = CorrectionTypeAvailability.visibleFor(rtmPath)
+        correctionChipPairs.forEach { (chip, type) ->
+            chip.visibility = if (type in visible) View.VISIBLE else View.GONE
+        }
+    }
 
     fun setup() {
         setupBottomSheet()
@@ -81,20 +108,15 @@ class TrainingUIController(
         selectCues(settingsManager.getFeedbackFrequency(), persist = false)
 
         // Corrections
-        val correctionChips = listOf(
-            binding.drillMenu.chipWrist to CorrectionType.WRIST,
-            binding.drillMenu.chipRotation to CorrectionType.BODY_ROTATION,
-            binding.drillMenu.chipFollowThrough to CorrectionType.FOLLOW_THROUGH,
-            binding.drillMenu.chipContactHeight to CorrectionType.CONTACT_HEIGHT,
-            binding.drillMenu.chipElbow to CorrectionType.ELBOW_POSITION,
-            binding.drillMenu.chipKneeBend to CorrectionType.KNEE_BEND,
-        )
-        correctionChips.forEach { (chip, type) ->
+        correctionChipPairs.forEach { (chip, type) ->
             chip.isChecked = settingsManager.isCorrectionTypeEnabled(type)
             chip.setOnCheckedChangeListener { _, isChecked ->
                 settingsManager.setCorrectionTypeEnabled(type, isChecked)
             }
         }
+        // Default to the RTM path so the correct 7-chip set is shown before
+        // decideCameraModeAndStart resolves the actual path (async baseline lookup).
+        setCorrectionChipsForPath(true)
     }
 
     private fun setupFeedbackSettingsCollapse() {

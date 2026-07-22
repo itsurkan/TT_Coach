@@ -13,6 +13,7 @@ import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentFeedbackBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.CorrectionTypeAvailability
 
 class FeedbackFragment : Fragment() {
 
@@ -71,6 +72,9 @@ class FeedbackFragment : Fragment() {
             R.id.chip_contact_height to CorrectionType.CONTACT_HEIGHT,
             R.id.chip_elbow to CorrectionType.ELBOW_POSITION,
             R.id.chip_knee_bend to CorrectionType.KNEE_BEND,
+            R.id.chip_elbow_bend to CorrectionType.ELBOW_BEND,
+            R.id.chip_posture to CorrectionType.POSTURE,
+            R.id.chip_speed to CorrectionType.STROKE_SPEED,
         )
         correctionChips.forEach { (chipId, type) ->
             val chip = binding.root.findViewById<com.google.android.material.chip.Chip>(chipId)
@@ -78,6 +82,9 @@ class FeedbackFragment : Fragment() {
             chip.setOnCheckedChangeListener { _, isChecked ->
                 sm.setCorrectionTypeEnabled(type, isChecked)
             }
+            // This screen documents the RTM path's toggles; WRIST/CONTACT_HEIGHT chips are
+            // hidden here (visibility only — the stored setting is untouched).
+            chip.visibility = if (type in CorrectionTypeAvailability.RTM) View.VISIBLE else View.GONE
         }
 
         // ===== Cue zones =====
