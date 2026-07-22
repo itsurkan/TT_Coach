@@ -328,17 +328,13 @@ class ExerciseEditorActivity : BaseActivity() {
             findViewById<android.widget.EditText>(row.fromId).setText("")
             findViewById<android.widget.EditText>(row.toId).setText("")
         }
-        if (perPhaseTargetsJson.isBlank()) return
-        val json = try {
-            JSONObject(perPhaseTargetsJson)
-        } catch (e: Exception) {
-            return
-        }
+        // Shared parser (com.ttcoachai.util.PerPhaseTargetsCodec) so this UI-bound decode and
+        // TrainingActivity's live-path decode read the same JSON format one way, not two.
+        val parsed = com.ttcoachai.util.PerPhaseTargetsCodec.parse(perPhaseTargetsJson)
         for (row in advancedRows) {
-            val arr = json.optJSONArray(row.jsonKey) ?: continue
-            if (arr.length() < 2) continue
-            findViewById<android.widget.EditText>(row.fromId).setText(arr.optInt(0).toString())
-            findViewById<android.widget.EditText>(row.toId).setText(arr.optInt(1).toString())
+            val (from, to) = parsed[row.jsonKey] ?: continue
+            findViewById<android.widget.EditText>(row.fromId).setText(from.toInt().toString())
+            findViewById<android.widget.EditText>(row.toId).setText(to.toInt().toString())
         }
     }
 

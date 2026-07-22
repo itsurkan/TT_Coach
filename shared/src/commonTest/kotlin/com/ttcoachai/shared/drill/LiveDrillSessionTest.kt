@@ -4,6 +4,7 @@ import com.ttcoachai.shared.detection.StrokeDetector2D
 import com.ttcoachai.shared.models.Coco17
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.Keypoint2D
+import com.ttcoachai.shared.models.MetricStats
 import com.ttcoachai.shared.models.PersonalBaseline
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,6 +42,12 @@ class LiveDrillSessionTest {
         kp[Coco17.LEFT_HIP] = Keypoint2D(0.49f, 0.55f, 1f)
         kp[Coco17.RIGHT_HIP] = Keypoint2D(0.51f, 0.55f, 1f)
         kp[Coco17.RIGHT_WRIST] = Keypoint2D(wx, 0.5f, 1f)
+        // Fixed knee/ankle (same every frame) so knee_bend is a real, non-degenerate
+        // hip-knee-ankle angle instead of AngleCalculations2D's coincident-point null —
+        // needed for the metricBands wiring test below; irrelevant to every other test
+        // in this file since none of them assert on knee_bend.
+        kp[Coco17.RIGHT_KNEE] = Keypoint2D(0.51f, 0.75f, 1f)
+        kp[Coco17.RIGHT_ANKLE] = Keypoint2D(0.41f, 0.95f, 1f)
         return kp
     }
 
@@ -196,6 +203,60 @@ class LiveDrillSessionTest {
         assertNotNull(session.latestSkeleton())
         session.reset()
         assertNull(session.latestSkeleton())
+    }
+
+    // ---- metricBands (custom-drill editor knee-bend target override, live-path wiring) ----
+
+    /** Knee/ankle fixed at the coords baked into [keypointsAt] yield a hip-knee-ankle angle
+     *  of ~153° every frame (verified by [rangeRuleOverridesBaselineThatWouldOtherwisePass]
+     *  in DrillFeedbackEngineTest via the same geometry-independent math — here we only need
+     *  it to be a stable, non-null, non-degenerate value). */
+    private fun baselineWithLooseKneeStats(): PersonalBaseline = PersonalBaseline(
+        drillType = "forehand_drive",
+        metricStats = mapOf(DrillMetrics.METRIC_KNEE_BEND to MetricStats(mean = 150.0, std = 20.0, min = 100.0, max = 200.0, sampleCount = 10)),
+        phaseDurationsMs = emptyMap(),
+        repCount = 10,
+        excludedRepIndices = emptyList(),
+        qualityScore = 1.0,
+        createdAtMs = 0L
+    )
+
+    @Test
+    fun withoutMetricBandsLooseBaselinePassesAndSpeaksPositiveMessage() {
+        val session = LiveDrillSession(
+            baseline = baselineWithLooseKneeStats(),
+            aspectRatio = 1f,
+            handedness = Handedness.RIGHT,
+            cameraYawDeg = 0f
+        )
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        val feedback = feedAll(session, singleStrokeXs, timestamps)
+
+        assertEquals(1, feedback.size)
+        assertEquals(FeedbackMessageCatalog.positive(FeedbackLang.EN), feedback[0].message,
+            "~153° is within mean150±2*20=[110,190] -> no cue -> positive reinforcement")
+    }
+
+    @Test
+    fun metricBandOverridesLooseBaselineAndSpeaksKneeTooStraightCue() {
+        val session = LiveDrillSession(
+            baseline = baselineWithLooseKneeStats(),
+            aspectRatio = 1f,
+            handedness = Handedness.RIGHT,
+            cameraYawDeg = 0f,
+            metricBands = mapOf(DrillMetrics.METRIC_KNEE_BEND to 110.0..130.0)
+        )
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        val feedback = feedAll(session, singleStrokeXs, timestamps)
+
+        assertEquals(1, feedback.size)
+        val message = feedback[0].message
+        assertTrue(
+            message.startsWith("Legs straighter than your usual — bend the knees more"),
+            "~153° is above the explicit band's max (130) -> TOO_HIGH knee cue must override the passing baseline consistency check, got: $message"
+        )
     }
 
     // ---- onRep (rep-event side channel for UI counters) ----

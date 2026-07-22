@@ -16,6 +16,13 @@ object DrillMetrics {
 
     const val METRIC_ELBOW_ANGLE = "elbow_angle"
     const val METRIC_SHOULDER_ANGLE = "shoulder_angle"
+    /**
+     * hip-knee-ankle angle at the stroke's wrist-speed peak (strike), NOT the backswing.
+     * [extractAtPeak] only ever computes one value per rep from the frames around
+     * [peakFrame] — there is no separate backswing-phase extraction — so an editor-authored
+     * "knees · backswing" target has no metric to bind to; only "knees · strike" is wireable
+     * via a [com.ttcoachai.shared.analysis.BaselineRule.RangeRule] against this key.
+     */
     const val METRIC_KNEE_BEND = "knee_bend"
     const val METRIC_TORSO_LEAN = "torso_lean"
     const val METRIC_SHOULDER_TILT = "shoulder_tilt"

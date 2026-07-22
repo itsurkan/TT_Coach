@@ -61,6 +61,13 @@ class RtmposeTrainingController(
     private val settingsManager: SettingsManager,
     private val baseline: PersonalBaseline,
     private val onUiUpdate: () -> Unit,
+    /**
+     * Explicit min..max bands (e.g. custom-drill editor "knees · strike" target, decoded by
+     * [com.ttcoachai.util.PerPhaseTargetsCodec] in [com.ttcoachai.TrainingActivity]) that
+     * override the baseline consistency rule for the given metric key in [LiveDrillSession].
+     * Empty (default) reproduces the exact pre-existing baseline-only behavior.
+     */
+    private val metricBands: Map<String, ClosedRange<Double>> = emptyMap(),
 ) {
     companion object {
         private const val TAG = "RtmposeTrainingCtrl"
@@ -280,7 +287,8 @@ class RtmposeTrainingController(
                 aspectRatio = aspectRatio,
                 handedness = handedness(),
                 lang = coachLang(),
-                cameraYawDeg = 0f
+                cameraYawDeg = 0f,
+                metricBands = metricBands
             )
             // onRep fires synchronously inside onFrame, which we only ever call from the UI
             // thread (see the runOnUiThread hop in the processor callback in start()) — no

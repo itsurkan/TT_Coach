@@ -15,6 +15,8 @@ import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
+import com.ttcoachai.shared.drill.DrillMetrics
+import com.ttcoachai.util.PerPhaseTargetsCodec
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -34,6 +36,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
      *  Legacy path leaves this null and PoseAnalysisProcessor/CameraFragment run as before. */
     private var rtmController: RtmposeTrainingController? = null
+
+    /**
+     * Custom-drill editor's "knees · strike" target, decoded once in [initializeAnalysis]
+     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart] so
+     * the RTM live path (not just the legacy [PoseAnalysisProcessor] path above) enforces it.
+     * Null when the intent carried no such target — RTM path behaves exactly as before.
+     */
+    private var kneeBendStrikeBand: ClosedRange<Double>? = null
 
     companion object {
         private const val TAG = "TrainingActivity"
@@ -89,21 +99,16 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         }
         
         val targetsJson = intent.getStringExtra("PER_PHASE_TARGETS_JSON").orEmpty()
-        if (targetsJson.isNotBlank()) {
-            runCatching { org.json.JSONObject(targetsJson) }.getOrNull()?.let { json ->
-                json.optJSONArray("knees · backswing")?.takeIf { it.length() >= 2 }?.let {
-                    exerciseParameters = exerciseParameters.copy(
-                        kneeBendBackswingMin = it.optInt(0).toFloat(),
-                        kneeBendBackswingMax = it.optInt(1).toFloat()
-                    )
-                }
-                json.optJSONArray("knees · strike")?.takeIf { it.length() >= 2 }?.let {
-                    exerciseParameters = exerciseParameters.copy(
-                        kneeBendStrikeMin = it.optInt(0).toFloat(),
-                        kneeBendStrikeMax = it.optInt(1).toFloat()
-                    )
-                }
-            }
+        val perPhaseTargets = PerPhaseTargetsCodec.parse(targetsJson)
+        perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_BACKSWING]?.let { (min, max) ->
+            exerciseParameters = exerciseParameters.copy(kneeBendBackswingMin = min, kneeBendBackswingMax = max)
+        }
+        // Also feeds RtmposeTrainingController below (decideCameraModeAndStart) — the RTM
+        // live path has no separate backswing-phase metric to bind to (see DrillMetrics.
+        // METRIC_KNEE_BEND KDoc), so only the strike band is wired there.
+        perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_STRIKE]?.let { (min, max) ->
+            exerciseParameters = exerciseParameters.copy(kneeBendStrikeMin = min, kneeBendStrikeMax = max)
+            kneeBendStrikeBand = min.toDouble()..max.toDouble()
         }
 
         poseAnalysisProcessor = PoseAnalysisProcessor(
@@ -173,7 +178,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     stateManager = stateManager,
                     settingsManager = SettingsManager(this@TrainingActivity),
                     baseline = baseline,
-                    onUiUpdate = { uiController.updateStats() }
+                    onUiUpdate = { uiController.updateStats() },
+                    metricBands = kneeBendStrikeBand?.let { mapOf(DrillMetrics.METRIC_KNEE_BEND to it) } ?: emptyMap()
                 )
                 if (controller.start()) {
                     rtmController = controller

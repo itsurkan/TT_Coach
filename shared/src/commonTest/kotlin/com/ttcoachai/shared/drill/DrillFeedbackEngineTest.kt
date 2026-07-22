@@ -113,6 +113,77 @@ class DrillFeedbackEngineTest {
         assertEquals(MetricPrecision.QUALITATIVE, cues[0].precision)
     }
 
+    // ---- BaselineRule.RangeRule (custom-drill editor knee-bend targets, per-band override) ----
+
+    @Test
+    fun rangeRuleWithinBandYieldsNoCue() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeStats) // mean 150, std 4
+        val rules = listOf(
+            BaselineRule.RangeRule(id = "range:knee_bend", metricKey = DrillMetrics.METRIC_KNEE_BEND, min = 110.0, max = 130.0)
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 120.0), b, rules)
+        assertTrue(cues.isEmpty(), "120 is inside [110,130], got $cues")
+    }
+
+    @Test
+    fun rangeRuleBelowMinYieldsTooLowCue() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeStats)
+        val rules = listOf(
+            BaselineRule.RangeRule(id = "range:knee_bend", metricKey = DrillMetrics.METRIC_KNEE_BEND, min = 110.0, max = 130.0)
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 100.0), b, rules)
+        assertEquals(1, cues.size)
+        assertEquals(CueDirection.TOO_LOW, cues[0].direction)
+        assertEquals(-10.0, cues[0].deltaFromMean, 1e-9)
+    }
+
+    @Test
+    fun rangeRuleAboveMaxYieldsTooHighCue() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeStats)
+        val rules = listOf(
+            BaselineRule.RangeRule(id = "range:knee_bend", metricKey = DrillMetrics.METRIC_KNEE_BEND, min = 110.0, max = 130.0)
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 140.0), b, rules)
+        assertEquals(1, cues.size)
+        assertEquals(CueDirection.TOO_HIGH, cues[0].direction)
+        assertEquals(10.0, cues[0].deltaFromMean, 1e-9)
+    }
+
+    @Test
+    fun rangeRuleOverridesBaselineThatWouldOtherwisePass() {
+        // The user's exact scenario: baseline mean 97 (well within 2 sigma, would pass a
+        // ConsistencyRule) but the editor's explicit knee-bend strike band 110-130 must
+        // still flag it.
+        val looseKneeStats = com.ttcoachai.shared.models.MetricStats(mean = 97.0, std = 15.0, min = 70.0, max = 120.0, sampleCount = 10)
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to looseKneeStats)
+        val consistencyRules = BaselineRuleFactory.defaultRules(b)
+        assertTrue(
+            DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 97.0), b, consistencyRules).isEmpty(),
+            "sanity: 97 must pass the plain baseline consistency rule"
+        )
+
+        val bandRules = BaselineRuleFactory.applyRangeOverrides(
+            consistencyRules,
+            mapOf(DrillMetrics.METRIC_KNEE_BEND to 110.0..130.0)
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 97.0), b, bandRules)
+        assertEquals(1, cues.size, "band override must flag 97 even though baseline consistency alone would pass it")
+        assertEquals(CueDirection.TOO_LOW, cues[0].direction)
+        // baseline still has stats for this metric -> severity normalized by std, not the fixed fallback scale.
+        assertEquals(13.0 / 15.0, cues[0].severity, 1e-9)
+    }
+
+    @Test
+    fun rangeRuleWithNoBaselineStatsFallsBackToFixedSeverityScale() {
+        val b = baseline() // no stats at all for knee_bend
+        val rules = listOf(
+            BaselineRule.RangeRule(id = "range:knee_bend", metricKey = DrillMetrics.METRIC_KNEE_BEND, min = 110.0, max = 130.0)
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_KNEE_BEND to 140.0), b, rules)
+        assertEquals(1, cues.size)
+        assertEquals(10.0 / DrillFeedbackEngine.DEFAULT_RANGE_SEVERITY_SCALE_DEGREES, cues[0].severity, 1e-9)
+    }
+
     @Test
     fun threeArgOverloadDelegatesToMetricPrecisionPolicy() {
         val b = baseline(DrillMetrics.METRIC_ELBOW_ANGLE to elbowStats)

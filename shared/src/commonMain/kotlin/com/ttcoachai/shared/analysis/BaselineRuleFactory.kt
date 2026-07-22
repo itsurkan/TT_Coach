@@ -40,4 +40,26 @@ object BaselineRuleFactory {
         }
         return rules
     }
+
+    /**
+     * Overlays explicit min..max bands on top of an existing rule list. For each metric key
+     * present in [bands]: drops that metric's [BaselineRule.ConsistencyRule] (if any) and
+     * appends a [BaselineRule.RangeRule] for the band instead. Rules for every other metric
+     * pass through unchanged — this is how a coach-authored per-phase target (custom-drill
+     * editor "knees · strike" range) overrides the derived-baseline consistency check for
+     * ONLY that metric, without needing a parallel rule-evaluation mechanism.
+     */
+    fun applyRangeOverrides(
+        rules: List<BaselineRule>,
+        bands: Map<String, ClosedRange<Double>>
+    ): List<BaselineRule> {
+        if (bands.isEmpty()) return rules
+        val withoutOverriddenConsistency = rules.filterNot {
+            it is BaselineRule.ConsistencyRule && it.metricKey in bands
+        }
+        val rangeRules = bands.map { (metricKey, band) ->
+            BaselineRule.RangeRule(id = "range:$metricKey", metricKey = metricKey, min = band.start, max = band.endInclusive)
+        }
+        return withoutOverriddenConsistency + rangeRules
+    }
 }

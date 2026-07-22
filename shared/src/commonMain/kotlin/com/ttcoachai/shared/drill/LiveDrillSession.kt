@@ -23,7 +23,7 @@ class LiveDrillSession(
     private val baseline: PersonalBaseline,
     /** Camera frame width/height (keypoints are per-axis normalized). */
     private val aspectRatio: Float,
-    private val rules: List<BaselineRule> = BaselineRuleFactory.defaultRules(baseline),
+    rules: List<BaselineRule> = BaselineRuleFactory.defaultRules(baseline),
     private val handedness: Handedness = Handedness.RIGHT,
     private val lang: FeedbackLang = FeedbackLang.EN,
     /** ONE long-lived instance — cadence state spans the whole live session. */
@@ -32,8 +32,19 @@ class LiveDrillSession(
     private val cameraYawDeg: Float? = null,
     private val maxCameraYawDeg: Float = DrillCalibrator.DEFAULT_MAX_CAMERA_YAW_DEG,
     private val hipTravelMaxTorso: Float = LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO,
-    private val bufferMs: Long = 4000L
+    private val bufferMs: Long = 4000L,
+    /**
+     * Optional explicit min..max bands (e.g. custom-drill editor "knees · strike" target)
+     * that REPLACE the baseline consistency rule for the given metric key — see
+     * [BaselineRuleFactory.applyRangeOverrides]. [DrillMetrics.extractAtPeak] only ever
+     * produces ONE `knee_bend` value per rep (median at the stroke's wrist-speed peak,
+     * i.e. the strike) — there is no separate backswing-phase metric extraction yet, so
+     * a backswing band has nothing to attach to and is silently unused if passed here.
+     * Empty map (default) reproduces the exact pre-existing baseline-only behavior.
+     */
+    metricBands: Map<String, ClosedRange<Double>> = emptyMap()
 ) {
+    private val rules: List<BaselineRule> = BaselineRuleFactory.applyRangeOverrides(rules, metricBands)
 
     init {
         require(maxCameraYawDeg <= ViewGeometry.MAX_YAW_DEG) {

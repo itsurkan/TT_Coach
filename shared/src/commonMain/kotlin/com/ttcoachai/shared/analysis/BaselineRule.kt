@@ -29,4 +29,17 @@ sealed class BaselineRule {
         override val metricKey: String,
         val maxDurationDeviationPct: Double
     ) : BaselineRule()
+
+    /**
+     * "stay within an explicit [min, max] band" — independent of the personal baseline's
+     * mean/std. Used to enforce coach-authored/editor targets (e.g. custom-drill knee-bend
+     * strike range) as an absolute degree band rather than a relative-to-this-player
+     * consistency check. See [BaselineRuleFactory.applyRangeOverrides].
+     */
+    data class RangeRule(
+        override val id: String,
+        override val metricKey: String,
+        val min: Double,
+        val max: Double
+    ) : BaselineRule()
 }

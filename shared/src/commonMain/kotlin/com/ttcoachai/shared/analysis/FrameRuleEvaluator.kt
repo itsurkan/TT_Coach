@@ -31,6 +31,16 @@ object FrameRuleEvaluator {
         is BaselineRule.ConsistencyRule -> evaluateConsistency(rule, baseline, metricValue)
         is BaselineRule.RegressionRule -> evaluateRegression(rule, baseline, metricValue)
         is BaselineRule.RhythmRule -> null
+        is BaselineRule.RangeRule -> evaluateRange(rule, metricValue)
+    }
+
+    /** Explicit band, no baseline lookup needed — that's the point of [BaselineRule.RangeRule]. */
+    private fun evaluateRange(
+        rule: BaselineRule.RangeRule,
+        metricValue: Double?
+    ): Boolean? {
+        if (metricValue == null) return null
+        return metricValue in rule.min..rule.max
     }
 
     private fun evaluateConsistency(
