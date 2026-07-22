@@ -197,9 +197,17 @@ class PoseAnalysisProcessor(
         }
         stateManager.addFeedback(feedbackText)
 
-        val feedbackWithLandmarks = bestResult.feedbackItems.map { item ->
-            item.copy(strokeLandmarks = currentStrokeLandmarks.toList())
-        }
+        // Gate on the live per-type Settings toggle (SettingsManager.isCorrectionTypeEnabled),
+        // read fresh on every call rather than snapshotted. Positive items and GENERAL (no
+        // dedicated chip, so it must not be silently droppable) always pass; other disabled
+        // types are filtered from the stream that feeds the on-screen feedback list, counts,
+        // flagged items, and the explain sheet.
+        val feedbackWithLandmarks = bestResult.feedbackItems
+            .filter { item ->
+                item.isPositive || item.type == com.ttcoachai.shared.models.CorrectionType.GENERAL ||
+                    application.settingsManager.isCorrectionTypeEnabled(item.type)
+            }
+            .map { item -> item.copy(strokeLandmarks = currentStrokeLandmarks.toList()) }
         stateManager.addFeedbackItems(feedbackWithLandmarks)
     }
 

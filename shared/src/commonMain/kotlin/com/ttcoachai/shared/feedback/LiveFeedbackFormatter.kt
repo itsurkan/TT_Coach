@@ -25,12 +25,21 @@ object LiveFeedbackFormatter {
      * preserve that behavior here rather than "fixing" it), else the positive
      * pool as a fallback.
      *
+     * @param isCorrectionTypeEnabled same semantics as [detailedFeedback]'s predicate:
+     *   negative items whose [CorrectionType] is disabled are skipped when picking the
+     *   "first negative item"; defaults to allowing everything (legacy unfiltered
+     *   behavior) for callers that don't care about per-type toggles.
      * @param pickIndex given the pool size, returns the index to use (caller
      *   supplies e.g. `Random::nextInt` on Android).
      */
-    fun shortFeedback(result: AnalysisResult, lang: FeedbackLang, pickIndex: (Int) -> Int): String {
+    fun shortFeedback(
+        result: AnalysisResult,
+        lang: FeedbackLang,
+        isCorrectionTypeEnabled: (CorrectionType) -> Boolean = { true },
+        pickIndex: (Int) -> Int
+    ): String {
         if (result.overallScore >= 85) return randomPositive(lang, pickIndex)
-        val firstNegative = result.feedbackItems.firstOrNull { !it.isPositive }
+        val firstNegative = result.feedbackItems.firstOrNull { !it.isPositive && isCorrectionTypeEnabled(it.type) }
         return firstNegative?.message ?: randomPositive(lang, pickIndex)
     }
 

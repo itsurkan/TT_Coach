@@ -50,6 +50,38 @@ class LiveFeedbackFormatterTest {
     }
 
     @Test
+    fun shortFeedbackSkipsDisabledTypeAndReturnsNextEnabledNegativeItem() {
+        // BODY_ROTATION disabled -> skip it, fall through to the WRIST item.
+        val result = AnalysisResult(overallScore = 50f, feedbackItems = listOf(
+            FeedbackItem(message = "error_low_rotation", type = CorrectionType.BODY_ROTATION, isPositive = false),
+            FeedbackItem(message = "error_wrist_bent", type = CorrectionType.WRIST, isPositive = false)
+        ))
+        assertEquals(
+            "error_wrist_bent",
+            LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.EN, isCorrectionTypeEnabled = { it != CorrectionType.BODY_ROTATION }) { 0 }
+        )
+    }
+
+    @Test
+    fun shortFeedbackFallsBackToPositiveWhenAllNegativeTypesDisabled() {
+        val result = AnalysisResult(overallScore = 50f, feedbackItems = listOf(
+            FeedbackItem(message = "error_low_rotation", type = CorrectionType.BODY_ROTATION, isPositive = false),
+            FeedbackItem(message = "error_wrist_bent", type = CorrectionType.WRIST, isPositive = false)
+        ))
+        val picked = LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.EN, isCorrectionTypeEnabled = { false }) { 1 }
+        assertEquals(LiveFeedbackCatalog.POSITIVE_FEEDBACK[1], picked)
+    }
+
+    @Test
+    fun shortFeedbackDefaultPredicateAllowsAllTypes() {
+        // Default param (no predicate passed) preserves the unfiltered legacy behavior.
+        val result = AnalysisResult(overallScore = 50f, feedbackItems = listOf(
+            FeedbackItem(message = "error_low_rotation", type = CorrectionType.BODY_ROTATION, isPositive = false)
+        ))
+        assertEquals("error_low_rotation", LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.EN) { 0 })
+    }
+
+    @Test
     fun shortFeedbackPositivePoolUsesUkrainianWhenRequested() {
         val result = AnalysisResult(overallScore = 90f, feedbackItems = emptyList())
         val picked = LiveFeedbackFormatter.shortFeedback(result, FeedbackLang.UA) { 0 }

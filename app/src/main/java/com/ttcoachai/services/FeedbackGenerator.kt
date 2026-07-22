@@ -78,7 +78,11 @@ class FeedbackGenerator(private val context: Context) {
      * Generate short feedback for TTS
      */
     fun generateShortFeedback(result: AnalysisResult): String =
-        LiveFeedbackFormatter.shortFeedback(result, currentLang()) { size -> random.nextInt(size) }
+        LiveFeedbackFormatter.shortFeedback(
+            result,
+            currentLang(),
+            isCorrectionTypeEnabled = { type -> settingsManager.isCorrectionTypeEnabled(type) }
+        ) { size -> random.nextInt(size) }
 
     /**
      * Generate detailed feedback for UI

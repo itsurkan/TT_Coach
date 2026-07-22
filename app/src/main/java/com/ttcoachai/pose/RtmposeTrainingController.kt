@@ -71,12 +71,15 @@ class RtmposeTrainingController(
          * existing live-feedback list/chips UI already understands. This is NOT a semantic
          * equivalence — e.g. "torso_lean"/"shoulder_tilt"/"shoulder_angle" all collapse onto
          * BODY_ROTATION purely because that's the closest existing UI bucket, not because they
-         * measure the same thing as legacy body-rotation feedback.
+         * measure the same thing as legacy body-rotation feedback. `knee_bend` maps to the
+         * dedicated [CorrectionType.KNEE_BEND] bucket (not GENERAL) so the per-type toggle in
+         * Settings can actually gate knee-bend cues.
          */
         internal fun mapMetricToCorrectionType(metricKey: String?): CorrectionType = when (metricKey) {
             null -> CorrectionType.GENERAL
             "elbow_angle" -> CorrectionType.ELBOW_POSITION
             "torso_lean", "shoulder_tilt", "shoulder_angle" -> CorrectionType.BODY_ROTATION
+            "knee_bend" -> CorrectionType.KNEE_BEND
             else -> CorrectionType.GENERAL
         }
 
@@ -245,14 +248,22 @@ class RtmposeTrainingController(
         val activeSession = ensureSession()
         val feedback: List<SpokenFeedback> = activeSession.onFrame(keypoints, timestampMs)
         for (item in feedback) {
+            val isPositive = item.cue == null
+            val type = mapMetricToCorrectionType(item.cue?.metricKey)
+            // Positive reinforcement and GENERAL cues always pass; everything else is gated
+            // live on the per-type Settings toggle so a disabled correction type produces no
+            // voice cue, no on-screen text, and no feedback-list/count entry.
+            val allowed = isPositive || type == CorrectionType.GENERAL || settingsManager.isCorrectionTypeEnabled(type)
+            if (!allowed) continue
+
             voiceController?.speak(item)
             stateManager.addFeedback(item.message)
             stateManager.addFeedbackItems(
                 listOf(
                     FeedbackItem(
                         message = item.message,
-                        type = mapMetricToCorrectionType(item.cue?.metricKey),
-                        isPositive = item.cue == null
+                        type = type,
+                        isPositive = isPositive
                     )
                 )
             )

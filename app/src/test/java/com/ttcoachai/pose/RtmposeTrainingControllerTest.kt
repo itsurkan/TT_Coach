@@ -52,9 +52,9 @@ class RtmposeTrainingControllerTest {
     }
 
     @Test
-    fun mapMetricToCorrectionType_kneeBend_isGeneral() {
+    fun mapMetricToCorrectionType_kneeBend_isKneeBend() {
         assertEquals(
-            CorrectionType.GENERAL,
+            CorrectionType.KNEE_BEND,
             RtmposeTrainingController.mapMetricToCorrectionType("knee_bend")
         )
     }
