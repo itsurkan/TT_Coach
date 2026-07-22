@@ -863,7 +863,6 @@
     <string name="correction_wrist">Wrist Angle</string>
     <string name="correction_rotation">Body Rotation</string>
     <string name="correction_elbow">Elbow Position</string>
-    <string name="correction_speed">Stroke Speed</string>
     <string name="correction_knee_bend">Knee Bend</string>
     <!-- Detection 11b -->
     <string name="detection_title">Detection</string>

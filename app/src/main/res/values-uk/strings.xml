@@ -680,7 +680,6 @@
     <string name="correction_wrist">Кут зап\'ястя</string>
     <string name="correction_rotation">Ротація корпусу</string>
     <string name="correction_elbow">Позиція ліктя</string>
-    <string name="correction_speed">Швидкість удару</string>
     <string name="correction_knee_bend">Згин колін</string>
 
     <string name="detection_title">Виявлення</string>
