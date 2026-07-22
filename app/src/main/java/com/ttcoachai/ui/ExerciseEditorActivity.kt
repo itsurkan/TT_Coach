@@ -15,8 +15,14 @@ import com.ttcoachai.calibration.CalibrationActivity
 import com.ttcoachai.databinding.ActivityExerciseEditorBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
+import com.ttcoachai.pose.RtmposeDrillActivity
 import com.ttcoachai.repository.CustomDrillRepository
+import com.ttcoachai.repository.PersonalBaselineRepository
+import com.ttcoachai.shared.analysis.BaselineHintBand
+import com.ttcoachai.shared.drill.DrillMetrics
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -71,6 +77,16 @@ class ExerciseEditorActivity : BaseActivity() {
         val jsonKey: String,
     )
 
+    /**
+     * Per-phase-target rows that have a matching baseline metric (sampled once per rep at the
+     * stroke peak = strike) — every other row (backswing rows, elbow/shoulder/hips) has no
+     * baseline stat that matches its phase semantics, so it keeps its static XML hint.
+     */
+    private val personalizedHintMetrics: Map<String, String> = mapOf(
+        "knees · strike" to DrillMetrics.METRIC_KNEE_BEND,
+        "torso tilt · strike" to DrillMetrics.METRIC_TORSO_LEAN,
+    )
+
     private val advancedRows: List<AdvancedRow> by lazy {
         listOf(
             AdvancedRow(R.id.et_elbow_backswing_from, R.id.et_elbow_backswing_to, "elbow · backswing"),
@@ -107,6 +123,7 @@ class ExerciseEditorActivity : BaseActivity() {
         setupModeChrome()
         wireInteractions()
         loadInitialState()
+        loadBaselineHints()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -212,6 +229,35 @@ class ExerciseEditorActivity : BaseActivity() {
         updateStrictnessLabel(state.strictnessX)
 
         decodeAdvancedTargets(state.perPhaseTargetsJson)
+    }
+
+    /**
+     * Replaces the static XML hint on [personalizedHintMetrics] rows with a baseline-derived
+     * `mean ± kSigma·std` band, so an empty field's placeholder reflects what actually applies
+     * (the derived-baseline consistency check) rather than a hardcoded generic range. Loaded
+     * asynchronously — same lookup TrainingActivity uses (active baseline for
+     * [RtmposeDrillActivity.DRILL_TYPE]) — and left untouched (static hint stays) on any
+     * failure: no baseline, missing metric, or a degenerate (std <= 0) stat.
+     */
+    private fun loadBaselineHints() {
+        lifecycleScope.launch {
+            val baseline = try {
+                PersonalBaselineRepository(AppDatabase.getDatabase(this@ExerciseEditorActivity).personalBaselineDao())
+                    .getActiveBaseline(RtmposeDrillActivity.DRILL_TYPE)
+                    .first()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                null
+            } ?: return@launch
+
+            for (row in advancedRows) {
+                val metricKey = personalizedHintMetrics[row.jsonKey] ?: continue
+                val band = BaselineHintBand.compute(baseline.metricStats[metricKey]) ?: continue
+                findViewById<android.widget.EditText>(row.fromId).hint = band.first.toString()
+                findViewById<android.widget.EditText>(row.toId).hint = band.second.toString()
+            }
+        }
     }
 
     // endregion
