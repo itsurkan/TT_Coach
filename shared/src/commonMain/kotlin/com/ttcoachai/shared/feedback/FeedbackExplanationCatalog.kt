@@ -48,14 +48,14 @@ object FeedbackExplanationCatalog {
         ),
         CorrectionType.BODY_ROTATION to mapOf(
             FeedbackLang.EN to FeedbackExplanation(
-                title = "Body Rotation",
-                whatItChecks = "How much your hips and shoulders turn together during the backswing and forward swing, compared with your own usual rotation.",
+                title = "Rotation",
+                whatItChecks = "How much your shoulders coil back and then open through the ball — an estimate of your trunk rotation compared with your own usual turn.",
                 whyItMatters = "Rotation is where a forehand's power actually comes from — an arm-only swing with little turn feels weak and inconsistent, and it makes timing much harder to repeat.",
                 howToFix = "Turn your shoulders and hips together on the backswing like winding a spring, then unwind them into the shot — let the turn drive the racket instead of just swinging with the arm."
             ),
             FeedbackLang.UA to FeedbackExplanation(
-                title = "Ротація корпусу",
-                whatItChecks = "Наскільки стегна та плечі повертаються разом під час замаху й проведення удару, порівняно з твоєю звичною ротацією.",
+                title = "Скрутка",
+                whatItChecks = "Наскільки твої плечі скручуються назад і потім розкриваються крізь м'яч — приблизна оцінка ротації корпусу порівняно з твоїм звичним поворотом.",
                 whyItMatters = "Саме ротація дає силу форхенду — удар лише рукою без повороту корпусу виходить слабким і нестабільним, і його набагато важче повторювати однаково.",
                 howToFix = "На замаху повертай плечі й стегна разом, ніби закручуєш пружину, а потім розкручуй їх в удар — нехай ракетку веде поворот корпусу, а не тільки рука."
             )
@@ -102,6 +102,20 @@ object FeedbackExplanationCatalog {
                 howToFix = "Тримай лікоть на зручній, стабільній відстані від тіла — достатньо близько, щоб відчувати зв'язок з обертанням корпусу, і достатньо вільно, щоб рука могла рухатись без затиснень."
             )
         ),
+        CorrectionType.ELBOW_BEND to mapOf(
+            FeedbackLang.EN to FeedbackExplanation(
+                title = "Elbow Bend",
+                whatItChecks = "How bent your elbow is (the shoulder-elbow-wrist angle) at contact, compared with your own usual bend.",
+                whyItMatters = "The amount of elbow bend sets your reach and the whip through the ball — an arm that's too straight or too folded changes where and how cleanly you strike, and makes the stroke harder to repeat.",
+                howToFix = "Keep a consistent, slightly bent elbow through the swing — not locked straight, not collapsed tight — and let the same shape repeat rep to rep."
+            ),
+            FeedbackLang.UA to FeedbackExplanation(
+                title = "Згин ліктя",
+                whatItChecks = "Наскільки зігнутий твій лікоть (кут плече-лікоть-зап'ястя) у момент контакту, порівняно з твоїм звичним згином.",
+                whyItMatters = "Ступінь згину ліктя задає твій вимах і \"батіг\" крізь м'яч — надто пряма чи надто складена рука змінює точку й чистоту удару та ускладнює його повторення.",
+                howToFix = "Тримай стабільний, трохи зігнутий лікоть протягом усього удару — не випрямляй у замок і не складай надто щільно — і повторюй ту саму форму від разу до разу."
+            )
+        ),
         CorrectionType.STROKE_SPEED to mapOf(
             FeedbackLang.EN to FeedbackExplanation(
                 title = "Stroke Speed",
@@ -128,6 +142,20 @@ object FeedbackExplanationCatalog {
                 whatItChecks = "Наскільки зігнуті твої коліна (кут стегно-коліно-гомілка) під час замаху й удару, тобто чи тримаєшся ти в завантаженій, трохи присадкуватій стійці, замість того щоб стояти прямо.",
                 whyItMatters = "Саме зігнуті коліна дають баланс і силу ніг — рівна стійка вбиває передачу сили в удар і сильно ускладнює швидке відновлення між ударами.",
                 howToFix = "Тримайся низько в атлетичній готовій стійці з м'яко зігнутими колінами й вагою на передній частині стоп, і зберігай цей згин протягом усього удару, замість того щоб випрямлятись у момент контакту."
+            )
+        ),
+        CorrectionType.POSTURE to mapOf(
+            FeedbackLang.EN to FeedbackExplanation(
+                title = "Posture",
+                whatItChecks = "How far your upper body leans forward or stays upright (your spine's angle) at the strike, compared with your own usual posture.",
+                whyItMatters = "Your torso lean sets your balance and the height you strike from — standing too upright or tipping too far forward moves your contact point and makes timing and recovery harder.",
+                howToFix = "Hinge slightly forward from the hips into an athletic, balanced posture and keep that same lean through the stroke, rather than standing tall or bending over the ball."
+            ),
+            FeedbackLang.UA to FeedbackExplanation(
+                title = "Постава",
+                whatItChecks = "Наскільки твій корпус нахилений уперед чи тримається прямо (кут хребта) у момент удару, порівняно з твоєю звичною поставою.",
+                whyItMatters = "Нахил корпусу задає баланс і висоту, з якої ти б'єш — надто пряма стійка або надто сильний нахил зміщують точку контакту й ускладнюють тайминг і відновлення.",
+                howToFix = "Трохи нахились уперед від стегон в атлетичну, збалансовану поставу й тримай той самий нахил протягом удару, замість того щоб стояти прямо чи нависати над м'ячем."
             )
         ),
         CorrectionType.GENERAL to mapOf(

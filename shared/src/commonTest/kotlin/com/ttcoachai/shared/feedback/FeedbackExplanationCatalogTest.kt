@@ -61,13 +61,15 @@ class FeedbackExplanationCatalogTest {
     }
 
     @Test
-    fun bodyRotationTitleMatchesExistingAppTerminology() {
+    fun bodyRotationTitleMatchesCoilProxyTerminology() {
+        // BODY_ROTATION now backs the coil_ratio proxy (trunk coil/rotation), not the old
+        // lean/tilt bundle — lean is POSTURE's job. Title tightened accordingly (Task 8).
         assertEquals(
-            "Body Rotation",
+            "Rotation",
             FeedbackExplanationCatalog.explain(CorrectionType.BODY_ROTATION, FeedbackLang.EN).title
         )
         assertEquals(
-            "Ротація корпусу",
+            "Скрутка",
             FeedbackExplanationCatalog.explain(CorrectionType.BODY_ROTATION, FeedbackLang.UA).title
         )
     }
