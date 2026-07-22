@@ -1,17 +1,17 @@
 # TT_Coach_AI Development Guidelines
 
-Last updated: 2026-06-10 (2D pivot). Read the "Current direction" section first — it overrides older context below.
+Last updated: 2026-07-22 (Phase 3 status). Read the "Current direction" section first — it overrides older context below.
 
 ## Current direction — 2D PIVOT (2026-06-10, branch `2d`)
 
 The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-angle coaching MVP on RTMPose, desktop-first**. Fixed/structured drills (first: forehand drive, side camera), voice/text feedback at 3–5 s cadence, reference angles derived from the player's **personal baseline** (003 calibration path) — calibrate to the player's technique, don't re-teach.
 
-**Frozen, not deleted** (returns post-MVP as Stage 2 — don't modify, don't delete, don't call from new code): `BallDetectorV1–V6`, `ROIManager`, trajectory code (`TimelineSynchronizer`/`TrajectoryFilter`/`TrajectorySegmenter`), audio-contact + frame-extraction Python scripts, YOLO training, the live MediaPipe pipeline in `app/` (ports to RTMPose in Phase 3).
+**Frozen, not deleted** (returns post-MVP as Stage 2 — don't modify, don't delete, don't call from new code): `BallDetectorV1–V6`, `ROIManager`, trajectory code (`TimelineSynchronizer`/`TrajectoryFilter`/`TrajectorySegmenter`), audio-contact + frame-extraction Python scripts, YOLO training, the live MediaPipe pipeline in `app/` (superseded by the Phase 3 RTMPose backend in `app/.../pose/`, kept frozen).
 
 **Phase status:**
 - **Phase 1 — desktop pose pipeline: DONE.** `scripts/poses/export_poses_rtmpose.py` (RTMPose-m + RTMDet-nano via MMPose, Mac M4) exports pose JSON **schema v2** (COCO-17; `--feet` flag → Halpe26 with foot keypoints). poses_viewer renders COCO-17/Halpe26 skeletons with an RTM header toggle.
 - **Phase 2 — drill logic in shared KMP: DONE (executed).** `models/` 2D types (Keypoint2D, PoseFrame2D, PoseSequence2D, Topology, Coco17, Handedness, Stroke2D, ViewGeometry w/ xScale); `io/PoseJsonV2Parser` (strict, field-order tripwire); `analysis/AngleCalculations2D` (xScale-corrected in-plane angles, facing-normalized torso lean), `analysis/CameraAngleEstimator` (per-stroke |yaw| from shoulder foreshortening); `detection/StrokeDetector2D` (torso-lengths/sec, ms windows, keep-max NMS, valley-clamped boundaries); `BaselineDeriver.deriveFromMetrics`; `drill/` (DrillMetrics extractAtPeak ±70ms median, SanityBounds, ForwardStrokeFilter speed-dominance, RepFilter banding, DrillFeedbackEngine, FeedbackMessageCatalog UA+EN, FeedbackCadencePolicy 3–5s, DrillCalibrator w/ per-rep yaw gate + CameraPlacementException, ForehandDriveDrillAnalyzer). Fixtures: full-fps `*_rtm.json` (andrii_1 @17ms, video_2 @20ms) + TestFixturesV2. E2E exit gate green (15 forward reps from 23 raw peaks on andrii_1).
-- **Phase 3 — Android port: NOT STARTED.** `PoseBackend` interface, RTMPose-s via ncnn/ONNX Runtime Mobile, TTS feedback.
+- **Phase 3 — Android port: DONE (2026-07-03).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface + `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a); `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory` loads models from assets or file path); `RtmposeFrameProcessor` camera bridge; `RtmposeDrillActivity`/`RtmposeTrainingController` live drill with baseline save — the main training screen runs the RTMPose live drill (`523161f`); `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
 
 **Canonical docs (read in this order when orienting):**
 1. [docs/superpowers/specs/2026-06-10-2d-pivot-design.md](docs/superpowers/specs/2026-06-10-2d-pivot-design.md) — pivot decisions + phase plan
@@ -86,13 +86,14 @@ shared/                      # KMP module — ALL NEW LOGIC GOES HERE (Phase 2)
   src/commonTest/            # pure-Kotlin tests + resources/fixtures/ (JSON pose fixtures, v1 + v2)
   src/jvmTest/               # fixture loaders (TestFixtures v1, TestFixturesV2) + fixture-driven tests
 
-app/                         # Android app — frozen live pipeline; Phase 3 will add PoseBackend here
+app/                         # Android app — RTMPose live pipeline in pose/ (Phase 3); legacy MediaPipe pipeline frozen
   src/main/java/com/ttcoachai/
+    pose/                    # Phase 3 (DONE): PoseBackend, RtmposeBackend (ONNX Runtime), YoloxDetector, RtmposeEstimator, RtmposeDrillActivity, PresetVoiceController/DrillTtsController
     processors/              # PoseAnalysisProcessor (LIVE + CALIBRATION modes) — frozen
     managers/                # TrainingStateManager, CalibrationStateManager — frozen
     tracking/                # FROZEN: BallDetectorV1..V6, ROIManager
     services/                # MotionAnalyzer, FeedbackGenerator — frozen
-    helpers/                 # PoseLandmarkerProcessor (MediaPipe) — frozen, replaced by RTMPose in Phase 3
+    helpers/                 # PoseLandmarkerProcessor (MediaPipe) — frozen legacy; superseded by pose/ RTMPose backend
     calibration/             # CalibrationActivity flow (Stage 1 Phase 1) — UX reused for drills later
     debug/                   # BaselineDebugActivity, BaselinePreviewActivity (FLAG_DEBUGGABLE-gated)
     repository/ db/ models/  # Room + Firestore; PersonalBaselineEntity, DrillConfigEntity
@@ -166,7 +167,7 @@ Summarized below to avoid re-reads during UI-wiring work — check here before r
 - **`Videos/` footage was not shot to the camera-placement protocol** — fine for pipeline bring-up and mechanics tests, not for tuning reference ranges. End-to-end tests prove mechanics, not tuned thresholds.
 - **commonMain has no `java.lang.Math` / no ClassLoader** — use `kotlin.math`; resource-loading fixture tests go in `jvmTest`, not `commonTest`.
 
-## Gotchas — frozen pipeline (relevant when build breaks or for Stage 2 / Phase 3 port)
+## Gotchas — frozen legacy pipeline (relevant when build breaks or for Stage 2)
 
 - **Live `DetectedStroke` is reconstructed, not detected** — `PoseAnalysisProcessor` tracks phase transitions and assembles the stroke at finalization; only boundary frames + `strokeDurationMs` populated, velocity/peak fields stay 0f (unused by `BaselineDeriver`). [PoseAnalysisProcessor.kt](app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt)
 - **`CameraFragment` skips its own processor when hosted by a `LandmarkerListener` activity** — new such activities must join the carve-out check at [CameraFragment.kt:164](app/src/main/java/com/ttcoachai/fragment/CameraFragment.kt#L164) or you get double-processing. Current: `TrainingActivity`, `CalibrationActivity`.
