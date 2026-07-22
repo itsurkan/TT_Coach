@@ -45,6 +45,8 @@ class DrillsFragment : Fragment() {
         CustomDrillRepository(AppDatabase.getDatabase(requireContext()).customDrillDao())
     }
 
+    private val communityDrillRepo by lazy { com.ttcoachai.repository.CommunityDrillRepository() }
+
     private val trainingDao by lazy {
         AppDatabase.getDatabase(requireContext()).trainingDao()
     }
@@ -276,12 +278,15 @@ class DrillsFragment : Fragment() {
         val rowEdit = view.findViewById<View>(R.id.rowEdit)
         val rowClone = view.findViewById<View>(R.id.rowClone)
         val rowRename = view.findViewById<View>(R.id.rowRename)
+        val rowShare = view.findViewById<View>(R.id.rowShare)
+        val rowUnshare = view.findViewById<View>(R.id.rowUnshare)
         val rowDelete = view.findViewById<View>(R.id.rowDelete)
 
         fun wire(row: View, enabled: Boolean, run: () -> Unit) {
             if (enabled) row.setOnClickListener { dialog.dismiss(); run() }
             else row.visibility = View.GONE
         }
+        val isShared = exercise.sharedCommunityId != null
         wire(rowContinue, DrillActions.canContinue(exercise)) { onExerciseSelected(exercise) }
         wire(rowEdit, DrillActions.canEdit(exercise)) {
             exerciseEditorLauncher.launch(
@@ -290,12 +295,16 @@ class DrillsFragment : Fragment() {
         }
         wire(rowClone, DrillActions.canClone(exercise)) { cloneDrill(exercise) }
         wire(rowRename, DrillActions.canRename(exercise)) { renameDrill(exercise) }
+        wire(rowShare, DrillActions.canShareToCommunity(exercise, isShared)) { shareToCommunity(exercise) }
+        wire(rowUnshare, DrillActions.canUnshare(exercise, isShared)) { unshareFromCommunity(exercise) }
         wire(rowDelete, DrillActions.canDelete(exercise)) { deleteDrill(exercise) }
 
-        // Dividers only separate visible groups (continue | edit/clone/rename | delete).
+        // Dividers only separate visible groups (continue | edit/clone/rename/share/unshare | delete).
         val midVisible = rowEdit.visibility == View.VISIBLE ||
             rowClone.visibility == View.VISIBLE ||
-            rowRename.visibility == View.VISIBLE
+            rowRename.visibility == View.VISIBLE ||
+            rowShare.visibility == View.VISIBLE ||
+            rowUnshare.visibility == View.VISIBLE
         view.findViewById<View>(R.id.divider1).visibility =
             if (rowContinue.visibility == View.VISIBLE && midVisible) View.VISIBLE else View.GONE
         view.findViewById<View>(R.id.divider2).visibility =
@@ -360,6 +369,68 @@ class DrillsFragment : Fragment() {
         }
     }
 
+    private fun shareToCommunity(exercise: Exercise) {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null || user.isAnonymous) {
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.community_sign_in_required_title)
+                .setMessage(R.string.community_sign_in_required_message)
+                .setPositiveButton(R.string.dialog_ok, null)
+                .show()
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            val entity = withContext(Dispatchers.IO) { customDrillRepo.get(exercise.id) } ?: return@launch
+            val drill = com.ttcoachai.models.CommunityDrillMapper.fromCustomDrill(
+                entity,
+                user.uid,
+                user.displayName ?: getString(R.string.community_anonymous_creator),
+                user.photoUrl?.toString() ?: "",
+                System.currentTimeMillis()
+            )
+            val result = withContext(Dispatchers.IO) { communityDrillRepo.publish(drill) }
+            if (_binding == null) return@launch
+            if (result.isSuccess) {
+                val id = result.getOrThrow()
+                withContext(Dispatchers.IO) { customDrillRepo.save(entity.copy(sharedCommunityId = id)) }
+                if (_binding == null) return@launch
+                reloadCustomDrills()
+                Toast.makeText(requireContext(), R.string.drill_share_success_toast, Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), R.string.drill_share_error_toast, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun unshareFromCommunity(exercise: Exercise) {
+        val communityId = exercise.sharedCommunityId ?: return
+        com.ttcoachai.ui.dialogs.ConfirmDialog.show(
+            context = requireContext(),
+            iconRes = R.drawable.ic_trash,
+            title = getString(R.string.drill_unshare_confirm_title),
+            body = getString(R.string.drill_unshare_confirm_message, exercise.name),
+            confirmLabel = getString(R.string.drill_unshare_confirm_button),
+            cancelLabel = getString(R.string.drill_cancel),
+            destructive = true
+        ) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return@launch
+                val entity = withContext(Dispatchers.IO) { customDrillRepo.get(exercise.id) } ?: return@launch
+                val result = withContext(Dispatchers.IO) { communityDrillRepo.unshare(communityId, uid) }
+                if (_binding == null) return@launch
+                if (result.isSuccess) {
+                    withContext(Dispatchers.IO) { customDrillRepo.save(entity.copy(sharedCommunityId = null)) }
+                    if (_binding == null) return@launch
+                    reloadCustomDrills()
+                    Toast.makeText(requireContext(), R.string.drill_unshare_success_toast, Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), R.string.drill_unshare_error_toast, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
     private fun reloadCustomDrills() {
         if (_binding == null) return
         lifecycleScope.launch {
@@ -377,7 +448,8 @@ class DrillsFragment : Fragment() {
         description = getString(R.string.exercise_forehand_desc),
         difficulty = getString(R.string.difficulty_beginner),
         duration = getString(R.string.duration_10_15),
-        category = getString(R.string.drills_custom_category)
+        category = getString(R.string.drills_custom_category),
+        sharedCommunityId = sharedCommunityId
     )
 
     private fun onExerciseSelected(exercise: Exercise) {

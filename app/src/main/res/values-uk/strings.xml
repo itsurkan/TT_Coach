@@ -621,6 +621,18 @@
     <string name="drill_delete_confirm">Видалити</string>
     <string name="drill_delete_toast">Видалено «%1$s»</string>
     <string name="drill_cancel">Скасувати</string>
+    <string name="drill_share_community">Поділитися зі спільнотою</string>
+    <string name="drill_unshare_community">Прибрати зі спільноти</string>
+    <string name="drill_unshare_confirm_title">Прибрати зі спільноти?</string>
+    <string name="drill_unshare_confirm_message">«%1$s» більше не бачитимуть інші гравці. Ваша локальна копія залишиться.</string>
+    <string name="drill_unshare_confirm_button">Прибрати</string>
+    <string name="community_sign_in_required_title">Потрібен вхід</string>
+    <string name="community_sign_in_required_message">Увійдіть через Google, щоб ділитися вправами зі спільнотою.</string>
+    <string name="community_anonymous_creator">Анонім</string>
+    <string name="drill_share_success_toast">Опубліковано у спільноті</string>
+    <string name="drill_share_error_toast">Не вдалося поділитися — спробуйте ще раз</string>
+    <string name="drill_unshare_success_toast">Прибрано зі спільноти</string>
+    <string name="drill_unshare_error_toast">Не вдалося прибрати — спробуйте ще раз</string>
 
     <!-- Settings / Feedback / Detection redesign (gold-dark) -->
     <string name="settings_screen_title">Налаштування тренувань</string>

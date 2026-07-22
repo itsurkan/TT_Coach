@@ -19,6 +19,8 @@ object DrillActions {
     fun canEdit(exercise: Exercise): Boolean = isCustom(exercise)
     fun canRename(exercise: Exercise): Boolean = isCustom(exercise)
     fun canDelete(exercise: Exercise): Boolean = isCustom(exercise)
+    fun canShareToCommunity(exercise: Exercise, isShared: Boolean): Boolean = isCustom(exercise) && !isShared
+    fun canUnshare(exercise: Exercise, isShared: Boolean): Boolean = isCustom(exercise) && isShared
 
     /**
      * Identifies the most-recent drill for the RECENT card without disturbing the

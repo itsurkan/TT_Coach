@@ -56,4 +56,27 @@ class DrillActionsTest {
         assertNull(recent)
         assertEquals(listOf("a", "b"), programs.map { it.id })
     }
+
+    @Test
+    fun custom_notShared_canShareTrue_canUnshareFalse() {
+        val e = ex("custom_1720000000000")
+        assertTrue(DrillActions.canShareToCommunity(e, isShared = false))
+        assertFalse(DrillActions.canUnshare(e, isShared = false))
+    }
+
+    @Test
+    fun custom_shared_canShareFalse_canUnshareTrue() {
+        val e = ex("custom_1720000000000")
+        assertFalse(DrillActions.canShareToCommunity(e, isShared = true))
+        assertTrue(DrillActions.canUnshare(e, isShared = true))
+    }
+
+    @Test
+    fun builtIn_bothFalse_regardlessOfSharedState() {
+        val e = ex("forehand_drive")
+        assertFalse(DrillActions.canShareToCommunity(e, isShared = false))
+        assertFalse(DrillActions.canUnshare(e, isShared = false))
+        assertFalse(DrillActions.canShareToCommunity(e, isShared = true))
+        assertFalse(DrillActions.canUnshare(e, isShared = true))
+    }
 }

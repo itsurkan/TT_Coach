@@ -804,6 +804,18 @@
     <string name="drill_delete_confirm">Delete</string>
     <string name="drill_delete_toast">Deleted \"%1$s\"</string>
     <string name="drill_cancel">Cancel</string>
+    <string name="drill_share_community">Share to community</string>
+    <string name="drill_unshare_community">Remove from community</string>
+    <string name="drill_unshare_confirm_title">Remove from community?</string>
+    <string name="drill_unshare_confirm_message">\"%1$s\" will no longer be visible to other players. Your local copy stays.</string>
+    <string name="drill_unshare_confirm_button">Remove</string>
+    <string name="community_sign_in_required_title">Sign in required</string>
+    <string name="community_sign_in_required_message">Sign in with Google to share drills with the community.</string>
+    <string name="community_anonymous_creator">Anonymous</string>
+    <string name="drill_share_success_toast">Shared to community</string>
+    <string name="drill_share_error_toast">Couldn\'t share — try again</string>
+    <string name="drill_unshare_success_toast">Removed from community</string>
+    <string name="drill_unshare_error_toast">Couldn\'t remove — try again</string>
 
     <!-- Settings 8a -->
     <string name="settings_screen_title">Training settings</string>

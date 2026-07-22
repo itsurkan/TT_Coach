@@ -123,5 +123,6 @@ data class Exercise(
     val duration: String,
     val category: String = "Technique",
     val isLocked: Boolean = false,
-    var useVideo: Boolean = false
+    var useVideo: Boolean = false,
+    val sharedCommunityId: String? = null
 )
