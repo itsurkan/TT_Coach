@@ -19,7 +19,7 @@ class DrillMetricsTest {
     }
 
     @Test
-    fun extractsAllFiveMetricsFromGoodFrame() {
+    fun extractsAllFourPeakMetricsFromGoodFrame() {
         val f = frame(
             Coco17.RIGHT_SHOULDER to Keypoint2D(0.50f, 0.30f, 1f),
             Coco17.LEFT_SHOULDER to Keypoint2D(0.48f, 0.30f, 1f),
@@ -36,8 +36,7 @@ class DrillMetricsTest {
                 DrillMetrics.METRIC_ELBOW_ANGLE,
                 DrillMetrics.METRIC_SHOULDER_ANGLE,
                 DrillMetrics.METRIC_KNEE_BEND,
-                DrillMetrics.METRIC_TORSO_LEAN,
-                DrillMetrics.METRIC_SHOULDER_TILT
+                DrillMetrics.METRIC_TORSO_LEAN
             ),
             m.keys
         )

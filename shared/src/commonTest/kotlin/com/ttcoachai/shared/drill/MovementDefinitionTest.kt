@@ -17,7 +17,6 @@ class MovementDefinitionTest {
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_SHOULDER_ANGLE))
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_KNEE_BEND))
         assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_TORSO_LEAN))
-        assertEquals(MetricPrecision.PRECISE_DEGREES, definition.precisionFor(DrillMetrics.METRIC_SHOULDER_TILT))
     }
 
     @Test
