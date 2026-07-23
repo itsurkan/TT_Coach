@@ -75,6 +75,34 @@ Direct-from-client Firestore, **no backend** (consistent with repo's zero-backen
   **never travel to Firestore**; a copied drill is fresh/unlinked (`custom_<ms>` id).
 - Plan: [docs/superpowers/plans/2026-07-22-community-drills.md](docs/superpowers/plans/2026-07-22-community-drills.md).
 
+## Pose data upload (shipped 2026-07-23)
+
+Every RTM training session's full per-frame pose stream is captured to a local gzipped
+schema-v2 JSON and uploaded to Firebase Storage in the background. Consent-gated, default ON.
+- **Capture:** [PoseJsonV2Writer](shared/src/commonMain/kotlin/com/ttcoachai/shared/io/PoseJsonV2Writer.kt)
+  (streaming mirror of the parser; own `round4` since commonMain has no `String.format`) →
+  [PoseSessionRecorder](app/src/main/java/com/ttcoachai/pose/PoseSessionRecorder.kt) (frame lines to
+  a PLAIN temp file on a single-thread dispatcher, gzip only at `finish()` — the header needs
+  `totalFrames`/`videoDurationMs`, which are end-of-session facts). Cap 60k frames.
+- **Upload:** `app/.../work/{PoseUploadTask,PoseUploadWorker,PoseUploadQueue}` on WorkManager
+  (first `androidx.work` use). Unique work `pose-upload-<sessionId>`, ANY network, backoff.
+  `PoseUploadTask` holds all decision logic so it is JVM-testable without Robolectric.
+- **Size:** measured 886 B/frame compact, 158 B/frame gzipped → 15 min @15fps ≈ 12 MB raw /
+  2.1 MB gzipped. Uncompressed is NOT viable; gzip is load-bearing.
+- **The recorder is NOT `LiveDrillSession`.** That keeps a ~4s rolling buffer and
+  `TrainingStateManager` keeps 10 reps — neither may be repurposed for full-session capture.
+- **Every non-saving exit path must abort the recording** (discard, <5s guard, unauthenticated,
+  failed save, `onDestroy`) or the sweep uploads an orphan with no session. Finalization is
+  claimed by an `AtomicBoolean` CAS so `onDestroy`'s safety net can't pre-empt a real save —
+  it did exactly that once and silently broke the entire happy path.
+- **`storage.rules` is documentation-as-code, MANUAL deploy** (`firebase deploy --only storage`),
+  same as `firestore.rules`. Cloud Storage ≠ Cloud Firestore: separate file, separate
+  `firebase.json` key, separate deploy. **NOT YET DEPLOYED — release gate.**
+  Split `read, delete` from `write`: `request.resource` is null on reads/deletes, so folding
+  them together denies every download and deletion.
+- Spec: [docs/superpowers/specs/2026-07-23-pose-upload-firebase-design.md](docs/superpowers/specs/2026-07-23-pose-upload-firebase-design.md) ·
+  plan: [docs/superpowers/plans/2026-07-23-pose-upload-firebase.md](docs/superpowers/plans/2026-07-23-pose-upload-firebase.md).
+
 ## RTM correction taxonomy (shipped 2026-07-23)
 
 The RTM live-drill coaching set is **7 honest per-axis cues**, each backed by exactly one metric:
