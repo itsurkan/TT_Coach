@@ -33,4 +33,10 @@ not a generic one — screenshots accumulate during a session.
 - `unauthorized` → accept the "Allow USB debugging" prompt on the phone.
 - Multiple devices → add `-s <serial>` (serial from `adb devices`), e.g.
   `adb -s adb-RFCWB0AZP2D-1oe5GR exec-out screencap -p > tmp/screenshots/screen.png`.
+  **Usually it's the SAME phone advertised twice** (a wireless `ip:port` transport plus an
+  `adb-<serial>._adb-tls-connect._tcp` mDNS one) — `adb devices -l` shows both with the same
+  `model:SM_S911B`. Either transport works; pick the `ip:port` one. For a sequence of adb calls
+  (tap → swipe → screencap), `export ANDROID_SERIAL=192.168.31.6:44389` once instead of repeating
+  `-s` — and note `adb $S ...` with `S="-s <serial>"` fails ("`-s` requires an argument") under
+  zsh word-splitting, which is why the env var is the reliable form.
 - `adb` not on PATH → it's at `~/Library/Android/sdk/platform-tools/adb`.
