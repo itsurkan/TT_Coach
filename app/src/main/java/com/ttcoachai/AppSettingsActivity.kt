@@ -8,6 +8,7 @@ import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
 import com.ttcoachai.TTCoachApplication
 import androidx.lifecycle.lifecycleScope
+import androidx.work.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -147,9 +148,17 @@ class AppSettingsActivity : AppCompatActivity() {
         binding.switchPoseUpload.setOnCheckedChangeListener { _, isChecked ->
             settingsManager.setPoseUploadEnabled(isChecked)
             if (!isChecked) {
-                com.ttcoachai.work.PoseUploadQueue.cancelAll(this)
-                // File IO — must not run on the main thread (this listener fires there).
+                // cancelAllWorkByTag is asynchronous — an in-flight putFile() can still be
+                // reading from a queued file's source path after this call returns. Await the
+                // cancellation Operation's own result before deleting anything, so we never pull
+                // a file out from under a still-running upload. Off the main thread throughout
+                // (both the await and the directory listing/delete are IO-ish work).
                 lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        com.ttcoachai.work.PoseUploadQueue.cancelAll(this@AppSettingsActivity).await()
+                    } catch (e: Exception) {
+                        android.util.Log.w("AppSettingsActivity", "cancelAll await failed, deleting cache anyway", e)
+                    }
                     com.ttcoachai.pose.PoseSessionRecorder.cacheDir(this@AppSettingsActivity).listFiles()?.forEach { it.delete() }
                 }
             }
