@@ -276,6 +276,13 @@ class RtmposeTrainingController(
                     )
                 )
             )
+            // Marks the type on the rep this feedback item belongs to. Safe ordering: onFrame
+            // fires onRep (which records the rep's capture) synchronously before returning this
+            // feedback list, and both run on the UI thread — so the capture for THIS stroke is
+            // already in stateManager by the time we get here.
+            if (!isPositive) {
+                stateManager.flagLatestRepPose(type)
+            }
         }
     }
 
@@ -297,6 +304,7 @@ class RtmposeTrainingController(
             // extra thread marshalling needed here.
             current.onRep = { rep ->
                 stateManager.addAnalysisResult(synthesizeAnalysisResult(rep))
+                stateManager.addRepPoses(rep.atMs, rep.startKeypoints, rep.endKeypoints)
                 onUiUpdate()
             }
             session = current

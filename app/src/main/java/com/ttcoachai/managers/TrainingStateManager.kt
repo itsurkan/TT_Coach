@@ -9,6 +9,7 @@ import android.content.Context
 import com.ttcoachai.shared.models.AnalysisResult
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
+import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.shared.models.Landmark3D
 import com.ttcoachai.shared.session.SessionStatsCalculator
 
@@ -19,6 +20,18 @@ import com.ttcoachai.shared.session.SessionStatsCalculator
  * [SessionStatsCalculator] (shared/commonMain) so it's covered by JVM tests
  * and reusable from iOS later. Public API is unchanged.
  */
+/**
+ * One rep's captured start/end poses for the RTM feedback-explanation snapshot, plus which
+ * [CorrectionType]s were flagged for that rep. Recorded for EVERY rep (clean or flagged) — see
+ * [TrainingStateManager.addRepPoses].
+ */
+data class RepPoseCapture(
+    val atMs: Long,
+    val start: List<Keypoint2D>,
+    val end: List<Keypoint2D>,
+    val flaggedTypes: Set<CorrectionType> = emptySet()
+)
+
 class TrainingStateManager internal constructor(private val context: Context) {
     var isTrainingActive = false
         private set
@@ -26,6 +39,7 @@ class TrainingStateManager internal constructor(private val context: Context) {
     private val lock = Any()
     private val feedbackHistory = mutableListOf<String>()
     private val feedbackItemsHistory = mutableListOf<List<FeedbackItem>>()
+    private val repPoseHistory = mutableListOf<RepPoseCapture>()
     private val feedbackTypeCounts = LinkedHashMap<CorrectionType, Int>()
     private val analysisResults = mutableListOf<AnalysisResult>()
     private var currentFeedbackItems = listOf<FeedbackItem>()
@@ -133,6 +147,28 @@ class TrainingStateManager internal constructor(private val context: Context) {
     fun getLatestFeedbackItems(): List<FeedbackItem> = synchronized(lock) {
         feedbackItemsHistory.lastOrNull() ?: emptyList()
     }
+
+    /**
+     * Records one rep's start/end pose (RTM path only) for the feedback-explanation snapshot.
+     * Called for EVERY completed rep, independent of whether any feedback was spoken — clean
+     * reps previously had no capture at all, which is the gap this closes. Same 10-item cap and
+     * `lock`-guarded style as [feedbackItemsHistory]/[addFeedbackItems].
+     */
+    fun addRepPoses(atMs: Long, start: List<Keypoint2D>, end: List<Keypoint2D>) = synchronized(lock) {
+        repPoseHistory.add(RepPoseCapture(atMs, start, end))
+        if (repPoseHistory.size > 10) {
+            repPoseHistory.removeAt(0)
+        }
+    }
+
+    /** Marks [type] as flagged on the most recently recorded rep capture, if any. No-op when
+     *  [repPoseHistory] is empty (e.g. called before the first rep completes). */
+    fun flagLatestRepPose(type: CorrectionType) = synchronized(lock) {
+        val last = repPoseHistory.lastOrNull() ?: return@synchronized
+        repPoseHistory[repPoseHistory.lastIndex] = last.copy(flaggedTypes = last.flaggedTypes + type)
+    }
+
+    fun getRepPoses(): List<RepPoseCapture> = synchronized(lock) { repPoseHistory.toList() }
 
     /**
      * Distinct non-positive messages recorded for [type] across the last 10 strokes'

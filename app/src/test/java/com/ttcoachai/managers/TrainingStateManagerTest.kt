@@ -2,6 +2,8 @@ package com.ttcoachai.managers
 
 import android.content.Context
 import com.ttcoachai.shared.models.AnalysisResult
+import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.shared.models.StrokePhase
 import org.junit.Assert.*
 import org.junit.Before
@@ -145,6 +147,55 @@ class TrainingStateManagerTest {
         val history = stateManager.getFeedbackHistory()
         assertEquals(10, history.size)
         assertEquals("Feedback 6", history[0]) // First item should be 6, not 1
+    }
+
+    // ---- rep-pose ring buffer (RTM feedback-explanation snapshot data layer) ----
+
+    private fun kp(x: Float) = listOf(Keypoint2D(x, 0.5f, 1f))
+
+    @Test
+    fun testAddRepPosesStoresCapture() {
+        val start = kp(0.1f)
+        val end = kp(0.9f)
+
+        stateManager.addRepPoses(atMs = 1234L, start = start, end = end)
+
+        val poses = stateManager.getRepPoses()
+        assertEquals(1, poses.size)
+        assertEquals(1234L, poses[0].atMs)
+        assertEquals(start, poses[0].start)
+        assertEquals(end, poses[0].end)
+        assertTrue(poses[0].flaggedTypes.isEmpty())
+    }
+
+    @Test
+    fun testRepPosesLimitedToTenItems() {
+        for (i in 1..15) {
+            stateManager.addRepPoses(atMs = i.toLong(), start = kp(i.toFloat()), end = kp(i.toFloat()))
+        }
+
+        val poses = stateManager.getRepPoses()
+        assertEquals(10, poses.size)
+        assertEquals(6L, poses[0].atMs) // first surviving capture should be #6, not #1
+        assertEquals(15L, poses[9].atMs)
+    }
+
+    @Test
+    fun testFlagLatestRepPoseMarksOnlyTheLastCapture() {
+        stateManager.addRepPoses(atMs = 1L, start = kp(0f), end = kp(0f))
+        stateManager.addRepPoses(atMs = 2L, start = kp(0f), end = kp(0f))
+
+        stateManager.flagLatestRepPose(CorrectionType.ELBOW_BEND)
+
+        val poses = stateManager.getRepPoses()
+        assertTrue(poses[0].flaggedTypes.isEmpty())
+        assertEquals(setOf(CorrectionType.ELBOW_BEND), poses[1].flaggedTypes)
+    }
+
+    @Test
+    fun testFlagLatestRepPoseIsNoOpWhenHistoryEmpty() {
+        stateManager.flagLatestRepPose(CorrectionType.POSTURE)
+        assertTrue(stateManager.getRepPoses().isEmpty())
     }
 }
 
