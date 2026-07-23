@@ -62,6 +62,10 @@ class CommunityDrillsActivity : BaseActivity() {
             applyFilter()
         }
 
+        supportFragmentManager.setFragmentResultListener(
+            com.ttcoachai.ui.dialogs.CommunityDrillDetailSheet.RESULT_REMOVED, this
+        ) { _, _ -> loadDrills() }
+
         loadDrills()
     }
 
