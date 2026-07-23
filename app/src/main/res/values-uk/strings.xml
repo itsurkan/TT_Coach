@@ -645,6 +645,12 @@
     <string name="community_load_error">Не вдалося завантажити вправи спільноти</string>
     <string name="community_copy_button">Скопіювати до моїх вправ</string>
     <string name="community_copy_success_toast">Додано до моїх вправ</string>
+    <string name="community_remove_button">Прибрати зі спільноти</string>
+    <string name="community_remove_confirm_title">Прибрати зі спільноти?</string>
+    <string name="community_remove_confirm_message">«%1$s» більше не буде публічним. Ваша власна копія залишиться у ваших вправах.</string>
+    <string name="community_remove_confirm_button">Прибрати</string>
+    <string name="community_remove_success_toast">Прибрано зі спільноти</string>
+    <string name="community_remove_error_toast">Не вдалося прибрати зі спільноти. Спробуйте ще раз.</string>
     <string name="community_rate_hint">Ваша оцінка</string>
     <string name="community_sign_in_to_rate">Увійдіть, щоб оцінити</string>
     <string name="community_rate_error">Не вдалося надіслати оцінку</string>

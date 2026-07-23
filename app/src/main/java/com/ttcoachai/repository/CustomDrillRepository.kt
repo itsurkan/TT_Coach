@@ -11,6 +11,8 @@ class CustomDrillRepository(private val dao: CustomDrillDao) {
 
     suspend fun get(drillType: String): CustomDrillEntity? = dao.getByDrillType(drillType)
 
+    suspend fun getBySharedCommunityId(communityId: String): CustomDrillEntity? = dao.getBySharedCommunityId(communityId)
+
     suspend fun count(): Int = dao.count()
 
     suspend fun delete(drillType: String) = dao.deleteByDrillType(drillType)
