@@ -1,0 +1,27 @@
+/*
+ * Cloud Storage Security Rules for TT_Coach pose-data upload
+ *
+ * MANUAL DEPLOYMENT REQUIRED
+ * These rules are NOT auto-deployed by the build or CI/CD. To activate them:
+ * 1. Via Firebase CLI: firebase deploy --only storage
+ * 2. Via Firebase Console: go to Storage → Rules → paste this file
+ *
+ * Target bucket (confirmed from app/google-services.json, project_id "ttcoachai"):
+ * ttcoachai.firebasestorage.app
+ *
+ * CAUTION: Deploying these rules switches Cloud Storage from whatever is currently live
+ * (the Firebase default for new projects — any signed-in user may read/write ANY path) to
+ * THIS file wholesale, scoping poses/{uid}/... to its owner only. Verify no other feature
+ * relies on broader Storage access before deploying.
+ */
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /poses/{uid}/{file} {
+      allow read, write: if request.auth != null && request.auth.uid == uid
+                         && request.resource.size < 32 * 1024 * 1024
+                         && request.resource.contentType == 'application/json';
+    }
+    match /{allPaths=**} { allow read, write: if false; }
+  }
+}
