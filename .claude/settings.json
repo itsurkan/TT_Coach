@@ -22,8 +22,7 @@
     "deny": [
       "Bash(rm -rf:*)",
       "Bash(git reset --hard:*)",
-      "Bash(git checkout --:*)",
-      "Bash(git push:*)"
+      "Bash(git checkout --:*)"
     ]
   }
 }
