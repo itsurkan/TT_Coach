@@ -911,11 +911,12 @@
     <string name="feedback_explanation_how_to_fix">Як виправити</string>
     <string name="feedback_explanation_flagged_count">Позначено %1$d раз(ів) за цю сесію</string>
     <string name="feedback_explanation_recent_observations">Останні спостереження</string>
-    <string name="feedback_snapshot_caption_rep">Повтор %1$d — пік удару</string>
-    <string name="feedback_snapshot_caption_rep_contact">Повтор %1$d — момент контакту</string>
-    <string name="feedback_snapshot_caption_rep_follow">Повтор %1$d — проведення</string>
+    <string name="feedback_snapshot_caption_rep">Повтор %1$d</string>
     <string name="feedback_snapshot_rep_flagged">позначено</string>
     <string name="feedback_snapshot_rep_clean">чисто</string>
+    <string name="feedback_snapshot_label_start">Початок удару</string>
+    <string name="feedback_snapshot_label_end">Кінець удару</string>
+    <string name="review_snapshot_title">СХЕМА УДАРУ</string>
     <string name="feedback_rep_strip_label">Останні повтори</string>
     <string name="feedback_rep_strip_legend">зелений — у межах твоєї форми · бурштиновий — позначено · сірий — не зараховано · контур — немає запису</string>
     <string name="feedback_rep_discarded_recovery">не зараховано — замах назад / шум</string>

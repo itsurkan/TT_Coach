@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -67,17 +68,66 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <com.ttcoachai.views.PoseSnapshotView
-                        android:id="@+id/pose_snapshot"
-                        android:layout_width="match_parent"
-                        android:layout_height="220dp"/>
-
                     <TextView
                         android:id="@+id/tv_snapshot_caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
                         android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
+
+                    <!-- Two skeletons side by side, equal weight, never causes horizontal scroll. -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:orientation="horizontal"
+                        android:baselineAligned="false">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="8dp"
+                            android:orientation="vertical">
+
+                            <com.ttcoachai.views.PoseSnapshotView
+                                android:id="@+id/pose_snapshot_start"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="170dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_snapshot_label_start"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:gravity="center"
+                                android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
+                                tools:text="Stroke start"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="8dp"
+                            android:orientation="vertical">
+
+                            <com.ttcoachai.views.PoseSnapshotView
+                                android:id="@+id/pose_snapshot_end"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="170dp"/>
+
+                            <TextView
+                                android:id="@+id/tv_snapshot_label_end"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:gravity="center"
+                                android:textAppearance="@style/TextAppearance.TTC.Eyebrow"
+                                tools:text="Stroke end"/>
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 

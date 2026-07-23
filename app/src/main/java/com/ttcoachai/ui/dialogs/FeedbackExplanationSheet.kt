@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ttcoachai.R
 import com.ttcoachai.databinding.SheetFeedbackExplanationBinding
+import com.ttcoachai.managers.RepPoseCapture
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.shared.drill.FeedbackLang
+import com.ttcoachai.shared.feedback.Coco17ToLandmark3D
 import com.ttcoachai.shared.feedback.FeedbackExplanationCatalog
 import com.ttcoachai.shared.feedback.RepClassifier
 import com.ttcoachai.shared.feedback.RepVerdict
@@ -21,16 +23,26 @@ import com.ttcoachai.views.RepStripView
  * Tap-to-explain bottom sheet for a real-time feedback row: shows why a correction
  * type was flagged (catalog content from [FeedbackExplanationCatalog]) plus the
  * player's own recent violation messages for that type this session.
+ *
+ * Renders TWO skeleton snapshots (stroke start / stroke end) for every captured rep,
+ * clean or flagged — the skeleton is always present, not gated on feedback having fired.
+ * Primary data source is [TrainingStateManager.getRepPoses] (RTM live path, every rep
+ * captured); when that buffer is empty (legacy/video sessions) it falls back to the older
+ * `feedbackItemsHistory`-derived per-rep landmark sequences, using each rep's first/last
+ * captured frame as its start/end.
  */
 class FeedbackExplanationSheet : BottomSheetDialogFragment() {
 
     private var _binding: SheetFeedbackExplanationBinding? = null
     private val binding get() = _binding!!
 
-    // Per-rep pose/flag state for the tappable rep strip -> snapshot wiring (see [showRep]).
+    // Path A (preferred): RTM per-rep start/end pose captures.
+    private var repPoseCaptures: List<RepPoseCapture> = emptyList()
+    // Path B (fallback, pose buffer empty): legacy per-rep frame sequences.
     private var repLandmarks: List<List<List<Landmark3D>>> = emptyList()
     private var flags: List<Boolean> = emptyList()
     private var verdicts: List<RepVerdict> = emptyList()
+    private var usingPoseBuffer = false
     private var correctionType: CorrectionType = CorrectionType.GENERAL
 
     companion object {
@@ -92,36 +104,52 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
             binding.tvRecentObservations.text = recentMessages.joinToString("\n") { "• $it" }
         }
 
-        // Landmarks are per-process capture state (last 10 reps), not primitives suitable for a
-        // Fragment Bundle — read them straight from the singleton here rather than threading them
-        // through newInstance()/arguments.
+        // Per-process capture state (last 10 reps), not primitives suitable for a Fragment
+        // Bundle — read it straight from the singleton here rather than threading it through
+        // newInstance()/arguments.
         val stateManager = TrainingStateManager.getInstance(requireContext())
-        this.repLandmarks = stateManager.getRepStrokeLandmarks()
-        this.flags = stateManager.getRepFlagsFor(type)
-        this.verdicts = RepClassifier.classify(repLandmarks)
         this.correctionType = type
 
-        // Per-rep four-state classification, mirroring the poses_viewer validity taxonomy:
-        // NO_DATA when tracking never produced a usable pose; DISCARDED when the rep-validity
-        // pipeline excluded the rep (locomotion/recovery-swing/speed-duration-outlier); else
-        // FLAGGED/CLEAN from the recorded flag.
-        val repMarks = flags.indices.map { i ->
-            val frames = repLandmarks.getOrNull(i)
-            val verdict = verdicts.getOrNull(i)
-            when {
-                frames.isNullOrEmpty() || !StrokeSnapshotSelector.hasUsablePose(frames) ->
-                    RepStripView.RepMark.NO_DATA
-                verdict == RepVerdict.NO_POSE -> RepStripView.RepMark.NO_DATA
-                verdict == RepVerdict.LOCOMOTION ||
-                    verdict == RepVerdict.RECOVERY_SWING ||
-                    verdict == RepVerdict.SPEED_DURATION_OUTLIER -> RepStripView.RepMark.DISCARDED
-                flags[i] -> RepStripView.RepMark.FLAGGED
-                else -> RepStripView.RepMark.CLEAN
+        val poseCaptures = stateManager.getRepPoses()
+        this.usingPoseBuffer = poseCaptures.isNotEmpty()
+
+        // Per-rep classification, mirroring the poses_viewer validity taxonomy. Path A (RTM pose
+        // buffer, preferred): three states only — NO_DATA when the captured start/end keypoints
+        // are missing, else FLAGGED/CLEAN from the rep's recorded flagged-types set. Path B
+        // (fallback, legacy landmark-history sessions): four states, adding DISCARDED for reps
+        // the rep-validity pipeline excluded (locomotion/recovery-swing/speed-duration-outlier).
+        val repMarks: List<RepStripView.RepMark>
+        if (usingPoseBuffer) {
+            this.repPoseCaptures = poseCaptures
+            repMarks = poseCaptures.map { capture ->
+                when {
+                    capture.start.isEmpty() || capture.end.isEmpty() -> RepStripView.RepMark.NO_DATA
+                    type in capture.flaggedTypes -> RepStripView.RepMark.FLAGGED
+                    else -> RepStripView.RepMark.CLEAN
+                }
+            }
+        } else {
+            this.repLandmarks = stateManager.getRepStrokeLandmarks()
+            this.flags = stateManager.getRepFlagsFor(type)
+            this.verdicts = RepClassifier.classify(repLandmarks)
+            repMarks = flags.indices.map { i ->
+                val frames = repLandmarks.getOrNull(i)
+                val verdict = verdicts.getOrNull(i)
+                when {
+                    frames.isNullOrEmpty() || !StrokeSnapshotSelector.hasUsablePose(frames) ->
+                        RepStripView.RepMark.NO_DATA
+                    verdict == RepVerdict.NO_POSE -> RepStripView.RepMark.NO_DATA
+                    verdict == RepVerdict.LOCOMOTION ||
+                        verdict == RepVerdict.RECOVERY_SWING ||
+                        verdict == RepVerdict.SPEED_DURATION_OUTLIER -> RepStripView.RepMark.DISCARDED
+                    flags[i] -> RepStripView.RepMark.FLAGGED
+                    else -> RepStripView.RepMark.CLEAN
+                }
             }
         }
 
         var showRepStrip = false
-        if (flags.size >= 2) {
+        if (repMarks.size >= 2) {
             binding.repStrip.setRepMarks(repMarks)
             binding.tvRepStripLabel.text = getString(R.string.feedback_rep_strip_label)
             binding.tvRepStripLegend.text = getString(R.string.feedback_rep_strip_legend)
@@ -159,39 +187,45 @@ class FeedbackExplanationSheet : BottomSheetDialogFragment() {
     }
 
     /**
-     * Renders rep [index]'s captured pose in the snapshot card and reflects the selection on the
-     * rep strip. Assumes `repLandmarks[index]` is non-empty (callers guard this).
+     * Renders rep [index]'s captured start/end poses in the two snapshot views and reflects the
+     * selection on the rep strip. Always shows BOTH poses — that's the point of the two-skeleton
+     * layout — never a single frame selected for "best" moment.
      */
     private fun showRep(index: Int) {
-        val frames = repLandmarks[index]
-        val frameIdx = StrokeSnapshotSelector.snapshotFrameFor(correctionType, frames)
-        if (frameIdx < 0) return
+        val startFrame: List<Landmark3D>
+        val endFrame: List<Landmark3D>
+        val flagged: Boolean
+        val verdict: RepVerdict?
 
-        binding.poseSnapshot.setSnapshot(frames[frameIdx], correctionType)
-        val verdict = verdicts.getOrNull(index)
+        if (usingPoseBuffer) {
+            val capture = repPoseCaptures.getOrNull(index) ?: return
+            if (capture.start.isEmpty() || capture.end.isEmpty()) return
+            startFrame = Coco17ToLandmark3D.map(capture.start)
+            endFrame = Coco17ToLandmark3D.map(capture.end)
+            flagged = correctionType in capture.flaggedTypes
+            verdict = null
+        } else {
+            val frames = repLandmarks.getOrNull(index)
+            if (frames.isNullOrEmpty()) return
+            startFrame = frames.first()
+            endFrame = frames.last()
+            flagged = flags.getOrNull(index) == true
+            verdict = verdicts.getOrNull(index)
+        }
+
+        binding.poseSnapshotStart.setSnapshot(startFrame, correctionType)
+        binding.poseSnapshotEnd.setSnapshot(endFrame, correctionType)
+        binding.tvSnapshotLabelStart.text = getString(R.string.feedback_snapshot_label_start)
+        binding.tvSnapshotLabelEnd.text = getString(R.string.feedback_snapshot_label_end)
+
         val statusRes = when (verdict) {
             RepVerdict.RECOVERY_SWING -> R.string.feedback_rep_discarded_recovery
             RepVerdict.SPEED_DURATION_OUTLIER -> R.string.feedback_rep_discarded_outlier
             RepVerdict.LOCOMOTION -> R.string.feedback_rep_discarded_locomotion
-            else -> {
-                val flagged = flags.getOrNull(index) == true
-                if (flagged) R.string.feedback_snapshot_rep_flagged else R.string.feedback_snapshot_rep_clean
-            }
-        }
-        // Caption names the rendered moment: contact frame for contact-anchored metrics,
-        // follow-through frame for FOLLOW_THROUGH, wrist-speed peak otherwise
-        // (must match StrokeSnapshotSelector.snapshotFrameFor's dispatch).
-        val captionRes = when (correctionType) {
-            CorrectionType.WRIST,
-            CorrectionType.CONTACT_HEIGHT,
-            CorrectionType.ELBOW_POSITION,
-            CorrectionType.BODY_ROTATION,
-            CorrectionType.KNEE_BEND -> R.string.feedback_snapshot_caption_rep_contact
-            CorrectionType.FOLLOW_THROUGH -> R.string.feedback_snapshot_caption_rep_follow
-            else -> R.string.feedback_snapshot_caption_rep
+            else -> if (flagged) R.string.feedback_snapshot_rep_flagged else R.string.feedback_snapshot_rep_clean
         }
         binding.tvSnapshotCaption.text =
-            "${getString(captionRes, index + 1)} · ${getString(statusRes)}"
+            "${getString(R.string.feedback_snapshot_caption_rep, index + 1)} · ${getString(statusRes)}"
         binding.cardPoseSnapshot.visibility = View.VISIBLE
         binding.repStrip.setSelected(index)
     }

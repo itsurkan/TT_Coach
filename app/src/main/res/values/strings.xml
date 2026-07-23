@@ -1112,11 +1112,12 @@
     <string name="feedback_explanation_how_to_fix">How to fix</string>
     <string name="feedback_explanation_flagged_count">Flagged %1$d time(s) this session</string>
     <string name="feedback_explanation_recent_observations">Recent observations</string>
-    <string name="feedback_snapshot_caption_rep">Rep %1$d — peak of stroke</string>
-    <string name="feedback_snapshot_caption_rep_contact">Rep %1$d — at contact</string>
-    <string name="feedback_snapshot_caption_rep_follow">Rep %1$d — follow-through</string>
+    <string name="feedback_snapshot_caption_rep">Rep %1$d</string>
     <string name="feedback_snapshot_rep_flagged">flagged</string>
     <string name="feedback_snapshot_rep_clean">clean</string>
+    <string name="feedback_snapshot_label_start">Stroke start</string>
+    <string name="feedback_snapshot_label_end">Stroke end</string>
+    <string name="review_snapshot_title">STROKE SNAPSHOT</string>
     <string name="feedback_rep_strip_label">Recent reps</string>
     <string name="feedback_rep_strip_legend">green — within your form · amber — flagged · gray — not counted · outline — no capture</string>
     <string name="feedback_rep_discarded_recovery">not counted — backswing / noise</string>
