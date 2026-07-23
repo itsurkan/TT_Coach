@@ -77,7 +77,7 @@ class PoseUploadTaskTest {
     }
 
     @Test
-    fun permanent_storage_failure_returns_permanent_failure_and_deletes_file() = runBlocking {
+    fun permanent_storage_failure_returns_permanent_failure_and_keeps_file() = runBlocking {
         val file = tempFolder.newFile("s5.json.gz").apply { writeText("data") }
         val permissionDenied = StorageException.fromExceptionAndHttpCode(RuntimeException("denied"), 403)!!
         val task = PoseUploadTask(
@@ -88,7 +88,11 @@ class PoseUploadTaskTest {
         val outcome = task.run("u1", "s5", file)
 
         assertEquals(PoseUploadTask.Outcome.PermanentFailure, outcome)
-        assertTrue("permanently-rejected file will never upload, must not leak disk", !file.exists())
+        assertTrue(
+            "storage.rules is not yet deployed, so ERROR_NOT_AUTHORIZED is an expected-today " +
+                "denial, not proof of an unrecoverable file — must not delete local data",
+            file.exists()
+        )
     }
 
     @Test

@@ -46,7 +46,14 @@ class PoseUploadTask(
                     Outcome.PermanentFailure -> {
                         val errorCode = (e as? StorageException)?.errorCode
                         Log.w(TAG, "Permanent upload failure for session $sessionId, errorCode=$errorCode: ${e.message}")
-                        file.delete()
+                        // Do NOT delete the local file here. storage.rules is a manual-deploy
+                        // step (see project CLAUDE.md) — until the user deploys it, a real
+                        // session against the currently-live default rules denies every write
+                        // with ERROR_NOT_AUTHORIZED, which classifies as PermanentFailure. That
+                        // is an expected-today outcome, not proof the data is unrecoverable —
+                        // deleting here would silently destroy the player's pose capture on
+                        // every session for as long as rules are undeployed. Leave the file for
+                        // evictOldCache's age/size reaper instead.
                         Outcome.PermanentFailure
                     }
                     else -> Outcome.Retry
