@@ -710,6 +710,38 @@
     <string name="rtmpose_drill_backend_unavailable">RTMPose models unavailable: %1$s</string>
     <string name="rtmpose_drill_status_feedback">Feedback mode — play your forehand drive.</string>
 
+    <!-- RTMPose calibration screen (shippable — produces the forehand_drive_rtm baseline) -->
+    <string name="rtmpose_calibration_title">Calibrate Forehand Drive</string>
+    <string name="rtmpose_calibration_headline">Set up your camera</string>
+    <string name="rtmpose_calibration_instructions_body">Place the phone 2–3 m to your side, waist-height, at your hitting angle. Stand so your whole body — including your knees and ankles — is visible in frame during the stroke.\n\nYou\'ll perform a set of forehand drives in your natural technique — no coaching, just your normal stroke.</string>
+    <string name="rtmpose_calibration_skeleton_hint">Watch the skeleton overlay above. If your knees or feet are cut off or not being tracked, step back or reframe before you start — otherwise the knee-bend cue can never be checked later.</string>
+    <string name="rtmpose_calibration_start_button">Start Recording</string>
+    <string name="rtmpose_calibration_recording_headline">Recording</string>
+    <string name="rtmpose_calibration_recording_body">Perform your forehand drives at a steady pace, in clear view of the camera. Tap Finish once you\'ve done at least 10 reps.</string>
+    <string name="rtmpose_calibration_cancel_button">Cancel</string>
+    <string name="rtmpose_calibration_finish_button">Finish</string>
+    <string name="rtmpose_calibration_processing">Analyzing your reps…</string>
+    <string name="rtmpose_calibration_success_title">Baseline saved</string>
+    <string name="rtmpose_calibration_success_body">%1$d reps captured. You\'re ready to start a coached session.</string>
+    <string name="rtmpose_calibration_done_button">Done</string>
+    <string name="rtmpose_calibration_failed_title">Calibration didn\'t work</string>
+    <string name="rtmpose_calibration_failed_placement">%1$s\n\nReposition your camera so you\'re fully visible from the side, then try again.</string>
+    <string name="rtmpose_calibration_failed_generic">%1$s\n\nTry again with a few more reps, fully visible to the camera.</string>
+    <string name="rtmpose_calibration_not_enough_frames">Recording was too short — capture more reps before tapping Finish.</string>
+    <string name="rtmpose_calibration_retry_button">Try Again</string>
+    <string name="rtmpose_calibration_camera_permission_denied">Camera permission is required to calibrate.</string>
+
+    <!-- Training screen: blocking "calibrate first" dialog (replaces the old silent legacy fallback) -->
+    <string name="training_calibration_required_title">Calibration required</string>
+    <string name="training_calibration_required_message">Calibrate your forehand drive once so the coach can compare your reps against your own technique — this only takes a couple of minutes.</string>
+    <string name="training_calibration_required_calibrate">Calibrate Now</string>
+    <string name="training_calibration_required_leave">Not Now</string>
+
+    <!-- App Settings: deliberate re-calibration entry point -->
+    <string name="settings_calibration_section_title">Calibration</string>
+    <string name="settings_recalibrate_title">Recalibrate Forehand Drive</string>
+    <string name="settings_recalibrate_desc">Re-record your reference technique used for live coaching cues.</string>
+
     <!-- Drill parameter editor (Phase 7 dev tool) -->
     <string name="preview_title">Drill Shape Editor</string>
     <string name="preview_status_mean">Mean stroke from %1$d rep(s), %2$d frames</string>
