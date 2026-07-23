@@ -7,6 +7,9 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.auth.FirebaseAuth
+import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.pose.PoseSessionRecorder
 import java.io.File
 
 /**
@@ -43,5 +46,62 @@ object PoseUploadQueue {
      *  off (component D, Task 5). */
     fun cancelAll(context: Context) {
         WorkManager.getInstance(context).cancelAllWorkByTag(TAG_POSE_UPLOAD)
+    }
+
+    /** Matches [PoseSessionRecorder]'s `provisionalId` format ("pose_&lt;uuid&gt;"). A
+     *  finalized `pose_<uuid>.json.gz` still bearing this prefix never reached the
+     *  post-finish() rename to `<sessionId>.json.gz` (process death between finish() and the
+     *  rename in TrainingActivity) — it has no real sessionId and no Firestore session
+     *  document to attach `poseDataPath` to, so it is not recoverable and must not be
+     *  uploaded under a fabricated id. See [sweepOrphans].
+     */
+    private const val PROVISIONAL_ID_PREFIX = "pose_"
+
+    /** Called on app start: re-enqueues any finalized `<sessionId>.json.gz` left behind in the
+     *  cache dir by a process death after the Task 4 rename but before the worker finished
+     *  (component C's "App-start sweep"). Three categories of leftover file, handled
+     *  differently:
+     *  - `.tmp` files are un-gzipped, header-less fragments from a session that died
+     *    mid-recording — never uploadable, never enqueued. Left alone here; reaped by
+     *    [evictOldCache]'s age cap.
+     *  - `pose_<uuid>.json.gz` (still provisionally named) finalized but never renamed to a
+     *    real sessionId — no session document to attach `poseDataPath` to. Not recoverable;
+     *    deleted immediately rather than uploaded under an invented id.
+     *  - `<sessionId>.json.gz` (renamed) is a genuine orphan: re-enqueued if pose upload is
+     *    still consented to and a user is signed in, otherwise deleted (consent may have been
+     *    revoked, or the user signed out, since the file was written).
+     *
+     *  Re-enqueuing is safe against duplicate work: [enqueue] uses
+     *  `enqueueUniqueWork("pose-upload-$sessionId", ExistingWorkPolicy.KEEP, ...)`, so a
+     *  sweep that finds a file whose upload is already queued/running is a no-op for that
+     *  file.
+     */
+    fun sweepOrphans(context: Context) {
+        val dir = PoseSessionRecorder.cacheDir(context)
+        val files = dir.listFiles() ?: return
+        val uploadEnabled = SettingsManager(context).isPoseUploadEnabled()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        for (file in files) {
+            if (!file.name.endsWith(".json.gz")) continue
+            val sessionId = file.name.removeSuffix(".json.gz")
+            when {
+                sessionId.startsWith(PROVISIONAL_ID_PREFIX) -> file.delete()
+                uploadEnabled && userId != null -> enqueue(context, userId, sessionId, file)
+                else -> file.delete()
+            }
+        }
+    }
+
+    /** Called on app start: deletes cached pose files older than [maxAgeDays] or, if the
+     *  directory still exceeds [maxBytes] after that, the oldest remaining files until under
+     *  budget. A local-disk cap independent of the Storage-side retention gap (see spec
+     *  Risks). */
+    fun evictOldCache(context: Context, maxAgeDays: Int = 7, maxBytes: Long = 200L * 1024 * 1024) {
+        val dir = PoseSessionRecorder.cacheDir(context)
+        val files = dir.listFiles()?.toList() ?: return
+        val entries = files.map { PoseCacheEviction.Entry(it.absolutePath, it.lastModified(), it.length()) }
+        val toDelete = PoseCacheEviction.entriesToEvict(entries, System.currentTimeMillis(), maxAgeDays, maxBytes)
+        toDelete.forEach { File(it).delete() }
     }
 }
