@@ -23,7 +23,16 @@ class PoseDataRepository(
     companion object {
         private const val TAG = "PoseDataRepository"
         private const val POSES_FOLDER = "poses"
-        private const val MAX_DOWNLOAD_SIZE: Long = 10 * 1024 * 1024 // 10MB
+
+        // Uploads set contentEncoding = "gzip" (see uploadPoseFile below), so Cloud Storage
+        // transparently DECOMPRESSES the blob on download — getBytes() receives the
+        // uncompressed size, not the on-disk gzip size. A full-session capture at schema-v2
+        // compact-JSON is a several-MB gzip that can decompress to ~6x its stored size, so a
+        // cap sized to the compressed blob (the old 10MB here) fails every real download. Sized
+        // generously for a full-session decompressed payload; do not "fix" this back down to
+        // match the Storage-side (compressed) file size — that's a different, much smaller,
+        // number.
+        private const val MAX_DOWNLOAD_SIZE: Long = 50 * 1024 * 1024 // 50MB (decompressed)
     }
 
     /**
