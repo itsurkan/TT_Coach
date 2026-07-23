@@ -263,7 +263,11 @@ class RtmposeTrainingController(
             // live on the per-type Settings toggle so a disabled correction type produces no
             // voice cue, no on-screen text, and no feedback-list/count entry.
             val allowed = isPositive || type == CorrectionType.GENERAL || settingsManager.isCorrectionTypeEnabled(type)
-            if (!allowed) continue
+            if (!allowed) {
+                Log.d(TAG, "SUPPRESSED metricKey=${item.cue?.metricKey} type=$type reason=type-disabled")
+                continue
+            }
+            Log.i(TAG, "SPOKEN metricKey=${item.cue?.metricKey ?: "positive"} type=$type")
 
             voiceController?.speak(item)
             stateManager.addFeedback(item.message)
@@ -299,10 +303,12 @@ class RtmposeTrainingController(
                 cameraYawDeg = 0f,
                 metricBands = metricBands
             )
+            logBaselineOnce()
             // onRep fires synchronously inside onFrame, which we only ever call from the UI
             // thread (see the runOnUiThread hop in the processor callback in start()) — no
             // extra thread marshalling needed here.
             current.onRep = { rep ->
+                logRep(rep)
                 stateManager.addAnalysisResult(synthesizeAnalysisResult(rep))
                 stateManager.addRepPoses(rep.atMs, rep.startKeypoints, rep.endKeypoints)
                 onUiUpdate()
@@ -312,6 +318,46 @@ class RtmposeTrainingController(
         }
         return current
     }
+
+    // MARK: - Diagnostics (see task: never hearing knee-bend cue — no behavior change,
+    // logging only). Filter with `adb logcat -s RtmposeTrainingCtrl`.
+
+    /** Logged once when [session] is created: reveals a baseline missing `knee_bend`
+     *  (or any other metric) outright — the #1 candidate for "cue never fires". */
+    private fun logBaselineOnce() {
+        val stats = baseline.metricStats.entries.joinToString(", ") { (key, s) ->
+            "$key(mean=${round1(s.mean)},std=${round1(s.std)})"
+        }
+        val bands = if (metricBands.isEmpty()) {
+            "none"
+        } else {
+            metricBands.entries.joinToString(", ") { (key, range) ->
+                "$key=[${round1(range.start)}..${round1(range.endInclusive)}]"
+            }
+        }
+        Log.i(
+            TAG,
+            "BASELINE handedness=${handedness()} repCount=${baseline.repCount} " +
+                "qualityScore=${round1(baseline.qualityScore)} metricStats={$stats} metricBands={$bands}"
+        )
+    }
+
+    /** Logged once per completed rep: metrics + cues actually derived for it, regardless
+     *  of cadence suppression downstream — lets us tell "no cue generated" (baseline/rule
+     *  gap) apart from "cue generated but not spoken" (cadence policy). */
+    private fun logRep(rep: RepEvent) {
+        val metrics = rep.metrics.entries.joinToString(", ") { (key, value) -> "$key=${round1(value)}" }
+        val cues = rep.cues.sortedByDescending { it.severity }
+            .joinToString(", ") { "${it.metricKey}:${it.direction}:${round1(it.severity)}" }
+        Log.d(
+            TAG,
+            "REP atMs=${rep.atMs} placementOk=${rep.placementOk} cueCount=${rep.cueCount} " +
+                "metrics={$metrics} cues=[$cues]"
+        )
+    }
+
+    private fun round1(value: Double): Double = kotlin.math.round(value * 10.0) / 10.0
+    private fun round1(value: Float): Double = round1(value.toDouble())
 
     // MARK: - Teardown
 
