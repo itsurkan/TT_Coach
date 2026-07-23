@@ -16,10 +16,18 @@ object SessionAnalyticsBuilder {
     private const val CLEAN_THRESHOLD = 80f
     private const val MAX_BUCKETS = 12
 
+    /**
+     * Full-session overload: [feedbackCounts] is a precomputed per-type tally covering the
+     * ENTIRE session (e.g. [com.ttcoachai.shared.models.CorrectionType]-keyed counters
+     * accumulated across every rep), not just the most recent rep. A `Map` is used rather than
+     * `List<Pair<CorrectionType, Int>>` to keep a distinct JVM-erased signature from the
+     * `List<FeedbackItem>` overload below (both would otherwise erase to `(String, List, List,
+     * Function1)` and clash).
+     */
     fun build(
         sessionId: String,
         results: List<AnalysisResult>,
-        feedback: List<FeedbackItem>,
+        feedbackCounts: Map<CorrectionType, Int>,
         isTypeEnabled: (CorrectionType) -> Boolean = { true },
     ): SessionAnalytics {
         val sorted = results.sortedBy { it.timestamp }
@@ -32,10 +40,8 @@ object SessionAnalyticsBuilder {
         var peak = 0f
         timeline.forEachIndexed { i, v -> if (v > peak) { peak = v; peakIndex = i } }
 
-        val focusAreas = feedback
-            .filter { it.type != CorrectionType.GENERAL && isTypeEnabled(it.type) }
-            .groupingBy { it.type }
-            .eachCount()
+        val focusAreas = feedbackCounts
+            .filterKeys { it != CorrectionType.GENERAL && isTypeEnabled(it) }
             .map { (type, count) -> FocusArea(type, count) }
             .sortedByDescending { it.count }
 
@@ -51,6 +57,21 @@ object SessionAnalyticsBuilder {
             focusAreas = focusAreas,
             summaryText = summary,
         )
+    }
+
+    /**
+     * Legacy overload kept for existing callers/tests: tallies [feedback] by type and delegates
+     * to the [Map]-based overload above. Prefer passing a precomputed full-session tally
+     * directly when one is available (a single rep's [FeedbackItem] list undercounts a session).
+     */
+    fun build(
+        sessionId: String,
+        results: List<AnalysisResult>,
+        feedback: List<FeedbackItem>,
+        isTypeEnabled: (CorrectionType) -> Boolean = { true },
+    ): SessionAnalytics {
+        val counts = feedback.groupingBy { it.type }.eachCount()
+        return build(sessionId, results, counts, isTypeEnabled)
     }
 
     private fun buildTimeline(sorted: List<AnalysisResult>): List<Float> {

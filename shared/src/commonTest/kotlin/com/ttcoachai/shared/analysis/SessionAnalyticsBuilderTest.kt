@@ -119,6 +119,65 @@ class SessionAnalyticsBuilderTest {
     }
 
     @Test
+    fun tallyOverload_multiTypeCounts_producesRankedFocusAreas() {
+        // Simulates a full-session tally (e.g. TrainingStateManager.getFeedbackCounts())
+        // spanning many reps, not just the last one.
+        val counts = mapOf(
+            CorrectionType.KNEE_BEND to 22,
+            CorrectionType.WRIST to 10,
+            CorrectionType.ELBOW_POSITION to 3,
+        )
+        val a = SessionAnalyticsBuilder.build("s", listOf(result(1, 50f)), counts)
+        assertEquals(3, a.focusAreas.size)
+        assertEquals(CorrectionType.KNEE_BEND, a.focusAreas[0].type)
+        assertEquals(22, a.focusAreas[0].count)
+        assertEquals(CorrectionType.WRIST, a.focusAreas[1].type)
+        assertEquals(CorrectionType.ELBOW_POSITION, a.focusAreas[2].type)
+    }
+
+    @Test
+    fun tallyOverload_disabledType_isExcluded() {
+        val counts = mapOf(
+            CorrectionType.KNEE_BEND to 22,
+            CorrectionType.WRIST to 10,
+        )
+        val a = SessionAnalyticsBuilder.build(
+            sessionId = "s",
+            results = listOf(result(1, 50f)),
+            feedbackCounts = counts,
+            isTypeEnabled = { type -> type == CorrectionType.KNEE_BEND },
+        )
+        assertEquals(1, a.focusAreas.size)
+        assertEquals(CorrectionType.KNEE_BEND, a.focusAreas[0].type)
+    }
+
+    @Test
+    fun tallyOverload_generalType_isExcluded() {
+        val counts = mapOf(
+            CorrectionType.GENERAL to 40,
+            CorrectionType.WRIST to 5,
+        )
+        val a = SessionAnalyticsBuilder.build("s", listOf(result(1, 50f)), counts)
+        assertEquals(1, a.focusAreas.size)
+        assertEquals(CorrectionType.WRIST, a.focusAreas[0].type)
+    }
+
+    @Test
+    fun feedbackItemOverload_stillDelegatesToTallyOverload_sameResult() {
+        val feedback = listOf(
+            fb(CorrectionType.WRIST), fb(CorrectionType.WRIST), fb(CorrectionType.WRIST),
+            fb(CorrectionType.BODY_ROTATION), fb(CorrectionType.BODY_ROTATION),
+            fb(CorrectionType.ELBOW_POSITION),
+            fb(CorrectionType.GENERAL), fb(CorrectionType.GENERAL),
+        )
+        val fromItems = SessionAnalyticsBuilder.build("s", listOf(result(1, 50f)), feedback)
+        val counts = feedback.groupingBy { it.type }.eachCount()
+        val fromCounts = SessionAnalyticsBuilder.build("s", listOf(result(1, 50f)), counts)
+        assertEquals(fromCounts.focusAreas, fromItems.focusAreas)
+        assertEquals(fromCounts.summaryText, fromItems.summaryText)
+    }
+
+    @Test
     fun displayNameKey_mapsAllTypes() {
         assertEquals("focus_wrist", SessionAnalyticsBuilder.displayNameKey(CorrectionType.WRIST))
         assertEquals("focus_body_rotation", SessionAnalyticsBuilder.displayNameKey(CorrectionType.BODY_ROTATION))
