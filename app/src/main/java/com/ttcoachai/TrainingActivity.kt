@@ -365,9 +365,21 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     val renamed = File(poseFile.parentFile, "$sessionId.json.gz")
                     if (poseFile.renameTo(renamed)) {
                         PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, renamed)
+                    } else {
+                        // Rename failed (stale file at target, directory removed by a cache
+                        // clear, etc.) — poseFile is already a fully finalized .json.gz from
+                        // finishRecording() above. Losing the upload is worse than losing the
+                        // sessionId-based local filename convention, so enqueue it as-is rather
+                        // than silently orphaning a real recording.
+                        android.util.Log.e(
+                            "TrainingActivity",
+                            "renameTo failed for pose file ${poseFile.absolutePath} -> ${renamed.absolutePath}; enqueuing under provisional name"
+                        )
+                        PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, poseFile)
                     }
                 }
-            }
+            },
+            onFailed = { rtmController?.abortRecording() }
         )
     }
 
@@ -401,6 +413,13 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     override fun onDestroy() {
         super.onDestroy()
         mediaManager.release()
+        // Safety net for exits that never reached stopTraining (task-switch kill, unhandled
+        // exception, back out before the end-session sheet): abort any still-unclaimed
+        // recording so it doesn't rot on disk forever. Race-safe against an in-flight
+        // finishRecording() from saveSessionToCloud's onSaved (activity can finish() right
+        // after a successful save) via RtmposeTrainingController's atomic finalization latch —
+        // this call is a no-op if finish/abort already claimed the recording.
+        rtmController?.abortRecording()
         rtmController?.release()
         if (::poseAnalysisProcessor.isInitialized) poseAnalysisProcessor.release()
     }

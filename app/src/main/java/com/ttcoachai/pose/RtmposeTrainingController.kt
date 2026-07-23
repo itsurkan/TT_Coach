@@ -44,6 +44,7 @@ import com.ttcoachai.shared.models.PersonalBaseline
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Owns the whole RTMPose live path for [com.ttcoachai.TrainingActivity]: builds the
@@ -136,6 +137,16 @@ class RtmposeTrainingController(
 
     private var poseRecorder: PoseSessionRecorder? = null
     private var poseRecordingStarted = false
+
+    /**
+     * Single latch guarding [PoseSessionRecorder]'s finish/abort lifecycle contract (its KDoc:
+     * finish/abort must never run concurrently). [finishRecording] (normal save path, on the
+     * main thread inside the cloud-save callback) and [abortRecording] (discard path, short-save
+     * path, and the [release] safety net in onDestroy) can otherwise race — e.g. onDestroy firing
+     * right after a successful save kicks off finishRecording. Whichever call wins the atomic
+     * compareAndSet actually touches [poseRecorder]; the loser is a no-op.
+     */
+    private val finalizationClaimed = AtomicBoolean(false)
     @Volatile private var frameWidth: Int = 0
     @Volatile private var frameHeight: Int = 0
 
@@ -388,12 +399,18 @@ class RtmposeTrainingController(
     }
 
     /** Finalizes the pose recording (if pose upload is enabled and recording started) and
-     *  returns the resulting gzip file, or null if nothing was recorded. */
-    suspend fun finishRecording(): File? = poseRecorder?.finish()
+     *  returns the resulting gzip file, or null if nothing was recorded — or if [abortRecording]
+     *  (or a prior call to this method) already claimed finalization, see [finalizationClaimed]. */
+    suspend fun finishRecording(): File? {
+        if (!finalizationClaimed.compareAndSet(false, true)) return null
+        return poseRecorder?.finish()
+    }
 
     /** Aborts and deletes any in-progress pose recording (session discarded). No-op if pose
-     *  upload is disabled or recording never started. */
+     *  upload is disabled, recording never started, or [finishRecording] (or a prior call to
+     *  this method) already claimed finalization, see [finalizationClaimed]. */
     fun abortRecording() {
+        if (!finalizationClaimed.compareAndSet(false, true)) return
         poseRecorder?.abort()
     }
 

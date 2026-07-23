@@ -276,10 +276,17 @@ class CloudSyncManager(
         correctStrokes: Int,
         averageScore: Double,
         appVersion: String,
-        onSaved: (suspend (sessionId: String) -> Unit)? = null
+        onSaved: (suspend (sessionId: String) -> Unit)? = null,
+        /** Invoked (main-scope, fire-and-forget) whenever [onSaved] will NOT run: not
+         *  authenticated, or the Firestore save itself failed. Callers that started a
+         *  provisional recording tied to this save (see [com.ttcoachai.pose.
+         *  RtmposeTrainingController]) must use this to abort it — otherwise it never gets
+         *  finished/renamed/enqueued and rots as an orphan blob. */
+        onFailed: (() -> Unit)? = null
     ) {
         if (!isAuthenticated) {
             android.util.Log.d(TAG, "User not authenticated, skipping cloud sync")
+            onFailed?.invoke()
             return
         }
 
@@ -305,6 +312,8 @@ class CloudSyncManager(
                     .onFailure { android.util.Log.e(TAG, "post-save hook failed", it) }
             } else {
                 android.util.Log.e(TAG, "Failed to save session to cloud", result.exceptionOrNull())
+                runCatching { onFailed?.invoke() }
+                    .onFailure { android.util.Log.e(TAG, "onFailed hook failed", it) }
             }
         }
     }
