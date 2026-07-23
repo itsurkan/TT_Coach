@@ -16,6 +16,8 @@ import com.ttcoachai.managers.*
 import com.ttcoachai.pose.RtmposeCalibrationActivity
 import com.ttcoachai.pose.RtmposeTrainingController
 import com.ttcoachai.repository.PersonalBaselineRepository
+import com.ttcoachai.work.PoseUploadQueue
+import java.io.File
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.shared.models.PersonalBaseline
 import com.ttcoachai.processors.PoseAnalysisProcessor
@@ -297,6 +299,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         poseAnalysisProcessor.endSession()
         
         if (discard) {
+            rtmController?.abortRecording()
             android.widget.Toast.makeText(this, R.string.session_discarded, android.widget.Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -325,6 +328,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         val averageScore = stateManager.getAverageScore()
 
         if (durationSeconds < 5) {
+            rtmController?.abortRecording()
             android.widget.Toast.makeText(this, "Training is too short", android.widget.Toast.LENGTH_SHORT).show()
             android.util.Log.d("TrainingActivity", "Training too short ($durationSeconds s), skipping save")
             return
@@ -354,6 +358,15 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     repPoses = stateManager.getRepPoses()
                 )
                 app.pendingReviewSessionId.value = sessionId
+
+                val poseFile = rtmController?.finishRecording()
+                val userId = app.cloudSyncManager.currentUserId
+                if (poseFile != null && userId != null) {
+                    val renamed = File(poseFile.parentFile, "$sessionId.json.gz")
+                    if (poseFile.renameTo(renamed)) {
+                        PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, renamed)
+                    }
+                }
             }
         )
     }

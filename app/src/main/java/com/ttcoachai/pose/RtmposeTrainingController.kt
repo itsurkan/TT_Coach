@@ -41,6 +41,7 @@ import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.FeedbackItem
 import com.ttcoachai.shared.models.Handedness
 import com.ttcoachai.shared.models.PersonalBaseline
+import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -133,6 +134,11 @@ class RtmposeTrainingController(
 
     private var sessionCreated = false
 
+    private var poseRecorder: PoseSessionRecorder? = null
+    private var poseRecordingStarted = false
+    @Volatile private var frameWidth: Int = 0
+    @Volatile private var frameHeight: Int = 0
+
     /**
      * Builds the preview + overlay, constructs the RTMPose backend, and binds CameraX.
      * Returns true on success. Returns false (after logging) if the backend fails to
@@ -171,6 +177,10 @@ class RtmposeTrainingController(
         voice.init()
         voice.setMuted(!settingsManager.isAudioFeedbackEnabled())
         voiceController = voice
+
+        if (settingsManager.isPoseUploadEnabled()) {
+            poseRecorder = PoseSessionRecorder(PoseSessionRecorder.cacheDir(activity))
+        }
 
         analysisExecutor = Executors.newSingleThreadExecutor()
         startCamera()
@@ -230,6 +240,8 @@ class RtmposeTrainingController(
                     val rotatedHeight = if (rot % 180 != 0) imageProxy.width else imageProxy.height
                     if (rotatedHeight > 0) {
                         aspectRatio = rotatedWidth.toFloat() / rotatedHeight.toFloat()
+                        frameWidth = rotatedWidth
+                        frameHeight = rotatedHeight
                     }
                     processor?.analyze(imageProxy) ?: imageProxy.close()
                 }
@@ -253,6 +265,14 @@ class RtmposeTrainingController(
         overlayView?.setKeypoints(keypoints)
 
         if (!stateManager.isTrainingActive) return
+
+        poseRecorder?.let { recorder ->
+            if (!poseRecordingStarted) {
+                recorder.start(frameWidth, frameHeight)
+                poseRecordingStarted = true
+            }
+            recorder.onFrame(keypoints, timestampMs)
+        }
 
         val activeSession = ensureSession()
         val feedback: List<SpokenFeedback> = activeSession.onFrame(keypoints, timestampMs)
@@ -365,6 +385,16 @@ class RtmposeTrainingController(
         cameraProvider?.unbindAll()
         cameraProvider = null
         camera = null
+    }
+
+    /** Finalizes the pose recording (if pose upload is enabled and recording started) and
+     *  returns the resulting gzip file, or null if nothing was recorded. */
+    suspend fun finishRecording(): File? = poseRecorder?.finish()
+
+    /** Aborts and deletes any in-progress pose recording (session discarded). No-op if pose
+     *  upload is disabled or recording never started. */
+    fun abortRecording() {
+        poseRecorder?.abort()
     }
 
     /** Releases all resources. Safe to call after [stop] or without a prior [stop]. */
