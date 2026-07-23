@@ -1,6 +1,7 @@
 package com.ttcoachai.work
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,6 +25,7 @@ class PoseUploadWorker(
 ) : CoroutineWorker(context, params) {
 
     companion object {
+        private const val TAG = "PoseUploadWorker"
         const val KEY_USER_ID = "userId"
         const val KEY_SESSION_ID = "sessionId"
         const val KEY_FILE_PATH = "filePath"
@@ -47,7 +49,11 @@ class PoseUploadWorker(
         return when (task.run(userId, sessionId, File(filePath))) {
             is PoseUploadTask.Outcome.Success -> Result.success()
             PoseUploadTask.Outcome.Retry -> Result.retry()
-            PoseUploadTask.Outcome.MissingFile -> Result.failure()
+            PoseUploadTask.Outcome.PermanentFailure -> Result.failure()
+            PoseUploadTask.Outcome.MissingFile -> {
+                Log.w(TAG, "Pose file missing for session $sessionId at $filePath")
+                Result.failure()
+            }
         }
     }
 }

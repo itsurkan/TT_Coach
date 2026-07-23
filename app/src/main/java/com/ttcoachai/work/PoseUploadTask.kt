@@ -1,5 +1,7 @@
 package com.ttcoachai.work
 
+import android.util.Log
+import com.google.firebase.storage.StorageException
 import java.io.File
 
 /**
@@ -14,6 +16,7 @@ class PoseUploadTask(
     sealed class Outcome {
         data class Success(val path: String) : Outcome()
         object Retry : Outcome()
+        object PermanentFailure : Outcome()
         object MissingFile : Outcome()
     }
 
@@ -22,11 +25,66 @@ class PoseUploadTask(
         val result = uploadPoseFile(userId, sessionId, file)
         return result.fold(
             onSuccess = { path ->
-                setPoseDataPath(sessionId, path)
+                // The blob is already at `path` in Storage by the time we get here. If the
+                // Firestore write below throws, we must NOT delete the local file or report
+                // Success: returning Retry re-runs `run` on the next WorkManager attempt, which
+                // re-uploads to the SAME Storage path (idempotent overwrite) and retries the
+                // Firestore write. Without this, an uncaught exception here would propagate out
+                // of doWork() as a TERMINAL failure — orphaning the blob, never setting
+                // poseDataPath, and never deleting the local file.
+                try {
+                    setPoseDataPath(sessionId, path)
+                } catch (e: Exception) {
+                    Log.w(TAG, "setPoseDataPath failed for session $sessionId, will retry: ${e.message}")
+                    return Outcome.Retry
+                }
                 file.delete()
                 Outcome.Success(path)
             },
-            onFailure = { Outcome.Retry }
+            onFailure = { e ->
+                when (classifyFailure(e)) {
+                    Outcome.PermanentFailure -> {
+                        val errorCode = (e as? StorageException)?.errorCode
+                        Log.w(TAG, "Permanent upload failure for session $sessionId, errorCode=$errorCode: ${e.message}")
+                        file.delete()
+                        Outcome.PermanentFailure
+                    }
+                    else -> Outcome.Retry
+                }
+            }
         )
+    }
+
+    companion object {
+        private const val TAG = "PoseUploadTask"
+
+        /**
+         * Thin extraction of the StorageException-specific bits; the actual classification
+         * decision lives in [classifyStorageFailure] so it can be driven directly by tests with
+         * representative (errorCode, httpResultCode) pairs.
+         */
+        internal fun classifyFailure(e: Throwable): Outcome {
+            val storageException = e as? StorageException ?: return Outcome.Retry
+            return classifyStorageFailure(storageException.errorCode, storageException.httpResultCode)
+        }
+
+        internal fun classifyStorageFailure(errorCode: Int, httpResultCode: Int): Outcome {
+            val permanentErrorCodes = setOf(
+                StorageException.ERROR_NOT_AUTHENTICATED,
+                StorageException.ERROR_NOT_AUTHORIZED,
+                StorageException.ERROR_QUOTA_EXCEEDED,
+                StorageException.ERROR_INVALID_CHECKSUM,
+            )
+            if (errorCode in permanentErrorCodes) return Outcome.PermanentFailure
+            // Retry-limit-exceeded and 5xx are transient by definition; anything unrecognised
+            // stays Retry too (safer default). Only a definite 4xx client-error code is treated
+            // as permanent here.
+            if (errorCode != StorageException.ERROR_RETRY_LIMIT_EXCEEDED &&
+                httpResultCode in 400..499
+            ) {
+                return Outcome.PermanentFailure
+            }
+            return Outcome.Retry
+        }
     }
 }

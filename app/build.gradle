@@ -73,6 +73,12 @@ android {
     androidResources {
         noCompress 'task', 'tflite', 'onnx'
     }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
 }
 
 // import DownloadMPTasks task
