@@ -18,9 +18,14 @@
 service firebase.storage {
   match /b/{bucket}/o {
     match /poses/{uid}/{file} {
-      allow read, write: if request.auth != null && request.auth.uid == uid
-                         && request.resource.size < 32 * 1024 * 1024
-                         && request.resource.contentType == 'application/json';
+      // read and delete are split out deliberately: `request.resource` is null for both,
+      // so folding them into the write rule below would make its size/contentType checks
+      // evaluate against null and deny every download and every deletion request.
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+
+      allow write: if request.auth != null && request.auth.uid == uid
+                   && request.resource.size < 32 * 1024 * 1024
+                   && request.resource.contentType == 'application/json';
     }
     match /{allPaths=**} { allow read, write: if false; }
   }
