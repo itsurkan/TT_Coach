@@ -56,6 +56,57 @@ therefore no longer strictly frozen** — but the pose/ball/trajectory pipeline 
   Slice 4: Live Session `1a` (needs the **parent** design doc — the `Live Session.dc.html` canvas only
   contains the surrounding screens, not the `1a`/`2a` capture screen itself).
 
+## Community Drills (shipped 2026-07-23)
+
+Not frozen — a live Android app feature. Users publish their custom drills to a public Firestore
+collection, browse/search/sort, rate 1–5 stars, preview, and copy into their own local drills.
+Direct-from-client Firestore, **no backend** (consistent with repo's zero-backend state).
+- **Firestore:** collection `community_drills/{docId}` + `ratings/{uid}` subcollection; rating aggregates
+  (`ratingSum`/`ratingCount`) maintained by a client `runTransaction` — **client-trusted aggregates**
+  (accepted v1 risk; rules constrain field-set + star range only). `firestore.rules` at repo root is
+  **documentation-as-code — manual deploy** (`firebase deploy --only firestore:rules`, or console);
+  `firebase.json`/`.firebaserc` now exist (project `ttcoachai`).
+- **Room:** `CustomDrillEntity.sharedCommunityId` (null=private) → AppDatabase **v8** (still destructive fallback).
+- **Code:** pure logic in `app/.../util/{CommunityDrillSort,RatingAggregate,CommunityDrillCopier}` +
+  `models/{CommunityDrill,CommunityDrillMapper}` (JVM-tested); Firestore I/O in
+  `repository/CommunityDrillRepository`; UI = publish/unshare rows in the Drills long-press menu
+  (`DrillsFragment`), `ui/CommunityDrillsActivity` (browse) → `ui/dialogs/CommunityDrillDetailSheet`
+  (preview/rate/copy); entry card on the Drills tab. Local-only fields (`drillType`, `baselineId`)
+  **never travel to Firestore**; a copied drill is fresh/unlinked (`custom_<ms>` id).
+- Plan: [docs/superpowers/plans/2026-07-22-community-drills.md](docs/superpowers/plans/2026-07-22-community-drills.md).
+
+## RTM correction taxonomy (shipped 2026-07-23)
+
+The RTM live-drill coaching set is **7 honest per-axis cues**, each backed by exactly one metric:
+
+| Chip | CorrectionType | Metric key | Precision |
+|---|---|---|---|
+| Elbow bend | `ELBOW_BEND` | `elbow_angle` (shoulder-elbow-wrist) | precise ° |
+| Elbow position | `ELBOW_POSITION` | `shoulder_angle` (hip-shoulder-elbow) | precise ° |
+| Body rotation | `BODY_ROTATION` | `coil_ratio` | **qualitative** |
+| Posture | `POSTURE` | `torso_lean` | precise ° |
+| Knee bend | `KNEE_BEND` | `knee_bend` | precise ° |
+| Follow-through | `FOLLOW_THROUGH` | `follow_through_angle_2d` | precise ° |
+| Stroke speed | `STROKE_SPEED` | `stroke_speed` | **qualitative** |
+
+- **Key model:** `DrillMetrics.PEAK_KEYS` (4, = `CoreMetricSpecs.ALL`) + `DERIVED_KEYS` (3) =
+  `ALL_KEYS` (7). Derived metrics come from **ONE** function — `DerivedMetrics.merge` — called from
+  `DrillRepProcessor.computeRep` (live), `MovementCalibrator.calibrate` (baseline),
+  `MovementAnalyzer.analyze` (batch), always with the SAME `view.xScale` as the peak metrics. Keep it
+  that way: three hand-rolled copies is how the paths silently diverge.
+- `shoulder_tilt` is **dropped from coaching** (the constant and `AngleCalculations2D.shoulderTilt`
+  stay — the viewer still uses them).
+- `coil_ratio` = shoulder-width foreshortening drive.start→drive.end ([ShoulderCoil.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/ShoulderCoil.kt),
+  ported from `poses_viewer/src/drill2d/shoulderCoil.ts`) — a LOW-CONFIDENCE, yaw-confounded proxy,
+  deliberately qualitative-only; still needs protocol-footage tuning.
+- **Per-path chips:** `CorrectionTypeAvailability.visibleFor(rtmPath)` — RTM = the 7 above; LEGACY =
+  the original 6 (WRIST/CONTACT_HEIGHT are RTM-hidden — Stage 2, they need hand keypoints / the ball).
+  Visibility only; it never mutates stored per-type enabled settings. Wired in `TrainingUIController`
+  (`setCorrectionChipsForPath`, 4 call sites in `TrainingActivity.decideCameraModeAndStart`) and
+  `FeedbackFragment` (RTM-default).
+- Baselines are schemaless JSON — **no Room migration**; pre-change baselines lack the new keys, so
+  players must re-calibrate to unlock the new cues.
+
 ## Active Technologies
 
 **Current (2D pivot):**
@@ -72,7 +123,7 @@ therefore no longer strictly frozen** — but the pose/ball/trajectory pipeline 
 **Tests (primary agent feedback loop)**
 - `./gradlew :shared:jvmTest` — shared KMP tests (commonTest classes run on JVM via this task; no device)
 - `./gradlew :shared:jvmTest --tests "com.ttcoachai.shared.io.PoseJsonV2ParserTest"` — single class
-- `./gradlew test` — all JVM unit tests (shared + app)
+- `./gradlew test` — all JVM unit tests (shared + app). NB: the full `:app:testDebugUnitTest` / `./gradlew test` currently carries a **pre-existing failure in frozen legacy code** (`MotionAnalyzerJsonTest`), unrelated to current work — scope with `--tests "<Class>"` filters and don't read a red full app suite as your own regression.
 - `cd poses_viewer && npx vitest run` — viewer/FK math tests; `npx tsc -b --noEmit` — typecheck
 - `./gradlew connectedAndroidTest` — instrumented (device required; frozen-pipeline coverage)
 
@@ -166,7 +217,7 @@ Summarized below to avoid re-reads during UI-wiring work — check here before r
 - **[DrillsFragment.kt](app/src/main/java/com/ttcoachai/fragment/DrillsFragment.kt)** — binds `FragmentDrillsBinding` (`rvDrills`, `fabAddDrill`, `sectionRecent`, `tvRecentName`/`ivRecentIcon`/`tvRecentDate`/`tvRecentAccuracy`/`btnRecentContinue`); builds built-in `Exercise` list + custom drills via `CustomDrillRepository`/`AppDatabase`; `ExerciseAdapter` (click/long-click/clone/delete/toggle-locked callbacks); long-press → `dialog_drill_menu` rows gated by `DrillActions`; launches `ExerciseEditorActivity` (new/edit/clone) via `exerciseEditorLauncher`; navigates to `TrainingActivity`. Session-level `cachedCustomExercises` companion cache avoids pop-in on refragment.
 - **[styles.xml](app/src/main/res/values/styles.xml)** — base `AppTheme` (Material3 DayNight). `TTC.*` families: `TextAppearance.TTC.{Stat.Hero/Large/Medium/Small, Mono.Meta, Title.Screen/Card, Body/Body.Secondary, Eyebrow(.Gold), Nav.Label}`; `TTC.Card(.Highlighted/.GoldTint)`; `TTC.Segment{Track,.Inactive,.Active,.Button(.Paywall)}`; `TTC.Button.{Primary,Ghost,Danger}`; `TTC.Fab.Extended`; `TTC.SectionHeader(.Gold)`; `TTC.StatNumber(.Gold/.Positive)`; `TTC.TrendChip.{Positive,Negative}`; `TTC.Toggle`; `TTC.Slider`; `TTC.Chip.{Filter,Focus}`; `TtcStepper.{Button,Value}`; `TTC.Dialog.{Title.Panel,Body.Panel,Button.Positive/Neutral}` + `ThemeOverlay.TTC.Dialog`; `TTC.BottomSheet.Modal` + `ThemeOverlay.TTC.BottomSheet`; `TTC.Button.Confirm.{Cancel,Destructive,Neutral}`, `TTC.Button.Discard`.
 - **[strings.xml](app/src/main/res/values/strings.xml)** — ~935 strings (EN). Groups by prefix: `exercise_*`/`cat_*`/`difficulty_*` (drill catalog), `training_*`/`btn_*` (Training), `settings_*`/`feedback_*`/`detection_*` (8a/11a/11b), `profile_*`/`subscription_*`/`premium_*` (Profile), `drills_*`/`drill_action_*` (Drills tab + long-press menu), `calibration_*`, `review_*`/`history_*`, `live_*` (1a/1e), `exercise_editor_*` (10c/10d), `dow_*`/`day_*`/`greeting_*` (Dashboard), `format_*` (shared), `placeholder_*` (debug).
-- **[TrainingUIController.kt](app/src/main/java/com/ttcoachai/managers/TrainingUIController.kt)** — wraps `ActivityTrainingBinding`; wires bottom sheet (`binding.bottomSheet`, collapsed/not-hideable), `drillMenu.btnPauseResume`/`btnEndSession`/`cardFullReport`, `fab_pause_play`; `rvFeedbackList` + `FeedbackListAdapter`; cues-per-session segment (`btnCues3/5/10`) persisted via `SettingsManager`; correction chips (`chipWrist/Rotation/FollowThrough/ContactHeight/Elbow/Speed`) → `CorrectionType`; collapsible `headerFeedbackSettings`/`groupFeedbackSettingsContent`/`ivFeedbackSettingsChevron`; `updateStats()` writes `tv_hits_count`/`tv_accuracy_percent` + `drillMenu.tvTotalHits/tvAccuracy/progressDrill/tvDrillProgress/tvFlagged`; `showFeedbackExplanation` → `FeedbackExplanationSheet`. Collaborators: `TrainingActivity`, `SettingsManager`, `TrainingStateManager`.
+- **[TrainingUIController.kt](app/src/main/java/com/ttcoachai/managers/TrainingUIController.kt)** — wraps `ActivityTrainingBinding`; wires bottom sheet (`binding.bottomSheet`, collapsed/not-hideable), `drillMenu.btnPauseResume`/`btnEndSession`/`cardFullReport`, `fab_pause_play`; `rvFeedbackList` + `FeedbackListAdapter`; cues-per-session segment (`btnCues3/5/10`) persisted via `SettingsManager`; correction chips (9: `chipWrist/Rotation/FollowThrough/ContactHeight/ElbowBend/Elbow/KneeBend/Posture/Speed`) → `CorrectionType` via the lazy `correctionChipPairs`, with per-path show/hide through `setCorrectionChipsForPath(rtmPath)` (visibility only — stored enabled-settings untouched); collapsible `headerFeedbackSettings`/`groupFeedbackSettingsContent`/`ivFeedbackSettingsChevron`; `updateStats()` writes `tv_hits_count`/`tv_accuracy_percent` + `drillMenu.tvTotalHits/tvAccuracy/progressDrill/tvDrillProgress/tvFlagged`; `showFeedbackExplanation` → `FeedbackExplanationSheet`. Collaborators: `TrainingActivity`, `SettingsManager`, `TrainingStateManager`.
 - **[ProfileFragment.kt](app/src/main/java/com/ttcoachai/fragment/ProfileFragment.kt)** — binds `FragmentProfileBinding`; IDs: `tvProfileName`, `tvProfileEmail`, `ivProfileImage`/`tvProfileInitials` (Coil + initials fallback), `cardSubscriptionActive`/`cardSubscriptionUpgrade`, `tvRenewalDate`, `toggleGroupTheme`, `layoutAppSettings`, `layoutHelpSupport`, `btnLogOut`, `tvProfileStreak`/`tvProfileHours`, `profileScrollView` (scroll restore). Collaborators: `SettingsManager`, `AuthViewModel`(+`AuthRepository`), `CloudSyncManager`, `ProgressDataLoader`; navigates to `AppSettingsActivity`, `HelpSupportActivity`, `SubscribeActivity`, `LoginActivity` (logout).
 - **[values-uk/strings.xml](app/src/main/res/values-uk/strings.xml)** — ~795 strings, Ukrainian mirror of `values/strings.xml` (same keys/prefixes; fewer entries — some newer EN strings not yet translated). Format placeholders (`%1$d`/`%s`) preserved.
 - **[item_exercise.xml](app/src/main/res/layout/item_exercise.xml)** — root `com.ttcoachai.ui.SwipeRevealLayout#swipe_root` with `swipe_delete_panel` (start) + `swipe_clone_panel` (end) reveal panels, foreground `MaterialCardView#swipe_foreground` (`TTC.Card`); adapter-bound IDs: `fl_icon_container`/`iv_exercise_icon`, `tv_exercise_name`, `tv_exercise_description`, `tv_duration`, `tv_category`, `iv_chevron`.
@@ -180,7 +231,10 @@ Summarized below to avoid re-reads during UI-wiring work — check here before r
 - **Wrist-speed peaks ≠ reps** — ~half are recovery swings on real footage. Pipeline order is detect → `ForwardStrokeFilter` (speed-dominance direction vote) → `RepFilter` (median banding); reordering or skipping silently corrupts baselines. [ForwardStrokeFilter.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/ForwardStrokeFilter.kt), [DrillCalibrator.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/DrillCalibrator.kt)
 - **SanityBounds drops, never coaches** — out-of-band values are tracking glitches removed from the rep; feedback always compares against the personal baseline. [SanityBounds.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/SanityBounds.kt)
 - **Head-facing (facingSign) is noisy on real footage** — fine for synthetic tests; torso-lean sign and the `ForwardStrokeFilter` fallback both depend on it (L-04 still OPEN). [AngleCalculations2D.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/AngleCalculations2D.kt)
-- **Trust rule:** precise degree numbers only for the 5 in-plane metrics (elbow, shoulder, knee bend, torso lean, shoulder tilt); rotational cues qualitative-only or silent. Encoded in `MetricPrecisionPolicy`.
+- **Trust rule:** precise degree numbers only for the 5 in-plane angle metrics (`elbow_angle`, `shoulder_angle`, `knee_bend`, `torso_lean`, `follow_through_angle_2d`); `stroke_speed` and `coil_ratio` are qualitative, rotational cues qualitative-only or silent. Encoded as an explicit allowlist in `MetricPrecisionPolicy` (NOT derived from `ALL_KEYS` — that's what wrongly made the derived proxies "precise").
+- **Adding a `CorrectionType` value breaks 6 places — one of them silently.** Five exhaustive `when`s fail to compile (`SnapshotGeometry.highlightFor`, `StrokeSnapshotSelector.snapshotFrameFor`, `SessionAnalyticsBuilder.displayNameKey` + `displayName`, `FeedbackListAdapter.labelRes`), but `FeedbackExplanationCatalog.TABLE` is a `Map` read via `getValue` — a missing entry compiles fine and **crashes at runtime** the first time a user taps "explain". Add EN+UA entries there too. (`FeedbackExplanationSheet.captionRes` and `PoseSnapshotView` have `else` arms and are safe.)
+- **`DrillMetrics.ALL_KEYS` membership is load-bearing for tests.** The message catalogs (`CoreMessageTemplates`/`FeedbackMessageCatalog`) have a fallback so they stay green when a key is added, but `VoicePresetCatalog` has **no fallback** and its test asserts a non-null phrase per key — a new metric key needs phrases added to `poses_viewer/src/drill2d/voiceStyle.ts` (the hashed source of truth for clip lookup) and ported **verbatim** into `VoicePresetCatalog`.
+- **The in-app language toggle doesn't re-render live** — Settings → «Мова інтерфейсу» persists but only takes effect after `adb shell am force-stop com.ttcoachai` + relaunch. Budget for that when screenshotting the other locale.
 - **`Videos/` footage was not shot to the camera-placement protocol** — fine for pipeline bring-up and mechanics tests, not for tuning reference ranges. End-to-end tests prove mechanics, not tuned thresholds.
 - **commonMain has no `java.lang.Math` / no ClassLoader** — use `kotlin.math`; resource-loading fixture tests go in `jvmTest`, not `commonTest`.
 
