@@ -354,7 +354,6 @@ class DrillsFragment : Fragment() {
     }
 
     private fun deleteDrill(exercise: Exercise) {
-        val communityId = exercise.sharedCommunityId
         com.ttcoachai.ui.dialogs.ConfirmDialog.show(
             context = requireContext(),
             iconRes = R.drawable.ic_trash,
@@ -362,39 +361,13 @@ class DrillsFragment : Fragment() {
             body = getString(R.string.drill_delete_message, exercise.name),
             confirmLabel = getString(R.string.drill_delete_confirm),
             cancelLabel = getString(R.string.drill_cancel),
-            destructive = true,
-            checkboxText = if (communityId != null) {
-                getString(R.string.drill_delete_also_community_checkbox)
-            } else {
-                null
-            }
-        ) { removeFromCommunity ->
+            destructive = true
+        ) {
             viewLifecycleOwner.lifecycleScope.launch {
                 withContext(Dispatchers.IO) { customDrillRepo.delete(exercise.id) }
                 if (_binding == null) return@launch
-
-                if (communityId != null && removeFromCommunity) {
-                    val uid = FirebaseAuth.getInstance().currentUser?.uid
-                    if (uid == null) {
-                        Toast.makeText(requireContext(),
-                            getString(R.string.drill_delete_community_signin_needed), Toast.LENGTH_SHORT).show()
-                    } else {
-                        val result = withContext(Dispatchers.IO) { communityDrillRepo.unshare(communityId, uid) }
-                        if (_binding == null) return@launch
-                        if (result.isSuccess) {
-                            Toast.makeText(requireContext(),
-                                getString(R.string.drill_delete_and_community_toast, exercise.name), Toast.LENGTH_SHORT).show()
-                        } else {
-                            Toast.makeText(requireContext(),
-                                getString(R.string.drill_delete_community_failed_toast), Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                } else {
-                    Toast.makeText(requireContext(),
-                        getString(R.string.drill_delete_toast, exercise.name), Toast.LENGTH_SHORT).show()
-                }
-
-                if (_binding == null) return@launch
+                Toast.makeText(requireContext(),
+                    getString(R.string.drill_delete_toast, exercise.name), Toast.LENGTH_SHORT).show()
                 reloadCustomDrills()
             }
         }

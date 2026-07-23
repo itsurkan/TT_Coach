@@ -9,7 +9,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.DrawableRes
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.checkbox.MaterialCheckBox
 import com.ttcoachai.R
 
 /**
@@ -26,8 +25,7 @@ object ConfirmDialog {
         confirmLabel: String,
         cancelLabel: String,
         destructive: Boolean = true,
-        checkboxText: String? = null,
-        onConfirm: (checked: Boolean) -> Unit
+        onConfirm: () -> Unit
     ) {
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_ttc_confirm, null)
         val dialog = Dialog(context).apply {
@@ -39,18 +37,14 @@ object ConfirmDialog {
         view.findViewById<TextView>(R.id.tv_confirm_title).text = title
         view.findViewById<TextView>(R.id.tv_confirm_body).text = body
 
-        val checkbox = view.findViewById<MaterialCheckBox>(R.id.cb_confirm_option)
-        if (checkboxText == null) {
-            checkbox.visibility = android.view.View.GONE
-        } else {
-            checkbox.text = checkboxText
-            checkbox.visibility = android.view.View.VISIBLE
-            checkbox.isChecked = true
-        }
-
         val confirmButton = view.findViewById<MaterialButton>(R.id.btn_confirm_ok).apply {
             text = confirmLabel
         }
+        // btn_confirm_ok is styled destructive (red) in XML by default. This plan's scope is
+        // delete-only (always destructive=true); a future destructive=false caller needs the
+        // neutral (gold) styling swapped in at runtime here.
+        // TODO: when a non-destructive confirm caller is added, apply TTC.Button.Confirm.Neutral
+        // colors (ttc_gold_bright / ttc_on_gold) to confirmButton when destructive == false.
 
         view.findViewById<MaterialButton>(R.id.btn_confirm_cancel).apply {
             text = cancelLabel
@@ -58,7 +52,7 @@ object ConfirmDialog {
         }
         confirmButton.setOnClickListener {
             dialog.dismiss()
-            onConfirm(checkbox.isChecked)
+            onConfirm()
         }
 
         dialog.show()

@@ -623,10 +623,6 @@
     <string name="drill_delete_confirm">Видалити</string>
     <string name="drill_delete_toast">Видалено «%1$s»</string>
     <string name="drill_cancel">Скасувати</string>
-    <string name="drill_delete_also_community_checkbox">Також видалити зі спільноти</string>
-    <string name="drill_delete_and_community_toast">«%1$s» видалено та прибрано зі спільноти</string>
-    <string name="drill_delete_community_failed_toast">Видалено, але не вдалося прибрати зі спільноти. Спробуйте пізніше.</string>
-    <string name="drill_delete_community_signin_needed">Видалено. Увійдіть, щоб прибрати публічну копію зі спільноти.</string>
     <string name="drill_share_community">Поділитися зі спільнотою</string>
     <string name="drill_unshare_community">Прибрати зі спільноти</string>
     <string name="drill_unshare_confirm_title">Прибрати зі спільноти?</string>

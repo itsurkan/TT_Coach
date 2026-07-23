@@ -806,10 +806,6 @@
     <string name="drill_delete_confirm">Delete</string>
     <string name="drill_delete_toast">Deleted \"%1$s\"</string>
     <string name="drill_cancel">Cancel</string>
-    <string name="drill_delete_also_community_checkbox">Also remove from community</string>
-    <string name="drill_delete_and_community_toast">"%1$s" deleted and removed from community</string>
-    <string name="drill_delete_community_failed_toast">Deleted, but couldn\'t remove from community. Try again later.</string>
-    <string name="drill_delete_community_signin_needed">Deleted. Sign in to remove the public copy from community.</string>
     <string name="drill_share_community">Share to community</string>
     <string name="drill_unshare_community">Remove from community</string>
     <string name="drill_unshare_confirm_title">Remove from community?</string>
