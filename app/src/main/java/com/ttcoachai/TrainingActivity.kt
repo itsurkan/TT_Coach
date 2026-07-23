@@ -26,6 +26,7 @@ import com.ttcoachai.services.MotionAnalyzer
 import com.ttcoachai.shared.drill.DrillMetrics
 import com.ttcoachai.util.PerPhaseTargetsCodec
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -297,7 +298,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         stateManager.stopTraining()
         uiController.updateUIForTrainingState(false)
         poseAnalysisProcessor.endSession()
-        
+
         if (discard) {
             rtmController?.abortRecording()
             android.widget.Toast.makeText(this, R.string.session_discarded, android.widget.Toast.LENGTH_SHORT).show()
@@ -305,19 +306,50 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             return
         }
 
-        // Save training session to cloud (async, app-scoped — survives this finish()).
-        // On success, onSaved (inside saveSessionToCloud) sets
-        // TTCoachApplication.pendingReviewSessionId, which MainActivity picks up and
-        // navigates to SessionReviewFragment. Close this screen immediately rather than
-        // waiting on the save — see
-        // docs/superpowers/specs/2026-07-03-finish-to-session-summary-flow-design.md.
-        saveSessionToCloud()
+        val durationSeconds = stateManager.getSessionDurationSeconds()
+        if (durationSeconds < 5) {
+            rtmController?.abortRecording()
+            android.widget.Toast.makeText(this, "Training is too short", android.widget.Toast.LENGTH_SHORT).show()
+            android.util.Log.d("TrainingActivity", "Training too short ($durationSeconds s), skipping save")
+            finish()
+            return
+        }
+
+        val app = application as TTCoachApplication
+        val controller = rtmController
+        if (controller != null) {
+            // Finalize the pose recording SYNCHRONOUSLY, before saveSessionToCloud/finish()
+            // below, and on the app-scoped scope (not lifecycleScope) so the finalize-then-save
+            // sequence survives finish() tearing this activity down. launch(Main.immediate) runs
+            // the coroutine body — including finishRecording()'s CAS claim on
+            // RtmposeTrainingController.finalizationClaimed — synchronously up to its first
+            // suspension point, i.e. before this function returns and calls finish() below. That
+            // closes the race the previous async-save design had: onDestroy's abortRecording()
+            // safety net can no longer win against an intended finish, because finalization is
+            // already claimed by the time onDestroy could possibly run.
+            app.applicationScope.launch(Dispatchers.Main.immediate) {
+                val poseFile = controller.finishRecording()
+                saveSessionToCloud(poseFile)
+            }
+        } else {
+            saveSessionToCloud(poseFile = null)
+        }
+
+        // Close this screen immediately rather than waiting on the save — see
+        // docs/superpowers/specs/2026-07-03-finish-to-session-summary-flow-design.md. onSaved
+        // (inside saveSessionToCloud, running on the app-scoped launch above) sets
+        // TTCoachApplication.pendingReviewSessionId, which MainActivity picks up and navigates
+        // to SessionReviewFragment.
         finish()
     }
-    
-    private fun saveSessionToCloud() {
+
+    /** [poseFile] is the already-finalized recording (or null — pose upload disabled, no
+     *  RTM controller, or nothing was recorded), handed in by [stopTraining] which finalizes it
+     *  synchronously before this runs. This function itself does not call finishRecording or
+     *  abortRecording — by the time it runs, finalization has already happened. */
+    private fun saveSessionToCloud(poseFile: File?) {
         val app = application as TTCoachApplication
-        
+
         val exerciseIdToSave = exerciseId ?: "forehand_drive"
         val exerciseNameToSave = exerciseName ?: getString(R.string.exercise_forehand_name)
         val startTimeValue = stateManager.getStartTime()
@@ -327,17 +359,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         val correctStrokes = stateManager.getGoodStrokesCount()
         val averageScore = stateManager.getAverageScore()
 
-        if (durationSeconds < 5) {
-            rtmController?.abortRecording()
-            android.widget.Toast.makeText(this, "Training is too short", android.widget.Toast.LENGTH_SHORT).show()
-            android.util.Log.d("TrainingActivity", "Training too short ($durationSeconds s), skipping save")
-            return
-        }
-
         // LOGGING FOR DEBUGGING
         android.util.Log.d("TrainingActivity", "Saving to cloud: exercise=$exerciseIdToSave, duration=$durationSeconds sec, strokes=$strokeCount, score=$averageScore")
         android.util.Log.d("TrainingActivity", "CloudSync authenticated: ${app.cloudSyncManager.isAuthenticated}")
-        
+
         app.cloudSyncManager.saveTrainingFromState(
             exerciseId = exerciseIdToSave,
             exerciseName = exerciseNameToSave,
@@ -359,11 +384,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 )
                 app.pendingReviewSessionId.value = sessionId
 
-                val poseFile = rtmController?.finishRecording()
                 val userId = app.cloudSyncManager.currentUserId
                 if (poseFile != null && userId != null) {
                     // Re-check consent right before enqueueing: it may have been revoked after
-                    // the recording started (or even after finishRecording() above returned a
+                    // the recording started (or even after finishRecording() returned a
                     // finalized file). The toggle's promise is "no pose data leaves the device"
                     // — honor that at the last possible moment, not just at session start.
                     if (!settingsManager.isPoseUploadEnabled()) {
@@ -379,7 +403,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                         } else {
                             // Rename failed (stale file at target, directory removed by a cache
                             // clear, etc.) — poseFile is already a fully finalized .json.gz from
-                            // finishRecording() above. Losing the upload is worse than losing the
+                            // finishRecording(). Losing the upload is worse than losing the
                             // sessionId-based local filename convention, so enqueue it as-is rather
                             // than silently orphaning a real recording.
                             android.util.Log.e(
@@ -391,7 +415,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     }
                 }
             },
-            onFailed = { rtmController?.abortRecording() }
+            onFailed = {
+                // The recording was already finalized (by stopTraining, before this save even
+                // started) — RtmposeTrainingController.abortRecording() is now a no-op (its
+                // finalizationClaimed CAS is already claimed). Delete the finalized file
+                // ourselves instead, so an unauthenticated or failed save still leaves nothing
+                // behind, matching the pre-existing "save fails -> aborted" contract.
+                poseFile?.delete()
+            }
         )
     }
 
@@ -427,10 +458,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         mediaManager.release()
         // Safety net for exits that never reached stopTraining (task-switch kill, unhandled
         // exception, back out before the end-session sheet): abort any still-unclaimed
-        // recording so it doesn't rot on disk forever. Race-safe against an in-flight
-        // finishRecording() from saveSessionToCloud's onSaved (activity can finish() right
-        // after a successful save) via RtmposeTrainingController's atomic finalization latch —
-        // this call is a no-op if finish/abort already claimed the recording.
+        // recording so it doesn't rot on disk forever. Race-safe against stopTraining, which
+        // now claims finalization (RtmposeTrainingController.finishRecording()'s CAS)
+        // SYNCHRONOUSLY before calling finish() — so by the time onDestroy can possibly run,
+        // an intended finalize has already won the latch and this call is a no-op.
         rtmController?.abortRecording()
         rtmController?.release()
         if (::poseAnalysisProcessor.isInitialized) poseAnalysisProcessor.release()

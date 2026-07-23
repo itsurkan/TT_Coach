@@ -12,6 +12,9 @@ import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
 import com.ttcoachai.core.logging.providers.LocalFileLogger
 import com.ttcoachai.work.PoseUploadQueue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -45,6 +48,11 @@ class TTCoachApplication : Application() {
     // MainActivity to navigate to SessionReviewFragment exactly once. See
     // docs/superpowers/specs/2026-07-03-finish-to-session-summary-flow-design.md.
     val pendingReviewSessionId = MutableStateFlow<String?>(null)
+
+    /** App-scoped coroutine scope that outlives any single Activity's lifecycleScope. Used by
+     *  TrainingActivity.stopTraining to finalize + upload-enqueue the pose recording so that
+     *  sequence survives finish()/onDestroy tearing down the activity's own lifecycleScope. */
+    val applicationScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     override fun onCreate() {
         super.onCreate()
