@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.room.TypeConverter
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.Keypoint2D
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -63,6 +64,41 @@ object SessionAnalyticsConverters {
             out
         } catch (e: Exception) {
             Log.w(TAG, "Malformed focus areas JSON, returning empty list", e)
+            emptyList()
+        }
+    }
+
+    /** COCO-17 keypoint list -> JSON, for the rep-start/rep-end snapshot columns. */
+    @JvmStatic
+    fun keypointsToJson(keypoints: List<Keypoint2D>): String {
+        val array = JSONArray()
+        for (kp in keypoints) {
+            array.put(
+                JSONObject()
+                    .put("x", kp.x.toDouble())
+                    .put("y", kp.y.toDouble())
+                    .put("score", kp.score.toDouble())
+            )
+        }
+        return array.toString()
+    }
+
+    /** Inverse of [keypointsToJson]. Malformed/blank JSON degrades to an empty list. */
+    @JvmStatic
+    fun jsonToKeypoints(json: String?): List<Keypoint2D> {
+        if (json.isNullOrBlank()) return emptyList()
+        return try {
+            val array = JSONArray(json)
+            List(array.length()) { i ->
+                val obj = array.getJSONObject(i)
+                Keypoint2D(
+                    x = obj.getDouble("x").toFloat(),
+                    y = obj.getDouble("y").toFloat(),
+                    score = obj.getDouble("score").toFloat()
+                )
+            }
+        } catch (e: Exception) {
+            Log.w(TAG, "Malformed keypoints JSON, returning empty list", e)
             emptyList()
         }
     }

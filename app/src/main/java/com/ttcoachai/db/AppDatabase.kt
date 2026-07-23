@@ -19,7 +19,7 @@ import com.ttcoachai.models.UserProgress
         CustomDrillEntity::class,
         SessionAnalyticsEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(BaselineConverters::class, SessionAnalyticsConverters::class)

@@ -2,6 +2,7 @@ package com.ttcoachai.db
 
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.Keypoint2D
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -43,5 +44,28 @@ class SessionAnalyticsConvertersTest {
     @Test
     fun emptyFocusJson_returnsEmpty() {
         assertTrue(SessionAnalyticsConverters.jsonToFocusAreas("").isEmpty())
+    }
+
+    @Test
+    fun keypoints_roundTrip_preservesFields() {
+        val keypoints = listOf(
+            Keypoint2D(x = 0.1f, y = 0.2f, score = 0.9f),
+            Keypoint2D(x = 0.55f, y = 0.42f, score = 0.31f),
+        )
+        val json = SessionAnalyticsConverters.keypointsToJson(keypoints)
+        val back = SessionAnalyticsConverters.jsonToKeypoints(json)
+        assertEquals(2, back.size)
+        assertEquals(0.1f, back[0].x, 0.0001f)
+        assertEquals(0.2f, back[0].y, 0.0001f)
+        assertEquals(0.9f, back[0].score, 0.0001f)
+        assertEquals(0.55f, back[1].x, 0.0001f)
+        assertEquals(0.42f, back[1].y, 0.0001f)
+        assertEquals(0.31f, back[1].score, 0.0001f)
+    }
+
+    @Test
+    fun nullOrBlankKeypointsJson_returnsEmpty() {
+        assertTrue(SessionAnalyticsConverters.jsonToKeypoints(null).isEmpty())
+        assertTrue(SessionAnalyticsConverters.jsonToKeypoints("").isEmpty())
     }
 }

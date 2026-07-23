@@ -20,9 +20,12 @@ import com.ttcoachai.models.TrainingSession
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
 import com.ttcoachai.shared.drill.FeedbackLang
+import com.ttcoachai.shared.feedback.Coco17ToLandmark3D
 import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
 import com.ttcoachai.shared.models.CorrectionType
+import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
+import com.ttcoachai.util.RepresentativeRepSelector
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -129,6 +132,7 @@ class SessionReviewFragment : Fragment() {
             binding.tvFocusEmpty.visibility = View.VISIBLE
             binding.tvPeakPill.text = getString(R.string.review_no_analytics)
             binding.tvSummary.text = ""
+            bindStrokeSnapshot(topFocusType = null, persistedStart = emptyList(), persistedEnd = emptyList())
             return
         }
 
@@ -144,7 +148,52 @@ class SessionReviewFragment : Fragment() {
 
         val focusAreas = analytics.focusAreas()
         bindFocusAreas(focusAreas)
+        bindStrokeSnapshot(
+            topFocusType = focusAreas.firstOrNull()?.type,
+            persistedStart = analytics.repStartPose(),
+            persistedEnd = analytics.repEndPose(),
+        )
         binding.tvSummary.text = buildSummaryText(timeline, analytics.peakAccuracy, focusAreas, analytics.summaryText)
+    }
+
+    /**
+     * Renders the always-present "stroke snapshot" card (start + end skeleton), independent of
+     * whether the session has any focus areas — that emptiness previously gated the skeleton off
+     * entirely, which is the bug this closes. [topFocusType] highlights the pair via
+     * [com.ttcoachai.shared.feedback.SnapshotGeometry] (falls back to [CorrectionType.GENERAL]).
+     *
+     * Data source: the persisted entity columns first ([persistedStart]/[persistedEnd], written
+     * by `SessionAnalyticsRecorder` at save time — works from History too); when those are absent
+     * (row predates this feature, or the save raced ahead of persistence) falls back to the
+     * in-memory `TrainingStateManager` singleton via [RepresentativeRepSelector], the same source
+     * `FeedbackExplanationSheet` uses. Hides the card only when truly no pose data exists either
+     * way.
+     */
+    private fun bindStrokeSnapshot(
+        topFocusType: CorrectionType?,
+        persistedStart: List<Keypoint2D>,
+        persistedEnd: List<Keypoint2D>,
+    ) {
+        var start = persistedStart
+        var end = persistedEnd
+        if (start.isEmpty() || end.isEmpty()) {
+            val stateManager = TrainingStateManager.getInstance(requireContext())
+            val representative = RepresentativeRepSelector.select(stateManager.getRepPoses(), topFocusType)
+            if (representative != null) {
+                start = representative.start
+                end = representative.end
+            }
+        }
+
+        if (start.isEmpty() || end.isEmpty()) {
+            binding.cardStrokeSnapshot.visibility = View.GONE
+            return
+        }
+
+        val type = topFocusType ?: CorrectionType.GENERAL
+        binding.poseSnapshotStartReview.setSnapshot(Coco17ToLandmark3D.map(start), type)
+        binding.poseSnapshotEndReview.setSnapshot(Coco17ToLandmark3D.map(end), type)
+        binding.cardStrokeSnapshot.visibility = View.VISIBLE
     }
 
     private fun currentLang(): FeedbackLang =

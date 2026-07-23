@@ -350,7 +350,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                     sessionId = sessionId,
                     results = stateManager.getAnalysisResults(),
                     feedbackCounts = stateManager.getFeedbackCounts().toMap(),
-                    isTypeEnabled = { type -> settingsManager.isCorrectionTypeEnabled(type) }
+                    isTypeEnabled = { type -> settingsManager.isCorrectionTypeEnabled(type) },
+                    repPoses = stateManager.getRepPoses()
                 )
                 app.pendingReviewSessionId.value = sessionId
             }
