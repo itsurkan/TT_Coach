@@ -150,4 +150,13 @@
         android:text="@string/community_copy_button"
         style="@style/TTC.Button.Primary"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRemoveFromCommunity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
+        android:text="@string/community_remove_button"
+        style="@style/TTC.Button.Danger"/>
+
 </LinearLayout>
