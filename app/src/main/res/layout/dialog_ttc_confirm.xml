@@ -48,6 +48,17 @@
         android:textColor="@color/ttc_text_2"
         android:gravity="center"/>
 
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cb_confirm_option"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:visibility="gone"
+        android:fontFamily="@font/inter_tight_regular"
+        android:textSize="13.5sp"
+        android:textColor="@color/ttc_text_2"
+        app:buttonTint="@color/ttc_gold_bright"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
