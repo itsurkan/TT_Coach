@@ -5,10 +5,13 @@
 
 package com.ttcoachai.repository
 
+import android.net.Uri
 import android.util.Log
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageMetadata
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 /**
  * Repository for pose data storage using Firebase Cloud Storage.
@@ -59,6 +62,36 @@ class PoseDataRepository(
         jsonData: String
     ): Result<String> {
         return uploadPoseData(userId, sessionId, jsonData.toByteArray(Charsets.UTF_8))
+    }
+
+    /**
+     * Upload a pose file (already-gzipped schema-v2 JSON) by streaming it from disk — unlike
+     * [uploadPoseData]/[uploadPoseDataJson] (in-memory ByteArray/String), this never holds the
+     * whole payload in memory, which is the entire point of a full-session on-disk recording
+     * (see PoseSessionRecorder). Same path convention as [uploadPoseData]'s [POSES_FOLDER],
+     * `.json.gz` extension instead of `.json`.
+     */
+    suspend fun uploadPoseFile(
+        userId: String,
+        sessionId: String,
+        file: File
+    ): Result<String> {
+        return try {
+            val path = "$POSES_FOLDER/$userId/$sessionId.json.gz"
+            val ref = storage.reference.child(path)
+            val metadata = StorageMetadata.Builder()
+                .setContentType("application/json")
+                .setContentEncoding("gzip")
+                .build()
+
+            ref.putFile(Uri.fromFile(file), metadata).await()
+
+            Log.d(TAG, "Pose file uploaded: $path (${file.length()} bytes)")
+            Result.success(path)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to upload pose file", e)
+            Result.failure(e)
+        }
     }
 
     /**
