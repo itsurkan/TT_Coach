@@ -153,13 +153,20 @@ class AppSettingsActivity : AppCompatActivity() {
                 // cancellation Operation's own result before deleting anything, so we never pull
                 // a file out from under a still-running upload. Off the main thread throughout
                 // (both the await and the directory listing/delete are IO-ish work).
-                lifecycleScope.launch(Dispatchers.IO) {
+                //
+                // App-scoped, NOT lifecycleScope: revoking consent must complete even if the
+                // user leaves this screen immediately after flipping the switch. On
+                // lifecycleScope the coroutine would be cancelled before its body ran, so
+                // neither the work cancellation nor the cache wipe would happen and already-
+                // queued uploads would proceed after consent was withdrawn.
+                val appContext = applicationContext
+                (application as TTCoachApplication).applicationScope.launch(Dispatchers.IO) {
                     try {
-                        com.ttcoachai.work.PoseUploadQueue.cancelAll(this@AppSettingsActivity).await()
+                        com.ttcoachai.work.PoseUploadQueue.cancelAll(appContext).await()
                     } catch (e: Exception) {
                         android.util.Log.w("AppSettingsActivity", "cancelAll await failed, deleting cache anyway", e)
                     }
-                    com.ttcoachai.pose.PoseSessionRecorder.cacheDir(this@AppSettingsActivity).listFiles()?.forEach { it.delete() }
+                    com.ttcoachai.pose.PoseSessionRecorder.cacheDir(appContext).listFiles()?.forEach { it.delete() }
                 }
             }
             cloudSyncManager.uploadSettings()
