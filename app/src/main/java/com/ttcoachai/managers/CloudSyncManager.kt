@@ -58,10 +58,19 @@ class CloudSyncManager(
 
     /**
      * Initialize sync manager and listen for auth state changes.
+     *
+     * @param onAuthStateResolved Invoked on every listener fire (including the first, which
+     *   reflects Firebase's resolved auth state — signed in or genuinely signed out — rather
+     *   than the transient `currentUser == null` window at `Application.onCreate` before auth
+     *   has restored its cached session). Callers that need to distinguish "no user yet" from
+     *   "no user, ever" (e.g. the pose-upload orphan sweep, see [com.ttcoachai.work.
+     *   PoseUploadQueue.sweepOrphans]) should gate on this rather than reading [currentUserId]
+     *   immediately at startup.
      */
-    fun initialize() {
+    fun initialize(onAuthStateResolved: ((FirebaseUser?) -> Unit)? = null) {
         auth.addAuthStateListener { firebaseAuth ->
             val user = firebaseAuth.currentUser
+            onAuthStateResolved?.invoke(user)
             if (user != null) {
                 Log.d(TAG, "User signed in: ${user.uid}")
                 scope.launch {

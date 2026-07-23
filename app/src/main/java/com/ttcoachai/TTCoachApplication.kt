@@ -62,14 +62,28 @@ class TTCoachApplication : Application() {
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
         
-        // Initialize cloud sync (listens for auth state changes)
-        cloudSyncManager.initialize()
+        // Initialize cloud sync (listens for auth state changes). sweepOrphans is gated on the
+        // FIRST auth-state resolution rather than run unconditionally here: at onCreate() time
+        // FirebaseAuth.currentUser can be transiently null for a user who IS signed in (auth
+        // hasn't restored its cached session yet), and sweepOrphans deletes finalized orphan
+        // files when it finds no signed-in user — running it before auth resolves would
+        // permanently delete exactly the process-death orphans it exists to recover. The
+        // auth-state listener's first callback reflects the resolved state (signed in or
+        // genuinely signed out), so it is the correct trigger.
+        val poseSweepStarted = java.util.concurrent.atomic.AtomicBoolean(false)
+        cloudSyncManager.initialize(onAuthStateResolved = {
+            if (poseSweepStarted.compareAndSet(false, true)) {
+                Thread {
+                    PoseUploadQueue.sweepOrphans(this)
+                }.start()
+            }
+        })
 
-        // Pose-upload cache maintenance (component C's app-start sweep, see
-        // docs/superpowers/specs/2026-07-23-pose-upload-firebase-design.md). Touches disk
-        // (directory listing, stat, delete) so it must not run on the main thread.
+        // Pose-upload cache eviction (component C's app-start sweep, see
+        // docs/superpowers/specs/2026-07-23-pose-upload-firebase-design.md). Age/size-based,
+        // does not depend on auth state, so it runs immediately. Touches disk (directory
+        // listing, stat, delete) so it must not run on the main thread.
         Thread {
-            PoseUploadQueue.sweepOrphans(this)
             PoseUploadQueue.evictOldCache(this)
         }.start()
 
