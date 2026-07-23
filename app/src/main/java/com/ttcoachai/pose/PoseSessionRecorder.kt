@@ -121,6 +121,13 @@ class PoseSessionRecorder(private val outputDir: File) {
                     tempFile.delete()
                     return@withContext null
                 }
+                if (!tempFile.exists()) {
+                    // Temp file was removed externally mid-session (e.g. pose-upload consent
+                    // revoked and AppSettingsActivity swept the cache dir). Nothing left to
+                    // finalize — this is a legitimate "nothing to upload" outcome, not an IO
+                    // failure, so degrade to null rather than letting the GZIP step below throw.
+                    return@withContext null
+                }
                 val totalFrames = frameCount
                 val durationMs = (lastTimestampMs - firstTimestampMs).coerceAtLeast(0L)
                 val intervalMs = if (totalFrames > 1) (durationMs / (totalFrames - 1)).coerceAtLeast(1L) else 1L

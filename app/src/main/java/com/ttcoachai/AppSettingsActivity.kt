@@ -7,6 +7,9 @@ import com.ttcoachai.databinding.ActivityAppSettingsBinding
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.CloudSyncManager
 import com.ttcoachai.TTCoachApplication
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppSettingsActivity : AppCompatActivity() {
 
@@ -145,7 +148,10 @@ class AppSettingsActivity : AppCompatActivity() {
             settingsManager.setPoseUploadEnabled(isChecked)
             if (!isChecked) {
                 com.ttcoachai.work.PoseUploadQueue.cancelAll(this)
-                com.ttcoachai.pose.PoseSessionRecorder.cacheDir(this).listFiles()?.forEach { it.delete() }
+                // File IO — must not run on the main thread (this listener fires there).
+                lifecycleScope.launch(Dispatchers.IO) {
+                    com.ttcoachai.pose.PoseSessionRecorder.cacheDir(this@AppSettingsActivity).listFiles()?.forEach { it.delete() }
+                }
             }
             cloudSyncManager.uploadSettings()
         }

@@ -362,20 +362,32 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
                 val poseFile = rtmController?.finishRecording()
                 val userId = app.cloudSyncManager.currentUserId
                 if (poseFile != null && userId != null) {
-                    val renamed = File(poseFile.parentFile, "$sessionId.json.gz")
-                    if (poseFile.renameTo(renamed)) {
-                        PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, renamed)
-                    } else {
-                        // Rename failed (stale file at target, directory removed by a cache
-                        // clear, etc.) — poseFile is already a fully finalized .json.gz from
-                        // finishRecording() above. Losing the upload is worse than losing the
-                        // sessionId-based local filename convention, so enqueue it as-is rather
-                        // than silently orphaning a real recording.
-                        android.util.Log.e(
+                    // Re-check consent right before enqueueing: it may have been revoked after
+                    // the recording started (or even after finishRecording() above returned a
+                    // finalized file). The toggle's promise is "no pose data leaves the device"
+                    // — honor that at the last possible moment, not just at session start.
+                    if (!settingsManager.isPoseUploadEnabled()) {
+                        android.util.Log.d(
                             "TrainingActivity",
-                            "renameTo failed for pose file ${poseFile.absolutePath} -> ${renamed.absolutePath}; enqueuing under provisional name"
+                            "Pose upload consent revoked mid-session; discarding local recording ${poseFile.absolutePath} instead of enqueueing"
                         )
-                        PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, poseFile)
+                        poseFile.delete()
+                    } else {
+                        val renamed = File(poseFile.parentFile, "$sessionId.json.gz")
+                        if (poseFile.renameTo(renamed)) {
+                            PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, renamed)
+                        } else {
+                            // Rename failed (stale file at target, directory removed by a cache
+                            // clear, etc.) — poseFile is already a fully finalized .json.gz from
+                            // finishRecording() above. Losing the upload is worse than losing the
+                            // sessionId-based local filename convention, so enqueue it as-is rather
+                            // than silently orphaning a real recording.
+                            android.util.Log.e(
+                                "TrainingActivity",
+                                "renameTo failed for pose file ${poseFile.absolutePath} -> ${renamed.absolutePath}; enqueuing under provisional name"
+                            )
+                            PoseUploadQueue.enqueue(this@TrainingActivity, userId, sessionId, poseFile)
+                        }
                     }
                 }
             },

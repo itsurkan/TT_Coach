@@ -102,6 +102,45 @@ class PoseSessionRecorderTest {
     }
 
     @Test
+    fun finishReturnsNullWhenTempFileDeletedExternally() = runBlocking {
+        // Simulates AppSettingsActivity's pose-upload-consent-revoked cache sweep racing with
+        // an in-progress session: the temp file disappears out from under the recorder before
+        // finish() runs. This must degrade to null, not throw.
+        val dir = tempFolder.newFolder()
+        val recorder = PoseSessionRecorder(dir)
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        recorder.onFrame(coco17Frame(), timestampMs = 0L)
+        kotlinx.coroutines.delay(50) // let the single-thread writer actually create the temp file
+        dir.listFiles { f -> f.name.endsWith(".tmp") }?.forEach { it.delete() }
+
+        val result = recorder.finish()
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun finishStillThrowsOnGenuineIoFailure() = runBlocking {
+        // Distinguishes the null-degrade above from a real write failure, which must still
+        // surface rather than silently swallow.
+        val dir = tempFolder.newFolder()
+        val recorder = PoseSessionRecorder(dir)
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        recorder.onFrame(coco17Frame(), timestampMs = 0L)
+        kotlinx.coroutines.delay(50)
+        dir.setWritable(false)
+        try {
+            var threw = false
+            try {
+                recorder.finish()
+            } catch (e: Exception) {
+                threw = true
+            }
+            assertTrue(threw)
+        } finally {
+            dir.setWritable(true) // let TemporaryFolder clean up afterwards
+        }
+    }
+
+    @Test
     fun finishAfterAbortShortCircuitsRatherThanThrowing() = runBlocking {
         val recorder = PoseSessionRecorder(tempFolder.newFolder())
         recorder.start(videoWidth = 640, videoHeight = 480)
