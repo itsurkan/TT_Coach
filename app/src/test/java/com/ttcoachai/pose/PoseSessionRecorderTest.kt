@@ -61,4 +61,54 @@ class PoseSessionRecorderTest {
         recorder.abort()
         assertTrue(dir.listFiles()?.isEmpty() ?: true)
     }
+
+    @Test
+    fun onFrameAfterFinishDoesNotThrowAndDoesNotAlterOutput() = runBlocking {
+        val recorder = PoseSessionRecorder(tempFolder.newFolder())
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        for (i in 0 until 5) {
+            recorder.onFrame(coco17Frame(), timestampMs = i * 20L)
+        }
+        val finalFile = recorder.finish()
+        requireNotNull(finalFile)
+        val before = gunzip(finalFile)
+
+        recorder.onFrame(coco17Frame(), timestampMs = 999L)
+
+        val after = gunzip(finalFile)
+        assertEquals(before, after)
+    }
+
+    @Test
+    fun onFrameAfterAbortDoesNotThrow() = runBlocking {
+        val recorder = PoseSessionRecorder(tempFolder.newFolder())
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        recorder.onFrame(coco17Frame(), timestampMs = 0L)
+        recorder.abort()
+
+        recorder.onFrame(coco17Frame(), timestampMs = 999L)
+    }
+
+    @Test
+    fun secondFinishReturnsNull() = runBlocking {
+        val recorder = PoseSessionRecorder(tempFolder.newFolder())
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        recorder.onFrame(coco17Frame(), timestampMs = 0L)
+        val first = recorder.finish()
+        requireNotNull(first)
+
+        val second = recorder.finish()
+        assertEquals(null, second)
+    }
+
+    @Test
+    fun finishAfterAbortShortCircuitsRatherThanThrowing() = runBlocking {
+        val recorder = PoseSessionRecorder(tempFolder.newFolder())
+        recorder.start(videoWidth = 640, videoHeight = 480)
+        recorder.onFrame(coco17Frame(), timestampMs = 0L)
+        recorder.abort()
+
+        val result = recorder.finish()
+        assertEquals(null, result)
+    }
 }

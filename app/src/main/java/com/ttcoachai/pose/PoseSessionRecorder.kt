@@ -60,19 +60,21 @@ class PoseSessionRecorder(private val outputDir: File) {
     private var firstTimestampMs = 0L
     private var lastTimestampMs = 0L
     @Volatile private var started = false
+    @Volatile private var finished = false
 
     fun start(videoWidth: Int, videoHeight: Int) {
+        if (finished) return
         this.videoWidth = videoWidth
         this.videoHeight = videoHeight
         started = true
-        outputDir.mkdirs()
         scope.launch {
+            outputDir.mkdirs()
             writer = tempFile.bufferedWriter()
         }
     }
 
     fun onFrame(keypoints: List<Keypoint2D>, timestampMs: Long) {
-        if (!started) return
+        if (!started || finished) return
         scope.launch {
             val w = writer ?: return@launch
             if (frameCount >= MAX_FRAMES) return@launch
@@ -89,50 +91,64 @@ class PoseSessionRecorder(private val outputDir: File) {
      *  the temp file, and returns the final file. Returns null if [start] was never called or
      *  zero frames were captured. */
     suspend fun finish(): File? {
-        if (!started) return null
-        val result = withContext(dispatcher) {
-            writer?.flush()
-            writer?.close()
-            writer = null
-            if (frameCount == 0) {
-                tempFile.delete()
-                return@withContext null
+        if (!started || finished) return null
+        finished = true
+        try {
+            return withContext(dispatcher) {
+                writer?.flush()
+                writer?.close()
+                writer = null
+                if (frameCount == 0) {
+                    tempFile.delete()
+                    return@withContext null
+                }
+                val totalFrames = frameCount
+                val durationMs = (lastTimestampMs - firstTimestampMs).coerceAtLeast(0L)
+                val intervalMs = if (totalFrames > 1) (durationMs / (totalFrames - 1)).coerceAtLeast(1L) else 1L
+                val finalFile = File(outputDir, "$provisionalId.json.gz")
+                try {
+                    GZIPOutputStream(finalFile.outputStream()).use { gz ->
+                        gz.write(
+                            PoseJsonV2Writer.header(
+                                topology = Topology.COCO17,
+                                model = MODEL_NAME,
+                                videoName = "",
+                                intervalMs = intervalMs,
+                                totalFrames = totalFrames,
+                                videoDurationMs = durationMs,
+                                videoWidth = videoWidth,
+                                videoHeight = videoHeight
+                            ).toByteArray(Charsets.UTF_8)
+                        )
+                        tempFile.inputStream().use { it.copyTo(gz) }
+                        gz.write(PoseJsonV2Writer.footer().toByteArray(Charsets.UTF_8))
+                    }
+                } catch (e: Exception) {
+                    finalFile.delete()
+                    throw e
+                } finally {
+                    tempFile.delete()
+                }
+                finalFile
             }
-            val totalFrames = frameCount
-            val durationMs = (lastTimestampMs - firstTimestampMs).coerceAtLeast(0L)
-            val intervalMs = if (totalFrames > 1) (durationMs / (totalFrames - 1)).coerceAtLeast(1L) else 1L
-            val finalFile = File(outputDir, "$provisionalId.json.gz")
-            GZIPOutputStream(finalFile.outputStream()).use { gz ->
-                gz.write(
-                    PoseJsonV2Writer.header(
-                        topology = Topology.COCO17,
-                        model = MODEL_NAME,
-                        videoName = "",
-                        intervalMs = intervalMs,
-                        totalFrames = totalFrames,
-                        videoDurationMs = durationMs,
-                        videoWidth = videoWidth,
-                        videoHeight = videoHeight
-                    ).toByteArray(Charsets.UTF_8)
-                )
-                tempFile.inputStream().use { it.copyTo(gz) }
-                gz.write(PoseJsonV2Writer.footer().toByteArray(Charsets.UTF_8))
-            }
-            tempFile.delete()
-            finalFile
+        } finally {
+            executor.shutdown()
         }
-        executor.shutdown()
-        return result
     }
 
     /** Cancels any pending writes and deletes the temp file. Safe to call before [start] or
      *  instead of [finish] (session discarded). */
     fun abort() {
-        runBlocking(dispatcher) {
-            writer?.close()
-            writer = null
+        if (finished) return
+        finished = true
+        try {
+            runBlocking(dispatcher) {
+                writer?.close()
+                writer = null
+            }
+            tempFile.delete()
+        } finally {
+            executor.shutdown()
         }
-        tempFile.delete()
-        executor.shutdown()
     }
 }
