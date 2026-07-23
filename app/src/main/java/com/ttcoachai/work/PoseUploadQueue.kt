@@ -43,9 +43,12 @@ object PoseUploadQueue {
     }
 
     /** Cancels all queued/running pose-upload work — called when the consent toggle is turned
-     *  off (component D, Task 5). */
-    fun cancelAll(context: Context) {
-        WorkManager.getInstance(context).cancelAllWorkByTag(TAG_POSE_UPLOAD)
+     *  off (component D, Task 5). Returns the [Operation] so callers that then delete cached
+     *  files can await actual cancellation first (cancelAllWorkByTag itself only enqueues the
+     *  cancellation asynchronously — an in-flight upload can otherwise still be mid-`putFile()`
+     *  when the caller deletes its source file out from under it). */
+    fun cancelAll(context: Context): androidx.work.Operation {
+        return WorkManager.getInstance(context).cancelAllWorkByTag(TAG_POSE_UPLOAD)
     }
 
     /** Matches [PoseSessionRecorder]'s `provisionalId` format ("pose_&lt;uuid&gt;"). A
@@ -56,6 +59,14 @@ object PoseUploadQueue {
      *  uploaded under a fabricated id. See [sweepOrphans].
      */
     private const val PROVISIONAL_ID_PREFIX = "pose_"
+
+    /** Grace period before a still-provisionally-named `pose_<uuid>.json.gz` is treated as
+     *  unrecoverable and deleted. TrainingActivity deliberately enqueues under this exact
+     *  provisional name when the post-finish() rename to `<sessionId>.json.gz` fails — that
+     *  queued-but-not-yet-run upload must survive an app restart that happens to land between
+     *  enqueue and the worker actually running. Only a file this old could not possibly still
+     *  be one of those in-flight uploads. */
+    private const val PROVISIONAL_GRACE_PERIOD_MS = 60L * 60 * 1000
 
     /** Called on app start: re-enqueues any finalized `<sessionId>.json.gz` left behind in the
      *  cache dir by a process death after the Task 4 rename but before the worker finished
@@ -82,10 +93,14 @@ object PoseUploadQueue {
         val uploadEnabled = SettingsManager(context).isPoseUploadEnabled()
         val userId = FirebaseAuth.getInstance().currentUser?.uid
 
+        val now = System.currentTimeMillis()
         for (file in files) {
             if (!file.name.endsWith(".json.gz")) continue
             val sessionId = file.name.removeSuffix(".json.gz")
+            val isRecentProvisional = sessionId.startsWith(PROVISIONAL_ID_PREFIX) &&
+                (now - file.lastModified()) < PROVISIONAL_GRACE_PERIOD_MS
             when {
+                isRecentProvisional -> Unit // may still be a legitimately queued upload — leave it
                 sessionId.startsWith(PROVISIONAL_ID_PREFIX) -> file.delete()
                 uploadEnabled && userId != null -> enqueue(context, userId, sessionId, file)
                 else -> file.delete()
