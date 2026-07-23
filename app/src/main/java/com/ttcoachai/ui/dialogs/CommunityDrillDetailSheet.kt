@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import coil.load
 import coil.transform.CircleCropTransformation
@@ -38,6 +39,7 @@ class CommunityDrillDetailSheet : BottomSheetDialogFragment() {
 
     companion object {
         const val TAG = "CommunityDrillDetailSheet"
+        const val RESULT_REMOVED = "community_drill_removed"
         private const val ARG_ID = "community_id"
 
         fun newInstance(communityId: String) = CommunityDrillDetailSheet().apply {
@@ -86,6 +88,12 @@ class CommunityDrillDetailSheet : BottomSheetDialogFragment() {
 
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null && !user.isAnonymous) {
+                if (_binding != null && user.uid == drill.creatorUid) {
+                    binding.btnRemoveFromCommunity.visibility = View.VISIBLE
+                    binding.btnRemoveFromCommunity.setOnClickListener {
+                        confirmRemove(communityId, user.uid, drill.name)
+                    }
+                }
                 val myRating = repo.myRating(communityId, user.uid).getOrNull()
                 if (_binding != null && myRating != null) {
                     binding.rbDetailRate.rating = myRating.stars.toFloat()
@@ -195,6 +203,39 @@ class CommunityDrillDetailSheet : BottomSheetDialogFragment() {
             if (_binding == null) return@launch
             Toast.makeText(requireContext(), R.string.community_copy_success_toast, Toast.LENGTH_SHORT).show()
             dismiss()
+        }
+    }
+
+    private fun confirmRemove(communityId: String, uid: String, drillName: String) {
+        ConfirmDialog.show(
+            context = requireContext(),
+            iconRes = R.drawable.ic_trash,
+            title = getString(R.string.community_remove_confirm_title),
+            body = getString(R.string.community_remove_confirm_message, drillName),
+            confirmLabel = getString(R.string.community_remove_confirm_button),
+            cancelLabel = getString(R.string.drill_cancel),
+            destructive = true
+        ) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val result = repo.unshare(communityId, uid)
+                if (_binding == null) return@launch
+                if (result.isSuccess) {
+                    val local = withContext(Dispatchers.IO) {
+                        customDrillRepo.getBySharedCommunityId(communityId)
+                    }
+                    if (local != null) {
+                        withContext(Dispatchers.IO) {
+                            customDrillRepo.save(local.copy(sharedCommunityId = null))
+                        }
+                    }
+                    if (_binding == null) return@launch
+                    Toast.makeText(requireContext(), R.string.community_remove_success_toast, Toast.LENGTH_SHORT).show()
+                    setFragmentResult(RESULT_REMOVED, Bundle())
+                    dismiss()
+                } else {
+                    Toast.makeText(requireContext(), R.string.community_remove_error_toast, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

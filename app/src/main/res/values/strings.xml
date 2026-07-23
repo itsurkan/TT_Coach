@@ -828,6 +828,12 @@
     <string name="community_load_error">Couldn\'t load community drills</string>
     <string name="community_copy_button">Copy to my drills</string>
     <string name="community_copy_success_toast">Added to My Drills</string>
+    <string name="community_remove_button">Remove from community</string>
+    <string name="community_remove_confirm_title">Remove from community?</string>
+    <string name="community_remove_confirm_message">\"%1$s\" will no longer be public. Your own copy stays in your drills.</string>
+    <string name="community_remove_confirm_button">Remove</string>
+    <string name="community_remove_success_toast">Removed from community</string>
+    <string name="community_remove_error_toast">Couldn\'t remove from community. Try again.</string>
     <string name="community_rate_hint">Your rating</string>
     <string name="community_sign_in_to_rate">Sign in to rate</string>
     <string name="community_rate_error">Couldn\'t submit rating</string>
