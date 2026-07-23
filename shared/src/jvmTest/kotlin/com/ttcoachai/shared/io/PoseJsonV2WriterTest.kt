@@ -3,6 +3,7 @@ package com.ttcoachai.shared.io
 import com.ttcoachai.shared.TestFixturesV2
 import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.shared.models.PoseFrame2D
+import com.ttcoachai.shared.models.Topology
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -61,5 +62,32 @@ class PoseJsonV2WriterTest {
 
         val reparsed = PoseJsonV2Parser.parse(sb.toString())
         assertEquals(original, reparsed)
+    }
+
+    @Test
+    fun headerAndFrameWrapperOutputRemainCompact() {
+        // Compactness (no spaces after : or ,) is only asserted for landmarks in the existing tests.
+        // This test ensures the header and frame wrapper do not regress to pretty-printed JSON.
+        val headerOutput = PoseJsonV2Writer.header(
+            topology = Topology.COCO17,
+            model = "rtmpose-m",
+            videoName = "test.mp4",
+            intervalMs = 20,
+            totalFrames = 100,
+            videoDurationMs = 2000,
+            videoWidth = 1280,
+            videoHeight = 720
+        )
+        assertTrue(
+            headerOutput.contains("\"schemaVersion\":2,\"topology\":"),
+            "header must be compact (no space after ':' or ','), got: $headerOutput"
+        )
+
+        val frame = PoseFrame2D(frameIndex = 0, timestampMs = 0L, keypoints = listOf(Keypoint2D(0.5f, 0.25f, 0.9f)))
+        val frameLineOutput = PoseJsonV2Writer.frameLine(frame, isFirst = true)
+        assertTrue(
+            frameLineOutput.contains("\"frameIndex\":0,\"timestampMs\":0,\"landmarks\":["),
+            "frameLine must be compact (no space after ':' or ','), got: $frameLineOutput"
+        )
     }
 }
