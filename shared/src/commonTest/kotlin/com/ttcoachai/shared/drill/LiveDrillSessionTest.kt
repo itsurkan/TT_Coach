@@ -280,6 +280,52 @@ class LiveDrillSessionTest {
     }
 
     @Test
+    fun onRepPopulatesStartAndEndKeypointsFromTheStrokeFrames() {
+        val session = newSession()
+        val events = mutableListOf<RepEvent>()
+        session.onRep = { events += it }
+
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        feedAll(session, singleStrokeXs, timestamps)
+
+        val event = events.single()
+        assertEquals(17, event.startKeypoints.size, "startKeypoints must be a full COCO-17 frame")
+        assertEquals(17, event.endKeypoints.size, "endKeypoints must be a full COCO-17 frame")
+        // Detector-chosen boundaries needn't be the fixture's exact first/last still
+        // sample (boundary clamping can land a frame or two in), so assert membership +
+        // ordering rather than a hardcoded index: both must be real frames from this
+        // stroke's fixture, and the stroke moves the wrist rightward start -> end.
+        val startX = event.startKeypoints[Coco17.RIGHT_WRIST].x
+        val endX = event.endKeypoints[Coco17.RIGHT_WRIST].x
+        assertTrue(startX in singleStrokeXs, "start wrist x must be one of the fed frames, got $startX")
+        assertTrue(endX in singleStrokeXs, "end wrist x must be one of the fed frames, got $endX")
+        assertTrue(startX < endX, "rightward stroke: start wrist x ($startX) must precede end wrist x ($endX)")
+    }
+
+    @Test
+    fun onRepPopulatesMetricsAndCues() {
+        val session = LiveDrillSession(
+            baseline = baselineWithLooseKneeStats(),
+            aspectRatio = 1f,
+            handedness = Handedness.RIGHT,
+            cameraYawDeg = 0f,
+            metricBands = mapOf(DrillMetrics.METRIC_KNEE_BEND to 110.0..130.0)
+        )
+        val events = mutableListOf<RepEvent>()
+        session.onRep = { events += it }
+
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        feedAll(session, singleStrokeXs, timestamps)
+
+        val event = events.single()
+        assertTrue(event.metrics.isNotEmpty(), "metrics must be populated when placementOk")
+        assertEquals(1, event.cues.size, "the knee-bend band override must produce exactly one cue")
+        assertEquals(DrillMetrics.METRIC_KNEE_BEND, event.cues.single().metricKey)
+    }
+
+    @Test
     fun onRepDefaultsToNullAndDoesNotAffectExistingBehavior() {
         // No onRep assigned — this is the exact fixture/assertions from
         // resetReproducesTheSameFirstEmission, run unmodified to prove the

@@ -117,7 +117,17 @@ class LiveDrillSession(
                 // Mark processed exactly once, whether or not feedback is spoken, so
                 // cadence.offer fires once per rep — matching the batch analyzer.
                 emittedPeaks.add(peakTimestamp)
-                onRep?.invoke(RepEvent(atMs = atMs, cueCount = rep.cues.size, placementOk = rep.placementOk))
+                onRep?.invoke(
+                    RepEvent(
+                        atMs = atMs,
+                        cueCount = rep.cues.size,
+                        placementOk = rep.placementOk,
+                        startKeypoints = frames[stroke.startFrame].keypoints,
+                        endKeypoints = frames[stroke.endFrame].keypoints,
+                        metrics = rep.metrics,
+                        cues = rep.cues
+                    )
+                )
                 val spoken = DrillRepProcessor.emitRepFeedback(rep, atMs, cadence, lang)
                 if (spoken != null) feedback += spoken
             } else if (!stabilized) {
@@ -169,5 +179,19 @@ class LiveDrillSession(
  * Fired once per rep [LiveDrillSession] emits (whether or not it produced
  * spoken feedback), for UI rep counters that need to tally every completed
  * rep rather than only the ones with a cue to speak.
+ *
+ * [startKeypoints]/[endKeypoints] are the raw COCO-17 frames at the stroke's start/end
+ * indices (from the same [PoseFrame2D] buffer the rep was detected in) — every rep
+ * carries them, clean or flagged, so the UI can render a start/end skeleton pair even
+ * for reps with nothing to say. [metrics]/[cues] mirror the [RepAnalysis] this event was
+ * built from, for diagnostics.
  */
-public data class RepEvent(val atMs: Long, val cueCount: Int, val placementOk: Boolean)
+public data class RepEvent(
+    val atMs: Long,
+    val cueCount: Int,
+    val placementOk: Boolean,
+    val startKeypoints: List<Keypoint2D> = emptyList(),
+    val endKeypoints: List<Keypoint2D> = emptyList(),
+    val metrics: Map<String, Double> = emptyMap(),
+    val cues: List<FeedbackCue> = emptyList()
+)
