@@ -88,15 +88,15 @@ class CommunityDrillDetailSheet : BottomSheetDialogFragment() {
 
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null && !user.isAnonymous) {
-                val myRating = repo.myRating(communityId, user.uid).getOrNull()
-                if (_binding != null && myRating != null) {
-                    binding.rbDetailRate.rating = myRating.stars.toFloat()
-                }
                 if (_binding != null && user.uid == drill.creatorUid) {
                     binding.btnRemoveFromCommunity.visibility = View.VISIBLE
                     binding.btnRemoveFromCommunity.setOnClickListener {
                         confirmRemove(communityId, user.uid, drill.name)
                     }
+                }
+                val myRating = repo.myRating(communityId, user.uid).getOrNull()
+                if (_binding != null && myRating != null) {
+                    binding.rbDetailRate.rating = myRating.stars.toFloat()
                 }
             }
         }
@@ -207,7 +207,7 @@ class CommunityDrillDetailSheet : BottomSheetDialogFragment() {
     }
 
     private fun confirmRemove(communityId: String, uid: String, drillName: String) {
-        com.ttcoachai.ui.dialogs.ConfirmDialog.show(
+        ConfirmDialog.show(
             context = requireContext(),
             iconRes = R.drawable.ic_trash,
             title = getString(R.string.community_remove_confirm_title),
