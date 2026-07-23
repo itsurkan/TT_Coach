@@ -1,76 +1,22 @@
-# Remove shared drill from community when deleting the local drill
+# Remove your drill from the community, from the Community Drills screen
 
-## Problem
+**Problem.** Publishing a custom drill sets `sharedCommunityId` on the local Room drill. The ONLY way to unshare was the Drills long-press "Unshare" row on the local drill. Delete the local drill and its `community_drills/{docId}` Firestore doc is orphaned — permanently unremovable, because the local row carried both the community id and the menu row. Users must be able to remove their own drill from the community.
 
-In Community Drills, publishing a custom drill sets `sharedCommunityId` on the local
-Room drill (`CustomDrillEntity`). The only way to unshare today is the Drills
-long-press menu's "Unshare" row on the local drill. `DrillsFragment.deleteDrill()`
-(`app/src/main/java/com/ttcoachai/fragment/DrillsFragment.kt`) deletes only the
-local Room row — so deleting a shared drill orphans its `community_drills/{docId}`
-Firestore doc, and because the local row (which carried the communityId and the
-Unshare menu) is gone, the public copy becomes unremovable. Users must be able to
-remove their drill from the community even after deleting it locally.
+**Superseded approach (recorded, do not resurrect).** An earlier iteration added a checked-by-default "Also remove from community" checkbox to the delete confirm dialog (commits db34976, 6f5ffcd, e667089 — all reverted). Rejected because it only helps at delete time, cannot rescue drills already orphaned, and is defeated whenever `sharedCommunityId` is lost locally.
 
-## Approved solution
+**Approved solution.** Put removal where the public copy lives: a creator-only "Remove from community" action on the Community Drills detail sheet. It works independently of the local drill, so it also rescues already-orphaned public copies.
 
-When deleting a local drill that is shared (`sharedCommunityId != null`), the
-delete confirmation offers to also remove the public community copy in the same
-action.
+Components:
+1. `sheet_community_drill_detail.xml` gains a `MaterialButton` `btnRemoveFromCommunity` below the existing `btnCopyToMyDrills`, `visibility="gone"`, danger styling.
+2. `CommunityDrillDetailSheet` reveals that button only when the signed-in, non-anonymous user's uid equals `drill.creatorUid`. Tapping it opens the existing `ConfirmDialog` (destructive). On confirm it calls the existing creator-gated `CommunityDrillRepository.unshare(communityId, uid)`.
+3. On success it also clears the local link if a local copy still exists: look the drill up by `sharedCommunityId` and save it back with `sharedCommunityId = null`, so the local drill returns to "private" and can be published again. The local drill itself is KEPT — only the link is cleared.
+4. On success the sheet reports a fragment result and dismisses; `CommunityDrillsActivity` listens and calls `loadDrills()` so the browse list refreshes.
+5. `CustomDrillRepository` gains a passthrough `getBySharedCommunityId` — the DAO query already exists (`CustomDrillDao.getBySharedCommunityId`), it was simply never exposed.
 
-### 1. `ConfirmDialog` — add an optional checkbox
+**Failure handling.** On unshare failure show an error toast and leave everything as-is (the public doc and the local link both survive) — the user can retry, because unlike the delete flow this action does not destroy anything first.
 
-Files: `app/src/main/java/com/ttcoachai/ui/dialogs/ConfirmDialog.kt`,
-`app/src/main/res/layout/dialog_ttc_confirm.xml`
+**Unchanged.** The Drills long-press "Unshare" row stays as-is. `ConfirmDialog` keeps its original signature (no checkbox). `firestore.rules` unchanged. Room schema unchanged.
 
-- Add param `checkboxText: String? = null`.
-- Change `onConfirm` signature from `() -> Unit` to `(checked: Boolean) -> Unit`.
-- Add a `CheckBox` (id `cb_confirm_option`) to the layout, `visibility=gone`,
-  checked by default; shown only when `checkboxText != null`. Style consistent
-  with the existing dialog (TTC design system).
-- `onConfirm` receives the checkbox's checked state (`false` when the checkbox is
-  hidden).
-- Update the ~2 existing call sites to the new lambda shape (they ignore the
-  boolean).
+**Known limitation (NOT fixed here).** `ExerciseEditorActivity.onPrimaryClicked()` rebuilds `CustomDrillEntity` without `sharedCommunityId`, and the DAO upsert REPLACEs, so editing a shared drill silently clears the local link. Consequence: the Drills "Unshare" row disappears, and step 3 above will not find the local drill to clear. Removal from the community screen still works (it does not depend on the local link). Logged as a follow-up.
 
-### 2. `DrillsFragment.deleteDrill`
-
-- **Not shared** (`sharedCommunityId == null`): unchanged behavior — no
-  checkbox, delete local row only.
-- **Shared**: show the confirm dialog with `checkboxText` = "Also remove from
-  community", checkbox default **checked**. On confirm:
-  - Always delete the local Room row (local delete proceeds regardless of
-    community outcome — accepted decision).
-  - If checked **and** signed in as the creator (FirebaseAuth current user uid
-    available): attempt `communityDrillRepo.unshare(sharedCommunityId, uid)`.
-    - success → toast: deleted and removed from community.
-    - failure → local row still deleted; toast: deleted but couldn't remove
-      from community, try again later (orphan remains — accepted tradeoff).
-  - If checked but **not** signed in: local delete proceeds; toast noting
-    sign-in is required to remove the public copy.
-  - If unchecked: local delete only; public copy intentionally stays.
-
-### Strings
-
-New user-facing strings needed (EN in `values/strings.xml` + UK mirror in
-`values-uk/strings.xml`), following existing `drill_*` / `community_*` naming:
-checkbox label, and the two/three delete-outcome toasts. List as TODO keys for
-the plan to name.
-
-## Failure handling decision
-
-Local delete always proceeds even if community removal fails (offline etc.).
-Orphaned community doc is an accepted tradeoff; user is informed via toast.
-
-## Out of scope
-
-- Already-orphaned community docs from drills deleted before this ships. Room
-  uses destructive migration and the app is pre-release, so no cleanup/migration
-  path is built.
-- No changes to `firestore.rules` (the existing `unshare` already enforces
-  creator-only delete).
-
-## Testing
-
-App-layer UI + Firestore wiring; no new shared-KMP pure logic. The
-`CommunityDrillRepository.unshare` creator guard is already covered.
-Manual/instrumented verification of the delete-with-checkbox flow on device.
+**Testing.** App-layer UI + Firestore wiring; no new shared-KMP pure logic. Build gate `./gradlew :app:assembleDebug` plus on-device verification.
