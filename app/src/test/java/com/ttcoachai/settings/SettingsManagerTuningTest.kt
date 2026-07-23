@@ -49,4 +49,12 @@ class SettingsManagerTuningTest {
         assertEquals(9, sm2.getFbSignificanceDeg())
         assertEquals("uk", sm2.getCoachLanguage())
     }
+
+    @Test fun pose_upload_defaults_true_and_persists() {
+        val sm = SettingsManager(ctx)
+        assertEquals(true, sm.isPoseUploadEnabled())
+        sm.setPoseUploadEnabled(false)
+        val sm2 = SettingsManager(ctx)
+        assertEquals(false, sm2.isPoseUploadEnabled())
+    }
 }

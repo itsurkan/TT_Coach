@@ -27,7 +27,11 @@ class SettingsManager(context: Context) {
     // Audio settings
     fun isAudioFeedbackEnabled(): Boolean = prefs.getBoolean("audio_feedback_enabled", true)
     fun setAudioFeedbackEnabled(enabled: Boolean) = prefs.edit().putBoolean("audio_feedback_enabled", enabled).apply()
-    
+
+    // Pose data upload consent (docs/superpowers/specs/2026-07-23-pose-upload-firebase-design.md)
+    fun isPoseUploadEnabled(): Boolean = prefs.getBoolean("pose_upload_enabled", true)
+    fun setPoseUploadEnabled(enabled: Boolean) = prefs.edit().putBoolean("pose_upload_enabled", enabled).apply()
+
     fun getFeedbackVolume(): Int = prefs.getInt("feedback_volume", 80)
     fun setFeedbackVolume(volume: Int) = prefs.edit().putInt("feedback_volume", volume).apply()
     
