@@ -1,17 +1,23 @@
 package com.ttcoachai
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.managers.*
+import com.ttcoachai.pose.RtmposeCalibrationActivity
 import com.ttcoachai.pose.RtmposeTrainingController
 import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.shared.models.ExerciseParameters
+import com.ttcoachai.shared.models.PersonalBaseline
 import com.ttcoachai.processors.PoseAnalysisProcessor
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.services.MotionAnalyzer
@@ -44,6 +50,16 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
      * Null when the intent carried no such target — RTM path behaves exactly as before.
      */
     private var kneeBendStrikeBand: ClosedRange<Double>? = null
+
+    /** Launches [RtmposeCalibrationActivity] from the "calibration required" dialog (see
+     *  [decideCameraModeAndStart]). Must be registered unconditionally before STARTED, so it
+     *  lives as a property rather than being created inside the dialog callback. Result code
+     *  is not load-bearing — [retryAfterCalibration] always re-checks the baseline directly,
+     *  whether the player finished calibration, backed out, or hit an unrecoverable error. */
+    private val calibrationLauncher: ActivityResultLauncher<Intent> =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            lifecycleScope.launch { retryAfterCalibration() }
+        }
 
     companion object {
         private const val TAG = "TrainingActivity"
@@ -134,12 +150,16 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     /**
      * Camera-mode decision is async (baseline lookup is a suspend Flow read). Video-debug
-     * mode is unaffected (still legacy, still synchronous). For live camera: if a forehand
-     * RTMPose baseline exists, hand the whole camera+drill path to [RtmposeTrainingController];
-     * PoseAnalysisProcessor is never started and [TrainingMediaManager] is told to skip
-     * attaching the legacy [com.ttcoachai.fragment.CameraFragment] so the two pipelines never
-     * double-process the same container. Any failure (no baseline, ineligible exercise,
-     * controller start() failure) falls back to the legacy MediaPipe path unchanged.
+     * mode is unaffected (still legacy, still synchronous). For live camera: a forehand
+     * RTMPose baseline is now REQUIRED — the RTM path owns the whole camera+drill path via
+     * [RtmposeTrainingController] (PoseAnalysisProcessor is never started, and
+     * [TrainingMediaManager] is told to skip attaching the legacy
+     * [com.ttcoachai.fragment.CameraFragment] so the two pipelines never double-process the
+     * same container). There is no legacy fallback anymore (see project CLAUDE.md "why this
+     * task exists" — the legacy pipeline has no voice output at all, so falling back to it
+     * silently produced mute sessions). If no baseline exists, or the RTM controller fails to
+     * start, [showCalibrationRequiredDialog] blocks the screen until the player calibrates or
+     * leaves.
      */
     private fun decideCameraModeAndStart() {
         if (useVideo) {
@@ -150,20 +170,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         }
 
         lifecycleScope.launch {
-            val baseline = if (isForehandRtmEligible(exerciseId)) {
-                try {
-                    PersonalBaselineRepository(AppDatabase.getDatabase(this@TrainingActivity).personalBaselineDao())
-                        .getActiveBaseline("forehand_drive_rtm")
-                        .first()
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to load RTMPose baseline", e)
-                    null
-                }
-            } else {
-                null
-            }
+            val baseline = loadRtmBaseline()
 
             // Coroutine resumed after the suspend point above (baseline read) — if the
             // activity has since dropped below STARTED (e.g. backgrounded), any fragment
@@ -171,40 +178,76 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             // onSaveInstanceState". Bail out before touching the fragment manager or views.
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
 
-            if (baseline != null) {
-                mediaManager.setup(skipCamera = true)
-                val controller = RtmposeTrainingController(
-                    activity = this@TrainingActivity,
-                    container = binding.cameraPreviewContainer,
-                    stateManager = stateManager,
-                    settingsManager = SettingsManager(this@TrainingActivity),
-                    baseline = baseline,
-                    onUiUpdate = { uiController.updateStats() },
-                    metricBands = kneeBendStrikeBand?.let { mapOf(DrillMetrics.METRIC_KNEE_BEND to it) } ?: emptyMap()
-                )
-                if (controller.start()) {
-                    rtmController = controller
-                    uiController.setCorrectionChipsForPath(true)
-                } else {
-                    // Backend construction failed inside start() — nothing was attached to
-                    // the container by the controller, so the legacy camera path is safe to
-                    // set up fresh here.
-                    mediaManager.setup()
-                    uiController.setCorrectionChipsForPath(false)
-                }
+            val started = baseline != null && startRtmController(baseline)
+            if (started) {
+                binding.root.postDelayed({ startTraining() }, 500)
             } else {
-                mediaManager.setup()
-                uiController.setCorrectionChipsForPath(false)
-                if (isForehandRtmEligible(exerciseId)) {
-                    android.widget.Toast.makeText(
-                        this@TrainingActivity,
-                        R.string.rtmpose_drill_need_calibration,
-                        android.widget.Toast.LENGTH_LONG
-                    ).show()
-                }
+                showCalibrationRequiredDialog()
             }
+        }
+    }
 
+    private suspend fun loadRtmBaseline(): PersonalBaseline? {
+        if (!isForehandRtmEligible(exerciseId)) return null
+        return try {
+            PersonalBaselineRepository(AppDatabase.getDatabase(this@TrainingActivity).personalBaselineDao())
+                .getActiveBaseline("forehand_drive_rtm")
+                .first()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load RTMPose baseline", e)
+            null
+        }
+    }
+
+    /** Attempts to start the RTM live path against [baseline]. Returns false (nothing left
+     *  attached beyond what [TrainingMediaManager.setup] with skipCamera already did) if the
+     *  RTMPose backend fails to construct inside [RtmposeTrainingController.start]. */
+    private fun startRtmController(baseline: PersonalBaseline): Boolean {
+        mediaManager.setup(skipCamera = true)
+        val controller = RtmposeTrainingController(
+            activity = this@TrainingActivity,
+            container = binding.cameraPreviewContainer,
+            stateManager = stateManager,
+            settingsManager = SettingsManager(this@TrainingActivity),
+            baseline = baseline,
+            onUiUpdate = { uiController.updateStats() },
+            metricBands = kneeBendStrikeBand?.let { mapOf(DrillMetrics.METRIC_KNEE_BEND to it) } ?: emptyMap()
+        )
+        if (!controller.start()) return false
+        rtmController = controller
+        uiController.setCorrectionChipsForPath(true)
+        return true
+    }
+
+    /** Blocking, dismissible-only-via-its-own-actions dialog: calibration is a hard
+     *  prerequisite now, so there is nothing useful to show behind it. "Calibrate Now" hands
+     *  off to [RtmposeCalibrationActivity]; "Not Now" leaves the training screen entirely. */
+    private fun showCalibrationRequiredDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.training_calibration_required_title)
+            .setMessage(R.string.training_calibration_required_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.training_calibration_required_calibrate) { _, _ ->
+                calibrationLauncher.launch(Intent(this, RtmposeCalibrationActivity::class.java))
+            }
+            .setNegativeButton(R.string.training_calibration_required_leave) { _, _ ->
+                finish()
+            }
+            .show()
+    }
+
+    /** Re-checks the baseline after [RtmposeCalibrationActivity] returns (whether it saved a
+     *  baseline, was backed out of, or failed) and either starts the drill or leaves the
+     *  screen — no second dialog loop, per the calibration-flow contract. */
+    private suspend fun retryAfterCalibration() {
+        val baseline = loadRtmBaseline()
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
+        if (baseline != null && startRtmController(baseline)) {
             binding.root.postDelayed({ startTraining() }, 500)
+        } else {
+            finish()
         }
     }
 
