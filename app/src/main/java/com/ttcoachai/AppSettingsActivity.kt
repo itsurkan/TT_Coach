@@ -23,6 +23,7 @@ class AppSettingsActivity : AppCompatActivity() {
         cloudSyncManager = (application as TTCoachApplication).cloudSyncManager
 
         setupAccount() // Login/Account Logic
+        setupCalibration()
         setupDebugMode()
         setupSubscription()
     }
@@ -64,6 +65,15 @@ class AppSettingsActivity : AppCompatActivity() {
             binding.tvLoginStatusDesc.text = getString(R.string.status_logged_in_as)
         } else {
             binding.tvLoginStatusDesc.text = getString(R.string.status_not_logged_in)
+        }
+    }
+
+    /** Deliberate re-calibration entry point (A3) — lets a player re-record their reference
+     *  forehand-drive technique on purpose, distinct from the "calibration required" dialog
+     *  TrainingActivity shows when no baseline exists yet at all. */
+    private fun setupCalibration() {
+        binding.layoutRecalibrate.setOnClickListener {
+            startActivity(android.content.Intent(this, com.ttcoachai.pose.RtmposeCalibrationActivity::class.java))
         }
     }
 
