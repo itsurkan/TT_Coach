@@ -26,9 +26,15 @@ import java.util.zip.GZIPOutputStream
  *
  * Writes go through a dedicated single-thread dispatcher so [onFrame] (called from the UI
  * thread via RtmposeTrainingController.onPoseResult) never blocks on file IO. [onFrame] calls
- * are fire-and-forget but always land on that same single thread in submission order — so
- * [finish], which is `suspend` and dispatches onto the same thread, is guaranteed to run after
- * every prior [onFrame] write has completed, with no extra synchronization needed.
+ * are fire-and-forget but always land on that same single thread in submission order — so, for
+ * frames submitted strictly before [finish] starts running, [finish] is guaranteed to see every
+ * prior write completed with no extra synchronization needed. A frame that arrives concurrently
+ * with [finish]/[abort] tearing down the executor is handled defensively, see [onFrame].
+ *
+ * Caller contract: [start], [finish], and [abort] belong to a single session lifecycle and must
+ * only ever be invoked sequentially from that lifecycle — never concurrently with each other
+ * (both do a non-atomic check-then-set on `finished`). Only [onFrame] is safe to call from
+ * another thread (the camera/pose thread) while the lifecycle methods run elsewhere.
  */
 class PoseSessionRecorder(private val outputDir: File) {
 
@@ -75,21 +81,34 @@ class PoseSessionRecorder(private val outputDir: File) {
 
     fun onFrame(keypoints: List<Keypoint2D>, timestampMs: Long) {
         if (!started || finished) return
-        scope.launch {
-            val w = writer ?: return@launch
-            if (frameCount >= MAX_FRAMES) return@launch
-            val isFirst = frameCount == 0
-            if (isFirst) firstTimestampMs = timestampMs
-            lastTimestampMs = timestampMs
-            w.write(PoseJsonV2Writer.frameLine(PoseFrame2D(frameCount, timestampMs, keypoints), isFirst))
-            frameCount++
+        // This check-then-launch is not atomic with finish()/abort()'s check-then-set on
+        // `finished`: this call can pass the guard above just as finish()/abort() flips
+        // `finished` and shuts the executor down, so the launch below can race the shutdown.
+        // A lock would make onFrame block on the camera/UI thread, which it must never do, so
+        // instead we let the race happen and defensively catch the one way it can fail: the
+        // dispatcher rejecting work after shutdown. Dropping a frame that arrives mid-teardown
+        // is the correct outcome — the session is finalizing anyway.
+        try {
+            scope.launch {
+                val w = writer ?: return@launch
+                if (frameCount >= MAX_FRAMES) return@launch
+                val isFirst = frameCount == 0
+                if (isFirst) firstTimestampMs = timestampMs
+                lastTimestampMs = timestampMs
+                w.write(PoseJsonV2Writer.frameLine(PoseFrame2D(frameCount, timestampMs, keypoints), isFirst))
+                frameCount++
+            }
+        } catch (e: java.util.concurrent.RejectedExecutionException) {
+            // Recorder was finalized concurrently between the guard check and this launch; drop
+            // the frame.
         }
     }
 
     /** Finalizes the recording: streams the temp file into a compact-JSON gzip with a real
      *  header (only known now — totalFrames/videoDurationMs are end-of-session facts), deletes
      *  the temp file, and returns the final file. Returns null if [start] was never called or
-     *  zero frames were captured. */
+     *  zero frames were captured. Must not be called concurrently with [abort] — see class
+     *  KDoc caller contract. */
     suspend fun finish(): File? {
         if (!started || finished) return null
         finished = true
@@ -137,7 +156,8 @@ class PoseSessionRecorder(private val outputDir: File) {
     }
 
     /** Cancels any pending writes and deletes the temp file. Safe to call before [start] or
-     *  instead of [finish] (session discarded). */
+     *  instead of [finish] (session discarded). Must not be called concurrently with [finish] —
+     *  see class KDoc caller contract. */
     fun abort() {
         if (finished) return
         finished = true
