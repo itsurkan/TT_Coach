@@ -482,6 +482,12 @@
     <string name="subscription_how_works_active">• Коли підписка активна: Повний доступ до тренувань та вправ</string>
     <string name="subscription_how_works_inactive">• Коли підписка неактивна: Початок тренування перенаправить на сторінку підписки</string>
     <string name="subscription_how_works_profile">• Це налаштування впливає на статус підписки у вашому Профілі</string>
+
+    <string name="data_privacy_section_title">Дані та приватність</string>
+    <string name="pose_upload_toggle_title">Завантажувати дані пози тренувань</string>
+    <string name="pose_upload_toggle_desc">Дані пози (2D координати суглобів — без відео чи зображень) завантажуються, щоб аналізувати ваші тренування та вдосконалювати алгоритм коучингу. Ви можете вимкнути це в будь-який момент.</string>
+    <string name="pose_upload_privacy_link">Політика конфіденційності</string>
+
     <string name="activity_settings_title">Налаштування активності</string>
     <string name="difficulty_all_levels">Всі рівні</string>
 

@@ -362,7 +362,12 @@
     <string name="subscription_how_works_active">• When subscription is active: Full access to training and drills</string>
     <string name="subscription_how_works_inactive">• When subscription is inactive: Starting training or drills will redirect to subscription page</string>
     <string name="subscription_how_works_profile">• This setting affects the subscription status shown in your Profile</string>
-    
+
+    <string name="data_privacy_section_title">Data &amp; Privacy</string>
+    <string name="pose_upload_toggle_title">Upload training pose data</string>
+    <string name="pose_upload_toggle_desc">Pose data (2D joint coordinates — no video or images) is uploaded so your sessions can be analysed and the coaching algorithm improved. You can turn this off at any time.</string>
+    <string name="pose_upload_privacy_link">Privacy Policy</string>
+
     <!-- Profile Updates -->
     <string name="profile_title">Profile</string>
     <string name="profile_subtitle">Your account &amp; goals</string>

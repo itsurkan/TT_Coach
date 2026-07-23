@@ -26,6 +26,7 @@ class AppSettingsActivity : AppCompatActivity() {
         setupCalibration()
         setupDebugMode()
         setupSubscription()
+        setupPoseUploadConsent()
     }
 
     override fun onResume() {
@@ -126,6 +127,27 @@ class AppSettingsActivity : AppCompatActivity() {
             binding.tvSubscriptionInfo.text = getString(R.string.subscription_inactive_info)
             binding.ivSubscriptionStatus.setImageResource(R.drawable.ic_alert_circle)
             binding.ivSubscriptionStatus.setColorFilter(getColor(android.R.color.holo_red_light))
+        }
+    }
+
+    private fun setupPoseUploadConsent() {
+        binding.switchPoseUpload.isChecked = settingsManager.isPoseUploadEnabled()
+
+        binding.tvPoseUploadPrivacyLink.setOnClickListener {
+            try {
+                startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(com.ttcoachai.core.LegalLinks.PRIVACY_URL)))
+            } catch (e: android.content.ActivityNotFoundException) {
+                android.widget.Toast.makeText(this, R.string.subscribe_no_browser_app, android.widget.Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.switchPoseUpload.setOnCheckedChangeListener { _, isChecked ->
+            settingsManager.setPoseUploadEnabled(isChecked)
+            if (!isChecked) {
+                com.ttcoachai.work.PoseUploadQueue.cancelAll(this)
+                com.ttcoachai.pose.PoseSessionRecorder.cacheDir(this).listFiles()?.forEach { it.delete() }
+            }
+            cloudSyncManager.uploadSettings()
         }
     }
 }
