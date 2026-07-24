@@ -40,6 +40,7 @@
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -71,6 +72,15 @@
              Exported so `adb shell am start` can launch it directly. -->
         <activity
             android:name=".pose.RtmposeDrillActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity" />
+
+        <!-- Pose backend FPS A/B bench (throwaway prototype, dev-only, runtime FLAG_DEBUGGABLE
+             gate protects release). Exported so `adb shell am start` can launch it directly:
+             adb shell am start -n com.ttcoachai/.pose.PoseBenchmarkActivity -->
+        <activity
+            android:name=".pose.PoseBenchmarkActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
