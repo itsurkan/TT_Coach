@@ -33,6 +33,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.mediapipe.tasks.core.Delegate
 import com.ttcoachai.shared.models.Keypoint2D
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -44,7 +45,11 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 43
     }
 
-    private enum class BackendKind { RTMPOSE_LITE, MOVENET }
+    private enum class BackendKind {
+        RTMPOSE_LITE, MOVENET,
+        MEDIAPIPE_LITE_CPU, MEDIAPIPE_LITE_GPU,
+        MEDIAPIPE_FULL_CPU, MEDIAPIPE_FULL_GPU
+    }
 
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: Coco17OverlayView
@@ -79,7 +84,11 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         toggleButton.setOnClickListener {
             val next = when (activeKind) {
                 BackendKind.RTMPOSE_LITE -> BackendKind.MOVENET
-                BackendKind.MOVENET -> BackendKind.RTMPOSE_LITE
+                BackendKind.MOVENET -> BackendKind.MEDIAPIPE_LITE_CPU
+                BackendKind.MEDIAPIPE_LITE_CPU -> BackendKind.MEDIAPIPE_LITE_GPU
+                BackendKind.MEDIAPIPE_LITE_GPU -> BackendKind.MEDIAPIPE_FULL_CPU
+                BackendKind.MEDIAPIPE_FULL_CPU -> BackendKind.MEDIAPIPE_FULL_GPU
+                BackendKind.MEDIAPIPE_FULL_GPU -> BackendKind.RTMPOSE_LITE
             }
             switchBackend(next)
         }
@@ -163,6 +172,14 @@ class PoseBenchmarkActivity : AppCompatActivity() {
                     detInputSize = 416
                 )
                 BackendKind.MOVENET -> MoveNetBackend(this)
+                BackendKind.MEDIAPIPE_LITE_CPU -> MediaPipePoseLandmarkerBackend(
+                    context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.CPU)
+                BackendKind.MEDIAPIPE_LITE_GPU -> MediaPipePoseLandmarkerBackend(
+                    context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.GPU)
+                BackendKind.MEDIAPIPE_FULL_CPU -> MediaPipePoseLandmarkerBackend(
+                    context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.CPU)
+                BackendKind.MEDIAPIPE_FULL_GPU -> MediaPipePoseLandmarkerBackend(
+                    context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.GPU)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to construct backend $kind", e)
@@ -185,6 +202,10 @@ class PoseBenchmarkActivity : AppCompatActivity() {
     private fun displayName(kind: BackendKind): String = when (kind) {
         BackendKind.RTMPOSE_LITE -> "RTMPose-lite"
         BackendKind.MOVENET -> "movenet"
+        BackendKind.MEDIAPIPE_LITE_CPU -> "MediaPipe Lite (CPU)"
+        BackendKind.MEDIAPIPE_LITE_GPU -> "MediaPipe Lite (GPU)"
+        BackendKind.MEDIAPIPE_FULL_CPU -> "MediaPipe Full (CPU)"
+        BackendKind.MEDIAPIPE_FULL_GPU -> "MediaPipe Full (GPU)"
     }
 
     // MARK: - Permission
