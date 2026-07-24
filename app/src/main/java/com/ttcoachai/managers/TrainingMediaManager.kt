@@ -19,7 +19,6 @@ class TrainingMediaManager(
     fun setup() {
         binding.videoContainer.visibility = View.GONE
         binding.videoView.visibility = View.GONE
-        binding.overlay.visibility = View.GONE
         binding.cameraPreviewContainer.visibility = View.VISIBLE
     }
 
