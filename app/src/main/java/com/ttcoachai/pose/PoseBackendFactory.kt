@@ -6,9 +6,6 @@ package com.ttcoachai.pose
 // Calibration and live training both go through THIS factory so baseline keypoint characteristics
 // always match the backend that actually produced them at feedback time — never construct
 // MediaPipePoseLandmarkerBackend directly from a live drill/calibration site.
-//
-// RtmposeBackend is unaffected: it stays available to PoseBenchmarkActivity (FPS A/B bench) and
-// is not deleted in this task.
 
 import android.content.Context
 import com.google.mediapipe.tasks.core.Delegate
@@ -32,7 +29,7 @@ object PoseBackendFactory {
      * Reads the persisted variant from [SettingsManager] and constructs the matching
      * [MediaPipePoseLandmarkerBackend]. Throws on failure (bad model asset, unsupported GPU
      * delegate, etc.) — same contract as that backend's constructor. Callers should wrap this
-     * call in try/catch, same as they previously did around `RtmposeBackend(...)`.
+     * call in try/catch.
      */
     fun create(context: Context): PoseBackend {
         val variant = SettingsManager(context).getPoseBackendVariant()

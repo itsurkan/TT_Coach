@@ -5,8 +5,8 @@ import com.ttcoachai.shared.models.Keypoint2D
 
 /**
  * Platform pose-inference seam — the Android counterpart of the iOS `PoseBackend` protocol.
- * Implementations run RTMPose (or any COCO-17 estimator) on a camera frame and return keypoints
- * in the shared module's schema-v2 convention.
+ * Implementations run MediaPipe PoseLandmarker (or any COCO-17 estimator) on a camera frame and
+ * return keypoints in the shared module's schema-v2 convention.
  *
  * Contract (must match `docs/pose_json_schema_v2.md`):
  * - 17 COCO keypoints, indices per `Coco17` in the shared module.

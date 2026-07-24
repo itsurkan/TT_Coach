@@ -76,8 +76,8 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
-        <!-- PoseBenchmarkActivity (RTMPose-lite / MoveNet / MediaPipe Lite+Full CPU/GPU FPS A/B
-             bench, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
+        <!-- PoseBenchmarkActivity (MoveNet / MediaPipe Lite+Full CPU/GPU FPS A/B bench,
+             dev-only, runtime FLAG_DEBUGGABLE gate protects release).
              Exported so `adb shell am start` can launch it directly. -->
         <activity
             android:name=".pose.PoseBenchmarkActivity"

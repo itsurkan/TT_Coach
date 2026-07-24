@@ -2,7 +2,8 @@ package com.ttcoachai.pose
 
 // PoseBenchmarkActivity.kt
 //
-// THROWAWAY PROTOTYPE, dev-only: live A/B FPS bench between RtmposeBackend and MoveNetBackend.
+// THROWAWAY PROTOTYPE, dev-only: live A/B FPS bench across MoveNetBackend and the MediaPipe
+// PoseLandmarker Lite/Full CPU/GPU variants.
 // Same FLAG_DEBUGGABLE self-guard + exported="true" pattern as RtmposeDrillActivity so it can be
 // launched directly via adb. Built programmatically (no new layout XML) — this is a throwaway
 // measurement tool, not shippable UI.
@@ -46,7 +47,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
     }
 
     private enum class BackendKind {
-        RTMPOSE_LITE, MOVENET,
+        MOVENET,
         MEDIAPIPE_LITE_CPU, MEDIAPIPE_LITE_GPU,
         MEDIAPIPE_FULL_CPU, MEDIAPIPE_FULL_GPU
     }
@@ -56,7 +57,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
     private lateinit var fpsText: TextView
     private lateinit var toggleButton: Button
 
-    private var activeKind = BackendKind.RTMPOSE_LITE
+    private var activeKind = BackendKind.MEDIAPIPE_LITE_GPU
     private var backend: PoseBackend? = null
     private var processor: RtmposeFrameProcessor? = null
 
@@ -79,16 +80,15 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
         analysisExecutor = Executors.newSingleThreadExecutor()
 
-        switchBackend(BackendKind.RTMPOSE_LITE)
+        switchBackend(BackendKind.MEDIAPIPE_LITE_GPU)
 
         toggleButton.setOnClickListener {
             val next = when (activeKind) {
-                BackendKind.RTMPOSE_LITE -> BackendKind.MOVENET
                 BackendKind.MOVENET -> BackendKind.MEDIAPIPE_LITE_CPU
                 BackendKind.MEDIAPIPE_LITE_CPU -> BackendKind.MEDIAPIPE_LITE_GPU
                 BackendKind.MEDIAPIPE_LITE_GPU -> BackendKind.MEDIAPIPE_FULL_CPU
                 BackendKind.MEDIAPIPE_FULL_CPU -> BackendKind.MEDIAPIPE_FULL_GPU
-                BackendKind.MEDIAPIPE_FULL_GPU -> BackendKind.RTMPOSE_LITE
+                BackendKind.MEDIAPIPE_FULL_GPU -> BackendKind.MOVENET
             }
             switchBackend(next)
         }
@@ -141,7 +141,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
             textSize = 20f
             setBackgroundColor(Color.argb(160, 0, 0, 0))
             setPadding(16, 8, 16, 8)
-            text = "backend: RTMPose-lite\nfps: --"
+            text = "backend: MediaPipe Lite (GPU)\nfps: --"
         }
         controls.addView(fpsText)
 
@@ -173,12 +173,6 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
             val newBackend: PoseBackend? = try {
                 when (kind) {
-                    BackendKind.RTMPOSE_LITE -> RtmposeBackend(
-                        context = this,
-                        yoloxAssetName = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
-                        rtmposeAssetName = "rtmpose-s_simcc-body7_pt-body7_420e-256x192-acd4a1ef_20230504.onnx",
-                        detInputSize = 416
-                    )
                     BackendKind.MOVENET -> MoveNetBackend(this)
                     BackendKind.MEDIAPIPE_LITE_CPU -> MediaPipePoseLandmarkerBackend(
                         context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.CPU)
@@ -211,7 +205,6 @@ class PoseBenchmarkActivity : AppCompatActivity() {
     }
 
     private fun displayName(kind: BackendKind): String = when (kind) {
-        BackendKind.RTMPOSE_LITE -> "RTMPose-lite"
         BackendKind.MOVENET -> "movenet"
         BackendKind.MEDIAPIPE_LITE_CPU -> "MediaPipe Lite (CPU)"
         BackendKind.MEDIAPIPE_LITE_GPU -> "MediaPipe Lite (GPU)"

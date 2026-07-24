@@ -5,7 +5,7 @@ package com.ttcoachai.pose
 // THROWAWAY PROTOTYPE (FPS A/B bench only — not production, not TDD'd, not covered by freeze
 // discipline). Runs Google's MoveNet Thunder single-pose TFLite model on a bitmap and decodes
 // its output into the shared schema-v2 Keypoint2D/Coco17 convention, so it's a drop-in
-// alternative to RtmposeEstimator behind the same PoseBackend contract.
+// alternative to the other PoseBackend implementations for the FPS bench.
 //
 // Model: movenet_thunder.tflite (float16 single-pose, 256x256 input) bundled in assets/.
 // Output tensor: [1, 1, 17, 3] = (y, x, score) per keypoint, normalized 0..1 relative to the

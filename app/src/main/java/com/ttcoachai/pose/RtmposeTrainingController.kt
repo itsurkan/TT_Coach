@@ -48,8 +48,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Owns the whole RTMPose live path for [com.ttcoachai.TrainingActivity]: builds the
- * preview + skeleton overlay, binds CameraX, runs [RtmposeBackend] through
- * [RtmposeFrameProcessor], drives a [LiveDrillSession] against [baseline], speaks
+ * preview + skeleton overlay, binds CameraX, runs the [PoseBackendFactory]-resolved backend
+ * through [RtmposeFrameProcessor], drives a [LiveDrillSession] against [baseline], speaks
  * feedback via [PresetVoiceController], and bridges rep/feedback events into
  * [stateManager] so existing stats/session-save code needs no changes.
  *
