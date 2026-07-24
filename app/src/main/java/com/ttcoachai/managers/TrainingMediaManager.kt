@@ -12,8 +12,6 @@ class TrainingMediaManager(
     private val activity: FragmentActivity,
     private val binding: ActivityTrainingBinding
 ) {
-    private var videoPlayerManager: VideoPlayerManager? = null
-
     /**
      * The caller (e.g. [com.ttcoachai.pose.RtmposeTrainingController]) takes over
      * `cameraPreviewContainer` itself, so this only prepares the container's visibility.
@@ -26,6 +24,5 @@ class TrainingMediaManager(
     }
 
     fun release() {
-        videoPlayerManager?.release()
     }
 }

@@ -20,9 +20,6 @@ import com.ttcoachai.work.PoseUploadQueue
 import java.io.File
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.shared.models.PersonalBaseline
-import com.ttcoachai.processors.PoseAnalysisProcessor
-import com.ttcoachai.services.FeedbackGenerator
-import com.ttcoachai.services.MotionAnalyzer
 import com.ttcoachai.shared.drill.DrillMetrics
 import com.ttcoachai.util.PerPhaseTargetsCodec
 import kotlinx.coroutines.CancellationException
@@ -30,7 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
+class TrainingActivity : BaseActivity() {
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
@@ -38,7 +35,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private lateinit var stateManager: TrainingStateManager
     private lateinit var uiController: TrainingUIController
     private lateinit var mediaManager: TrainingMediaManager
-    private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
     private lateinit var exerciseParameters: ExerciseParameters
 
     /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
@@ -47,8 +43,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
     /**
      * Custom-drill editor's "knees · strike" target, decoded once in [initializeAnalysis]
-     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart] so
-     * the RTM live path (not just the legacy [PoseAnalysisProcessor] path above) enforces it.
+     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart].
      * Null when the intent carried no such target — RTM path behaves exactly as before.
      */
     private var kneeBendStrikeBand: ClosedRange<Double>? = null
@@ -127,14 +122,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             exerciseParameters = exerciseParameters.copy(kneeBendStrikeMin = min, kneeBendStrikeMax = max)
             kneeBendStrikeBand = min.toDouble()..max.toDouble()
         }
-
-        poseAnalysisProcessor = PoseAnalysisProcessor(
-            application as TTCoachApplication,
-            MotionAnalyzer(exerciseParameters),
-            FeedbackGenerator(this),
-            stateManager,
-            { runOnUiThread { uiController.updateStats() } }
-        )
     }
 
     private fun setupUI() {
@@ -263,15 +250,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun startTraining() {
         stateManager.startTraining()
         uiController.updateUIForTrainingState(true)
-        // RTM mode: there is no legacy camera pipeline attached (see decideCameraModeAndStart), so
-        // PoseAnalysisProcessor would never receive onResults() anyway — skip starting its
-        // session so its internal counters stay at their initial state instead of drifting.
-        if (rtmController == null) {
-            poseAnalysisProcessor.startSession(
-                exerciseId ?: "forehand_drive",
-                exerciseName ?: getString(R.string.exercise_forehand_name)
-            )
-        }
     }
 
     private fun pauseTraining() {
@@ -287,7 +265,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun stopTraining(discard: Boolean = false) {
         stateManager.stopTraining()
         uiController.updateUIForTrainingState(false)
-        poseAnalysisProcessor.endSession()
 
         if (discard) {
             rtmController?.abortRecording()
@@ -454,14 +431,5 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // an intended finalize has already won the latch and this call is a no-op.
         rtmController?.abortRecording()
         rtmController?.release()
-        if (::poseAnalysisProcessor.isInitialized) poseAnalysisProcessor.release()
-    }
-    
-    override fun onError(error: String, errorCode: Int) {
-        Log.e(TAG, "Pose detection error: $error (code: $errorCode)")
-    }
-    
-    override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
-        poseAnalysisProcessor.processResults(resultBundle)
     }
 }
