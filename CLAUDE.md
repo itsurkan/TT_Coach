@@ -1,6 +1,6 @@
 # TT_Coach_AI Development Guidelines
 
-Last updated: 2026-07-22 (Phase 3 status). Read the "Current direction" section first — it overrides older context below.
+Last updated: 2026-07-25 (Phase 3 live backend swap). Read the "Current direction" section first — it overrides older context below.
 
 ## Current direction — 2D PIVOT (2026-06-10, branch `2d`)
 
@@ -11,7 +11,7 @@ The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-a
 **Phase status:**
 - **Phase 1 — desktop pose pipeline: DONE.** `scripts/poses/export_poses_rtmpose.py` (RTMPose-m + RTMDet-nano via MMPose, Mac M4) exports pose JSON **schema v2** (COCO-17; `--feet` flag → Halpe26 with foot keypoints). poses_viewer renders COCO-17/Halpe26 skeletons with an RTM header toggle.
 - **Phase 2 — drill logic in shared KMP: DONE (executed).** `models/` 2D types (Keypoint2D, PoseFrame2D, PoseSequence2D, Topology, Coco17, Handedness, Stroke2D, ViewGeometry w/ xScale); `io/PoseJsonV2Parser` (strict, field-order tripwire); `analysis/AngleCalculations2D` (xScale-corrected in-plane angles, facing-normalized torso lean), `analysis/CameraAngleEstimator` (per-stroke |yaw| from shoulder foreshortening); `detection/StrokeDetector2D` (torso-lengths/sec, ms windows, keep-max NMS, valley-clamped boundaries); `BaselineDeriver.deriveFromMetrics`; `drill/` (DrillMetrics extractAtPeak ±70ms median, SanityBounds, ForwardStrokeFilter speed-dominance, RepFilter banding, DrillFeedbackEngine, FeedbackMessageCatalog UA+EN, FeedbackCadencePolicy 3–5s, DrillCalibrator w/ per-rep yaw gate + CameraPlacementException, ForehandDriveDrillAnalyzer). Fixtures: full-fps `*_rtm.json` (andrii_1 @17ms, video_2 @20ms) + TestFixturesV2. E2E exit gate green (15 forward reps from 23 raw peaks on andrii_1).
-- **Phase 3 — Android port: DONE (2026-07-03).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface + `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a); `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory` loads models from assets or file path); `RtmposeFrameProcessor` camera bridge; `RtmposeDrillActivity`/`RtmposeTrainingController` live drill with baseline save — the main training screen runs the RTMPose live drill (`523161f`); `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
+- **Phase 3 — Android port: DONE (2026-07-03); live backend swapped RTMPose → MediaPipe 2026-07-25 (see "MediaPipe replaces RTMPose as the live pose backend" below).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface (unchanged seam) — originally implemented by `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a) with `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory`), all now deleted and replaced by `PoseBackendFactory` → `MediaPipePoseLandmarkerBackend`; `RtmposeFrameProcessor` camera bridge; `RtmposeDrillActivity`/`RtmposeTrainingController` live drill with baseline save — the main training screen has run this live drill since `523161f`; `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
 - **Phase 4 — AI Coach (cloud-LLM premium): VALIDATED 2026-07-22, NOT STARTED (Phase 3 prerequisite met; parked while current-state delivery is the focus).**
   Post-session LLM coach report + "Ask the coach" chat, grounded in the player's PersonalBaseline
   (calibrate-don't-re-teach positioning). Subscription-gated: $11.99–12.99/mo + annual ~$79/yr
@@ -168,17 +168,57 @@ dependency is still present in `app/build.gradle`, and `mappers/MediaPipeMapper.
 `services/MotionAnalyzer.kt`, `processors/StrokePhaseDetector.kt` still import `com.google.mediapipe`
 types — these feed the already-frozen 3D trajectory/ball-tracking pipeline, genuinely out of scope
 for this cleanup. Removing the Gradle dependency was considered and correctly deferred: MediaPipe
-now has zero live/reachable code paths outside that frozen pipeline.
+now has zero live/reachable code paths outside that frozen pipeline. **Superseded 2026-07-25** — see
+"MediaPipe replaces RTMPose as the live pose backend" below: MediaPipe now also has a live,
+production 2D pose-inference code path, so "zero live/reachable code paths outside that frozen
+pipeline" no longer holds.
+
+## MediaPipe replaces RTMPose as the live pose backend (shipped 2026-07-25)
+
+The live 2D pose backend switched from RTMPose (ONNX Runtime Mobile) to MediaPipe Pose Landmarker
+(BlazePose-33 → COCO-17 mapping). `PoseBackendFactory` in
+`app/src/main/java/com/ttcoachai/pose/PoseBackendFactory.kt`, plus
+`enum PoseBackendVariant { MEDIAPIPE_LITE_GPU (default), MEDIAPIPE_LITE_CPU, MEDIAPIPE_FULL_GPU, MEDIAPIPE_FULL_CPU }`,
+build `MediaPipePoseLandmarkerBackend(context, modelAssetName, delegate)` behind the unchanged
+`PoseBackend` seam; the chosen variant persists via `SettingsManager` key `pose_backend_variant`. All
+3 live sites — `RtmposeTrainingController`, `RtmposeCalibrationActivity`, `RtmposeDrillActivity` —
+construct their backend through this one factory, so live drill and calibration can never disagree on
+model/delegate (the same class of split that the 2026-07-24 fix above closed for baseline lineage).
+Settings → Detection (11b, `DetectionFragment`) exposes a 2×2 "Pose model" picker (Lite/Full × GPU/CPU,
+EN+UA), effective next drill start. Backend teardown is serialized onto the analysis executor at all 3
+sites — MediaPipe's native `close()` racing an in-flight `detect()` is a SIGSEGV hazard.
+
+**Deleted** (the entire RTMPose/ONNX Runtime stack): `RtmposeBackend`, `RtmposeEstimator`,
+`YoloxDetector`, `OrtSessionFactory`, `RtmposeMath`, `BitmapSampler` (+5 test files), the rtmpose/yolox
+`.onnx` assets, `fetch_models.sh`, the onnxruntime-android Gradle dep, `'onnx'` from noCompress, the
+`.gitignore` onnx block, `PoseBenchmarkActivity`'s RTMPose bench entry, and
+`pose_landmarker_heavy.task`'s auto-download in `download_tasks.gradle` (heavy shipped ~29MB dead
+weight in every APK); git history is the restore path. **Kept, backend-agnostic** (names unchanged):
+`RtmposeFrameProcessor`, `RtmposeTrainingController`, `RtmposeCalibrationActivity`,
+`RtmposeDrillActivity`, `PoseSessionRecorder`, `Coco17OverlayView`, `LiveDrillSession`; baseline key
+`"forehand_drive_rtm"` unchanged. Desktop Python RTMPose (`scripts/poses/export_poses_rtmpose.py`) and
+shared-KMP fixtures are **not affected** — that pipeline is still RTMPose; this change is Android
+live-inference only.
+
+**Consequences:** existing personal baselines were calibrated against RTMPose keypoints and don't
+transfer to MediaPipe's — players must re-calibrate (no migration, deliberate).
+`pose_landmarker_lite.task` + `pose_landmarker_full.task` are git-committed and bundled in the APK.
+
+**Known limitations:** `PoseSessionRecorder.MODEL_NAME` still stamps `"rtmpose-m"` into uploaded
+session JSON (that file was on this task's must-NOT-change list — deferred; provenance-only impact,
+nothing parses the field). This change is **build-verified only** — no device smoke test this session;
+confirm the picker and all 3 live sites on a real phone before treating this as proven in the field.
 
 ## Active Technologies
 
 **Current (2D pivot):**
-- Python 3.13 (`.venv`): MMPose, RTMPose-m + RTMDet-nano — desktop pose extraction (`scripts/poses/export_poses_rtmpose.py`)
+- Python 3.13 (`.venv`): MMPose, RTMPose-m + RTMDet-nano — desktop pose extraction (`scripts/poses/export_poses_rtmpose.py`); this is the desktop/golden pipeline only — Android's live backend switched to MediaPipe 2026-07-25 (see below)
 - Kotlin 2.1.0 KMP `shared/` module, **zero external deps** (repo convention) — all drill logic lives here; iOS is a firm future target
 - poses_viewer: React + Vite + vitest — visual QA for RTMPose output, COCO-17/Halpe26 skeleton rendering
+- MediaPipe tasks-vision 0.10.14 — since 2026-07-25 this is the **live Android pose backend** (`PoseBackendFactory` → `MediaPipePoseLandmarkerBackend`, BlazePose-33 → COCO-17 mapping), replacing RTMPose/ONNX Runtime for on-device inference (see "MediaPipe replaces RTMPose as the live pose backend" below). Same Gradle dependency also still feeds the frozen 3D pipeline (next section) — one dependency, two call sites, only one of them frozen.
 
 **Carried over / frozen in `app/`:**
-- CameraX 1.5.3, OpenCV 4.9.0 + TFLite YOLO (frozen ball tracking). MediaPipe tasks-vision 0.10.14 is still a Gradle dependency, but only for the frozen 3D pipeline (`MediaPipeMapper`, `MotionAnalyzer`, `StrokePhaseDetector`) — the live MediaPipe calibration/inference UI it used to power was deleted 2026-07-24 (see "MediaPipe legacy calibration/inference path removed" below).
+- CameraX 1.5.3, OpenCV 4.9.0 + TFLite YOLO (frozen ball tracking). MediaPipe tasks-vision 0.10.14 is still a Gradle dependency for the frozen 3D pipeline (`MediaPipeMapper`, `MotionAnalyzer`, `StrokePhaseDetector`) — the live MediaPipe calibration/inference UI it used to power was deleted 2026-07-24 (see "MediaPipe legacy calibration/inference path removed" below); as of 2026-07-25 the same dependency is ALSO the live 2D pose backend (see "Current" above) — no longer frozen-only.
 - Room 2.6.1 (sessions, baselines, `drill_configs`), `org.json` for `@TypeConverter`s, Firebase BOM 34.8.0
 
 ## Commands
@@ -217,9 +257,9 @@ shared/                      # KMP module — ALL NEW LOGIC GOES HERE (Phase 2)
   src/commonTest/            # pure-Kotlin tests + resources/fixtures/ (JSON pose fixtures, v1 + v2)
   src/jvmTest/               # fixture loaders (TestFixtures v1, TestFixturesV2) + fixture-driven tests
 
-app/                         # Android app — RTMPose live pipeline in pose/ (Phase 3); legacy MediaPipe UI path deleted 2026-07-24
+app/                         # Android app — live pose pipeline in pose/ (Phase 3; MediaPipe since 2026-07-25, was RTMPose); separate legacy MediaPipe calib/inference UI deleted 2026-07-24
   src/main/java/com/ttcoachai/
-    pose/                    # Phase 3 (DONE): PoseBackend, RtmposeBackend (ONNX Runtime), YoloxDetector, RtmposeEstimator, RtmposeDrillActivity, PresetVoiceController/DrillTtsController
+    pose/                    # PoseBackend seam; PoseBackendFactory → MediaPipePoseLandmarkerBackend (since 2026-07-25; Phase 3 orig. RtmposeBackend/ONNX Runtime, now deleted); RtmposeDrillActivity, PresetVoiceController/DrillTtsController
     managers/                # TrainingStateManager, CalibrationStateManager — frozen
     tracking/                # FROZEN: BallDetectorV1..V6, ROIManager
     mappers/ services/       # MediaPipeMapper, MotionAnalyzer, StrokePhaseDetector — frozen, still import com.google.mediapipe, feed the frozen 3D pipeline only
