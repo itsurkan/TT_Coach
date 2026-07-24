@@ -10,13 +10,21 @@ Two presets are bundled, selectable in one line via `RtmposeBackend.ACTIVE_PRESE
   (`scripts/poses/export_poses_rtmpose.py`), matching it byte-for-byte lets Android exports reuse
   the same fixtures, rep-count gates, and baselines as the desktop pipeline and the iOS backend
   (mirrors `iosApp/TTCoach/Models/MODELS.md`). Benchmarked 1.2–1.5fps on-device — too slow for a
-  live drill, kept bundled so swapping `ACTIVE_PRESET` back stays a one-line change.
+  live drill. **NOT auto-fetched** (see below) to keep the app lean; fetch it manually if you swap
+  `ACTIVE_PRESET` back.
 
-They are **git-ignored** (yolox_m is 97 MB, over GitHub's comfort threshold). Fetch them all with
-`./fetch_models.sh` before building — it fetches BOTH presets, not just the active one, so
-swapping `ACTIVE_PRESET` never requires re-running the fetch or risks a preset's assets being
-missing from a fresh checkout. The build bundles them as raw (uncompressed, via
-`noCompress 'onnx'`) assets of the `app` module so ONNX Runtime can mmap them.
+They are **git-ignored** (yolox_m is 97 MB, over GitHub's comfort threshold). `./fetch_models.sh`
+fetches ONLY the LITE preset (the active default) to keep the built app small — the BALANCED
+files are documented below (URLs + SHAs) but must be fetched by hand (e.g. `curl` the URL, unzip,
+verify against the SHA in the table, drop into this directory) if you ever swap `ACTIVE_PRESET`
+back to `Preset.BALANCED`. The build bundles assets as raw (uncompressed, via `noCompress 'onnx'`)
+so ONNX Runtime can mmap them.
+
+Also **not bundled**: `movenet_thunder.tflite` (MoveNet Thunder, used only by the now-hidden
+`PoseBenchmarkActivity` FPS A/B bench, `app/src/main/java/com/ttcoachai/pose/PoseBenchmarkActivity.kt`
+— its `<activity>` manifest entry is commented out). Re-fetch it from TF Hub
+(`tfhub.dev/google/lite-model/movenet/singlepose/thunder/tflite/float16/4`) and re-add the
+manifest entry if the benchmark screen is needed again.
 
 | File | Preset | Role | Input | Size | SHA-256 |
 |---|---|---|---|---|---|

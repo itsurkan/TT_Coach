@@ -76,14 +76,10 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Pose backend FPS A/B bench (throwaway prototype, dev-only, runtime FLAG_DEBUGGABLE
-             gate protects release). Exported so `adb shell am start` can launch it directly:
-             adb shell am start -n com.ttcoachai/.pose.PoseBenchmarkActivity -->
-        <activity
-            android:name=".pose.PoseBenchmarkActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity" />
+        <!-- PoseBenchmarkActivity (RTMPose-lite vs MoveNet FPS A/B bench) is TEMPORARILY HIDDEN
+             from the manifest to keep the shipped app lean (no MoveNet/balanced-RTMPose model
+             assets bundled). Source is still at pose/PoseBenchmarkActivity.kt; re-add this
+             <activity> entry (and the model assets) to bring the benchmark screen back. -->
 
         <!-- RTMPose Calibration Screen (shippable — produces the forehand_drive_rtm baseline
              TrainingActivity requires for the live RTM coaching path). -->
