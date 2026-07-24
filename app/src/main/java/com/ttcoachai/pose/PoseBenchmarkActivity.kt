@@ -156,46 +156,57 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
     // MARK: - Backend switching
 
+    // Posts teardown+construction onto analysisExecutor — the SAME single-thread executor that
+    // runs `analyze()` on each frame (see bindCameraUseCases()). This serializes backend swap
+    // against in-flight frame analysis: no frame can be inside backend.estimatePose() while the
+    // backend is being closed, because both run as tasks on the same single thread. Without this,
+    // switching backends from the main thread raced against the analysis thread mid-`analyze()`
+    // and use-after-closed a native session (harmless IllegalStateException on ORT, fatal SIGSEGV
+    // on MediaPipe's native detect()).
     private fun switchBackend(kind: BackendKind) {
-        processor?.close()
-        (backend as? AutoCloseable)?.close()
-        backend = null
-        processor = null
-        fpsTracker.reset()
+        analysisExecutor.execute {
+            processor?.close()
+            (backend as? AutoCloseable)?.close()
+            backend = null
+            processor = null
+            fpsTracker.reset()
 
-        val newBackend: PoseBackend? = try {
-            when (kind) {
-                BackendKind.RTMPOSE_LITE -> RtmposeBackend(
-                    context = this,
-                    yoloxAssetName = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
-                    rtmposeAssetName = "rtmpose-s_simcc-body7_pt-body7_420e-256x192-acd4a1ef_20230504.onnx",
-                    detInputSize = 416
-                )
-                BackendKind.MOVENET -> MoveNetBackend(this)
-                BackendKind.MEDIAPIPE_LITE_CPU -> MediaPipePoseLandmarkerBackend(
-                    context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.CPU)
-                BackendKind.MEDIAPIPE_LITE_GPU -> MediaPipePoseLandmarkerBackend(
-                    context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.GPU)
-                BackendKind.MEDIAPIPE_FULL_CPU -> MediaPipePoseLandmarkerBackend(
-                    context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.CPU)
-                BackendKind.MEDIAPIPE_FULL_GPU -> MediaPipePoseLandmarkerBackend(
-                    context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.GPU)
+            val newBackend: PoseBackend? = try {
+                when (kind) {
+                    BackendKind.RTMPOSE_LITE -> RtmposeBackend(
+                        context = this,
+                        yoloxAssetName = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
+                        rtmposeAssetName = "rtmpose-s_simcc-body7_pt-body7_420e-256x192-acd4a1ef_20230504.onnx",
+                        detInputSize = 416
+                    )
+                    BackendKind.MOVENET -> MoveNetBackend(this)
+                    BackendKind.MEDIAPIPE_LITE_CPU -> MediaPipePoseLandmarkerBackend(
+                        context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.CPU)
+                    BackendKind.MEDIAPIPE_LITE_GPU -> MediaPipePoseLandmarkerBackend(
+                        context = this, modelAssetName = "pose_landmarker_lite.task", delegate = Delegate.GPU)
+                    BackendKind.MEDIAPIPE_FULL_CPU -> MediaPipePoseLandmarkerBackend(
+                        context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.CPU)
+                    BackendKind.MEDIAPIPE_FULL_GPU -> MediaPipePoseLandmarkerBackend(
+                        context = this, modelAssetName = "pose_landmarker_full.task", delegate = Delegate.GPU)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to construct backend $kind", e)
+                runOnUiThread {
+                    Toast.makeText(this, "Backend init failed: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+                null
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to construct backend $kind", e)
-            Toast.makeText(this, "Backend init failed: ${e.message}", Toast.LENGTH_LONG).show()
-            null
-        }
 
-        activeKind = kind
-        backend = newBackend
-        if (newBackend != null) {
-            processor = RtmposeFrameProcessor(newBackend, mirror = false) { keypoints, timestampMs ->
-                onPoseResult(keypoints, timestampMs)
+            activeKind = kind
+            backend = newBackend
+            if (newBackend != null) {
+                processor = RtmposeFrameProcessor(newBackend, mirror = false) { keypoints, timestampMs ->
+                    onPoseResult(keypoints, timestampMs)
+                }
             }
-        }
-        runOnUiThread {
-            fpsText.text = "backend: ${displayName(kind)}\nfps: --"
+            runOnUiThread {
+                fpsText.text = "backend: ${displayName(kind)}\nfps: --"
+            }
         }
     }
 
@@ -291,9 +302,18 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        processor?.close()
-        (backend as? AutoCloseable)?.close()
-        analysisExecutor.shutdown()
+        // Stop new frames from reaching the analyzer first (CameraX handles unbind safely from
+        // any thread), then tear down the backend as a task ON analysisExecutor so it can never
+        // race an in-flight analyze() call on that same thread. shutdown() (not shutdownNow())
+        // lets that queued close task run to completion before the executor actually terminates;
+        // it does not block this (main) thread waiting for it.
         cameraProvider?.unbindAll()
+        analysisExecutor.execute {
+            processor?.close()
+            (backend as? AutoCloseable)?.close()
+            backend = null
+            processor = null
+        }
+        analysisExecutor.shutdown()
     }
 }
