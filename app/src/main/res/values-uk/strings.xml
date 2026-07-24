@@ -733,6 +733,12 @@
 
     <string name="detection_title">Виявлення</string>
     <string name="detection_subtitle">Розширені — як розпізнаються удари</string>
+    <string name="detection_pose_model">Модель пози</string>
+    <string name="detection_pose_model_sub">Компроміс між точністю та швидкістю трекінгу</string>
+    <string name="detection_pose_model_lite_gpu">Lite (GPU)</string>
+    <string name="detection_pose_model_lite_cpu">Lite (CPU)</string>
+    <string name="detection_pose_model_full_gpu">Full (GPU)</string>
+    <string name="detection_pose_model_full_cpu">Full (CPU)</string>
     <string name="detection_camera_angle">Кут камери</string>
     <string name="detection_camera_angle_sub">Ручне перевизначення · градуси</string>
     <string name="detection_peak_speed">Поріг пікової швидкості</string>

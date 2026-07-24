@@ -12,6 +12,7 @@ import com.google.android.material.button.MaterialButton
 import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentDetectionBinding
 import com.ttcoachai.managers.SettingsManager
+import com.ttcoachai.pose.PoseBackendVariant
 
 class DetectionFragment : Fragment() {
 
@@ -35,6 +36,27 @@ class DetectionFragment : Fragment() {
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
+
+        // Pose model (MediaPipe PoseLandmarker variant: Lite/Full model x GPU/CPU delegate)
+        val poseModelButtons = listOf(
+            binding.btnPoseModelLiteGpu, binding.btnPoseModelLiteCpu,
+            binding.btnPoseModelFullGpu, binding.btnPoseModelFullCpu
+        )
+        fun selectPoseModel(variant: PoseBackendVariant, persist: Boolean) {
+            val selected = when (variant) {
+                PoseBackendVariant.MEDIAPIPE_LITE_GPU -> binding.btnPoseModelLiteGpu
+                PoseBackendVariant.MEDIAPIPE_LITE_CPU -> binding.btnPoseModelLiteCpu
+                PoseBackendVariant.MEDIAPIPE_FULL_GPU -> binding.btnPoseModelFullGpu
+                PoseBackendVariant.MEDIAPIPE_FULL_CPU -> binding.btnPoseModelFullCpu
+            }
+            poseModelButtons.forEach { styleSegment(it, it === selected) }
+            if (persist) sm.setPoseBackendVariant(variant)
+        }
+        binding.btnPoseModelLiteGpu.setOnClickListener { selectPoseModel(PoseBackendVariant.MEDIAPIPE_LITE_GPU, persist = true) }
+        binding.btnPoseModelLiteCpu.setOnClickListener { selectPoseModel(PoseBackendVariant.MEDIAPIPE_LITE_CPU, persist = true) }
+        binding.btnPoseModelFullGpu.setOnClickListener { selectPoseModel(PoseBackendVariant.MEDIAPIPE_FULL_GPU, persist = true) }
+        binding.btnPoseModelFullCpu.setOnClickListener { selectPoseModel(PoseBackendVariant.MEDIAPIPE_FULL_CPU, persist = true) }
+        selectPoseModel(sm.getPoseBackendVariant(), persist = false)
 
         binding.stepperCameraAngle.apply {
             value = sm.getDetCameraAngle().toDouble()

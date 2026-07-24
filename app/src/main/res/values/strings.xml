@@ -947,6 +947,12 @@
     <!-- Detection 11b -->
     <string name="detection_title">Detection</string>
     <string name="detection_subtitle">Advanced — how strokes are picked out</string>
+    <string name="detection_pose_model">Pose model</string>
+    <string name="detection_pose_model_sub">Accuracy vs. speed for live tracking</string>
+    <string name="detection_pose_model_lite_gpu">Lite (GPU)</string>
+    <string name="detection_pose_model_lite_cpu">Lite (CPU)</string>
+    <string name="detection_pose_model_full_gpu">Full (GPU)</string>
+    <string name="detection_pose_model_full_cpu">Full (CPU)</string>
     <string name="detection_camera_angle">Camera angle</string>
     <string name="detection_camera_angle_sub">Manual override · degrees</string>
     <string name="detection_peak_speed">Peak speed threshold</string>
