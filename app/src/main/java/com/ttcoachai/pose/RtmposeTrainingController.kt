@@ -414,17 +414,38 @@ class RtmposeTrainingController(
         poseRecorder?.abort()
     }
 
-    /** Releases all resources. Safe to call after [stop] or without a prior [stop]. */
+    /** Closes [processor] and [backend]. Must only run as a task on [analysisExecutor] (or,
+     *  when that executor was never created, on the calling thread directly) — see [release]. */
+    private fun closeBackendNow() {
+        processor?.close()
+        (backend as? AutoCloseable)?.close()
+        processor = null
+        backend = null
+    }
+
+    /** Releases all resources. Safe to call after [stop] or without a prior [stop].
+     *
+     *  [stop] first unbinds the camera so no new frames are dispatched, then [closeBackendNow]
+     *  runs as a task ON [analysisExecutor] — the SAME single-thread executor that runs
+     *  `analyze()` for every frame (see [bindCameraUseCases]) — so it can never run concurrently
+     *  with an in-flight `analyze()` call. Without this, a frame could still be inside
+     *  `backend.estimatePose()` (native MediaPipe `detect()`) while close() destroys it: a fatal
+     *  SIGSEGV, not a catchable exception (same hazard/fix as
+     *  `PoseBenchmarkActivity.switchBackend()`). `shutdown()` (not `shutdownNow()`) lets this
+     *  queued task run to completion before the executor terminates, without blocking the
+     *  calling thread on it. */
     fun release() {
         stop()
-        processor?.close()
-        processor = null
-        (backend as? AutoCloseable)?.close()
-        backend = null
+        val executor = analysisExecutor
+        if (executor != null) {
+            executor.execute { closeBackendNow() }
+            executor.shutdown()
+        } else {
+            closeBackendNow()
+        }
+        analysisExecutor = null
         voiceController?.shutdown()
         voiceController = null
-        analysisExecutor?.shutdown()
-        analysisExecutor = null
         session = null
         sessionCreated = false
         previewView?.let { container.removeView(it) }

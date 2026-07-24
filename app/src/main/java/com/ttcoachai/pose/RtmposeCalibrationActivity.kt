@@ -397,11 +397,32 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
     // MARK: - Lifecycle cleanup
 
-    override fun onDestroy() {
-        super.onDestroy()
+    /** Closes [processor] and [backend]. Must only run as a task on [analysisExecutor] (or, when
+     *  that executor was never created, directly) — see [onDestroy]. */
+    private fun closeBackendNow() {
         processor?.close()
         (backend as? AutoCloseable)?.close()
-        analysisExecutor?.shutdown()
+        backend = null
+        processor = null
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Stop new frames first, then tear down the backend as a task ON analysisExecutor — the
+        // SAME single-thread executor that runs analyze() for every frame (see
+        // bindCameraUseCases()) — so close can never run concurrently with an in-flight
+        // analyze(). Without this, a frame could still be inside backend.estimatePose() (native
+        // MediaPipe detect()) while close() destroys it: a fatal SIGSEGV, not a catchable
+        // exception (same hazard/fix as PoseBenchmarkActivity.onDestroy()/switchBackend()).
+        // shutdown() (not shutdownNow()) lets this queued task run to completion before the
+        // executor terminates, without blocking this (main) thread on it.
         cameraProvider?.unbindAll()
+        val executor = analysisExecutor
+        if (executor != null) {
+            executor.execute { closeBackendNow() }
+            executor.shutdown()
+        } else {
+            closeBackendNow()
+        }
     }
 }
