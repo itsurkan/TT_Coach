@@ -47,14 +47,16 @@ function PoseSourceSelector({
   hasMediapipe,
   hasMovenet,
   hasRtmLite,
+  hasMediapipeLite,
 }: {
-  source: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'
-  onChange: (s: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite') => void
+  source: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite' | 'mediapipelite'
+  onChange: (s: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite' | 'mediapipelite') => void
   hasRtm: boolean
   hasVision: boolean
   hasMediapipe: boolean
   hasMovenet: boolean
   hasRtmLite: boolean
+  hasMediapipeLite: boolean
 }) {
   return (
     <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded text-sm">
@@ -117,6 +119,18 @@ function PoseSourceSelector({
           className="cursor-pointer"
         />
         <span className={hasMediapipe ? 'text-blue-400' : 'text-gray-600'}>MediaPipe</span>
+      </label>
+      <label className="flex items-center gap-1.5 cursor-pointer" title="On-device-equivalent MediaPipe Lite (BlazePose-33 -> COCO-17) schema-v2 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="mediapipelite"
+          checked={source === 'mediapipelite'}
+          onChange={() => onChange('mediapipelite')}
+          disabled={!hasMediapipeLite}
+          className="cursor-pointer"
+        />
+        <span className={hasMediapipeLite ? 'text-pink-400' : 'text-gray-600'}>MP Lite</span>
       </label>
     </div>
   )
@@ -189,7 +203,7 @@ interface PersistedSettings {
   showContacts: boolean; muted: boolean; placingBall: boolean; showLabels: boolean
   showTrajectory: boolean; showTrajectoryV2: boolean; showTrajectoryV3: boolean; showTrajectoryV4: boolean; showTrajectory3D: boolean; showTrajectory3Dv2: boolean
   showTableLabels: boolean; showTableView: boolean; showTableYolo: boolean; showTablePredict: boolean; showTableGrid: boolean; showTableGridMarked: boolean
-  poseSource: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'
+  poseSource: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite' | 'mediapipelite'
 }
 
 const DEFAULT_SETTINGS: PersistedSettings = {
@@ -237,12 +251,13 @@ export default function App() {
   const saved = useRef(loadSettings())
   const [showPoses, setShowPoses] = useState(saved.current.showPoses)
   const [showRtmPoses, setShowRtmPoses] = useState(saved.current.showRtmPoses)
-  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'>(saved.current.poseSource)
+  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite' | 'mediapipelite'>(saved.current.poseSource)
   const [rtmData, setRtmData] = useState<PosesBallData | null>(null)
   const [visionData, setVisionData] = useState<PosesBallData | null>(null)
   const [movenetData, setMovenetData] = useState<PosesBallData | null>(null)
   const [rtmLiteData, setRtmLiteData] = useState<PosesBallData | null>(null)
   const [mediapipeData, setMediapipeData] = useState<PosesBallData | null>(null)
+  const [mediapipeLiteData, setMediapipeLiteData] = useState<PosesBallData | null>(null)
   const [showBall, setShowBall] = useState(saved.current.showBall)
   const [showBallV5, setShowBallV5] = useState(saved.current.showBallV5)
   const [ballV5Data, setBallV5Data] = useState<PosesBallData | null>(null)
@@ -567,6 +582,9 @@ export default function App() {
   /** Fetch MediaPipe schema-v1 poses JSON (silently ignores if missing). */
   const fetchMediapipePoses = createPoseFetcher(setMediapipeData, 'poses')
 
+  /** Fetch on-device-equivalent MediaPipe Lite schema-v2 poses JSON (silently ignores if missing). */
+  const fetchMediapipeLitePoses = createPoseFetcher(setMediapipeLiteData, 'poses_mediapipe_lite')
+
   /** Fetch ball_v5 JSON (silently ignores if missing). */
   const fetchBallV5 = useCallback(async (base: string) => {
     setBallV5Data(null)
@@ -878,6 +896,7 @@ export default function App() {
     fetchMovenetPoses(base)
     fetchRtmLitePoses(base)
     fetchMediapipePoses(base)
+    fetchMediapipeLitePoses(base)
 
     e.target.value = ''
   }
@@ -936,6 +955,7 @@ export default function App() {
     fetchMovenetPoses(base)
     fetchRtmLitePoses(base)
     fetchMediapipePoses(base)
+    fetchMediapipeLitePoses(base)
   }
 
   // On first load, resume the last-opened video once the server list is known
@@ -1100,7 +1120,7 @@ export default function App() {
   const frame = data?.frames[frameIndex] ?? null
 
   // Determine which pose data to display based on poseSource
-  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : poseSource === 'movenet' ? movenetData : poseSource === 'rtmlite' ? rtmLiteData : mediapipeData
+  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : poseSource === 'movenet' ? movenetData : poseSource === 'rtmlite' ? rtmLiteData : poseSource === 'mediapipelite' ? mediapipeLiteData : mediapipeData
   const activeTopology = activePoseData?.topology ?? 'mediapipe33'
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
@@ -1235,6 +1255,7 @@ export default function App() {
           hasMovenet={!!movenetData}
           hasRtmLite={!!rtmLiteData}
           hasMediapipe={!!mediapipeData}
+          hasMediapipeLite={!!mediapipeLiteData}
         />
         <label className={cbClass}>
           <input type="checkbox" checked={showContacts} onChange={e => setShowContacts(e.target.checked)} className="accent-orange-500" />
