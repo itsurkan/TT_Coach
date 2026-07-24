@@ -46,13 +46,15 @@ function PoseSourceSelector({
   hasVision,
   hasMediapipe,
   hasMovenet,
+  hasRtmLite,
 }: {
-  source: 'rtm' | 'mediapipe' | 'vision' | 'movenet'
-  onChange: (s: 'rtm' | 'mediapipe' | 'vision' | 'movenet') => void
+  source: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'
+  onChange: (s: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite') => void
   hasRtm: boolean
   hasVision: boolean
   hasMediapipe: boolean
   hasMovenet: boolean
+  hasRtmLite: boolean
 }) {
   return (
     <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded text-sm">
@@ -91,6 +93,18 @@ function PoseSourceSelector({
           className="cursor-pointer"
         />
         <span className={hasMovenet ? 'text-cyan-400' : 'text-gray-600'}>MoveNet</span>
+      </label>
+      <label className="flex items-center gap-1.5 cursor-pointer" title="RTMPose-lite (lightweight mode) schema-v2 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="rtmlite"
+          checked={source === 'rtmlite'}
+          onChange={() => onChange('rtmlite')}
+          disabled={!hasRtmLite}
+          className="cursor-pointer"
+        />
+        <span className={hasRtmLite ? 'text-lime-400' : 'text-gray-600'}>RTM-lite</span>
       </label>
       <label className="flex items-center gap-1.5 cursor-pointer" title="Legacy MediaPipe-33 skeleton">
         <input
@@ -175,7 +189,7 @@ interface PersistedSettings {
   showContacts: boolean; muted: boolean; placingBall: boolean; showLabels: boolean
   showTrajectory: boolean; showTrajectoryV2: boolean; showTrajectoryV3: boolean; showTrajectoryV4: boolean; showTrajectory3D: boolean; showTrajectory3Dv2: boolean
   showTableLabels: boolean; showTableView: boolean; showTableYolo: boolean; showTablePredict: boolean; showTableGrid: boolean; showTableGridMarked: boolean
-  poseSource: 'rtm' | 'mediapipe' | 'vision' | 'movenet'
+  poseSource: 'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'
 }
 
 const DEFAULT_SETTINGS: PersistedSettings = {
@@ -223,10 +237,11 @@ export default function App() {
   const saved = useRef(loadSettings())
   const [showPoses, setShowPoses] = useState(saved.current.showPoses)
   const [showRtmPoses, setShowRtmPoses] = useState(saved.current.showRtmPoses)
-  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision' | 'movenet'>(saved.current.poseSource)
+  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision' | 'movenet' | 'rtmlite'>(saved.current.poseSource)
   const [rtmData, setRtmData] = useState<PosesBallData | null>(null)
   const [visionData, setVisionData] = useState<PosesBallData | null>(null)
   const [movenetData, setMovenetData] = useState<PosesBallData | null>(null)
+  const [rtmLiteData, setRtmLiteData] = useState<PosesBallData | null>(null)
   const [mediapipeData, setMediapipeData] = useState<PosesBallData | null>(null)
   const [showBall, setShowBall] = useState(saved.current.showBall)
   const [showBallV5, setShowBallV5] = useState(saved.current.showBallV5)
@@ -546,6 +561,9 @@ export default function App() {
   /** Fetch MoveNet Thunder schema-v2 poses JSON (silently ignores if missing). */
   const fetchMovenetPoses = createPoseFetcher(setMovenetData, 'poses_movenet')
 
+  /** Fetch RTMPose-lite (lightweight mode) schema-v2 poses JSON (silently ignores if missing). */
+  const fetchRtmLitePoses = createPoseFetcher(setRtmLiteData, 'poses_rtm_lite')
+
   /** Fetch MediaPipe schema-v1 poses JSON (silently ignores if missing). */
   const fetchMediapipePoses = createPoseFetcher(setMediapipeData, 'poses')
 
@@ -858,6 +876,7 @@ export default function App() {
     fetchRtmPoses(base)
     fetchVisionPoses(base)
     fetchMovenetPoses(base)
+    fetchRtmLitePoses(base)
     fetchMediapipePoses(base)
 
     e.target.value = ''
@@ -915,6 +934,7 @@ export default function App() {
     fetchRtmPoses(base)
     fetchVisionPoses(base)
     fetchMovenetPoses(base)
+    fetchRtmLitePoses(base)
     fetchMediapipePoses(base)
   }
 
@@ -1080,7 +1100,7 @@ export default function App() {
   const frame = data?.frames[frameIndex] ?? null
 
   // Determine which pose data to display based on poseSource
-  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : poseSource === 'movenet' ? movenetData : mediapipeData
+  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : poseSource === 'movenet' ? movenetData : poseSource === 'rtmlite' ? rtmLiteData : mediapipeData
   const activeTopology = activePoseData?.topology ?? 'mediapipe33'
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
@@ -1213,6 +1233,7 @@ export default function App() {
           hasRtm={!!rtmData}
           hasVision={!!visionData}
           hasMovenet={!!movenetData}
+          hasRtmLite={!!rtmLiteData}
           hasMediapipe={!!mediapipeData}
         />
         <label className={cbClass}>

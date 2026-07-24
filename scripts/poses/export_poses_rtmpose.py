@@ -47,7 +47,7 @@ def best_person(keypoints, scores):
     return keypoints[idx], scores[idx]
 
 
-def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_feet: bool = False) -> str:
+def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_feet: bool = False, mode: str = "balanced") -> str:
     if with_feet:
         topology, model_name, num_keypoints = "halpe26", "rtmpose-m-halpe26", 26
     else:
@@ -81,7 +81,7 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_fe
     print(f"Video: {video_name}  {width}x{height}  {duration_ms} ms  ({fps:.1f} fps)")
 
     model_cls = BodyWithFeet if with_feet else Body
-    body = model_cls(mode="balanced", backend="onnxruntime", device="cpu")
+    body = model_cls(mode=mode, backend="onnxruntime", device="cpu")
 
     frames = []
     frame_index = 0
@@ -136,7 +136,8 @@ def export_poses(video_path: str, interval_ms: int, out_dir: str | None, with_fe
 
     dest_dir = out_dir if out_dir else os.path.dirname(os.path.abspath(video_path))
     os.makedirs(dest_dir, exist_ok=True)
-    out_path = os.path.join(dest_dir, base + "_poses_rtm.json")
+    suffix = "_poses_rtm.json" if mode == "balanced" else "_poses_rtm_lite.json"
+    out_path = os.path.join(dest_dir, base + suffix)
 
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, allow_nan=False)
@@ -156,13 +157,16 @@ def main():
                         help="Output directory (default: same folder as video)")
     parser.add_argument("--feet", action="store_true",
                         help="Use the Halpe26 model: COCO-17 plus 6 foot keypoints (heels + toes)")
+    parser.add_argument("--mode", default="balanced", choices=["performance", "balanced", "lightweight"],
+                        help="rtmlib model mode (default: balanced). 'lightweight' writes "
+                             "*_poses_rtm_lite.json instead of *_poses_rtm.json")
     args = parser.parse_args()
 
     if not os.path.isfile(args.video):
         print(f"ERROR: file not found: {args.video}", file=sys.stderr)
         sys.exit(1)
 
-    export_poses(args.video, args.interval, args.out_dir, args.feet)
+    export_poses(args.video, args.interval, args.out_dir, args.feet, args.mode)
 
 
 if __name__ == "__main__":
