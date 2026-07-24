@@ -161,10 +161,9 @@ class CameraFragment : Fragment(), PoseLandmarkerHelper.LandmarkerListener {
         )
 
         // Initialize analysis processor only when no host activity owns one.
-        // Activities that implement LandmarkerListener (TrainingActivity,
-        // CalibrationActivity) supply their own processor via onResults().
-        if (activity !is com.ttcoachai.TrainingActivity &&
-            activity !is com.ttcoachai.calibration.CalibrationActivity) {
+        // Activities that implement LandmarkerListener (TrainingActivity) supply
+        // their own processor via onResults().
+        if (activity !is com.ttcoachai.TrainingActivity) {
             val params = com.ttcoachai.shared.models.ExerciseParameters(
                 exerciseId = "forehand_drive"
             )
