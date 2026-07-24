@@ -35,9 +35,9 @@ class RtmposeBackend(
     /** Android: build both stages from bundled `.onnx` assets (CPU EP for both this slice). */
     constructor(
         context: Context,
-        yoloxAssetName: String = DEFAULT_YOLOX_ASSET_NAME,
-        rtmposeAssetName: String = DEFAULT_RTMPOSE_ASSET_NAME,
-        detInputSize: Int = RtmposeMath.detInput
+        yoloxAssetName: String = ACTIVE_PRESET.yoloxAsset,
+        rtmposeAssetName: String = ACTIVE_PRESET.rtmposeAsset,
+        detInputSize: Int = ACTIVE_PRESET.detInputSize
     ) : this(
         detector = YoloxDetector(context.assets, yoloxAssetName, detInputSize = detInputSize),
         estimator = RtmposeEstimator(context.assets, rtmposeAssetName)
@@ -69,12 +69,31 @@ class RtmposeBackend(
     }
 
     companion object {
-        /** iOS default asset base-name (`RTMPoseBackend.swift`'s `yoloxResource` default). */
-        const val DEFAULT_YOLOX_ASSET_NAME = "yolox_m_8xb8-300e_humanart-c2c7a14a.onnx"
+        /**
+         * Named yolox+rtmpose asset pairings, benchmarked on-device (see `PoseBenchmarkActivity`).
+         * `LITE` (yolox_tiny 416x416 + rtmpose-s 256x192) measured ~8fps; `BALANCED` (yolox_m
+         * 640x640 + rtmpose-m 256x192) measured 1.2-1.5fps — unusably slow for a live drill.
+         */
+        enum class Preset(val yoloxAsset: String, val rtmposeAsset: String, val detInputSize: Int) {
+            LITE(
+                yoloxAsset = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
+                rtmposeAsset = "rtmpose-s_simcc-body7_pt-body7_420e-256x192-acd4a1ef_20230504.onnx",
+                detInputSize = 416
+            ),
+            BALANCED(
+                yoloxAsset = "yolox_m_8xb8-300e_humanart-c2c7a14a.onnx",
+                rtmposeAsset = "rtmpose-m_simcc-body7_pt-body7_420e-256x192-e48f03d0_20230504.onnx",
+                detInputSize = 640
+            )
+        }
 
-        /** iOS default asset base-name (`RTMPoseBackend.swift`'s `rtmposeResource` default). */
-        const val DEFAULT_RTMPOSE_ASSET_NAME =
-            "rtmpose-m_simcc-body7_pt-body7_420e-256x192-e48f03d0_20230504.onnx"
+        /**
+         * Single line to change when swapping the production pose backend preset (e.g. back to
+         * `Preset.BALANCED`, or to a future MoveNet preset once one exists). Drives the `Context`
+         * constructor's defaults for `RtmposeDrillActivity`, `RtmposeTrainingController`, and
+         * `RtmposeCalibrationActivity` — none of which pass explicit asset names.
+         */
+        val ACTIVE_PRESET: Preset = Preset.LITE
 
         /** COCO-17 keypoint count (one Keypoint2D per joint, in index order). */
         const val keypointCount = RtmposeEstimator.keypointCount
