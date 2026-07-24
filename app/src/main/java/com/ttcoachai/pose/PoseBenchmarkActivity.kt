@@ -44,7 +44,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 43
     }
 
-    private enum class BackendKind { RTMPOSE, MOVENET }
+    private enum class BackendKind { RTMPOSE, RTMPOSE_LITE, MOVENET }
 
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: Coco17OverlayView
@@ -77,7 +77,11 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         switchBackend(BackendKind.RTMPOSE)
 
         toggleButton.setOnClickListener {
-            val next = if (activeKind == BackendKind.RTMPOSE) BackendKind.MOVENET else BackendKind.RTMPOSE
+            val next = when (activeKind) {
+                BackendKind.RTMPOSE -> BackendKind.RTMPOSE_LITE
+                BackendKind.RTMPOSE_LITE -> BackendKind.MOVENET
+                BackendKind.MOVENET -> BackendKind.RTMPOSE
+            }
             switchBackend(next)
         }
 
@@ -154,6 +158,12 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         val newBackend: PoseBackend? = try {
             when (kind) {
                 BackendKind.RTMPOSE -> RtmposeBackend(this)
+                BackendKind.RTMPOSE_LITE -> RtmposeBackend(
+                    context = this,
+                    yoloxAssetName = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
+                    rtmposeAssetName = "rtmpose-s_simcc-body7_pt-body7_420e-256x192-acd4a1ef_20230504.onnx",
+                    detInputSize = 416
+                )
                 BackendKind.MOVENET -> MoveNetBackend(this)
             }
         } catch (e: Exception) {
@@ -170,8 +180,14 @@ class PoseBenchmarkActivity : AppCompatActivity() {
             }
         }
         runOnUiThread {
-            fpsText.text = "backend: ${kind.name.lowercase()}\nfps: --"
+            fpsText.text = "backend: ${displayName(kind)}\nfps: --"
         }
+    }
+
+    private fun displayName(kind: BackendKind): String = when (kind) {
+        BackendKind.RTMPOSE -> "rtmpose"
+        BackendKind.RTMPOSE_LITE -> "RTMPose-lite"
+        BackendKind.MOVENET -> "movenet"
     }
 
     // MARK: - Permission
@@ -249,7 +265,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         fpsTracker.tick(elapsedMs)
         runOnUiThread {
             overlayView.setKeypoints(keypoints)
-            fpsText.text = "backend: ${activeKind.name.lowercase()}\nfps: %.1f".format(fpsTracker.averageFps)
+            fpsText.text = "backend: ${displayName(activeKind)}\nfps: %.1f".format(fpsTracker.averageFps)
         }
     }
 

@@ -30,26 +30,31 @@ data class BoundingBox(val x1: Float, val y1: Float, val x2: Float, val y2: Floa
 
 class YoloxDetector(
     private val session: OrtSession,
-    private val scoreThreshold: Float = RtmposeMath.detScoreThreshold
+    private val scoreThreshold: Float = RtmposeMath.detScoreThreshold,
+    private val detInputSize: Int = RtmposeMath.detInput
 ) : AutoCloseable {
 
     /** Android: build a CPU-only session from a bundled `.onnx` asset. */
     constructor(
         assetManager: AssetManager,
         assetName: String,
-        scoreThreshold: Float = RtmposeMath.detScoreThreshold
+        scoreThreshold: Float = RtmposeMath.detScoreThreshold,
+        detInputSize: Int = RtmposeMath.detInput
     ) : this(
         session = OrtSessionFactory.makeSession(assetManager, assetName, cpuOnly = true),
-        scoreThreshold = scoreThreshold
+        scoreThreshold = scoreThreshold,
+        detInputSize = detInputSize
     )
 
     /** Desktop/CLI-style: build a CPU-only session from an absolute file path. */
     constructor(
         modelPath: String,
-        scoreThreshold: Float
+        scoreThreshold: Float,
+        detInputSize: Int = RtmposeMath.detInput
     ) : this(
         session = OrtSessionFactory.makeSession(modelPath, cpuOnly = true),
-        scoreThreshold = scoreThreshold
+        scoreThreshold = scoreThreshold,
+        detInputSize = detInputSize
     )
 
     /**
@@ -59,10 +64,10 @@ class YoloxDetector(
      */
     fun detect(bitmap: Bitmap): List<BoundingBox> {
         return try {
-            val (chw, ratio) = BitmapSampler.letterboxToCHW(bitmap, RtmposeMath.detInput)
+            val (chw, ratio) = BitmapSampler.letterboxToCHW(bitmap, detInputSize)
             val env = OrtEnvironment.getEnvironment()
             val inputName = session.inputNames.firstOrNull() ?: "input"
-            val shape = longArrayOf(1L, 3L, RtmposeMath.detInput.toLong(), RtmposeMath.detInput.toLong())
+            val shape = longArrayOf(1L, 3L, detInputSize.toLong(), detInputSize.toLong())
             OnnxTensor.createTensor(env, FloatBuffer.wrap(chw), shape).use { tensor ->
                 session.run(mapOf(inputName to tensor)).use { outputs ->
                     val detsValue = selectDetsValue(outputs) ?: run {

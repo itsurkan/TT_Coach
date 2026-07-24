@@ -36,9 +36,10 @@ class RtmposeBackend(
     constructor(
         context: Context,
         yoloxAssetName: String = DEFAULT_YOLOX_ASSET_NAME,
-        rtmposeAssetName: String = DEFAULT_RTMPOSE_ASSET_NAME
+        rtmposeAssetName: String = DEFAULT_RTMPOSE_ASSET_NAME,
+        detInputSize: Int = RtmposeMath.detInput
     ) : this(
-        detector = YoloxDetector(context.assets, yoloxAssetName),
+        detector = YoloxDetector(context.assets, yoloxAssetName, detInputSize = detInputSize),
         estimator = RtmposeEstimator(context.assets, rtmposeAssetName)
     )
 
@@ -69,11 +70,11 @@ class RtmposeBackend(
 
     companion object {
         /** iOS default asset base-name (`RTMPoseBackend.swift`'s `yoloxResource` default). */
-        const val DEFAULT_YOLOX_ASSET_NAME = "yolox_m_8xb8-300e_humanart-c2c7a14a"
+        const val DEFAULT_YOLOX_ASSET_NAME = "yolox_m_8xb8-300e_humanart-c2c7a14a.onnx"
 
         /** iOS default asset base-name (`RTMPoseBackend.swift`'s `rtmposeResource` default). */
         const val DEFAULT_RTMPOSE_ASSET_NAME =
-            "rtmpose-m_simcc-body7_pt-body7_420e-256x192-e48f03d0_20230504"
+            "rtmpose-m_simcc-body7_pt-body7_420e-256x192-e48f03d0_20230504.onnx"
 
         /** COCO-17 keypoint count (one Keypoint2D per joint, in index order). */
         const val keypointCount = RtmposeEstimator.keypointCount
