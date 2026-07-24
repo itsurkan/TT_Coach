@@ -473,7 +473,6 @@ class DrillsFragment : Fragment() {
                 val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
                     putExtra("EXERCISE_ID", exercise.id)
                     putExtra("EXERCISE_NAME", exercise.name)
-                    putExtra("USE_VIDEO", exercise.useVideo)
                     putExtra("PER_PHASE_TARGETS_JSON", entity?.perPhaseTargetsJson ?: "")
                 }
                 startActivity(intent)
@@ -484,7 +483,6 @@ class DrillsFragment : Fragment() {
         val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
             putExtra("EXERCISE_ID", exercise.id)
             putExtra("EXERCISE_NAME", exercise.name)
-            putExtra("USE_VIDEO", exercise.useVideo)
         }
         startActivity(intent)
     }

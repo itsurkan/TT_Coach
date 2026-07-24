@@ -34,7 +34,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
-    private var useVideo: Boolean = false
 
     private lateinit var stateManager: TrainingStateManager
     private lateinit var uiController: TrainingUIController
@@ -80,7 +79,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
         exerciseId = intent.getStringExtra("EXERCISE_ID")
         exerciseName = intent.getStringExtra("EXERCISE_NAME")
-        useVideo = intent.getBooleanExtra("USE_VIDEO", false)
 
         initializeManagers()
         initializeAnalysis()
@@ -95,7 +93,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             ::toggleTraining,
             { stopTraining(discard = false) }
         )
-        mediaManager = TrainingMediaManager(this, binding, useVideo)
+        mediaManager = TrainingMediaManager(this, binding)
     }
     
     private fun initializeAnalysis() {
@@ -165,13 +163,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
      * leaves.
      */
     private fun decideCameraModeAndStart() {
-        if (useVideo) {
-            mediaManager.setup()
-            uiController.setCorrectionChipsForPath(false)
-            binding.root.postDelayed({ startTraining() }, 500)
-            return
-        }
-
         lifecycleScope.launch {
             val baseline = loadRtmBaseline()
 
