@@ -8,19 +8,20 @@ them at runtime through `PoseBackendFactory`/`PoseBackendVariant`
 (`app/src/main/java/com/ttcoachai/pose/PoseBackendFactory.kt`), selectable from the Settings
 "Pose model" picker: Lite/Full x GPU (`Delegate.GPU`, default)/CPU (`Delegate.CPU`).
 
-`pose_landmarker_heavy.task` may be present locally but is **not committed** and **not
-referenced by any app code** — no `PoseBackendVariant` entry loads it, so it never ships in a
-built APK. It exists here only if someone dropped it in for manual experimentation; there is no
-fetch script for it.
+`pose_landmarker_heavy.task` is not present and not fetched — no `PoseBackendVariant` entry
+loads it. `app/download_tasks.gradle` used to force-fetch it into `app/src/main/assets/` on
+every `preBuild`; since Android bundles the entire `assets/` directory into the APK regardless
+of whether app code references a given file, that shipped ~29 MB of unused model in every build
+despite no code path loading it. That download task was removed — heavy no longer exists
+anywhere in the build (source tree or APK).
 
-Bundled raw/uncompressed (`noCompress 'task'` in `app/build.gradle`) so MediaPipe's native model
-loader can read them directly instead of through Android's asset compression.
+Bundled raw/uncompressed (`noCompress 'task', 'tflite'` in `app/build.gradle`) so MediaPipe's
+native model loader can read them directly instead of through Android's asset compression.
 
 | File | Role | Size |
 |---|---|---|
 | `pose_landmarker_lite.task` | production default (Lite) | ~5.5 MB |
 | `pose_landmarker_full.task` | production (Full) | ~9.0 MB |
-| `pose_landmarker_heavy.task` | untracked, unused by app code | ~29 MB |
 
 ## MoveNet Thunder (FPS benchmark only)
 

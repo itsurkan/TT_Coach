@@ -167,7 +167,8 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite:2.16.1'
     implementation 'org.tensorflow:tensorflow-lite-gpu:2.16.1'
 
-    // MediaPipe Library (benchmark-only: PoseBenchmarkActivity / MediaPipePoseLandmarkerBackend,
-    // dev-only FPS A/B tool — not used by any production/shipped code path)
+    // MediaPipe Library: production pose backend for the live 2D drill pipeline
+    // (PoseBackendFactory / MediaPipePoseLandmarkerBackend), also used by the dev-only
+    // PoseBenchmarkActivity FPS A/B bench.
     implementation 'com.google.mediapipe:tasks-vision:0.10.14'
 }

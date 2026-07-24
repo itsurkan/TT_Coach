@@ -961,6 +961,7 @@
 
     <!-- RTMPose live drill on the main training screen -->
     <string name="rtmpose_drill_need_calibration">Ще немає базового профілю — спочатку відкалібруйтеся.</string>
+    <string name="rtmpose_drill_backend_unavailable">Модель пози недоступна: %1$s</string>
 
     <!-- RTMPose calibration screen (shippable — створює базовий профіль forehand_drive_rtm) -->
     <string name="rtmpose_calibration_title">Калібрування форхенду</string>

@@ -712,7 +712,7 @@
     <string name="rtmpose_drill_calibration_failed">Calibration failed: %1$s</string>
     <string name="rtmpose_drill_calibration_saved">Baseline saved (%1$d reps). Switch to Feedback to start coaching.</string>
     <string name="rtmpose_drill_need_calibration">No baseline yet — calibrate first.</string>
-    <string name="rtmpose_drill_backend_unavailable">RTMPose models unavailable: %1$s</string>
+    <string name="rtmpose_drill_backend_unavailable">Pose model unavailable: %1$s</string>
     <string name="rtmpose_drill_status_feedback">Feedback mode — play your forehand drive.</string>
 
     <!-- RTMPose calibration screen (shippable — produces the forehand_drive_rtm baseline) -->
