@@ -45,12 +45,14 @@ function PoseSourceSelector({
   hasRtm,
   hasVision,
   hasMediapipe,
+  hasMovenet,
 }: {
-  source: 'rtm' | 'mediapipe' | 'vision'
-  onChange: (s: 'rtm' | 'mediapipe' | 'vision') => void
+  source: 'rtm' | 'mediapipe' | 'vision' | 'movenet'
+  onChange: (s: 'rtm' | 'mediapipe' | 'vision' | 'movenet') => void
   hasRtm: boolean
   hasVision: boolean
   hasMediapipe: boolean
+  hasMovenet: boolean
 }) {
   return (
     <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded text-sm">
@@ -77,6 +79,18 @@ function PoseSourceSelector({
           className="cursor-pointer"
         />
         <span className={hasVision ? 'text-purple-400' : 'text-gray-600'}>Vision</span>
+      </label>
+      <label className="flex items-center gap-1.5 cursor-pointer" title="MoveNet Thunder schema-v2 skeleton">
+        <input
+          type="radio"
+          name="poseSource"
+          value="movenet"
+          checked={source === 'movenet'}
+          onChange={() => onChange('movenet')}
+          disabled={!hasMovenet}
+          className="cursor-pointer"
+        />
+        <span className={hasMovenet ? 'text-cyan-400' : 'text-gray-600'}>MoveNet</span>
       </label>
       <label className="flex items-center gap-1.5 cursor-pointer" title="Legacy MediaPipe-33 skeleton">
         <input
@@ -161,7 +175,7 @@ interface PersistedSettings {
   showContacts: boolean; muted: boolean; placingBall: boolean; showLabels: boolean
   showTrajectory: boolean; showTrajectoryV2: boolean; showTrajectoryV3: boolean; showTrajectoryV4: boolean; showTrajectory3D: boolean; showTrajectory3Dv2: boolean
   showTableLabels: boolean; showTableView: boolean; showTableYolo: boolean; showTablePredict: boolean; showTableGrid: boolean; showTableGridMarked: boolean
-  poseSource: 'rtm' | 'mediapipe' | 'vision'
+  poseSource: 'rtm' | 'mediapipe' | 'vision' | 'movenet'
 }
 
 const DEFAULT_SETTINGS: PersistedSettings = {
@@ -209,9 +223,10 @@ export default function App() {
   const saved = useRef(loadSettings())
   const [showPoses, setShowPoses] = useState(saved.current.showPoses)
   const [showRtmPoses, setShowRtmPoses] = useState(saved.current.showRtmPoses)
-  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision'>(saved.current.poseSource)
+  const [poseSource, setPoseSource] = useState<'rtm' | 'mediapipe' | 'vision' | 'movenet'>(saved.current.poseSource)
   const [rtmData, setRtmData] = useState<PosesBallData | null>(null)
   const [visionData, setVisionData] = useState<PosesBallData | null>(null)
+  const [movenetData, setMovenetData] = useState<PosesBallData | null>(null)
   const [mediapipeData, setMediapipeData] = useState<PosesBallData | null>(null)
   const [showBall, setShowBall] = useState(saved.current.showBall)
   const [showBallV5, setShowBallV5] = useState(saved.current.showBallV5)
@@ -528,6 +543,9 @@ export default function App() {
   /** Fetch Vision schema-v2 poses JSON (silently ignores if missing). */
   const fetchVisionPoses = createPoseFetcher(setVisionData, 'poses_vision')
 
+  /** Fetch MoveNet Thunder schema-v2 poses JSON (silently ignores if missing). */
+  const fetchMovenetPoses = createPoseFetcher(setMovenetData, 'poses_movenet')
+
   /** Fetch MediaPipe schema-v1 poses JSON (silently ignores if missing). */
   const fetchMediapipePoses = createPoseFetcher(setMediapipeData, 'poses')
 
@@ -839,6 +857,7 @@ export default function App() {
     fetchBallYolo(base)
     fetchRtmPoses(base)
     fetchVisionPoses(base)
+    fetchMovenetPoses(base)
     fetchMediapipePoses(base)
 
     e.target.value = ''
@@ -895,6 +914,7 @@ export default function App() {
     fetchBallYolo(base)
     fetchRtmPoses(base)
     fetchVisionPoses(base)
+    fetchMovenetPoses(base)
     fetchMediapipePoses(base)
   }
 
@@ -1060,7 +1080,7 @@ export default function App() {
   const frame = data?.frames[frameIndex] ?? null
 
   // Determine which pose data to display based on poseSource
-  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : mediapipeData
+  const activePoseData = poseSource === 'rtm' ? rtmData : poseSource === 'vision' ? visionData : poseSource === 'movenet' ? movenetData : mediapipeData
   const activeTopology = activePoseData?.topology ?? 'mediapipe33'
   const contactSet = new Set(contacts?.contacts.map(c => c.frameIndex) ?? [])
   const isContactFrame = contactSet.has(frameIndex)
@@ -1192,6 +1212,7 @@ export default function App() {
           onChange={setPoseSource}
           hasRtm={!!rtmData}
           hasVision={!!visionData}
+          hasMovenet={!!movenetData}
           hasMediapipe={!!mediapipeData}
         />
         <label className={cbClass}>
