@@ -42,7 +42,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private lateinit var exerciseParameters: ExerciseParameters
 
     /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
-     *  Legacy path leaves this null and PoseAnalysisProcessor/CameraFragment run as before. */
+     *  Null if the RTM controller failed to start (see [showCalibrationRequiredDialog]). */
     private var rtmController: RtmposeTrainingController? = null
 
     /**
@@ -154,9 +154,8 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
      * mode is unaffected (still legacy, still synchronous). For live camera: a forehand
      * RTMPose baseline is now REQUIRED — the RTM path owns the whole camera+drill path via
      * [RtmposeTrainingController] (PoseAnalysisProcessor is never started, and
-     * [TrainingMediaManager] is told to skip attaching the legacy
-     * [com.ttcoachai.fragment.CameraFragment] so the two pipelines never double-process the
-     * same container). There is no legacy fallback anymore (see project CLAUDE.md "why this
+     * [TrainingMediaManager] only prepares `cameraPreviewContainer` for the RTM controller
+     * to attach itself into). There is no legacy fallback anymore (see project CLAUDE.md "why this
      * task exists" — the legacy pipeline has no voice output at all, so falling back to it
      * silently produced mute sessions). If no baseline exists, or the RTM controller fails to
      * start, [showCalibrationRequiredDialog] blocks the screen until the player calibrates or
@@ -196,10 +195,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     /** Attempts to start the RTM live path against [baseline]. Returns false (nothing left
-     *  attached beyond what [TrainingMediaManager.setup] with skipCamera already did) if the
+     *  attached beyond what [TrainingMediaManager.setup] already did) if the
      *  RTMPose backend fails to construct inside [RtmposeTrainingController.start]. */
     private fun startRtmController(baseline: PersonalBaseline): Boolean {
-        mediaManager.setup(skipCamera = true)
+        mediaManager.setup()
         val controller = RtmposeTrainingController(
             activity = this@TrainingActivity,
             container = binding.cameraPreviewContainer,
@@ -264,7 +263,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun startTraining() {
         stateManager.startTraining()
         uiController.updateUIForTrainingState(true)
-        // RTM mode: CameraFragment is never attached (see decideCameraModeAndStart), so
+        // RTM mode: there is no legacy camera pipeline attached (see decideCameraModeAndStart), so
         // PoseAnalysisProcessor would never receive onResults() anyway — skip starting its
         // session so its internal counters stay at their initial state instead of drifting.
         if (rtmController == null) {

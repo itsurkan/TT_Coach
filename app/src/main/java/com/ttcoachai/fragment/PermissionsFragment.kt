@@ -27,8 +27,9 @@ private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
  * NOTE: the fragment-nav-based permission flow (dead `permissions_fragment` /
  * `camera_fragment` nodes in nav_graph.xml, which belonged to the now-deleted
  * CameraActivity) was removed as part of the MediaPipe dead-screen cleanup.
- * [hasPermissions] is still live — [CameraFragment] (embedded in TrainingActivity)
- * calls it directly.
+ * The legacy `CameraFragment` that used to call [hasPermissions] has since been
+ * deleted too (MediaPipe removal) — no known caller remains; left in place pending
+ * a dedicated dead-code pass.
  */
 class PermissionsFragment : Fragment() {
 
