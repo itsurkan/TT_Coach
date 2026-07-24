@@ -227,4 +227,15 @@ class SettingsManager(context: Context) {
     // --- Language (coach voice-cue language; distinct from interface language `app_language`) ---
     fun getCoachLanguage(): String = prefs.getString("coach_language", "en") ?: "en"
     fun setCoachLanguage(value: String) = prefs.edit().putString("coach_language", value).apply()
+
+    // --- Pose backend (live 2D drill inference: MediaPipe model + delegate, see PoseBackendFactory) ---
+    fun getPoseBackendVariant(): com.ttcoachai.pose.PoseBackendVariant {
+        val stored = prefs.getString("pose_backend_variant", null)
+        val parsed = stored?.let { runCatching { com.ttcoachai.pose.PoseBackendVariant.valueOf(it) }.getOrNull() }
+        return parsed ?: com.ttcoachai.pose.PoseBackendVariant.MEDIAPIPE_LITE_GPU
+    }
+
+    fun setPoseBackendVariant(variant: com.ttcoachai.pose.PoseBackendVariant) {
+        prefs.edit().putString("pose_backend_variant", variant.name).apply()
+    }
 }

@@ -1,15 +1,15 @@
 package com.ttcoachai.pose
 
-// MediaPipePoseLandmarkerBackend.kt — THROWAWAY PROTOTYPE (FPS A/B bench only,
-// PoseBenchmarkActivity). Wraps MediaPipe Tasks Vision's PoseLandmarker (BlazePose, 33
-// landmarks) behind the PoseBackend seam so it can be swapped in for RtmposeBackend /
-// MoveNetBackend behind RtmposeFrameProcessor unmodified. RunningMode.IMAGE (synchronous
-// detect()) matches PoseBackend.estimatePose()'s existing blocking contract — no LIVE_STREAM
-// callback bridging needed for a throwaway tool.
+// MediaPipePoseLandmarkerBackend.kt — production PoseBackend for the 2D live drill pipeline
+// (resolved via PoseBackendFactory for live training/calibration/drill) and the FPS A/B bench
+// (PoseBenchmarkActivity). Wraps MediaPipe Tasks Vision's PoseLandmarker (BlazePose, 33
+// landmarks) behind the PoseBackend seam so it drops in behind RtmposeFrameProcessor unmodified.
+// RunningMode.IMAGE (synchronous detect()) matches PoseBackend.estimatePose()'s existing
+// blocking contract — no LIVE_STREAM callback bridging needed.
 //
 // This is NOT a restoration of the deleted MediaPipe production UI path (PoseLandmarkerHelper /
 // PoseLandmarkerProcessor / PoseLandmarkerConfig, deleted 2026-07-24) — those are gone for good.
-// This is fresh benchmark-only code with no callers outside PoseBenchmarkActivity.
+// This is a fresh implementation using only the MediaPipe Tasks Vision library.
 
 import android.content.Context
 import android.graphics.Bitmap

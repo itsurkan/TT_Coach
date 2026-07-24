@@ -2,11 +2,12 @@ package com.ttcoachai.pose
 
 // RtmposeDrillActivity.kt
 //
-// Phase 3 (P4c) integration Activity: the live forehand-drive drill on RTMPose. Ties together
-// the already-committed pieces — RtmposeBackend, RtmposeFrameProcessor (P4b), Coco17OverlayView
-// (P4a), DrillTtsController (P4a), and the shared LiveDrillSession / DrillCalibrator /
-// PersonalBaselineRepository — none of whose logic is reimplemented here. This class only binds
-// CameraX (copied technique from CameraManager.bindCameraUseCases) and wires the two live modes.
+// Phase 3 (P4c) integration Activity: the live forehand-drive drill, backend resolved via
+// PoseBackendFactory (MediaPipe). Ties together the already-committed pieces — PoseBackendFactory,
+// RtmposeFrameProcessor (P4b), Coco17OverlayView (P4a), DrillTtsController (P4a), and the shared
+// LiveDrillSession / DrillCalibrator / PersonalBaselineRepository — none of whose logic is
+// reimplemented here. This class only binds CameraX (copied technique from
+// CameraManager.bindCameraUseCases) and wires the two live modes.
 //
 // Dev-only debug entry point (Slice pattern from DesignSystemPreviewActivity /
 // BaselineDebugActivity): registered `exported="true"` in the manifest, self-guards on
@@ -122,9 +123,9 @@ class RtmposeDrillActivity : AppCompatActivity() {
         analysisExecutor = Executors.newSingleThreadExecutor()
 
         backend = try {
-            RtmposeBackend(this)
+            PoseBackendFactory.create(this)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to construct RtmposeBackend", e)
+            Log.e(TAG, "Failed to construct pose backend", e)
             statusText.text = getString(R.string.rtmpose_drill_backend_unavailable, e.message ?: "unknown error")
             null
         }

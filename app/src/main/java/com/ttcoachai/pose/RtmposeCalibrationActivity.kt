@@ -9,9 +9,9 @@ package com.ttcoachai.pose
 // calibrate the RTM lineage (CalibrationActivity writes the older/legacy baseline lineage
 // instead, see project CLAUDE.md "RTM correction taxonomy").
 //
-// Reuses RtmposeBackend / RtmposeFrameProcessor / Coco17OverlayView and the CameraX binding
-// technique from RtmposeDrillActivity.bindCameraUseCases() / RtmposeTrainingController — no
-// inference logic is duplicated here.
+// Reuses PoseBackendFactory (MediaPipe) / RtmposeFrameProcessor / Coco17OverlayView and the
+// CameraX binding technique from RtmposeDrillActivity.bindCameraUseCases() /
+// RtmposeTrainingController — no inference logic is duplicated here.
 //
 // Flow (mirrors calibration/CalibrationActivity's onboarding -> capture -> review shape, as
 // one Activity with visibility-toggled panels instead of a fragment host):
@@ -112,9 +112,9 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
         analysisExecutor = Executors.newSingleThreadExecutor()
 
         backend = try {
-            RtmposeBackend(this)
+            PoseBackendFactory.create(this)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to construct RtmposeBackend", e)
+            Log.e(TAG, "Failed to construct pose backend", e)
             backendErrorMessage = e.message ?: "unknown error"
             null
         }

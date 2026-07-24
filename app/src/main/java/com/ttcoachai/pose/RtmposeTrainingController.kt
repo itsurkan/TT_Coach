@@ -158,9 +158,9 @@ class RtmposeTrainingController(
      */
     fun start(): Boolean {
         val activeBackend = try {
-            RtmposeBackend(activity)
+            PoseBackendFactory.create(activity)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to construct RtmposeBackend", e)
+            Log.e(TAG, "Failed to construct pose backend", e)
             return false
         }
         backend = activeBackend
