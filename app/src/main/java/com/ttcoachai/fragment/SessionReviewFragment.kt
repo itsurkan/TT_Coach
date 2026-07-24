@@ -77,9 +77,7 @@ class SessionReviewFragment : Fragment() {
 
     /**
      * Re-launches the reviewed session's drill via [TrainingActivity], mirroring
-     * DrillsFragment.onExerciseSelected. TrainingSession doesn't persist the `useVideo`
-     * flag, so it's omitted — TrainingActivity defaults USE_VIDEO to false, matching the
-     * common (non-video) drill case. Falls back to the Drills tab if the session hasn't
+     * DrillsFragment.onExerciseSelected. Falls back to the Drills tab if the session hasn't
      * loaded yet (e.g. tapped before the DB query completes).
      */
     private fun onTrainAgain() {

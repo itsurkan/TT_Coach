@@ -11,7 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.BaseActivity
 import com.ttcoachai.R
-import com.ttcoachai.calibration.CalibrationActivity
+import com.ttcoachai.pose.RtmposeCalibrationActivity
 import com.ttcoachai.databinding.ActivityExerciseEditorBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
@@ -341,9 +341,7 @@ class ExerciseEditorActivity : BaseActivity() {
     }
 
     private fun launchCalibration() {
-        val intent = Intent(this, CalibrationActivity::class.java)
-            .putExtra(CalibrationActivity.EXTRA_DRILL_TYPE, workingDrillType)
-        calibrationLauncher.launch(intent)
+        calibrationLauncher.launch(Intent(this, RtmposeCalibrationActivity::class.java))
     }
 
     private fun finishCancelled() {

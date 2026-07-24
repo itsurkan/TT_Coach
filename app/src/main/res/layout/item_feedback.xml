@@ -72,39 +72,6 @@
                 android:background="@color/ttc_surface_elevated"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- Pose Visualization Card -->
-            <com.google.android.material.card.MaterialCardView
-                style="@style/TTC.Card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        style="@style/TextAppearance.TTC.Title.Card"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/label_movement_analysis"
-                        android:layout_marginBottom="4dp"/>
-
-                    <TextView
-                        style="@style/TextAppearance.TTC.Body.Secondary"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/desc_movement_analysis"
-                        android:layout_marginBottom="12dp"/>
-
-                    <!-- Pose Replay View Placeholder -->
-                    <com.ttcoachai.views.PoseVisualizer
-                        android:id="@+id/pose_visualizer"
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp"
-                        android:background="@color/ttc_surface_elevated"/>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

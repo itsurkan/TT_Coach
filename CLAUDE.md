@@ -6,7 +6,7 @@ Last updated: 2026-07-22 (Phase 3 status). Read the "Current direction" section 
 
 The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-angle coaching MVP on RTMPose, desktop-first**. Fixed/structured drills (first: forehand drive, side camera), voice/text feedback at 3–5 s cadence, reference angles derived from the player's **personal baseline** (003 calibration path) — calibrate to the player's technique, don't re-teach.
 
-**Frozen, not deleted** (returns post-MVP as Stage 2 — don't modify, don't delete, don't call from new code): `BallDetectorV1–V6`, `ROIManager`, trajectory code (`TimelineSynchronizer`/`TrajectoryFilter`/`TrajectorySegmenter`), audio-contact + frame-extraction Python scripts, YOLO training, the live MediaPipe pipeline in `app/` (superseded by the Phase 3 RTMPose backend in `app/.../pose/`, kept frozen).
+**Frozen, not deleted** (returns post-MVP as Stage 2 — don't modify, don't delete, don't call from new code): `BallDetectorV1–V6`, `ROIManager`, trajectory code (`TimelineSynchronizer`/`TrajectoryFilter`/`TrajectorySegmenter`), audio-contact + frame-extraction Python scripts, YOLO training.
 
 **Phase status:**
 - **Phase 1 — desktop pose pipeline: DONE.** `scripts/poses/export_poses_rtmpose.py` (RTMPose-m + RTMDet-nano via MMPose, Mac M4) exports pose JSON **schema v2** (COCO-17; `--feet` flag → Halpe26 with foot keypoints). poses_viewer renders COCO-17/Halpe26 skeletons with an RTM header toggle.
@@ -135,6 +135,41 @@ The RTM live-drill coaching set is **7 honest per-axis cues**, each backed by ex
 - Baselines are schemaless JSON — **no Room migration**; pre-change baselines lack the new keys, so
   players must re-calibrate to unlock the new cues.
 
+## MediaPipe legacy calibration/inference path removed (shipped 2026-07-24)
+
+Root-cause bug fixed: `ExerciseEditorActivity`'s "Reference: Baseline" option used to launch the
+legacy MediaPipe `CalibrationActivity`, which saved a baseline under a drillType that
+`TrainingActivity.loadRtmBaseline()` (the live RTM trainer) never read — a baseline saved via
+drill creation was invisible to the app that actually coaches the player. Fix: `ExerciseEditorActivity`
+now launches `RtmposeCalibrationActivity`, the same screen `TrainingActivity`'s own "calibration
+required" dialog already used, so both entry points agree on one baseline lineage
+(`"forehand_drive_rtm"`).
+
+**Deleted** (the entire live, user-reachable MediaPipe calibration/inference UI path):
+`calibration.CalibrationActivity` + its onboarding/capture/review fragments; a second dead screen
+subtree (`CameraActivity`, `ActivitySettingsActivity`, `fragment.GalleryFragment` + managers);
+`fragment.CameraFragment` + `managers.CameraManager`/`CameraUIController`; the MediaPipe inference
+core (`PoseLandmarkerHelper`, `processors.PoseAnalysisProcessor`, `processors.PoseAnalysisLogger`,
+`helpers.PoseLandmarkerProcessor`, `helpers.PoseLandmarkerConfig`, `managers.VideoPlayerManager`);
+dead view/detector code found during cleanup (`OverlayView`, `views.PoseVisualizer`,
+`services.StrokeDetector`, orphaned `fragment_camera.xml`); `TrainingActivity`'s dead
+`useVideo`/`USE_VIDEO` legacy video-mode path and its 3 call sites in `ExerciseSelectionActivity`/
+`DrillsFragment`; all orphaned tests for the above.
+
+**Known limitation surfaced (not a regression):** `RtmposeCalibrationActivity`/
+`TrainingActivity.loadRtmBaseline()` support exactly ONE global personal baseline, not one per
+custom drill (unlike the old MediaPipe `CalibrationActivity`, which was genuinely keyed by drill
+type). "Reference: Baseline" now means "use your one calibrated RTM baseline" — per-drill
+baselines would need `RtmposeCalibrationActivity`'s intent contract and `loadRtmBaseline()`'s
+lookup key extended together.
+
+**MediaPipe is NOT fully gone from the repo.** The `com.google.mediapipe:tasks-vision` Gradle
+dependency is still present in `app/build.gradle`, and `mappers/MediaPipeMapper.kt`,
+`services/MotionAnalyzer.kt`, `processors/StrokePhaseDetector.kt` still import `com.google.mediapipe`
+types — these feed the already-frozen 3D trajectory/ball-tracking pipeline, genuinely out of scope
+for this cleanup. Removing the Gradle dependency was considered and correctly deferred: MediaPipe
+now has zero live/reachable code paths outside that frozen pipeline.
+
 ## Active Technologies
 
 **Current (2D pivot):**
@@ -143,7 +178,7 @@ The RTM live-drill coaching set is **7 honest per-axis cues**, each backed by ex
 - poses_viewer: React + Vite + vitest — visual QA for RTMPose output, COCO-17/Halpe26 skeleton rendering
 
 **Carried over / frozen in `app/`:**
-- CameraX 1.5.3, MediaPipe tasks-vision 0.10.14 (frozen live pipeline), OpenCV 4.9.0 + TFLite YOLO (frozen ball tracking)
+- CameraX 1.5.3, OpenCV 4.9.0 + TFLite YOLO (frozen ball tracking). MediaPipe tasks-vision 0.10.14 is still a Gradle dependency, but only for the frozen 3D pipeline (`MediaPipeMapper`, `MotionAnalyzer`, `StrokePhaseDetector`) — the live MediaPipe calibration/inference UI it used to power was deleted 2026-07-24 (see "MediaPipe legacy calibration/inference path removed" below).
 - Room 2.6.1 (sessions, baselines, `drill_configs`), `org.json` for `@TypeConverter`s, Firebase BOM 34.8.0
 
 ## Commands
@@ -182,16 +217,13 @@ shared/                      # KMP module — ALL NEW LOGIC GOES HERE (Phase 2)
   src/commonTest/            # pure-Kotlin tests + resources/fixtures/ (JSON pose fixtures, v1 + v2)
   src/jvmTest/               # fixture loaders (TestFixtures v1, TestFixturesV2) + fixture-driven tests
 
-app/                         # Android app — RTMPose live pipeline in pose/ (Phase 3); legacy MediaPipe pipeline frozen
+app/                         # Android app — RTMPose live pipeline in pose/ (Phase 3); legacy MediaPipe UI path deleted 2026-07-24
   src/main/java/com/ttcoachai/
     pose/                    # Phase 3 (DONE): PoseBackend, RtmposeBackend (ONNX Runtime), YoloxDetector, RtmposeEstimator, RtmposeDrillActivity, PresetVoiceController/DrillTtsController
-    processors/              # PoseAnalysisProcessor (LIVE + CALIBRATION modes) — frozen
     managers/                # TrainingStateManager, CalibrationStateManager — frozen
     tracking/                # FROZEN: BallDetectorV1..V6, ROIManager
-    services/                # MotionAnalyzer, FeedbackGenerator — frozen
-    helpers/                 # PoseLandmarkerProcessor (MediaPipe) — frozen legacy; superseded by pose/ RTMPose backend
-    calibration/             # CalibrationActivity flow (Stage 1 Phase 1) — UX reused for drills later
-    debug/                   # BaselineDebugActivity, BaselinePreviewActivity (FLAG_DEBUGGABLE-gated)
+    mappers/ services/       # MediaPipeMapper, MotionAnalyzer, StrokePhaseDetector — frozen, still import com.google.mediapipe, feed the frozen 3D pipeline only
+    debug/                   # BaselineDebugActivity (FLAG_DEBUGGABLE-gated)
     repository/ db/ models/  # Room + Firestore; PersonalBaselineEntity, DrillConfigEntity
   src/test/                  # JVM unit tests; src/androidTest/ — instrumented
 
@@ -210,7 +242,7 @@ models/trained/              # frozen YOLO weights
 
 **Naming suffixes:** `*Manager` stateful singleton · `*Processor` frame-by-frame pipeline · `*Analyzer` pure logic · `*Detector` inference/signal detection (versioned when iterating) · `*Repository` dual-source data. 2D-pivot classes take a `2D` suffix when a legacy 3D counterpart exists (`AngleCalculations2D`, `StrokeDetector2D`).
 
-**Freeze discipline:** frozen code (ball tracking, live MediaPipe pipeline, trajectory) is modified only to keep the build green. New code must not call into it; adapt techniques by copying into new `2D` classes instead (e.g. `AngleCalculations2D` adapts `AngleCalculations` rather than editing it).
+**Freeze discipline:** frozen code (ball tracking, `MediaPipeMapper`/`MotionAnalyzer`/`StrokePhaseDetector`, trajectory) is modified only to keep the build green. New code must not call into it; adapt techniques by copying into new `2D` classes instead (e.g. `AngleCalculations2D` adapts `AngleCalculations` rather than editing it).
 
 **Commit hygiene:** `git add` explicit paths, never `git add -A` (working tree carries unrelated artifacts: `node_modules/.vite/`, `tsconfig.tsbuildinfo`). Commit after each logical change.
 
@@ -231,7 +263,7 @@ Phase 2 files land per the plan; legacy entries below are what Phase 2 reuses or
 - **[Phase 2 plan](docs/superpowers/plans/2026-06-10-phase2-drill-logic-shared-kmp.md)** — task-by-task TDD plan with full code listings; the source of truth for what exists vs is pending in `shared/`.
 - **[BaselineDeriver](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineDeriver.kt)** — pure KMP: strokes + analyses → `PersonalBaseline`. 2σ single-pass outlier exclusion, qualityScore = `1 − mean(CV)`, min-rep check **after** exclusion. Phase 2 extracts a public `deriveFromMetrics(...)`; the existing `derive(...)` must keep delegating to it (003 path stays green).
 - **[BaselineRuleFactory](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/BaselineRuleFactory.kt)** — single source of rule derivation (`PersonalBaseline → List<BaselineRule>`: 2σ consistency, 25% rhythm). Drill feedback evaluates via [FrameRuleEvaluator](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/FrameRuleEvaluator.kt).
-- **[AngleCalculations](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/AngleCalculations.kt)** — legacy MediaPipe-33/`Landmark3D` dot-product angles; frozen (feeds live pipeline). Phase 2's `AngleCalculations2D` copies the technique for `Keypoint2D` + COCO indices.
+- **[AngleCalculations](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/AngleCalculations.kt)** — legacy MediaPipe-33/`Landmark3D` dot-product angles; frozen (feeds the frozen 3D trajectory pipeline). Phase 2's `AngleCalculations2D` copies the technique for `Keypoint2D` + COCO indices.
 - **[StrokePhaseDetector](shared/src/commonMain/kotlin/com/ttcoachai/shared/detection/StrokePhaseDetector.kt)** / **[JsonStrokeDetector](shared/src/commonMain/kotlin/com/ttcoachai/shared/detection/JsonStrokeDetector.kt)** — legacy phase/stroke detection over 33-landmark frames; `StrokeDetector2D` (wrist-speed local maximum) is the 2D adaptation.
 - **[TestFixtures](shared/src/jvmTest/kotlin/com/ttcoachai/shared/TestFixtures.kt)** — jvmTest fixture loader pattern (ClassLoader + regex parsing) that `TestFixturesV2`/`PoseJsonV2Parser` productionize.
 - **[export_poses_rtmpose.py](scripts/poses/export_poses_rtmpose.py)** — schema-v2 producer. Any schema change must update [docs/pose_json_schema_v2.md](docs/pose_json_schema_v2.md), the KMP parser, and poses_viewer together.
@@ -268,12 +300,7 @@ Summarized below to avoid re-reads during UI-wiring work — check here before r
 
 ## Gotchas — frozen legacy pipeline (relevant when build breaks or for Stage 2)
 
-- **Live `DetectedStroke` is reconstructed, not detected** — `PoseAnalysisProcessor` tracks phase transitions and assembles the stroke at finalization; only boundary frames + `strokeDurationMs` populated, velocity/peak fields stay 0f (unused by `BaselineDeriver`). [PoseAnalysisProcessor.kt](app/src/main/java/com/ttcoachai/processors/PoseAnalysisProcessor.kt)
-- **`CameraFragment` skips its own processor when hosted by a `LandmarkerListener` activity** — new such activities must join the carve-out check at [CameraFragment.kt:164](app/src/main/java/com/ttcoachai/fragment/CameraFragment.kt#L164) or you get double-processing. Current: `TrainingActivity`, `CalibrationActivity`.
-- **MediaPipe landmarks are normalized [0,1] image coords**, rotation/centering in [PoseLandmarkerProcessor](app/src/main/java/com/ttcoachai/helpers/PoseLandmarkerProcessor.kt).
 - **TrainingStateManager is a volatile singleton** — not safe for concurrent mutation; synchronized/coroutine-scoped updates only. [TrainingStateManager.kt:35-39](app/src/main/java/com/ttcoachai/managers/TrainingStateManager.kt#L35-L39)
-- **CalibrationStateManager persists derived strokes + analyses only — no raw pose frames.** Captured-rep replay needs a separate raw-frame persistence path; `BaselinePreviewActivity` replays bundled fixtures via [AssetPoseFrameLoader](app/src/main/java/com/ttcoachai/debug/AssetPoseFrameLoader.kt).
-- **Editor renders the canonical (mean) stroke, not raw frames** — [CanonicalStrokeLoader](app/src/main/java/com/ttcoachai/debug/CanonicalStrokeLoader.kt) → [MeanStrokeBuilder](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/MeanStrokeBuilder.kt); fixed 45° yaw via `PoseTransformer.DEFAULT_VIEW_CAMERA_YAW_DEG`.
 - **`BaselineConverters` uses `org.json`, not kotlinx-serialization** — add explicit converters there for new Room columns. [BaselineConverters.kt](app/src/main/java/com/ttcoachai/db/BaselineConverters.kt)
 - **Room uses `fallbackToDestructiveMigration()`** — schema changes wipe local DB (AppDatabase v3). Switch to explicit migrations before release. [AppDatabase.kt:26](app/src/main/java/com/ttcoachai/db/AppDatabase.kt#L26)
 - **GoogleSignIn relies on `default_web_client_id`** — auto-generated by google-services plugin; init fails silently if missing. [AuthRepository.kt:32-36](app/src/main/java/com/ttcoachai/repository/AuthRepository.kt#L32-L36)

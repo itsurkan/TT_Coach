@@ -98,7 +98,6 @@ class ExerciseSelectionActivity : BaseActivity() {
         val intent = Intent(this, TrainingActivity::class.java).apply {
             putExtra("EXERCISE_ID", exercise.id)
             putExtra("EXERCISE_NAME", exercise.name)
-            putExtra("USE_VIDEO", exercise.useVideo)
         }
         startActivity(intent)
     }
@@ -123,6 +122,5 @@ data class Exercise(
     val duration: String,
     val category: String = "Technique",
     val isLocked: Boolean = false,
-    var useVideo: Boolean = false,
     val sharedCommunityId: String? = null
 )

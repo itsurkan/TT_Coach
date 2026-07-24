@@ -1,64 +1,30 @@
-package com.ttcoachai.calibration
+package com.ttcoachai.repository
 
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.ttcoachai.R
 import com.ttcoachai.db.AppDatabase
-import com.ttcoachai.db.BaselineConverters
 import com.ttcoachai.db.PersonalBaselineDao
-import com.ttcoachai.models.PersonalBaselineEntity
-import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.shared.analysis.BaselineDeriver
 import com.ttcoachai.shared.models.AnalysisResult
 import com.ttcoachai.shared.models.DetectedStroke
-import com.ttcoachai.shared.models.MetricStats
-import com.ttcoachai.shared.models.PersonalBaseline
 import com.ttcoachai.shared.models.StrokePhase
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Instrumented end-to-end coverage for Phase 1 of Stage 1.
- *
- * Two layers verified here:
- * 1. UI smoke test — launching `CalibrationActivity` renders the onboarding
- *    card with the Start Capture CTA (proves manifest + layout + fragment
- *    inflation + CameraFragment hosting don't crash on a real device).
- * 2. Persistence round-trip on a real Android SQLite instance — derive a
- *    baseline from synthetic pipeline output (mirroring what
- *    `PoseAnalysisProcessor` would produce in calibration mode), persist it
- *    via the repository, read it back through the Flow query, and assert
- *    field-level equality on the deserialized entity.
- *
- * Driving the full UI loop requires synthetic pose frames streamed into
- * CameraFragment's MediaPipe pipeline, which is out of scope for this phase
- * (see plan.md §Phase 3 — dev debug screen + ADB dump cover manual validation).
+ * Persistence round-trip test salvaged from the deleted `CalibrationFlowTest`
+ * (removed in the MediaPipe-legacy cleanup because it shared a file with a
+ * `CalibrationActivity` UI smoke test). This specific test covers
+ * `BaselineDeriver` + `PersonalBaselineRepository` + Room, none of which are
+ * MediaPipe-related or deleted, so it was extracted here to preserve coverage.
  */
 @RunWith(AndroidJUnit4::class)
-class CalibrationFlowTest {
-
-    @get:Rule
-    val activityRule = ActivityScenarioRule(CalibrationActivity::class.java)
-
-    @Test
-    fun activity_launches_onboarding_card_with_start_cta() {
-        onView(withText(R.string.calibration_onboarding_headline))
-            .check(matches(isDisplayed()))
-        onView(withId(R.id.btn_start_capture))
-            .check(matches(isDisplayed()))
-    }
+class PersonalBaselineRoundTripTest {
 
     @Test
     fun derive_and_persist_round_trips_through_room() = runBlocking {
@@ -128,8 +94,4 @@ class CalibrationFlowTest {
             elbowBodyDistance = 0.35f + jitter * 0.01f
         )
     }
-
-    // Silences unused-import inspections for helpers the suite may grow into.
-    @Suppress("unused")
-    private fun unused(b: PersonalBaseline, c: MetricStats, e: PersonalBaselineEntity, k: BaselineConverters) = Unit
 }

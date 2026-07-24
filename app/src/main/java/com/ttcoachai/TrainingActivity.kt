@@ -20,9 +20,6 @@ import com.ttcoachai.work.PoseUploadQueue
 import java.io.File
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.shared.models.PersonalBaseline
-import com.ttcoachai.processors.PoseAnalysisProcessor
-import com.ttcoachai.services.FeedbackGenerator
-import com.ttcoachai.services.MotionAnalyzer
 import com.ttcoachai.shared.drill.DrillMetrics
 import com.ttcoachai.util.PerPhaseTargetsCodec
 import kotlinx.coroutines.CancellationException
@@ -30,26 +27,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener {
+class TrainingActivity : BaseActivity() {
     private lateinit var binding: ActivityTrainingBinding
     private var exerciseId: String? = null
     private var exerciseName: String? = null
-    private var useVideo: Boolean = false
 
     private lateinit var stateManager: TrainingStateManager
     private lateinit var uiController: TrainingUIController
     private lateinit var mediaManager: TrainingMediaManager
-    private lateinit var poseAnalysisProcessor: PoseAnalysisProcessor
     private lateinit var exerciseParameters: ExerciseParameters
 
     /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
-     *  Legacy path leaves this null and PoseAnalysisProcessor/CameraFragment run as before. */
+     *  Null if the RTM controller failed to start (see [showCalibrationRequiredDialog]). */
     private var rtmController: RtmposeTrainingController? = null
 
     /**
      * Custom-drill editor's "knees · strike" target, decoded once in [initializeAnalysis]
-     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart] so
-     * the RTM live path (not just the legacy [PoseAnalysisProcessor] path above) enforces it.
+     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart].
      * Null when the intent carried no such target — RTM path behaves exactly as before.
      */
     private var kneeBendStrikeBand: ClosedRange<Double>? = null
@@ -80,7 +74,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
 
         exerciseId = intent.getStringExtra("EXERCISE_ID")
         exerciseName = intent.getStringExtra("EXERCISE_NAME")
-        useVideo = intent.getBooleanExtra("USE_VIDEO", false)
 
         initializeManagers()
         initializeAnalysis()
@@ -95,7 +88,7 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             ::toggleTraining,
             { stopTraining(discard = false) }
         )
-        mediaManager = TrainingMediaManager(this, binding, useVideo)
+        mediaManager = TrainingMediaManager(this, binding)
     }
     
     private fun initializeAnalysis() {
@@ -129,14 +122,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
             exerciseParameters = exerciseParameters.copy(kneeBendStrikeMin = min, kneeBendStrikeMax = max)
             kneeBendStrikeBand = min.toDouble()..max.toDouble()
         }
-
-        poseAnalysisProcessor = PoseAnalysisProcessor(
-            application as TTCoachApplication,
-            MotionAnalyzer(exerciseParameters),
-            FeedbackGenerator(this),
-            stateManager,
-            { runOnUiThread { uiController.updateStats() } }
-        )
     }
 
     private fun setupUI() {
@@ -156,22 +141,14 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
      * mode is unaffected (still legacy, still synchronous). For live camera: a forehand
      * RTMPose baseline is now REQUIRED — the RTM path owns the whole camera+drill path via
      * [RtmposeTrainingController] (PoseAnalysisProcessor is never started, and
-     * [TrainingMediaManager] is told to skip attaching the legacy
-     * [com.ttcoachai.fragment.CameraFragment] so the two pipelines never double-process the
-     * same container). There is no legacy fallback anymore (see project CLAUDE.md "why this
+     * [TrainingMediaManager] only prepares `cameraPreviewContainer` for the RTM controller
+     * to attach itself into). There is no legacy fallback anymore (see project CLAUDE.md "why this
      * task exists" — the legacy pipeline has no voice output at all, so falling back to it
      * silently produced mute sessions). If no baseline exists, or the RTM controller fails to
      * start, [showCalibrationRequiredDialog] blocks the screen until the player calibrates or
      * leaves.
      */
     private fun decideCameraModeAndStart() {
-        if (useVideo) {
-            mediaManager.setup()
-            uiController.setCorrectionChipsForPath(false)
-            binding.root.postDelayed({ startTraining() }, 500)
-            return
-        }
-
         lifecycleScope.launch {
             val baseline = loadRtmBaseline()
 
@@ -205,10 +182,10 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     }
 
     /** Attempts to start the RTM live path against [baseline]. Returns false (nothing left
-     *  attached beyond what [TrainingMediaManager.setup] with skipCamera already did) if the
+     *  attached beyond what [TrainingMediaManager.setup] already did) if the
      *  RTMPose backend fails to construct inside [RtmposeTrainingController.start]. */
     private fun startRtmController(baseline: PersonalBaseline): Boolean {
-        mediaManager.setup(skipCamera = true)
+        mediaManager.setup()
         val controller = RtmposeTrainingController(
             activity = this@TrainingActivity,
             container = binding.cameraPreviewContainer,
@@ -273,15 +250,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun startTraining() {
         stateManager.startTraining()
         uiController.updateUIForTrainingState(true)
-        // RTM mode: CameraFragment is never attached (see decideCameraModeAndStart), so
-        // PoseAnalysisProcessor would never receive onResults() anyway — skip starting its
-        // session so its internal counters stay at their initial state instead of drifting.
-        if (rtmController == null) {
-            poseAnalysisProcessor.startSession(
-                exerciseId ?: "forehand_drive",
-                exerciseName ?: getString(R.string.exercise_forehand_name)
-            )
-        }
     }
 
     private fun pauseTraining() {
@@ -297,7 +265,6 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
     private fun stopTraining(discard: Boolean = false) {
         stateManager.stopTraining()
         uiController.updateUIForTrainingState(false)
-        poseAnalysisProcessor.endSession()
 
         if (discard) {
             rtmController?.abortRecording()
@@ -464,14 +431,5 @@ class TrainingActivity : BaseActivity(), PoseLandmarkerHelper.LandmarkerListener
         // an intended finalize has already won the latch and this call is a no-op.
         rtmController?.abortRecording()
         rtmController?.release()
-        if (::poseAnalysisProcessor.isInitialized) poseAnalysisProcessor.release()
-    }
-    
-    override fun onError(error: String, errorCode: Int) {
-        Log.e(TAG, "Pose detection error: $error (code: $errorCode)")
-    }
-    
-    override fun onResults(resultBundle: PoseLandmarkerHelper.ResultBundle) {
-        poseAnalysisProcessor.processResults(resultBundle)
     }
 }

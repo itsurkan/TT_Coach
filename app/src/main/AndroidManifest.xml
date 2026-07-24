@@ -67,13 +67,6 @@
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Calibration Screen (Personal Baseline) -->
-        <activity
-            android:name=".calibration.CalibrationActivity"
-            android:exported="false"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:parentActivityName=".MainActivity" />
-
         <!-- RTMPose Live Drill (Phase 3 P4c, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
              Exported so `adb shell am start` can launch it directly. -->
         <activity
@@ -88,12 +81,6 @@
             android:name=".pose.RtmposeCalibrationActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:parentActivityName=".MainActivity" />
-
-        <!-- Activity Settings Screen -->
-        <activity
-            android:name=".ActivitySettingsActivity"
-            android:exported="false"
             android:parentActivityName=".MainActivity" />
 
         <!-- App Settings Screen -->
@@ -147,16 +134,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Declare notch support -->
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
-        </activity>
-
-        <!-- Camera Activity with MediaPipe -->
-        <activity
-            android:name=".CameraActivity"
-            android:exported="false">
             <!-- Declare notch support -->
             <meta-data
                 android:name="android.notch_support"
