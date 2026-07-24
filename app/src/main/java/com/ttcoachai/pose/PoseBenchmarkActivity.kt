@@ -44,14 +44,14 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         private const val CAMERA_PERMISSION_REQUEST_CODE = 43
     }
 
-    private enum class BackendKind { RTMPOSE, RTMPOSE_LITE, MOVENET }
+    private enum class BackendKind { RTMPOSE_LITE, MOVENET }
 
     private lateinit var previewView: PreviewView
     private lateinit var overlayView: Coco17OverlayView
     private lateinit var fpsText: TextView
     private lateinit var toggleButton: Button
 
-    private var activeKind = BackendKind.RTMPOSE
+    private var activeKind = BackendKind.RTMPOSE_LITE
     private var backend: PoseBackend? = null
     private var processor: RtmposeFrameProcessor? = null
 
@@ -74,13 +74,12 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
         analysisExecutor = Executors.newSingleThreadExecutor()
 
-        switchBackend(BackendKind.RTMPOSE)
+        switchBackend(BackendKind.RTMPOSE_LITE)
 
         toggleButton.setOnClickListener {
             val next = when (activeKind) {
-                BackendKind.RTMPOSE -> BackendKind.RTMPOSE_LITE
                 BackendKind.RTMPOSE_LITE -> BackendKind.MOVENET
-                BackendKind.MOVENET -> BackendKind.RTMPOSE
+                BackendKind.MOVENET -> BackendKind.RTMPOSE_LITE
             }
             switchBackend(next)
         }
@@ -133,7 +132,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
             textSize = 20f
             setBackgroundColor(Color.argb(160, 0, 0, 0))
             setPadding(16, 8, 16, 8)
-            text = "backend: rtmpose\nfps: --"
+            text = "backend: RTMPose-lite\nfps: --"
         }
         controls.addView(fpsText)
 
@@ -157,7 +156,6 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
         val newBackend: PoseBackend? = try {
             when (kind) {
-                BackendKind.RTMPOSE -> RtmposeBackend(this)
                 BackendKind.RTMPOSE_LITE -> RtmposeBackend(
                     context = this,
                     yoloxAssetName = "yolox_tiny_8xb8-300e_humanart-6f3252f9.onnx",
@@ -185,7 +183,6 @@ class PoseBenchmarkActivity : AppCompatActivity() {
     }
 
     private fun displayName(kind: BackendKind): String = when (kind) {
-        BackendKind.RTMPOSE -> "rtmpose"
         BackendKind.RTMPOSE_LITE -> "RTMPose-lite"
         BackendKind.MOVENET -> "movenet"
     }
