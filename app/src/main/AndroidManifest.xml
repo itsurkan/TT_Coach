@@ -83,12 +83,6 @@
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
 
-        <!-- Activity Settings Screen -->
-        <activity
-            android:name=".ActivitySettingsActivity"
-            android:exported="false"
-            android:parentActivityName=".MainActivity" />
-
         <!-- App Settings Screen -->
         <activity
             android:name=".AppSettingsActivity"
@@ -140,16 +134,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- Declare notch support -->
-            <meta-data
-                android:name="android.notch_support"
-                android:value="true" />
-        </activity>
-
-        <!-- Camera Activity with MediaPipe -->
-        <activity
-            android:name=".CameraActivity"
-            android:exported="false">
             <!-- Declare notch support -->
             <meta-data
                 android:name="android.notch_support"

@@ -75,22 +75,4 @@
             app:destination="@id/navigation_feedback" />
     </fragment>
 
-    <fragment
-        android:id="@+id/permissions_fragment"
-        android:name="com.ttcoachai.fragment.PermissionsFragment"
-        android:label="Permissions">
-        <action
-            android:id="@+id/action_permissions_to_camera"
-            app:destination="@id/camera_fragment"
-            app:popUpTo="@id/permissions_fragment"
-            app:popUpToInclusive="true" />
-    </fragment>
-
-    <activity
-        android:id="@+id/camera_fragment"
-        android:name="com.ttcoachai.TrainingActivity"
-        android:label="@string/menu_camera"
-        tools:layout="@layout/activity_training">
-
-    </activity>
 </navigation>
