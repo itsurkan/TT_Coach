@@ -22,7 +22,7 @@ Live on-device FPS comparison of the `PoseBackend` implementations wired into th
 | MediaPipe Lite (CPU) | pose_landmarker_lite.task | CPU | 29.5 |
 | MediaPipe Full (CPU) | pose_landmarker_full.task | CPU | 28.0 |
 | RTMPose-lite | rtmpose-s (ONNX Runtime Mobile) | CPU | 8.4 |
-| MoveNet Thunder | movenet_thunder.tflite | CPU (TFLite) | not measured this run |
+| MoveNet Thunder | movenet_thunder.tflite | CPU (TFLite) | ~18–20 (prior S23 measurement, not this run) |
 
 ## Observations
 
