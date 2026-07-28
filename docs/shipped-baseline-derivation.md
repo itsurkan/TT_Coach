@@ -40,8 +40,9 @@ derivation passes — yaw is a pre-stroke ready-stance read, insensitive to peak
 `elbow_angle` distribution (clusters at ~27–38°, ~70–100°, ~116–155° across the 15
 `stationary` reps) that survived `BaselineDeriver`'s 2σ outlier exclusion almost untouched —
 only 1 of the 4 high-cluster reps was excluded (via `coil_ratio`, not `elbow_angle` itself).
-Initial hypothesis was recovery-swing contamination. Orchestrator PNG review of all 15 peak
-frames overturned that: all 15 are the same genuine forehand family (consistent stance,
+Initial hypothesis was recovery-swing contamination. Visual review of this pass's 15 peak-frame
+PNGs (all 15 read by the derivation agent, 8 of the 15 independently re-read by the
+orchestrator) overturned that: all 15 are the same genuine forehand family (consistent stance,
 knee_bend, torso_lean, stroke_speed — `ForwardStrokeFilter` had already dropped the 6 real
 recovery swings before this point), and the elbow spread co-varied with `shoulder_angle`
 across reps rather than forming two cleanly-separated rep populations. That co-variation
@@ -54,6 +55,19 @@ would have hand-picked a phase mix rather than fixed the underlying sampling pro
 project's `shared/` convention already treats sampling-interval effects as a pipeline concern,
 not an editorial one (see `StrokeDetector2D`'s own ms-based tuning windows, chosen specifically
 to be fps-independent).
+
+Compact record of this superseded pass's derived output (input to the diagnosis above):
+
+```
+repCount=11 excludedRepIndices=[0, 1, 6, 8] qualityScore=0.6695165073025089
+"elbow_angle" to MetricStats(mean=71.64542215520686, std=39.114602922054395, min=27.338851928710938, max=119.0262680053711, sampleCount=11),
+"shoulder_angle" to MetricStats(mean=39.125756523825906, std=21.13768114821029, min=10.877771377563477, max=70.30072021484375, sampleCount=11),
+"knee_bend" to MetricStats(mean=175.5822615189986, std=3.2270200698360165, min=170.2755126953125, max=179.75291442871094, sampleCount=11),
+"torso_lean" to MetricStats(mean=4.349920131943443, std=2.3482826393594873, min=1.4852596521377563, max=7.665465831756592, sampleCount=11),
+"follow_through_angle_2d" to MetricStats(mean=122.67502000596788, std=47.786254229559475, min=62.71063995361328, max=169.2542266845703, sampleCount=9),
+"stroke_speed" to MetricStats(mean=8.614285165613348, std=0.46126920336117117, min=7.65094518661499, max=9.282928466796875, sampleCount=11),
+"coil_ratio" to MetricStats(mean=0.7931778187101538, std=0.17916409753423934, min=0.43392249941825867, max=1.1075656414031982, sampleCount=11),
+```
 
 **Fix: re-export at full temporal resolution** (`--interval 17`, matching the committed
 full-fps `*_rtm.json` fixture convention) so `extractAtPeak`'s ±70ms window covers ~8 real
@@ -73,17 +87,22 @@ an alternate candidate.
 - Raw detected: 22 · after ForwardStrokeFilter: 15 · after RepFilter: 15 (no further banding
   removal) · after LocomotionFilter (stationary): 15 · final kept (post 2σ exclusion): **12**
   · excluded as outliers: **[0, 11, 12]**.
-- Visual verification (`visualize-pose` skill, peak frames): all 15 peak frames rendered to
-  `tmp/shipped_baseline_review/fullfps/rep_<i>_frame_<peakFrame>.png` and read. Confirms the
-  same close/near-frontal camera framing as the first pass (consistent with 30–90° measured
-  yaw). Reps 7 (elbow=120.0°, kept) and 11 (elbow=127.8°, excluded) are the only two reps with
-  `elbow_angle` still above 110° after the full-fps re-derivation: rep 11's peak frame visibly
-  shows the racket swung out to the side at hip height with motion blur — a different swing
-  phase than the "racket near face" pose common to most other reps — while rep 7's peak frame
-  shows the racket up near the face, similar to the low/mid-elbow reps, despite its high
-  numeric elbow_angle. Rep 11 is already excluded by the automatic 2σ pipeline; rep 7 remains
-  in `metricStats` as a plausible real high-angle contact variant, not hand-patched out (per
-  the brief's "one reproducible run" instruction).
+- Visual verification (`visualize-pose` skill, peak frames): all 15 peak frames of this pass
+  were **rendered** to `tmp/shipped_baseline_review/fullfps/rep_<i>_frame_<peakFrame>.png`, but
+  only 3 were actually **opened and read** at full fps — reps 1, 7, and 11 (rep 7 independently
+  re-opened by the orchestrator too) — targeted specifically at the two reps whose
+  `elbow_angle` still sits above 110° (7 and 11) plus one low-elbow rep (1) for comparison. This
+  pass does **not** repeat a fresh full 15-frame read; that full read was done once, on the
+  100ms pass's PNGs (see "Derivation history" above), which show the same source video and
+  camera framing — the inference that this pass's un-reopened frames share that same
+  near-frontal setup rests on that same-source-video basis, not on a second independent look.
+  Of the 3 frames actually opened: rep 11's peak frame visibly shows the racket swung out to
+  the side at hip height with motion blur — a different swing phase than the "racket near face"
+  pose seen in rep 1 and in most of the 100ms-pass frames — while rep 7's peak frame shows the
+  racket up near the face, similar to the low/mid-elbow reps, despite its high numeric
+  elbow_angle. Rep 11 is already excluded by the automatic 2σ pipeline; rep 7 remains in
+  `metricStats` as a plausible real high-angle contact variant, not hand-patched out (per the
+  brief's "one reproducible run" instruction).
 - Deviation from pure automatic exclusion: **none** — the full-fps re-derivation replaced the
   need for it; no manual rep exclusion applied on top of `DrillCalibrator`'s own output.
 
@@ -134,8 +153,8 @@ has a measurable value for every metric at full fps.
 
 Command: `.venv/bin/python scripts/poses/export_poses_mediapipe.py Videos/andrii_1/andrii_1.mp4
 --model lite` (no `--interval`, script default 100ms). Raw detected: 21 · forward: 15 ·
-banded: 15 · stationary: 15 · kept: 11 · excluded: `[0, 1, 6, 8]` · `qualityScore=0.6695`.
-Full stdout block, per-rep table, and PNG list for this superseded pass are preserved in the
-Task A report (`.superpowers/sdd/2026-07-28-no-calibration-shipped-baseline/task-A-report.md`)
-rather than duplicated here — **do not paste these numbers into `ShippedBaselines.kt`**; use
-the final (17ms) numbers above.
+banded: 15 · stationary: 15 · kept: 11 · excluded: `[0, 1, 6, 8]` · `qualityScore=0.6695`. The
+compact `metricStats`/`repCount`/`excludedRepIndices`/`qualityScore` block for this pass is
+inlined in "Derivation history" above — this doc is self-contained; nothing needed for this
+pass lives only outside it. **Do not paste these numbers into `ShippedBaselines.kt`**; use the
+final (17ms) numbers above.
