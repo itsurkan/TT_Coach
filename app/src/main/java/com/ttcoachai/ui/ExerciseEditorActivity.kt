@@ -25,7 +25,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 
 /**
  * Exercise editor (screens 10c New / 10d Clone/Edit).
@@ -77,28 +76,15 @@ class ExerciseEditorActivity : BaseActivity() {
         val jsonKey: String,
     )
 
-    /**
-     * Per-phase-target rows that have a matching baseline metric (sampled once per rep at the
-     * stroke peak = strike) — every other row (backswing rows, elbow/shoulder/hips) has no
-     * baseline stat that matches its phase semantics, so it keeps its static XML hint.
-     */
-    private val personalizedHintMetrics: Map<String, String> = mapOf(
-        "knees · strike" to DrillMetrics.METRIC_KNEE_BEND,
-        "torso tilt · strike" to DrillMetrics.METRIC_TORSO_LEAN,
-    )
-
     private val advancedRows: List<AdvancedRow> by lazy {
         listOf(
-            AdvancedRow(R.id.et_elbow_backswing_from, R.id.et_elbow_backswing_to, "elbow · backswing"),
-            AdvancedRow(R.id.et_elbow_finish_from, R.id.et_elbow_finish_to, "elbow · finish"),
-            AdvancedRow(R.id.et_shoulder_backswing_from, R.id.et_shoulder_backswing_to, "shoulder · backswing"),
-            AdvancedRow(R.id.et_shoulder_finish_from, R.id.et_shoulder_finish_to, "shoulder · finish"),
-            AdvancedRow(R.id.et_knees_backswing_from, R.id.et_knees_backswing_to, "knees · backswing"),
-            AdvancedRow(R.id.et_knees_strike_from, R.id.et_knees_strike_to, "knees · strike"),
-            AdvancedRow(R.id.et_hips_backswing_from, R.id.et_hips_backswing_to, "hips · backswing"),
-            AdvancedRow(R.id.et_hips_strike_from, R.id.et_hips_strike_to, "hips · strike"),
-            AdvancedRow(R.id.et_torso_backswing_from, R.id.et_torso_backswing_to, "torso tilt · backswing"),
-            AdvancedRow(R.id.et_torso_strike_from, R.id.et_torso_strike_to, "torso tilt · strike"),
+            AdvancedRow(R.id.et_elbow_strike_from, R.id.et_elbow_strike_to, DrillMetrics.METRIC_ELBOW_ANGLE),
+            AdvancedRow(R.id.et_shoulder_strike_from, R.id.et_shoulder_strike_to, DrillMetrics.METRIC_SHOULDER_ANGLE),
+            AdvancedRow(R.id.et_knees_strike_from, R.id.et_knees_strike_to, DrillMetrics.METRIC_KNEE_BEND),
+            AdvancedRow(R.id.et_torso_strike_from, R.id.et_torso_strike_to, DrillMetrics.METRIC_TORSO_LEAN),
+            AdvancedRow(R.id.et_elbow_finish_from, R.id.et_elbow_finish_to, DrillMetrics.METRIC_FOLLOW_THROUGH_ANGLE_2D),
+            AdvancedRow(R.id.et_stroke_speed_from, R.id.et_stroke_speed_to, DrillMetrics.METRIC_STROKE_SPEED),
+            AdvancedRow(R.id.et_body_rotation_from, R.id.et_body_rotation_to, DrillMetrics.METRIC_COIL_RATIO),
         )
     }
 
@@ -232,12 +218,12 @@ class ExerciseEditorActivity : BaseActivity() {
     }
 
     /**
-     * Replaces the static XML hint on [personalizedHintMetrics] rows with a baseline-derived
-     * `mean ± kSigma·std` band, so an empty field's placeholder reflects what actually applies
-     * (the derived-baseline consistency check) rather than a hardcoded generic range. Loaded
-     * asynchronously — same lookup TrainingActivity uses (active baseline for
-     * [RtmposeDrillActivity.DRILL_TYPE]) — and left untouched (static hint stays) on any
-     * failure: no baseline, missing metric, or a degenerate (std <= 0) stat.
+     * Replaces the static XML hint on each row with a baseline-derived `mean ± kSigma·std` band,
+     * so an empty field's placeholder reflects what actually applies (the derived-baseline
+     * consistency check) rather than a hardcoded generic range. Loaded asynchronously — same
+     * lookup TrainingActivity uses (active baseline for [RtmposeDrillActivity.DRILL_TYPE]) — and
+     * left untouched (static hint stays) on any failure: no baseline, missing metric, or a
+     * degenerate (std <= 0) stat.
      */
     private fun loadBaselineHints() {
         lifecycleScope.launch {
@@ -252,8 +238,7 @@ class ExerciseEditorActivity : BaseActivity() {
             } ?: return@launch
 
             for (row in advancedRows) {
-                val metricKey = personalizedHintMetrics[row.jsonKey] ?: continue
-                val band = BaselineHintBand.compute(baseline.metricStats[metricKey]) ?: continue
+                val band = BaselineHintBand.compute(baseline.metricStats[row.jsonKey]) ?: continue
                 findViewById<android.widget.EditText>(row.fromId).hint = band.first.toString()
                 findViewById<android.widget.EditText>(row.toId).hint = band.second.toString()
             }
@@ -354,16 +339,16 @@ class ExerciseEditorActivity : BaseActivity() {
     // region Advanced per-phase JSON
 
     private fun encodeAdvancedTargets(): String {
-        val json = JSONObject()
+        val bands = mutableMapOf<String, Pair<Float, Float>>()
         for (row in advancedRows) {
             val fromText = findViewById<android.widget.EditText>(row.fromId).text?.toString()?.trim().orEmpty()
             val toText = findViewById<android.widget.EditText>(row.toId).text?.toString()?.trim().orEmpty()
             if (fromText.isEmpty() || toText.isEmpty()) continue
-            val from = fromText.toIntOrNull() ?: continue
-            val to = toText.toIntOrNull() ?: continue
-            json.put(row.jsonKey, org.json.JSONArray().put(from).put(to))
+            val from = fromText.toFloatOrNull() ?: continue
+            val to = toText.toFloatOrNull() ?: continue
+            bands[row.jsonKey] = from to to
         }
-        return if (json.length() == 0) "" else json.toString()
+        return com.ttcoachai.util.PerPhaseTargetsCodec.encode(bands)
     }
 
     private fun decodeAdvancedTargets(perPhaseTargetsJson: String) {
@@ -377,10 +362,13 @@ class ExerciseEditorActivity : BaseActivity() {
         val parsed = com.ttcoachai.util.PerPhaseTargetsCodec.parse(perPhaseTargetsJson)
         for (row in advancedRows) {
             val (from, to) = parsed[row.jsonKey] ?: continue
-            findViewById<android.widget.EditText>(row.fromId).setText(from.toInt().toString())
-            findViewById<android.widget.EditText>(row.toId).setText(to.toInt().toString())
+            findViewById<android.widget.EditText>(row.fromId).setText(formatBandValue(from))
+            findViewById<android.widget.EditText>(row.toId).setText(formatBandValue(to))
         }
     }
+
+    private fun formatBandValue(value: Float): String =
+        if (value == kotlin.math.floor(value)) value.toInt().toString() else value.toString()
 
     // endregion
 

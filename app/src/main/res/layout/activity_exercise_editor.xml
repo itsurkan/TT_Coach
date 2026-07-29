@@ -328,7 +328,7 @@
                         android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
                 </LinearLayout>
 
-                <!-- Row: elbow · backswing -->
+                <!-- Row: elbow · strike -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -340,38 +340,38 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_elbow_backswing"
+                        android:text="@string/exercise_editor_row_elbow_strike"
                         android:textAppearance="@style/TextAppearance.TTC.Body" />
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_elbow_backswing_from"
+                        android:id="@+id/et_elbow_strike_from"
                         android:layout_width="0dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="6dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
-                        android:hint="145"
+                        android:hint="35"
                         android:inputType="number"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_elbow_backswing_to"
+                        android:id="@+id/et_elbow_strike_to"
                         android:layout_width="0dp"
                         android:layout_height="40dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
-                        android:hint="175"
+                        android:hint="70"
                         android:inputType="number"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
                 </LinearLayout>
 
-                <!-- Row: elbow · finish -->
+                <!-- Row: shoulder · strike -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -383,54 +383,11 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_elbow_finish"
+                        android:text="@string/exercise_editor_row_shoulder_strike"
                         android:textAppearance="@style/TextAppearance.TTC.Body" />
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_elbow_finish_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="60"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_elbow_finish_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="85"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
-                <!-- Row: shoulder · backswing -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_shoulder_backswing"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_shoulder_backswing_from"
+                        android:id="@+id/et_shoulder_strike_from"
                         android:layout_width="0dp"
                         android:layout_height="40dp"
                         android:layout_marginEnd="6dp"
@@ -444,99 +401,13 @@
                         android:textColor="@color/ttc_text_1" />
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_shoulder_backswing_to"
+                        android:id="@+id/et_shoulder_strike_to"
                         android:layout_width="0dp"
                         android:layout_height="40dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
-                        android:hint="60"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
-                <!-- Row: shoulder · finish -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_shoulder_finish"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_shoulder_finish_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="80"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_shoulder_finish_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="130"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
-                <!-- Row: knees · backswing -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_knees_backswing"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_knees_backswing_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="110"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_knees_backswing_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="130"
+                        android:hint="45"
                         android:inputType="number"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
@@ -586,140 +457,11 @@
                         android:textColor="@color/ttc_text_1" />
                 </LinearLayout>
 
-                <!-- Row: hips · backswing -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_hips_backswing"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_hips_backswing_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="115"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_hips_backswing_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="160"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
-                <!-- Row: hips · strike -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_hips_strike"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_hips_strike_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="120"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_hips_strike_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="165"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
-                <!-- Row: torso tilt · backswing -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2"
-                        android:text="@string/exercise_editor_row_torso_backswing"
-                        android:textAppearance="@style/TextAppearance.TTC.Body" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_torso_backswing_from"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_marginEnd="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="25"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/et_torso_backswing_to"
-                        android:layout_width="0dp"
-                        android:layout_height="40dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pill_track"
-                        android:gravity="center"
-                        android:hint="45"
-                        android:inputType="number"
-                        android:paddingHorizontal="4dp"
-                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
-                        android:textColor="@color/ttc_text_1" />
-                </LinearLayout>
-
                 <!-- Row: torso tilt · strike -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="10dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
@@ -753,6 +495,135 @@
                         android:gravity="center"
                         android:hint="45"
                         android:inputType="number"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+                </LinearLayout>
+
+                <!-- Row: elbow · finish -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/exercise_editor_row_elbow_finish"
+                        android:textAppearance="@style/TextAppearance.TTC.Body" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_elbow_finish_from"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="60"
+                        android:inputType="number"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_elbow_finish_to"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="85"
+                        android:inputType="number"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+                </LinearLayout>
+
+                <!-- Row: stroke speed -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/exercise_editor_row_stroke_speed"
+                        android:textAppearance="@style/TextAppearance.TTC.Body" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_stroke_speed_from"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="3"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_stroke_speed_to"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="7"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+                </LinearLayout>
+
+                <!-- Row: body rotation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="@string/exercise_editor_row_body_rotation"
+                        android:textAppearance="@style/TextAppearance.TTC.Body" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_body_rotation_from"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="0.9"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="4dp"
+                        android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
+                        android:textColor="@color/ttc_text_1" />
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/et_body_rotation_to"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_pill_track"
+                        android:gravity="center"
+                        android:hint="1.4"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
