@@ -32,8 +32,11 @@ import androidx.fragment.app.FragmentActivity
 import com.ttcoachai.LocaleHelper
 import com.ttcoachai.managers.SettingsManager
 import com.ttcoachai.managers.TrainingStateManager
+import com.ttcoachai.shared.analysis.BaselineRule
+import com.ttcoachai.shared.analysis.BaselineRuleFactory
 import com.ttcoachai.shared.drill.FeedbackLang
 import com.ttcoachai.shared.drill.LiveDrillSession
+import com.ttcoachai.shared.drill.LocomotionFilter
 import com.ttcoachai.shared.drill.RepEvent
 import com.ttcoachai.shared.drill.SpokenFeedback
 import com.ttcoachai.shared.models.AnalysisResult
@@ -62,6 +65,15 @@ class RtmposeTrainingController(
     private val stateManager: TrainingStateManager,
     private val settingsManager: SettingsManager,
     private val baseline: PersonalBaseline,
+    /** Starting rule set BEFORE metricBands overlay (see LiveDrillSession.metricBands kdoc) —
+     *  defaults to today's exact behavior (baseline-derived consistency rules). Task H passes
+     *  emptyList() explicitly for "standard" reference mode so ONLY the drill's configured
+     *  bands produce cues. */
+    private val rules: List<BaselineRule> = BaselineRuleFactory.defaultRules(baseline),
+    /** Locomotion gate tolerance in torso-lengths (LiveDrillSession/LocomotionFilter). Task H
+     *  passes ForehandDriveGeneral.MOVEMENT_TOLERANT_HIP_TRAVEL for the General movement
+     *  profile, the default otherwise. */
+    private val hipTravelMaxTorso: Float = LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO,
     private val onUiUpdate: () -> Unit,
     /**
      * Explicit min..max bands (e.g. custom-drill editor "knees · strike" target, decoded by
@@ -329,9 +341,11 @@ class RtmposeTrainingController(
             current = LiveDrillSession(
                 baseline = baseline,
                 aspectRatio = aspectRatio,
+                rules = rules,
                 handedness = handedness(),
                 lang = coachLang(),
                 cameraYawDeg = 0f,
+                hipTravelMaxTorso = hipTravelMaxTorso,
                 metricBands = metricBands
             )
             logBaselineOnce()
