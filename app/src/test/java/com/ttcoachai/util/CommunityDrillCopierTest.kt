@@ -61,6 +61,7 @@ class CommunityDrillCopierTest {
         assertEquals("custom_$nowMs", saved?.drillType)
         assertNull(saved?.baselineId)
         assertNull(saved?.sharedCommunityId)
+        assertNull(saved?.movementProfile)
         assertEquals(nowMs, saved?.createdAtMs)
         assertEquals(sourceDrill.name, saved?.name)
         assertEquals(sourceDrill.baseTemplate, saved?.baseTemplate)

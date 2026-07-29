@@ -14,5 +14,10 @@ data class CustomDrillEntity(
     val baselineId: Long? = null,
     val strictnessX: Float = 1.0f,
     val perPhaseTargetsJson: String = "",
-    val sharedCommunityId: String? = null
+    val sharedCommunityId: String? = null,
+    /** "general" for the widened-locomotion-tolerance profile (see
+     *  ForehandDriveGeneral.MOVEMENT_TOLERANT_HIP_TRAVEL), null for the default structured
+     *  tolerance. Editor does not expose this in v1 — seed-only (Task F). Deliberately excluded
+     *  from CommunityDrillMapper (never syncs to Firestore), same precedent as drillType/baselineId. */
+    val movementProfile: String? = null
 )
