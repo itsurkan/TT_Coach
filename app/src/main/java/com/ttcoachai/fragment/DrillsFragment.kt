@@ -91,30 +91,6 @@ class DrillsFragment : Fragment() {
     private fun setupData() {
         builtInExercises = listOf(
             Exercise(
-                id = "forehand_drive",
-                name = getString(R.string.exercise_forehand_name),
-                description = getString(R.string.exercise_forehand_desc),
-                difficulty = getString(R.string.difficulty_beginner),
-                duration = getString(R.string.duration_10_15),
-                category = getString(R.string.cat_technique)
-            ),
-            Exercise(
-                id = "forehand_andrii",
-                name = getString(R.string.exercise_forehand_andrii_name),
-                description = getString(R.string.exercise_forehand_andrii_desc),
-                difficulty = getString(R.string.difficulty_beginner),
-                duration = getString(R.string.duration_10_15),
-                category = getString(R.string.cat_technique)
-            ),
-            Exercise(
-                id = "forehand_drive_general",
-                name = getString(R.string.exercise_forehand_general_name),
-                description = getString(R.string.exercise_forehand_general_desc),
-                difficulty = getString(R.string.difficulty_beginner),
-                duration = getString(R.string.duration_10_15),
-                category = getString(R.string.cat_technique)
-            ),
-            Exercise(
                 id = "backhand_loop",
                 name = getString(R.string.exercise_backhand_loop_name),
                 description = getString(R.string.exercise_backhand_loop_desc),
@@ -194,7 +170,7 @@ class DrillsFragment : Fragment() {
             exerciseEditorLauncher.launch(ExerciseEditorActivity.newIntentNew(requireContext()))
         }
 
-        binding.cardCommunity.setOnClickListener {
+        binding.fabCommunity.setOnClickListener {
             startActivity(Intent(requireContext(), com.ttcoachai.ui.CommunityDrillsActivity::class.java))
         }
     }
