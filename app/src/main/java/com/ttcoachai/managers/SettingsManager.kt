@@ -32,6 +32,10 @@ class SettingsManager(context: Context) {
     fun isPoseUploadEnabled(): Boolean = prefs.getBoolean("pose_upload_enabled", true)
     fun setPoseUploadEnabled(enabled: Boolean) = prefs.edit().putBoolean("pose_upload_enabled", enabled).apply()
 
+    // Seeded built-in drills (docs/superpowers/specs/2026-07-27-no-calibration-shipped-baseline-design.md §2)
+    fun isDrillsSeeded(): Boolean = prefs.getBoolean("seeded_drills_v1", false)
+    fun setDrillsSeeded(seeded: Boolean) = prefs.edit().putBoolean("seeded_drills_v1", seeded).apply()
+
     fun getFeedbackVolume(): Int = prefs.getInt("feedback_volume", 80)
     fun setFeedbackVolume(volume: Int) = prefs.edit().putInt("feedback_volume", volume).apply()
     

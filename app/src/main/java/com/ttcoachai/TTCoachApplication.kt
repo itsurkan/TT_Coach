@@ -15,6 +15,7 @@ import com.ttcoachai.work.PoseUploadQueue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -69,7 +70,30 @@ class TTCoachApplication : Application() {
 
         // Set theme mode from settings
         AppCompatDelegate.setDefaultNightMode(settingsManager.getNightMode())
-        
+
+        // Seed built-in forehand drills as editable custom drills (docs/superpowers/specs/
+        // 2026-07-27-no-calibration-shipped-baseline-design.md §2) — first run, or after any
+        // destructive-migration DB wipe. Runs on applicationScope (IO) since it touches Room.
+        applicationScope.launch(Dispatchers.IO) {
+            val repo = com.ttcoachai.repository.CustomDrillRepository(database.customDrillDao())
+            val flagAlreadySet = settingsManager.isDrillsSeeded()
+            val existingCount = repo.count()
+            if (com.ttcoachai.util.SeededDrillsPolicy.shouldSeed(flagAlreadySet, existingCount)) {
+                val names = com.ttcoachai.util.SeededDrillsPolicy.SeedNames(
+                    andriiName = getString(R.string.exercise_forehand_andrii_name),
+                    generalName = getString(R.string.exercise_forehand_general_name)
+                )
+                val bands = com.ttcoachai.shared.drill.ShippedBaselines.defaultBands()
+                    .mapValues { (_, range) -> range.start.toFloat() to range.endInclusive.toFloat() }
+                val targetsJson = com.ttcoachai.util.PerPhaseTargetsCodec.encode(bands)
+                com.ttcoachai.util.SeededDrillsPolicy.seedMissing(
+                    repo,
+                    com.ttcoachai.util.SeededDrillsPolicy.buildSeedEntities(names, System.currentTimeMillis(), targetsJson)
+                )
+                settingsManager.setDrillsSeeded(true)
+            }
+        }
+
         // Initialize cloud sync (listens for auth state changes). sweepOrphans is gated on the
         // FIRST auth-state resolution rather than run unconditionally here: at onCreate() time
         // FirebaseAuth.currentUser can be transiently null for a user who IS signed in (auth

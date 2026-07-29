@@ -1017,22 +1017,19 @@
     <string name="exercise_editor_advanced_header">Advanced — per-phase targets</string>
     <string name="exercise_editor_advanced_hint">Redefine ideal ranges per phase. Empty = standard values.</string>
     <string name="exercise_editor_col_metric">METRIC · PHASE</string>
-    <string name="exercise_editor_col_from">FROM°</string>
-    <string name="exercise_editor_col_to">TO°</string>
+    <string name="exercise_editor_col_from">FROM</string>
+    <string name="exercise_editor_col_to">TO</string>
     <string name="exercise_editor_action_create">Create exercise</string>
     <string name="exercise_editor_action_save_copy">Save copy</string>
     <string name="exercise_editor_action_save">Save</string>
     <string name="exercise_editor_action_cancel">Cancel</string>
-    <string name="exercise_editor_row_elbow_backswing">Elbow · backswing</string>
-    <string name="exercise_editor_row_elbow_finish">Elbow · finish</string>
-    <string name="exercise_editor_row_shoulder_backswing">Shoulder · backswing</string>
-    <string name="exercise_editor_row_shoulder_finish">Shoulder · finish</string>
-    <string name="exercise_editor_row_knees_backswing">Knees · backswing</string>
-    <string name="exercise_editor_row_knees_strike">Knees · strike</string>
-    <string name="exercise_editor_row_hips_backswing">Hips · backswing</string>
-    <string name="exercise_editor_row_hips_strike">Hips · strike</string>
-    <string name="exercise_editor_row_torso_backswing">Torso tilt · backswing</string>
-    <string name="exercise_editor_row_torso_strike">Torso tilt · strike</string>
+    <string name="exercise_editor_row_elbow_strike">Elbow · strike (°)</string>
+    <string name="exercise_editor_row_shoulder_strike">Shoulder · strike (°)</string>
+    <string name="exercise_editor_row_knees_strike">Knees · strike (°)</string>
+    <string name="exercise_editor_row_torso_strike">Torso tilt · strike (°)</string>
+    <string name="exercise_editor_row_elbow_finish">Elbow · finish (°)</string>
+    <string name="exercise_editor_row_stroke_speed">Stroke speed (torso-lengths/s)</string>
+    <string name="exercise_editor_row_body_rotation">Body rotation (ratio)</string>
     <!-- Session Review (Slice 3) -->
     <string name="review_eyebrow">SESSION REVIEW</string>
     <string name="review_kpi_accuracy">Accuracy</string>

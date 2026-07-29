@@ -20,7 +20,13 @@ import com.ttcoachai.work.PoseUploadQueue
 import java.io.File
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.shared.models.PersonalBaseline
-import com.ttcoachai.shared.drill.DrillMetrics
+import com.ttcoachai.shared.analysis.BaselineRuleFactory
+import com.ttcoachai.shared.drill.LocomotionFilter
+import com.ttcoachai.shared.drill.ShippedBaselines
+import com.ttcoachai.shared.drill.movements.ForehandDriveGeneral
+import com.ttcoachai.ui.REFERENCE_STANDARD
+import com.ttcoachai.ui.isCalibrationRequired
+import com.ttcoachai.util.DrillReferenceResolver
 import com.ttcoachai.util.PerPhaseTargetsCodec
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -42,11 +48,16 @@ class TrainingActivity : BaseActivity() {
     private var rtmController: RtmposeTrainingController? = null
 
     /**
-     * Custom-drill editor's "knees · strike" target, decoded once in [initializeAnalysis]
-     * and threaded through to [RtmposeTrainingController] in [decideCameraModeAndStart].
-     * Null when the intent carried no such target — RTM path behaves exactly as before.
+     * All configured per-metric reference bands for this drill, decoded once in
+     * [initializeAnalysis] and resolved (Task H — [com.ttcoachai.util.DrillReferenceResolver])
+     * in [decideCameraModeAndStart]/[retryAfterCalibration]. Replaces the old single-metric
+     * kneeBendStrikeBand extraction — every DrillMetrics key configured in the editor now flows
+     * through, not just knee_bend.
      */
-    private var kneeBendStrikeBand: ClosedRange<Double>? = null
+    private var drillMetricBands: Map<String, ClosedRange<Double>> = emptyMap()
+
+    private var referenceTypeExtra: String? = null
+    private var movementProfile: String? = null
 
     /** Launches [RtmposeCalibrationActivity] from the "calibration required" dialog (see
      *  [decideCameraModeAndStart]). Must be registered unconditionally before STARTED, so it
@@ -74,6 +85,8 @@ class TrainingActivity : BaseActivity() {
 
         exerciseId = intent.getStringExtra("EXERCISE_ID")
         exerciseName = intent.getStringExtra("EXERCISE_NAME")
+        referenceTypeExtra = intent.getStringExtra("REFERENCE_TYPE")
+        movementProfile = intent.getStringExtra("MOVEMENT_PROFILE")
 
         initializeManagers()
         initializeAnalysis()
@@ -115,13 +128,7 @@ class TrainingActivity : BaseActivity() {
         perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_BACKSWING]?.let { (min, max) ->
             exerciseParameters = exerciseParameters.copy(kneeBendBackswingMin = min, kneeBendBackswingMax = max)
         }
-        // Also feeds RtmposeTrainingController below (decideCameraModeAndStart) — the RTM
-        // live path has no separate backswing-phase metric to bind to (see DrillMetrics.
-        // METRIC_KNEE_BEND KDoc), so only the strike band is wired there.
-        perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_STRIKE]?.let { (min, max) ->
-            exerciseParameters = exerciseParameters.copy(kneeBendStrikeMin = min, kneeBendStrikeMax = max)
-            kneeBendStrikeBand = min.toDouble()..max.toDouble()
-        }
+        drillMetricBands = perPhaseTargets.mapValues { (_, pair) -> pair.first.toDouble()..pair.second.toDouble() }
     }
 
     private fun setupUI() {
@@ -150,7 +157,17 @@ class TrainingActivity : BaseActivity() {
      */
     private fun decideCameraModeAndStart() {
         lifecycleScope.launch {
-            val baseline = loadRtmBaseline()
+            val referenceType = referenceTypeExtra ?: REFERENCE_STANDARD
+            val drillBands = DrillReferenceResolver.resolveMetricBands(
+                referenceTypeExtraPresent = referenceTypeExtra != null,
+                parsedBands = drillMetricBands,
+                shippedDefaultBands = ShippedBaselines.defaultBands()
+            )
+            val baseline: PersonalBaseline? = if (isCalibrationRequired(referenceType)) {
+                loadRtmBaseline()
+            } else {
+                ShippedBaselines.FOREHAND_ANDRII
+            }
 
             // Coroutine resumed after the suspend point above (baseline read) — if the
             // activity has since dropped below STARTED (e.g. backgrounded), any fragment
@@ -158,7 +175,7 @@ class TrainingActivity : BaseActivity() {
             // onSaveInstanceState". Bail out before touching the fragment manager or views.
             if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
 
-            val started = baseline != null && startRtmController(baseline)
+            val started = baseline != null && startRtmController(baseline, referenceType, movementProfile, drillBands)
             if (started) {
                 binding.root.postDelayed({ startTraining() }, 500)
             } else {
@@ -184,16 +201,33 @@ class TrainingActivity : BaseActivity() {
     /** Attempts to start the RTM live path against [baseline]. Returns false (nothing left
      *  attached beyond what [TrainingMediaManager.setup] already did) if the
      *  RTMPose backend fails to construct inside [RtmposeTrainingController.start]. */
-    private fun startRtmController(baseline: PersonalBaseline): Boolean {
+    private fun startRtmController(
+        baseline: PersonalBaseline,
+        referenceType: String,
+        movementProfile: String?,
+        drillBands: Map<String, ClosedRange<Double>>
+    ): Boolean {
         mediaManager.setup()
+        val rules = if (isCalibrationRequired(referenceType)) {
+            BaselineRuleFactory.defaultRules(baseline)
+        } else {
+            emptyList()
+        }
+        val hipTravelMaxTorso = if (movementProfile == "general") {
+            ForehandDriveGeneral.MOVEMENT_TOLERANT_HIP_TRAVEL
+        } else {
+            LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO
+        }
         val controller = RtmposeTrainingController(
             activity = this@TrainingActivity,
             container = binding.cameraPreviewContainer,
             stateManager = stateManager,
             settingsManager = SettingsManager(this@TrainingActivity),
             baseline = baseline,
+            rules = rules,
+            hipTravelMaxTorso = hipTravelMaxTorso,
             onUiUpdate = { uiController.updateStats() },
-            metricBands = kneeBendStrikeBand?.let { mapOf(DrillMetrics.METRIC_KNEE_BEND to it) } ?: emptyMap()
+            metricBands = drillBands
         )
         if (!controller.start()) return false
         rtmController = controller
@@ -222,9 +256,19 @@ class TrainingActivity : BaseActivity() {
      *  baseline, was backed out of, or failed) and either starts the drill or leaves the
      *  screen — no second dialog loop, per the calibration-flow contract. */
     private suspend fun retryAfterCalibration() {
-        val baseline = loadRtmBaseline()
+        val referenceType = referenceTypeExtra ?: REFERENCE_STANDARD
+        val drillBands = DrillReferenceResolver.resolveMetricBands(
+            referenceTypeExtraPresent = referenceTypeExtra != null,
+            parsedBands = drillMetricBands,
+            shippedDefaultBands = ShippedBaselines.defaultBands()
+        )
+        val baseline: PersonalBaseline? = if (isCalibrationRequired(referenceType)) {
+            loadRtmBaseline()
+        } else {
+            ShippedBaselines.FOREHAND_ANDRII
+        }
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return
-        if (baseline != null && startRtmController(baseline)) {
+        if (baseline != null && startRtmController(baseline, referenceType, movementProfile, drillBands)) {
             binding.root.postDelayed({ startTraining() }, 500)
         } else {
             finish()

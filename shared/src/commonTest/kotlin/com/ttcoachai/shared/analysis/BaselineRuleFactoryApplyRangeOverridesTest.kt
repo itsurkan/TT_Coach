@@ -44,4 +44,17 @@ class BaselineRuleFactoryApplyRangeOverridesTest {
         assertTrue(rhythm in result)
         assertTrue(result.any { it is BaselineRule.RangeRule && it.metricKey == "knee_bend" })
     }
+
+    @Test
+    fun emptySeedWithMultipleBandsYieldsExactlyThoseRangeRulesNothingElse() {
+        val bands = mapOf(
+            "elbow_angle" to 30.0..70.0,
+            "knee_bend" to 120.0..160.0,
+            "coil_ratio" to 0.9..1.4
+        )
+        val result = BaselineRuleFactory.applyRangeOverrides(emptyList(), bands)
+        assertEquals(3, result.size)
+        assertTrue(result.all { it is BaselineRule.RangeRule })
+        assertEquals(bands.keys, result.filterIsInstance<BaselineRule.RangeRule>().map { it.metricKey }.toSet())
+    }
 }
