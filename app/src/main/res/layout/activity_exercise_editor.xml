@@ -352,7 +352,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="35"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -365,7 +365,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="70"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -395,7 +395,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="20"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -408,7 +408,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="45"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -438,7 +438,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="106"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -451,7 +451,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="134"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -481,7 +481,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="25"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -494,7 +494,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="45"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -524,7 +524,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="60"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />
@@ -537,7 +537,7 @@
                         android:background="@drawable/bg_pill_track"
                         android:gravity="center"
                         android:hint="85"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:paddingHorizontal="4dp"
                         android:textAppearance="@style/TextAppearance.TTC.Mono.Meta"
                         android:textColor="@color/ttc_text_1" />

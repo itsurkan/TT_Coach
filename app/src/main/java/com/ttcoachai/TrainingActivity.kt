@@ -128,12 +128,6 @@ class TrainingActivity : BaseActivity() {
         perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_BACKSWING]?.let { (min, max) ->
             exerciseParameters = exerciseParameters.copy(kneeBendBackswingMin = min, kneeBendBackswingMax = max)
         }
-        // Also feeds RtmposeTrainingController below (decideCameraModeAndStart) — the RTM
-        // live path has no separate backswing-phase metric to bind to (see DrillMetrics.
-        // METRIC_KNEE_BEND KDoc), so only the strike band is wired there.
-        perPhaseTargets[PerPhaseTargetsCodec.KEY_KNEES_STRIKE]?.let { (min, max) ->
-            exerciseParameters = exerciseParameters.copy(kneeBendStrikeMin = min, kneeBendStrikeMax = max)
-        }
         drillMetricBands = perPhaseTargets.mapValues { (_, pair) -> pair.first.toDouble()..pair.second.toDouble() }
     }
 

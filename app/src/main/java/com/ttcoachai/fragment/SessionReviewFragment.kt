@@ -14,9 +14,11 @@ import com.ttcoachai.TTCoachApplication
 import com.ttcoachai.TrainingActivity
 import com.ttcoachai.databinding.FragmentSessionReviewBinding
 import com.ttcoachai.databinding.ItemFocusAreaRowBinding
+import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.models.SessionAnalyticsEntity
 import com.ttcoachai.models.TrainingSession
+import com.ttcoachai.repository.CustomDrillRepository
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
 import com.ttcoachai.shared.drill.FeedbackLang
@@ -26,7 +28,9 @@ import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
 import com.ttcoachai.util.RepresentativeRepSelector
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
@@ -42,6 +46,10 @@ class SessionReviewFragment : Fragment() {
 
     /** Cached once the session loads, so btnTrainAgain can re-launch the same drill. */
     private var loadedSession: TrainingSession? = null
+
+    private val customDrillRepo by lazy {
+        CustomDrillRepository(AppDatabase.getDatabase(requireContext()).customDrillDao())
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, s: Bundle?): View {
         _binding = FragmentSessionReviewBinding.inflate(inflater, container, false)
@@ -78,12 +86,31 @@ class SessionReviewFragment : Fragment() {
     /**
      * Re-launches the reviewed session's drill via [TrainingActivity], mirroring
      * DrillsFragment.onExerciseSelected. Falls back to the Drills tab if the session hasn't
-     * loaded yet (e.g. tapped before the DB query completes).
+     * loaded yet (e.g. tapped before the DB query completes). For a custom drill (id prefixed
+     * "custom_") the backing CustomDrillEntity is loaded so referenceType/edited bands travel
+     * with the relaunch — without this a "baseline"-mode drill would silently retrain in
+     * "standard" mode against the shipped defaults, bypassing the calibration gate it was
+     * authored to bypass for the wrong reason.
      */
     private fun onTrainAgain() {
         val session = loadedSession
         if (session == null || session.exerciseId.isBlank()) {
             findNavController().navigate(R.id.navigation_drills)
+            return
+        }
+        if (session.exerciseId.startsWith("custom_")) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                val entity = withContext(Dispatchers.IO) { customDrillRepo.get(session.exerciseId) }
+                if (_binding == null) return@launch
+                val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
+                    putExtra("EXERCISE_ID", session.exerciseId)
+                    putExtra("EXERCISE_NAME", session.exerciseName)
+                    putExtra("PER_PHASE_TARGETS_JSON", entity?.perPhaseTargetsJson ?: "")
+                    putExtra("REFERENCE_TYPE", entity?.referenceType ?: "standard")
+                    putExtra("MOVEMENT_PROFILE", entity?.movementProfile)
+                }
+                startActivity(intent)
+            }
             return
         }
         val intent = Intent(requireContext(), TrainingActivity::class.java).apply {
