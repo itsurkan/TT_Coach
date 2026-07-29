@@ -135,6 +135,40 @@ known, accepted possibility, gated separately by T7 (on-device parity fixture).
 **Refs:** `StrokeDetector2D.kt` (`framesFor`, truncating); `LiveDrillSessionStabilityTest.kt`
 (A4, reworked); `LiveDrillSessionParityTest.kt` (A3, the regressed gate); L-26.
 
+### L-37 · Shipped `ShippedBaselines.FOREHAND_ANDRII` bands carry Andrii's own camera-yaw error — `ACCEPTED`
+Derived with `cameraYawDeg` pinned to 0f (yaw gate consciously relaxed for this one-time
+editorial derivation — per-rep |yaw| on the source footage ran well past the normal ~30°
+placement gate; `CameraAngleEstimator` saturates on this non-protocol footage, see L-25). The
+shipped bands therefore encode "match this recorded stroke as filmed," not a camera-agnostic
+universal norm — consistent with the accompanying research appendix's conclusion that no
+external numeric target survives scrutiny for this project's 2D included-angle convention.
+**Refs:** docs/superpowers/specs/2026-07-27-no-calibration-shipped-baseline-design.md §1;
+docs/shipped-baseline-derivation.md; `ShippedBaselines.kt`; L-25.
+
+### L-38 · Standard-mode severity ranking reflects Andrii's own variability, not a player-agnostic scale — `ACCEPTED`
+`ShippedBaselines.FOREHAND_ANDRII` is also the σ-carrier baseline `DrillFeedbackEngine.evaluateRep`
+normalizes severity against in "standard" reference mode — a metric where Andrii was very
+consistent (small σ) ranks small deviations from it more severely than one where he naturally
+varied more. Useful as a relative priority order (which cue to say first when several fire at
+once); not a validated absolute severity scale.
+**Refs:** `DrillFeedbackEngine.kt`; `ShippedBaselines.kt`.
+
+### L-39 · Deleting both seeded drills with no other custom drills resurrects them — `ACCEPTED`
+`SeededDrillsPolicy.shouldSeed`'s trigger ("flag unset OR custom_drills table empty") is needed
+so a destructive-migration DB wipe re-seeds (the wipe clears Room but not SharedPreferences) —
+but it can't distinguish "wiped by migration" from "player deleted every custom drill on
+purpose." A player who deletes both seeded rows and has no other custom drill gets them back on
+the next app start.
+**Refs:** `SeededDrillsPolicy.kt`; docs/superpowers/specs/2026-07-27-no-calibration-shipped-baseline-design.md §2.
+
+### L-40 · Community drills authored before the 7-row editor rework surface only 2 of 7 bands — `ACCEPTED`
+`PerPhaseTargetsCodec`'s legacy-key mapping only covers `"knees · strike"` → `knee_bend` and
+`"torso tilt · strike"` → `torso_lean` — the other 5 metrics (`elbow_angle`, `shoulder_angle`,
+`follow_through_angle_2d`, `stroke_speed`, `coil_ratio`) had no editor row before this rework, so
+old shared blobs never carried them. A pre-rework community drill shows those 5 rows unset until
+the author re-edits and re-shares.
+**Refs:** `PerPhaseTargetsCodec.kt`; `ExerciseEditorActivity.kt`.
+
 ### L-27 · Forward-stroke detection assumes drives are faster than recoveries — `ACCEPTED` (revisit per drill)
 `ForwardStrokeFilter`'s session-level speed-dominance vote (median peak speed by
 wrist-dx group, ratio ≥ 1.2, minority group ≥ 2) was validated on ONE fixture
