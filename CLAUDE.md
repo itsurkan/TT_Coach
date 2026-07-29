@@ -161,7 +161,11 @@ dead view/detector code found during cleanup (`OverlayView`, `views.PoseVisualiz
 custom drill (unlike the old MediaPipe `CalibrationActivity`, which was genuinely keyed by drill
 type). "Reference: Baseline" now means "use your one calibrated RTM baseline" — per-drill
 baselines would need `RtmposeCalibrationActivity`'s intent contract and `loadRtmBaseline()`'s
-lookup key extended together.
+lookup key extended together. **Superseded 2026-07-29** — see "Training without calibration —
+shipped Andrii baseline" below: personal calibration is no longer required to train at all —
+`referenceType="standard"` (the default) trains immediately against `ShippedBaselines.FOREHAND_ANDRII`;
+"Reference: Baseline" and this global-baseline limitation now apply only to the
+`referenceType="baseline"` path.
 
 **MediaPipe is NOT fully gone from the repo.** The `com.google.mediapipe:tasks-vision` Gradle
 dependency is still present in `app/build.gradle`, and `mappers/MediaPipeMapper.kt`,
@@ -208,6 +212,47 @@ transfer to MediaPipe's — players must re-calibrate (no migration, deliberate)
 session JSON (that file was on this task's must-NOT-change list — deferred; provenance-only impact,
 nothing parses the field). This change is **build-verified only** — no device smoke test this session;
 confirm the picker and all 3 live sites on a real phone before treating this as proven in the field.
+
+## Training without calibration — shipped Andrii baseline (shipped 2026-07-29)
+
+The calibration gate is no longer universal: `CustomDrillEntity.referenceType` is finally read (the
+first production caller of `isCalibrationRequired`). `"standard"` (default) trains immediately —
+`LiveDrillSession` gets `baseline = ShippedBaselines.FOREHAND_ANDRII` (σ-carrier for severity only)
+and `rules = applyRangeOverrides(emptyList(), drillBands)`, so only the drill's own configured bands
+cue (a blank band stays silent for that metric). `"baseline"` keeps today's personal-calibration gate,
+unchanged.
+
+`ShippedBaselines.FOREHAND_ANDRII` (`shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/ShippedBaselines.kt`)
+is a curated one-time derivation from `Videos/andrii_1` via MediaPipe-lite at full fps (`--interval 17`;
+an earlier 100ms-interval pass showed peak-phase jitter and is superseded), with `cameraYawDeg` pinned
+`0f` — the yaw gate is consciously relaxed here, a deliberate editorial exception, not a bug. Full
+derivation record: [docs/shipped-baseline-derivation.md](docs/shipped-baseline-derivation.md) (+ `.uk.md`
+translation); `ShippedBaselineDerivationHarness` (jvmTest) re-derives it for verification.
+`defaultBands()` = mean ± 2σ.
+
+The 3 hardcoded unlocked forehand drills are replaced by 2 idempotently-seeded `CustomDrillEntity`
+rows (`"custom_seed_forehand_andrii"`, `"custom_seed_forehand_general"`), seeded in
+`TTCoachApplication` via `SeededDrillsPolicy` (flag `"seeded_drills_v1"` OR empty table; check-before-write
+so user edits are never clobbered) — ordinary editable/deletable/shareable custom drills from then on.
+The general row carries a new column `movementProfile="general"` (`AppDatabase` v10, destructive
+migration) that widens `hipTravelMaxTorso` through `RtmposeTrainingController`.
+
+Editor: the 10 advanced rows are now 7, bound to `DrillMetrics.ALL_KEYS` (5 precise-degree metrics,
+`stroke_speed` in torso-lengths/s, `coil_ratio` as a ratio; EN+UA labels). `PerPhaseTargetsCodec` keys
+on `DrillMetrics` keys with decimal values plus a legacy-key map (`"knees · strike"` → `knee_bend`,
+`"torso tilt · strike"` → `torso_lean`) so old community-shared drill blobs still decode.
+
+Launch extras `REFERENCE_TYPE`/`MOVEMENT_PROFILE` now flow from both `DrillsFragment` and
+`SessionReviewFragment`'s "Train Again" (fixed in final review — that path was silently dropping
+reference mode). An id with no backing row falls back to standard + `defaultBands()` and never gates.
+
+Limitations registered: L-37..L-40 (yaw-carried bands, σ-carrier semantics, seed resurrection, old
+blobs covering only 2 of 7 bands).
+
+**Build-and-JVM-test verified only — NO device smoke this session** (no device connected). The spec's
+three-scenario device smoke (seeded drill trains uncalibrated + gives voice feedback; an edited band
+takes effect; flipping a drill to baseline mode re-gates it) is still pending before treating this as
+field-proven.
 
 ## Active Technologies
 
