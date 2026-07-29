@@ -450,6 +450,8 @@ class DrillsFragment : Fragment() {
                     putExtra("EXERCISE_ID", exercise.id)
                     putExtra("EXERCISE_NAME", exercise.name)
                     putExtra("PER_PHASE_TARGETS_JSON", entity?.perPhaseTargetsJson ?: "")
+                    putExtra("REFERENCE_TYPE", entity?.referenceType ?: "standard")
+                    putExtra("MOVEMENT_PROFILE", entity?.movementProfile)
                 }
                 startActivity(intent)
             }
