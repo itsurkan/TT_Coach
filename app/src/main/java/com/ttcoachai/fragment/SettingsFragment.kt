@@ -11,6 +11,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
+import com.ttcoachai.LocaleHelper
 import com.ttcoachai.R
 import com.ttcoachai.databinding.FragmentSettingsBinding
 import com.ttcoachai.managers.SettingsManager
@@ -91,16 +92,22 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupLanguageSettings() {
-        // Interface language (store-only, no recreate)
+        // Interface language. Applying it re-creates the activity (AppCompat per-app locales),
+        // so only persist+apply when the choice actually changes — otherwise re-selecting the
+        // current language would pointlessly rebuild the screen.
         val ifaceButtons = listOf(binding.btnIfaceEn, binding.btnIfaceUk)
-        fun selectIface(uk: Boolean, persist: Boolean) {
+        val currentIface = LocaleHelper.getSavedLanguage(requireContext())
+        fun selectIface(uk: Boolean, apply: Boolean) {
             val selected = if (uk) binding.btnIfaceUk else binding.btnIfaceEn
             ifaceButtons.forEach { styleSegment(it, it === selected) }
-            if (persist) settingsManager.setLanguageCode(if (uk) "uk" else "en")
+            val code = if (uk) "uk" else "en"
+            if (apply && code != currentIface) {
+                LocaleHelper.setLocale(requireContext(), code)
+            }
         }
-        binding.btnIfaceEn.setOnClickListener { selectIface(uk = false, persist = true) }
-        binding.btnIfaceUk.setOnClickListener { selectIface(uk = true, persist = true) }
-        selectIface(uk = settingsManager.getLanguageCode() == "uk", persist = false)
+        binding.btnIfaceEn.setOnClickListener { selectIface(uk = false, apply = true) }
+        binding.btnIfaceUk.setOnClickListener { selectIface(uk = true, apply = true) }
+        selectIface(uk = currentIface == "uk", apply = false)
 
         // Coach language
         val coachLangButtons = listOf(binding.btnCoachLangEn, binding.btnCoachLangUk)

@@ -5,22 +5,13 @@
 
 package com.ttcoachai
 
-import android.content.Context
-import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
 /**
- * Base activity that applies locale to all child activities
+ * Base activity for app screens.
+ *
+ * Locale is NOT applied here: `AppCompatDelegate.setApplicationLocales` (see [LocaleHelper])
+ * applies the per-app language to every `AppCompatActivity` and re-creates them on change.
+ * Overriding `attachBaseContext` here would pin a stale locale and fight that mechanism.
  */
-abstract class BaseActivity : AppCompatActivity() {
-    
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(LocaleHelper.applyLocale(newBase))
-    }
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Apply locale when activity is created
-        LocaleHelper.applyLocale(this)
-    }
-}
+abstract class BaseActivity : AppCompatActivity()

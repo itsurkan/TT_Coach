@@ -6,109 +6,51 @@
 package com.ttcoachai
 
 import android.content.Context
-import android.content.res.Configuration
-import android.os.Build
-import android.os.LocaleList
-import java.util.*
+import androidx.appcompat.app.AppCompatDelegate
+import com.ttcoachai.managers.SettingsManager
+import androidx.core.os.LocaleListCompat
 
+/**
+ * Interface-language plumbing.
+ *
+ * Application goes through [AppCompatDelegate.setApplicationLocales], which re-creates every
+ * live `AppCompatActivity` so a language switch is visible immediately — the previous
+ * `attachBaseContext` + `createConfigurationContext` approach only took effect on the next
+ * cold start. Persistence stays in our own `ai_coach_prefs/app_language` (read back on every
+ * process start from `TTCoachApplication.onCreate`), so `autoStoreLocales` is not needed.
+ */
 object LocaleHelper {
-    
-    private const val PREF_LANGUAGE = "app_language"
-    private const val PREF_NAME = "ai_coach_prefs"
-    
+
     /**
-     * Set and persist app language
-     * @param context Context
-     * @param languageCode Language code (e.g., "en", "uk") or empty string for system default
+     * Switch the interface language now and remember it.
+     *
+     * @param languageCode "en" / "uk", or empty string to follow the system language.
      */
-    fun setLocale(context: Context, languageCode: String): Context {
-        saveLanguagePreference(context, languageCode)
-        return updateResources(context, languageCode)
+    fun setLocale(context: Context, languageCode: String) {
+        SettingsManager(context.applicationContext).setLanguageCode(languageCode)
+        applyStoredLocale(languageCode)
     }
-    
-    /**
-     * Apply saved language preference
-     */
-    fun applyLocale(context: Context): Context {
-        val languageCode = getSavedLanguage(context)
-        return updateResources(context, languageCode)
+
+    /** Apply an already-persisted language code without re-writing it. */
+    fun applyStoredLocale(languageCode: String) {
+        AppCompatDelegate.setApplicationLocales(
+            if (languageCode.isEmpty()) LocaleListCompat.getEmptyLocaleList()
+            else LocaleListCompat.forLanguageTags(languageCode)
+        )
     }
-    
+
     /**
-     * Get currently saved language code
-     * Returns empty string if following system language
+     * The language actually in effect: the explicit choice when there is one, otherwise the
+     * system language resolved to a language we ship ("en" fallback).
      */
     fun getSavedLanguage(context: Context): String {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getString(PREF_LANGUAGE, getDefaultLanguage(context)) ?: getDefaultLanguage(context)
+        val saved = SettingsManager(context.applicationContext).getLanguageCode()
+        if (saved.isNotEmpty()) return saved
+        val system = AppCompatDelegate.getApplicationLocales().takeIf { !it.isEmpty }?.get(0)
+            ?: context.resources.configuration.locales[0]
+        return if (system?.language == "uk") "uk" else "en"
     }
-    
-    /**
-     * Get default language based on requirements:
-     * - If system is English or Ukrainian, use system language
-     * - Otherwise, default to Ukrainian
-     */
-    private fun getDefaultLanguage(context: Context): String {
-        val systemLanguage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.resources.configuration.locales[0].language
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.configuration.locale.language
-        }
-        
-        return when (systemLanguage) {
-            "en", "uk" -> systemLanguage
-            else -> "en" // Default to English
-        }
-    }
-    
-    /**
-     * Save language preference
-     */
-    private fun saveLanguagePreference(context: Context, languageCode: String) {
-        val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(PREF_LANGUAGE, languageCode).apply()
-    }
-    
-    /**
-     * Update context resources with new locale
-     */
-    private fun updateResources(context: Context, languageCode: String): Context {
-        val locale = if (languageCode.isEmpty()) {
-            // Use system default
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                context.resources.configuration.locales[0]
-            } else {
-                @Suppress("DEPRECATION")
-                context.resources.configuration.locale
-            }
-        } else {
-            Locale(languageCode)
-        }
-        
-        Locale.setDefault(locale)
-        
-        val config = Configuration(context.resources.configuration)
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.setLocale(locale)
-            val localeList = LocaleList(locale)
-            LocaleList.setDefault(localeList)
-            config.setLocales(localeList)
-        } else {
-            @Suppress("DEPRECATION")
-            config.locale = locale
-        }
-        
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            context.createConfigurationContext(config)
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
-            context
-        }
-    }
-    
+
     /**
      * Get display name of language
      */
