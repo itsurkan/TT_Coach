@@ -164,16 +164,21 @@ class TrainingActivity : BaseActivity() {
                 shippedDefaultBands = ShippedBaselines.defaultBands()
             )
             val baseline: PersonalBaseline? = if (isCalibrationRequired(referenceType)) {
-                loadRtmBaseline()
+                val loaded = loadRtmBaseline()
+                // We actually suspended (baseline read) — if the activity has since dropped
+                // below STARTED (e.g. backgrounded), any fragment transaction below would throw
+                // "Can not perform this action after onSaveInstanceState". Bail out before
+                // touching the fragment manager or views. NB: this check MUST stay inside the
+                // suspending branch. The "standard" branch below never suspends, so the body
+                // runs synchronously inside onCreate where the state is still CREATED — an
+                // unconditional STARTED guard here silently aborts camera startup entirely.
+                if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+                loaded
             } else {
                 ShippedBaselines.FOREHAND_ANDRII
             }
 
-            // Coroutine resumed after the suspend point above (baseline read) — if the
-            // activity has since dropped below STARTED (e.g. backgrounded), any fragment
-            // transaction below would throw "Can not perform this action after
-            // onSaveInstanceState". Bail out before touching the fragment manager or views.
-            if (!lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@launch
+            if (isFinishing || isDestroyed) return@launch
 
             val started = baseline != null && startRtmController(baseline, referenceType, movementProfile, drillBands)
             if (started) {
