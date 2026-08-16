@@ -169,6 +169,26 @@ old shared blobs never carried them. A pre-rework community drill shows those 5 
 the author re-edits and re-shares.
 **Refs:** `PerPhaseTargetsCodec.kt`; `ExerciseEditorActivity.kt`.
 
+### L-41 · `stroke_speed` band is unreachable at live camera frame rates — `OPEN`
+`ShippedBaselines.FOREHAND_ANDRII`'s `stroke_speed` band (mean 10.0 ±0.3 torso-lengths/s,
+i.e. 9.3–10.6) was derived from a full-fps (17ms interval) desktop video export. A real
+device logcat capture (`adb logcat -s RtmposeTrainingCtrl`, Samsung S23, ~40 reps) showed
+live-measured `stroke_speed` of 2.6–4.6 torso-lengths/s on EVERY rep — 16–24σ outside the
+band, every single time. Root cause: the live MediaPipe camera path samples the swing far
+more coarsely than the 17ms export it was calibrated against, so it structurally under-reads
+peak wrist speed; this is not player variability, it is a sampling-rate mismatch between how
+the baseline was derived and how the metric is measured live. Consequence: until the band is
+re-derived at realistic live frame rates (or `stroke_speed` extraction is made frame-rate
+robust), it is effectively a constant false positive — it wins the cue-severity ranking on
+every rep (see the companion `FeedbackCadencePolicy` fix, L-40's neighbor investigation) and
+tells the player something that isn't true. Surfaced while investigating a report of "zero
+voice feedback all session" (the actual bug there was cadence-vs-mute ordering, fixed
+separately) — this is the second, still-open problem the same investigation found: even with
+that fix, `stroke_speed` cues remain untrustworthy live.
+**Refs:** `docs/shipped-baseline-derivation.md`; `ShippedBaselines.kt`;
+`RtmposeTrainingController.kt` (`logRep`); L-37, L-38 (same shipped baseline's other
+camera/σ caveats).
+
 ### L-27 · Forward-stroke detection assumes drives are faster than recoveries — `ACCEPTED` (revisit per drill)
 `ForwardStrokeFilter`'s session-level speed-dominance vote (median peak speed by
 wrist-dx group, ratio ≥ 1.2, minority group ≥ 2) was validated on ONE fixture
