@@ -3,6 +3,7 @@ package com.ttcoachai.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.ttcoachai.db.SessionAnalyticsConverters
+import com.ttcoachai.managers.RepPoseCapture
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalytics
 import com.ttcoachai.shared.models.Keypoint2D
@@ -19,6 +20,12 @@ import com.ttcoachai.shared.models.Keypoint2D
  * from History, not just right after the session (when in-memory `TrainingStateManager`
  * state is available). Null on rows written before this feature, or when the session had
  * no usable rep captures — Session Review degrades gracefully (no skeleton) in that case.
+ * KEPT for back-compat (rows written before [repCapturesJson] existed) and as the fallback
+ * data source for the last-10-strokes carousel (see [com.ttcoachai.util.RepCarouselDataSource]).
+ *
+ * [repCapturesJson] is the session's full rep-pose capture buffer (up to 10, chronological,
+ * RTM path only), persisted so `RepCarouselView`'s swipeable carousel has per-rep start/end +
+ * flagged-types data available from History too, not just right after the session.
  */
 @Entity(tableName = "session_analytics")
 data class SessionAnalyticsEntity(
@@ -33,11 +40,13 @@ data class SessionAnalyticsEntity(
     val generatedAtMs: Long,
     val repStartPoseJson: String? = null,
     val repEndPoseJson: String? = null,
+    val repCapturesJson: String? = null,
 ) {
     fun timeline(): List<Float> = SessionAnalyticsConverters.jsonToFloatList(accuracyTimelineJson)
     fun focusAreas(): List<FocusArea> = SessionAnalyticsConverters.jsonToFocusAreas(focusAreasJson)
     fun repStartPose(): List<Keypoint2D> = SessionAnalyticsConverters.jsonToKeypoints(repStartPoseJson)
     fun repEndPose(): List<Keypoint2D> = SessionAnalyticsConverters.jsonToKeypoints(repEndPoseJson)
+    fun repCaptures(): List<RepPoseCapture> = SessionAnalyticsConverters.jsonToRepCaptures(repCapturesJson)
 
     companion object {
         fun fromDomain(
@@ -45,6 +54,7 @@ data class SessionAnalyticsEntity(
             generatedAtMs: Long,
             repStartPose: List<Keypoint2D> = emptyList(),
             repEndPose: List<Keypoint2D> = emptyList(),
+            repPoses: List<RepPoseCapture> = emptyList(),
         ): SessionAnalyticsEntity =
             SessionAnalyticsEntity(
                 sessionId = a.sessionId,
@@ -60,6 +70,8 @@ data class SessionAnalyticsEntity(
                     ?.let { SessionAnalyticsConverters.keypointsToJson(it) },
                 repEndPoseJson = repEndPose.takeIf { it.isNotEmpty() }
                     ?.let { SessionAnalyticsConverters.keypointsToJson(it) },
+                repCapturesJson = repPoses.takeIf { it.isNotEmpty() }
+                    ?.let { SessionAnalyticsConverters.repCapturesToJson(it) },
             )
     }
 }

@@ -24,7 +24,9 @@ class SessionAnalyticsRecorder(private val dao: SessionAnalyticsDao) {
      * legacy/video sessions). The representative rep for the persisted "stroke snapshot"
      * skeleton is chosen via [RepresentativeRepSelector], keyed on this session's own
      * top focus type (the first entry of the [SessionAnalyticsBuilder]-computed focus areas),
-     * so the persisted snapshot matches what Session Review highlights.
+     * so the persisted snapshot matches what Session Review highlights. The full [repPoses]
+     * list (up to 10) is ALSO persisted verbatim (`repCapturesJson`) so the last-10-strokes
+     * carousel (`RepCarouselView`) has data from History, not just right after the session.
      */
     suspend fun record(
         sessionId: String,
@@ -42,6 +44,7 @@ class SessionAnalyticsRecorder(private val dao: SessionAnalyticsDao) {
             System.currentTimeMillis(),
             repStartPose = representative?.start ?: emptyList(),
             repEndPose = representative?.end ?: emptyList(),
+            repPoses = repPoses,
         )
         runCatching { dao.upsert(entity) }
             .onFailure { Log.e(TAG, "Failed to persist session analytics for $sessionId", it) }

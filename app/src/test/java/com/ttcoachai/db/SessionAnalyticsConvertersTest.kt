@@ -1,5 +1,6 @@
 package com.ttcoachai.db
 
+import com.ttcoachai.managers.RepPoseCapture
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Keypoint2D
@@ -67,5 +68,51 @@ class SessionAnalyticsConvertersTest {
     fun nullOrBlankKeypointsJson_returnsEmpty() {
         assertTrue(SessionAnalyticsConverters.jsonToKeypoints(null).isEmpty())
         assertTrue(SessionAnalyticsConverters.jsonToKeypoints("").isEmpty())
+    }
+
+    @Test
+    fun repCaptures_roundTrip_preservesAllFieldsForTenCaptures() {
+        val captures = (1..10).map { i ->
+            RepPoseCapture(
+                atMs = i.toLong() * 100,
+                start = listOf(Keypoint2D(x = 0.1f * i, y = 0.2f * i, score = 0.9f)),
+                end = listOf(Keypoint2D(x = 0.3f * i, y = 0.4f * i, score = 0.8f)),
+                flaggedTypes = if (i % 2 == 0) setOf(CorrectionType.ELBOW_BEND, CorrectionType.POSTURE) else emptySet(),
+            )
+        }
+        val json = SessionAnalyticsConverters.repCapturesToJson(captures)
+        val back = SessionAnalyticsConverters.jsonToRepCaptures(json)
+
+        assertEquals(10, back.size)
+        for (i in captures.indices) {
+            val expected = captures[i]
+            val actual = back[i]
+            assertEquals(expected.atMs, actual.atMs)
+            assertEquals(expected.start.size, actual.start.size)
+            assertEquals(expected.start[0].x, actual.start[0].x, 0.0001f)
+            assertEquals(expected.start[0].y, actual.start[0].y, 0.0001f)
+            assertEquals(expected.start[0].score, actual.start[0].score, 0.0001f)
+            assertEquals(expected.end[0].x, actual.end[0].x, 0.0001f)
+            assertEquals(expected.end[0].y, actual.end[0].y, 0.0001f)
+            assertEquals(expected.end[0].score, actual.end[0].score, 0.0001f)
+            assertEquals(expected.flaggedTypes, actual.flaggedTypes)
+        }
+    }
+
+    @Test
+    fun repCaptures_moreThanTen_keepsOnlyLastTen() {
+        val captures = (1..15).map { i ->
+            RepPoseCapture(atMs = i.toLong(), start = listOf(Keypoint2D(0f, 0f, 1f)), end = listOf(Keypoint2D(0f, 0f, 1f)))
+        }
+        val back = SessionAnalyticsConverters.jsonToRepCaptures(SessionAnalyticsConverters.repCapturesToJson(captures))
+        assertEquals(10, back.size)
+        assertEquals(6L, back.first().atMs)
+        assertEquals(15L, back.last().atMs)
+    }
+
+    @Test
+    fun nullOrBlankRepCapturesJson_returnsEmpty() {
+        assertTrue(SessionAnalyticsConverters.jsonToRepCaptures(null).isEmpty())
+        assertTrue(SessionAnalyticsConverters.jsonToRepCaptures("").isEmpty())
     }
 }
