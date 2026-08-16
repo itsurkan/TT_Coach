@@ -194,4 +194,73 @@ class DrillFeedbackEngineTest {
         )
         assertEquals(fourArg, threeArg)
     }
+
+    // ---- Cue deadband (sub-noise excursions must not cue) ----
+    // Regression scenario is the device log: session band [169.9, 179.6] derived from
+    // baseline mean=174.7, std=2.4. The SAME rep's adjacent peak frames measured
+    // knee_bend=169.1 and knee_bend=172.5 (3.4° same-rep spread) — live MediaPipe
+    // noise, not player movement — so a 0.8°-outside-the-edge reading must stay silent.
+
+    private val kneeBendLogStats = MetricStats(mean = 174.7, std = 2.4, min = 165.0, max = 185.0, sampleCount = 10)
+    private val kneeBendLogBandRule = BaselineRule.RangeRule(
+        id = "range:knee_bend", metricKey = DrillMetrics.METRIC_KNEE_BEND, min = 169.9, max = 179.6
+    )
+
+    @Test
+    fun subDeadbandBelowBandIsSilent() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeBendLogStats)
+        val cues = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_KNEE_BEND to 169.1), b, listOf(kneeBendLogBandRule)
+        )
+        assertTrue(
+            cues.isEmpty(),
+            "169.1 is only 0.8° below the 169.9 edge, within the 3.0° live-pose-noise deadband, got $cues"
+        )
+    }
+
+    @Test
+    fun genuineDeviationBelowBandStillCues() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeBendLogStats)
+        val cues = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_KNEE_BEND to 160.4), b, listOf(kneeBendLogBandRule)
+        )
+        assertEquals(1, cues.size, "160.4 is 9.5° below the band edge, a real deviation, must still cue")
+        assertEquals(CueDirection.TOO_LOW, cues[0].direction)
+    }
+
+    @Test
+    fun subDeadbandAboveBandIsSilent() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeBendLogStats)
+        val cues = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_KNEE_BEND to 180.4), b, listOf(kneeBendLogBandRule)
+        )
+        assertTrue(
+            cues.isEmpty(),
+            "180.4 is only 0.8° above the 179.6 edge, within the deadband, got $cues"
+        )
+    }
+
+    @Test
+    fun genuineDeviationAboveBandStillCues() {
+        val b = baseline(DrillMetrics.METRIC_KNEE_BEND to kneeBendLogStats)
+        val cues = DrillFeedbackEngine.evaluateRep(
+            mapOf(DrillMetrics.METRIC_KNEE_BEND to 189.1), b, listOf(kneeBendLogBandRule)
+        )
+        assertEquals(1, cues.size, "189.1 is 9.5° above the band edge, a real deviation, must still cue")
+        assertEquals(CueDirection.TOO_HIGH, cues[0].direction)
+    }
+
+    @Test
+    fun strokeSpeedHasNoDeadband() {
+        // stroke_speed is qualitative (torso-lengths/sec), not a degree metric, so no
+        // noise-floor deadband applies; even a small excursion must still cue exactly
+        // as before this fix.
+        val b = baseline()
+        val rule = BaselineRule.RangeRule(
+            id = "range:stroke_speed", metricKey = DrillMetrics.METRIC_STROKE_SPEED, min = 1.0, max = 2.0
+        )
+        val cues = DrillFeedbackEngine.evaluateRep(mapOf(DrillMetrics.METRIC_STROKE_SPEED to 2.1), b, listOf(rule))
+        assertEquals(1, cues.size, "0.1 excursion on stroke_speed must still cue, no deadband for non-degree metrics")
+        assertEquals(CueDirection.TOO_HIGH, cues[0].direction)
+    }
 }

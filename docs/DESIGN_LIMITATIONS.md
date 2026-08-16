@@ -391,6 +391,30 @@ or default the NEW-mode self-reference.
 **Refs:** `ExerciseEditorActivity.kt` (`onPrimaryClicked`); `CustomDrillEntity.kt`;
 `DrillsFragment.kt` (`iconForDrill`); L-20 (`DrillConfigEntity` same deferral).
 
+### L-36 · Baselines derived from full-fps export are tighter than live pose noise — `ACCEPTED` (mitigated, not fixed)
+A device log caught a player with essentially straight legs (`knee_bend=169.1`)
+told to straighten up: the session band was `[169.9, 179.6]` (mean 174.7, σ 2.4),
+so the value was 0.8° outside the edge and produced a spoken cue. The SAME rep,
+read from adjacent peak frames, measured `knee_bend=169.1` and `knee_bend=172.5` —
+3.4° of spread on one stroke — and `elbow_angle=76.5` vs `84.5`, ~8° of spread.
+That is live MediaPipe measurement noise, not player movement. `BaselineRuleFactory`
+bands are derived as mean±2σ from `BaselineDeriver`, whose σ is measured against a
+full-fps desktop pose export (`ShippedBaselines.FOREHAND_ANDRII` at `--interval 17`)
+— a much cleaner signal than the live on-device path. A tight-σ metric like
+knee_bend (σ=2.4°) therefore yields a band narrower than live pose noise, so
+sub-noise excursions routinely fall outside it and get coached as real faults.
+**Mitigated by:** a per-metric cue deadband (`CueDeadbands.forMetric`, 3.0° for the
+5 precise in-plane angle metrics, modeled directly on the same log's jitter
+evidence) applied in `DrillFeedbackEngine.evaluateRep` — a value must clear both
+the band AND the noise floor before it cues. This is a floor, not a fix: it
+suppresses the symptom without correcting the underlying band-too-tight cause.
+**Revisit trigger / fix direction:** band derivation should eventually account for
+live measurement error directly — e.g. widening `BaselineRuleFactory`'s ±2σ band by
+a live-noise term, or having `BaselineDeriver` incorporate a measured live-noise
+component instead of relying solely on the deadband floor.
+**Refs:** `CueDeadbands.kt`; `DrillFeedbackEngine.evaluateRep`; `BaselineDeriver.kt`;
+`BaselineRuleFactory.kt`; `ShippedBaselines.kt`.
+
 ---
 
 ## Resolved

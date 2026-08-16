@@ -59,6 +59,11 @@ object DrillFeedbackEngine {
             } else {
                 stats?.let { value - it.mean } ?: continue
             }
+            // Cue deadband: `delta` above is the same signed quantity in both branches
+            // (distance outside the band for RangeRule, distance from the baseline mean
+            // otherwise) — compare its magnitude against the per-metric noise floor
+            // before coaching either kind of rule. See CueDeadbands for the evidence.
+            if (abs(delta) < CueDeadbands.forMetric(rule.metricKey)) continue
             val severity = when {
                 stats != null && stats.std > 0.0 -> abs(delta) / stats.std
                 rule is BaselineRule.RangeRule -> abs(delta) / DEFAULT_RANGE_SEVERITY_SCALE_DEGREES
