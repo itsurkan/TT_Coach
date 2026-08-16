@@ -173,9 +173,10 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- STROKE SNAPSHOT card: always rendered when a rep pose is available, independent of
-             whether the session produced any focus areas (that emptiness used to wrongly gate
-             this skeleton off entirely). -->
+        <!-- STROKE SNAPSHOT card: a swipeable carousel over the last up-to-10 captured reps
+             (RepCarouselView), always rendered when at least one rep pose is available,
+             independent of whether the session produced any focus areas (that emptiness used to
+             wrongly gate this skeleton off entirely). -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_stroke_snapshot"
             style="@style/TTC.Card"
@@ -190,59 +191,11 @@
                     android:text="@string/review_snapshot_title"
                     android:textAppearance="@style/TextAppearance.TTC.Eyebrow" />
 
-                <LinearLayout
+                <com.ttcoachai.views.RepCarouselView
+                    android:id="@+id/rep_carousel_review"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginEnd="8dp"
-                        android:orientation="vertical">
-
-                        <com.ttcoachai.views.PoseSnapshotView
-                            android:id="@+id/pose_snapshot_start_review"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minHeight="170dp"/>
-
-                        <TextView
-                            android:id="@+id/tv_snapshot_label_start_review"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:gravity="center"
-                            android:text="@string/feedback_snapshot_label_start"
-                            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <com.ttcoachai.views.PoseSnapshotView
-                            android:id="@+id/pose_snapshot_end_review"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:minHeight="170dp"/>
-
-                        <TextView
-                            android:id="@+id/tv_snapshot_label_end_review"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
-                            android:gravity="center"
-                            android:text="@string/feedback_snapshot_label_end"
-                            android:textAppearance="@style/TextAppearance.TTC.Eyebrow"/>
-                    </LinearLayout>
-                </LinearLayout>
+                    android:layout_marginTop="10dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

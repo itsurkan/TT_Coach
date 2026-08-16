@@ -891,6 +891,8 @@
     <string name="history_empty_cta">До вправ</string>
     <string name="history_total_hours">%1$.1f год</string>
     <string name="cd_filter">Фільтрувати сесії</string>
+    <string name="cd_rep_carousel_prev">Попередній повтор</string>
+    <string name="cd_rep_carousel_next">Наступний повтор</string>
 
     <!-- Live Session screen (1a/1e) -->
     <string name="live_pause">Пауза</string>

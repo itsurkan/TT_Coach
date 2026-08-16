@@ -15,6 +15,7 @@ import com.ttcoachai.TrainingActivity
 import com.ttcoachai.databinding.FragmentSessionReviewBinding
 import com.ttcoachai.databinding.ItemFocusAreaRowBinding
 import com.ttcoachai.db.AppDatabase
+import com.ttcoachai.managers.RepPoseCapture
 import com.ttcoachai.managers.TrainingStateManager
 import com.ttcoachai.models.SessionAnalyticsEntity
 import com.ttcoachai.models.TrainingSession
@@ -22,12 +23,11 @@ import com.ttcoachai.repository.CustomDrillRepository
 import com.ttcoachai.shared.analysis.FocusArea
 import com.ttcoachai.shared.analysis.SessionAnalyticsBuilder
 import com.ttcoachai.shared.drill.FeedbackLang
-import com.ttcoachai.shared.feedback.Coco17ToLandmark3D
 import com.ttcoachai.shared.feedback.LiveFeedbackCatalog
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.Keypoint2D
 import com.ttcoachai.ui.dialogs.FeedbackExplanationSheet
-import com.ttcoachai.util.RepresentativeRepSelector
+import com.ttcoachai.util.RepCarouselDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -157,7 +157,12 @@ class SessionReviewFragment : Fragment() {
             binding.tvFocusEmpty.visibility = View.VISIBLE
             binding.tvPeakPill.text = getString(R.string.review_no_analytics)
             binding.tvSummary.text = ""
-            bindStrokeSnapshot(topFocusType = null, persistedStart = emptyList(), persistedEnd = emptyList())
+            bindStrokeSnapshot(
+                topFocusType = null,
+                persistedCaptures = emptyList(),
+                persistedStart = emptyList(),
+                persistedEnd = emptyList(),
+            )
             return
         }
 
@@ -175,6 +180,7 @@ class SessionReviewFragment : Fragment() {
         bindFocusAreas(focusAreas)
         bindStrokeSnapshot(
             topFocusType = focusAreas.firstOrNull()?.type,
+            persistedCaptures = analytics.repCaptures(),
             persistedStart = analytics.repStartPose(),
             persistedEnd = analytics.repEndPose(),
         )
@@ -182,42 +188,39 @@ class SessionReviewFragment : Fragment() {
     }
 
     /**
-     * Renders the always-present "stroke snapshot" card (start + end skeleton), independent of
-     * whether the session has any focus areas — that emptiness previously gated the skeleton off
-     * entirely, which is the bug this closes. [topFocusType] highlights the pair via
-     * [com.ttcoachai.shared.feedback.SnapshotGeometry] (falls back to [CorrectionType.GENERAL]).
+     * Renders the always-present "stroke snapshot" card as a last-up-to-10-strokes carousel
+     * ([RepCarouselView]), independent of whether the session has any focus areas — that
+     * emptiness previously gated the skeleton off entirely, which is the bug this closes.
+     * [topFocusType] is passed through as the carousel's highlight (falls back to
+     * [CorrectionType.GENERAL] inside [RepCarouselView]).
      *
-     * Data source: the persisted entity columns first ([persistedStart]/[persistedEnd], written
-     * by `SessionAnalyticsRecorder` at save time — works from History too); when those are absent
-     * (row predates this feature, or the save raced ahead of persistence) falls back to the
-     * in-memory `TrainingStateManager` singleton via [RepresentativeRepSelector], the same source
-     * `FeedbackExplanationSheet` uses. Hides the card only when truly no pose data exists either
-     * way.
+     * Data source priority, resolved by [RepCarouselDataSource]: persisted per-session captures
+     * ([persistedCaptures], written by `SessionAnalyticsRecorder` at save time — works from
+     * History too) > in-memory `TrainingStateManager` singleton (available right after a
+     * session) > the older single persisted pair ([persistedStart]/[persistedEnd], rendered as a
+     * one-page carousel for rows written before this feature) > hide the card.
      */
     private fun bindStrokeSnapshot(
         topFocusType: CorrectionType?,
+        persistedCaptures: List<RepPoseCapture>,
         persistedStart: List<Keypoint2D>,
         persistedEnd: List<Keypoint2D>,
     ) {
-        var start = persistedStart
-        var end = persistedEnd
-        if (start.isEmpty() || end.isEmpty()) {
-            val stateManager = TrainingStateManager.getInstance(requireContext())
-            val representative = RepresentativeRepSelector.select(stateManager.getRepPoses(), topFocusType)
-            if (representative != null) {
-                start = representative.start
-                end = representative.end
-            }
-        }
+        val stateManager = TrainingStateManager.getInstance(requireContext())
+        val captures = RepCarouselDataSource.resolve(
+            persistedCaptures = persistedCaptures,
+            inMemoryCaptures = stateManager.getRepPoses(),
+            legacyStart = persistedStart,
+            legacyEnd = persistedEnd,
+            topFocusType = topFocusType,
+        )
 
-        if (start.isEmpty() || end.isEmpty()) {
+        if (captures.isEmpty()) {
             binding.cardStrokeSnapshot.visibility = View.GONE
             return
         }
 
-        val type = topFocusType ?: CorrectionType.GENERAL
-        binding.poseSnapshotStartReview.setSnapshot(Coco17ToLandmark3D.map(start), type)
-        binding.poseSnapshotEndReview.setSnapshot(Coco17ToLandmark3D.map(end), type)
+        binding.repCarouselReview.setReps(captures, topFocusType)
         binding.cardStrokeSnapshot.visibility = View.VISIBLE
     }
 

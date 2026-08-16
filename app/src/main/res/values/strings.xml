@@ -1091,6 +1091,8 @@
     <string name="history_empty_cta">Go to Drills</string>
     <string name="history_total_hours">%1$.1fh</string>
     <string name="cd_filter">Filter sessions</string>
+    <string name="cd_rep_carousel_prev">Previous rep</string>
+    <string name="cd_rep_carousel_next">Next rep</string>
 
     <!-- Live Session screen (1a/1e) -->
     <string name="live_pause">Pause</string>
