@@ -70,6 +70,12 @@ class TrainingUIController(
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         bottomSheetBehavior.isHideable = false
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) refreshRepCarousel()
+            }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+        })
     }
 
     private fun setupButtons() {
@@ -151,6 +157,28 @@ class TrainingUIController(
         binding.root.findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.fab_pause_play)?.setImageResource(icon)
         binding.drillMenu.btnPauseResume.text = text
         binding.drillMenu.btnPauseResume.setIconResource(icon)
+        if (!isActive) refreshRepCarousel()
+    }
+
+    /**
+     * Refreshes the paused-panel stroke-snapshot carousel ([R.id.rep_carousel_live]) from
+     * [TrainingStateManager.getRepPoses] — the last-up-to-10 reps, clean or flagged, recorded on
+     * the RTM live path. Highlight is the most-flagged [CorrectionType] from
+     * [TrainingStateManager.getFeedbackCounts] (already sorted descending; null when nothing has
+     * been flagged this session yet, matching [com.ttcoachai.views.RepCarouselView]'s own
+     * null-highlight fallback).
+     *
+     * Called only on pause ([updateUIForTrainingState]) and on bottom-sheet expand
+     * ([setupBottomSheet]) — never per-frame/per-rep, since [com.ttcoachai.views.RepCarouselView]
+     * renders skeletons, which is expensive to redo while the panel is usually collapsed during
+     * play. The wrapping card is hidden whenever the carousel has nothing usable to show (e.g.
+     * right at session start, before any rep has been captured) — same graceful-degradation rule
+     * `SessionReviewFragment` uses for its own stroke-snapshot card.
+     */
+    private fun refreshRepCarousel() {
+        val highlight = stateManager.getFeedbackCounts().firstOrNull()?.first
+        binding.drillMenu.repCarouselLive.setReps(stateManager.getRepPoses(), highlight)
+        binding.drillMenu.cardStrokeSnapshotLive.visibility = binding.drillMenu.repCarouselLive.visibility
     }
 
     fun updateStats() {

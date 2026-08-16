@@ -906,6 +906,7 @@
     <string name="live_coach_message">Тримай у кадрі все тіло й продовжуй грати — я підкажу щодо техніки на ходу.</string>
     <string name="live_realtime_feedback">Фідбек у реальному часі</string>
     <string name="live_flagged_count">Позначено: %1$d</string>
+    <string name="live_stroke_snapshot_title">Схема удару</string>
     <string name="live_fb_wrist_angle">Кут зап\'ястя</string>
     <string name="live_fb_body_rotation">Скрутка</string>
     <string name="live_fb_contact_height">Висота контакту</string>

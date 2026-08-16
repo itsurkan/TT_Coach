@@ -219,6 +219,37 @@
         android:descendantFocusability="blocksDescendants"
         android:layout_marginBottom="16dp"/>
 
+    <!-- Stroke Snapshot: last-up-to-10-reps carousel (RepCarouselView), start/end skeleton per
+         rep. Refreshed on pause and on bottom-sheet expand only (TrainingUIController) — not
+         per-frame/per-rep, since it's a heavy skeleton-rendering view. Hidden when there are no
+         usable captures yet (e.g. right at session start). -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_stroke_snapshot_live"
+        style="@style/TTC.Card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TTC.SectionHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/live_stroke_snapshot_title"/>
+
+            <com.ttcoachai.views.RepCarouselView
+                android:id="@+id/rep_carousel_live"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Feedback Settings (subordinate debug section) -->
     <com.google.android.material.card.MaterialCardView
         style="@style/TTC.Card"

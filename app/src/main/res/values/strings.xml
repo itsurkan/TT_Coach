@@ -1106,6 +1106,7 @@
     <string name="live_coach_message">Frame your whole body and keep rallying — I\'ll flag technique as you go.</string>
     <string name="live_realtime_feedback">Real-time feedback</string>
     <string name="live_flagged_count">%1$d flagged</string>
+    <string name="live_stroke_snapshot_title">Stroke snapshot</string>
     <string name="live_fb_wrist_angle">Wrist angle</string>
     <string name="live_fb_body_rotation">Rotation</string>
     <string name="live_fb_contact_height">Contact height</string>
