@@ -42,7 +42,19 @@ class LiveDrillSession(
      * a backswing band has nothing to attach to and is silently unused if passed here.
      * Empty map (default) reproduces the exact pre-existing baseline-only behavior.
      */
-    metricBands: Map<String, ClosedRange<Double>> = emptyMap()
+    metricBands: Map<String, ClosedRange<Double>> = emptyMap(),
+    /**
+     * Applied to a rep's cues BEFORE they compete for the cadence window (see
+     * [DrillRepProcessor.emitRepFeedback]'s `cuesForCadence` param) — lets a caller mute
+     * cues the user has disabled (e.g. a Settings correction-type chip) WITHOUT letting
+     * the muted cue still win the cadence race and silently burn the window (that was the
+     * live-session bug: a single disabled chip silenced the whole session because the
+     * highest-severity cue was picked first, then dropped downstream). Defaults to
+     * accept-everything so [ForehandDriveDrillAnalyzer] and every existing caller/test see
+     * zero behavior change. Does NOT affect [RepEvent.cues]/[RepEvent.cueCount]/[onRep] —
+     * those stay unfiltered for diagnostics and rep flagging.
+     */
+    private val cueFilter: (FeedbackCue) -> Boolean = { true }
 ) {
     private val rules: List<BaselineRule> = BaselineRuleFactory.applyRangeOverrides(rules, metricBands)
 
@@ -128,7 +140,9 @@ class LiveDrillSession(
                         cues = rep.cues
                     )
                 )
-                val spoken = DrillRepProcessor.emitRepFeedback(rep, atMs, cadence, lang)
+                val spoken = DrillRepProcessor.emitRepFeedback(
+                    rep, atMs, cadence, lang, cuesForCadence = rep.cues.filter(cueFilter)
+                )
                 if (spoken != null) feedback += spoken
             } else if (!stabilized) {
                 // Still forming: never trim past this stroke's frames.

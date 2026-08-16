@@ -259,6 +259,54 @@ class LiveDrillSessionTest {
         )
     }
 
+    // ---- cueFilter (wiring for RtmposeTrainingController's disabled-correction-type mute) ----
+
+    @Test
+    fun cueFilterRejectingTheSoleCueLeavesTheRepSilent() {
+        val session = LiveDrillSession(
+            baseline = baselineWithLooseKneeStats(),
+            aspectRatio = 1f,
+            handedness = Handedness.RIGHT,
+            cameraYawDeg = 0f,
+            metricBands = mapOf(DrillMetrics.METRIC_KNEE_BEND to 110.0..130.0),
+            cueFilter = { it.metricKey != DrillMetrics.METRIC_KNEE_BEND }
+        )
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        val feedback = feedAll(session, singleStrokeXs, timestamps)
+
+        assertTrue(
+            feedback.isEmpty(),
+            "the rep's only cue (knee_bend) is filtered out -> must stay silent, " +
+                "not fall back to a spoken cue or to positive reinforcement, got: $feedback"
+        )
+    }
+
+    @Test
+    fun cueFilterDoesNotAffectOnRepCuesOrCueCount() {
+        val session = LiveDrillSession(
+            baseline = baselineWithLooseKneeStats(),
+            aspectRatio = 1f,
+            handedness = Handedness.RIGHT,
+            cameraYawDeg = 0f,
+            metricBands = mapOf(DrillMetrics.METRIC_KNEE_BEND to 110.0..130.0),
+            cueFilter = { it.metricKey != DrillMetrics.METRIC_KNEE_BEND }
+        )
+        val events = mutableListOf<RepEvent>()
+        session.onRep = { events += it }
+
+        val intervalMs = 100L
+        val timestamps = timestampsFor(singleStrokeXs, intervalMs)
+        feedAll(session, singleStrokeXs, timestamps)
+
+        val event = events.single()
+        assertEquals(
+            1, event.cueCount,
+            "RepEvent.cueCount must stay UNFILTERED (diagnostics/rep-flagging) even though nothing was spoken"
+        )
+        assertEquals(DrillMetrics.METRIC_KNEE_BEND, event.cues.single().metricKey)
+    }
+
     // ---- onRep (rep-event side channel for UI counters) ----
 
     @Test

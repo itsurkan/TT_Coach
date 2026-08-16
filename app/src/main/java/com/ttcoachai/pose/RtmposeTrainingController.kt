@@ -346,7 +346,16 @@ class RtmposeTrainingController(
                 lang = coachLang(),
                 cameraYawDeg = 0f,
                 hipTravelMaxTorso = hipTravelMaxTorso,
-                metricBands = metricBands
+                metricBands = metricBands,
+                // Mute disabled correction-type chips BEFORE cadence selection (read live,
+                // not captured — the user can toggle chips from the pause panel mid-session)
+                // so a disabled type can no longer win the cadence race and burn the window
+                // for every other cue on the rep. GENERAL always passes, matching the
+                // existing post-cadence `allowed` check in onPoseResult below.
+                cueFilter = { cue ->
+                    val type = mapMetricToCorrectionType(cue.metricKey)
+                    type == CorrectionType.GENERAL || settingsManager.isCorrectionTypeEnabled(type)
+                }
             )
             logBaselineOnce()
             // onRep fires synchronously inside onFrame, which we only ever call from the UI

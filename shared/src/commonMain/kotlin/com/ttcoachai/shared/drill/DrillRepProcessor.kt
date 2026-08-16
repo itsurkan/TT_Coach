@@ -52,15 +52,28 @@ internal object DrillRepProcessor {
     /**
      * Stateful per-rep emission: applies the cadence policy to one rep's cues and
      * returns the spoken feedback for it, or null if nothing should be said now.
+     *
+     * [cuesForCadence] is what actually competes for the cadence window — defaults to
+     * [RepAnalysis.cues] (unfiltered) so existing callers see zero behavior change.
+     * Callers that need to drop cues the user has muted (e.g. a disabled correction-type
+     * chip) must filter BEFORE calling this, and pass the filtered list here — passing an
+     * empty list makes [FeedbackCadencePolicy.offer] return null WITHOUT consuming the
+     * cadence window (see its own null-top-cue short-circuit), so a rep whose only cues
+     * are all muted stays silent but never blocks the next rep from speaking.
+     *
+     * The positive-reinforcement branch below deliberately still reads the UNFILTERED
+     * [RepAnalysis.cues] — a rep that had real corrections which just got muted is not a
+     * "clean rep" and must not trigger positive reinforcement in their place.
      */
     internal fun emitRepFeedback(
         rep: RepAnalysis,
         atMs: Long,
         cadence: FeedbackCadencePolicy,
-        lang: FeedbackLang
+        lang: FeedbackLang,
+        cuesForCadence: List<FeedbackCue> = rep.cues
     ): SpokenFeedback? {
         if (!rep.placementOk) return null // silent rep; UI surfaces the placement flag
-        val cue = cadence.offer(atMs, rep.cues)
+        val cue = cadence.offer(atMs, cuesForCadence)
         return when {
             cue != null ->
                 SpokenFeedback(atMs, FeedbackMessageCatalog.format(cue, lang), cue)
