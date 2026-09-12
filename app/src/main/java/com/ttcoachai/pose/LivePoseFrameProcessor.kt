@@ -21,13 +21,13 @@ import com.ttcoachai.shared.models.Keypoint2D
  * executor calls [analyze]. This class does not post to the main thread; the caller is
  * responsible for marshalling UI updates.
  */
-class RtmposeFrameProcessor(
+class LivePoseFrameProcessor(
     private val backend: PoseBackend,
     private val mirror: Boolean = false,
     private val onPose: (keypoints: List<Keypoint2D>, timestampMs: Long) -> Unit,
 ) {
     companion object {
-        private const val TAG = "RtmposeFrameProcessor"
+        private const val TAG = "LivePoseFrameProcessor"
     }
 
     private var rotatedBitmap: Bitmap? = null

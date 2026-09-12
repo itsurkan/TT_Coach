@@ -30,5 +30,5 @@ object CorrectionTypeAvailability {
         CorrectionType.KNEE_BEND,
     )
 
-    fun visibleFor(rtmPath: Boolean): Set<CorrectionType> = if (rtmPath) RTM else LEGACY
+    fun visibleFor(livePath: Boolean): Set<CorrectionType> = if (livePath) RTM else LEGACY
 }

@@ -11,7 +11,7 @@ The project pivoted from MediaPipe-3D + ball-tracking to a **2D in-plane joint-a
 **Phase status:**
 - **Phase 1 — desktop pose pipeline: DONE.** `scripts/poses/export_poses_rtmpose.py` (RTMPose-m + RTMDet-nano via MMPose, Mac M4) exports pose JSON **schema v2** (COCO-17; `--feet` flag → Halpe26 with foot keypoints). poses_viewer renders COCO-17/Halpe26 skeletons with an RTM header toggle.
 - **Phase 2 — drill logic in shared KMP: DONE (executed).** `models/` 2D types (Keypoint2D, PoseFrame2D, PoseSequence2D, Topology, Coco17, Handedness, Stroke2D, ViewGeometry w/ xScale); `io/PoseJsonV2Parser` (strict, field-order tripwire); `analysis/AngleCalculations2D` (xScale-corrected in-plane angles, facing-normalized torso lean), `analysis/CameraAngleEstimator` (per-stroke |yaw| from shoulder foreshortening); `detection/StrokeDetector2D` (torso-lengths/sec, ms windows, keep-max NMS, valley-clamped boundaries); `BaselineDeriver.deriveFromMetrics`; `drill/` (DrillMetrics extractAtPeak ±70ms median, SanityBounds, ForwardStrokeFilter speed-dominance, RepFilter banding, DrillFeedbackEngine, FeedbackMessageCatalog UA+EN, FeedbackCadencePolicy 3–5s, DrillCalibrator w/ per-rep yaw gate + CameraPlacementException, ForehandDriveDrillAnalyzer). Fixtures: full-fps `*_rtm.json` (andrii_1 @17ms, video_2 @20ms) + TestFixturesV2. E2E exit gate green (15 forward reps from 23 raw peaks on andrii_1).
-- **Phase 3 — Android port: DONE (2026-07-03); live backend swapped RTMPose → MediaPipe 2026-07-25 (see "MediaPipe replaces RTMPose as the live pose backend" below).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface (unchanged seam) — originally implemented by `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a) with `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory`), all now deleted and replaced by `PoseBackendFactory` → `MediaPipePoseLandmarkerBackend`; `RtmposeFrameProcessor` camera bridge; `RtmposeDrillActivity`/`RtmposeTrainingController` live drill with baseline save — the main training screen has run this live drill since `523161f`; `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
+- **Phase 3 — Android port: DONE (2026-07-03); live backend swapped RTMPose → MediaPipe 2026-07-25 (see "MediaPipe replaces RTMPose as the live pose backend" below).** `app/src/main/java/com/ttcoachai/pose/`: `PoseBackend` interface (unchanged seam) — originally implemented by `RtmposeBackend` orchestration on ONNX Runtime Mobile 1.20 (arm64-v8a) with `YoloxDetector` person detect + `RtmposeEstimator` keypoint decode (`OrtSessionFactory`), all now deleted and replaced by `PoseBackendFactory` → `MediaPipePoseLandmarkerBackend`; `LivePoseFrameProcessor` camera bridge; `LiveDrillActivity`/`LiveTrainingController` live drill with baseline save — the main training screen has run this live drill since `523161f`; `Coco17OverlayView` skeleton overlay; voice feedback via `PresetVoiceController` (recorded preset clips) with `DrillTtsController` TTS fallback. Later features build on it (e.g. knee-bend live analysis).
 - **Phase 4 — AI Coach (cloud-LLM premium): VALIDATED 2026-07-22, NOT STARTED (Phase 3 prerequisite met; parked while current-state delivery is the focus).**
   Post-session LLM coach report + "Ask the coach" chat, grounded in the player's PersonalBaseline
   (calibrate-don't-re-teach positioning). Subscription-gated: $11.99–12.99/mo + annual ~$79/yr
@@ -127,7 +127,7 @@ The RTM live-drill coaching set is **7 honest per-axis cues**, each backed by ex
 - `coil_ratio` = shoulder-width foreshortening drive.start→drive.end ([ShoulderCoil.kt](shared/src/commonMain/kotlin/com/ttcoachai/shared/analysis/ShoulderCoil.kt),
   ported from `poses_viewer/src/drill2d/shoulderCoil.ts`) — a LOW-CONFIDENCE, yaw-confounded proxy,
   deliberately qualitative-only; still needs protocol-footage tuning.
-- **Per-path chips:** `CorrectionTypeAvailability.visibleFor(rtmPath)` — RTM = the 7 above; LEGACY =
+- **Per-path chips:** `CorrectionTypeAvailability.visibleFor(livePath)` — RTM = the 7 above; LEGACY =
   the original 6 (WRIST/CONTACT_HEIGHT are RTM-hidden — Stage 2, they need hand keypoints / the ball).
   Visibility only; it never mutates stored per-type enabled settings. Wired in `TrainingUIController`
   (`setCorrectionChipsForPath`, 4 call sites in `TrainingActivity.decideCameraModeAndStart`) and
@@ -141,7 +141,7 @@ Root-cause bug fixed: `ExerciseEditorActivity`'s "Reference: Baseline" option us
 legacy MediaPipe `CalibrationActivity`, which saved a baseline under a drillType that
 `TrainingActivity.loadRtmBaseline()` (the live RTM trainer) never read — a baseline saved via
 drill creation was invisible to the app that actually coaches the player. Fix: `ExerciseEditorActivity`
-now launches `RtmposeCalibrationActivity`, the same screen `TrainingActivity`'s own "calibration
+now launches `LiveCalibrationActivity`, the same screen `TrainingActivity`'s own "calibration
 required" dialog already used, so both entry points agree on one baseline lineage
 (`"forehand_drive_rtm"`).
 
@@ -156,11 +156,11 @@ dead view/detector code found during cleanup (`OverlayView`, `views.PoseVisualiz
 `useVideo`/`USE_VIDEO` legacy video-mode path and its 3 call sites in `ExerciseSelectionActivity`/
 `DrillsFragment`; all orphaned tests for the above.
 
-**Known limitation surfaced (not a regression):** `RtmposeCalibrationActivity`/
+**Known limitation surfaced (not a regression):** `LiveCalibrationActivity`/
 `TrainingActivity.loadRtmBaseline()` support exactly ONE global personal baseline, not one per
 custom drill (unlike the old MediaPipe `CalibrationActivity`, which was genuinely keyed by drill
 type). "Reference: Baseline" now means "use your one calibrated RTM baseline" — per-drill
-baselines would need `RtmposeCalibrationActivity`'s intent contract and `loadRtmBaseline()`'s
+baselines would need `LiveCalibrationActivity`'s intent contract and `loadRtmBaseline()`'s
 lookup key extended together. **Superseded 2026-07-29** — see "Training without calibration —
 shipped Andrii baseline" below: personal calibration is no longer required to train at all —
 `referenceType="standard"` (the default) trains immediately against `ShippedBaselines.FOREHAND_ANDRII`;
@@ -185,7 +185,7 @@ The live 2D pose backend switched from RTMPose (ONNX Runtime Mobile) to MediaPip
 `enum PoseBackendVariant { MEDIAPIPE_LITE_GPU (default), MEDIAPIPE_LITE_CPU, MEDIAPIPE_FULL_GPU, MEDIAPIPE_FULL_CPU }`,
 build `MediaPipePoseLandmarkerBackend(context, modelAssetName, delegate)` behind the unchanged
 `PoseBackend` seam; the chosen variant persists via `SettingsManager` key `pose_backend_variant`. All
-3 live sites — `RtmposeTrainingController`, `RtmposeCalibrationActivity`, `RtmposeDrillActivity` —
+3 live sites — `LiveTrainingController`, `LiveCalibrationActivity`, `LiveDrillActivity` —
 construct their backend through this one factory, so live drill and calibration can never disagree on
 model/delegate (the same class of split that the 2026-07-24 fix above closed for baseline lineage).
 Settings → Detection (11b, `DetectionFragment`) exposes a 2×2 "Pose model" picker (Lite/Full × GPU/CPU,
@@ -198,8 +198,8 @@ sites — MediaPipe's native `close()` racing an in-flight `detect()` is a SIGSE
 `.gitignore` onnx block, `PoseBenchmarkActivity`'s RTMPose bench entry, and
 `pose_landmarker_heavy.task`'s auto-download in `download_tasks.gradle` (heavy shipped ~29MB dead
 weight in every APK); git history is the restore path. **Kept, backend-agnostic** (names unchanged):
-`RtmposeFrameProcessor`, `RtmposeTrainingController`, `RtmposeCalibrationActivity`,
-`RtmposeDrillActivity`, `PoseSessionRecorder`, `Coco17OverlayView`, `LiveDrillSession`; baseline key
+`LivePoseFrameProcessor`, `LiveTrainingController`, `LiveCalibrationActivity`,
+`LiveDrillActivity`, `PoseSessionRecorder`, `Coco17OverlayView`, `LiveDrillSession`; baseline key
 `"forehand_drive_rtm"` unchanged. Desktop Python RTMPose (`scripts/poses/export_poses_rtmpose.py`) and
 shared-KMP fixtures are **not affected** — that pipeline is still RTMPose; this change is Android
 live-inference only.
@@ -235,7 +235,7 @@ rows (`"custom_seed_forehand_andrii"`, `"custom_seed_forehand_general"`), seeded
 `TTCoachApplication` via `SeededDrillsPolicy` (flag `"seeded_drills_v1"` OR empty table; check-before-write
 so user edits are never clobbered) — ordinary editable/deletable/shareable custom drills from then on.
 The general row carries a new column `movementProfile="general"` (`AppDatabase` v10, destructive
-migration) that widens `hipTravelMaxTorso` through `RtmposeTrainingController`.
+migration) that widens `hipTravelMaxTorso` through `LiveTrainingController`.
 
 Editor: the 10 advanced rows are now 7, bound to `DrillMetrics.ALL_KEYS` (5 precise-degree metrics,
 `stroke_speed` in torso-lengths/s, `coil_ratio` as a ratio; EN+UA labels). `PerPhaseTargetsCodec` keys
@@ -304,7 +304,7 @@ shared/                      # KMP module — ALL NEW LOGIC GOES HERE (Phase 2)
 
 app/                         # Android app — live pose pipeline in pose/ (Phase 3; MediaPipe since 2026-07-25, was RTMPose); separate legacy MediaPipe calib/inference UI deleted 2026-07-24
   src/main/java/com/ttcoachai/
-    pose/                    # PoseBackend seam; PoseBackendFactory → MediaPipePoseLandmarkerBackend (since 2026-07-25; Phase 3 orig. RtmposeBackend/ONNX Runtime, now deleted); RtmposeDrillActivity, PresetVoiceController/DrillTtsController
+    pose/                    # PoseBackend seam; PoseBackendFactory → MediaPipePoseLandmarkerBackend (since 2026-07-25; Phase 3 orig. RtmposeBackend/ONNX Runtime, now deleted); LiveDrillActivity, PresetVoiceController/DrillTtsController
     managers/                # TrainingStateManager, CalibrationStateManager — frozen
     tracking/                # FROZEN: BallDetectorV1..V6, ROIManager
     mappers/ services/       # MediaPipeMapper, MotionAnalyzer, StrokePhaseDetector — frozen, still import com.google.mediapipe, feed the frozen 3D pipeline only
@@ -362,7 +362,7 @@ Summarized below to avoid re-reads during UI-wiring work — check here before r
 - **[DrillsFragment.kt](app/src/main/java/com/ttcoachai/fragment/DrillsFragment.kt)** — binds `FragmentDrillsBinding` (`rvDrills`, `fabAddDrill`, `sectionRecent`, `tvRecentName`/`ivRecentIcon`/`tvRecentDate`/`tvRecentAccuracy`/`btnRecentContinue`); builds built-in `Exercise` list + custom drills via `CustomDrillRepository`/`AppDatabase`; `ExerciseAdapter` (click/long-click/clone/delete/toggle-locked callbacks); long-press → `dialog_drill_menu` rows gated by `DrillActions`; launches `ExerciseEditorActivity` (new/edit/clone) via `exerciseEditorLauncher`; navigates to `TrainingActivity`. Session-level `cachedCustomExercises` companion cache avoids pop-in on refragment.
 - **[styles.xml](app/src/main/res/values/styles.xml)** — base `AppTheme` (Material3 DayNight). `TTC.*` families: `TextAppearance.TTC.{Stat.Hero/Large/Medium/Small, Mono.Meta, Title.Screen/Card, Body/Body.Secondary, Eyebrow(.Gold), Nav.Label}`; `TTC.Card(.Highlighted/.GoldTint)`; `TTC.Segment{Track,.Inactive,.Active,.Button(.Paywall)}`; `TTC.Button.{Primary,Ghost,Danger}`; `TTC.Fab.Extended`; `TTC.SectionHeader(.Gold)`; `TTC.StatNumber(.Gold/.Positive)`; `TTC.TrendChip.{Positive,Negative}`; `TTC.Toggle`; `TTC.Slider`; `TTC.Chip.{Filter,Focus}`; `TtcStepper.{Button,Value}`; `TTC.Dialog.{Title.Panel,Body.Panel,Button.Positive/Neutral}` + `ThemeOverlay.TTC.Dialog`; `TTC.BottomSheet.Modal` + `ThemeOverlay.TTC.BottomSheet`; `TTC.Button.Confirm.{Cancel,Destructive,Neutral}`, `TTC.Button.Discard`.
 - **[strings.xml](app/src/main/res/values/strings.xml)** — ~935 strings (EN). Groups by prefix: `exercise_*`/`cat_*`/`difficulty_*` (drill catalog), `training_*`/`btn_*` (Training), `settings_*`/`feedback_*`/`detection_*` (8a/11a/11b), `profile_*`/`subscription_*`/`premium_*` (Profile), `drills_*`/`drill_action_*` (Drills tab + long-press menu), `calibration_*`, `review_*`/`history_*`, `live_*` (1a/1e), `exercise_editor_*` (10c/10d), `dow_*`/`day_*`/`greeting_*` (Dashboard), `format_*` (shared), `placeholder_*` (debug).
-- **[TrainingUIController.kt](app/src/main/java/com/ttcoachai/managers/TrainingUIController.kt)** — wraps `ActivityTrainingBinding`; wires bottom sheet (`binding.bottomSheet`, collapsed/not-hideable), `drillMenu.btnPauseResume`/`btnEndSession`/`cardFullReport`, `fab_pause_play`; `rvFeedbackList` + `FeedbackListAdapter`; cues-per-session segment (`btnCues3/5/10`) persisted via `SettingsManager`; correction chips (9: `chipWrist/Rotation/FollowThrough/ContactHeight/ElbowBend/Elbow/KneeBend/Posture/Speed`) → `CorrectionType` via the lazy `correctionChipPairs`, with per-path show/hide through `setCorrectionChipsForPath(rtmPath)` (visibility only — stored enabled-settings untouched); collapsible `headerFeedbackSettings`/`groupFeedbackSettingsContent`/`ivFeedbackSettingsChevron`; `updateStats()` writes `tv_hits_count`/`tv_accuracy_percent` + `drillMenu.tvTotalHits/tvAccuracy/progressDrill/tvDrillProgress/tvFlagged`; `showFeedbackExplanation` → `FeedbackExplanationSheet`. Collaborators: `TrainingActivity`, `SettingsManager`, `TrainingStateManager`.
+- **[TrainingUIController.kt](app/src/main/java/com/ttcoachai/managers/TrainingUIController.kt)** — wraps `ActivityTrainingBinding`; wires bottom sheet (`binding.bottomSheet`, collapsed/not-hideable), `drillMenu.btnPauseResume`/`btnEndSession`/`cardFullReport`, `fab_pause_play`; `rvFeedbackList` + `FeedbackListAdapter`; cues-per-session segment (`btnCues3/5/10`) persisted via `SettingsManager`; correction chips (9: `chipWrist/Rotation/FollowThrough/ContactHeight/ElbowBend/Elbow/KneeBend/Posture/Speed`) → `CorrectionType` via the lazy `correctionChipPairs`, with per-path show/hide through `setCorrectionChipsForPath(livePath)` (visibility only — stored enabled-settings untouched); collapsible `headerFeedbackSettings`/`groupFeedbackSettingsContent`/`ivFeedbackSettingsChevron`; `updateStats()` writes `tv_hits_count`/`tv_accuracy_percent` + `drillMenu.tvTotalHits/tvAccuracy/progressDrill/tvDrillProgress/tvFlagged`; `showFeedbackExplanation` → `FeedbackExplanationSheet`. Collaborators: `TrainingActivity`, `SettingsManager`, `TrainingStateManager`.
 - **[ProfileFragment.kt](app/src/main/java/com/ttcoachai/fragment/ProfileFragment.kt)** — binds `FragmentProfileBinding`; IDs: `tvProfileName`, `tvProfileEmail`, `ivProfileImage`/`tvProfileInitials` (Coil + initials fallback), `cardSubscriptionActive`/`cardSubscriptionUpgrade`, `tvRenewalDate`, `toggleGroupTheme`, `layoutAppSettings`, `layoutHelpSupport`, `btnLogOut`, `tvProfileStreak`/`tvProfileHours`, `profileScrollView` (scroll restore). Collaborators: `SettingsManager`, `AuthViewModel`(+`AuthRepository`), `CloudSyncManager`, `ProgressDataLoader`; navigates to `AppSettingsActivity`, `HelpSupportActivity`, `SubscribeActivity`, `LoginActivity` (logout).
 - **[values-uk/strings.xml](app/src/main/res/values-uk/strings.xml)** — ~795 strings, Ukrainian mirror of `values/strings.xml` (same keys/prefixes; fewer entries — some newer EN strings not yet translated). Format placeholders (`%1$d`/`%s`) preserved.
 - **[item_exercise.xml](app/src/main/res/layout/item_exercise.xml)** — root `com.ttcoachai.ui.SwipeRevealLayout#swipe_root` with `swipe_delete_panel` (start) + `swipe_clone_panel` (end) reveal panels, foreground `MaterialCardView#swipe_foreground` (`TTC.Card`); adapter-bound IDs: `fl_icon_container`/`iv_exercise_icon`, `tv_exercise_name`, `tv_exercise_description`, `tv_duration`, `tv_category`, `iv_chevron`.

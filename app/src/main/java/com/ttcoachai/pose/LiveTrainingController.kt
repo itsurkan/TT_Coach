@@ -1,10 +1,10 @@
 package com.ttcoachai.pose
 
-// RtmposeTrainingController.kt
+// LiveTrainingController.kt
 //
 // Encapsulates the RTMPose live-drill path for the MAIN training screen
 // (TrainingActivity), so the Activity itself stays thin. This is the
-// "production" sibling of RtmposeDrillActivity (the debug-only dev tool) —
+// "production" sibling of LiveDrillActivity (the debug-only dev tool) —
 // same backend/processor/CameraX wiring, but:
 //   - runs inside a container the caller owns (no dedicated layout/Activity)
 //   - always FEEDBACK mode against an already-calibrated baseline (no
@@ -52,14 +52,14 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Owns the whole RTMPose live path for [com.ttcoachai.TrainingActivity]: builds the
  * preview + skeleton overlay, binds CameraX, runs the [PoseBackendFactory]-resolved backend
- * through [RtmposeFrameProcessor], drives a [LiveDrillSession] against [baseline], speaks
+ * through [LivePoseFrameProcessor], drives a [LiveDrillSession] against [baseline], speaks
  * feedback via [PresetVoiceController], and bridges rep/feedback events into
  * [stateManager] so existing stats/session-save code needs no changes.
  *
  * [start] returns false (and logs) if the RTMPose backend fails to construct — the
  * caller is expected to fall back to the legacy MediaPipe pipeline in that case.
  */
-class RtmposeTrainingController(
+class LiveTrainingController(
     private val activity: FragmentActivity,
     private val container: ViewGroup,
     private val stateManager: TrainingStateManager,
@@ -84,7 +84,7 @@ class RtmposeTrainingController(
     private val metricBands: Map<String, ClosedRange<Double>> = emptyMap(),
 ) {
     companion object {
-        private const val TAG = "RtmposeTrainingCtrl"
+        private const val TAG = "LiveTrainingCtrl"
 
         /**
          * Maps a [com.ttcoachai.shared.drill.FeedbackCue.metricKey] (or null, for positive
@@ -131,7 +131,7 @@ class RtmposeTrainingController(
     private var overlayView: Coco17OverlayView? = null
 
     private var backend: PoseBackend? = null
-    private var processor: RtmposeFrameProcessor? = null
+    private var processor: LivePoseFrameProcessor? = null
     private var voiceController: PresetVoiceController? = null
     private var session: LiveDrillSession? = null
 
@@ -184,7 +184,7 @@ class RtmposeTrainingController(
         previewView = preview
         overlayView = overlay
 
-        processor = RtmposeFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
+        processor = LivePoseFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
             activity.runOnUiThread { onPoseResult(keypoints, timestampMs) }
         }
 
@@ -220,10 +220,10 @@ class RtmposeTrainingController(
     // TODO: SettingsManager has no shared-Handedness getter — isPlayingHandRight() exists
     // but is a different value space (bool "hand" vs shared Handedness) used elsewhere for
     // feedback-zone tuning, not confirmed to mean the same thing here. Hardcoding RIGHT,
-    // same caveat as RtmposeDrillActivity, until a pre-drill handedness picker exists.
+    // same caveat as LiveDrillActivity, until a pre-drill handedness picker exists.
     private fun handedness(): Handedness = Handedness.RIGHT
 
-    // MARK: - CameraX (copied technique from RtmposeDrillActivity.bindCameraUseCases)
+    // MARK: - CameraX (copied technique from LiveDrillActivity.bindCameraUseCases)
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(activity)
@@ -334,7 +334,7 @@ class RtmposeTrainingController(
     }
 
     /** Creates [session] on first use, with the aspectRatio captured from analyzed frames
-     *  so far (defaults to 3/4 like [RtmposeDrillActivity] until the first frame arrives). */
+     *  so far (defaults to 3/4 like [LiveDrillActivity] until the first frame arrives). */
     private fun ensureSession(): LiveDrillSession {
         var current = session
         if (current == null || !sessionCreated) {
@@ -374,7 +374,7 @@ class RtmposeTrainingController(
     }
 
     // MARK: - Diagnostics (see task: never hearing knee-bend cue — no behavior change,
-    // logging only). Filter with `adb logcat -s RtmposeTrainingCtrl`.
+    // logging only). Filter with `adb logcat -s LiveTrainingCtrl`.
 
     /** Logged once when [session] is created: reveals a baseline missing `knee_bend`
      *  (or any other metric) outright — the #1 candidate for "cue never fires". */

@@ -25,7 +25,7 @@ import java.util.zip.GZIPOutputStream
  * use [cacheDir].
  *
  * Writes go through a dedicated single-thread dispatcher so [onFrame] (called from the UI
- * thread via RtmposeTrainingController.onPoseResult) never blocks on file IO. [onFrame] calls
+ * thread via LiveTrainingController.onPoseResult) never blocks on file IO. [onFrame] calls
  * are fire-and-forget but always land on that same single thread in submission order — so, for
  * frames submitted strictly before [finish] starts running, [finish] is guaranteed to see every
  * prior write completed with no extra synchronization needed. A frame that arrives concurrently

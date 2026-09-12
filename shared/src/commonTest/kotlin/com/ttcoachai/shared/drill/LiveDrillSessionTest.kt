@@ -259,7 +259,7 @@ class LiveDrillSessionTest {
         )
     }
 
-    // ---- cueFilter (wiring for RtmposeTrainingController's disabled-correction-type mute) ----
+    // ---- cueFilter (wiring for LiveTrainingController's disabled-correction-type mute) ----
 
     @Test
     fun cueFilterRejectingTheSoleCueLeavesTheRepSilent() {

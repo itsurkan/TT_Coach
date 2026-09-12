@@ -13,7 +13,7 @@ class TrainingMediaManager(
     private val binding: ActivityTrainingBinding
 ) {
     /**
-     * The caller (e.g. [com.ttcoachai.pose.RtmposeTrainingController]) takes over
+     * The caller (e.g. [com.ttcoachai.pose.LiveTrainingController]) takes over
      * `cameraPreviewContainer` itself, so this only prepares the container's visibility.
      */
     fun setup() {

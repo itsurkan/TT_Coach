@@ -1,10 +1,10 @@
 package com.ttcoachai.pose
 
-// RtmposeDrillActivity.kt
+// LiveDrillActivity.kt
 //
 // Phase 3 (P4c) integration Activity: the live forehand-drive drill, backend resolved via
 // PoseBackendFactory (MediaPipe). Ties together the already-committed pieces — PoseBackendFactory,
-// RtmposeFrameProcessor (P4b), Coco17OverlayView (P4a), DrillTtsController (P4a), and the shared
+// LivePoseFrameProcessor (P4b), Coco17OverlayView (P4a), DrillTtsController (P4a), and the shared
 // LiveDrillSession / DrillCalibrator / PersonalBaselineRepository — none of whose logic is
 // reimplemented here. This class only binds CameraX (copied technique from
 // CameraManager.bindCameraUseCases) and wires the two live modes.
@@ -52,10 +52,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class RtmposeDrillActivity : AppCompatActivity() {
+class LiveDrillActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "RtmposeDrillActivity"
+        private const val TAG = "LiveDrillActivity"
 
         /** Distinct from the legacy MediaPipe "forehand_drive"/"forehand_shadow" lineage. */
         const val DRILL_TYPE = "forehand_drive_rtm"
@@ -88,7 +88,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
     private var mode = Mode.CALIBRATE
 
     private var backend: PoseBackend? = null
-    private var processor: RtmposeFrameProcessor? = null
+    private var processor: LivePoseFrameProcessor? = null
     private var ttsController: DrillTtsController? = null
     private var liveSession: LiveDrillSession? = null
 
@@ -113,7 +113,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
             return
         }
 
-        setContentView(R.layout.activity_rtmpose_drill)
+        setContentView(R.layout.activity_live_drill)
         previewView = findViewById(R.id.previewView)
         overlayView = findViewById(R.id.overlayView)
         statusText = findViewById(R.id.statusText)
@@ -126,13 +126,13 @@ class RtmposeDrillActivity : AppCompatActivity() {
             PoseBackendFactory.create(this)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to construct pose backend", e)
-            statusText.text = getString(R.string.rtmpose_drill_backend_unavailable, e.message ?: "unknown error")
+            statusText.text = getString(R.string.live_drill_backend_unavailable, e.message ?: "unknown error")
             null
         }
 
         val activeBackend = backend
         if (activeBackend != null) {
-            processor = RtmposeFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
+            processor = LivePoseFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
                 onPoseResult(keypoints, timestampMs)
             }
         }
@@ -209,7 +209,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
                 it.setAnalyzer(analysisExecutor) { imageProxy ->
                     // Capture the rotated frame's aspect ratio once (LiveDrillSession/
                     // PoseSequence2D need one aspectRatio; it does not change frame to frame).
-                    // RtmposeFrameProcessor computes this same rotated width/height internally
+                    // LivePoseFrameProcessor computes this same rotated width/height internally
                     // but does not expose it via onPose, so it is derived here from the same
                     // ImageProxy fields without duplicating its bitmap/matrix logic.
                     val rotation = imageProxy.imageInfo.rotationDegrees
@@ -258,7 +258,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
                     // Start capturing.
                     calibrationFrames.clear()
                     calibrating = true
-                    statusText.text = getString(R.string.rtmpose_drill_status_calibrate)
+                    statusText.text = getString(R.string.live_drill_status_calibrate)
                 } else {
                     finishCalibration()
                 }
@@ -271,11 +271,11 @@ class RtmposeDrillActivity : AppCompatActivity() {
         calibrating = false
         val frames = calibrationFrames.toList()
         if (frames.size < 2) {
-            statusText.text = getString(R.string.rtmpose_drill_calibration_failed, "not enough frames captured")
+            statusText.text = getString(R.string.live_drill_calibration_failed, "not enough frames captured")
             return
         }
 
-        statusText.text = getString(R.string.rtmpose_drill_calibrating_busy)
+        statusText.text = getString(R.string.live_drill_calibrating_busy)
         val ratio = aspectRatio
         val interval = medianIntervalMs(frames)
 
@@ -305,14 +305,14 @@ class RtmposeDrillActivity : AppCompatActivity() {
                 is CalibrationOutcome.Success -> {
                     repository.saveBaseline(outcome.baseline)
                     statusText.text = getString(
-                        R.string.rtmpose_drill_calibration_saved, outcome.baseline.repCount
+                        R.string.live_drill_calibration_saved, outcome.baseline.repCount
                     )
                 }
                 is CalibrationOutcome.PlacementError -> {
-                    statusText.text = getString(R.string.rtmpose_drill_calibration_failed, outcome.message)
+                    statusText.text = getString(R.string.live_drill_calibration_failed, outcome.message)
                 }
                 is CalibrationOutcome.Failed -> {
-                    statusText.text = getString(R.string.rtmpose_drill_calibration_failed, outcome.message)
+                    statusText.text = getString(R.string.live_drill_calibration_failed, outcome.message)
                 }
             }
         }
@@ -354,7 +354,7 @@ class RtmposeDrillActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val baseline = repository.getActiveBaseline(DRILL_TYPE).first()
             if (baseline == null) {
-                statusText.text = getString(R.string.rtmpose_drill_need_calibration)
+                statusText.text = getString(R.string.live_drill_need_calibration)
                 return@launch
             }
 
@@ -367,14 +367,14 @@ class RtmposeDrillActivity : AppCompatActivity() {
             )
 
             ttsController?.shutdown()
-            ttsController = DrillTtsController(this@RtmposeDrillActivity, lang) { text ->
+            ttsController = DrillTtsController(this@LiveDrillActivity, lang) { text ->
                 runOnUiThread { statusText.text = text }
             }.also { it.init() }
 
             mode = Mode.FEEDBACK
             calibrating = false
             renderModeUi()
-            statusText.text = getString(R.string.rtmpose_drill_status_feedback)
+            statusText.text = getString(R.string.live_drill_status_feedback)
         }
     }
 
@@ -386,19 +386,19 @@ class RtmposeDrillActivity : AppCompatActivity() {
         ttsController?.shutdown()
         ttsController = null
         renderModeUi()
-        statusText.text = getString(R.string.rtmpose_drill_status_calibrate)
+        statusText.text = getString(R.string.live_drill_status_calibrate)
     }
 
     private fun renderModeUi() {
         when (mode) {
             Mode.CALIBRATE -> {
                 btnPrimary.isEnabled = true
-                btnPrimary.text = getString(R.string.rtmpose_drill_finish_calibration)
-                btnSwitchMode.text = getString(R.string.rtmpose_drill_switch_to_feedback)
+                btnPrimary.text = getString(R.string.live_drill_finish_calibration)
+                btnSwitchMode.text = getString(R.string.live_drill_switch_to_feedback)
             }
             Mode.FEEDBACK -> {
                 btnPrimary.isEnabled = false
-                btnSwitchMode.text = getString(R.string.rtmpose_drill_status_calibrate)
+                btnSwitchMode.text = getString(R.string.live_drill_status_calibrate)
             }
         }
     }

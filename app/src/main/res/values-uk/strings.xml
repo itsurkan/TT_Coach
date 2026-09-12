@@ -960,29 +960,29 @@
     <string name="summary_finish">Завершити</string>
 
     <!-- RTMPose live drill on the main training screen -->
-    <string name="rtmpose_drill_need_calibration">Ще немає базового профілю — спочатку відкалібруйтеся.</string>
-    <string name="rtmpose_drill_backend_unavailable">Модель пози недоступна: %1$s</string>
+    <string name="live_drill_need_calibration">Ще немає базового профілю — спочатку відкалібруйтеся.</string>
+    <string name="live_drill_backend_unavailable">Модель пози недоступна: %1$s</string>
 
     <!-- RTMPose calibration screen (shippable — створює базовий профіль forehand_drive_rtm) -->
-    <string name="rtmpose_calibration_title">Калібрування форхенду</string>
-    <string name="rtmpose_calibration_headline">Налаштуйте камеру</string>
-    <string name="rtmpose_calibration_instructions_body">Розмістіть телефон збоку на відстані 2–3 м, на рівні пояса, під кутом вашого удару. Станьте так, щоб усе тіло — включно з колінами та щиколотками — було видно в кадрі під час удару.\n\nВи виконаєте серію форхенд-ударів у своїй звичній техніці — без коучингу, просто ваш звичайний удар.</string>
-    <string name="rtmpose_calibration_skeleton_hint">Слідкуйте за скелетом на екрані. Якщо коліна чи ступні обрізані кадром або не відстежуються — відійдіть назад або перекадруйте, перш ніж почати: інакше підказку щодо згину коліна пізніше буде неможливо перевірити.</string>
-    <string name="rtmpose_calibration_start_button">Почати запис</string>
-    <string name="rtmpose_calibration_recording_headline">Запис</string>
-    <string name="rtmpose_calibration_recording_body">Виконуйте форхенд-удари у стабільному темпі, чітко в кадрі камери. Натисніть «Завершити», коли зробите щонайменше 10 повторень.</string>
-    <string name="rtmpose_calibration_cancel_button">Скасувати</string>
-    <string name="rtmpose_calibration_finish_button">Завершити</string>
-    <string name="rtmpose_calibration_processing">Аналізуємо ваші повторення…</string>
-    <string name="rtmpose_calibration_success_title">Базовий профіль збережено</string>
-    <string name="rtmpose_calibration_success_body">Записано %1$d повторень. Тепер можна почати тренування з підказками.</string>
-    <string name="rtmpose_calibration_done_button">Готово</string>
-    <string name="rtmpose_calibration_failed_title">Калібрування не вдалося</string>
-    <string name="rtmpose_calibration_failed_placement">%1$s\n\nПерерозмістіть камеру так, щоб вас було повністю видно збоку, і спробуйте ще раз.</string>
-    <string name="rtmpose_calibration_failed_generic">%1$s\n\nСпробуйте ще раз, виконавши трохи більше повторень, повністю в кадрі камери.</string>
-    <string name="rtmpose_calibration_not_enough_frames">Запис був закороткий — зробіть більше повторень перед тим, як натиснути «Завершити».</string>
-    <string name="rtmpose_calibration_retry_button">Спробувати ще раз</string>
-    <string name="rtmpose_calibration_camera_permission_denied">Для калібрування потрібен дозвіл на камеру.</string>
+    <string name="live_calibration_title">Калібрування форхенду</string>
+    <string name="live_calibration_headline">Налаштуйте камеру</string>
+    <string name="live_calibration_instructions_body">Розмістіть телефон збоку на відстані 2–3 м, на рівні пояса, під кутом вашого удару. Станьте так, щоб усе тіло — включно з колінами та щиколотками — було видно в кадрі під час удару.\n\nВи виконаєте серію форхенд-ударів у своїй звичній техніці — без коучингу, просто ваш звичайний удар.</string>
+    <string name="live_calibration_skeleton_hint">Слідкуйте за скелетом на екрані. Якщо коліна чи ступні обрізані кадром або не відстежуються — відійдіть назад або перекадруйте, перш ніж почати: інакше підказку щодо згину коліна пізніше буде неможливо перевірити.</string>
+    <string name="live_calibration_start_button">Почати запис</string>
+    <string name="live_calibration_recording_headline">Запис</string>
+    <string name="live_calibration_recording_body">Виконуйте форхенд-удари у стабільному темпі, чітко в кадрі камери. Натисніть «Завершити», коли зробите щонайменше 10 повторень.</string>
+    <string name="live_calibration_cancel_button">Скасувати</string>
+    <string name="live_calibration_finish_button">Завершити</string>
+    <string name="live_calibration_processing">Аналізуємо ваші повторення…</string>
+    <string name="live_calibration_success_title">Базовий профіль збережено</string>
+    <string name="live_calibration_success_body">Записано %1$d повторень. Тепер можна почати тренування з підказками.</string>
+    <string name="live_calibration_done_button">Готово</string>
+    <string name="live_calibration_failed_title">Калібрування не вдалося</string>
+    <string name="live_calibration_failed_placement">%1$s\n\nПерерозмістіть камеру так, щоб вас було повністю видно збоку, і спробуйте ще раз.</string>
+    <string name="live_calibration_failed_generic">%1$s\n\nСпробуйте ще раз, виконавши трохи більше повторень, повністю в кадрі камери.</string>
+    <string name="live_calibration_not_enough_frames">Запис був закороткий — зробіть більше повторень перед тим, як натиснути «Завершити».</string>
+    <string name="live_calibration_retry_button">Спробувати ще раз</string>
+    <string name="live_calibration_camera_permission_denied">Для калібрування потрібен дозвіл на камеру.</string>
 
     <!-- Training screen: блокуюче вікно "потрібне калібрування" -->
     <string name="training_calibration_required_title">Потрібне калібрування</string>

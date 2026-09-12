@@ -13,8 +13,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.ttcoachai.databinding.ActivityTrainingBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.managers.*
-import com.ttcoachai.pose.RtmposeCalibrationActivity
-import com.ttcoachai.pose.RtmposeTrainingController
+import com.ttcoachai.pose.LiveCalibrationActivity
+import com.ttcoachai.pose.LiveTrainingController
 import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.work.PoseUploadQueue
 import java.io.File
@@ -45,7 +45,7 @@ class TrainingActivity : BaseActivity() {
 
     /** Non-null only when the RTMPose live path took over (see [decideCameraModeAndStart]).
      *  Null if the RTM controller failed to start (see [showCalibrationRequiredDialog]). */
-    private var rtmController: RtmposeTrainingController? = null
+    private var rtmController: LiveTrainingController? = null
 
     /**
      * All configured per-metric reference bands for this drill, decoded once in
@@ -59,7 +59,7 @@ class TrainingActivity : BaseActivity() {
     private var referenceTypeExtra: String? = null
     private var movementProfile: String? = null
 
-    /** Launches [RtmposeCalibrationActivity] from the "calibration required" dialog (see
+    /** Launches [LiveCalibrationActivity] from the "calibration required" dialog (see
      *  [decideCameraModeAndStart]). Must be registered unconditionally before STARTED, so it
      *  lives as a property rather than being created inside the dialog callback. Result code
      *  is not load-bearing — [retryAfterCalibration] always re-checks the baseline directly,
@@ -72,7 +72,7 @@ class TrainingActivity : BaseActivity() {
     companion object {
         private const val TAG = "TrainingActivity"
 
-        /** Same forehand-family gate RtmposeDrillActivity's baseline lineage implies:
+        /** Same forehand-family gate LiveDrillActivity's baseline lineage implies:
          *  the RTMPose path only has reference angles for the forehand drive. */
         private fun isForehandRtmEligible(exerciseId: String?): Boolean =
             exerciseId == null || exerciseId.startsWith("forehand") || exerciseId.startsWith("custom_")
@@ -147,7 +147,7 @@ class TrainingActivity : BaseActivity() {
      * Camera-mode decision is async (baseline lookup is a suspend Flow read). Video-debug
      * mode is unaffected (still legacy, still synchronous). For live camera: a forehand
      * RTMPose baseline is now REQUIRED — the RTM path owns the whole camera+drill path via
-     * [RtmposeTrainingController] (PoseAnalysisProcessor is never started, and
+     * [LiveTrainingController] (PoseAnalysisProcessor is never started, and
      * [TrainingMediaManager] only prepares `cameraPreviewContainer` for the RTM controller
      * to attach itself into). There is no legacy fallback anymore (see project CLAUDE.md "why this
      * task exists" — the legacy pipeline has no voice output at all, so falling back to it
@@ -205,7 +205,7 @@ class TrainingActivity : BaseActivity() {
 
     /** Attempts to start the RTM live path against [baseline]. Returns false (nothing left
      *  attached beyond what [TrainingMediaManager.setup] already did) if the
-     *  RTMPose backend fails to construct inside [RtmposeTrainingController.start]. */
+     *  RTMPose backend fails to construct inside [LiveTrainingController.start]. */
     private fun startRtmController(
         baseline: PersonalBaseline,
         referenceType: String,
@@ -223,7 +223,7 @@ class TrainingActivity : BaseActivity() {
         } else {
             LocomotionFilter.DEFAULT_MAX_TRAVEL_TORSO
         }
-        val controller = RtmposeTrainingController(
+        val controller = LiveTrainingController(
             activity = this@TrainingActivity,
             container = binding.cameraPreviewContainer,
             stateManager = stateManager,
@@ -242,14 +242,14 @@ class TrainingActivity : BaseActivity() {
 
     /** Blocking, dismissible-only-via-its-own-actions dialog: calibration is a hard
      *  prerequisite now, so there is nothing useful to show behind it. "Calibrate Now" hands
-     *  off to [RtmposeCalibrationActivity]; "Not Now" leaves the training screen entirely. */
+     *  off to [LiveCalibrationActivity]; "Not Now" leaves the training screen entirely. */
     private fun showCalibrationRequiredDialog() {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.training_calibration_required_title)
             .setMessage(R.string.training_calibration_required_message)
             .setCancelable(false)
             .setPositiveButton(R.string.training_calibration_required_calibrate) { _, _ ->
-                calibrationLauncher.launch(Intent(this, RtmposeCalibrationActivity::class.java))
+                calibrationLauncher.launch(Intent(this, LiveCalibrationActivity::class.java))
             }
             .setNegativeButton(R.string.training_calibration_required_leave) { _, _ ->
                 finish()
@@ -257,7 +257,7 @@ class TrainingActivity : BaseActivity() {
             .show()
     }
 
-    /** Re-checks the baseline after [RtmposeCalibrationActivity] returns (whether it saved a
+    /** Re-checks the baseline after [LiveCalibrationActivity] returns (whether it saved a
      *  baseline, was backed out of, or failed) and either starts the drill or leaves the
      *  screen — no second dialog loop, per the calibration-flow contract. */
     private suspend fun retryAfterCalibration() {
@@ -338,7 +338,7 @@ class TrainingActivity : BaseActivity() {
             // below, and on the app-scoped scope (not lifecycleScope) so the finalize-then-save
             // sequence survives finish() tearing this activity down. launch(Main.immediate) runs
             // the coroutine body — including finishRecording()'s CAS claim on
-            // RtmposeTrainingController.finalizationClaimed — synchronously up to its first
+            // LiveTrainingController.finalizationClaimed — synchronously up to its first
             // suspension point, i.e. before this function returns and calls finish() below. That
             // closes the race the previous async-save design had: onDestroy's abortRecording()
             // safety net can no longer win against an intended finish, because finalization is
@@ -433,7 +433,7 @@ class TrainingActivity : BaseActivity() {
             },
             onFailed = {
                 // The recording was already finalized (by stopTraining, before this save even
-                // started) — RtmposeTrainingController.abortRecording() is now a no-op (its
+                // started) — LiveTrainingController.abortRecording() is now a no-op (its
                 // finalizationClaimed CAS is already claimed). Delete the finalized file
                 // ourselves instead, so an unauthenticated or failed save still leaves nothing
                 // behind, matching the pre-existing "save fails -> aborted" contract.
@@ -475,7 +475,7 @@ class TrainingActivity : BaseActivity() {
         // Safety net for exits that never reached stopTraining (task-switch kill, unhandled
         // exception, back out before the end-session sheet): abort any still-unclaimed
         // recording so it doesn't rot on disk forever. Race-safe against stopTraining, which
-        // now claims finalization (RtmposeTrainingController.finishRecording()'s CAS)
+        // now claims finalization (LiveTrainingController.finishRecording()'s CAS)
         // SYNCHRONOUSLY before calling finish() — so by the time onDestroy can possibly run,
         // an intended finalize has already won the latch and this call is a no-op.
         rtmController?.abortRecording()

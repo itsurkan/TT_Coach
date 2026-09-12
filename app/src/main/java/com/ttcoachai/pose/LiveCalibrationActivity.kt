@@ -1,17 +1,17 @@
 package com.ttcoachai.pose
 
-// RtmposeCalibrationActivity.kt
+// LiveCalibrationActivity.kt
 //
 // Real, shippable calibration screen — produces the "forehand_drive_rtm" baseline that
 // TrainingActivity.decideCameraModeAndStart requires before a live RTMPose-coached drive can
-// start. Unlike RtmposeDrillActivity (the dev-only debug tool this flow is lifted from), this
+// start. Unlike LiveDrillActivity (the dev-only debug tool this flow is lifted from), this
 // Activity is NOT FLAG_DEBUGGABLE-gated — it is the only in-app path a real player has to
 // calibrate the RTM lineage (CalibrationActivity writes the older/legacy baseline lineage
 // instead, see project CLAUDE.md "RTM correction taxonomy").
 //
-// Reuses PoseBackendFactory (MediaPipe) / RtmposeFrameProcessor / Coco17OverlayView and the
-// CameraX binding technique from RtmposeDrillActivity.bindCameraUseCases() /
-// RtmposeTrainingController — no inference logic is duplicated here.
+// Reuses PoseBackendFactory (MediaPipe) / LivePoseFrameProcessor / Coco17OverlayView and the
+// CameraX binding technique from LiveDrillActivity.bindCameraUseCases() /
+// LiveTrainingController — no inference logic is duplicated here.
 //
 // Flow (mirrors calibration/CalibrationActivity's onboarding -> capture -> review shape, as
 // one Activity with visibility-toggled panels instead of a fragment host):
@@ -39,7 +39,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.R
-import com.ttcoachai.databinding.ActivityRtmposeCalibrationBinding
+import com.ttcoachai.databinding.ActivityLiveCalibrationBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.shared.drill.CalibrationOutcome
@@ -53,10 +53,10 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class RtmposeCalibrationActivity : AppCompatActivity() {
+class LiveCalibrationActivity : AppCompatActivity() {
 
     companion object {
-        private const val TAG = "RtmposeCalibrationAct"
+        private const val TAG = "LiveCalibrationAct"
         private const val CAMERA_PERMISSION_REQUEST_CODE = 43
 
         /** Matches the legacy CalibrationStateManager.MIN_REPS_TO_PERSIST floor — this is a
@@ -66,13 +66,13 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
     private enum class Screen { INSTRUCTIONS, RECORDING, PROCESSING, RESULT }
 
-    private lateinit var binding: ActivityRtmposeCalibrationBinding
+    private lateinit var binding: ActivityLiveCalibrationBinding
 
     private val repository by lazy {
         PersonalBaselineRepository(AppDatabase.getDatabase(this).personalBaselineDao())
     }
 
-    // Same hardcoded default as RtmposeDrillActivity/RtmposeTrainingController — no shared-
+    // Same hardcoded default as LiveDrillActivity/LiveTrainingController — no shared-
     // Handedness picker exists yet in Settings (see those classes' TODOs on this exact gap).
     private val handedness = Handedness.RIGHT
 
@@ -80,14 +80,14 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
     private var backend: PoseBackend? = null
     private var backendErrorMessage: String? = null
-    private var processor: RtmposeFrameProcessor? = null
+    private var processor: LivePoseFrameProcessor? = null
 
     private var cameraProvider: ProcessCameraProvider? = null
     private var camera: Camera? = null
     private var analysisExecutor: ExecutorService? = null
 
     /** Analysis-frame aspect ratio (rotated width/height), captured from the first analyzed
-     *  frame — same technique as RtmposeDrillActivity/RtmposeTrainingController. */
+     *  frame — same technique as LiveDrillActivity/LiveTrainingController. */
     @Volatile private var aspectRatio: Float = 3f / 4f
 
     private val calibrationFrames = mutableListOf<PoseFrame2D>()
@@ -100,12 +100,12 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRtmposeCalibrationBinding.inflate(layoutInflater)
+        binding = ActivityLiveCalibrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.apply {
-            title = getString(R.string.rtmpose_calibration_title)
+            title = getString(R.string.live_calibration_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
@@ -121,7 +121,7 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
         val activeBackend = backend
         if (activeBackend != null) {
-            processor = RtmposeFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
+            processor = LivePoseFrameProcessor(activeBackend, mirror = false) { keypoints, timestampMs ->
                 onPoseResult(keypoints, timestampMs)
             }
         }
@@ -163,13 +163,13 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startCamera()
             } else {
-                Toast.makeText(this, R.string.rtmpose_calibration_camera_permission_denied, Toast.LENGTH_LONG).show()
+                Toast.makeText(this, R.string.live_calibration_camera_permission_denied, Toast.LENGTH_LONG).show()
                 finish()
             }
         }
     }
 
-    // MARK: - CameraX (copied technique from RtmposeDrillActivity.bindCameraUseCases)
+    // MARK: - CameraX (copied technique from LiveDrillActivity.bindCameraUseCases)
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -254,7 +254,7 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
         recording = false
         val frames = calibrationFrames.toList()
         if (frames.size < 2) {
-            showFailureResult(getString(R.string.rtmpose_calibration_not_enough_frames))
+            showFailureResult(getString(R.string.live_calibration_not_enough_frames))
             return
         }
 
@@ -279,13 +279,13 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
 
             val outcome = DrillCalibrator.calibrateChecked(
                 sequence = sequence,
-                drillType = RtmposeDrillActivity.DRILL_TYPE,
+                drillType = LiveDrillActivity.DRILL_TYPE,
                 createdAtMs = System.currentTimeMillis(),
                 handedness = handedness,
                 minRepCount = MIN_REP_COUNT,
                 // No override: let CameraAngleEstimator resolve yaw per rep from the footage
                 // itself, so a genuinely misplaced camera actually trips CalibrationOutcome.
-                // PlacementError instead of being silently accepted (unlike RtmposeDrillActivity's
+                // PlacementError instead of being silently accepted (unlike LiveDrillActivity's
                 // dev-tool hardcode of 0f).
                 cameraYawDeg = null
             )
@@ -296,16 +296,16 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
                     showSuccessResult(outcome.baseline.repCount)
                 }
                 is CalibrationOutcome.PlacementError -> {
-                    showFailureResult(getString(R.string.rtmpose_calibration_failed_placement, outcome.message))
+                    showFailureResult(getString(R.string.live_calibration_failed_placement, outcome.message))
                 }
                 is CalibrationOutcome.Failed -> {
-                    showFailureResult(getString(R.string.rtmpose_calibration_failed_generic, outcome.message))
+                    showFailureResult(getString(R.string.live_calibration_failed_generic, outcome.message))
                 }
             }
         }
     }
 
-    /** Median of consecutive timestamp deltas — same technique RtmposeDrillActivity uses
+    /** Median of consecutive timestamp deltas — same technique LiveDrillActivity uses
      *  locally (PoseSequence2D needs one interval up front; not imported from that frozen-
      *  adjacent dev tool to avoid coupling this shippable screen to it beyond DRILL_TYPE). */
     private fun medianIntervalMs(frames: List<PoseFrame2D>): Long {
@@ -325,29 +325,29 @@ class RtmposeCalibrationActivity : AppCompatActivity() {
     private fun showSuccessResult(repCount: Int) {
         savedBaseline = true
         resultCanRetry = false
-        binding.tvResultTitle.text = getString(R.string.rtmpose_calibration_success_title)
-        binding.tvResultBody.text = getString(R.string.rtmpose_calibration_success_body, repCount)
-        binding.btnResultPrimary.text = getString(R.string.rtmpose_calibration_done_button)
+        binding.tvResultTitle.text = getString(R.string.live_calibration_success_title)
+        binding.tvResultBody.text = getString(R.string.live_calibration_success_body, repCount)
+        binding.btnResultPrimary.text = getString(R.string.live_calibration_done_button)
         screen = Screen.RESULT
         renderScreen()
     }
 
     private fun showFailureResult(message: String) {
         resultCanRetry = true
-        binding.tvResultTitle.text = getString(R.string.rtmpose_calibration_failed_title)
+        binding.tvResultTitle.text = getString(R.string.live_calibration_failed_title)
         binding.tvResultBody.text = message
-        binding.btnResultPrimary.text = getString(R.string.rtmpose_calibration_retry_button)
+        binding.btnResultPrimary.text = getString(R.string.live_calibration_retry_button)
         screen = Screen.RESULT
         renderScreen()
     }
 
     private fun showBackendUnavailable() {
         resultCanRetry = false
-        binding.tvResultTitle.text = getString(R.string.rtmpose_calibration_failed_title)
+        binding.tvResultTitle.text = getString(R.string.live_calibration_failed_title)
         binding.tvResultBody.text = getString(
-            R.string.rtmpose_drill_backend_unavailable, backendErrorMessage ?: "unknown error"
+            R.string.live_drill_backend_unavailable, backendErrorMessage ?: "unknown error"
         )
-        binding.btnResultPrimary.text = getString(R.string.rtmpose_calibration_done_button)
+        binding.btnResultPrimary.text = getString(R.string.live_calibration_done_button)
         screen = Screen.RESULT
         renderScreen()
     }

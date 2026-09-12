@@ -11,11 +11,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import com.ttcoachai.BaseActivity
 import com.ttcoachai.R
-import com.ttcoachai.pose.RtmposeCalibrationActivity
+import com.ttcoachai.pose.LiveCalibrationActivity
 import com.ttcoachai.databinding.ActivityExerciseEditorBinding
 import com.ttcoachai.db.AppDatabase
 import com.ttcoachai.models.CustomDrillEntity
-import com.ttcoachai.pose.RtmposeDrillActivity
+import com.ttcoachai.pose.LiveDrillActivity
 import com.ttcoachai.repository.CustomDrillRepository
 import com.ttcoachai.repository.PersonalBaselineRepository
 import com.ttcoachai.shared.analysis.BaselineHintBand
@@ -221,7 +221,7 @@ class ExerciseEditorActivity : BaseActivity() {
      * Replaces the static XML hint on each row with a baseline-derived `mean ± kSigma·std` band,
      * so an empty field's placeholder reflects what actually applies (the derived-baseline
      * consistency check) rather than a hardcoded generic range. Loaded asynchronously — same
-     * lookup TrainingActivity uses (active baseline for [RtmposeDrillActivity.DRILL_TYPE]) — and
+     * lookup TrainingActivity uses (active baseline for [LiveDrillActivity.DRILL_TYPE]) — and
      * left untouched (static hint stays) on any failure: no baseline, missing metric, or a
      * degenerate (std <= 0) stat.
      */
@@ -229,7 +229,7 @@ class ExerciseEditorActivity : BaseActivity() {
         lifecycleScope.launch {
             val baseline = try {
                 PersonalBaselineRepository(AppDatabase.getDatabase(this@ExerciseEditorActivity).personalBaselineDao())
-                    .getActiveBaseline(RtmposeDrillActivity.DRILL_TYPE)
+                    .getActiveBaseline(LiveDrillActivity.DRILL_TYPE)
                     .first()
             } catch (e: CancellationException) {
                 throw e
@@ -326,7 +326,7 @@ class ExerciseEditorActivity : BaseActivity() {
     }
 
     private fun launchCalibration() {
-        calibrationLauncher.launch(Intent(this, RtmposeCalibrationActivity::class.java))
+        calibrationLauncher.launch(Intent(this, LiveCalibrationActivity::class.java))
     }
 
     private fun finishCancelled() {

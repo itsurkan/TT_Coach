@@ -78,7 +78,7 @@ class AppSettingsActivity : AppCompatActivity() {
      *  TrainingActivity shows when no baseline exists yet at all. */
     private fun setupCalibration() {
         binding.layoutRecalibrate.setOnClickListener {
-            startActivity(android.content.Intent(this, com.ttcoachai.pose.RtmposeCalibrationActivity::class.java))
+            startActivity(android.content.Intent(this, com.ttcoachai.pose.LiveCalibrationActivity::class.java))
         }
     }
 

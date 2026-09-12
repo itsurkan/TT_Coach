@@ -4,11 +4,11 @@ package com.ttcoachai.pose
 //
 // THROWAWAY PROTOTYPE, dev-only: live A/B FPS bench across MoveNetBackend and the MediaPipe
 // PoseLandmarker Lite/Full CPU/GPU variants.
-// Same FLAG_DEBUGGABLE self-guard + exported="true" pattern as RtmposeDrillActivity so it can be
+// Same FLAG_DEBUGGABLE self-guard + exported="true" pattern as LiveDrillActivity so it can be
 // launched directly via adb. Built programmatically (no new layout XML) — this is a throwaway
 // measurement tool, not shippable UI.
 //
-// Reuses RtmposeFrameProcessor and Coco17OverlayView UNMODIFIED per freeze discipline; only new
+// Reuses LivePoseFrameProcessor and Coco17OverlayView UNMODIFIED per freeze discipline; only new
 // code is the toggle + FPS readout wiring.
 
 import android.content.pm.ApplicationInfo
@@ -59,7 +59,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
 
     private var activeKind = BackendKind.MEDIAPIPE_LITE_GPU
     private var backend: PoseBackend? = null
-    private var processor: RtmposeFrameProcessor? = null
+    private var processor: LivePoseFrameProcessor? = null
 
     private val fpsTracker = FpsTracker()
     @Volatile private var frameStartNanos: Long = 0L
@@ -194,7 +194,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
             activeKind = kind
             backend = newBackend
             if (newBackend != null) {
-                processor = RtmposeFrameProcessor(newBackend, mirror = false) { keypoints, timestampMs ->
+                processor = LivePoseFrameProcessor(newBackend, mirror = false) { keypoints, timestampMs ->
                     onPoseResult(keypoints, timestampMs)
                 }
             }
@@ -234,7 +234,7 @@ class PoseBenchmarkActivity : AppCompatActivity() {
         }
     }
 
-    // MARK: - CameraX (copied technique from RtmposeDrillActivity)
+    // MARK: - CameraX (copied technique from LiveDrillActivity)
 
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)

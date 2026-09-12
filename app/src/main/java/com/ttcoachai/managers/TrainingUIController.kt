@@ -50,8 +50,8 @@ class TrainingUIController(
 
     /** Toggles chip VISIBILITY only for the given live path — never mutates the stored
      *  `settingsManager.isCorrectionTypeEnabled` state for a hidden chip's type. */
-    fun setCorrectionChipsForPath(rtmPath: Boolean) {
-        val visible = CorrectionTypeAvailability.visibleFor(rtmPath)
+    fun setCorrectionChipsForPath(livePath: Boolean) {
+        val visible = CorrectionTypeAvailability.visibleFor(livePath)
         correctionChipPairs.forEach { (chip, type) ->
             chip.visibility = if (type in visible) View.VISIBLE else View.GONE
         }

@@ -2,7 +2,7 @@ package com.ttcoachai.pose
 
 // MoveNetBackend.kt — THROWAWAY PROTOTYPE (FPS A/B bench only). PoseBackend wrapper around
 // MoveNetEstimator so it can be swapped in for other PoseBackend implementations behind
-// RtmposeFrameProcessor unmodified.
+// LivePoseFrameProcessor unmodified.
 
 import android.content.Context
 import android.graphics.Bitmap

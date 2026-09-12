@@ -8,30 +8,30 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Rotation-math parity check for [RtmposeFrameProcessor] vs the frozen
+ * Rotation-math parity check for [LivePoseFrameProcessor] vs the frozen
  * `PoseLandmarkerProcessor` technique it was copied from (Phase 3, task C2).
  *
- * HONESTY NOTE on scope: [RtmposeFrameProcessor.analyze] takes a real CameraX
+ * HONESTY NOTE on scope: [LivePoseFrameProcessor.analyze] takes a real CameraX
  * `ImageProxy` and calls its default `toBitmap()`, which decodes actual YUV_420_888 /
  * JPEG image planes (`ImageUtil.createBitmapFromImageProxy`). A faithful `ImageProxy`
  * fake carrying real, decodable pixel data isn't feasible to build off-device (no camera
  * HAL, no real sensor buffer) — an interface-level fake would either fail inside
  * `toBitmap()` or require reimplementing image codec internals, which would not actually
  * exercise the real conversion path anyway. So this test does NOT drive
- * `RtmposeFrameProcessor.analyze()` end-to-end and does NOT assert full pixel-parity
+ * `LivePoseFrameProcessor.analyze()` end-to-end and does NOT assert full pixel-parity
  * against `PoseLandmarkerProcessor` — that remains a device-frame check (visually
  * comparing the RTMPose overlay against the frozen MediaPipe overlay on the same live
  * frame, done manually on-device).
  *
  * What IS asserted here, deterministically: the width/height SWAP RULE that both
  * processors' copied technique depends on (`rotationDegrees % 180 != 0` swaps width and
- * height of the rotated output buffer — see `RtmposeFrameProcessor.kt` lines computing
+ * height of the rotated output buffer — see `LivePoseFrameProcessor.kt` lines computing
  * `rotatedWidth`/`rotatedHeight`, identical to `PoseLandmarkerProcessor`). We replicate
  * that exact formula against a stub [PoseBackend] that records the dimensions it was
  * called with, for each of the four CameraX rotation values (0/90/180/270).
  */
 @RunWith(AndroidJUnit4::class)
-class RtmposeRotationParityTest {
+class LivePoseFrameProcessorRotationParityTest {
 
     /** Records the (width, height) it was invoked with; returns an empty pose (no ONNX). */
     private class RecordingStubBackend : PoseBackend {
@@ -45,7 +45,7 @@ class RtmposeRotationParityTest {
         }
     }
 
-    /** Mirrors RtmposeFrameProcessor's swap rule exactly (same formula, not re-derived). */
+    /** Mirrors LivePoseFrameProcessor's swap rule exactly (same formula, not re-derived). */
     private fun expectedRotatedDims(sourceWidth: Int, sourceHeight: Int, rotationDegrees: Int): Pair<Int, Int> {
         val rotatedWidth = if (rotationDegrees % 180 != 0) sourceHeight else sourceWidth
         val rotatedHeight = if (rotationDegrees % 180 != 0) sourceWidth else sourceHeight

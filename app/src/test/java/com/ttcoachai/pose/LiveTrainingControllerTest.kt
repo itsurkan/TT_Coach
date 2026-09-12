@@ -6,24 +6,24 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Unit tests for the pure helpers in [RtmposeTrainingController]: the metricKey ->
+ * Unit tests for the pure helpers in [LiveTrainingController]: the metricKey ->
  * CorrectionType UI bridge and the rep -> AnalysisResult score synthesis. Both are plain
  * functions with no Android dependency, so plain JUnit (no Robolectric) suffices — the rest
  * of the controller (CameraX, TTS, Room) is Android-heavy and left to manual/instrumented
  * verification per the task brief.
  */
-class RtmposeTrainingControllerTest {
+class LiveTrainingControllerTest {
 
     @Test
     fun mapMetricToCorrectionType_null_isGeneral() {
-        assertEquals(CorrectionType.GENERAL, RtmposeTrainingController.mapMetricToCorrectionType(null))
+        assertEquals(CorrectionType.GENERAL, LiveTrainingController.mapMetricToCorrectionType(null))
     }
 
     @Test
     fun mapMetricToCorrectionType_elbowAngle_isElbowBend() {
         assertEquals(
             CorrectionType.ELBOW_BEND,
-            RtmposeTrainingController.mapMetricToCorrectionType("elbow_angle")
+            LiveTrainingController.mapMetricToCorrectionType("elbow_angle")
         )
     }
 
@@ -31,7 +31,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_torsoLean_isPosture() {
         assertEquals(
             CorrectionType.POSTURE,
-            RtmposeTrainingController.mapMetricToCorrectionType("torso_lean")
+            LiveTrainingController.mapMetricToCorrectionType("torso_lean")
         )
     }
 
@@ -39,7 +39,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_shoulderTilt_isGeneral() {
         assertEquals(
             CorrectionType.GENERAL,
-            RtmposeTrainingController.mapMetricToCorrectionType("shoulder_tilt")
+            LiveTrainingController.mapMetricToCorrectionType("shoulder_tilt")
         )
     }
 
@@ -47,7 +47,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_shoulderAngle_isElbowPosition() {
         assertEquals(
             CorrectionType.ELBOW_POSITION,
-            RtmposeTrainingController.mapMetricToCorrectionType("shoulder_angle")
+            LiveTrainingController.mapMetricToCorrectionType("shoulder_angle")
         )
     }
 
@@ -55,7 +55,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_kneeBend_isKneeBend() {
         assertEquals(
             CorrectionType.KNEE_BEND,
-            RtmposeTrainingController.mapMetricToCorrectionType("knee_bend")
+            LiveTrainingController.mapMetricToCorrectionType("knee_bend")
         )
     }
 
@@ -63,7 +63,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_followThroughAngle2d_isFollowThrough() {
         assertEquals(
             CorrectionType.FOLLOW_THROUGH,
-            RtmposeTrainingController.mapMetricToCorrectionType("follow_through_angle_2d")
+            LiveTrainingController.mapMetricToCorrectionType("follow_through_angle_2d")
         )
     }
 
@@ -71,7 +71,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_strokeSpeed_isStrokeSpeed() {
         assertEquals(
             CorrectionType.STROKE_SPEED,
-            RtmposeTrainingController.mapMetricToCorrectionType("stroke_speed")
+            LiveTrainingController.mapMetricToCorrectionType("stroke_speed")
         )
     }
 
@@ -79,7 +79,7 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_coilRatio_isBodyRotation() {
         assertEquals(
             CorrectionType.BODY_ROTATION,
-            RtmposeTrainingController.mapMetricToCorrectionType("coil_ratio")
+            LiveTrainingController.mapMetricToCorrectionType("coil_ratio")
         )
     }
 
@@ -87,14 +87,14 @@ class RtmposeTrainingControllerTest {
     fun mapMetricToCorrectionType_unknownKey_isGeneral() {
         assertEquals(
             CorrectionType.GENERAL,
-            RtmposeTrainingController.mapMetricToCorrectionType("some_future_metric")
+            LiveTrainingController.mapMetricToCorrectionType("some_future_metric")
         )
     }
 
     @Test
     fun synthesizeAnalysisResult_cleanRep_scoresNinetyFive() {
         val rep = RepEvent(atMs = 1000L, cueCount = 0, placementOk = true)
-        val result = RtmposeTrainingController.synthesizeAnalysisResult(rep)
+        val result = LiveTrainingController.synthesizeAnalysisResult(rep)
         assertEquals(95f, result.overallScore, 0.001f)
         assertEquals(1000L, result.timestamp)
     }
@@ -102,21 +102,21 @@ class RtmposeTrainingControllerTest {
     @Test
     fun synthesizeAnalysisResult_repWithCues_scoresSixtyFive() {
         val rep = RepEvent(atMs = 2000L, cueCount = 2, placementOk = true)
-        val result = RtmposeTrainingController.synthesizeAnalysisResult(rep)
+        val result = LiveTrainingController.synthesizeAnalysisResult(rep)
         assertEquals(65f, result.overallScore, 0.001f)
     }
 
     @Test
     fun synthesizeAnalysisResult_placementFailed_scoresZero() {
         val rep = RepEvent(atMs = 3000L, cueCount = 0, placementOk = false)
-        val result = RtmposeTrainingController.synthesizeAnalysisResult(rep)
+        val result = LiveTrainingController.synthesizeAnalysisResult(rep)
         assertEquals(0f, result.overallScore, 0.001f)
     }
 
     @Test
     fun synthesizeAnalysisResult_placementFailedWithCues_stillScoresZero() {
         val rep = RepEvent(atMs = 4000L, cueCount = 3, placementOk = false)
-        val result = RtmposeTrainingController.synthesizeAnalysisResult(rep)
+        val result = LiveTrainingController.synthesizeAnalysisResult(rep)
         assertEquals(0f, result.overallScore, 0.001f)
     }
 }

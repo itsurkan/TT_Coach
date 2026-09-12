@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    RTMPose calibration screen (shippable, NOT debug-gated — see RtmposeCalibrationActivity).
+    RTMPose calibration screen (shippable, NOT debug-gated — see LiveCalibrationActivity).
     Camera preview + live skeleton overlay run continuously in cameraContainer (top region) so
     the player can confirm their whole body — including knees/ankles — is tracked before and
     during recording. The panel below toggles between four states (one visible at a time):
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorSurface"
-        app:title="@string/rtmpose_calibration_title"
+        app:title="@string/live_calibration_title"
         app:titleTextColor="?attr/colorOnSurface"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,20 +80,20 @@
                         style="@style/TTC.SectionHeader.Gold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/rtmpose_calibration_headline" />
+                        android:text="@string/live_calibration_headline" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="@string/rtmpose_calibration_instructions_body"
+                        android:text="@string/live_calibration_instructions_body"
                         android:textAppearance="@style/TextAppearance.TTC.Body" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="@string/rtmpose_calibration_skeleton_hint"
+                        android:text="@string/live_calibration_skeleton_hint"
                         android:textAppearance="@style/TextAppearance.TTC.Body.Secondary" />
 
                     <com.google.android.material.button.MaterialButton
@@ -102,7 +102,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="@string/rtmpose_calibration_start_button" />
+                        android:text="@string/live_calibration_start_button" />
 
                 </LinearLayout>
 
@@ -119,13 +119,13 @@
                         style="@style/TTC.SectionHeader.Gold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/rtmpose_calibration_recording_headline" />
+                        android:text="@string/live_calibration_recording_headline" />
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="@string/rtmpose_calibration_recording_body"
+                        android:text="@string/live_calibration_recording_body"
                         android:textAppearance="@style/TextAppearance.TTC.Body" />
 
                     <LinearLayout
@@ -141,7 +141,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:layout_marginEnd="8dp"
-                            android:text="@string/rtmpose_calibration_cancel_button" />
+                            android:text="@string/live_calibration_cancel_button" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnFinishRecording"
@@ -149,7 +149,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/rtmpose_calibration_finish_button" />
+                            android:text="@string/live_calibration_finish_button" />
 
                     </LinearLayout>
 
@@ -174,7 +174,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:text="@string/rtmpose_calibration_processing"
+                        android:text="@string/live_calibration_processing"
                         android:textAppearance="@style/TextAppearance.TTC.Body" />
 
                 </LinearLayout>

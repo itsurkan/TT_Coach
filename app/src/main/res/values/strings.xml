@@ -705,36 +705,36 @@
     <string name="debug_baseline_not_debuggable">Debug tooling requires a debuggable build.</string>
 
     <!-- RTMPose live drill (Phase 3 dev tool, debug builds only) -->
-    <string name="rtmpose_drill_status_calibrate">Calibrating — perform forehand drives, then tap Finish Calibration.</string>
-    <string name="rtmpose_drill_finish_calibration">Finish Calibration</string>
-    <string name="rtmpose_drill_switch_to_feedback">Switch to Feedback</string>
-    <string name="rtmpose_drill_calibrating_busy">Calibrating…</string>
-    <string name="rtmpose_drill_calibration_failed">Calibration failed: %1$s</string>
-    <string name="rtmpose_drill_calibration_saved">Baseline saved (%1$d reps). Switch to Feedback to start coaching.</string>
-    <string name="rtmpose_drill_need_calibration">No baseline yet — calibrate first.</string>
-    <string name="rtmpose_drill_backend_unavailable">Pose model unavailable: %1$s</string>
-    <string name="rtmpose_drill_status_feedback">Feedback mode — play your forehand drive.</string>
+    <string name="live_drill_status_calibrate">Calibrating — perform forehand drives, then tap Finish Calibration.</string>
+    <string name="live_drill_finish_calibration">Finish Calibration</string>
+    <string name="live_drill_switch_to_feedback">Switch to Feedback</string>
+    <string name="live_drill_calibrating_busy">Calibrating…</string>
+    <string name="live_drill_calibration_failed">Calibration failed: %1$s</string>
+    <string name="live_drill_calibration_saved">Baseline saved (%1$d reps). Switch to Feedback to start coaching.</string>
+    <string name="live_drill_need_calibration">No baseline yet — calibrate first.</string>
+    <string name="live_drill_backend_unavailable">Pose model unavailable: %1$s</string>
+    <string name="live_drill_status_feedback">Feedback mode — play your forehand drive.</string>
 
     <!-- RTMPose calibration screen (shippable — produces the forehand_drive_rtm baseline) -->
-    <string name="rtmpose_calibration_title">Calibrate Forehand Drive</string>
-    <string name="rtmpose_calibration_headline">Set up your camera</string>
-    <string name="rtmpose_calibration_instructions_body">Place the phone 2–3 m to your side, waist-height, at your hitting angle. Stand so your whole body — including your knees and ankles — is visible in frame during the stroke.\n\nYou\'ll perform a set of forehand drives in your natural technique — no coaching, just your normal stroke.</string>
-    <string name="rtmpose_calibration_skeleton_hint">Watch the skeleton overlay above. If your knees or feet are cut off or not being tracked, step back or reframe before you start — otherwise the knee-bend cue can never be checked later.</string>
-    <string name="rtmpose_calibration_start_button">Start Recording</string>
-    <string name="rtmpose_calibration_recording_headline">Recording</string>
-    <string name="rtmpose_calibration_recording_body">Perform your forehand drives at a steady pace, in clear view of the camera. Tap Finish once you\'ve done at least 10 reps.</string>
-    <string name="rtmpose_calibration_cancel_button">Cancel</string>
-    <string name="rtmpose_calibration_finish_button">Finish</string>
-    <string name="rtmpose_calibration_processing">Analyzing your reps…</string>
-    <string name="rtmpose_calibration_success_title">Baseline saved</string>
-    <string name="rtmpose_calibration_success_body">%1$d reps captured. You\'re ready to start a coached session.</string>
-    <string name="rtmpose_calibration_done_button">Done</string>
-    <string name="rtmpose_calibration_failed_title">Calibration didn\'t work</string>
-    <string name="rtmpose_calibration_failed_placement">%1$s\n\nReposition your camera so you\'re fully visible from the side, then try again.</string>
-    <string name="rtmpose_calibration_failed_generic">%1$s\n\nTry again with a few more reps, fully visible to the camera.</string>
-    <string name="rtmpose_calibration_not_enough_frames">Recording was too short — capture more reps before tapping Finish.</string>
-    <string name="rtmpose_calibration_retry_button">Try Again</string>
-    <string name="rtmpose_calibration_camera_permission_denied">Camera permission is required to calibrate.</string>
+    <string name="live_calibration_title">Calibrate Forehand Drive</string>
+    <string name="live_calibration_headline">Set up your camera</string>
+    <string name="live_calibration_instructions_body">Place the phone 2–3 m to your side, waist-height, at your hitting angle. Stand so your whole body — including your knees and ankles — is visible in frame during the stroke.\n\nYou\'ll perform a set of forehand drives in your natural technique — no coaching, just your normal stroke.</string>
+    <string name="live_calibration_skeleton_hint">Watch the skeleton overlay above. If your knees or feet are cut off or not being tracked, step back or reframe before you start — otherwise the knee-bend cue can never be checked later.</string>
+    <string name="live_calibration_start_button">Start Recording</string>
+    <string name="live_calibration_recording_headline">Recording</string>
+    <string name="live_calibration_recording_body">Perform your forehand drives at a steady pace, in clear view of the camera. Tap Finish once you\'ve done at least 10 reps.</string>
+    <string name="live_calibration_cancel_button">Cancel</string>
+    <string name="live_calibration_finish_button">Finish</string>
+    <string name="live_calibration_processing">Analyzing your reps…</string>
+    <string name="live_calibration_success_title">Baseline saved</string>
+    <string name="live_calibration_success_body">%1$d reps captured. You\'re ready to start a coached session.</string>
+    <string name="live_calibration_done_button">Done</string>
+    <string name="live_calibration_failed_title">Calibration didn\'t work</string>
+    <string name="live_calibration_failed_placement">%1$s\n\nReposition your camera so you\'re fully visible from the side, then try again.</string>
+    <string name="live_calibration_failed_generic">%1$s\n\nTry again with a few more reps, fully visible to the camera.</string>
+    <string name="live_calibration_not_enough_frames">Recording was too short — capture more reps before tapping Finish.</string>
+    <string name="live_calibration_retry_button">Try Again</string>
+    <string name="live_calibration_camera_permission_denied">Camera permission is required to calibrate.</string>
 
     <!-- Training screen: blocking "calibrate first" dialog (replaces the old silent legacy fallback) -->
     <string name="training_calibration_required_title">Calibration required</string>

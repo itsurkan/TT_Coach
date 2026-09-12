@@ -3,7 +3,7 @@ package com.ttcoachai.pose
 // MediaPipePoseLandmarkerBackend.kt — production PoseBackend for the 2D live drill pipeline
 // (resolved via PoseBackendFactory for live training/calibration/drill) and the FPS A/B bench
 // (PoseBenchmarkActivity). Wraps MediaPipe Tasks Vision's PoseLandmarker (BlazePose, 33
-// landmarks) behind the PoseBackend seam so it drops in behind RtmposeFrameProcessor unmodified.
+// landmarks) behind the PoseBackend seam so it drops in behind LivePoseFrameProcessor unmodified.
 // RunningMode.IMAGE (synchronous detect()) matches PoseBackend.estimatePose()'s existing
 // blocking contract — no LIVE_STREAM callback bridging needed.
 //

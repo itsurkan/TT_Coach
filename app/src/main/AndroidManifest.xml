@@ -71,7 +71,7 @@
         <!-- RTMPose Live Drill (Phase 3 P4c, dev-only, runtime FLAG_DEBUGGABLE gate protects release).
              Exported so `adb shell am start` can launch it directly. -->
         <activity
-            android:name=".pose.RtmposeDrillActivity"
+            android:name=".pose.LiveDrillActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
@@ -88,7 +88,7 @@
         <!-- RTMPose Calibration Screen (shippable — produces the forehand_drive_rtm baseline
              TrainingActivity requires for the live RTM coaching path). -->
         <activity
-            android:name=".pose.RtmposeCalibrationActivity"
+            android:name=".pose.LiveCalibrationActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
