@@ -1,16 +1,24 @@
 - [User profile](user_profile.md) — Ivan, solo dev on TT_Coach (personal product); Kotlin/KMP/Android; Ukrainian native; macOS with Temurin 25 (pinned to JDK 21 for build)
 - [Collaboration preferences](feedback_collaboration.md) — honest estimates over cheerleading; AskUserQuestion for multi-decision alignment; Ukrainian for strategic talk, English for code/docs
 - [Product positioning](product_positioning.md) — don't re-teach; calibrate to player's existing technique, check against personal baseline
-- [Staged roadmap](staged_roadmap.md) — PIVOT 2026-06-10 (branch `2d`): 2D fixed-drill MVP on RTMPose, desktop-first, baseline-derived reference angles; ball/audio/video analysis frozen
+- [Staged roadmap](staged_roadmap.md) — PIVOT 2026-06-10 (branch `2d`): 2D fixed-drill MVP, desktop pipeline on RTMPose (live Android backend is MediaPipe since 2026-07-25), baseline-derived reference angles; ball/audio/video analysis frozen
 - [Commit cadence](feedback_commit_cadence.md) — commit after each logical change, don't batch end-of-task
 - [Merge to main](feedback_merge_to_main.md) — always merge finished branch to main automatically; never ask or open a PR
 - [Screenshot save location](feedback_screenshots.md) — save adb screencaps to `tmp/screenshots/` in project root, not `/tmp/`, so they're visible in VSCode
 - [Stay in scope](feedback_scope_discipline.md) — fix exactly what was asked; don't expand to adjacent problems (e.g., fix legs → don't also touch torso) without confirmation
 - [Never revert uncommitted](feedback_never_revert_uncommitted.md) — never git-checkout/restore uncommitted working-tree changes (unrestorable); leave unrelated modified files alone
 - [Prefer subagents](feedback_subagents.md) — delegate exploration/research/planning to Agent subagents whenever it avoids loading large output into main context
-- [Plan execution = subagents](feedback_plan_execution_subagents.md) — always run plans via subagent-driven-development; never ask which approach (overrides the skill's "offer execution choice" step)
 - [Viewer fast iteration](feedback_viewer_fast_iteration.md) — for poses_viewer-visible fixes the user wants direct TS iteration, not the full Kotlin-first subagent plan; back-port to Kotlin separately
 - [iOS app planned](project_ios_future.md) — iPhone app is a firm future target; default new logic to `shared/commonMain`, keep Android APIs quarantined in `app/`
 - [Git push auth](project_git_push_auth.md) — gh account switch required before push (details in local-only file, gitignored)
 - [Live Session = panel over camera](project_live_session_panel_over_camera.md) — Slice 4 (1a/1e) restyles TrainingActivity's slide-up bottom sheet over the live camera; NEVER a camera-replacing screen
 - Future-work ideas live in `docs/DESIGN_LIMITATIONS.md` (L-numbered register), NOT in memory — e.g. L-33 arm elbow-flyout depth metric
+- [Decisions → CLAUDE.md phases](feedback_decisions_to_claude_md.md) — validated-but-parked features get a committed Phase entry in project CLAUDE.md, not ephemeral plan/spec files
+- [Stale context snapshot](feedback_stale_context_snapshot.md) — session-start CLAUDE.md snapshot can lag the working tree (concurrent sessions); grep the real file before editing/reasoning from it
+- [Concurrent-session git contamination](project_concurrent_session_git_contamination.md) — other sessions commit onto the shared checkout/branch and move `main`; verify commit ranges, cherry-pick clean, and use the no-checkout route when their tree is dirty
+- [AI Coach research](reference_ai_coach_research.md) — Phase 4 validation sources + competitor price anchors; full research in the plan file, verdict in CLAUDE.md
+- [Site Pages branch](project_site_repo_pages_branch.md) — TT_Coach_AA_site's Pages source is `main` (confirm via `gh api .../pages`); local `main` checkout can be stale vs `origin/main`; pages capitalised (`Privacy.html`), content in `src/pagesContent.jsx`
+- [Privacy policy pose-upload update](project_privacy_policy_contradicts_pose_upload.md) — RESOLVED 2026-07-23; kept as a pointer for next time collection behaviour changes
+- [Verify deployed, not checkout](feedback_verify_deployed_not_checkout.md) — when correctness depends on what's published, check the live artifact (build status API + raw content fetch); local branch and deploy branch can diverge either direction
+- [MoveNet vs RTMPose FPS](project_movenet_vs_rtmpose_fps.md) — measured 2026-07-24 on S23: MoveNet Thunder ~18-20fps vs RTMPose ~1.2-1.5fps, both CPU-only; RTMPose accuracy not yet re-verified, keypoint quality check still pending
+- [Docs plans: lean mode](feedback_docs_plans_lean_mode.md) — never full SDD for docs/decks/reports; parallel writers, one final review, state token cost up front (2026-09-12: 2.3M tokens on 3 docs was unjustified)

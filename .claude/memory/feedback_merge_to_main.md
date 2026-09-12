@@ -5,6 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 4dfd7580-f07b-48d6-9a9c-dbe916042ea5
+  modified: 2026-07-23T09:15:56.534Z
 ---
 
 When a feature branch's work is complete and green, merge it into `main` automatically —
@@ -31,3 +32,12 @@ new APIs; never edit their files to fit yours. Then land on main as a trivial fa
 main tree is free — or hand the ready green branch to Ivan to land. Surfacing a genuine
 architectural divergence for a decision is warranted here; it is not the "wasted friction" the
 base rule forbids.
+
+**Clarification — "always merge" also covers small/leftover work (2026-07-23):** after a wrap-up
+produced doc-only edits, I presented "commit them on the other session's branch, or I move them to
+main?" as a choice. Ivan replied "commit and merge / always merge." Asking WHERE a finished change
+should land is the same wasted friction as asking WHETHER to merge — it is not an exception. Default:
+commit it and get it onto `main`, then report. This holds even for one-file doc changes, and even when
+the shared checkout is parked on another session's branch — see
+[[project_concurrent_session_git_contamination]] for the no-checkout route that lands a commit on
+`main` without disturbing the active session.
