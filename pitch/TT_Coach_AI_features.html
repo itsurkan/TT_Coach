@@ -419,7 +419,7 @@
             вбудовані налаштування.
           </p>
           <div class="proofline">
-            <span class="cardbody"><b>Кут згину в кульшовому суглобі в момент удару</b>: діапазон 115–150° звірено з виміряним 113.3–177.3° (медіана 121.3°, n=32).</span>
+            <span class="cardbody"><b>Кут згину в кульшовому суглобі в момент удару</b>: діапазон <span class="mono">115–150°</span> звірено з виміряним <span class="mono">113.3–177.3°</span> (медіана <span class="mono">121.3°</span>, <span class="mono">n=32</span>).</span>
             <div class="src mono" style="margin-top:4px;">docs/DESIGN_LIMITATIONS.md:444-445</div>
           </div>
           <p class="gapline">Конкурентний розрив: жоден з проаналізованих конкурентів не пропонує гравцю налаштовувані по-метрично діапазони коучингу.</p>
@@ -458,7 +458,7 @@
             налаштував і оцінив інший гравець, ніж підбирати діапазони самому.
           </p>
           <p class="gapline">Конкурентний розрив: у Spherely є спільнота навколо повторів/реплеїв, але не навколо налаштовуваних вправ коучингу — точного аналога немає.</p>
-          <div class="src">docs/tt-coach-ai-context.md:211</div>
+          <div class="src">docs/tt-coach-ai-context.md:213</div>
           <div class="caveat" style="margin-top:8px;">Гейт релізу: статус розгортання <span class="mono">firestore.rules</span> у продакшн не підтверджено в цьому аналізі; рейтинги (зірки) наразі довіряються клієнту без серверної перевірки.</div>
         </div>
       </div>
@@ -495,7 +495,7 @@
             голосові підказки лише позначили в моменті.
           </p>
           <p class="gapline">Конкурентний розрив: увесь продукт Spherely побудований саме навколо пост-сесійного перегляду (сповільнений плейбек, зум, повтори) — тут ми конкуруємо напряму, хоча жива підказка лишається нашою відмінністю.</p>
-          <div class="src">docs/tt-coach-ai-context.md:211</div>
+          <div class="src">docs/tt-coach-ai-context.md:213</div>
         </div>
       </div>
       <div class="shotslot">Скріншот: огляд сесії / історія / прогрес — додати</div>
@@ -533,7 +533,7 @@
             і точніших еталонних діапазонів.
           </p>
           <div class="proofline">
-            <span class="cardbody"><b>886 Б/кадр</b> компактно, <b>158 Б/кадр</b> стиснуто — сесія 15 хв @15 fps ≈ 12 МБ / 2.1 МБ стиснуто.</span>
+            <span class="cardbody"><b><span class="mono">886 Б/кадр</span></b> компактно, <b><span class="mono">158 Б/кадр</span></b> стиснуто — сесія <span class="mono">15 хв</span> @<span class="mono">15 fps</span> ≈ <span class="mono">12 МБ</span> / <span class="mono">2.1 МБ</span> стиснуто.</span>
             <div class="src mono" style="margin-top:4px;">docs/shipped-features.md:38-39</div>
           </div>
           <div class="caveat" style="margin-top:8px;">Гейт релізу: <span class="mono">storage.rules</span> ще не розгорнуто в продакшн — це явно названий блокер запуску, не припущення.</div>
@@ -572,7 +572,7 @@
             замість того, щоб застосунок мовчки обирав неправильну конфігурацію.
           </p>
           <div class="proofline">
-            <span class="cardbody">34.6 → 28.0 кадр/с залежно від моделі й прискорювача (Full/Lite × GPU/CPU, Galaxy S23).</span>
+            <span class="cardbody"><span class="mono">34.6 → 28.0 кадр/с</span> залежно від моделі й прискорювача (Full/Lite × GPU/CPU, Galaxy S23).</span>
             <div class="src mono" style="margin-top:4px;">docs/pose-backend-fps-benchmark.md:20-23</div>
           </div>
           <p class="gapline">Заміряно на окремому dev-бенчмарку, не на самому екрані вибору; жоден конкурент такого вибору користувачу не показує — це швидше інженерна прозорість, ніж ринкова відмінність.</p>
@@ -591,7 +591,7 @@
   <section class="slide">
     <div class="inner">
       <div class="fhead st" data-st="1">
-        <div class="eyebrow">Дорожня карта</div>
+        <div class="eyebrow">Наступний етап</div>
         <span class="badge badge-roadmap">Дорожня карта</span>
       </div>
       <h2 class="st" data-st="2">AI-тренер <span class="gold-i">після сесії</span> — не в реальному часі.</h2>
