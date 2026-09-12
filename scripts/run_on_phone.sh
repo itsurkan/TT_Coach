@@ -168,6 +168,7 @@ fi
 
 echo "==> Installing $APK"
 install_ok=""
+install_start="$(date +%s)"
 for attempt in 1 2 3; do
   if ! wait_for_device; then
     echo "error: device never returned to 'device' state (check 'adb devices')." >&2
@@ -187,6 +188,8 @@ if [[ -z "$install_ok" ]]; then
   echo "  Try re-pairing: adb connect <ip>:<port>, or use USB." >&2
   exit 1
 fi
+install_elapsed="$(( $(date +%s) - install_start ))"
+echo "==> Install took ${install_elapsed}s"
 
 echo "==> Launching $LAUNCHER"
 "$ADB" ${ADB_TARGET[@]+"${ADB_TARGET[@]}"} shell am start -n "$LAUNCHER"

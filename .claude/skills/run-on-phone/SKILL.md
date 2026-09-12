@@ -59,8 +59,9 @@ adb shell am start -n com.ttcoachai/.MainActivity
 ## If it fails
 
 - **`adb devices` shows nothing / `offline` / `unauthorized`** → phone not connected or
-  USB-debugging prompt not accepted. Reconnect (USB or `adb connect <ip>`), accept the
-  prompt on the phone.
+  USB-debugging prompt not accepted. Reconnect (USB, or for wireless don't ask the user
+  for the IP — run `adb mdns services` to discover it, e.g. `_adb-tls-connect._tcp
+  <ip>:<port>`, then `adb connect <ip>:<port>`), accept the prompt on the phone.
 - **Multiple devices** → the script already auto-handles the common case: it
   collapses duplicate wireless (`_adb-tls-connect` mDNS) transports of the *same*
   phone — adb re-advertising a stale copy disambiguated with a `(N)` suffix — and
