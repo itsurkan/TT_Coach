@@ -33,7 +33,7 @@ trajectory) is excluded entirely per the brief.
 | Measured proof points | Live-device FPS only (throughput, not cue-quality): `docs/pose-backend-fps-benchmark.md:20-25` — MediaPipe Full/Lite GPU 34.4–34.6 fps, CPU 28.0–29.5 fps, Samsung Galaxy S23, single run (explicitly caveated "indicative, not authoritative," `:35-36`). No measurement exists of real end-user cue latency, cue accuracy, or the 3–5 s cadence being felt as "real time" by a player. |
 | Job-to-be-done | Get a specific, spoken correction on the same rep the error happened, without stopping to look at a phone or waiting for a coach. |
 | Closest competitor behaviour | `docs/tt-coach-ai-context.md:219`: "real-time technique coaching for fixed TT drills — nobody does this, even the closest competitor (Spherely) is post-session." |
-| Open L-numbers | L-04 (torso-lean sign noisy on real footage), L-41 (`stroke_speed` band unreachable at live camera frame rates — see §"Discrepancies"), L-50 (torso-lean inflated by axial rotation). |
+| Open L-numbers | L-04 (torso-lean sign noisy on real footage), L-41 (`stroke_speed` band unreachable at live camera frame rates: live-measured 2.6–4.6 torso-lengths/s vs. the shipped band, 16–24σ outside, every rep), L-50 (torso-lean inflated by axial rotation). |
 
 ---
 
@@ -145,14 +145,38 @@ brief's explicit instruction, not because it failed verification.
 
 ## Roadmap — post-session AI Coach report + chat, and subscription gating
 
+### (a) Post-session AI Coach report + "Ask the coach" chat
+
 | Field | Value |
 |---|---|
-| Feature | Post-session LLM coach report + "Ask the coach" chat, grounded in the player's `PersonalBaseline`; gated behind a paid subscription. |
-| Status | **Roadmap-validated / Mock.** The AI Coach report/chat itself: **Roadmap-validated, NOT built** — `CLAUDE.md:15-31` states "VALIDATED 2026-07-22, NOT STARTED"; a repo-wide grep for AICoach/AiCoach/Anthropic/OpenAI/chatbot in `app/` and `shared/` found no matches, and there is no screen for it anywhere in the manifest or nav graph. Subscription gating: **Mock** — `SubscribeActivity.kt:118-122` ("Start" button handler, comment `// Mock purchase — no real billing integration.`) simply calls `settingsManager.setSubscriptionActive(true)` (a local SharedPreferences flag) and finishes; `btnRestore` (`:127-129`) shows an unconditional "nothing to restore" toast; no Google Play Billing import anywhere in the file. |
-| Gating chain confirmed unused | `UserProfile.isPremium()` (`app/src/main/java/com/ttcoachai/models/UserProfile.kt:50-54`) → `UserRepository.isPremium(uid)` (`UserRepository.kt:118-120`) → `CloudSyncManager.isPremium()` (`CloudSyncManager.kt:269-272`) — a 3-link call chain that calls only itself; no fragment, activity, or `shared/` code calls `cloudSyncManager.isPremium()` to gate any feature. Matches `CLAUDE.md:27` verbatim. |
-| Prerequisites still absent (per `CLAUDE.md:15-31`) | Real Google Play Billing (currently mock); a thin backend proxy holding the Anthropic API key (repo has **zero backend code** — confirmed, no server/ directory or API-proxy code found anywhere in the tree); server-side entitlement (Firestore `isPremium` field exists on `UserProfile` but, per above, nothing reads it to gate). |
-| Rejected direction — do not re-propose | `CLAUDE.md:20-26`: **real-time cloud-LLM feedback was explicitly rejected.** No shipped competitor does it; a 1.5–5 s cloud round-trip vs. ~200 ms motor reaction lands cues 1–2 strokes late (negative transfer); per-user cost kills margin. Real-time stays on-device (feature 1 above). Payload for the post-session report, when built, is derived per-rep metrics + baseline (~KB/session), never raw poses (2–3M tokens/session — "economically impossible," `CLAUDE.md:23-24`). |
-| Cost estimate (assumption, not measured) | `CLAUDE.md:19`: "$0.4–0.5/user/mo on Sonnet 5 with prompt caching" — this figure does **not** appear in `pitch/unit_economics.py` itself; treat as a separate, unverified estimate, not a measured or modeled cost. |
+| What the player does | After a session, reads an LLM-written coach report grounded in their own `PersonalBaseline`, and can ask it follow-up questions in a chat. Not built — this is the intended flow, not observed behaviour. |
+| Status | **Roadmap-validated.** |
+| Code evidence | None exists. `CLAUDE.md:15-31` states "VALIDATED 2026-07-22, NOT STARTED"; a repo-wide grep for `AICoach`/`AiCoach`/`Anthropic`/`OpenAI`/`chatbot` across `app/src` and `shared/src` found zero matches; no screen for it in `AndroidManifest.xml` or any `nav_graph.xml`. |
+| Measured proof points | No measurement exists. |
+| Job-to-be-done | Get expert-level, personalized coaching commentary on a whole session — not just the live per-rep cues — without paying for a human coach's time. |
+| Closest competitor behaviour | `docs/tt-coach-ai-context.md:213`: Spherely (closest competitor) is "**NOT real-time — post-session highlight/replay/community app**." `docs/tt-coach-ai-context.md:212`: SwingVision is adjacent (tennis/pickleball match analytics, not form coaching). Neither doc entry describes an LLM chat feature specifically — this is the closest category match, not an exact one. (`CLAUDE.md:20-21` additionally names Sportsbox/Mustard/SpinCoach among rejected-direction competitors, but those three do not appear anywhere in `docs/tt-coach-ai-context.md`, so they are not cited here per the brief's "trace every number to a file" rule.) |
+| Open L-numbers | None — no L-number in `docs/DESIGN_LIMITATIONS.md` references AI Coach (grepped, zero hits); the feature has no shipped code for a limitation to attach to. |
+
+**Notes (carried over):**
+- **Rejected direction — do not re-propose:** `CLAUDE.md:20-26` — real-time cloud-LLM feedback was explicitly rejected. No shipped competitor does it; a 1.5–5 s cloud round-trip vs. ~200 ms motor reaction lands cues 1–2 strokes late (negative transfer); per-user cost kills margin. Real-time stays on-device (feature 1 above). Payload for the post-session report, when built, is derived per-rep metrics + baseline (~KB/session), never raw poses (2–3M tokens/session — "economically impossible," `CLAUDE.md:23-24`).
+- **Cost estimate (assumption, not measured):** `CLAUDE.md:19` — "$0.4–0.5/user/mo on Sonnet 5 with prompt caching." This figure does **not** appear in `pitch/unit_economics.py` itself; treat as a separate, unverified estimate, not a measured or modeled cost.
+- **Prerequisites still absent (per `CLAUDE.md:15-31`):** a thin backend proxy holding the Anthropic API key (repo has **zero backend code** — confirmed, no `server/` directory or API-proxy code found anywhere in the tree); server-side entitlement (Firestore `isPremium` field exists on `UserProfile` but, per table (b) below, nothing reads it to gate); real Google Play Billing (currently mock, see table (b)).
+
+### (b) Subscription gating
+
+| Field | Value |
+|---|---|
+| What the player does | Taps "Start" on the Subscribe screen expecting to purchase premium access; nothing is actually charged. |
+| Status | **Mock.** |
+| Code evidence | `SubscribeActivity.kt` — `btnStart` click handler at `:118`, with the comment `// Mock purchase — no real billing integration.` at `:119` immediately inside it; the handler calls `settingsManager.setSubscriptionActive(true)` (a local SharedPreferences flag) and `finish()`. `btnRestore` click handler at `:127` shows an unconditional "nothing to restore" toast at `:128`. No Google Play Billing import anywhere in the file. |
+| Measured proof points | No measurement exists. |
+| Job-to-be-done | Pay to unlock premium features once they exist; today, tapping "Start" only flips a local flag with no real purchase. |
+| Closest competitor behaviour | `docs/tt-coach-ai-context.md:212`: SwingVision is a real paid subscription, "~$150–180/yr." `docs/tt-coach-ai-context.md:215`: Spinsight is "€5–50/mo + €150 kit." Both give a pricing anchor for the category; neither doc entry describes those competitors' billing *implementation*, only their price. |
+| Open L-numbers | None found in `docs/DESIGN_LIMITATIONS.md` referencing `SubscribeActivity` or subscription gating (grepped, zero hits). |
+
+**Notes (carried over):**
+- **Gating chain confirmed unused:** `UserProfile.isPremium()` (`app/src/main/java/com/ttcoachai/models/UserProfile.kt:50-54`) → `UserRepository.isPremium(uid)` (`UserRepository.kt:118-120`) → `CloudSyncManager.isPremium()` (`CloudSyncManager.kt:269-272`) — a 3-link call chain that calls only itself; no fragment, activity, or `shared/` code calls `cloudSyncManager.isPremium()` to gate any feature. Matches `CLAUDE.md:27` verbatim.
+- **Prerequisites still absent (per `CLAUDE.md:15-31`):** real Google Play Billing (currently mock); server-side entitlement (Firestore `isPremium` field exists on `UserProfile` but, per above, nothing reads it to gate); a thin backend proxy holding the Anthropic API key (repo has **zero backend code**).
 
 ---
 
@@ -169,8 +193,8 @@ brief's explicit instruction, not because it failed verification.
 | 886 B/frame compact, 158 B/frame gzipped | Pose-upload payload size per frame | `docs/shipped-features.md:38-39` |
 | ≈12 MB raw / 2.1 MB gzipped per 15-min @15fps session | Derived from the per-frame size above | `docs/shipped-features.md:38-39` |
 | 7 metric bands, 4 owner-corrected via measured coverage | `DrillMetrics.ALL_KEYS` size; band re-set history | `shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/DrillMetrics.kt:50-59`; `docs/DESIGN_LIMITATIONS.md:441-458` |
-| `shoulder_angle@FOLLOWTHROUGH` measured 14.5–83.1°, median 71.9°, n=31 | Parity-fixture measurement backing the 55–85° seed band | `docs/DESIGN_LIMITATIONS.md:454-456` |
-| `hip_flexion@CONTACT` measured 113.3–177.3°, median 121.3°, n=32 | Parity-fixture measurement backing the 115–150° seed band | `docs/DESIGN_LIMITATIONS.md:456-458` |
+| `shoulder_angle@FOLLOWTHROUGH` measured 14.5–83.1°, median 71.9°, n=31 | Parity-fixture measurement backing the 55–85° seed band | `docs/DESIGN_LIMITATIONS.md:441-442` |
+| `hip_flexion@CONTACT` measured 113.3–177.3°, median 121.3°, n=32 | Parity-fixture measurement backing the 115–150° seed band | `docs/DESIGN_LIMITATIONS.md:444-445` |
 | `stroke_speed` live-measured 2.6–4.6 torso-lengths/s vs. shipped band mean 10.0 ± 0.3σ (16–24σ outside) | Evidence the withdrawn-clip-derived `stroke_speed` band is unreachable in real play (L-41) | `docs/DESIGN_LIMITATIONS.md:189-199` (heading `:189`) |
 | `andrii_1`: 59.3 fps, 720×1280, 18,795 ms, 1106 frames, repCount=12, qualityScore=0.741 | One-clip baseline-derivation record — **do not use for technique claims**, clip withdrawn (L-49) | `docs/shipped-baseline-derivation.md:16-17,109-142` |
 | Room `AppDatabase` schema version 11 | Current local-DB schema version (see Discrepancies §D3 — `CLAUDE.md` cites stale v3/v10) | `app/src/main/java/com/ttcoachai/db/AppDatabase.kt:22` |
