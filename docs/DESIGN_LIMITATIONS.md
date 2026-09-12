@@ -169,23 +169,36 @@ old shared blobs never carried them. A pre-rework community drill shows those 5 
 the author re-edits and re-shares.
 **Refs:** `PerPhaseTargetsCodec.kt`; `ExerciseEditorActivity.kt`.
 
-### L-41 · `stroke_speed` band is unreachable at live camera frame rates — `OPEN`
+### L-41 · `stroke_speed` band is unreachable at live camera frame rates — `OPEN` (root cause UNVERIFIED, 2026-09-12)
 `ShippedBaselines.FOREHAND_ANDRII`'s `stroke_speed` band (mean 10.0 ±0.3 torso-lengths/s,
 i.e. 9.3–10.6) was derived from a full-fps (17ms interval) desktop video export. A real
 device logcat capture (`adb logcat -s RtmposeTrainingCtrl`, Samsung S23, ~40 reps) showed
 live-measured `stroke_speed` of 2.6–4.6 torso-lengths/s on EVERY rep — 16–24σ outside the
-band, every single time. Root cause: the live MediaPipe camera path samples the swing far
+band, every single time. **Original hypothesis (2026-07-25):** the live MediaPipe camera path samples the swing far
 more coarsely than the 17ms export it was calibrated against, so it structurally under-reads
-peak wrist speed; this is not player variability, it is a sampling-rate mismatch between how
-the baseline was derived and how the metric is measured live. Consequence: until the band is
-re-derived at realistic live frame rates (or `stroke_speed` extraction is made frame-rate
-robust), it is effectively a constant false positive — it wins the cue-severity ranking on
+peak wrist speed; this is not player variability, but a sampling-rate mismatch between how
+the baseline was derived and how the metric is measured live.
+
+**2026-09-12 re-examination:** That hypothesis was not verified until now. Comparing the same
+`andrii_1` video exported at two intervals showed: 17ms full-fps export → `stroke_speed` mean
+10.0 torso-lengths/s; 100ms coarser interval (6×) → mean 8.6 torso-lengths/s (per
+`docs/shipped-baseline-derivation.md:68`). A 6× coarser sampling interval dropped the metric
+only ~15%, nowhere near the 2.5–3× discrepancy observed live (2.6–4.6 vs. 9.3–10.6). Both live
+backend (MediaPipePoseLandmarkerBackend) and export script run `RunningMode.IMAGE`, so neither
+has temporal landmark smoothing — per-frame displacement / dt is frame-rate-independent in
+principle. Remaining candidate causes: (a) the S23 test player genuinely swung slower on that
+session (~40 shadow reps without a ball, test conditions); (b) a live `xScale`/`aspectRatio`
+mismatch (RtmposeTrainingController.kt:277 uses `rotatedWidth/rotatedHeight`) — could
+contribute ≤~1.5×, not 3×. Owner (Ivan) will run a dedicated on-app verification test: record
+an S23 session to file alongside live, export via desktop script, and compare `stroke_speed`
+per rep to isolate the real cause. Consequence: until the discrepancy is
+explained (or `stroke_speed` extraction is made robust to the real cause), it is effectively a constant false positive — it wins the cue-severity ranking on
 every rep (see the companion `FeedbackCadencePolicy` fix, L-40's neighbor investigation) and
 tells the player something that isn't true. Surfaced while investigating a report of "zero
 voice feedback all session" (the actual bug there was cadence-vs-mute ordering, fixed
 separately) — this is the second, still-open problem the same investigation found: even with
 that fix, `stroke_speed` cues remain untrustworthy live.
-**Refs:** `docs/shipped-baseline-derivation.md`; `ShippedBaselines.kt`;
+**Refs:** `docs/shipped-baseline-derivation.md:68` (17ms vs 100ms evidence); `ShippedBaselines.kt`;
 `RtmposeTrainingController.kt` (`logRep`); L-37, L-38 (same shipped baseline's other
 camera/σ caveats).
 

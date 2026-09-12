@@ -33,7 +33,7 @@ trajectory) is excluded entirely per the brief.
 | Measured proof points | Live-device FPS only (throughput, not cue-quality): `docs/pose-backend-fps-benchmark.md:20-25` — MediaPipe Full/Lite GPU 34.4–34.6 fps, CPU 28.0–29.5 fps, Samsung Galaxy S23, single run (explicitly caveated "indicative, not authoritative," `:35-36`). No measurement exists of real end-user cue latency, cue accuracy, or the 3–5 s cadence being felt as "real time" by a player. |
 | Job-to-be-done | Get a specific, spoken correction on the same rep the error happened, without stopping to look at a phone or waiting for a coach. |
 | Closest competitor behaviour | `docs/tt-coach-ai-context.md:219`: "real-time technique coaching for fixed TT drills — nobody does this, even the closest competitor (Spherely) is post-session." |
-| Open L-numbers | L-04 (torso-lean sign noisy on real footage), L-41 (`stroke_speed` band unreachable at live camera frame rates: live-measured 2.6–4.6 torso-lengths/s vs. the shipped band, 16–24σ outside, every rep), L-50 (torso-lean inflated by axial rotation). |
+| Open L-numbers | L-04 (torso-lean sign noisy on real footage), L-41 (live-measured 2.6–4.6 vs band 9.3–10.6 torso-lengths/s; root cause unverified, fps hypothesis contradicted by 17 ms vs 100 ms export comparison), L-50 (torso-lean inflated by axial rotation). |
 
 ---
 
@@ -195,7 +195,7 @@ brief's explicit instruction, not because it failed verification.
 | 7 metric bands, 4 owner-corrected via measured coverage | `DrillMetrics.ALL_KEYS` size; band re-set history | `shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/DrillMetrics.kt:50-59`; `docs/DESIGN_LIMITATIONS.md:441-458` |
 | `shoulder_angle@FOLLOWTHROUGH` measured 14.5–83.1°, median 71.9°, n=31 | Parity-fixture measurement backing the 55–85° seed band | `docs/DESIGN_LIMITATIONS.md:441-442` |
 | `hip_flexion@CONTACT` measured 113.3–177.3°, median 121.3°, n=32 | Parity-fixture measurement backing the 115–150° seed band | `docs/DESIGN_LIMITATIONS.md:444-445` |
-| `stroke_speed` live-measured 2.6–4.6 torso-lengths/s vs. shipped band mean 10.0 ± 0.3σ (16–24σ outside) | Evidence the withdrawn-clip-derived `stroke_speed` band is unreachable in real play (L-41) | `docs/DESIGN_LIMITATIONS.md:189-199` (heading `:189`) |
+| `stroke_speed` live-measured 2.6–4.6 torso-lengths/s vs. shipped band mean 10.0 ± 0.3σ (16–24σ outside) | Evidence the `stroke_speed` band appears unreachable in live play; root cause unverified (fps hypothesis contradicted by 17 ms vs 100 ms export comparison on the same video — L-41) | `docs/DESIGN_LIMITATIONS.md:189-207` |
 | `andrii_1`: 59.3 fps, 720×1280, 18,795 ms, 1106 frames, repCount=12, qualityScore=0.741 | One-clip baseline-derivation record — **do not use for technique claims**, clip withdrawn (L-49) | `docs/shipped-baseline-derivation.md:16-17,109-142` |
 | Room `AppDatabase` schema version 11 | Current local-DB schema version (see Discrepancies §D3 — `CLAUDE.md` cites stale v3/v10) | `app/src/main/java/com/ttcoachai/db/AppDatabase.kt:22` |
 
