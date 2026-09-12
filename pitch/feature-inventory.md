@@ -56,7 +56,7 @@ trajectory) is excluded entirely per the brief.
 | Field | Value |
 |---|---|
 | What the player does | Starts a forehand-drive drill immediately with **zero calibration step**, via one of two pre-seeded drills ("Andrii" / "General"). |
-| Status | **Shipped, but caveated** — and the mechanism has changed since the last `CLAUDE.md` entry on it (see Discrepancies §D1). Two idempotently-seeded `CustomDrillEntity` rows (`SeededDrillsPolicy.SEED_ANDRII_ID`, `SEED_GENERAL_ID`) are created at first app launch and reachable via `DrillsFragment` → `TrainingActivity`. |
+| Status | **Shipped.** The mechanism has changed since the last `CLAUDE.md` entry on it (see Discrepancies §D1). Two idempotently-seeded `CustomDrillEntity` rows (`SeededDrillsPolicy.SEED_ANDRII_ID`, `SEED_GENERAL_ID`) are created at first app launch and reachable via `DrillsFragment` → `TrainingActivity`. Caveat: the per-phase reference ranges these drills coach against are coach opinion, not measurement (`Evidence.COACH_OPINION` throughout — L-43/L-48, see Code evidence and Open L-numbers below). |
 | Code evidence | `app/src/main/java/com/ttcoachai/util/SeededDrillsPolicy.kt:15-16,59`. **Current production reference source is NOT `ShippedBaselines.FOREHAND_ANDRII`**: `TrainingActivity.kt:161-188,269-282` resolves standard-mode reps via `PerPhaseTargetsSeed.rangeBands()` (fallback) or the drill's own bands, synthesizing its severity σ-carrier with `BandBaselineSynthesizer.fromBands(...)` (`shared/src/commonMain/kotlin/com/ttcoachai/shared/drill/BandBaselineSynthesizer.kt`) — a grep for `ShippedBaselines.` in `app/src`/`shared/src` production code returns zero hits outside `ShippedBaselines.kt` itself and its tests (`docs/DESIGN_LIMITATIONS.md:138-155` L-43, resolved 2026-08-16). |
 | Measured proof points | `PerPhaseSeededBandCoverageTest` (jvmTest) asserts every seeded band covers the measured median across `video_3`/`video_4` parity fixtures, 32 cycles (`docs/DESIGN_LIMITATIONS.md:413-461`). **No measurement exists** of on-device behaviour — "Build-and-JVM-test verified only — NO device smoke this session" (`CLAUDE.md:149-152`). |
 | Job-to-be-done | Start training the same session you download the app, without a separate calibration ritual. |
@@ -88,7 +88,7 @@ trajectory) is excluded entirely per the brief.
 | Code evidence | `CommunityDrillRepository.kt` (`app/src/main/java/com/ttcoachai/repository/CommunityDrillRepository.kt`) does the Firestore read/write directly from the client, no backend (`ratingSum`/`ratingCount` fields at lines 147-152,190-191). `CommunityDrillsActivity` (browse), `CommunityDrillDetailSheet` (preview/rate/copy), `DrillsFragment.kt:174` (publish/unshare, long-press menu). |
 | Measured proof points | No measurement exists of publish counts, rating distribution, or copy rate — feature has no analytics instrumentation found. `firestore.rules` (repo root) is present and constrains field-set + star range (lines 1-40 read directly), but the file's own header states "MANUAL DEPLOYMENT REQUIRED... NOT auto-deployed by the build or CI/CD" (`firestore.rules:4-6`) — this analysis found no evidence in-repo of whether it is currently live in the Firebase console. |
 | Job-to-be-done | Discover and reuse drill configurations other players have already tuned, instead of building bands from scratch. |
-| Closest competitor behaviour | Spherely is described as having a "community app" component (`docs/tt-coach-ai-context.md:211`: "post-session highlight/replay/community app") — the closest direct analog found in the competitor list, though Spherely's community layer is around replay content, not tunable coaching drills. |
+| Closest competitor behaviour | Spherely is described as having a "community app" component (`docs/tt-coach-ai-context.md:213`: "post-session highlight/replay/community app") — the closest direct analog found in the competitor list, though Spherely's community layer is around replay content, not tunable coaching drills. |
 | Open L-numbers | L-40 (pre-editor-rework community drills surface only 2/7 bands). |
 
 ---
@@ -102,7 +102,7 @@ trajectory) is excluded entirely per the brief.
 | Code evidence | `app/src/main/java/com/ttcoachai/fragment/{SessionReviewFragment,SessionHistoryFragment,ProgressFragment}.kt` all present and reference in `nav_graph.xml`. `SessionAnalyticsEntity` (Room, `AppDatabase` entity list, `app/src/main/java/com/ttcoachai/db/AppDatabase.kt:12-22`, current schema **version 11** — see Discrepancies §D3). |
 | Measured proof points | No measurement exists of session-review engagement (open rate, time spent, repeat visits). |
 | Job-to-be-done | See how a session or a stretch of training actually went, beyond the live in-the-moment cues. |
-| Closest competitor behaviour | `docs/tt-coach-ai-context.md:211`: Spherely's whole product is built around post-session review ("slow playback, zoom, replay") — this is the segment where TT_Coach_AI's session-review screens compete most directly, even though live coaching is the differentiator. |
+| Closest competitor behaviour | `docs/tt-coach-ai-context.md:213`: Spherely's whole product is built around post-session review ("slow playback, zoom, replay") — this is the segment where TT_Coach_AI's session-review screens compete most directly, even though live coaching is the differentiator. |
 | Open L-numbers | L-45 (2 of 4 declared phase-duration keys never produced), L-46 (per-phase ConsistencyRules dilute the session summary's flagged-rep count). |
 
 ---
@@ -171,7 +171,7 @@ brief's explicit instruction, not because it failed verification.
 | Code evidence | `SubscribeActivity.kt` — `btnStart` click handler at `:118`, with the comment `// Mock purchase — no real billing integration.` at `:119` immediately inside it; the handler calls `settingsManager.setSubscriptionActive(true)` (a local SharedPreferences flag) and `finish()`. `btnRestore` click handler at `:127` shows an unconditional "nothing to restore" toast at `:128`. No Google Play Billing import anywhere in the file. |
 | Measured proof points | No measurement exists. |
 | Job-to-be-done | Pay to unlock premium features once they exist; today, tapping "Start" only flips a local flag with no real purchase. |
-| Closest competitor behaviour | `docs/tt-coach-ai-context.md:212`: SwingVision is a real paid subscription, "~$150–180/yr." `docs/tt-coach-ai-context.md:215`: Spinsight is "€5–50/mo + €150 kit." Both give a pricing anchor for the category; neither doc entry describes those competitors' billing *implementation*, only their price. |
+| Closest competitor behaviour | `docs/tt-coach-ai-context.md:212`: SwingVision is a real paid subscription, "~$150–180/yr." `docs/tt-coach-ai-context.md:214`: Spinsight is "€5–50/mo + €150 kit." Both give a pricing anchor for the category; neither doc entry describes those competitors' billing *implementation*, only their price. |
 | Open L-numbers | None found in `docs/DESIGN_LIMITATIONS.md` referencing `SubscribeActivity` or subscription gating (grepped, zero hits). |
 
 **Notes (carried over):**
@@ -204,14 +204,14 @@ brief's explicit instruction, not because it failed verification.
 | Value | Source | Line |
 |---|---|---|
 | `--arpu 8.0` USD/mo (default) | `pitch/unit_economics.py` | `:91` |
-| `--churn 0.11` monthly (default) → lifetime ≈ 9.1 months | `pitch/unit_economics.py` | `:92` (derived `:31-33`) |
+| `--churn 0.11` monthly (default) → lifetime ≈ 9.1 months | `pitch/unit_economics.py` | `:92` (derived `:34`) |
 | `--store-fee 0.15`, `--ai-cost-share 0.05` → gross margin 80% | `pitch/unit_economics.py` | `:95-96` (derived `:38-40`) |
 | `--cac-paid 70.0`, `--cac-blended 40.0` USD | `pitch/unit_economics.py` | `:100-101` |
 | Derived: LTV ≈ $58.18, LTV:CAC paid ≈ 0.83×, blended ≈ 1.45× (below the 3× SaaS bar the script itself flags, `:134-136`) | `pitch/unit_economics.py` compute() | `:28-72` (hand-verified by re-running the formula, not the script) |
 | "$12 ARPU + annual-plan churn ~8% → LTV:CAC 3.0×" — a **different, more optimistic scenario**, not the script's own default output | `CLAUDE.md` | `:17-19` |
 | "$0.4–0.5/user/mo" Sonnet 5 AI-Coach COGS estimate — does not appear in `unit_economics.py` | `CLAUDE.md` | `:19` |
 | Stage-1 beta gate "≥40% of beta completes ≥3 sessions" — explicitly called "a heuristic, not a validated benchmark" by the doc itself | `docs/tt-coach-ai-context.md` | `:229`(launch-plan gates section) |
-| 2D joint-angle accuracy 1.4°–6.5° MAE / ~9° athletic-movement error — cited from external clinical literature (Lindera-v2, JMIR mHealth 2020), not measured on this app's own pipeline | `docs/tt-coach-ai-context.md` | `:76` |
+| 2D joint-angle accuracy 1.4°–6.5° MAE / ~9° athletic-movement error — cited from external clinical literature (Lindera-v2, JMIR mHealth 2020), not measured on this app's own pipeline | `docs/tt-coach-ai-context.md` | `:77` |
 
 ---
 
