@@ -169,38 +169,389 @@ old shared blobs never carried them. A pre-rework community drill shows those 5 
 the author re-edits and re-shares.
 **Refs:** `PerPhaseTargetsCodec.kt`; `ExerciseEditorActivity.kt`.
 
-### L-41 · `stroke_speed` band is unreachable at live camera frame rates — `OPEN` (root cause UNVERIFIED, 2026-09-12)
-`ShippedBaselines.FOREHAND_ANDRII`'s `stroke_speed` band (mean 10.0 ±0.3 torso-lengths/s,
-i.e. 9.3–10.6) was derived from a full-fps (17ms interval) desktop video export. A real
-device logcat capture (`adb logcat -s RtmposeTrainingCtrl`, Samsung S23, ~40 reps) showed
-live-measured `stroke_speed` of 2.6–4.6 torso-lengths/s on EVERY rep — 16–24σ outside the
-band, every single time. **Original hypothesis (2026-07-25):** the live MediaPipe camera path samples the swing far
-more coarsely than the 17ms export it was calibrated against, so it structurally under-reads
-peak wrist speed; this is not player variability, but a sampling-rate mismatch between how
-the baseline was derived and how the metric is measured live.
+### L-41 · `stroke_speed` band read 2.6–4.6 live vs a 9.3–10.6 shipped band — player intensity, not frame rate — `RESOLVED` (2026-09-12)
+**Observation:** `ShippedBaselines.FOREHAND_ANDRII`'s `stroke_speed` band (mean 10.0 ±0.3
+torso-lengths/s, i.e. 9.3–10.6) was derived from a full-fps (17ms interval) desktop video
+export. A real device logcat capture (`adb logcat -s LiveTrainingCtrl`, Samsung S23,
+~40 reps) showed live-measured `stroke_speed` of 2.6–4.6 torso-lengths/s on EVERY rep —
+16–24σ outside the band, every single time.
 
-**2026-09-12 re-examination:** That hypothesis was not verified until now. Comparing the same
-`andrii_1` video exported at two intervals showed: 17ms full-fps export → `stroke_speed` mean
-10.0 torso-lengths/s; 100ms coarser interval (6×) → mean 8.6 torso-lengths/s (per
-`docs/shipped-baseline-derivation.md:68`). A 6× coarser sampling interval dropped the metric
-only ~15%, nowhere near the 2.5–3× discrepancy observed live (2.6–4.6 vs. 9.3–10.6). Both live
-backend (MediaPipePoseLandmarkerBackend) and export script run `RunningMode.IMAGE`, so neither
-has temporal landmark smoothing — per-frame displacement / dt is frame-rate-independent in
-principle. Remaining candidate causes: (a) the S23 test player genuinely swung slower on that
-session (~40 shadow reps without a ball, test conditions); (b) a live `xScale`/`aspectRatio`
-mismatch (RtmposeTrainingController.kt:277 uses `rotatedWidth/rotatedHeight`) — could
-contribute ≤~1.5×, not 3×. Owner (Ivan) will run a dedicated on-app verification test: record
-an S23 session to file alongside live, export via desktop script, and compare `stroke_speed`
-per rep to isolate the real cause. Consequence: until the discrepancy is
-explained (or `stroke_speed` extraction is made robust to the real cause), it is effectively a constant false positive — it wins the cue-severity ranking on
-every rep (see the companion `FeedbackCadencePolicy` fix, L-40's neighbor investigation) and
-tells the player something that isn't true. Surfaced while investigating a report of "zero
-voice feedback all session" (the actual bug there was cadence-vs-mute ordering, fixed
-separately) — this is the second, still-open problem the same investigation found: even with
-that fix, `stroke_speed` cues remain untrustworthy live.
-**Refs:** `docs/shipped-baseline-derivation.md:68` (17ms vs 100ms evidence); `ShippedBaselines.kt`;
-`RtmposeTrainingController.kt` (`logRep`); L-37, L-38 (same shipped baseline's other
-camera/σ caveats).
+**Original hypothesis (2026-07-25), now refuted:** the live MediaPipe camera path samples
+the swing far more coarsely than the 17ms export it was calibrated against, so it
+structurally under-reads peak wrist speed — a sampling-rate mismatch between how the
+baseline was derived and how the metric is measured live. This was never verified before
+being recorded, and a 2026-09-12 downgrade to "root cause UNVERIFIED" listed two candidate
+causes instead: (a) the S23 test player genuinely swung slower that session, (b) a live
+`xScale`/`aspectRatio` mismatch.
+
+**Measurement (2026-09-12):** a frame-rate sensitivity sweep re-ran the identical pipeline
+(`StrokeDetector2D` → `ForwardStrokeFilter` → `RepFilter` → `LocomotionFilter` →
+`DerivedMetrics`) over the same full-fps `andrii_1` export
+(`Videos/andrii_1/andrii_1_poses_mediapipe_lite.json`, intervalMs=17, 1106 frames),
+decimating frames to simulate coarser capture:
+
+| decimation | effective intervalMs | reps surviving | mean `stroke_speed` (min–max) |
+|---|---|---|---|
+| 1x | 17 | 15 | 10.18 (9.31–11.67) |
+| 2x | 34 | 15 | 9.22 (8.44–10.27) |
+| 3x | 51 | 15 | 9.84 (8.63–11.15) |
+| 4x | 68 | 15 | 8.16 (7.39–9.21) |
+| 6x | 102 | 0 | — |
+| 8x | 136 | 0 | — |
+| 12x | 204 | 0 | — |
+
+Across 17ms→68ms (≈60fps down to ≈15fps) the metric drifts only ~1.25×, and
+non-monotonically (51ms reads higher than 34ms). At 102ms and coarser, rep detection
+collapses to ZERO reps.
+
+**Why this is decisive:** the S23 field log detected reps on EVERY one of ~40 strokes with
+stable 2.6–4.6 values. Coarse sampling cannot produce that pattern — it destroys rep
+detection well before it halves the metric, and the live session was clearly still
+detecting reps normally.
+
+**Supporting checks:** the live path constructs `LiveDrillSession` with a default
+`StrokeDetector2D()`, so `smoothingWindowMs=300`/`peakWindowRadiusMs=300`/
+`minPeakSpeed=1.0` are IDENTICAL live and in export. Live frame timestamps come from
+`imageProxy.imageInfo.timestamp / 1_000_000` (sensor nanoseconds → ms, correct units);
+`STRATEGY_KEEP_ONLY_LATEST` drops frames but the median interval then honestly reflects
+the real time between *analyzed* frames, so dt is not inflated. Live `aspectRatio`
+(CameraX `RATIO_4_3` → xScale ≈ 0.75) is LARGER than the export's (720×1280 → 0.5625);
+since the swing is mostly horizontal and the torso mostly vertical, `stroke_speed` scales
+with xScale, so the live path should read ~33% HIGHER — pushing the unexplained gap the
+wrong direction, not toward it.
+
+**Confirmed cause:** owner (Ivan) confirmed directly that on that S23 session the player
+was swinging slowly. Candidate (a) from the 2026-09-12 downgrade is the answer — the
+2.6–4.6 readings were a CORRECT measurement of low-intensity shadow reps, not an
+under-read. This is a metric-semantics issue, not a pipeline defect.
+
+**Rule that survives:** a `stroke_speed` band is an INTENSITY band, not just a technique
+band. A band derived from one clip of full-intensity drives will false-positive on every
+rep of a lower-intensity session by the same or another player. Any manually authored
+`stroke_speed` value (Exercise Settings editor rows, a seeded drill's bands, or any future
+shipped baseline) must be authored for the intensity regime the player will actually train
+at — it does NOT transfer across intensity the way the in-plane joint-angle metrics do.
+Consistent with the project's "calibrate, don't re-teach" positioning.
+
+**Why this isn't live today:** `PerPhaseReferenceRanges` (the current seeded-drill σ-carrier)
+has no `stroke_speed` entry, and `ShippedBaselines.FOREHAND_ANDRII` has no production call
+sites (L-43) — so this band cannot fire in today's coaching path. Recorded here as a
+resolved diagnosis, and as the rule to apply if `stroke_speed` bands are ever authored or
+shipped again.
+**Refs:** `docs/shipped-baseline-derivation.md`; `ShippedBaselines.kt`;
+`shared/src/jvmTest/kotlin/com/ttcoachai/shared/drill/FrameRateSensitivityHarness.kt`
+(reproducible measurement); `LiveTrainingController.kt` (`logRep`); L-37, L-38 (same
+shipped baseline's other camera/σ caveats); L-43 (no production call sites).
+
+### L-42 · Kotlin and viewer stroke detectors disagree on which strokes are reps — `RESOLVED` (2026-08-16, task 4b)
+**Was:** Kotlin `StrokeDetector2D`'s wrist-speed peak NMS was gap-based (suppressed
+any peak within `minPeakGapMs` regardless of swing direction); `poses_viewer`'s
+`strokeDetector2d.ts` NMS was direction-aware (a backswing and its forward drive can
+both survive — `poses_viewer/CLAUDE.md`, 2026-06-15, "user-directed 'viewer-first'").
+The two sides disagreed on which raw peaks were kept and, downstream, on which
+forward strokes/cycles existed — not a rounding difference, a different rep set.
+Visually confirmed against `video_3_rtm.json`: the viewer's extra peak at frame 317
+is a genuine forward contact (racket driven toward the wall, elbow open, knees
+loaded — same silhouette as the shared frame 706 peak); Kotlin instead picked frame
+291 in that region (a recovery/take-back, correctly dropped by `ForwardStrokeFilter`)
+and so lost the real stroke entirely.
+**Resolution:** ported the viewer's direction-aware refractory into
+`MovementDetector.findPeaks` — the min-peak-gap de-dup now only merges two peaks of
+the SAME movement direction (a signed horizontal displacement of the tracked
+[SignalKeypoint], smoothed the same as the speed signal); an opposite-direction
+peak within `minPeakGapMs` is always admitted, so a backswing and its forward drive
+~300ms later both survive instead of the gap arbitrarily picking one (this was also
+the drive/recovery-symmetry failure mode described by L-27 on shadow play). Kept
+generic: direction is computed from `config.signalKeypoint`, not hard-coded to the
+wrist/forehand, so the fix serves any future `MovementDetector`-based movement type.
+**Measured post-fix** (task-4 parity gate, `PerPhaseParityTest.kt`,
+`detect -> ForwardStrokeFilter -> RepFilter -> CyclePairing` chain, cameraYawDeg
+pinned 0): `video_3_rtm.json` — viewer 20 cycles, Kotlin 20 (full convergence, all
+peakFrames match exactly); `video_4_rtm.json` — viewer 12 cycles, Kotlin 12 (same).
+Phase-key-set agreement across all five per-phase metrics is now complete: 20/20
+(video_3), 12/12 (video_4) — every matched cycle agrees on which phases are present.
+Backswing-pairing coverage, previously 0/16 (0%) and 2/9 (22%) on the Kotlin side
+alone, now matches the viewer's own fraction: 18/20 (90%) on video_3, 11/12 (92%) on
+video_4. Stage-level goldens moved accordingly
+(`ForwardStrokeFilterRealFootageTest.kt`): video_3 raw/forward/reps 42/20/20 (was
+tested via the now-withdrawn `andrii_1` fixture pre-4b); video_4 25/12/12, matching
+the previously-documented visual ground truth of exactly 12 real forward drives
+(pre-fix this read 18/12/9 — 3 of the 12 real drives only survived as reps by luck
+of which raw peak the old gap-based NMS happened to keep).
+**Product-level consequence, resolved:** the poses_viewer `#/strokes` stroke
+table/rep count is now a faithful preview of what the shipped Android app coaches on
+the same footage for the two reference fixtures.
+**Refs:** `MovementDetector.kt` (`findPeaks`, `rawDx`, `signedDirection`);
+`strokeDetector2d.ts` (`findPeaks`, `rawWristDx`); `PerPhaseParityTest.kt`;
+`ForwardStrokeFilterRealFootageTest.kt`. `andrii_1` is withdrawn as reference
+footage (non-protocol camera angle) — `ForehandDriveEndToEndTest.
+ownBaselineStaysMostlyQuietOnOwnReps`, which pins outlier/cue rep indices, is
+re-pointed to `video_3_rtm` (commit `f9b995e`, fix round 1 ruling: the property —
+a player's own derived baseline stays mostly quiet on the reps it was derived
+from — is a real E2E behavioural guarantee, not a footage-specific number, so it
+moves rather than staying `@Ignore`d) and runs, unignored, with numbers re-measured
+on `video_3_rtm` in the test's own KDoc.
+
+### L-43 · `ShippedBaselines.FOREHAND_ANDRII` was derived under the pre-4b detector, now stale — `RESOLVED` (production references removed, object kept)
+L-42's resolution changed which reps the detector finds and keeps (task 4b, 2026-08-16), but
+`ShippedBaselines.FOREHAND_ANDRII` — the hard-coded `PersonalBaseline` pasted from a one-time
+`ShippedBaselineDerivationHarness` run — was derived under the OLD gap-based `MovementDetector`
+and has not been re-derived. It used to ship live in both of its roles: every
+`referenceType="standard"` custom drill used it as the σ-carrier `DrillFeedbackEngine.evaluateRep`
+normalized severity against (`applyRangeOverrides`/"standard" mode, see L-38), and
+`ShippedBaselines.defaultBands()` (mean ± 2σ) derived from its `metricStats`/`repCount` as
+`TrainingActivity`'s fallback when a drill launched without the `REFERENCE_TYPE` extra. The
+repCount/metricStats/phaseDurationsMs baked into this constant reflect a rep SET the current
+detector would no longer reproduce on the same source footage (`andrii_1`) — not just a "different
+camera framing" caveat like L-37, but a genuine detector-version mismatch between the numbers
+that were shipping and what re-running the (unchanged) derivation harness would now produce.
+
+**Resolved (task 6, 2026-08-16):** both roles are now gone from production code.
+`DrillFeedbackEngine`'s "standard"-mode severity fallback derives σ directly from the violated
+band's own width (`BaselineRuleFactory.sigmaFromBand`, `mean ± 2σ` convention) instead of a
+baseline's `metricStats`, and `TrainingActivity` synthesizes its σ-carrier `PersonalBaseline` from
+the drill's own bands (`BandBaselineSynthesizer.fromBands`) rather than passing
+`ShippedBaselines.FOREHAND_ANDRII`. `TrainingActivity`'s `REFERENCE_TYPE`-missing fallback now
+reads `PerPhaseTargetsSeed.rangeBands()` (the same researched per-phase ranges, e118c2b, that seed
+a freshly-created drill) instead of `ShippedBaselines.defaultBands()`. `ShippedBaselines.kt` and
+`ShippedBaselinesTest.kt` are deliberately left in place — no remaining production caller reaches
+either `FOREHAND_ANDRII` or `defaultBands()` (verified by grep, not deleted); whether to delete the
+object and its derivation-record doc is a call for the plan owner, not this task.
+**Refs:** `ShippedBaselines.kt`; `ShippedBaselineDerivationHarness.kt`; `DrillFeedbackEngine.kt`;
+`BandBaselineSynthesizer.kt`; `PerPhaseTargetsSeed.kt`; L-37, L-38 (this baseline's other
+pre-existing caveats); L-42 (the detector change that made this one stale).
+
+### L-44 · Cold-start false-positive reps before `ForwardStrokeFilter`'s facing vote has enough context — `ACCEPTED`
+Task 4c fixed `LiveDrillSession`'s stroke-identity dedup (peak-timestamp jitter under
+re-detection caused up to 4x same-stroke re-emission — see this entry's sibling fix, and
+`LiveDrillSessionParityTest`/`LiveDrillSessionNmsRegressionDiagnosticTest`) but surfaced a
+smaller, SEPARATE, pre-existing residual it does not (and structurally cannot) close: on both
+`video_3_rtm` and `video_4_rtm`, live emits a small number of extra reps BEFORE the session's
+first real rep — video_4: 3 extras (endMs 4097, 3043, 2227, all < first real rep 4607); video_3:
+1 extra (endMs 2975, < first real rep 4692). Confirmed NOT a detection difference: running
+`MovementDetector.detect()` once over the FULL video_4 sequence (batch mode) produces the exact
+same early candidate windows live sees — `(1173,1394,2227)`, `(2227,2516,3043)`,
+`(3553,3910,4097)` — so both paths detect the identical raw peaks. The difference is entirely in
+`ForwardStrokeFilter`: its session-facing speed-dominance vote only overrides the noisy
+per-frame head-facing fallback (L-04) once it has seen `MIN_GROUP_SIZE` (2) verified strokes in
+EACH wrist-dx direction (L-27 covers the same vote's other failure mode). Batch supplies that
+from the WHOLE session; live, at the moment these early candidates first stabilize (within the
+first ~2 real strokes' worth of buffer), has not yet accumulated its OWN later strokes to supply
+that evidence — a causal limit: the disambiguating context does not exist yet at the time these
+early strokes must be committed to keep feedback live. No live-path change (identity scheme,
+buffering, dedup) can close this without either changing `ForwardStrokeFilter` (task 4c's brief
+explicitly disallows it) or redesigning the live path to delay-commit early strokes until
+`MIN_GROUP_SIZE`-per-direction is satisfied (a materially bigger change than "stable identity
+under re-detection" — a candidate follow-up, not attempted here).
+**Why accepted, not blocking:** each cold-start artifact fires at most once (task 4c's dedup
+correctly recognizes its own re-detection and does not re-emit it), always lands before the
+player's first real stroke of the session (i.e. before there is anything to compare it against
+in the stroke-snapshot carousel/session stats), and is small in count (1–3 measured). The
+`liveReplayMatchesBatchRepSetOnVideo3/4ShadowPlay` tests assert this precisely: zero repeated
+timestamps anywhere, and an EXACT (TRAILING-tolerant) match against batch for every rep from the
+first real one onward — the cold-start prefix is reported, not silently size-bounded away.
+**Refs:** `LiveDrillSession.kt` (`emittedWindows`); `ForwardStrokeFilter.kt`
+(`speedDominantFacing`, `MIN_GROUP_SIZE`); `LiveDrillSessionParityTest.kt`
+(`assertLiveMatchesBatchModuloColdStart`); L-04 (noisy head-facing fallback), L-27 (the vote's
+other below-ratio failure mode).
+
+### L-45 · Two of the four declared phase-duration keys are never produced — `OPEN`
+`BaselineDeriver` declares all four phase-duration keys (`PHASE_BACKSWING_MS`,
+`PHASE_FORWARD_SWING_MS`, `PHASE_FOLLOW_THROUGH_MS`, `PHASE_STROKE_TOTAL_MS`), and the frozen
+legacy 3D path (`BaselineDeriver.derive` → `extractPhaseDurations`, fed from `DetectedStroke`
+boundary frames) does compute all four. But the 2D pivot's live/calibration path —
+`MovementCalibrator.calibrate` (and, via task 7's `TempoMetrics.forStroke`, `DrillRepProcessor`/
+`MovementAnalyzer`) — only ever produces `PHASE_FORWARD_SWING_MS` (`peakFrame - startFrame`) and
+`PHASE_STROKE_TOTAL_MS` (`endFrame - startFrame`). `PHASE_BACKSWING_MS` and
+`PHASE_FOLLOW_THROUGH_MS` have no 2D-pivot source: `Stroke2D` only carries `startFrame`/
+`peakFrame`/`endFrame` — there is no direction-reversal analysis to locate a backswing-start or
+follow-through-end boundary within that window. Consequence: `PersonalBaseline.phaseDurationsMs`
+never contains these two keys on the 2D pivot, so a `RhythmRule` for them is never derived, and —
+now that task 7 makes tempo authorable — an editor row bound to `backswing_ms`/`follow_through_ms`
+would produce a `RangeRule` whose `metrics` lookup always misses (silent, per the documented safe
+behavior for an absent measurement, but permanently so: no code path will ever populate a value).
+**Do not wire an editor row to these two keys** until a backswing/follow-through boundary
+detector exists.
+**Refs:** `TempoMetrics.kt`; `MovementCalibrator.kt`; `BaselineDeriver.kt`
+(`PHASE_BACKSWING_MS`/`PHASE_FOLLOW_THROUGH_MS` declarations, `extractPhaseDurations` — the
+legacy path that DOES compute them); `Stroke2D.kt`.
+
+### L-46 · Per-phase ConsistencyRules dilute the session summary's flagged-rep count — `OPEN`
+Task 9a wires the five per-phase metrics' composite `metric@phase` values into all three
+per-rep metrics maps, and (for `MovementCalibrator.calibrate`, via the isolated
+`repExtraMetrics` channel — see the task-9a report) into `PersonalBaseline.metricStats` too.
+`BaselineRuleFactory.defaultRules` auto-derives one `ConsistencyRule` (two-sided 2σ) per
+metric key present in `metricStats` with `std > 0`, with no distinction between a
+single-instant metric and a per-phase composite one. A calibrated baseline that used to carry
+~7 ConsistencyRules (the bare `DrillMetrics.ALL_KEYS`) now carries up to 17 (7 bare + 10
+composite) — more than double the number of independent-ish 2σ checks run against every rep.
+
+Consequence: the count of reps `DrillFeedbackEngine.evaluateRep` flags (`RepAnalysis.cues.
+isNotEmpty()`, what session-summary "flagged rep" counters read) rises measurably even when
+the player's technique hasn't changed — re-measured in `ForehandDriveEndToEndTest.
+ownBaselineStaysMostlyQuietOnOwnReps` on video_3_rtm: borderline non-outlier flags went from
+1/20 (7 rules) to 3/20 (17 rules) with the SAME reps and the SAME baseline-derivation outlier
+decision. This does NOT change how often the app speaks — `FeedbackCadencePolicy` still emits
+at most one cue per 3–5s window, chosen by max severity, so a larger rule set changes WHICH
+cue wins that window, not how many windows fire. But it does mean **the session summary's
+flagged-rep count is now a weaker signal of technique quality than it was**, because it scales
+with how many rules happen to exist, not purely with how consistent the player's strokes were.
+Any future change to the rule count (more phased metrics, more movements) will shift this
+further in the same direction unless addressed.
+**Not fixed here** — candidate directions (not evaluated): a per-metric-count-aware severity
+threshold, excluding composite keys from `defaultRules`' auto-generation (leaving per-phase
+coaching purely to explicit editor/seeded bands), or reporting flagged-METRIC-count rather
+than flagged-REP-count in session analytics.
+
+**Wider than the session summary alone (app/, checked task 9a):** `LiveTrainingController.
+synthesizeAnalysisResult` scores a rep 95 (clean) vs. 65 (flagged) from this SAME raw
+`rep.cueCount == 0` signal — NOT cadence-gated — feeding `TrainingStateManager.
+getTotalHits`/`getSuccessfulHits`/`getAverageScore`, which drive the LIVE in-session progress
+bar/accuracy (`TrainingUIController.updateStats`) in real time, and are persisted on save
+(`TrainingActivity.saveSessionToCloud`: `correctStrokes`, `averageScore`) into
+`ProgressDataLoader`'s weekly accuracy chart. So accuracy dilutes live, during the session, not
+only in a post-session summary — the app's day-to-day skill-progress signal, not just one
+screen. By contrast, `RepCarouselView`'s snapshot highlight and the on-screen feedback-type
+list/count (`tvFlagged`) are driven by the CADENCE-GATED `SpokenFeedback` stream, not raw
+`cueCount` — those are NOT diluted in rate (only in which `CorrectionType` wins), consistent
+with the cadence-rate reasoning above. Streak count itself appears to be session-occurrence-
+based rather than accuracy-based (not independently verified in depth here).
+**Refs:** `BaselineRuleFactory.defaultRules`; `DrillFeedbackEngine.evaluateRep`;
+`ForehandDriveEndToEndTest.ownBaselineStaysMostlyQuietOnOwnReps` (re-derived bound + full
+reasoning); `LiveTrainingController.synthesizeAnalysisResult`; `TrainingStateManager`;
+`TrainingActivity.saveSessionToCloud`; `ProgressDataLoader`; task-9a report
+(`.superpowers/sdd/task-notification-task-id-a59ecfedad4dc-cuddly-seal/task-9a-report.md`).
+
+### L-47 · Five metrics have no pre-recorded voice clips — `OPEN`
+`follow_through_angle_2d`, `stroke_speed`, and `coil_ratio` are part of `DrillMetrics.ALL_KEYS`
+(the 8-cue RTM correction taxonomy) and have phrase text in `VoicePresetCatalog` for all 3 built-in
+styles × both languages × both directions, but NONE of those phrases resolve to a recorded clip in
+any of `app/src/main/assets/voice/{preset-playful,preset-strict,preset-efficient}/manifest.json` —
+verified by hashing every catalog phrase via `VoiceClipKeys.clipKey` and checking manifest
+membership (`VoicePresetManifestCoverageTest.unresolvedCatalogPhrasesMatchKnownGapAllowlistExactly`).
+Not a port defect (task 10's phased-phrase port is separately verified clean, zero misses) — the
+audio for these 3 metrics was simply never recorded when the manifests were generated. Consequence:
+`PresetVoiceController.speak` always falls through to live TTS for these 3 metrics' cues, on all
+3 styles, in both languages — never plays a pre-recorded clip.
+
+Fix round (final review, fix 4) added two more: `forward_swing_ms`/`stroke_total_ms` (tempo cues)
+got brand-new `VoicePresetCatalog` phrases with no recorded clip at all — there was never an
+opportunity to record them, since these keys never cued before this fix round. Same consequence:
+always falls through to TTS.
+
+**Not fixed here.** The exact 60 missing (style, lang, phrase) triples (36 for the original 3
+metrics + 24 for the 2 tempo keys: 3 styles × 2 langs × 2 metrics × 2 directions) are enumerated in
+`VoicePresetManifestCoverageTest`'s `KNOWN_MISSING_CLIP_PHRASES` allowlist — an exact-match set,
+not an upper bound, so recording a metric's clips must shrink the allowlist (the test fails loudly
+either way: a new miss, or a listed phrase that now resolves).
+**Refs:** `VoicePresetCatalog.kt`; `VoiceClipKeys.kt`; `VoicePresetManifestCoverageTest.kt`
+(`app/src/test/java/com/ttcoachai/services/`); `app/src/main/assets/voice/*/manifest.json`.
+
+### L-48 · `PER_PHASE_RANGES` is entirely coach opinion, not measurement — `OPEN`
+`PER_PHASE_RANGES` (`PerPhaseReferenceRanges.kt`, mostly ported from
+`poses_viewer/src/drill2d/referenceStandard.ts`, with four deliberate exceptions below) is now
+the seed source for every new drill's bands (`PerPhaseTargetsSeed`, replacing
+`ShippedBaselines.defaultBands()` — see L-43) and the `REFERENCE_TYPE`-missing fallback
+`TrainingActivity` reads.
+
+**Update 2026-08-16 (owner ruling, `feat/per-phase-metric-grid`):** a whole-branch review
+measured the seeded bands against `video_3`/`video_4` parity fixtures (32 cycles) and found
+`knee_bend@BACKSWING` at 0/29 in band, `knee_bend@CONTACT` at 0/32, and
+`shoulder_angle@FOLLOWTHROUGH` at 2/31 — the `knee_bend` entries' `Evidence.MEASURED` tag was a
+Bańkosz & Winiarski JSSM 2020 literature conversion (3D sagittal knee flexion) that does not
+transfer to the 2D hip–knee–ankle interior angle this pipeline actually computes. The project
+owner re-set all three bands to cover the measured range as default seed values (not re-derived
+research): `knee_bend@BACKSWING`/`@CONTACT` → 120–150, `shoulder_angle@FOLLOWTHROUGH` → 60–110.
+Post-change coverage on the same fixtures: `knee_bend@BACKSWING` 15/29 (median 149.8, in band),
+`knee_bend@CONTACT` 31/32, `shoulder_angle@FOLLOWTHROUGH` 29/31. Both `knee_bend` entries lost
+their `Evidence.MEASURED` tag (now `Evidence.COACH_OPINION`, with the superseded literature
+citation kept in the `source` string as history) — **all 10 entries are now
+`Evidence.COACH_OPINION`; zero carry `Evidence.MEASURED`.** A regression guard
+(`PerPhaseSeededBandCoverageTest`, jvmTest) now asserts every seeded band contains the measured
+median across the parity fixtures, plus a stricter ≥50%-of-reps-in-band check — this is the
+check whose absence let the old bands ship.
+
+**Update 2026-08-16, second pass (owner ruling + attribution correction, same branch):** the
+`shoulder_angle@FOLLOWTHROUGH` 60–110 band recorded above was misattributed in
+`PerPhaseReferenceRanges.kt`'s `source` string as a "project owner" choice — it was in fact an AI
+assistant's provisional pick, never actually ruled on by the owner. The owner has now made the
+real ruling: `shoulder_angle@FOLLOWTHROUGH` → 55–85 (was 60–110; measured 14.5–83.1°, median
+71.9°, n=31 — new band covers 30/31 reps). The `source` string has been corrected in place to say
+so plainly (misattribution stated, not silently overwritten). Separately, the owner also ruled on
+the `hip_flexion@CONTACT` residual noted below: band re-set from 120–165 → **115–150** (measured
+113.3–177.3°, median 121.3°, n=32 — new band covers 28/32 reps, up from 16/32). Both changes are
+recorded in the class kdoc and the entries' `source` strings.
+
+**Residual — RESOLVED 2026-08-16 (second pass, see above):** `hip_flexion@CONTACT`'s coverage gap
+(median in band, but only 16/32 reps) has been fixed by the owner's 115–150 ruling (28/32 now in
+band, above the ≥50% guard). The `PerPhaseSeededBandCoverageTest.KNOWN_LOW_COVERAGE_BANDS`
+allowlist entry for this pair has been removed accordingly (kept as an empty set for future use,
+not deleted as a mechanism).
+
+Of the 10 (metric, phase) entries, 6 (`elbow_angle`×2, `shoulder_angle@BACKSWING`,
+`hip_flexion@BACKSWING`, `torso_lean`×2) remain untouched `Evidence.COACH_OPINION` — heuristic, no
+measured source — and several of their `source` strings still carry explicit "PROVISIONAL" /
+"UNVERIFIED" / "sources DISAGREE" warnings verbatim in the code. Consequence: a freshly-seeded
+drill's editor grid shows precise-looking degree numbers for all 10 rows, and with zero entries
+now `Evidence.MEASURED`, the editor's ✓ "measured" marker (see mitigation below) currently has
+nothing left to mark — worth a follow-up UI pass, not addressed on this branch.
+**Mitigation shipped (now stale re: the ✓ marker):** the editor's per-phase grid legend
+(`R.string.exercise_editor_evidence_hint`, "✓ = measured (published research). Unmarked ranges
+are coach-estimated, not measured.") and the ✓ suffix on the two former measured row labels
+(`exercise_editor_row_knees_backswing`, `exercise_editor_row_knees_strike`) surfaced the evidence
+grade at a glance; since 2026-08-16 those two rows are no longer `Evidence.MEASURED`, so the ✓
+labels are now inaccurate and should be revisited. Nothing else in the app (baseline hints,
+community-drill sharing, the seeded-drill bands themselves once encoded to
+`perPhaseTargetsJson`) retains the `Evidence` tag or `source` string — it exists only in
+`PerPhaseReferenceRanges.kt` and the editor's static legend/row labels.
+**Would actually resolve it:** re-deriving the 6 remaining `COACH_OPINION` entries (plus
+re-validating the 4 owner-ruled ones) from protocol-shot footage (camera-placement protocol, side
+view, `|yaw| < 30°`), or at minimum a written source study per entry, and removing/relabeling the
+now-stale ✓ "measured" UI marker.
+**Refs:** `PerPhaseReferenceRanges.kt` (`PER_PHASE_RANGES`, `Evidence` enum, kdoc);
+`PerPhaseReferenceRangesTest.kt` (table-driven, documents the 3 intentional TS divergences);
+`PerPhaseSeededBandCoverageTest.kt` (new regression guard); `poses_viewer/src/drill2d/referenceStandard.ts`
+(NOT edited — the 3 divergences are Kotlin-only, deliberate); `PerPhaseTargetsSeed.kt`;
+`activity_exercise_editor.xml` (`exercise_editor_evidence_hint` legend, now stale re: ✓); L-43
+(this is the provenance `ShippedBaselines.defaultBands()` was replaced BY, not the same
+limitation).
+
+### L-49 · `andrii_1` is a withdrawn reference clip — do not derive or tune values from it — `OPEN`
+`andrii_1` was withdrawn by the project owner as reference footage: it was not shot to the
+camera-placement protocol, the camera sits roughly 45° in front of the player rather than to
+the side, and the player is shadow-swinging away from the table rather than actually striking.
+This is a standing constraint on **any** future work, not specific to one derived artifact:
+**`andrii_1` must not be used to derive or re-tune reference ranges, baselines, or thresholds,
+and a test result or measurement obtained only over `andrii_1` must not be relied on as
+evidence of correctness.** It remains fine to use as a pipeline-mechanics fixture (detector
+bring-up, regression coverage of code paths) precisely because those uses don't claim the
+numbers it produces are representative technique. `video_3` and `video_4` are the current
+reference clips (protocol-compliant side view; see L-30/L-42/L-46's re-measurements, both
+already run on `video_3_rtm`/`video_4_rtm`).
+L-43 already covers the specific fallout — `ShippedBaselines.FOREHAND_ANDRII`, a baseline
+object derived from `andrii_1`, going stale and being removed from production callers. This
+entry is the broader rule that L-43 is one instance of: it applies to any future
+derivation/tuning work over this clip, not only to that one object.
+**Refs:** `PerPhaseReferenceRanges.kt` kdoc (states the withdrawal); L-43 (the specific stale
+baseline this rule already forced out of production); L-25 (the yaw-estimator saturation that
+was one symptom of `andrii_1`'s bad camera angle); `Videos/video_3`, `Videos/video_4`.
+
+### L-50 · 2D torso-lean is inflated by axial rotation, same root cause as L-25 — `OPEN`
+`PER_PHASE_RANGES`'s `torso_lean` entries (both `BACKSWING` and `CONTACT`, both
+`Evidence.COACH_OPINION`) carry `source` strings stating the 2D-projected lean angle is
+inflated by the player's axial (shoulder/hip) rotation during the stroke and "needs re-tuning
+on protocol footage" — the `CONTACT` entry additionally notes it was set from "own footage
+33–39°", i.e. read off `andrii_1`/similar non-protocol clips rather than measured (see L-49:
+those readings must not be treated as reference values). Root cause is the same 2D-projection
+problem as L-25 (camera-yaw estimation saturating on non-protocol footage): a side-on camera
+model cannot separate genuine forward lean from rotation-induced foreshortening when the
+player's shoulders/hips are turning through the stroke, so both the yaw estimate and any
+angle measured off that projection (torso lean here) degrade together on the same footage.
+Consequence: the `torso_lean` bands seeded into every new drill inherit this uncorrected
+inflation, on top of already being `COACH_OPINION` (L-48).
+**Refs:** `PerPhaseReferenceRanges.kt` (`torso_lean` `source` strings); `CameraAngleEstimator.kt`;
+L-25 (shared root cause); L-48 (this metric's ranges are also unmeasured); L-04 (the related,
+separately-tracked head-facing sign-normalization noise).
 
 ### L-27 · Forward-stroke detection assumes drives are faster than recoveries — `ACCEPTED` (revisit per drill)
 `ForwardStrokeFilter`'s session-level speed-dominance vote (median peak speed by
