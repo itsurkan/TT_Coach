@@ -1,5 +1,8 @@
 package com.ttcoachai.processors
 
+// DISABLED 2026-07-24: depends on MediaPipeMapper, disabled along with the
+// com.google.mediapipe:tasks-vision Gradle dependency. See CLAUDE.md.
+/*
 import com.ttcoachai.mappers.MediaPipeMapper
 import com.ttcoachai.services.FeedbackGenerator
 import com.ttcoachai.shared.models.StrokePhase
@@ -41,3 +44,4 @@ class StrokePhaseDetector(
 
     fun getCurrentPhase(): StrokePhase = sharedDetector.getCurrentPhase()
 }
+*/

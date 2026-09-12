@@ -5,6 +5,9 @@
 
 package com.ttcoachai.services
 
+// DISABLED 2026-07-24: depends on MediaPipeMapper, disabled along with the
+// com.google.mediapipe:tasks-vision Gradle dependency. See CLAUDE.md.
+/*
 import com.ttcoachai.mappers.MediaPipeMapper
 import com.ttcoachai.shared.analysis.StrokeAnalyzer
 import com.ttcoachai.shared.models.AnalysisResult
@@ -61,3 +64,4 @@ class MotionAnalyzer(
         }
     }
 }
+*/

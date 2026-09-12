@@ -1,5 +1,8 @@
 package com.ttcoachai
 
+// DISABLED 2026-07-24: MotionAnalyzer's body is commented out (MediaPipe Gradle dependency
+// removed to shrink the APK). See CLAUDE.md.
+/*
 import com.ttcoachai.shared.models.CorrectionType
 import com.ttcoachai.shared.models.ExerciseParameters
 import com.ttcoachai.shared.models.Landmark3D
@@ -83,3 +86,4 @@ class MotionAnalyzerTest {
         }
     }
 }
+*/

@@ -1,5 +1,9 @@
 package com.ttcoachai.mappers
 
+// DISABLED 2026-07-24: com.google.mediapipe:tasks-vision Gradle dependency removed to shrink the
+// APK (14MB libmediapipe_tasks_vision_jni.so, unreachable — the live MediaPipe UI was already
+// deleted 2026-07-24). Body kept commented for Stage 2 restore; see CLAUDE.md.
+/*
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
 import com.ttcoachai.shared.models.Landmark3D
@@ -54,3 +58,4 @@ object MediaPipeMapper {
         return toLandmarkList(result)
     }
 }
+*/
